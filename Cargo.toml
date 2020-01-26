@@ -1,0 +1,19 @@
+[lib]
+path = "src/_lib.rs"
+
+[package]
+name = "repr_c"
+version = "0.1.0"
+authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
+edition = "2018"
+
+description = "#[repr(C)] equivalents of stdlib pervasive types for easier FFI"
+license = "MIT"
+
+[target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
+libc = { version = "0.2.66", default-features = false }
+
+[features]
+default = ["alloc"]
+alloc = []
+
