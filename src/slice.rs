@@ -212,7 +212,8 @@ impl<T> DerefMut for MutSlice<'_, T> {
 
 impl<'lt, T : 'lt> AsRef<RefSlice<'lt, T>> for MutSlice<'lt, T> {
     #[inline]
-    fn as_ref (self: &'_ Self) -> &'_ RefSlice<'lt, T>
+    fn as_ref (self: &'_ Self)
+      -> &'_ RefSlice<'lt, T> // This would be unsound if RefSlice were Clone /!\
     {
         unsafe {
             mem::transmute(self)
@@ -261,10 +262,7 @@ impl<T> Deref for RefSlice<'_, T> {
     fn deref (self: &'_ Self) -> &'_ Self::Target
     {
         unsafe {
-            slice::from_raw_parts(
-                self.0.ptr.as_ptr(),
-                self.0.len.try_into().expect("Overflow"),
-            )
+            self.0.as_slice()
         }
     }
 }

@@ -14,4 +14,4 @@ the standard library's, such as:
 
 # ⚠️ WIP ⚠️
 
-This is currently still being developed and in an experimental stage, hence its not being published to crates.io yet.
+This is currently still being developed and at an experimental stage, hence its not being published to crates.io yet.
