@@ -28,11 +28,8 @@ pub mod str;
 
 cfg_alloc! {
     pub use string::String;
-    #[cfg_attr(docs, doc(cfg(feature = "alloc")))]
     pub mod string;
 
     pub use vec::Vec;
-    #[cfg_attr(docs, doc(cfg(feature = "alloc")))]
     pub mod vec;
 }
-

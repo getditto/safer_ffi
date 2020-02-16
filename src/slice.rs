@@ -284,4 +284,3 @@ impl<T : fmt::Debug> fmt::Debug for RefSlice<'_, T> {
         <[T] as fmt::Debug>::fmt(self, fmt)
     }
 }
-

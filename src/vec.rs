@@ -112,4 +112,3 @@ impl<T : fmt::Debug> fmt::Debug for Vec<T> {
         <[T] as fmt::Debug>::fmt(&self[..], fmt)
     }
 }
-

@@ -27,4 +27,3 @@ mod rust {
         vec::Vec,
     };
 }
-

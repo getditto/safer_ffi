@@ -23,4 +23,3 @@ macro_rules! cfg_alloc {(
 ) => (
     // Nothing
 )}
-

@@ -100,4 +100,3 @@ impl fmt::Debug for RefStr<'_> {
         <str as fmt::Debug>::fmt(self, fmt)
     }
 }
-

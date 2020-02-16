@@ -33,4 +33,3 @@ impl<T : ?Sized> Clone for PhantomInvariant<T> {
         *self
     }
 }
-

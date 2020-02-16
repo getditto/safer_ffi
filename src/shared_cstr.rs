@@ -125,4 +125,3 @@ impl fmt::Display for SharedCStr {
 }
 
 // TODO: add Eq, PartialEq, Hash, PartialOrd, Ord
-

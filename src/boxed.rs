@@ -81,4 +81,3 @@ impl<T : fmt::Debug> fmt::Debug for Box<T> {
         T::fmt(self, fmt)
     }
 }
-
