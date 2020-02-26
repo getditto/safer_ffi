@@ -12,11 +12,9 @@ impl<T> From<rust::Box<T>> for Box<T> {
     #[inline]
     fn from (boxed: rust::Box<T>) -> Self
     {
-        Self(unsafe {
-            ptr::NonNull::new_unchecked(
-                rust::Box::into_raw(boxed)
-            )
-        })
+        Self(
+            ptr::NonNull::from(rust::Box::leak(boxed))
+        )
     }
 }
 
@@ -58,7 +56,8 @@ impl<T> Deref for Box<T> {
 
 impl<T> DerefMut for Box<T> {
     #[inline]
-    fn deref_mut (self: &'_ mut Self) -> &'_ mut Self::Target
+    fn deref_mut (self: &'_ mut Self)
+      -> &'_ mut Self::Target
     {
         unsafe {
             &mut *(self.0.as_ptr())
@@ -81,3 +80,9 @@ impl<T : fmt::Debug> fmt::Debug for Box<T> {
         T::fmt(self, fmt)
     }
 }
+
+#[doc(inline)]
+pub use super::slice::BoxedSlice;
+
+#[doc(inline)]
+pub use super::str::BoxedStr;

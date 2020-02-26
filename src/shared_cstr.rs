@@ -10,9 +10,11 @@ use ::std::{
 
 #[derive(Debug)]
 #[repr(transparent)]
-pub struct SharedCStr /* = */ (
+pub
+struct SharedCStr /* = */ (
     /// Owned raw version of a Arc<CStr>
-    pub *const c_char,
+    pub
+    *const c_char,
 );
 
 unsafe impl Send for SharedCStr
@@ -24,7 +26,8 @@ unsafe impl Sync for SharedCStr
 
 impl From<Arc<CStr>> for SharedCStr {
     #[inline]
-    fn from (s: Arc<CStr>) -> Self
+    fn from (s: Arc<CStr>)
+      -> Self
     {
         if let Err(err) = s.to_str() {
             panic!("`SharedCStr` expects a valid UTF-8 string: {}", err);
@@ -36,7 +39,8 @@ impl From<Arc<CStr>> for SharedCStr {
 
 impl<'a> From<&'a str> for SharedCStr {
     #[inline]
-    fn from (s: &'a str) -> Self
+    fn from (s: &'a str)
+      -> Self
     {
         let c_str =
             CString::new(s.as_bytes())
@@ -48,7 +52,8 @@ impl<'a> From<&'a str> for SharedCStr {
 
 impl From<CString> for SharedCStr {
     #[inline]
-    fn from (s: CString) -> Self
+    fn from (s: CString)
+      -> Self
     {
         let arc: Arc<CStr> = s.into();
         Self::from(arc)
@@ -57,7 +62,8 @@ impl From<CString> for SharedCStr {
 
 impl<'a> From<&'a CStr> for SharedCStr {
     #[inline]
-    fn from (s: &'a CStr) -> Self
+    fn from (s: &'a CStr)
+      -> Self
     {
         let arc: Arc<CStr> = s.into();
         Self::from(arc)
@@ -66,7 +72,7 @@ impl<'a> From<&'a CStr> for SharedCStr {
 
 impl Drop for SharedCStr {
     #[inline]
-    fn drop (&mut self)
+    fn drop (self: &'_ mut Self)
     {
         let &mut Self(ptr) = self;
         debug_assert!(ptr.is_null().not());
@@ -80,7 +86,8 @@ impl Drop for SharedCStr {
 
 impl Clone for SharedCStr {
     #[inline]
-    fn clone (&self) -> Self
+    fn clone (self: &'_ Self)
+      -> Self
     {
         use ::std::mem::ManuallyDrop;
         let &Self(ptr) = self;
@@ -97,7 +104,8 @@ impl Deref for SharedCStr {
     type Target = str;
 
     #[inline]
-    fn deref (self: &'_ Self) -> &'_ Self::Target
+    fn deref (self: &'_ Self)
+      -> &'_ Self::Target
     {
         let &Self(ptr) = self;
         debug_assert!(ptr.is_null().not());
@@ -110,7 +118,8 @@ impl Deref for SharedCStr {
 
 impl AsRef<str> for SharedCStr {
     #[inline]
-    fn as_ref (self: &'_ Self) -> &'_ str
+    fn as_ref (self: &'_ Self)
+      -> &'_ str
     {
         &*self
     }
@@ -118,9 +127,10 @@ impl AsRef<str> for SharedCStr {
 
 impl fmt::Display for SharedCStr {
     #[inline]
-    fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>) -> fmt::Result
+    fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
+      -> fmt::Result
     {
-        <str as fmt::Display>::fmt(&self, fmt)
+        <str as fmt::Display>::fmt(self: &'_ Self, fmt)
     }
 }
 

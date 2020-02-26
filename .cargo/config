@@ -1,4 +1,7 @@
 [build]
+rustflags = [
+    "-Zcrate-attr=feature(doc_cfg)",
+]
 rustdocflags = [
     "--cfg", "docs",
     "-Zcrate-attr=feature(doc_cfg)",

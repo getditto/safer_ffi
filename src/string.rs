@@ -57,9 +57,9 @@ impl String {
     where
         F : FnOnce(&'_ mut rust::String) -> R
     {
-        let mut s: rust::String = mem::replace(self, Self::EMPTY).into();
-        let ret = f(&mut s);
-        *self = s.into();
-        ret
+        self.0.with_rust_mut(|v: &'_ mut rust::Vec<u8>| {
+            let s: &'_ mut rust::String = unsafe { mem::transmute(v) };
+            f(s)
+        })
     }
 }

@@ -1,25 +1,36 @@
 use_prelude!();
 
 /// # C layout (for some given type T)
-/// 
+///
 /// ```c
 /// typedef struct {
+///     // Cannot be NULL
 ///     T * ptr;
 ///     size_t len;
 /// } slice_T;
 /// ```
+///
+/// # Nullable pointer?
+///
+/// If you want to support the above typedef, but where the `ptr` field is
+/// allowed to be `NULL` (with the contents of `len` then being undefined)
+/// use the `Option< SlicePtr<_> >` type.
 // Note: this struct is **covariant** in `T`
 #[repr(C)]
-pub struct SlicePtr<T> {
+pub
+struct SlicePtr<T> {
     /// Pointer to the first element (if any)
-    pub ptr: ptr::NonNull<T>, // /!\ Covariant /!\
+    pub
+    ptr: ptr::NonNull<T>, // /!\ Covariant /!\
     /// Element count
-    pub len: size_t,
+    pub
+    len: size_t,
 }
 
 impl<T> Copy for SlicePtr<T> {}
 impl<T> Clone for SlicePtr<T> {
-    fn clone (self: &'_ Self) -> Self
+    fn clone (self: &'_ Self)
+      -> Self
     {
         *self
     }
@@ -36,7 +47,8 @@ impl<T> fmt::Debug for SlicePtr<T> {
 }
 impl<T> Eq for SlicePtr<T> {}
 impl<T> PartialEq for SlicePtr<T> {
-    fn eq (self: &'_ Self, other: &'_ Self) -> bool
+    fn eq (self: &'_ Self, other: &'_ Self)
+      -> bool
     {
         self.ptr == other.ptr && self.len == other.len
     }
@@ -45,7 +57,8 @@ impl<T> PartialEq for SlicePtr<T> {
 impl<T> SlicePtr<T> {
     pub
     unsafe
-    fn as_slice<'lt> (self: Self) -> &'lt [T]
+    fn as_slice<'lt> (self: SlicePtr<T>)
+      -> &'lt [T]
     where
         T : 'lt,
     {
@@ -58,7 +71,8 @@ impl<T> SlicePtr<T> {
 
     pub
     unsafe
-    fn as_slice_mut<'lt> (self: Self) -> &'lt mut [T]
+    fn as_slice_mut<'lt> (self: SlicePtr<T>)
+      -> &'lt mut [T]
     where
         T : 'lt,
     {
@@ -72,7 +86,8 @@ impl<T> SlicePtr<T> {
 
 impl<'lt, T : 'lt> From<&'lt [T]> for SlicePtr<T> {
     #[inline]
-    fn from (slice: &'lt [T]) -> Self
+    fn from (slice: &'lt [T])
+      -> Self
     {
         Self {
             len: slice.len().try_into().expect("Overflow"),
@@ -85,7 +100,8 @@ impl<'lt, T : 'lt> From<&'lt [T]> for SlicePtr<T> {
 
 impl<'lt, T : 'lt> From<&'lt mut [T]> for SlicePtr<T> {
     #[inline]
-    fn from (slice: &'lt mut [T]) -> Self
+    fn from (slice: &'lt mut [T])
+      -> Self
     {
         Self {
             len: slice.len().try_into().expect("Overflow"),
@@ -100,13 +116,15 @@ cfg_alloc! {
     /// `rust::Box<[T]>` but with a guaranteed `#[repr(C)]` layout.
     #[derive(Debug)]
     #[repr(transparent)]
-    pub struct BoxedSlice<T> (
+    pub
+    struct BoxedSlice<T> (
         SlicePtr<T>, // Variance OK because ownership
     );
 
     impl<T> From<rust::Box<[T]>> for BoxedSlice<T> {
         #[inline]
-        fn from (boxed_slice: rust::Box<[T]>) -> Self
+        fn from (boxed_slice: rust::Box<[T]>)
+          -> Self
         {
             Self(SlicePtr::from(
                 &mut **mem::ManuallyDrop::new(boxed_slice)
@@ -116,7 +134,8 @@ cfg_alloc! {
 
     impl<T> Into<rust::Box<[T]>> for BoxedSlice<T> {
         #[inline]
-        fn into (self: BoxedSlice<T>) -> rust::Box<[T]>
+        fn into (self: BoxedSlice<T>)
+          -> rust::Box<[T]>
         {
             let this = mem::ManuallyDrop::new(self);
             unsafe {
@@ -124,7 +143,7 @@ cfg_alloc! {
             }
         }
     }
-    
+
     impl<T> Drop for BoxedSlice<T> {
         #[inline]
         fn drop (self: &'_ mut Self)
@@ -141,9 +160,10 @@ cfg_alloc! {
 
     impl<T> Deref for BoxedSlice<T> {
         type Target = MutSlice<'static, T>;
-    
+
         #[inline]
-        fn deref (self: &'_ Self) -> &'_ Self::Target
+        fn deref (self: &'_ Self)
+          -> &'_ Self::Target
         {
             unsafe {
                 mem::transmute(self)
@@ -152,7 +172,8 @@ cfg_alloc! {
     }
     impl<T> DerefMut for BoxedSlice<T> {
         #[inline]
-        fn deref_mut (self: &'_ mut Self) -> &'_ mut Self::Target
+        fn deref_mut (self: &'_ mut Self)
+          -> &'_ mut Self::Target
         {
             unsafe {
                 mem::transmute(self)
@@ -160,17 +181,20 @@ cfg_alloc! {
         }
     }
 
-    unsafe impl<T> Send for BoxedSlice<T> where
+    unsafe impl<T> Send for BoxedSlice<T>
+    where
         rust::Box<[T]> : Send,
     {}
-    unsafe impl<T> Sync for BoxedSlice<T> where
+    unsafe impl<T> Sync for BoxedSlice<T>
+    where
         rust::Box<[T]> : Sync,
     {}
 }
 
 /// `&'lt mut [T]` but with a guaranteed `#[repr(C)]` layout.
 #[repr(transparent)]
-pub struct MutSlice<'lt, T> (
+pub
+struct MutSlice<'lt, T> (
     SlicePtr<T>, // /!\ not invariant /!\ -----+
     PhantomCovariantLifetime<'lt>,          // |
     PhantomInvariant<T>, // <------------------+
@@ -178,7 +202,8 @@ pub struct MutSlice<'lt, T> (
 
 impl<'lt, T : 'lt> From<&'lt mut [T]> for MutSlice<'lt, T> {
     #[inline]
-    fn from (slice: &'lt mut [T]) -> Self
+    fn from (slice: &'lt mut [T])
+      -> Self
     {
         Self(
             SlicePtr::from(slice),
@@ -192,7 +217,8 @@ impl<T> Deref for MutSlice<'_, T> {
     type Target = [T];
 
     #[inline]
-    fn deref (self: &'_ Self) -> &'_ Self::Target
+    fn deref (self: &'_ Self)
+      -> &'_ Self::Target
     {
         unsafe {
             self.0.as_slice()
@@ -202,7 +228,8 @@ impl<T> Deref for MutSlice<'_, T> {
 
 impl<T> DerefMut for MutSlice<'_, T> {
     #[inline]
-    fn deref_mut (self: &'_ mut Self) -> &'_ mut Self::Target
+    fn deref_mut (self: &'_ mut Self)
+      -> &'_ mut Self::Target
     {
         unsafe {
             self.0.as_slice_mut()
@@ -239,14 +266,16 @@ impl<T : fmt::Debug> fmt::Debug for MutSlice<'_, T> {
 
 /// `&'lt [T]` but with a guaranteed `#[repr(C)]` layout.
 #[repr(C)]
-pub struct RefSlice<'lt, T : 'lt> (
+pub
+struct RefSlice<'lt, T : 'lt> (
     SlicePtr<T>,
     PhantomCovariantLifetime<'lt>,
 );
 
 impl<'lt, T : 'lt> From<&'lt [T]> for RefSlice<'lt, T> {
     #[inline]
-    fn from (slice: &'lt [T]) -> Self
+    fn from (slice: &'lt [T])
+      -> Self
     {
         Self(
             SlicePtr::from(slice),
@@ -259,7 +288,8 @@ impl<T> Deref for RefSlice<'_, T> {
     type Target = [T];
 
     #[inline]
-    fn deref (self: &'_ Self) -> &'_ Self::Target
+    fn deref (self: &'_ Self)
+      -> &'_ Self::Target
     {
         unsafe {
             self.0.as_slice()
