@@ -4,7 +4,7 @@ use ::core::{
     ptr,
     ops::Not,
 };
-use ::alloc::boxed::Box;
+use ::alloc::sync::Arc;
 
 macro_rules! hack {(
     #[doc = $doc:expr]
@@ -21,15 +21,15 @@ macro_rules! with_tuple {(
 ) => (::paste::item! {
     hack! {
         #[doc = concat!(
-            "`Box<dyn 'static + Send + Fn(" $(,
+            "`Arc<dyn 'static + Send + Sync + Fn(" $(,
                 stringify!($Arg0) $(, ", ", stringify!($ArgN))*
             )?,
             ") -> Ret>`",
         )]
         #[repr(C)]
         pub
-        struct [< BoxDynFn $Arity >] <Ret $(, $Arg0 $(, $ArgN)*)?> {
-            /// `Box<Erased>`
+        struct [< ArcDynFn $Arity >] <Ret $(, $Arg0 $(, $ArgN)*)?> {
+            /// `Arc<Erased>`
             pub
             env_ptr: ptr::NonNull<c_void>,
 
@@ -45,46 +45,74 @@ macro_rules! with_tuple {(
             ,
 
             pub
-            free:
+            release:
+                unsafe extern "C"
+                fn (env_ptr: ptr::NonNull<c_void>)
+            ,
+
+            pub
+            retain:
                 unsafe extern "C"
                 fn (env_ptr: ptr::NonNull<c_void>)
             ,
         }
     }
 
-    /// `Box<dyn Send + ...> : Send`
+    /// `Arc<dyn Send + Sync + ...> : Send`
     unsafe impl<Ret $(, $Arg0 $(, $ArgN)*)?> Send
-        for [< BoxDynFn $Arity >] <Ret $(, $Arg0 $(, $ArgN)*)?>
+        for [< ArcDynFn $Arity >] <Ret $(, $Arg0 $(, $ArgN)*)?>
+    {}
+
+    /// `Arc<dyn Send + Sync + ...> : Sync`
+    unsafe impl<Ret $(, $Arg0 $(, $ArgN)*)?> Sync
+        for [< ArcDynFn $Arity >] <Ret $(, $Arg0 $(, $ArgN)*)?>
     {}
 
     impl<Ret $(, $Arg0 $(, $ArgN)*)?>
-        [< BoxDynFn $Arity >] <Ret $(, $Arg0 $(, $ArgN)*)?>
+        [< ArcDynFn $Arity >] <Ret $(, $Arg0 $(, $ArgN)*)?>
     {
         #[inline]
         pub
-        fn new<F> (f: Box<F>) -> Self
+        fn new<F> (f: Arc<F>) -> Self
         where
             F : Fn( $($Arg0 $(, $ArgN)*)? ) -> Ret,
-            F : Send + 'static,
+            F : Send + Sync + 'static,
         {
-            // Safety: `F` can be "raw-coerced" to `dyn 'static + Send + Fn...`
-            // thanks to the generic bounds on F.
+            // Safety:
+            //   - `F` can be "raw-coerced" to `dyn 'static + Send + Sync + Fn...`
+            //     thanks to the generic bounds on F.
             Self {
-                ptr: ptr::NonNull::from(Box::leak(f)).cast(),
-                free: {
+                env_ptr: ptr::NonNull::from(unsafe { &*Arc::into_raw(f) }).cast(),
+                release: {
                     unsafe extern "C"
-                    fn free<F> (ptr: ptr::NonNull<c_void>)
+                    fn release<F> (env_ptr: ptr::NonNull<c_void>)
                     where
-                        F : Send + 'static,
+                        F : Send + Sync + 'static,
                     {
-                        drop::<Box<F>>(Box::from_raw(ptr.cast().as_ptr()));
+                        drop::<Arc<F>>(Arc::from_raw(env_ptr.cast().as_ptr()));
                     }
-                    free::<F>
+                    release::<F>
+                },
+                retain: {
+                    unsafe extern "C"
+                    fn retain<F> (env_ptr: ptr::NonNull<c_void>)
+                    where
+                        F : Send + Sync + 'static,
+                    {
+                        use ::core::mem::{forget, ManuallyDrop};
+
+                        let at_arc: &Arc<F> = &*ManuallyDrop::new(Arc::from_raw(
+                            env_ptr.cast().as_ptr()
+                        ));
+                        forget(Arc::clone(at_arc));
+                    }
+                    retain::<F>
+
                 },
                 call: {
                     unsafe extern "C"
                     fn call<F, Ret $(, $Arg0 $(, $ArgN)*)?> (
-                        ptr: ptr::NonNull<c_void> $(,
+                        env_ptr: ptr::NonNull<c_void> $(,
                         $Arg0 : $Arg0 $(,
                         $ArgN : $ArgN )*)?
                     ) -> Ret
@@ -92,8 +120,8 @@ macro_rules! with_tuple {(
                         F : Fn($($Arg0 $(, $ArgN)*)?) -> Ret,
                         F : Send + 'static,
                     {
-                        let ptr = ptr.cast();
-                        let f: &F = ptr.as_ref();
+                        let env_ptr = env_ptr.cast();
+                        let f: &F = env_ptr.as_ref();
                         f( $($Arg0 $(, $ArgN)*)? )
                     }
                     call::<F, Ret $(, $Arg0 $(, $ArgN)*)?>
@@ -103,18 +131,31 @@ macro_rules! with_tuple {(
     }
 
     impl<Ret $(, $Arg0 $(, $ArgN)*)?> Drop
-        for [< BoxDynFn $Arity >] <Ret $(, $Arg0 $(, $ArgN)*)?>
+        for [< ArcDynFn $Arity >] <Ret $(, $Arg0 $(, $ArgN)*)?>
     {
         fn drop (self: &'_ mut Self)
         {
             unsafe {
-                (self.free)(self.ptr)
+                (self.release)(self.env_ptr)
             }
         }
     }
 
+    impl<Ret $(, $Arg0 $(, $ArgN)*)?> Clone
+        for [< ArcDynFn $Arity >] <Ret $(, $Arg0 $(, $ArgN)*)?>
+    {
+        fn clone (self: &'_ Self)
+          -> Self
+        {
+            unsafe {
+                (self.retain)(self.env_ptr)
+            }
+            Self { .. *self }
+        }
+    }
+
     impl<Ret $(, $Arg0 $(, $ArgN)*)?>
-        [< BoxDynFn $Arity >] <Ret $(, $Arg0 $(, $ArgN)*)?>
+        [< ArcDynFn $Arity >] <Ret $(, $Arg0 $(, $ArgN)*)?>
     {
         #[inline]
         pub
@@ -125,7 +166,7 @@ macro_rules! with_tuple {(
         ) -> Ret
         {
             unsafe {
-                (self.call)(self.ptr, $($Arg0 $(, $ArgN)*)?)
+                (self.call)(self.env_ptr, $($Arg0 $(, $ArgN)*)?)
             }
         }
     }

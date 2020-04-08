@@ -14,8 +14,15 @@ license = "MIT"
 libc = { version = "0.2.66", default-features = false }
 
 [features]
-default = ["alloc"]
+default = ["alloc", "headers", "nightly"]
 alloc = []
+std = ["alloc"]
+headers = ["std"]
+nightly = []
 
 [dependencies]
 paste = "0.1.7"
+_mod = { path = "../dhm/_mod" }
+
+[dev-dependencies]
+macro_rules_attribute = "0.0.1"

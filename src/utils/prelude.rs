@@ -1,4 +1,6 @@
 pub(in crate) use crate::{*,
+    layout::*,
+    tuple::*,
     utils::markers::*,
 };
 pub(in crate) use ::core::{
@@ -8,6 +10,7 @@ pub(in crate) use ::core::{
     mem,
     ops::{
         Deref, DerefMut,
+        Not as _,
     },
     slice,
 };
@@ -27,3 +30,8 @@ mod rust {
         vec::Vec,
     };
 }
+
+#[cfg(feature = "std")]
+pub(in crate) use ::std::{
+    io,
+};

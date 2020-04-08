@@ -1,9 +1,10 @@
 [build]
 rustflags = [
-    "-Zcrate-attr=feature(doc_cfg)",
+    # "-Zcrate-attr=feature(doc_cfg)",
+    # "-Zcrate-attr=feature(doc_spotlight)",
 ]
 rustdocflags = [
     "--cfg", "docs",
-    "-Zcrate-attr=feature(doc_cfg)",
+    # "-Zcrate-attr=feature(doc_cfg)",
+    # "-Zcrate-attr=feature(doc_spotlight)",
 ]
-

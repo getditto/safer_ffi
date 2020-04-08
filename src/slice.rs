@@ -39,7 +39,7 @@ impl<T> fmt::Debug for SlicePtr<T> {
     fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
       -> fmt::Result
     {
-        fmt.debug_struct("SlicePtr")
+        fmt .debug_struct("SlicePtr")
             .field("ptr", &self.ptr)
             .field("len", &self.len)
             .finish()
