@@ -17,16 +17,18 @@ use ::repr_c::{
         derive_ReprC,
         ReprC,
     },
+    slice::*,
     tuple::Tuple2,
 };
 
+// #[derive(ReprC)]
 #[macro_rules_attribute(derive_ReprC!)]
 #[repr(u8)]
 /// Some docstring
 pub
 enum MyBool {
     False = 42,
-    True,
+    True, // = 43
 }
 
 derive_ReprC! {
@@ -35,7 +37,7 @@ derive_ReprC! {
     pub
     struct Foo['a,] {
         b: MyBool,
-        field: &'a u32,
+        field: RefSlice<'a, u32>,
     }
 }
 
@@ -45,28 +47,28 @@ fn validity ()
     // `Foo_Layout` is `<Foo as ReprC>::CLayout`
     assert!(
         Foo::is_valid(&
-            Foo_Layout { b: 42_u8.into(), field: 4 as _ }
+            Foo_Layout { b: 42_u8.into(), field: SlicePtr_Layout { ptr: 4 as _, len: 0 } }
         )
     );
     assert!(
         Foo::is_valid(&
-            Foo_Layout { b: 43_u8.into(), field: 4 as _ }
+            Foo_Layout { b: 43_u8.into(), field: SlicePtr_Layout { ptr: 4 as _, len: 0 } }
         )
     );
 
     assert!(
         bool::not(Foo::is_valid(&
-            Foo_Layout { b: 0.into(), field: 4 as _ }
+            Foo_Layout { b: 0.into(), field: SlicePtr_Layout { ptr: 4 as _, len: 0 } }
         ))
     );
     assert!(
         bool::not(Foo::is_valid(&
-            Foo_Layout { b: 42_u8.into(), field: 0 as _ }
+            Foo_Layout { b: 42_u8.into(), field: SlicePtr_Layout { ptr: 0 as _, len: 0 } }
         ))
     );
     assert!(
         bool::not(Foo::is_valid(&
-            Foo_Layout { b: 42_u8.into(), field: 3 as _ }
+            Foo_Layout { b: 42_u8.into(), field: SlicePtr_Layout { ptr: 3 as _, len: 0 } }
         ))
     );
 }
@@ -79,19 +81,17 @@ fn generate_headers ()
     #[repr(C)]
     pub
     struct Crazy {
-        a: extern "C" fn (Tuple2<[Foo<'static>; 12], MyBool>),
+        a: extern "C" fn (extern "C" fn(), Tuple2<[Foo<'static>; 12], ::repr_c::Box<MyBool>>),
         closure: BoxDynFn2<(), i32, usize>,
     }
 
     let ref mut out =
-        // Vec::new()
-        ::std::io::stdout()
+        ::std::io::stderr()
     ;
     <Crazy as ReprC>::CLayout::c_define_self(&mut MyDefiner {
         out,
         defines: Default::default(),
     });
-    // println!("{}", String::from_utf8_lossy(out));
 
     // where
     struct MyDefiner<'out> {
@@ -109,7 +109,7 @@ fn generate_headers ()
             let mut inserted = false;
             self.defines.get_or_insert_with(name, |name| {
                 let depth = DEPTH.with(Cell::get);
-                println!("{pad}> Defining `{}`", name, pad = "  ".repeat(depth));
+                eprintln!("{pad}> Defining `{}`", name, pad = "  ".repeat(depth));
                 DEPTH.with(|it| it.set(depth + 1));
                 inserted = true;
                 name.to_owned()

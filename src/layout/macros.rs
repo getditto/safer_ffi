@@ -1,5 +1,20 @@
 use super::*;
 
+#[cfg(feature = "headers")]
+#[macro_export] #[doc(hidden)]
+macro_rules! cfg_headers {(
+    $($it:item)*
+) => (
+    $($it)*
+)}
+#[cfg(not(feature = "headers"))]
+#[macro_export] #[doc(hidden)]
+macro_rules! cfg_headers {(
+    $($it:item)*
+) => (
+    // nothing
+)}
+
 #[macro_export]
 macro_rules! derive_CType {(
     #[repr(C)]
@@ -43,8 +58,7 @@ macro_rules! derive_CType {(
         $(
             $($($bounds)*)?
         )?
-    {
-        #[cfg(feature = "headers")]
+    { $crate::cfg_headers! {
         fn with_short_name<R> (
             ret: impl
                 $crate::core::ops::FnOnce(&'_ dyn $crate::core::fmt::Display)
@@ -72,7 +86,6 @@ macro_rules! derive_CType {(
             })
         }
 
-        #[cfg(feature = "headers")]
         fn c_define_self (definer: &'_ mut dyn $crate::layout::Definer)
           -> $crate::std::io::Result<()>
         {
@@ -95,12 +108,11 @@ macro_rules! derive_CType {(
                             ),
                         )?;
                     )*
-                    $crate::core::write!(out, "}} {};\n\n", me)
+                    $crate::core::write!(out, "}} {}_t;\n\n", me)
                 },
             )
         }
 
-        #[cfg(feature = "headers")]
         fn c_fmt (
             fmt: &'_ mut $crate::core::fmt::Formatter<'_>,
             var_name: &'_ str,
@@ -108,13 +120,13 @@ macro_rules! derive_CType {(
         {
             <Self as $crate::layout::CType>::with_short_name(|me| {
                 write!(fmt,
-                    "{}{sep}{}",
+                    "{}_t{sep}{}",
                     me, var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
             })
         }
-    }
+    }}
 
     $crate::layout::from_CType_impl_ReprC! {
         $(@for [$($lt ,)* $($($generics),+)?])?
@@ -226,18 +238,6 @@ macro_rules! derive_ReprC {
                     }
                 }
 
-                // unsafe
-                // impl $(<$($generics)*>)? $crate::layout::CType
-                //     for $StructName $(<$($generics)*>)?
-                // where
-                //     $(
-                //         $field_ty : $crate::layout::ReprC,
-                //     )*
-                //     $($(
-                //         $($bounds)*
-                //     )?)?
-                // {}
-
                 impl $(<$($generics)*>)? $crate::core::marker::Copy
                     for $StructName $(<$($generics)*>)?
                 where
@@ -268,6 +268,62 @@ macro_rules! derive_ReprC {
                 }
             };
         };
+    );
+
+    // `#[repr(transparent)]`
+    (
+        $( @[doc = $doc:expr] )?
+        #[repr(transparent)]
+        $(#[$meta:meta])*
+        $pub:vis
+        struct $StructName:ident $(
+            [$($generics:tt)*] $(
+                where { $($bounds:tt)* }
+            )?
+        )?
+        (
+            $(#[$field_meta:meta])*
+            $field_pub:vis
+            $field_ty:ty $(,
+            $($rest:tt)* )?
+        );
+    ) => (
+        #[repr(transparent)]
+        $(#[doc = $doc])?
+        $(#[$meta])*
+        $pub
+        struct $StructName $(
+            <$($generics)*>
+        )?
+        (
+            $(#[$field_meta])*
+            $field_pub
+            $field_ty,
+            $($($rest)*)?
+        )
+            $($(where $($bounds)*)?)?
+        ;
+
+        unsafe // Safety: struct is `#[repr(C)]` and contains `ReprC` fields
+        impl $(<$($generics)*>)? $crate::layout::ReprC
+            for $StructName $(<$($generics)*>)?
+        where
+            $field_ty : $crate::layout::ReprC,
+            $($(
+                $($bounds)*
+            )?)?
+        {
+            type CLayout = <$field_ty as $crate::layout::ReprC>::CLayout;
+
+            #[inline]
+            fn is_valid (it: &'_ Self::CLayout)
+              -> bool
+            {
+                <$field_ty as $crate::layout::ReprC>::is_valid(
+                    it
+                )
+            }
+        }
     );
 
     // field-less `enum`
@@ -319,21 +375,24 @@ macro_rules! derive_ReprC {
             }
 
             unsafe
-            impl $crate::layout::CType for [< $EnumName _Layout >] {
-                #[cfg(feature = "headers")]
+            impl $crate::layout::CType for [< $EnumName _Layout >]
+            { $crate::cfg_headers! {
                 fn with_short_name<R> (
                     ret: impl FnOnce(&'_ dyn $crate::core::fmt::Display) -> R,
                 ) -> R
                 {
-                    ret(&stringify!($EnumName))
+                    ret(&concat!(stringify!($EnumName)))
                 }
 
-                #[cfg(feature = "headers")]
                 fn c_define_self (definer: &'_ mut $crate::layout::Definer)
                   -> $crate::std::io::Result<()>
                 {
+                    let ref me =
+                        <Self as $crate::layout::CType>
+                            ::with_short_name(|it| it.to_string())
+                    ;
                     definer.define(
-                        stringify!($EnumName),
+                        me,
                         &mut |definer| {
                             <$crate::$Int as $crate::layout::CType>::c_define_self(
                                 definer,
@@ -341,9 +400,7 @@ macro_rules! derive_ReprC {
                             use $crate::std::io::Write;
                             write!(definer.out(),
                                 concat!(
-                                    "enum ",
-                                    stringify!($EnumName),
-                                    " {{\n",
+                                    "enum {}_t {{\n",
                                     $(
                                       "    ",
                                         stringify!($EnumName),
@@ -358,34 +415,35 @@ macro_rules! derive_ReprC {
                                     )*
                                     "}};\n",
                                     "\n",
-                                    "typedef {int}",
+                                    "typedef {int}_t",
                                     ";\n",
                                 ),
+                                me,
                                 $($(
                                     $discriminant,
                                 )?)*
                                 int = <$crate::$Int as $crate::layout::CType>::c_display(
-                                    stringify!($EnumName),
+                                    me,
                                 ),
                             )
                         },
                     )
                 }
 
-                #[cfg(feature = "headers")]
                 fn c_fmt (
                     fmt: &'_ mut $crate::core::fmt::Formatter<'_>,
                     var_name: &'_ str,
                 ) -> $crate::core::fmt::Result
                 {
-                    use $crate::core::fmt::Write;
-                    write!(fmt,
-                        concat!(stringify!($EnumName), "{sep}{}"),
-                        var_name,
-                        sep = if var_name.is_empty() { "" } else { " " },
-                    )
+                    <Self as $crate::layout::CType>::with_short_name(|me| {
+                        write!(fmt,
+                            "{}_t{sep}{}",
+                            me, var_name,
+                            sep = if var_name.is_empty() { "" } else { " " },
+                        )
+                    })
                 }
-            }
+            }}
             $crate::layout::from_CType_impl_ReprC! {
                 [< $EnumName _Layout >]
             }

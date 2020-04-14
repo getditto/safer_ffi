@@ -7,6 +7,7 @@ pub(in crate) use ::core::{
     convert::TryInto,
     fmt,
     ptr,
+    marker::PhantomData,
     mem,
     ops::{
         Deref, DerefMut,

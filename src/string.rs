@@ -1,11 +1,13 @@
 use_prelude!();
 
-/// Same as [`String`][`rust::String`], but with guaranteed `#[repr(C)]` layout
-#[repr(transparent)]
-pub
-struct String (
-    Vec<u8>,
-);
+derive_ReprC! {
+    #[repr(transparent)]
+    /// Same as [`String`][`rust::String`], but with guaranteed `#[repr(C)]` layout
+    pub
+    struct String (
+        Vec<u8>,
+    );
+}
 
 impl From<rust::String> for String {
     #[inline]
@@ -27,15 +29,12 @@ impl Into<rust::String> for String {
 }
 
 impl Deref for String {
-    type Target = RefStr<'static>;
+    type Target = str;
 
     fn deref (self: &'_ Self) -> &'_ Self::Target
     {
         unsafe {
-            mem::transmute::<
-                &RefSlice<'static, u8>,
-                &RefStr<'static>,
-            >(self.0.as_ref())
+            ::core::str::from_utf8_unchecked(&* self.0)
         }
     }
 }

@@ -6,45 +6,45 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         impl_CTypes! { @zsts }
         impl_CTypes! { @integers
             unsafe // Safety: trivial integer equivalence.
-            u8 => "uint8_t",
+            u8 => "uint8",
 
             unsafe // Safety: trivial integer equivalence.
-            u16 => "uint16_t",
+            u16 => "uint16",
 
             unsafe // Safety: trivial integer equivalence.
-            u32 => "uint32_t",
+            u32 => "uint32",
 
             unsafe // Safety: trivial integer equivalence.
-            u64 => "uint64_t",
+            u64 => "uint64",
 
-            // unsafe u128 => "uint128_t",
+            // unsafe u128 => "uint128",
 
             unsafe // Safety: Contrary to what most people think,
                    // `usize` is not a `size_t` but an `uintptr_t`,
                    // since it has a guaranteed non-`unsafe` transmute (`as`)
                    // with pointers.
-            usize => "uintptr_t",
+            usize => "uintptr",
 
 
             unsafe // Safety: trivial integer equivalence.
-            i8 => "int8_t",
+            i8 => "int8",
 
             unsafe // Safety: trivial integer equivalence.
-            i16 => "int16_t",
+            i16 => "int16",
 
             unsafe // Safety: trivial integer equivalence.
-            i32 => "int32_t",
+            i32 => "int32",
 
             unsafe // Safety: trivial integer equivalence.
-            i64 => "int64_t",
+            i64 => "int64",
 
-            // unsafe i128 => "int128_t",
+            // unsafe i128 => "int128",
 
             unsafe // Safety: Contrary to what most people think,
                    // `isize` is not a `ssize_t` but an `intptr_t`,
                    // since it has a guaranteed non-`unsafe` transmute (`as`)
                    // with pointers.
-            isize => "intptr_t",
+            isize => "intptr",
         }
         impl_CTypes! { @fns
             (A6, A5, A4, A3, A2, A1)
@@ -63,8 +63,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
     ) => ($(
         // CType
         unsafe // Safety: Rust arrays _are_ `#[repr(C)]`
-        impl<Item : CType> CType for [Item; $N] {
-            #[cfg(feature = "headers")]
+        impl<Item : CType> CType for [Item; $N] { cfg_headers! {
             fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
               -> R
             {
@@ -77,7 +76,6 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
                 ))
             }
 
-            #[cfg(feature = "headers")]
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
@@ -96,7 +94,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
                             concat!(
                                 "typedef struct {{ {}[",
                                 stringify!($N),
-                                "]; }} {};\n\n",
+                                "]; }} {}_t;\n\n",
                             ),
                             Item::c_display("idx"),
                             short_name,
@@ -105,21 +103,20 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
                 )
             }
 
-            #[cfg(feature = "headers")]
             fn c_fmt (
                 fmt: &'_ mut fmt::Formatter<'_>,
                 var_name: &'_ str,
             ) -> fmt::Result
             {
-                // _e.g._, item_t_N_array
+                // _e.g._, item_N_array_t
                 Self::with_short_name(|short_name| {
                     write!(fmt,
-                        "{}{sep}{}", short_name, var_name,
+                        "{}_t{sep}{}", short_name, var_name,
                         sep = if var_name.is_empty() { "" } else { " " },
                     )
                 })
             }
-        }
+        }}
 
         // ReprC
         unsafe
@@ -161,8 +158,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             $Ai : CType,
         )*)?> CType
             for Option<unsafe extern "C" fn ($($An, $($Ai ,)*)?) -> Ret>
-        {
-            #[cfg(feature = "headers")]
+        { cfg_headers! {
             fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
               -> R
             {
@@ -180,7 +176,6 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
                 })
             }
 
-            #[cfg(feature = "headers")]
             fn c_define_self (definer: &'_ mut Definer)
               -> io::Result<()>
             {
@@ -190,7 +185,6 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
                 Ok(())
             }
 
-            #[cfg(feature = "headers")]
             fn c_fmt (
                 fmt: &'_ mut fmt::Formatter<'_>,
                 var_name: &'_ str,
@@ -202,7 +196,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
                 write!(fmt, ", {}", $Ai::c_display(""))?; )*)?
                 fmt.write_str(")")
             }
-        }
+        }}
 
         unsafe // Safety: byte-wise the layout is the same, but the safety
                // invariants will still have to be checked at each site.
@@ -301,15 +295,13 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         )*
     ) => ($(
         $unsafe // Safety: guaranteed by the caller of the macro
-        impl CType for $RustInt {
-            #[cfg(feature = "headers")]
+        impl CType for $RustInt { cfg_headers! {
             fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
               -> R
             {
                 ret(&$CInt)
             }
 
-            #[cfg(feature = "headers")]
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
@@ -321,19 +313,18 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
                 )
             }
 
-            #[cfg(feature = "headers")]
             fn c_fmt (
                 fmt: &'_ mut fmt::Formatter<'_>,
                 var_name: &'_ str,
             ) -> fmt::Result
             {
                 write!(fmt,
-                    concat!($CInt, "{sep}{}"),
+                    concat!($CInt, "_t{sep}{}"),
                     var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
             }
-        }
+        }}
         from_CType_impl_ReprC! { $RustInt }
     )*);
 
@@ -341,8 +332,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         @pointers
     ) => (
         unsafe
-        impl<T : CType> CType for *const T {
-            #[cfg(feature = "headers")]
+        impl<T : CType> CType for *const T { cfg_headers! {
             fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
               -> R
             {
@@ -351,14 +341,12 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
                 })
             }
 
-            #[cfg(feature = "headers")]
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
                 T::c_define_self(definer)
             }
 
-            #[cfg(feature = "headers")]
             fn c_fmt (
                 fmt: &'_ mut fmt::Formatter<'_>,
                 var_name: &'_ str,
@@ -371,7 +359,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
             }
-        }
+        }}
         unsafe
         impl<T : ReprC> ReprC for *const T {
             type CLayout = *const T::CLayout;
@@ -385,24 +373,21 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         }
 
         unsafe
-        impl<T : CType> CType for *mut T {
-            #[cfg(feature = "headers")]
+        impl<T : CType> CType for *mut T { cfg_headers! {
             fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
               -> R
             {
                 T::with_short_name(|it| {
-                    ret(&format_args!("{}_mut_ptr", it))
+                    ret(&format_args!("{}_ptr", it))
                 })
             }
 
-            #[cfg(feature = "headers")]
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
                 T::c_define_self(definer)
             }
 
-            #[cfg(feature = "headers")]
             fn c_fmt (
                 fmt: &'_ mut fmt::Formatter<'_>,
                 var_name: &'_ str,
@@ -415,7 +400,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
             }
-        }
+        }}
         unsafe
         impl<T : ReprC> ReprC for *mut T {
             type CLayout = *mut T::CLayout;
@@ -434,10 +419,10 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
     ) => (
         unsafe
         impl ReprC for () {
-            type CLayout = Void;
+            type CLayout = CVoid;
 
             #[inline]
-            fn is_valid (it: &'_ Void)
+            fn is_valid (it: &'_ CVoid)
               -> bool
             {
                 true
@@ -494,7 +479,10 @@ impl_ReprC_for! { unsafe {
 
     @for[T : ReprC]
     ::core::ptr::NonNull<T>
-        => |ref it: *mut T::CLayout| it.is_null().not()
+        => |ref it: *mut T::CLayout| {
+            it.is_null().not() &&
+            (*it as usize) % ::core::mem::align_of::<T>() == 0
+        }
     ,
     @for['a, T : 'a + ReprC]
     &'a T

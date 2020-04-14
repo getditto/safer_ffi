@@ -3,39 +3,39 @@ use_prelude!();
 mod void {
     #[derive(Clone, Copy)]
     pub
-    struct Void {
+    struct CVoid {
         _0: (),
     }
-    pub const Void: Void = Void { _0: () };
+    pub const CVoid: CVoid = CVoid { _0: () };
 }
-pub use void::Void;
+pub use void::CVoid;
 
 unsafe
-impl CType for Void {
-    #[cfg(feature = "headers")]
-    fn with_short_name<R> (
-        ret: impl FnOnce(&'_ dyn fmt::Display) -> R,
-    ) -> R
-    {
-        ret(&"void")
-    }
+impl CType for CVoid {
+    cfg_headers! {
+        fn with_short_name<R> (
+            ret: impl FnOnce(&'_ dyn fmt::Display) -> R,
+        ) -> R
+        {
+            ret(&"void")
+        }
 
-    #[cfg(feature = "headers")]
-    fn c_fmt (
-        fmt: &'_ mut fmt::Formatter<'_>,
-        var_name: &'_ str,
-    ) -> fmt::Result
-    {
-        fmt.write_str("void")
+        fn c_fmt (
+            fmt: &'_ mut fmt::Formatter<'_>,
+            var_name: &'_ str,
+        ) -> fmt::Result
+        {
+            fmt.write_str("void")
+        }
     }
 }
-from_CType_impl_ReprC! { Void }
+from_CType_impl_ReprC! { CVoid }
 
 unsafe
 impl ReprC for ::core::ffi::c_void {
-    type CLayout = Void;
+    type CLayout = CVoid;
 
-    fn is_valid (it: &'_ Void)
+    fn is_valid (it: &'_ CVoid)
       -> bool
     {
         panic!("Trying to construct a `c_void` is a logic error");

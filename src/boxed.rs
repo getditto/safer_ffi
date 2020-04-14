@@ -1,12 +1,14 @@
 use_prelude!();
 
-/// Same as [`Box<T>`][`rust::Box`], (_e.g._, same `#[repr(C)]` layout), but
-/// with **no non-aliasing guarantee**.
-#[repr(transparent)]
-pub
-struct Box<T> (
-    ptr::NonNull<T>, // variance is OK because ownership
-);
+derive_ReprC! {
+    #[repr(transparent)]
+    /// Same as [`Box<T>`][`rust::Box`], (_e.g._, same `#[repr(C)]` layout), but
+    /// with **no non-aliasing guarantee**.
+    pub
+    struct Box[T] (
+        ptr::NonNull<T>, // variance is OK because ownership
+    );
+}
 
 impl<T> From<rust::Box<T>> for Box<T> {
     #[inline]

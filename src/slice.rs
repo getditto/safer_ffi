@@ -1,41 +1,43 @@
 use_prelude!();
 
-/// # C layout (for some given type T)
-///
-/// ```c
-/// typedef struct {
-///     // Cannot be NULL
-///     T * ptr;
-///     size_t len;
-/// } slice_T;
-/// ```
-///
-/// # Nullable pointer?
-///
-/// If you want to support the above typedef, but where the `ptr` field is
-/// allowed to be `NULL` (with the contents of `len` then being undefined)
-/// use the `Option< SlicePtr<_> >` type.
-// Note: this struct is **covariant** in `T`
-#[repr(C)]
-pub
-struct SlicePtr<T> {
-    /// Pointer to the first element (if any)
+derive_ReprC! {
+    #[repr(C)]
+    /// # C layout (for some given type T)
+    ///
+    /// ```c
+    /// typedef struct {
+    ///     // Cannot be NULL
+    ///     T * ptr;
+    ///     size_t len;
+    /// } slice_T;
+    /// ```
+    ///
+    /// # Nullable pointer?
+    ///
+    /// If you want to support the above typedef, but where the `ptr` field is
+    /// allowed to be `NULL` (with the contents of `len` then being undefined)
+    /// use the `Option< SlicePtr<_> >` type.
+    // Note: this struct is **covariant** in `T`
     pub
-    ptr: ptr::NonNull<T>, // /!\ Covariant /!\
-    /// Element count
-    pub
-    len: size_t,
+    struct SlicePtr[T] where { T : ReprC } {
+        /// Pointer to the first element (if any)
+        pub
+        ptr: ptr::NonNull<T>, // /!\ Covariant /!\
+        /// Element count
+        pub
+        len: usize,
+    }
 }
 
-impl<T> Copy for SlicePtr<T> {}
-impl<T> Clone for SlicePtr<T> {
+impl<T : ReprC> Copy for SlicePtr<T> {}
+impl<T : ReprC> Clone for SlicePtr<T> {
     fn clone (self: &'_ Self)
       -> Self
     {
         *self
     }
 }
-impl<T> fmt::Debug for SlicePtr<T> {
+impl<T : ReprC> fmt::Debug for SlicePtr<T> {
     fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
       -> fmt::Result
     {
@@ -45,8 +47,8 @@ impl<T> fmt::Debug for SlicePtr<T> {
             .finish()
     }
 }
-impl<T> Eq for SlicePtr<T> {}
-impl<T> PartialEq for SlicePtr<T> {
+impl<T : ReprC> Eq for SlicePtr<T> {}
+impl<T : ReprC> PartialEq for SlicePtr<T> {
     fn eq (self: &'_ Self, other: &'_ Self)
       -> bool
     {
@@ -54,7 +56,7 @@ impl<T> PartialEq for SlicePtr<T> {
     }
 }
 
-impl<T> SlicePtr<T> {
+impl<T : ReprC> SlicePtr<T> {
     pub
     unsafe
     fn as_slice<'lt> (self: SlicePtr<T>)
@@ -65,7 +67,7 @@ impl<T> SlicePtr<T> {
         let Self { ptr, len } = self;
         slice::from_raw_parts(
             ptr.as_ptr(),
-            len.try_into().expect("Overflow")
+            len/*.try_into().expect("Overflow")*/
         )
     }
 
@@ -79,18 +81,18 @@ impl<T> SlicePtr<T> {
         let Self { ptr, len } = self;
         slice::from_raw_parts_mut(
             ptr.as_ptr(),
-            len.try_into().expect("Overflow")
+            len/*.try_into().expect("Overflow")*/
         )
     }
 }
 
-impl<'lt, T : 'lt> From<&'lt [T]> for SlicePtr<T> {
+impl<'lt, T : 'lt + ReprC> From<&'lt [T]> for SlicePtr<T> {
     #[inline]
     fn from (slice: &'lt [T])
       -> Self
     {
         Self {
-            len: slice.len().try_into().expect("Overflow"),
+            len: slice.len()/*.try_into().expect("Overflow")*/,
             ptr: unsafe {
                 ptr::NonNull::new_unchecked(slice.as_ptr() as _)
             },
@@ -98,13 +100,13 @@ impl<'lt, T : 'lt> From<&'lt [T]> for SlicePtr<T> {
     }
 }
 
-impl<'lt, T : 'lt> From<&'lt mut [T]> for SlicePtr<T> {
+impl<'lt, T : 'lt + ReprC> From<&'lt mut [T]> for SlicePtr<T> {
     #[inline]
     fn from (slice: &'lt mut [T])
       -> Self
     {
         Self {
-            len: slice.len().try_into().expect("Overflow"),
+            len: slice.len()/*.try_into().expect("Overflow")*/,
             ptr: unsafe {
                 ptr::NonNull::new_unchecked(slice.as_mut_ptr())
             },
@@ -113,15 +115,39 @@ impl<'lt, T : 'lt> From<&'lt mut [T]> for SlicePtr<T> {
 }
 
 cfg_alloc! {
-    /// `rust::Box<[T]>` but with a guaranteed `#[repr(C)]` layout.
-    #[derive(Debug)]
-    #[repr(transparent)]
-    pub
-    struct BoxedSlice<T> (
-        SlicePtr<T>, // Variance OK because ownership
-    );
+    derive_ReprC! {
+        #[repr(transparent)]
+        /// `rust::Box<[T]>` but with a guaranteed `#[repr(C)]` layout.
+        #[derive(Debug)]
+        pub
+        struct BoxedSlice[T] where { T : ReprC } (
+            SlicePtr<T>, // Variance OK because ownership
+        );
+    }
 
-    impl<T> From<rust::Box<[T]>> for BoxedSlice<T> {
+    impl<T : ReprC> BoxedSlice<T> {
+        #[inline]
+        pub
+        fn as_ref (self: &'_ Self)
+          -> RefSlice<'_, T>
+        {
+            RefSlice(self.0, PhantomCovariantLifetime::default())
+        }
+
+        #[inline]
+        pub
+        fn as_mut (self: &'_ mut Self)
+          -> MutSlice<'_, T>
+        {
+            MutSlice(
+                self.0,
+                PhantomCovariantLifetime::default(),
+                PhantomInvariant::<T>::default(),
+            )
+        }
+    }
+
+    impl<T : ReprC> From<rust::Box<[T]>> for BoxedSlice<T> {
         #[inline]
         fn from (boxed_slice: rust::Box<[T]>)
           -> Self
@@ -132,7 +158,7 @@ cfg_alloc! {
         }
     }
 
-    impl<T> Into<rust::Box<[T]>> for BoxedSlice<T> {
+    impl<T : ReprC> Into<rust::Box<[T]>> for BoxedSlice<T> {
         #[inline]
         fn into (self: BoxedSlice<T>)
           -> rust::Box<[T]>
@@ -144,7 +170,7 @@ cfg_alloc! {
         }
     }
 
-    impl<T> Drop for BoxedSlice<T> {
+    impl<T : ReprC> Drop for BoxedSlice<T> {
         #[inline]
         fn drop (self: &'_ mut Self)
         {
@@ -158,49 +184,54 @@ cfg_alloc! {
         }
     }
 
-    impl<T> Deref for BoxedSlice<T> {
-        type Target = MutSlice<'static, T>;
+    impl<T : ReprC> Deref for BoxedSlice<T> {
+        type Target = [T];
 
         #[inline]
         fn deref (self: &'_ Self)
           -> &'_ Self::Target
         {
             unsafe {
-                mem::transmute(self)
+                self.0.as_slice()
             }
         }
     }
-    impl<T> DerefMut for BoxedSlice<T> {
+    impl<T : ReprC> DerefMut for BoxedSlice<T> {
         #[inline]
         fn deref_mut (self: &'_ mut Self)
           -> &'_ mut Self::Target
         {
             unsafe {
-                mem::transmute(self)
+                self.0.as_slice_mut()
             }
         }
     }
 
-    unsafe impl<T> Send for BoxedSlice<T>
+    unsafe impl<T : ReprC> Send for BoxedSlice<T>
     where
         rust::Box<[T]> : Send,
     {}
-    unsafe impl<T> Sync for BoxedSlice<T>
+    unsafe impl<T : ReprC> Sync for BoxedSlice<T>
     where
         rust::Box<[T]> : Sync,
     {}
 }
 
-/// `&'lt mut [T]` but with a guaranteed `#[repr(C)]` layout.
-#[repr(transparent)]
-pub
-struct MutSlice<'lt, T> (
-    SlicePtr<T>, // /!\ not invariant /!\ -----+
-    PhantomCovariantLifetime<'lt>,          // |
-    PhantomInvariant<T>, // <------------------+
-);
+derive_ReprC! {
+    #[repr(transparent)]
+    /// `&'lt mut [T]` but with a guaranteed `#[repr(C)]` layout.
+    pub
+    struct MutSlice['lt, T] where { T : 'lt + ReprC } (
+        pub(in crate)
+        SlicePtr<T>, // /!\ not invariant /!\ -----+
+        pub(in crate)
+        PhantomCovariantLifetime<'lt>,          // |
+        pub(in crate)
+        PhantomInvariant<T>, // <------------------+
+    );
+}
 
-impl<'lt, T : 'lt> From<&'lt mut [T]> for MutSlice<'lt, T> {
+impl<'lt, T : 'lt + ReprC> From<&'lt mut [T]> for MutSlice<'lt, T> {
     #[inline]
     fn from (slice: &'lt mut [T])
       -> Self
@@ -213,7 +244,7 @@ impl<'lt, T : 'lt> From<&'lt mut [T]> for MutSlice<'lt, T> {
     }
 }
 
-impl<T> Deref for MutSlice<'_, T> {
+impl<T : ReprC> Deref for MutSlice<'_, T> {
     type Target = [T];
 
     #[inline]
@@ -226,7 +257,7 @@ impl<T> Deref for MutSlice<'_, T> {
     }
 }
 
-impl<T> DerefMut for MutSlice<'_, T> {
+impl<T : ReprC> DerefMut for MutSlice<'_, T> {
     #[inline]
     fn deref_mut (self: &'_ mut Self)
       -> &'_ mut Self::Target
@@ -237,7 +268,7 @@ impl<T> DerefMut for MutSlice<'_, T> {
     }
 }
 
-impl<'lt, T : 'lt> AsRef<RefSlice<'lt, T>> for MutSlice<'lt, T> {
+impl<'lt, T : 'lt + ReprC> AsRef<RefSlice<'lt, T>> for MutSlice<'lt, T> {
     #[inline]
     fn as_ref (self: &'_ Self)
       -> &'_ RefSlice<'lt, T> // This would be unsound if RefSlice were Clone /!\
@@ -248,14 +279,14 @@ impl<'lt, T : 'lt> AsRef<RefSlice<'lt, T>> for MutSlice<'lt, T> {
     }
 }
 
-unsafe impl<'lt, T : 'lt> Send for MutSlice<'lt, T>
+unsafe impl<'lt, T : 'lt + ReprC> Send for MutSlice<'lt, T>
     where &'lt mut [T] : Send
 {}
-unsafe impl<'lt, T : 'lt> Sync for MutSlice<'lt, T>
+unsafe impl<'lt, T : 'lt + ReprC> Sync for MutSlice<'lt, T>
     where &'lt mut [T] : Sync
 {}
 
-impl<T : fmt::Debug> fmt::Debug for MutSlice<'_, T> {
+impl<T : fmt::Debug + ReprC> fmt::Debug for MutSlice<'_, T> {
     #[inline]
     fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
       -> fmt::Result
@@ -264,15 +295,20 @@ impl<T : fmt::Debug> fmt::Debug for MutSlice<'_, T> {
     }
 }
 
-/// `&'lt [T]` but with a guaranteed `#[repr(C)]` layout.
-#[repr(C)]
-pub
-struct RefSlice<'lt, T : 'lt> (
-    SlicePtr<T>,
-    PhantomCovariantLifetime<'lt>,
-);
+derive_ReprC! {
+    #[repr(transparent)]
+    /// `&'lt [T]` but with a guaranteed `#[repr(C)]` layout.
+    pub
+    struct RefSlice['lt, T] where { T : 'lt + ReprC } (
+        pub(in crate)
+        SlicePtr<T>,
 
-impl<'lt, T : 'lt> From<&'lt [T]> for RefSlice<'lt, T> {
+        pub(in crate)
+        PhantomCovariantLifetime<'lt>,
+    );
+}
+
+impl<'lt, T : 'lt + ReprC> From<&'lt [T]> for RefSlice<'lt, T> {
     #[inline]
     fn from (slice: &'lt [T])
       -> Self
@@ -284,7 +320,7 @@ impl<'lt, T : 'lt> From<&'lt [T]> for RefSlice<'lt, T> {
     }
 }
 
-impl<T> Deref for RefSlice<'_, T> {
+impl<T : ReprC> Deref for RefSlice<'_, T> {
     type Target = [T];
 
     #[inline]
@@ -297,14 +333,14 @@ impl<T> Deref for RefSlice<'_, T> {
     }
 }
 
-unsafe impl<'lt, T : 'lt> Send for RefSlice<'lt, T>
+unsafe impl<'lt, T : 'lt + ReprC> Send for RefSlice<'lt, T>
     where &'lt [T] : Send
 {}
-unsafe impl<'lt, T : 'lt> Sync for RefSlice<'lt, T>
+unsafe impl<'lt, T : 'lt + ReprC> Sync for RefSlice<'lt, T>
     where &'lt [T] : Sync
 {}
 
-impl<T : fmt::Debug> fmt::Debug for RefSlice<'_, T> {
+impl<T : fmt::Debug + ReprC> fmt::Debug for RefSlice<'_, T> {
     #[inline]
     fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
       -> fmt::Result
