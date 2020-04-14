@@ -154,29 +154,45 @@ macro_rules! from_CType_impl_ReprC {(
 #[inline]
 pub
 unsafe
-fn from_raw<T : ReprC> (c_layout: T::CLayout) -> T
+fn from_raw_unchecked<T : ReprC> (c_layout: T::CLayout)
+  -> T
 {
-    if cfg!(debug_assertions) || cfg!(test) {
-        if <T as ReprC>::is_valid(&c_layout).not() {
+    if let Some(it) = from_raw::<T>(c_layout) { it } else {
+        if cfg!(debug_assertions) || cfg!(test) {
             panic!(
                 "Error: not a valid bit-pattern for the type `{}`",
                 // c_layout,
                 ::core::any::type_name::<T>(),
             );
+        } else {
+            ::core::hint::unreachable_unchecked()
         }
-    }
-    unsafe {
-        const_assert! {
-            for [T]
-                [T : ReprC] => [T::CLayout : Copy]
-        }
-        crate::utils::transmute_unchecked(c_layout)
     }
 }
 
 #[inline]
 pub
-fn into_raw<T : ReprC> (it: T) -> T::CLayout
+unsafe
+fn from_raw<T : ReprC> (c_layout: T::CLayout)
+  -> Option<T>
+{
+    if <T as ReprC>::is_valid(&c_layout).not() {
+        None
+    } else {
+        Some(unsafe {
+            const_assert! {
+                for [T]
+                    [T : ReprC] => [T::CLayout : Copy]
+            }
+            crate::utils::transmute_unchecked(c_layout)
+        })
+    }
+}
+
+#[inline]
+pub
+fn into_raw<T : ReprC> (it: T)
+  -> T::CLayout
 {
     unsafe {
         crate::utils::transmute_unchecked(

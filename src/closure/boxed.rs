@@ -93,7 +93,13 @@ macro_rules! with_tuple {(
         )]
         #[repr(C)]
         pub
-        struct $BoxDynFn_N [Ret $(, $A_N $(, $A_k)*)?] {
+        struct $BoxDynFn_N [Ret $(, $A_N $(, $A_k)*)?]
+        where {
+            Ret : ReprC, $(
+            $A_N : ReprC, $(
+            $A_k : ReprC, )*)?
+        }
+        {
             env_ptr: ptr::NonNull<c_void>,
             call:
                 unsafe extern "C"
@@ -138,10 +144,18 @@ macro_rules! with_tuple {(
     /// `Box<dyn Send + ...> : Send`
     unsafe impl<Ret $(, $A_N $(, $A_k)*)?> Send
         for $BoxDynFn_N <Ret $(, $A_N $(, $A_k)*)?>
+    where
+        Ret : ReprC, $(
+        $A_N : ReprC, $(
+        $A_k : ReprC, )*)?
     {}
 
     impl<Ret $(, $A_N $(, $A_k)*)?>
         $BoxDynFn_N <Ret $(, $A_N $(, $A_k)*)?>
+    where
+        Ret : ReprC, $(
+        $A_N : ReprC, $(
+        $A_k : ReprC, )*)?
     {
         #[inline]
         pub
@@ -187,6 +201,10 @@ macro_rules! with_tuple {(
 
     impl<Ret $(, $A_N $(, $A_k)*)?> Drop
         for $BoxDynFn_N <Ret $(, $A_N $(, $A_k)*)?>
+    where
+        Ret : ReprC, $(
+        $A_N : ReprC, $(
+        $A_k : ReprC, )*)?
     {
         fn drop (self: &'_ mut Self)
         {
@@ -198,6 +216,10 @@ macro_rules! with_tuple {(
 
     impl<Ret $(, $A_N $(, $A_k)*)?>
         $BoxDynFn_N <Ret $(, $A_N $(, $A_k)*)?>
+    where
+        Ret : ReprC, $(
+        $A_N : ReprC, $(
+        $A_k : ReprC, )*)?
     {
         #[inline]
         pub

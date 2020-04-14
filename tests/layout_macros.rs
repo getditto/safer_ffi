@@ -29,13 +29,14 @@ enum MyBool {
     True,
 }
 
-#[macro_rules_attribute(derive_ReprC!)]
-#[repr(C)]
-/// Some docstring
-pub
-struct Foo {
-    b: MyBool,
-    field: ptr::NonNull<u8>,
+derive_ReprC! {
+    #[repr(C)]
+    /// Some docstring
+    pub
+    struct Foo['a,] {
+        b: MyBool,
+        field: &'a u32,
+    }
 }
 
 #[test]
@@ -44,23 +45,28 @@ fn validity ()
     // `Foo_Layout` is `<Foo as ReprC>::CLayout`
     assert!(
         Foo::is_valid(&
-            Foo_Layout { b: 42_u8.into(), field: 27 as _ }
+            Foo_Layout { b: 42_u8.into(), field: 4 as _ }
         )
     );
     assert!(
         Foo::is_valid(&
-            Foo_Layout { b: 43_u8.into(), field: 27 as _ }
+            Foo_Layout { b: 43_u8.into(), field: 4 as _ }
         )
     );
 
     assert!(
         bool::not(Foo::is_valid(&
-            Foo_Layout { b: 0.into(), field: 27 as _ }
+            Foo_Layout { b: 0.into(), field: 4 as _ }
         ))
     );
     assert!(
         bool::not(Foo::is_valid(&
             Foo_Layout { b: 42_u8.into(), field: 0 as _ }
+        ))
+    );
+    assert!(
+        bool::not(Foo::is_valid(&
+            Foo_Layout { b: 42_u8.into(), field: 3 as _ }
         ))
     );
 }
@@ -73,21 +79,28 @@ fn generate_headers ()
     #[repr(C)]
     pub
     struct Crazy {
-        a: extern "C" fn (Tuple2<[Foo; 12], MyBool>),
+        a: extern "C" fn (Tuple2<[Foo<'static>; 12], MyBool>),
         closure: BoxDynFn2<(), i32, usize>,
     }
 
-    let ref mut out = Vec::new();
+    let ref mut out =
+        // Vec::new()
+        ::std::io::stdout()
+    ;
     <Crazy as ReprC>::CLayout::c_define_self(&mut MyDefiner {
         out,
         defines: Default::default(),
     });
-    println!("{}", String::from_utf8_lossy(out));
+    // println!("{}", String::from_utf8_lossy(out));
 
     // where
     struct MyDefiner<'out> {
         out: &'out mut dyn io::Write,
         defines: Set<String>,
+    }
+    use ::core::cell::Cell;
+    thread_local! {
+        static DEPTH: Cell<usize> = Cell::new(0);
     }
     impl ::repr_c::layout::Definer for MyDefiner<'_> {
         fn insert (self: &'_ mut Self, name: &'_ str)
@@ -95,6 +108,9 @@ fn generate_headers ()
         {
             let mut inserted = false;
             self.defines.get_or_insert_with(name, |name| {
+                let depth = DEPTH.with(Cell::get);
+                println!("{pad}> Defining `{}`", name, pad = "  ".repeat(depth));
+                DEPTH.with(|it| it.set(depth + 1));
                 inserted = true;
                 name.to_owned()
             });

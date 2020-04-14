@@ -5,8 +5,13 @@ macro_rules! derive_CType {(
     #[repr(C)]
     $(#[$meta:meta])*
     $pub:vis
-    struct $StructName:ident
-        $([$($generics:tt)*] $(where { $($bounds:tt)* })? )?
+    struct $StructName:ident $(
+        [
+            $($lt:lifetime ,)*
+            $($($generics:ident),+ $(,)?)?
+        ]
+            $(where { $($bounds:tt)* })?
+    )?
     {
         $(
             $(#[$field_meta:meta])*
@@ -19,7 +24,7 @@ macro_rules! derive_CType {(
     $(#[$meta])*
     $pub
     struct $StructName
-        $(<$($generics)*> $(where $($bounds)* )?)?
+        $(<$($lt ,)* $($($generics),+)?> $(where $($bounds)* )?)?
     {
         $(
             $(#[$field_meta])*
@@ -29,15 +34,15 @@ macro_rules! derive_CType {(
     }
 
     unsafe // Safety: struct is `#[repr(C)]` and contains `CType` fields
-    impl $(<$($generics)*>)? $crate::layout::CType
-        for $StructName$(<$($generics)*>)?
+    impl $(<$($lt ,)* $($($generics),+)?>)? $crate::layout::CType
+        for $StructName$(<$($lt ,)* $($($generics),+)?>)?
     where
         $(
             $field_ty : $crate::layout::CType,
         )*
-        $($(
-            $($bounds)*
-        )?)?
+        $(
+            $($($bounds)*)?
+        )?
     {
         #[cfg(feature = "headers")]
         fn with_short_name<R> (
@@ -47,15 +52,36 @@ macro_rules! derive_CType {(
             ,
         ) -> R
         {
-            ret(&stringify!($StructName))
+            ret(&{
+                let ret = stringify!($StructName);
+                $($(
+                    let mut ret = ret.to_string();
+                    $(
+                        <
+                            <$generics as $crate::layout::ReprC>::CLayout
+                            as
+                            $crate::layout::CType
+                        >::with_short_name(|it| {
+                            use $crate::core::fmt::Write;
+                            $crate::core::write!(ret, "_{}", it)
+                                .unwrap()
+                        });
+                    )+
+                )?)?
+                ret
+            })
         }
 
         #[cfg(feature = "headers")]
         fn c_define_self (definer: &'_ mut dyn $crate::layout::Definer)
           -> $crate::std::io::Result<()>
         {
+            let ref me =
+                <Self as $crate::layout::CType>
+                    ::with_short_name(|it| it.to_string())
+            ;
             definer.define(
-                stringify!($StructName),
+                me,
                 &mut |definer| {
                     $(
                         <$field_ty as $crate::layout::CType>::c_define_self(definer)?;
@@ -69,9 +95,7 @@ macro_rules! derive_CType {(
                             ),
                         )?;
                     )*
-                    out.write_all(concat!(
-                        "} ", stringify!($StructName), ";\n\n",
-                    ).as_bytes())
+                    $crate::core::write!(out, "}} {};\n\n", me)
                 },
             )
         }
@@ -82,18 +106,20 @@ macro_rules! derive_CType {(
             var_name: &'_ str,
         ) -> $crate::core::fmt::Result
         {
-            write!(fmt,
-                concat!(stringify!($StructName), "{sep}{}"),
-                var_name,
-                sep = if var_name.is_empty() { "" } else { " " },
-            )
+            <Self as $crate::layout::CType>::with_short_name(|me| {
+                write!(fmt,
+                    "{}{sep}{}",
+                    me, var_name,
+                    sep = if var_name.is_empty() { "" } else { " " },
+                )
+            })
         }
     }
 
     $crate::layout::from_CType_impl_ReprC! {
-        $(@for [$($generics)*])?
+        $(@for [$($lt ,)* $($($generics),+)?])?
             $StructName
-                $(<$($generics)*>
+                $(<$($lt ,)* $($($generics),+)?>
                     where
                         $($($bounds)*)?
                 )?

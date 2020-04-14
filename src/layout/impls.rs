@@ -470,15 +470,15 @@ macro_rules! impl_ReprC_for {(
                     true
                 } else {
                     #[cfg(feature = "std")]
-                    eprintln!(
-                        "Error: {:#x?} is not a _valid_ bit pattern for the type `{}`",
+                    ::log::error!(
+                        "{:#x?} is not a _valid_ bit pattern for the type `{}`",
                         unsafe {
                             ::core::slice::from_raw_parts(
                                 <*const _>::cast::<u8>(it),
                                 ::core::mem::size_of_val(it),
                             )
                         },
-                        stringify!($T),
+                        ::core::any::type_name::<Self>(),
                     );
                     false
                 }
