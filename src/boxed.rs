@@ -10,9 +10,12 @@ derive_ReprC! {
     );
 }
 
-impl<T> From<rust::Box<T>> for Box<T> {
+impl<T> From<rust::Box<T>>
+    for Box<T>
+{
     #[inline]
-    fn from (boxed: rust::Box<T>) -> Self
+    fn from (boxed: rust::Box<T>)
+      -> Box<T>
     {
         Self(
             ptr::NonNull::from(rust::Box::leak(boxed))
@@ -23,7 +26,8 @@ impl<T> From<rust::Box<T>> for Box<T> {
 impl<T> Box<T> {
     #[inline]
     pub
-    fn into (self: Box<T>) -> rust::Box<T>
+    fn into (self: Box<T>)
+      -> rust::Box<T>
     {
         let this = mem::ManuallyDrop::new(self);
         unsafe {
@@ -32,9 +36,11 @@ impl<T> Box<T> {
     }
 }
 
-impl<T> Drop for Box<T> {
+impl<T> Drop
+    for Box<T>
+{
     #[inline]
-    fn drop (self: &'_ mut Self)
+    fn drop (self: &'_ mut Box<T>)
     {
         unsafe {
             drop::<rust::Box<T>>(
@@ -44,11 +50,14 @@ impl<T> Drop for Box<T> {
     }
 }
 
-impl<T> Deref for Box<T> {
+impl<T> Deref
+    for Box<T>
+{
     type Target = T;
 
     #[inline]
-    fn deref (self: &'_ Self) -> &'_ Self::Target
+    fn deref (self: &'_ Box<T>)
+      -> &'_ T
     {
         unsafe {
             &*self.0.as_ptr()
@@ -56,10 +65,12 @@ impl<T> Deref for Box<T> {
     }
 }
 
-impl<T> DerefMut for Box<T> {
+impl<T> DerefMut
+    for Box<T>
+{
     #[inline]
-    fn deref_mut (self: &'_ mut Self)
-      -> &'_ mut Self::Target
+    fn deref_mut (self: &'_ mut Box<T>)
+      -> &'_ mut T
     {
         unsafe {
             &mut *(self.0.as_ptr())
@@ -67,15 +78,21 @@ impl<T> DerefMut for Box<T> {
     }
 }
 
-unsafe impl<T> Send for Box<T> where
+unsafe impl<T> Send
+    for Box<T>
+where
     rust::Box<T> : Send,
 {}
 
-unsafe impl<T> Sync for Box<T> where
+unsafe impl<T> Sync
+    for Box<T>
+where
     rust::Box<T> : Sync,
 {}
 
-impl<T : fmt::Debug> fmt::Debug for Box<T> {
+impl<T : fmt::Debug> fmt::Debug
+    for Box<T>
+{
     fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
       -> fmt::Result
     {
@@ -87,4 +104,4 @@ impl<T : fmt::Debug> fmt::Debug for Box<T> {
 pub use super::slice::BoxedSlice;
 
 #[doc(inline)]
-pub use super::str::BoxedStr;
+pub use super::string::BoxedStr;

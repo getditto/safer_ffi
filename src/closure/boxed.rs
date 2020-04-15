@@ -1,3 +1,6 @@
+//! Simplified for lighter documentation, but the actual `struct` definitions
+//! and impls range from `BoxDynFn0` up to `BoxDynFn6`.
+
 use ::core::{
     hint,
     ffi::c_void,
@@ -21,69 +24,6 @@ macro_rules! with_tuple {(
         $( $A_N:ident, $($A_k:ident ,)* )?
     )
 ) => (
-    // hack! {
-    //     #[doc = concat!(
-    //         "`Box<dyn 'static + Send + Fn(" $(,
-    //             stringify!($A_N) $(, ", ", stringify!($A_k))*
-    //         )?,
-    //         ") -> Ret>`",
-    //     )]
-    //     #[repr(C)]
-    //     pub
-    //     struct [< BoxDynFn $Arity _Layout>] <
-    //         Ret : CType $(,
-    //         $A_N : CType $(,
-    //         $A_k : CType )*)?
-    //     > {
-    //         /// `Box<Erased>`
-    //         pub
-    //         env_ptr: *mut c_void,
-
-    //         pub
-    //         call: Option<
-    //             unsafe extern "C"
-    //             fn (
-    //                 env_ptr: ptr::NonNull<c_void> $(,
-    //                     $A_N $(,
-    //                     $A_k
-    //                 )*)?
-    //             ) -> Ret
-    //         >,
-
-    //         pub
-    //         free: Option<
-    //             unsafe extern "C"
-    //             fn (env_ptr: ptr::NonNull<c_void>)
-    //         >,
-    //     }
-    // }
-    // impl<
-    //     Ret : CType $(,
-    //     $A_N : CType $(,
-    //     $A_k : CType )*)?
-    // > Copy for [< BoxDynFn $Arity _Layout >] <Ret $(, $A_N $(, $A_k)*)?>
-    // {}
-    // impl<
-    //     Ret : CType $(,
-    //     $A_N : CType $(,
-    //     $A_k : CType )*)?
-    // > Clone for [< BoxDynFn $Arity _Layout >] <Ret $(, $A_N $(, $A_k)*)?>
-    // {
-    //     #[inline]
-    //     fn clone (self: &'_ Self)
-    //       -> Self
-    //     {
-    //         *self
-    //     }
-    // }
-    // unsafe
-    // impl<
-    //     Ret : CType $(,
-    //     $A_N : CType $(,
-    //     $A_k : CType )*)?
-    // > CType for [< BoxDynFn $Arity _Layout >] <Ret $(, $A_N $(, $A_k)*)?>
-    // {}
-
     derive_ReprC! {
         @[doc = concat!(
             "`Box<dyn 'static + Send + Fn(" $(,
@@ -116,30 +56,6 @@ macro_rules! with_tuple {(
             ,
         }
     }
-    // unsafe
-    // impl<Ret $(, $A_N $(, $A_k)*)?> ReprC
-    //     for $BoxDynFn_N <Ret $(, $A_N $(, $A_k)*)?>
-    // where
-    //     Ret : ReprC $(,
-    //     $A_N : ReprC $(,
-    //     $A_k : ReprC )*)?
-    // {
-    //     type CLayout = [< BoxDynFn $Arity _Layout >] <
-    //         < Ret as ReprC >::CLayout $(,
-    //         < $A_N as ReprC >::CLayout $(,
-    //         < $A_k as ReprC >::CLayout )*)?
-    //     >;
-
-    //     #[inline]
-    //     fn is_valid (it: &'_ Self::CLayout)
-    //       -> bool
-    //     {
-    //         true
-    //             && it.env_ptr.is_null().not()
-    //             && it.call.is_some()
-    //             && it.free.is_some()
-    //     }
-    // }
 
     /// `Box<dyn Send + ...> : Send`
     unsafe impl<Ret $(, $A_N $(, $A_k)*)?> Send
@@ -214,6 +130,20 @@ macro_rules! with_tuple {(
         }
     }
 
+    impl<Ret $(, $A_N $(, $A_k)*)?> ::core::fmt::Debug
+        for $BoxDynFn_N <Ret $(, $A_N $(, $A_k)*)?>
+    where
+        Ret : ReprC, $(
+        $A_N : ReprC, $(
+        $A_k : ReprC, )*)?
+    {
+        fn fmt (self: &'_ Self, fmt: &'_ mut ::core::fmt::Formatter<'_>)
+          -> ::core::fmt::Result
+        {
+            <str as ::core::fmt::Display>::fmt(stringify!($BoxDynFn_N), fmt)
+        }
+    }
+
     impl<Ret $(, $A_N $(, $A_k)*)?>
         $BoxDynFn_N <Ret $(, $A_N $(, $A_k)*)?>
     where
@@ -262,16 +192,24 @@ macro_rules! with_tuples {
     );
 }
 
+#[cfg(not(docs))]
 with_tuples! {
     BoxDynFn0,
-    // (BoxDynFn9, A9),
-    // (BoxDynFn8, A8),
-    // (BoxDynFn7, A7),
-    // (BoxDynFn6, A6),
-    // (BoxDynFn5, A5),
-    // (BoxDynFn4, A4),
 
+    (BoxDynFn9, A9),
+    (BoxDynFn8, A8),
+    (BoxDynFn7, A7),
+    (BoxDynFn6, A6),
+
+    (BoxDynFn5, A5),
+    (BoxDynFn4, A4),
     (BoxDynFn3, A3),
     (BoxDynFn2, A2),
+    (BoxDynFn1, A1),
+}
+
+#[cfg(docs)]
+with_tuples! {
+    BoxDynFn0,
     (BoxDynFn1, A1),
 }

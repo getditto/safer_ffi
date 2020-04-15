@@ -1,3 +1,8 @@
+//! Tuple types with a guaranteed `#[repr(C)]` layout.
+//!
+//! Simplified for lighter documentation, but the actual `struct` definitions
+//! and impls range from `Tuple1` up to `Tuple9`.
+
 use_prelude!();
 
 mod void {
@@ -6,33 +11,35 @@ mod void {
     struct CVoid {
         _0: (),
     }
-    pub const CVoid: CVoid = CVoid { _0: () };
+    // pub const CVoid: CVoid = CVoid { _0: () };
 }
-pub use void::CVoid;
+pub(in crate) use void::CVoid;
 
 unsafe
-impl CType for CVoid {
-    cfg_headers! {
-        fn with_short_name<R> (
-            ret: impl FnOnce(&'_ dyn fmt::Display) -> R,
-        ) -> R
-        {
-            ret(&"void")
-        }
-
-        fn c_fmt (
-            fmt: &'_ mut fmt::Formatter<'_>,
-            var_name: &'_ str,
-        ) -> fmt::Result
-        {
-            fmt.write_str("void")
-        }
+impl CType
+    for CVoid
+{ cfg_headers! {
+    fn with_short_name<R> (
+        ret: impl FnOnce(&'_ dyn fmt::Display) -> R,
+    ) -> R
+    {
+        ret(&"void")
     }
-}
+
+    fn c_fmt (
+        fmt: &'_ mut fmt::Formatter<'_>,
+        var_name: &'_ str,
+    ) -> fmt::Result
+    {
+        fmt.write_str("void")
+    }
+}}
 from_CType_impl_ReprC! { CVoid }
 
 unsafe
-impl ReprC for ::core::ffi::c_void {
+impl ReprC
+    for ::core::ffi::c_void
+{
     type CLayout = CVoid;
 
     fn is_valid (it: &'_ CVoid)
@@ -42,8 +49,11 @@ impl ReprC for ::core::ffi::c_void {
     }
 }
 
+#[cfg(not(docs))]
 derive_ReprC! {
     #[repr(C)]
+    /// Simplified for lighter documentation, but the actual impls
+    /// range from `Tuple1` up to `Tuple9`.
     pub
     struct Tuple1[T0] {
         pub _0: T0,
@@ -52,6 +62,8 @@ derive_ReprC! {
 
 derive_ReprC! {
     #[repr(C)]
+    /// Simplified for lighter documentation, but the actual impls
+    /// range from `Tuple1` up to `Tuple9`.
     pub
     struct Tuple2[T0, T1] {
         pub _0: T0,
@@ -59,6 +71,7 @@ derive_ReprC! {
     }
 }
 
+#[cfg(not(docs))]
 derive_ReprC! {
     #[repr(C)]
     pub
@@ -69,6 +82,7 @@ derive_ReprC! {
     }
 }
 
+#[cfg(not(docs))]
 derive_ReprC! {
     #[repr(C)]
     pub
@@ -79,6 +93,7 @@ derive_ReprC! {
         pub _3: T3,
     }
 }
+#[cfg(not(docs))]
 derive_ReprC! {
     #[repr(C)]
     pub
@@ -90,6 +105,7 @@ derive_ReprC! {
         pub _4: T4,
     }
 }
+#[cfg(not(docs))]
 derive_ReprC! {
     #[repr(C)]
     pub

@@ -46,9 +46,11 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
                    // with pointers.
             isize => "intptr",
         }
+        #[cfg(docs)] impl_CTypes! { @fns (A1) } #[cfg(not(docs))]
         impl_CTypes! { @fns
             (A6, A5, A4, A3, A2, A1)
         }
+        #[cfg(docs)] impl_CTypes! { @arrays 1 2 } #[cfg(not(docs))]
         impl_CTypes! { @arrays
             // 0
             1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
@@ -62,8 +64,13 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         $($N:tt)*
     ) => ($(
         // CType
+        /// Simplified for lighter documentation, but the actual impls
+        /// range **from `1` up to `32`, plus a bunch of significant
+        /// lengths up to `1024`**.
         unsafe // Safety: Rust arrays _are_ `#[repr(C)]`
-        impl<Item : CType> CType for [Item; $N] { cfg_headers! {
+        impl<Item : CType> CType
+            for [Item; $N]
+        { cfg_headers! {
             fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
               -> R
             {
@@ -119,8 +126,13 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         }}
 
         // ReprC
+        /// Simplified for lighter documentation, but the actual impls
+        /// range **from `1` up to `32`, plus a bunch of significant
+        /// lengths up to `1024`**.
         unsafe
-        impl<Item : ReprC> ReprC for [Item; $N] {
+        impl<Item : ReprC> ReprC
+            for [Item; $N]
+        {
             type CLayout = [Item::CLayout; $N];
 
             #[inline]
@@ -149,6 +161,8 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         )?
 
         // CType
+        /// Simplified for lighter documentation, but the actual impls include
+        /// **up to 6 function parameters**.
         unsafe // Safety: this is the "blessed" type recommended across Rust
                // literature. Still the alignment of function pointers is not
                // as well-defined, as one would wish.
@@ -198,6 +212,8 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             }
         }}
 
+        /// Simplified for lighter documentation, but the actual impls include
+        /// **up to 6 function parameters**.
         unsafe // Safety: byte-wise the layout is the same, but the safety
                // invariants will still have to be checked at each site.
         impl<
@@ -220,6 +236,8 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             }
         }
 
+        /// Simplified for lighter documentation, but the actual impls include
+        /// **up to 6 function parameters**.
         unsafe // Safety: byte-wise the layout is the same, but the safety
                // invariants will still have to be checked at each site.
         impl<
@@ -243,6 +261,9 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         }
 
         /* == ReprC for Option-less == */
+
+        /// Simplified for lighter documentation, but the actual impls include
+        /// **up to 6 function parameters**.
         unsafe // Safety: byte-wise the layout is the same, but the safety
                // invariants will still have to be checked at each site.
         impl<
@@ -265,6 +286,8 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             }
         }
 
+        /// Simplified for lighter documentation, but the actual impls include
+        /// **up to 6 function parameters**.
         unsafe // Safety: byte-wise the layout is the same, but the safety
                // invariants will still have to be checked at each site.
         impl<
@@ -295,7 +318,9 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         )*
     ) => ($(
         $unsafe // Safety: guaranteed by the caller of the macro
-        impl CType for $RustInt { cfg_headers! {
+        impl CType
+            for $RustInt
+        { cfg_headers! {
             fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
               -> R
             {
@@ -332,7 +357,9 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         @pointers
     ) => (
         unsafe
-        impl<T : CType> CType for *const T { cfg_headers! {
+        impl<T : CType> CType
+            for *const T
+        { cfg_headers! {
             fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
               -> R
             {
@@ -361,7 +388,9 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             }
         }}
         unsafe
-        impl<T : ReprC> ReprC for *const T {
+        impl<T : ReprC> ReprC
+        for *const T
+        {
             type CLayout = *const T::CLayout;
 
             #[inline]
@@ -373,7 +402,9 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         }
 
         unsafe
-        impl<T : CType> CType for *mut T { cfg_headers! {
+        impl<T : CType> CType
+            for *mut T
+        { cfg_headers! {
             fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
               -> R
             {
@@ -402,7 +433,9 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             }
         }}
         unsafe
-        impl<T : ReprC> ReprC for *mut T {
+        impl<T : ReprC> ReprC
+            for *mut T
+        {
             type CLayout = *mut T::CLayout;
 
             #[inline]
@@ -418,7 +451,9 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         @zsts
     ) => (
         unsafe
-        impl ReprC for () {
+        impl ReprC
+            for ()
+        {
             type CLayout = CVoid;
 
             #[inline]

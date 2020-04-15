@@ -36,7 +36,9 @@ cfg_headers! {
             ;
         }
 
-        impl<T : Definer> DefinerExt for T {
+        impl<T : Definer> DefinerExt
+            for T
+        {
             fn define (
                 self: &'_ mut Self,
                 name: &'_ str,
@@ -55,8 +57,6 @@ cfg_headers! {
 }
 
 /// Marker trait for a type whose
-#[doc(spotlight)]
-#[fundamental]
 pub
 unsafe trait CType
 :
@@ -65,12 +65,12 @@ unsafe trait CType
 {
     cfg_headers! {
         fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
-        -> R
+          -> R
         ;
 
         #[inline]
         fn c_define_self (definer: &'_ mut dyn Definer)
-        -> io::Result<()>
+          -> io::Result<()>
         {
             let _ = definer;
             Ok(())
@@ -109,7 +109,9 @@ cfg_headers! {
             _phantom: ::core::marker::PhantomData<T>,
         }
 
-        impl<T : CType> Display for ImplDisplay<'_, T> {
+        impl<T : CType> Display
+            for ImplDisplay<'_, T>
+        {
             fn fmt (self: &'_ Self, fmt: &'_ mut Formatter<'_>)
             -> Result
             {
@@ -119,7 +121,6 @@ cfg_headers! {
     }
 }
 
-#[doc(spotlight)]
 pub
 unsafe
 trait ReprC : Sized {
@@ -135,7 +136,8 @@ macro_rules! from_CType_impl_ReprC {(
     $(@for[$($generics:tt)*])? $T:ty $(where $($bounds:tt)*)?
 ) => (
     unsafe
-    impl$(<$($generics)*>)? $crate::layout::ReprC for $T
+    impl$(<$($generics)*>)? $crate::layout::ReprC
+        for $T
     where
         $($($bounds)*)?
     {

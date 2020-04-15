@@ -73,17 +73,18 @@ fn validity ()
     );
 }
 
+#[macro_rules_attribute(derive_ReprC!)]
+#[repr(C)]
+pub
+struct Crazy {
+    a: extern "C" fn (extern "C" fn(::repr_c::BoxedStr), Tuple2<[Foo<'static>; 12], ::repr_c::Box<MyBool>>),
+    closure: BoxDynFn2<(), i32, usize>,
+}
+
 #[cfg(feature = "headers")]
 #[test]
 fn generate_headers ()
 {
-    #[macro_rules_attribute(derive_ReprC!)]
-    #[repr(C)]
-    pub
-    struct Crazy {
-        a: extern "C" fn (extern "C" fn(), Tuple2<[Foo<'static>; 12], ::repr_c::Box<MyBool>>),
-        closure: BoxDynFn2<(), i32, usize>,
-    }
 
     let ref mut out =
         ::std::io::stderr()
@@ -98,19 +99,14 @@ fn generate_headers ()
         out: &'out mut dyn io::Write,
         defines: Set<String>,
     }
-    use ::core::cell::Cell;
-    thread_local! {
-        static DEPTH: Cell<usize> = Cell::new(0);
-    }
-    impl ::repr_c::layout::Definer for MyDefiner<'_> {
+    impl ::repr_c::layout::Definer
+        for MyDefiner<'_>
+    {
         fn insert (self: &'_ mut Self, name: &'_ str)
           -> bool
         {
             let mut inserted = false;
             self.defines.get_or_insert_with(name, |name| {
-                let depth = DEPTH.with(Cell::get);
-                eprintln!("{pad}> Defining `{}`", name, pad = "  ".repeat(depth));
-                DEPTH.with(|it| it.set(depth + 1));
                 inserted = true;
                 name.to_owned()
             });

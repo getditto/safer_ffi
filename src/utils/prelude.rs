@@ -4,7 +4,7 @@ pub(in crate) use crate::{*,
     utils::markers::*,
 };
 pub(in crate) use ::core::{
-    convert::TryInto,
+    convert::{TryFrom, TryInto},
     fmt,
     ptr,
     marker::PhantomData,

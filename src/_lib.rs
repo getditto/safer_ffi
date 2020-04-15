@@ -5,10 +5,8 @@
     elided_lifetimes_in_paths,
 )]
 #![cfg_attr(feature = "nightly",
-    feature(doc_cfg, doc_spotlight, external_doc)
+    feature(doc_cfg, external_doc)
 )]
-
-#![feature(fundamental)]
 
 #![cfg_attr(not(feature = "std"),
     no_std,
@@ -40,20 +38,27 @@ cfg_alloc! {
     pub mod boxed;
 }
 
+pub use self::c_char_module::c_char;
+#[path = "c_char.rs"]
+mod c_char_module;
+
+pub mod c_str;
+
 #[doc(inline)]
 pub use slice::{RefSlice, MutSlice};
 pub mod slice;
 
+
 #[doc(inline)]
-pub use self::str::RefStr;
-pub mod str;
+pub use self::string::RefStr;
+
+_mod!(pub string);
 
 cfg_alloc! {
     _mod!(pub closure);
 
     #[doc(inline)]
     pub use string::String;
-    pub mod string;
 
     #[doc(inline)]
     pub use vec::Vec;

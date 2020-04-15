@@ -14,10 +14,16 @@ struct PhantomInvariant<T : ?Sized> (
         *mut T,
     >,
 );
-unsafe impl<T : ?Sized> Send for PhantomInvariant<T> {}
-unsafe impl<T : ?Sized> Sync for PhantomInvariant<T> {}
+unsafe impl<T : ?Sized> Send
+    for PhantomInvariant<T>
+{}
+unsafe impl<T : ?Sized> Sync
+    for PhantomInvariant<T>
+{}
 
-impl<T : ?Sized> Default for PhantomInvariant<T> {
+impl<T : ?Sized> Default
+    for PhantomInvariant<T>
+{
     #[inline]
     fn default () -> Self
     {
@@ -25,8 +31,12 @@ impl<T : ?Sized> Default for PhantomInvariant<T> {
     }
 }
 
-impl<T : ?Sized> Copy for PhantomInvariant<T> {}
-impl<T : ?Sized> Clone for PhantomInvariant<T> {
+impl<T : ?Sized> Copy
+    for PhantomInvariant<T>
+{}
+impl<T : ?Sized> Clone
+    for PhantomInvariant<T>
+{
     #[inline]
     fn clone (self: &'_ Self) -> Self
     {

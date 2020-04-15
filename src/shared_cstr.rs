@@ -17,14 +17,20 @@ struct SharedCStr /* = */ (
     *const c_char,
 );
 
-unsafe impl Send for SharedCStr
-    where Arc<CStr> : Send
+unsafe impl Send
+    for SharedCStr
+where
+    Arc<CStr> : Send,
 {}
-unsafe impl Sync for SharedCStr
-    where Arc<CStr> : Sync
+unsafe impl Sync
+    for SharedCStr
+where
+    Arc<CStr> : Sync,
 {}
 
-impl From<Arc<CStr>> for SharedCStr {
+impl From<Arc<CStr>>
+    for SharedCStr
+{
     #[inline]
     fn from (s: Arc<CStr>)
       -> Self
@@ -37,7 +43,9 @@ impl From<Arc<CStr>> for SharedCStr {
     }
 }
 
-impl<'a> From<&'a str> for SharedCStr {
+impl<'a> From<&'a str>
+    for SharedCStr
+{
     #[inline]
     fn from (s: &'a str)
       -> Self
@@ -50,7 +58,9 @@ impl<'a> From<&'a str> for SharedCStr {
     }
 }
 
-impl From<CString> for SharedCStr {
+impl From<CString>
+    for SharedCStr
+{
     #[inline]
     fn from (s: CString)
       -> Self
@@ -60,7 +70,9 @@ impl From<CString> for SharedCStr {
     }
 }
 
-impl<'a> From<&'a CStr> for SharedCStr {
+impl<'a> From<&'a CStr>
+    for SharedCStr
+{
     #[inline]
     fn from (s: &'a CStr)
       -> Self
@@ -70,7 +82,9 @@ impl<'a> From<&'a CStr> for SharedCStr {
     }
 }
 
-impl Drop for SharedCStr {
+impl Drop
+    for SharedCStr
+{
     #[inline]
     fn drop (self: &'_ mut Self)
     {
@@ -84,7 +98,9 @@ impl Drop for SharedCStr {
     }
 }
 
-impl Clone for SharedCStr {
+impl Clone
+    for SharedCStr
+{
     #[inline]
     fn clone (self: &'_ Self)
       -> Self
@@ -100,7 +116,9 @@ impl Clone for SharedCStr {
     }
 }
 
-impl Deref for SharedCStr {
+impl Deref
+    for SharedCStr
+{
     type Target = str;
 
     #[inline]
@@ -116,7 +134,9 @@ impl Deref for SharedCStr {
     }
 }
 
-impl AsRef<str> for SharedCStr {
+impl AsRef<str>
+    for SharedCStr
+{
     #[inline]
     fn as_ref (self: &'_ Self)
       -> &'_ str
@@ -125,7 +145,9 @@ impl AsRef<str> for SharedCStr {
     }
 }
 
-impl fmt::Display for SharedCStr {
+impl fmt::Display
+    for SharedCStr
+{
     #[inline]
     fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
       -> fmt::Result

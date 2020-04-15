@@ -3,16 +3,31 @@ use super::*;
 #[cfg(feature = "headers")]
 #[macro_export] #[doc(hidden)]
 macro_rules! cfg_headers {(
-    $($it:item)*
+    $($tt:tt)*
 ) => (
-    $($it)*
+    $($tt)*
 )}
 #[cfg(not(feature = "headers"))]
 #[macro_export] #[doc(hidden)]
 macro_rules! cfg_headers {(
-    $($it:item)*
+    $($tt:tt)*
 ) => (
     // nothing
+)}
+
+#[macro_export] #[doc(hidden)]
+macro_rules! __with_doc__ {(
+    #[doc = $doc:expr]
+    $(#[$meta:meta])*
+    $pub:vis
+    struct
+    $($rest:tt)*
+) => (
+    $(#[$meta])*
+    #[doc = $doc]
+    $pub
+    struct
+    $($rest)*
 )}
 
 #[macro_export]
@@ -159,60 +174,71 @@ macro_rules! derive_ReprC {
             ),+ $(,)?
         }
     ) => (
-        #[repr(C)]
-        $(#[doc = $doc])?
-        $(#[$meta])*
-        $pub
-        struct $StructName $(
-            <$($generics)*> $(
-                where $($bounds)*
+        $crate::__with_doc__! {
+            #[doc = concat!(
+                "  - [`",
+                stringify!($StructName),
+                "_Layout`]"
+            )]
+            #[repr(C)]
+            $(#[doc = $doc])?
+            $(#[$meta])*
+            /// # C Layout
+            ///
+            $pub
+            struct $StructName $(
+                <$($generics)*> $(
+                    where $($bounds)*
+                )?
             )?
-        )?
-        {
-            $(
-                $(#[$field_meta])*
-                $field_pub
-                $field_name : $field_ty,
-            )*
+            {
+                $(
+                    $(#[$field_meta])*
+                    $field_pub
+                    $field_name : $field_ty,
+                )*
+            }
         }
 
         ::paste::item! {
-            pub type [< $StructName _Layout >]$(<$($generics)*>)?
-                = <$StructName $(<$($generics)*>)? as $crate::layout::ReprC>::CLayout
+            #[allow(nonstandard_style)]
+            $pub use
+                [< __ $StructName _repr_c_mod >]::$StructName
+                as
+                [< $StructName _Layout >]
             ;
-        }
-        const _: () = {
-            type __ReprC_StructName__ $(<$($generics)*>)? =
-                $StructName $(<$($generics)*>)?
-            ;
-            const _: () = {
-                unsafe // Safety: struct is `#[repr(C)]` and contains `ReprC` fields
-                impl $(<$($generics)*>)? $crate::layout::ReprC
-                    for __ReprC_StructName__ $(<$($generics)*>)?
-                where
-                    $(
-                        $field_ty : $crate::layout::ReprC,
-                    )*
-                    $($(
-                        $($bounds)*
-                    )?)?
-                {
-                    type CLayout =
-                        $StructName
-                            $(<$($generics)*>)?
-                    ;
 
-                    #[inline]
-                    fn is_valid (it: &'_ Self::CLayout)
-                      -> bool
-                    {
-                        true $(
-                            && <$field_ty as $crate::layout::ReprC>::is_valid(
-                                &it.$field_name
-                            )
-                        )*
-                    }
+            unsafe // Safety: struct is `#[repr(C)]` and contains `ReprC` fields
+            impl $(<$($generics)*>)? $crate::layout::ReprC
+                for $StructName $(<$($generics)*>)?
+            where
+                $(
+                    $field_ty : $crate::layout::ReprC,
+                )*
+                $($(
+                    $($bounds)*
+                )?)?
+            {
+                type CLayout =
+                    [<$StructName _Layout>]
+                        $(<$($generics)*>)?
+                ;
+
+                #[inline]
+                fn is_valid (it: &'_ Self::CLayout)
+                    -> bool
+                {
+                    true $(
+                        && <$field_ty as $crate::layout::ReprC>::is_valid(
+                            &it.$field_name
+                        )
+                    )*
                 }
+            }
+
+            #[allow(nonstandard_style)]
+            mod [< __ $StructName _repr_c_mod >] {
+                use super::{*, $StructName as _};
 
                 $crate::layout::derive_CType! {
                     #[repr(C)]
@@ -266,8 +292,8 @@ macro_rules! derive_ReprC {
                         *self
                     }
                 }
-            };
-        };
+            }
+        }
     );
 
     // `#[repr(transparent)]`
@@ -288,21 +314,30 @@ macro_rules! derive_ReprC {
             $($rest:tt)* )?
         );
     ) => (
-        #[repr(transparent)]
-        $(#[doc = $doc])?
-        $(#[$meta])*
-        $pub
-        struct $StructName $(
-            <$($generics)*>
-        )?
-        (
-            $(#[$field_meta])*
-            $field_pub
-            $field_ty,
-            $($($rest)*)?
-        )
-            $($(where $($bounds)*)?)?
-        ;
+        $crate::__with_doc__! {
+            #[doc = concat!(
+                " - [`",
+                stringify!($field_ty),
+                "`](#impl-ReprC)",
+            )]
+            #[repr(transparent)]
+            $(#[doc = $doc])?
+            $(#[$meta])*
+            /// # C Layout
+            ///
+            $pub
+            struct $StructName $(
+                <$($generics)*>
+            )?
+            (
+                $(#[$field_meta])*
+                $field_pub
+                $field_ty,
+                $($($rest)*)?
+            )
+                $($(where $($bounds)*)?)?
+            ;
+        }
 
         unsafe // Safety: struct is `#[repr(C)]` and contains `ReprC` fields
         impl $(<$($generics)*>)? $crate::layout::ReprC
@@ -375,7 +410,8 @@ macro_rules! derive_ReprC {
             }
 
             unsafe
-            impl $crate::layout::CType for [< $EnumName _Layout >]
+            impl $crate::layout::CType
+                for [< $EnumName _Layout >]
             { $crate::cfg_headers! {
                 fn with_short_name<R> (
                     ret: impl FnOnce(&'_ dyn $crate::core::fmt::Display) -> R,
@@ -449,7 +485,9 @@ macro_rules! derive_ReprC {
             }
 
             unsafe
-            impl $crate::layout::ReprC for $EnumName {
+            impl $crate::layout::ReprC
+                for $EnumName
+            {
                 type CLayout = [< $EnumName _Layout >];
 
                 #[inline]

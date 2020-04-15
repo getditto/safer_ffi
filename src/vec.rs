@@ -39,9 +39,12 @@ impl<T : ReprC> Vec<T> {
     }
 }
 
-impl<T : ReprC> From<rust::Vec<T>> for Vec<T> {
+impl<T : ReprC> From<rust::Vec<T>>
+    for Vec<T>
+{
     #[inline]
-    fn from (vec: rust::Vec<T>) -> Vec<T>
+    fn from (vec: rust::Vec<T>)
+      -> Vec<T>
     {
         let len = vec.len()/*.try_into().expect("Overflow")*/;
         let cap = vec.capacity()/*.try_into().expect("Overflow")*/;
@@ -56,9 +59,12 @@ impl<T : ReprC> From<rust::Vec<T>> for Vec<T> {
     }
 }
 
-impl<T : ReprC> Into<rust::Vec<T>> for Vec<T> {
+impl<T : ReprC> Into<rust::Vec<T>>
+    for Vec<T>
+{
     #[inline]
-    fn into (self: Vec<T>) -> rust::Vec<T>
+    fn into (self: Vec<T>)
+      -> rust::Vec<T>
     {
         let &mut Self { ptr, len, cap } = &mut *mem::ManuallyDrop::new(self);
         unsafe {
@@ -71,9 +77,11 @@ impl<T : ReprC> Into<rust::Vec<T>> for Vec<T> {
     }
 }
 
-impl<T : ReprC> Drop for Vec<T> {
+impl<T : ReprC> Drop
+    for Vec<T>
+{
     #[inline]
-    fn drop (self: &'_ mut Self)
+    fn drop (self: &'_ mut Vec<T>)
     {
         unsafe {
             drop::<rust::Vec<T>>(
@@ -84,10 +92,13 @@ impl<T : ReprC> Drop for Vec<T> {
     }
 }
 
-impl<T : ReprC> Deref for Vec<T> {
+impl<T : ReprC> Deref
+    for Vec<T>
+{
     type Target = [T];
 
-    fn deref (self: &'_ Self) -> &'_ Self::Target
+    fn deref (self: &'_ Vec<T>)
+      -> &'_ [T]
     {
         unsafe {
             slice::from_raw_parts(
@@ -97,8 +108,11 @@ impl<T : ReprC> Deref for Vec<T> {
         }
     }
 }
-impl<T : ReprC> DerefMut for Vec<T> {
-    fn deref_mut (self: &'_ mut Self) -> &'_ mut Self::Target
+impl<T : ReprC> DerefMut
+    for Vec<T>
+{
+    fn deref_mut (self: &'_ mut Vec<T>)
+      -> &'_ mut [T]
     {
         unsafe {
             slice::from_raw_parts_mut(
@@ -109,11 +123,15 @@ impl<T : ReprC> DerefMut for Vec<T> {
     }
 }
 
-unsafe impl<T : ReprC> Send for Vec<T> where
+unsafe impl<T : ReprC> Send
+    for Vec<T>
+where
     rust::Vec<T> : Send,
 {}
 
-unsafe impl<T : ReprC> Sync for Vec<T> where
+unsafe impl<T : ReprC> Sync
+    for Vec<T>
+where
     rust::Vec<T> : Sync,
 {}
 
@@ -126,9 +144,10 @@ impl<T : ReprC> Vec<T> {
     };
 
     pub
-    fn with_rust_mut<R, F> (self: &'_ mut Self, f: F) -> R
-    where
-        F : FnOnce(&'_ mut rust::Vec<T>) -> R
+    fn with_rust_mut<R> (
+        self: &'_ mut Self,
+        f: impl FnOnce(&'_ mut rust::Vec<T>) -> R,
+    ) -> R
     {
         let mut s: rust::Vec<T> = mem::replace(self, Self::EMPTY).into();
         let ret = f(&mut s);
@@ -137,7 +156,9 @@ impl<T : ReprC> Vec<T> {
     }
 }
 
-impl<T : fmt::Debug + ReprC> fmt::Debug for Vec<T> {
+impl<T : fmt::Debug + ReprC> fmt::Debug
+    for Vec<T>
+{
     fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
       -> fmt::Result
     {
