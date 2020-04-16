@@ -50,32 +50,47 @@ impl ReprC
 }
 
 #[cfg(not(docs))]
-derive_ReprC! {
+ReprC! {
     #[repr(C)]
     /// Simplified for lighter documentation, but the actual impls
     /// range from `Tuple1` up to `Tuple9`.
     pub
-    struct Tuple1[T0] {
+    struct Tuple1[T0]
+    where {
+        T0 : ReprC,
+    }
+    {
         pub _0: T0,
     }
 }
 
-derive_ReprC! {
+ReprC! {
     #[repr(C)]
     /// Simplified for lighter documentation, but the actual impls
     /// range from `Tuple1` up to `Tuple9`.
     pub
-    struct Tuple2[T0, T1] {
+    struct Tuple2[T0, T1]
+    where {
+        T0 : ReprC,
+        T1 : ReprC,
+    }
+    {
         pub _0: T0,
         pub _1: T1,
     }
 }
 
 #[cfg(not(docs))]
-derive_ReprC! {
+ReprC! {
     #[repr(C)]
     pub
-    struct Tuple3[T0, T1, T2] {
+    struct Tuple3[T0, T1, T2]
+    where {
+        T0 : ReprC,
+        T1 : ReprC,
+        T2 : ReprC,
+    }
+    {
         pub _0: T0,
         pub _1: T1,
         pub _2: T2,
@@ -83,10 +98,17 @@ derive_ReprC! {
 }
 
 #[cfg(not(docs))]
-derive_ReprC! {
+ReprC! {
     #[repr(C)]
     pub
-    struct Tuple4[T0, T1, T2, T3] {
+    struct Tuple4[T0, T1, T2, T3]
+    where {
+        T0 : ReprC,
+        T1 : ReprC,
+        T2 : ReprC,
+        T3 : ReprC,
+    }
+    {
         pub _0: T0,
         pub _1: T1,
         pub _2: T2,
@@ -94,10 +116,18 @@ derive_ReprC! {
     }
 }
 #[cfg(not(docs))]
-derive_ReprC! {
+ReprC! {
     #[repr(C)]
     pub
-    struct Tuple5[T0, T1, T2, T3, T4] {
+    struct Tuple5[T0, T1, T2, T3, T4]
+    where {
+        T0 : ReprC,
+        T1 : ReprC,
+        T2 : ReprC,
+        T3 : ReprC,
+        T4 : ReprC,
+    }
+    {
         pub _0: T0,
         pub _1: T1,
         pub _2: T2,
@@ -106,10 +136,19 @@ derive_ReprC! {
     }
 }
 #[cfg(not(docs))]
-derive_ReprC! {
+ReprC! {
     #[repr(C)]
     pub
-    struct Tuple6[T0, T1, T2, T3, T4, T5] {
+    struct Tuple6[T0, T1, T2, T3, T4, T5]
+    where {
+        T0 : ReprC,
+        T1 : ReprC,
+        T2 : ReprC,
+        T3 : ReprC,
+        T4 : ReprC,
+        T5 : ReprC,
+    }
+    {
         pub _0: T0,
         pub _1: T1,
         pub _2: T2,

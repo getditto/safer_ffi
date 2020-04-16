@@ -1,6 +1,8 @@
+//! `#[repr(C)]` [`Box`][`rust::Box`]ed types.
+
 use_prelude!();
 
-derive_ReprC! {
+ReprC! {
     #[repr(transparent)]
     /// Same as [`Box<T>`][`rust::Box`], (_e.g._, same `#[repr(C)]` layout), but
     /// with **no non-aliasing guarantee**.
@@ -100,8 +102,8 @@ impl<T : fmt::Debug> fmt::Debug
     }
 }
 
-#[doc(inline)]
-pub use super::slice::BoxedSlice;
+#[doc(no_inline)]
+pub use crate::slice::BoxedSlice;
 
-#[doc(inline)]
-pub use super::string::BoxedStr;
+#[doc(no_inline)]
+pub use crate::string::BoxedStr;

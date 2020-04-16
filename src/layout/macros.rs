@@ -3,14 +3,14 @@ use super::*;
 #[cfg(feature = "headers")]
 #[macro_export] #[doc(hidden)]
 macro_rules! cfg_headers {(
-    $($tt:tt)*
+    $($item:item)*
 ) => (
-    $($tt)*
+    $($item)*
 )}
 #[cfg(not(feature = "headers"))]
 #[macro_export] #[doc(hidden)]
 macro_rules! cfg_headers {(
-    $($tt:tt)*
+    $($item:item)*
 ) => (
     // nothing
 )}
@@ -31,7 +31,7 @@ macro_rules! __with_doc__ {(
 )}
 
 #[macro_export]
-macro_rules! derive_CType {(
+macro_rules! CType {(
     #[repr(C)]
     $(#[$meta:meta])*
     $pub:vis
@@ -67,9 +67,9 @@ macro_rules! derive_CType {(
     impl $(<$($lt ,)* $($($generics),+)?>)? $crate::layout::CType
         for $StructName$(<$($lt ,)* $($($generics),+)?>)?
     where
-        $(
-            $field_ty : $crate::layout::CType,
-        )*
+        // $(
+        //     $field_ty : $crate::layout::CType,
+        // )*
         $(
             $($($bounds)*)?
         )?
@@ -104,6 +104,10 @@ macro_rules! derive_CType {(
         fn c_define_self (definer: &'_ mut dyn $crate::layout::Definer)
           -> $crate::std::io::Result<()>
         {
+            assert_ne!(
+                $crate::core::mem::size_of::<Self>(), 0,
+                "C does not support zero-sized structs!",
+            );
             let ref me =
                 <Self as $crate::layout::CType>
                     ::with_short_name(|it| it.to_string())
@@ -117,11 +121,22 @@ macro_rules! derive_CType {(
                     let out = definer.out();
                     write!(out, "typedef struct {{\n")?;
                     $(
-                        write!(out, "    {};\n",
-                            <$field_ty as $crate::layout::CType>::c_display(
-                                stringify!($field_name),
-                            ),
-                        )?;
+                        if $crate::core::mem::size_of::<$field_ty>() > 0 {
+                            write!(out, "    {};\n",
+                                <$field_ty as $crate::layout::CType>::c_display(
+                                    stringify!($field_name),
+                                ),
+                            )?;
+                        } else {
+                            assert_eq!(
+                                $crate::core::mem::align_of::<$field_ty>(),
+                                1,
+                                concat!(
+                                    "Zero-sized fields must have an ",
+                                    "alignment of `1`."
+                                ),
+                            );
+                        }
                     )*
                     $crate::core::write!(out, "}} {}_t;\n\n", me)
                 },
@@ -154,7 +169,7 @@ macro_rules! derive_CType {(
 )}
 
 #[macro_export]
-macro_rules! derive_ReprC {
+macro_rules! ReprC {
     // struct
     (
         $( @[doc = $doc:expr] )?
@@ -229,8 +244,14 @@ macro_rules! derive_ReprC {
                     -> bool
                 {
                     true $(
-                        && <$field_ty as $crate::layout::ReprC>::is_valid(
-                            &it.$field_name
+                        && (
+                            $crate::core::mem::size_of::<
+                                <$field_ty as $crate::layout::ReprC>::CLayout
+                            >() == 0
+                            ||
+                            <$field_ty as $crate::layout::ReprC>::is_valid(
+                                &it.$field_name
+                            )
                         )
                     )*
                 }
@@ -240,7 +261,7 @@ macro_rules! derive_ReprC {
             mod [< __ $StructName _repr_c_mod >] {
                 use super::{*, $StructName as _};
 
-                $crate::layout::derive_CType! {
+                $crate::layout::CType! {
                     #[repr(C)]
                     // $(#[$meta])*
                     pub
@@ -373,10 +394,10 @@ macro_rules! derive_ReprC {
             ),+ $(,)?
         }
     ) => (
-        $crate::layout::derive_ReprC! {
+        $crate::layout::ReprC! {
             @validate_int_repr $Int
         }
-        $crate::layout::derive_ReprC! {
+        $crate::layout::ReprC! {
             @deny_C $Int
         }
 
@@ -442,7 +463,7 @@ macro_rules! derive_ReprC {
                                         stringify!($EnumName),
                                         "_",
                                         stringify!($Variant),
-                                        $( $crate::layout::derive_ReprC! {
+                                        $( $crate::layout::ReprC! {
                                             @first(
                                                 " = {}"
                                             ) $discriminant
@@ -555,14 +576,4 @@ macro_rules! derive_ReprC {
     (@deny_C $otherwise:tt) => ();
 
     (@first ($($fst:tt)*) $ignored:tt) => ($($fst)*);
-}
-
-derive_ReprC! {
-    #[repr(u8)]
-    /// Some docstring
-    pub
-    enum MyBool {
-        False = 42,
-        True = 27,
-    }
 }

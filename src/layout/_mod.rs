@@ -1,3 +1,5 @@
+//! Trait abstractions describing the semantics of "being `#[repr(C)]`"
+
 use_prelude!();
 
 use ::core::fmt;
@@ -6,7 +8,13 @@ use ::core::fmt;
 mod macros;
 
 #[doc(inline)]
-pub use crate::{from_CType_impl_ReprC, derive_ReprC, derive_CType};
+pub use crate::{from_CType_impl_ReprC, ReprC, CType};
+
+cfg_proc_macros! {
+    pub use ::proc_macro::{
+        derive_ReprC,
+    };
+}
 
 cfg_headers! {
     pub
@@ -120,6 +128,9 @@ cfg_headers! {
         }
     }
 }
+
+#[cfg(docs)]
+pub(in crate) use ReprC as ReprCTrait;
 
 pub
 unsafe

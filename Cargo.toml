@@ -14,16 +14,27 @@ license = "MIT"
 libc = { version = "0.2.66", default-features = false }
 
 [features]
-default = ["alloc", "headers", "nightly"]
+default = ["std", "derives"]
+
 alloc = []
-std = ["alloc", "log"]
+proc_macros = []
+derives = [ "proc_macros" ]  # alias
 headers = ["std"]
 nightly = []
+std = ["alloc", "log"]
+
+[dev-dependencies]
+macro_rules_attribute = "0.0.1"
+
+[workspace]
+members = ["src/proc_macro"]
 
 [dependencies]
 paste = "0.1.7"
 _mod = { path = "../dhm/_mod" }
 log = { version = "0.4.8", optional = true }
 
-[dev-dependencies]
-macro_rules_attribute = "0.0.1"
+[dependencies.proc_macro]
+package = "repr_c-proc_macro"
+path = "src/proc_macro"
+version = "0.1.0"

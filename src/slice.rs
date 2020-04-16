@@ -1,6 +1,8 @@
+//! Logic common to all fat pointers.
+
 use_prelude!();
 
-derive_ReprC! {
+ReprC! {
     #[repr(C)]
     /// # C layout (for some given type T)
     ///
@@ -133,8 +135,9 @@ impl<'lt, T : 'lt + ReprC> From<&'lt mut [T]>
 }
 
 cfg_alloc! {
-    derive_ReprC! {
+    ReprC! {
         #[repr(transparent)]
+        #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]
         /// `rust::Box<[T]>` but with a guaranteed `#[repr(C)]` layout.
         #[derive(Debug)]
         pub
@@ -252,7 +255,7 @@ cfg_alloc! {
     {}
 }
 
-derive_ReprC! {
+ReprC! {
     #[repr(transparent)]
     /// `&'lt mut [T]` but with a guaranteed `#[repr(C)]` layout.
     pub
@@ -350,7 +353,7 @@ impl<T : fmt::Debug + ReprC> fmt::Debug
     }
 }
 
-derive_ReprC! {
+ReprC! {
     #[repr(transparent)]
     /// `&'lt [T]` but with a guaranteed `#[repr(C)]` layout.
     pub

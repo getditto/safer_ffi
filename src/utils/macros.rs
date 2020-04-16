@@ -3,26 +3,77 @@ macro_rules! use_prelude { () => (
     use crate::utils::prelude::*;
 )}
 
-#[cfg(
-    any(all(docs, feature = "nightly"), feature = "alloc")
-)]
-macro_rules! cfg_alloc {(
-    $($item:item)*
-) => (
-    $(
-        #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]
-        $item
-    )*
-)}
+#[macro_use]
+mod cfg_alloc {
+    #[cfg(
+        feature = "alloc",
+    )]
+    macro_rules! cfg_alloc {(
+        $($item:item)*
+    ) => (
+        $(
+            #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]
+            $item
+        )*
+    )}
 
-#[cfg(not(
-    any(all(docs, feature = "nightly"), feature = "alloc")
-))]
-macro_rules! cfg_alloc {(
-    $($item:item)*
-) => (
-    // Nothing
-)}
+    #[cfg(not(
+        feature = "alloc",
+    ))]
+    macro_rules! cfg_alloc {(
+        $($item:item)*
+    ) => (
+        // Nothing
+    )}
+}
+
+#[macro_use]
+mod cfg_std {
+    #[cfg(
+        feature = "std",
+    )]
+    macro_rules! cfg_std {(
+        $($item:item)*
+    ) => (
+        $(
+            #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "std")))]
+            $item
+        )*
+    )}
+
+    #[cfg(not(
+        feature = "std",
+    ))]
+    macro_rules! cfg_std {(
+        $($item:item)*
+    ) => (
+        // Nothing
+    )}
+}
+
+#[macro_use]
+mod cfg_proc_macros {
+    #[cfg(
+        feature = "proc_macros",
+    )]
+    macro_rules! cfg_proc_macros {(
+        $($item:item)*
+    ) => (
+        $(
+            #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "proc_macros")))]
+            $item
+        )*
+    )}
+
+    #[cfg(not(
+        feature = "proc_macros",
+    ))]
+    macro_rules! cfg_proc_macros {(
+        $($item:item)*
+    ) => (
+        // Nothing
+    )}
+}
 
 macro_rules! const_assert {
     (

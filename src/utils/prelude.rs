@@ -5,8 +5,8 @@ pub(in crate) use crate::{*,
 };
 pub(in crate) use ::core::{
     convert::{TryFrom, TryInto},
+    ffi::c_void,
     fmt,
-    ptr,
     marker::PhantomData,
     mem,
     ops::{
@@ -24,15 +24,23 @@ pub(in crate) type size_t = u32;
 
 pub(in crate)
 mod rust {
-    #[cfg(feature = "alloc")]
-    pub(in crate) use ::alloc::{
-        boxed::Box,
-        string::String,
-        vec::Vec,
-    };
+    cfg_alloc! {
+        pub(in crate) use ::alloc::{
+            boxed::Box,
+            string::String,
+            vec::Vec,
+        };
+    }
 }
 
-#[cfg(feature = "std")]
-pub(in crate) use ::std::{
-    io,
-};
+pub(in crate)
+mod ptr {
+    pub(in crate) use ::core::ptr::*;
+    pub(in crate) use crate::ptr::*;
+}
+
+cfg_std! {
+    pub(in crate) use ::std::{
+        io,
+    };
+}

@@ -1,11 +1,15 @@
+//! `Rust` string types with a defined `#[repr(C)]` layout, albeit not `char *`
+//! compatible (_fat_ pointers).
+
 use_prelude!();
 
 pub use self::slice::*;
 mod slice;
 
 cfg_alloc! {
-    derive_ReprC! {
+    ReprC! {
         #[repr(transparent)]
+        #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]
         /// Same as [`String`][`rust::String`], but with guaranteed `#[repr(C)]` layout
         pub
         struct String (

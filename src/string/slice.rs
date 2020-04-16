@@ -1,10 +1,11 @@
 use_prelude!();
 
 cfg_alloc! {
-    derive_ReprC! {
+    ReprC! {
         #[repr(transparent)]
+        #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]
         /// Same as [`Box`][`rust::Box`]`<str>`, but with a guaranteed
-        /// `#[repr(C)]` layout>
+        /// `#[repr(C)]` layout.
         pub
         struct BoxedStr (
             BoxedSlice<c_char>,
@@ -101,8 +102,9 @@ cfg_alloc! {
     }
 }
 
-derive_ReprC! {
+ReprC! {
     #[repr(transparent)]
+    /// `&'lt str`, but with a guaranteed `#[repr(C)]` layout.
     pub
     struct RefStr['lt,] (
         RefSlice<'lt, c_char>,

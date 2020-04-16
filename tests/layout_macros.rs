@@ -10,20 +10,19 @@ use ::std::{
     ops::Not as _,
 };
 use ::repr_c::{
-    closure::boxed::BoxDynFn2,
+    closure::*,
     layout::{
         CType,
-        derive_CType,
-        derive_ReprC,
         ReprC,
+        derive_ReprC,
     },
     slice::*,
     tuple::Tuple2,
 };
 
-// #[derive(ReprC)]
-#[macro_rules_attribute(derive_ReprC!)]
+#[derive_ReprC]
 #[repr(u8)]
+#[derive(Debug)]
 /// Some docstring
 pub
 enum MyBool {
@@ -31,14 +30,13 @@ enum MyBool {
     True, // = 43
 }
 
-derive_ReprC! {
-    #[repr(C)]
-    /// Some docstring
-    pub
-    struct Foo['a,] {
-        b: MyBool,
-        field: RefSlice<'a, u32>,
-    }
+#[derive_ReprC]
+#[repr(C)]
+/// Some docstring
+pub
+struct Foo<'a> {
+    b: MyBool,
+    field: RefSlice<'a, u32>,
 }
 
 #[test]
@@ -73,12 +71,12 @@ fn validity ()
     );
 }
 
-#[macro_rules_attribute(derive_ReprC!)]
+#[derive_ReprC]
 #[repr(C)]
 pub
 struct Crazy {
-    a: extern "C" fn (extern "C" fn(::repr_c::BoxedStr), Tuple2<[Foo<'static>; 12], ::repr_c::Box<MyBool>>),
-    closure: BoxDynFn2<(), i32, usize>,
+    a: extern "C" fn (extern "C" fn(::repr_c::c_str::Ref_), Tuple2<[Foo<'static>; 12], ::repr_c::Box<MyBool>>),
+    closure: RefDynFnMut2<'static, (), i32, usize>,
 }
 
 #[cfg(feature = "headers")]

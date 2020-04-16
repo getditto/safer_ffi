@@ -1,12 +1,6 @@
-//! Simplified for lighter documentation, but the actual `struct` definitions
-//! and impls range from `ArcDynFn0` up to `ArcDynFn6`.
+//! `Arc<dyn 'static + Send + Sync + Fn(...) -> _>` but with a `#[repr(C)]`
+//! layout (inlined virtual method table).
 
-use ::core::{
-    hint,
-    ffi::c_void,
-    ptr,
-    ops::Not,
-};
 use ::alloc::sync::Arc;
 
 use_prelude!();
@@ -24,7 +18,7 @@ macro_rules! with_tuple {(
         $( $A_N:ident, $($A_k:ident ,)* )?
     )
 ) => (
-    derive_ReprC! {
+    ReprC! {
         @[doc = concat!(
             "`Arc<dyn 'static + Send + Sync + Fn(" $(,
                 stringify!($A_N) $(, ", ", stringify!($A_k))*
@@ -54,10 +48,10 @@ macro_rules! with_tuple {(
                 unsafe extern "C"
                 fn (env_ptr: ptr::NonNull<c_void>)
             ,
-            retain:
+            retain: Option<
                 unsafe extern "C"
                 fn (env_ptr: ptr::NonNull<c_void>)
-            ,
+            >,
         }
     }
 
@@ -112,7 +106,7 @@ macro_rules! with_tuple {(
                     }
                     release::<F>
                 },
-                retain: {
+                retain: Some({
                     unsafe extern "C"
                     fn retain<F> (env_ptr: ptr::NonNull<c_void>)
                     where
@@ -125,7 +119,7 @@ macro_rules! with_tuple {(
                         ));
                     }
                     retain::<F>
-                },
+                }),
                 call: {
                     unsafe extern "C"
                     fn call<F, Ret $(, $A_N $(, $A_k)*)?> (
@@ -174,8 +168,13 @@ macro_rules! with_tuple {(
         fn clone (self: &'_ Self)
           -> Self
         {
+            let retain = self.retain.expect(concat!(
+                "Cannot `.clone()` a `",
+                stringify!($ArcDynFn_N),
+                "` whose `.retain` function pointer is `NULL`",
+            ));
             unsafe {
-                (self.retain)(self.env_ptr);
+                retain(self.env_ptr);
                 Self { .. *self }
             }
         }

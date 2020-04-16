@@ -1,7 +1,8 @@
 use_prelude!();
 
-derive_ReprC! {
+ReprC! {
     #[repr(C)]
+    #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]
     /// Same as [`Vec<T>`][`rust::Vec`], but with guaranteed `#[repr(C)]` layout
     pub
     struct Vec[T] where { T : ReprC } {

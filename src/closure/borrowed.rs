@@ -1,8 +1,7 @@
-//! `Box<dyn 'static + Send + FnMut(...) -> _>` but with a `#[repr(C)]`
-//! layout (inlined virtual method table).
+//! `&'lt mut (dyn 'lt + Send + FnMut(...) -> _>` but with a `#[repr(C)]`
+//! layout (env ptr + function ptr).
 
 use_prelude!();
-use ::alloc::boxed::Box;
 
 macro_rules! hack {(
     #[doc = $doc:expr]
@@ -13,20 +12,20 @@ macro_rules! hack {(
 )}
 
 macro_rules! with_tuple {(
-    $BoxDynFnMut_N:ident => (
+    $RefDynFnMut_N:ident => (
         $( $A_N:ident, $($A_k:ident ,)* )?
     )
 ) => (
     ReprC! {
         @[doc = concat!(
-            "`Box<dyn 'static + Send + FnMut(" $(,
+            "`&'lt mut (dyn 'lt + Send + FnMut(" $(,
                 stringify!($A_N) $(, ", ", stringify!($A_k))*
             )?,
-            ") -> Ret>`",
+            ") -> Ret)`",
         )]
         #[repr(C)]
         pub
-        struct $BoxDynFnMut_N [Ret $(, $A_N $(, $A_k)*)?]
+        struct $RefDynFnMut_N ['lt, Ret $(, $A_N $(, $A_k)*)?]
         where {
             Ret : ReprC, $(
             $A_N : ReprC, $(
@@ -43,24 +42,21 @@ macro_rules! with_tuple {(
                     )*)?
                 ) -> Ret
             ,
-            free:
-                unsafe extern "C"
-                fn (env_ptr: ptr::NonNull<c_void>)
-            ,
+            _lt: PhantomData<&'lt ()>,
         }
     }
 
-    /// `Box<dyn Send + ...> : Send`
+    /// `&'_ mut (dyn Send + ...) : Send`
     unsafe impl<Ret $(, $A_N $(, $A_k)*)?> Send
-        for $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
+        for $RefDynFnMut_N <'_, Ret $(, $A_N $(, $A_k)*)?>
     where
         Ret : ReprC, $(
         $A_N : ReprC, $(
         $A_k : ReprC, )*)?
     {}
 
-    impl<Ret $(, $A_N $(, $A_k)*)?>
-        $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
+    impl<'lt, Ret $(, $A_N $(, $A_k)*)?>
+        $RefDynFnMut_N <'lt, Ret $(, $A_N $(, $A_k)*)?>
     where
         Ret : ReprC, $(
         $A_N : ReprC, $(
@@ -68,25 +64,15 @@ macro_rules! with_tuple {(
     {
         #[inline]
         pub
-        fn new<F> (f: rust::Box<F>) -> Self
+        fn new<F> (f: &'lt F) -> Self
         where
             F : FnMut( $($A_N $(, $A_k)*)? ) -> Ret,
-            F : Send + 'static,
+            F : 'lt + Send,
         {
-            // Safety: `F` can be "raw-coerced" to `dyn 'static + Send + FnMut...`
+            // Safety: `F` can be "raw-coerced" to `dyn 'lt + Send + FnMut...`
             // thanks to the generic bounds on F.
             Self {
-                env_ptr: ptr::NonNull::from(Box::leak(f)).cast(),
-                free: {
-                    unsafe extern "C"
-                    fn free<F> (env_ptr: ptr::NonNull<c_void>)
-                    where
-                        F : Send + 'static,
-                    {
-                        drop::<Box<F>>(Box::from_raw(env_ptr.cast().as_ptr()));
-                    }
-                    free::<F>
-                },
+                env_ptr: ptr::NonNull::from(f).cast(),
                 call: {
                     unsafe extern "C"
                     fn call<F, Ret $(, $A_N $(, $A_k)*)?> (
@@ -96,35 +82,21 @@ macro_rules! with_tuple {(
                     ) -> Ret
                     where
                         F : FnMut($($A_N $(, $A_k)*)?) -> Ret,
-                        F : Send + 'static,
+                        F : Send,
                     {
                         let mut env_ptr = env_ptr.cast();
-                        let f: &mut F = env_ptr.as_mut();
+                        let f: &'_ mut F = env_ptr.as_mut();
                         f( $($A_N $(, $A_k)*)? )
                     }
                     call::<F, Ret $(, $A_N $(, $A_k)*)?>
                 },
-            }
-        }
-    }
-
-    impl<Ret $(, $A_N $(, $A_k)*)?> Drop
-        for $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
-    where
-        Ret : ReprC, $(
-        $A_N : ReprC, $(
-        $A_k : ReprC, )*)?
-    {
-        fn drop (self: &'_ mut Self)
-        {
-            unsafe {
-                (self.free)(self.env_ptr)
+                _lt: PhantomData,
             }
         }
     }
 
     impl<Ret $(, $A_N $(, $A_k)*)?> ::core::fmt::Debug
-        for $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
+        for $RefDynFnMut_N <'_, Ret $(, $A_N $(, $A_k)*)?>
     where
         Ret : ReprC, $(
         $A_N : ReprC, $(
@@ -133,12 +105,12 @@ macro_rules! with_tuple {(
         fn fmt (self: &'_ Self, fmt: &'_ mut ::core::fmt::Formatter<'_>)
           -> ::core::fmt::Result
         {
-            <str as ::core::fmt::Display>::fmt(stringify!($BoxDynFnMut_N), fmt)
+            <str as ::core::fmt::Display>::fmt(stringify!($RefDynFnMut_N), fmt)
         }
     }
 
     impl<Ret $(, $A_N $(, $A_k)*)?>
-        $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
+        $RefDynFnMut_N <'_, Ret $(, $A_N $(, $A_k)*)?>
     where
         Ret : ReprC, $(
         $A_N : ReprC, $(
@@ -161,25 +133,25 @@ macro_rules! with_tuple {(
 
 macro_rules! with_tuples {
     (
-        $BoxDynFnMut0:ident,
+        $RefDynFnMut0:ident,
     ) => (
-        with_tuple!($BoxDynFnMut0 => ());
+        with_tuple!($RefDynFnMut0 => ());
     );
 
     (
-        $BoxDynFnMut0:ident,
-        ($BoxDynFnMut_N:ident, $A_N:ident),
+        $RefDynFnMut0:ident,
+        ($RefDynFnMut_N:ident, $A_N:ident),
         $(
-            ($BoxDynFnMut_K:ident, $A_K:ident),
+            ($RefDynFnMut_K:ident, $A_K:ident),
         )*
     ) => (
-        with_tuple!($BoxDynFnMut_N => (
+        with_tuple!($RefDynFnMut_N => (
             $A_N, $($A_K ,)*
         ));
         with_tuples!(
-            $BoxDynFnMut0,
+            $RefDynFnMut0,
             $(
-                ($BoxDynFnMut_K, $A_K),
+                ($RefDynFnMut_K, $A_K),
             )*
         );
     );
@@ -187,22 +159,22 @@ macro_rules! with_tuples {
 
 #[cfg(not(docs))]
 with_tuples! {
-    BoxDynFnMut0,
+    RefDynFnMut0,
 
-    (BoxDynFnMut9, A9),
-    (BoxDynFnMut8, A8),
-    (BoxDynFnMut7, A7),
-    (BoxDynFnMut6, A6),
+    (RefDynFnMut9, A9),
+    (RefDynFnMut8, A8),
+    (RefDynFnMut7, A7),
+    (RefDynFnMut6, A6),
 
-    (BoxDynFnMut5, A5),
-    (BoxDynFnMut4, A4),
-    (BoxDynFnMut3, A3),
-    (BoxDynFnMut2, A2),
-    (BoxDynFnMut1, A1),
+    (RefDynFnMut5, A5),
+    (RefDynFnMut4, A4),
+    (RefDynFnMut3, A3),
+    (RefDynFnMut2, A2),
+    (RefDynFnMut1, A1),
 }
 
 #[cfg(docs)]
 with_tuples! {
-    BoxDynFnMut0,
-    (BoxDynFnMut1, A1),
+    RefDynFnMut0,
+    (RefDynFnMut1, A1),
 }

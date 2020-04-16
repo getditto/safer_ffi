@@ -450,6 +450,8 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
     (
         @zsts
     ) => (
+        // needed for compatibility with functions returning `()`
+        // FIXME: Use special impls in `@fns` for `-> ()` instead.
         unsafe
         impl ReprC
             for ()
@@ -460,7 +462,21 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             fn is_valid (it: &'_ CVoid)
               -> bool
             {
-                true
+                panic!("It is a logic error to try and get a ZST from C");
+            }
+        }
+        // Needed for structs containing a `PhantomData` field.
+        unsafe
+        impl<T : ?Sized> ReprC
+            for PhantomData<T>
+        {
+            type CLayout = CVoid;
+
+            #[inline]
+            fn is_valid (it: &'_ CVoid)
+              -> bool
+            {
+                panic!("It is a logic error to try and get a ZST from C");
             }
         }
     );
@@ -513,7 +529,28 @@ impl_ReprC_for! { unsafe {
     ,
 
     @for[T : ReprC]
-    ::core::ptr::NonNull<T>
+    ptr::NonNull<T>
+        => |ref it: *mut T::CLayout| {
+            it.is_null().not() &&
+            (*it as usize) % ::core::mem::align_of::<T>() == 0
+        }
+    ,
+    @for[T : ReprC]
+    ptr::NonNullRef<T>
+        => |ref it: *const T::CLayout| {
+            it.is_null().not() &&
+            (*it as usize) % ::core::mem::align_of::<T>() == 0
+        }
+    ,
+    @for[T : ReprC]
+    ptr::NonNullMut<T>
+        => |ref it: *mut T::CLayout| {
+            it.is_null().not() &&
+            (*it as usize) % ::core::mem::align_of::<T>() == 0
+        }
+    ,
+    @for[T : ReprC]
+    ptr::NonNullOwned<T>
         => |ref it: *mut T::CLayout| {
             it.is_null().not() &&
             (*it as usize) % ::core::mem::align_of::<T>() == 0
@@ -535,8 +572,28 @@ impl_ReprC_for! { unsafe {
     ,
 
     @for[T : ReprC]
-    Option<::core::ptr::NonNull<T>>
-        => |ref _: *const T::CLayout| true
+    Option<ptr::NonNull<T>>
+        => |ref it: *const T::CLayout| {
+            (*it as usize) % ::core::mem::align_of::<T>() == 0
+        }
+    ,
+    @for[T : ReprC]
+    Option< ptr::NonNullRef<T> >
+        => |ref it: *const T::CLayout| {
+            (*it as usize) % ::core::mem::align_of::<T>() == 0
+        }
+    ,
+    @for[T : ReprC]
+    Option< ptr::NonNullMut<T> >
+        => |ref it: *mut T::CLayout| {
+            (*it as usize) % ::core::mem::align_of::<T>() == 0
+        }
+    ,
+    @for[T : ReprC]
+    Option< ptr::NonNullOwned<T> >
+        => |ref it: *mut T::CLayout| {
+            (*it as usize) % ::core::mem::align_of::<T>() == 0
+        }
     ,
     @for['a, T : 'a + ReprC]
     Option<&'a T>
