@@ -13,7 +13,7 @@ ReprC! {
     /// This is a **borrowed** version, _i.e._, with the semantics of
     /// `&'lt CStr` / `&'lt str`, but for it being a _slim_ pointer.
     pub
-    struct c_str_ref['lt,] (
+    struct char_p_ref['lt,] (
         ptr::NonNullRef<c_char>,
         PhantomCovariantLifetime<'lt>,
     );
@@ -21,7 +21,7 @@ ReprC! {
 
 const NUL: u8 = b'\0';
 
-impl c_str_ref<'static> {
+impl char_p_ref<'static> {
     pub
     const EMPTY: Self = unsafe {
         Self::from_ptr_unchecked(ptr::NonNull::new_unchecked({
@@ -30,7 +30,7 @@ impl c_str_ref<'static> {
         }))
     };
 }
-impl<'lt> c_str_ref<'lt> {
+impl<'lt> char_p_ref<'lt> {
     pub
     const
     unsafe
@@ -44,6 +44,25 @@ impl<'lt> c_str_ref<'lt> {
     }
 }
 
+impl fmt::Debug
+    for char_p_ref<'_>
+{
+    fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
+      -> fmt::Result
+    {
+        fmt::Debug::fmt(self.to_str(), fmt)
+    }
+}
+impl fmt::Display
+    for char_p_ref<'_>
+{
+    fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
+      -> fmt::Result
+    {
+        fmt::Display::fmt(self.to_str(), fmt)
+    }
+}
+
 #[derive(Debug)]
 pub
 struct InvalidNulTerminator<Payload> (
@@ -53,7 +72,7 @@ struct InvalidNulTerminator<Payload> (
 impl<T> fmt::Display
     for InvalidNulTerminator<T>
 {
-    fn fmt (self: &'_ Self, fmt : &'_ mut fmt::Formatter<'_>)
+    fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
       -> fmt::Result
     {
         fmt::Display::fmt(
@@ -64,13 +83,13 @@ impl<T> fmt::Display
 }
 
 impl<'lt> TryFrom<&'lt str>
-    for c_str_ref<'lt>
+    for char_p_ref<'lt>
 {
     type Error = InvalidNulTerminator<()>;
 
     fn try_from (s: &'lt str)
       -> Result<
-            c_str_ref<'lt>,
+            char_p_ref<'lt>,
             InvalidNulTerminator<()>,
         >
     {
@@ -84,7 +103,7 @@ impl<'lt> TryFrom<&'lt str>
                 )
             }
         } else {
-            c_str_ref::EMPTY
+            char_p_ref::EMPTY
         })
     }
 }
@@ -98,11 +117,11 @@ cfg_std! {
     ///
     /// Panics if the `CStr` is not valid UTF-8.
     impl<'lt> From<&'lt ::std::ffi::CStr>
-        for c_str_ref<'lt>
+        for char_p_ref<'lt>
     {
         #[inline]
         fn from (s: &'lt ::std::ffi::CStr)
-          -> c_str_ref<'lt>
+          -> char_p_ref<'lt>
         {
             unsafe {
                 let _assert_valid_utf8 =
@@ -118,10 +137,10 @@ cfg_std! {
     }
 }
 
-impl<'lt> c_str_ref<'lt> {
+impl<'lt> char_p_ref<'lt> {
     #[inline]
     pub
-    fn bytes (self: c_str_ref<'lt>)
+    fn bytes (self: char_p_ref<'lt>)
       -> impl Iterator<Item = ::core::num::NonZeroU8> + 'lt
     {
         ::core::iter::from_fn({
@@ -140,7 +159,7 @@ impl<'lt> c_str_ref<'lt> {
 
     #[inline]
     pub
-    fn to_bytes (self: c_str_ref<'lt>)
+    fn to_bytes (self: char_p_ref<'lt>)
       -> &'lt [u8]
     {
         unsafe {
@@ -153,7 +172,7 @@ impl<'lt> c_str_ref<'lt> {
 
     #[inline]
     pub
-    fn to_nonzero_bytes (self: c_str_ref<'lt>)
+    fn to_nonzero_bytes (self: char_p_ref<'lt>)
       -> &'lt [::core::num::NonZeroU8]
     {
         unsafe {
@@ -166,7 +185,7 @@ impl<'lt> c_str_ref<'lt> {
 
     #[inline]
     pub
-    fn to_str (self: c_str_ref<'lt>)
+    fn to_str (self: char_p_ref<'lt>)
       -> &'lt str
     {
         unsafe {
@@ -177,26 +196,29 @@ impl<'lt> c_str_ref<'lt> {
 
 ReprC! {
     #[repr(transparent)]
-    /// Same as [`c_str_ref`], but without any lifetime attached whatsoever.
+    #[allow(missing_copy_implementations)]
+    /// Same as [`char_p_ref`], but without any lifetime attached whatsoever.
     ///
     /// It is only intended to be used as the parameter of a callback that
-    /// locally borrows it, dues to limitations of the [`ReprC`][
+    /// locally borrows it, due to limitations of the [`ReprC`][
     /// `crate::layout::ReprCTrait`] design _w.r.t._ higher-rank trait bounds.
     pub
-    struct c_str_ref_ (
+    struct char_p_ref_ (
         ptr::NonNullRef<c_char>,
     );
 }
 
-impl c_str_ref_ {
+#[require_unsafe_in_bodies]
+impl char_p_ref_ {
     /// # Safety
     ///
-    ///   - The `c_str` must remain valid and immutable for the duration of the
-    ///     `'borrow`.
+    ///   - For the duration of the `'borrow`, the `CharPtr` must point to the
+    ///     beginning of a valid and immutable null-terminated slice of
+    ///     `c_char`s.
     pub
     unsafe
     fn assume_valid<'borrow> (self: &'borrow Self)
-      -> c_str_ref<'borrow>
+      -> char_p_ref<'borrow>
     {
         unsafe {
             // # Safety
@@ -209,6 +231,18 @@ impl c_str_ref_ {
     }
 }
 
+impl fmt::Debug
+    for char_p_ref_
+{
+    fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
+      -> fmt::Result
+    {
+        fmt .debug_tuple("char_p_ref_")
+            .field(&self.0)
+            .finish()
+    }
+}
+
 cfg_alloc! {
     ReprC! {
         #[repr(transparent)]
@@ -218,32 +252,51 @@ cfg_alloc! {
         /// This is an **owned** / heap-allocated version, much like `Box<str>`
         /// / `Box<CStr>` but for it being a _slim_ pointer.
         pub
-        struct c_str_boxed (
+        struct char_p_boxed (
             ptr::NonNullOwned<c_char>,
         );
     }
 
     unsafe // Safety: inherited from `Box<[u8]>`.
     impl Send
-        for c_str_boxed
+        for char_p_boxed
     where
         rust::Box<[u8]> : Send,
     {}
 
     unsafe // Safety: inherited from `Box<[u8]>`.
     impl Sync
-        for c_str_boxed
+        for char_p_boxed
     where
         rust::Box<[u8]> : Sync,
     {}
 
+    impl fmt::Debug
+        for char_p_boxed
+    {
+        fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
+          -> fmt::Result
+        {
+            fmt::Debug::fmt(&self.as_ref(), fmt)
+        }
+    }
+    impl fmt::Display
+        for char_p_boxed
+    {
+        fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
+          -> fmt::Result
+        {
+            fmt::Display::fmt(&self.as_ref(), fmt)
+        }
+    }
+
     /// We use a `static` rather than a `const` for the empty string case
     /// as its address serves as a sentinel value for a fake-boxed string.
-    /// (Otherwise empty `c_str_boxed` would need to allocate to hold the
+    /// (Otherwise empty `char_p_boxed` would need to allocate to hold the
     /// `NUL` terminator).
     static EMPTY_SENTINEL: u8 = NUL;
 
-    impl c_str_boxed {
+    impl char_p_boxed {
         pub
         const
         unsafe
@@ -251,27 +304,32 @@ cfg_alloc! {
           -> Self
         {
             Self(
-                ptr::NonNullOwned(ptr.cast()),
+                ptr::NonNullOwned(ptr.cast(), PhantomData),
             )
         }
 
         #[inline]
         pub
-        fn as_ref (self: &'_ c_str_boxed)
-          -> c_str_ref<'_>
+        fn as_ref (self: &'_ char_p_boxed)
+          -> char_p_ref<'_>
         {
             unsafe {
-                mem::transmute(self)
+                const_assert! {
+                    mem::size_of::<char_p_boxed>()
+                    ==
+                    mem::size_of::<char_p_ref<'_>>()
+                }
+                mem::transmute_copy(self)
             }
         }
     }
 
-    impl TryFrom<rust::String> for c_str_boxed {
+    impl TryFrom<rust::String> for char_p_boxed {
         type Error = InvalidNulTerminator<rust::String>;
 
         fn try_from (s: rust::String)
           -> Result<
-                c_str_boxed,
+                char_p_boxed,
                 InvalidNulTerminator<rust::String>,
             >
         {
@@ -301,8 +359,8 @@ cfg_alloc! {
         }
     }
 
-    impl Drop for c_str_boxed {
-        fn drop (self: &'_ mut c_str_boxed)
+    impl Drop for char_p_boxed {
+        fn drop (self: &'_ mut char_p_boxed)
         {
             unsafe {
                 if self.0 .0 == ptr::NonNull::from(&EMPTY_SENTINEL).cast() {
@@ -324,9 +382,9 @@ cfg_std! {
     /// # Panic
     ///
     /// Panics if the `CString` is not valid UTF-8.
-    impl From<::std::ffi::CString> for c_str_boxed {
+    impl From<::std::ffi::CString> for char_p_boxed {
         fn from (s: ::std::ffi::CString)
-          -> c_str_boxed
+          -> char_p_boxed
         {
             let _assert_valid_utf8 =
                 ::core::str::from_utf8(s.as_bytes())
@@ -348,7 +406,7 @@ cfg_std! {
 
 #[doc(no_inline)]
 pub use {
-    c_str_ref as Ref,
-    c_str_boxed as Boxed,
-    c_str_ref_ as Ref_,
+    char_p_ref as Ref,
+    char_p_boxed as Boxed,
+    char_p_ref_ as Ref_,
 };

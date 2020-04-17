@@ -5,14 +5,6 @@ use ::alloc::sync::Arc;
 
 use_prelude!();
 
-macro_rules! hack {(
-    #[doc = $doc:expr]
-    $item:item
-) => (
-    #[doc = $doc]
-    $item
-)}
-
 macro_rules! with_tuple {(
     $ArcDynFn_N:ident => (
         $( $A_N:ident, $($A_k:ident ,)* )?
@@ -180,20 +172,6 @@ macro_rules! with_tuple {(
         }
     }
 
-    impl<Ret $(, $A_N $(, $A_k)*)?> ::core::fmt::Debug
-        for $ArcDynFn_N <Ret $(, $A_N $(, $A_k)*)?>
-    where
-        Ret : ReprC, $(
-        $A_N : ReprC, $(
-        $A_k : ReprC, )*)?
-    {
-        fn fmt (self: &'_ Self, fmt: &'_ mut ::core::fmt::Formatter<'_>)
-          -> ::core::fmt::Result
-        {
-            <str as ::core::fmt::Display>::fmt(stringify!($ArcDynFn_N), fmt)
-        }
-    }
-
     impl<Ret $(, $A_N $(, $A_k)*)?>
         $ArcDynFn_N <Ret $(, $A_N $(, $A_k)*)?>
     where
@@ -212,6 +190,25 @@ macro_rules! with_tuple {(
             unsafe {
                 (self.call)(self.env_ptr, $($A_N $(, $A_k)*)?)
             }
+        }
+    }
+
+    impl<Ret $(, $A_N $(, $A_k)*)?> fmt::Debug
+        for $ArcDynFn_N <Ret $(, $A_N $(, $A_k)*)?>
+    where
+        Ret : ReprC, $(
+        $A_N : ReprC, $(
+        $A_k : ReprC, )*)?
+    {
+        fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
+          -> fmt::Result
+        {
+            fmt .debug_struct(stringify!($ArcDynFn_N))
+                .field("env_ptr", &self.env_ptr)
+                .field("call", &self.call)
+                .field("release", &self.release)
+                .field("retain", &self.retain)
+                .finish()
         }
     }
 )}

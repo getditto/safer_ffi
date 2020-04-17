@@ -108,6 +108,7 @@ cfg_headers! {
         use super::*;
         use fmt::*;
 
+        #[allow(missing_debug_implementations)]
         pub
         struct ImplDisplay<'__, T : CType> {
             pub(in super)
@@ -155,7 +156,7 @@ macro_rules! from_CType_impl_ReprC {(
         type CLayout = Self;
 
         #[inline]
-        fn is_valid (it: &'_ Self::CLayout)
+        fn is_valid (_: &'_ Self::CLayout)
           -> bool
         {
             true
@@ -182,6 +183,7 @@ fn from_raw_unchecked<T : ReprC> (c_layout: T::CLayout)
     }
 }
 
+#[require_unsafe_in_body]
 #[inline]
 pub
 unsafe

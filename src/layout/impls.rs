@@ -190,7 +190,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
                 })
             }
 
-            fn c_define_self (definer: &'_ mut Definer)
+            fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
                 Ret::c_define_self(definer)?; $(
@@ -229,7 +229,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             >;
 
             #[inline]
-            fn is_valid (c_layout: &'_ Self::CLayout)
+            fn is_valid (_: &'_ Self::CLayout)
               -> bool
             {
                 true
@@ -253,7 +253,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             >;
 
             #[inline]
-            fn is_valid (c_layout: &'_ Self::CLayout)
+            fn is_valid (_: &'_ Self::CLayout)
               -> bool
             {
                 true
@@ -394,7 +394,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             type CLayout = *const T::CLayout;
 
             #[inline]
-            fn is_valid (c_layout: &'_ Self::CLayout)
+            fn is_valid (_: &'_ Self::CLayout)
               -> bool
             {
                 true
@@ -439,7 +439,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             type CLayout = *mut T::CLayout;
 
             #[inline]
-            fn is_valid (c_layout: &'_ Self::CLayout)
+            fn is_valid (_: &'_ Self::CLayout)
               -> bool
             {
                 true
@@ -459,7 +459,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             type CLayout = CVoid;
 
             #[inline]
-            fn is_valid (it: &'_ CVoid)
+            fn is_valid (_: &'_ CVoid)
               -> bool
             {
                 panic!("It is a logic error to try and get a ZST from C");
@@ -473,7 +473,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             type CLayout = CVoid;
 
             #[inline]
-            fn is_valid (it: &'_ CVoid)
+            fn is_valid (_: &'_ CVoid)
               -> bool
             {
                 panic!("It is a logic error to try and get a ZST from C");

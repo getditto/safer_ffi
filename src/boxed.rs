@@ -8,7 +8,7 @@ ReprC! {
     /// with **no non-aliasing guarantee**.
     pub
     struct Box[T] (
-        ptr::NonNull<T>, // variance is OK because ownership
+        ptr::NonNullOwned<T>,
     );
 }
 
@@ -21,6 +21,7 @@ impl<T> From<rust::Box<T>>
     {
         Self(
             ptr::NonNull::from(rust::Box::leak(boxed))
+                .into()
         )
     }
 }
@@ -31,9 +32,9 @@ impl<T> Box<T> {
     fn into (self: Box<T>)
       -> rust::Box<T>
     {
-        let this = mem::ManuallyDrop::new(self);
+        let mut this = mem::ManuallyDrop::new(self);
         unsafe {
-            rust::Box::from_raw(this.0.as_ptr())
+            rust::Box::from_raw(this.0.as_mut_ptr())
         }
     }
 }
@@ -46,7 +47,7 @@ impl<T> Drop
     {
         unsafe {
             drop::<rust::Box<T>>(
-                rust::Box::from_raw(self.0.as_ptr())
+                rust::Box::from_raw(self.0.as_mut_ptr())
             );
         }
     }
@@ -75,7 +76,7 @@ impl<T> DerefMut
       -> &'_ mut T
     {
         unsafe {
-            &mut *(self.0.as_ptr())
+            &mut *(self.0.as_mut_ptr())
         }
     }
 }
@@ -103,7 +104,7 @@ impl<T : fmt::Debug> fmt::Debug
 }
 
 #[doc(no_inline)]
-pub use crate::slice::BoxedSlice;
+pub use crate::slice::slice_boxed;
 
 #[doc(no_inline)]
-pub use crate::string::BoxedStr;
+pub use crate::string::str_boxed;

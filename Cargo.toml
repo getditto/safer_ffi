@@ -19,7 +19,7 @@ default = ["std", "derives"]
 alloc = []
 proc_macros = []
 derives = [ "proc_macros" ]  # alias
-headers = ["std"]
+headers = ["std", "inventory"]
 nightly = []
 std = ["alloc", "log"]
 
@@ -33,6 +33,8 @@ members = ["src/proc_macro"]
 paste = "0.1.7"
 _mod = { path = "../dhm/_mod" }
 log = { version = "0.4.8", optional = true }
+require_unsafe_in_body = "0.2.1"
+inventory = { version = "0.1.6", optional = true }
 
 [dependencies.proc_macro]
 package = "repr_c-proc_macro"

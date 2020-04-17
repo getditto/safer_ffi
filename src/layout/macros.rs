@@ -1,5 +1,3 @@
-use super::*;
-
 #[cfg(feature = "headers")]
 #[macro_export] #[doc(hidden)]
 macro_rules! cfg_headers {(
@@ -243,6 +241,7 @@ macro_rules! ReprC {
                 fn is_valid (it: &'_ Self::CLayout)
                     -> bool
                 {
+                    let _ = it;
                     true $(
                         && (
                             $crate::core::mem::size_of::<
@@ -259,10 +258,11 @@ macro_rules! ReprC {
 
             #[allow(nonstandard_style)]
             mod [< __ $StructName _repr_c_mod >] {
-                use super::{*, $StructName as _};
+                use super::*;
 
                 $crate::layout::CType! {
                     #[repr(C)]
+                    #[allow(missing_debug_implementations)]
                     // $(#[$meta])*
                     pub
                     struct $StructName

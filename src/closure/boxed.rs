@@ -4,14 +4,6 @@
 use_prelude!();
 use ::alloc::boxed::Box;
 
-macro_rules! hack {(
-    #[doc = $doc:expr]
-    $item:item
-) => (
-    #[doc = $doc]
-    $item
-)}
-
 macro_rules! with_tuple {(
     $BoxDynFnMut_N:ident => (
         $( $A_N:ident, $($A_k:ident ,)* )?
@@ -51,13 +43,14 @@ macro_rules! with_tuple {(
     }
 
     /// `Box<dyn Send + ...> : Send`
-    unsafe impl<Ret $(, $A_N $(, $A_k)*)?> Send
-        for $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
-    where
-        Ret : ReprC, $(
-        $A_N : ReprC, $(
-        $A_k : ReprC, )*)?
-    {}
+    unsafe
+        impl<Ret $(, $A_N $(, $A_k)*)?> Send
+            for $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
+        where
+            Ret : ReprC, $(
+            $A_N : ReprC, $(
+            $A_k : ReprC, )*)?
+        {}
 
     impl<Ret $(, $A_N $(, $A_k)*)?>
         $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
@@ -123,20 +116,6 @@ macro_rules! with_tuple {(
         }
     }
 
-    impl<Ret $(, $A_N $(, $A_k)*)?> ::core::fmt::Debug
-        for $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
-    where
-        Ret : ReprC, $(
-        $A_N : ReprC, $(
-        $A_k : ReprC, )*)?
-    {
-        fn fmt (self: &'_ Self, fmt: &'_ mut ::core::fmt::Formatter<'_>)
-          -> ::core::fmt::Result
-        {
-            <str as ::core::fmt::Display>::fmt(stringify!($BoxDynFnMut_N), fmt)
-        }
-    }
-
     impl<Ret $(, $A_N $(, $A_k)*)?>
         $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
     where
@@ -155,6 +134,24 @@ macro_rules! with_tuple {(
             unsafe {
                 (self.call)(self.env_ptr, $($A_N $(, $A_k)*)?)
             }
+        }
+    }
+
+    impl<Ret $(, $A_N $(, $A_k)*)?> fmt::Debug
+        for $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
+    where
+        Ret : ReprC, $(
+        $A_N : ReprC, $(
+        $A_k : ReprC, )*)?
+    {
+        fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
+          -> fmt::Result
+        {
+            fmt .debug_struct(stringify!($BoxDynFnMut_N))
+                .field("env_ptr", &self.env_ptr)
+                .field("call", &self.call)
+                .field("free", &self.free)
+                .finish()
         }
     }
 )}

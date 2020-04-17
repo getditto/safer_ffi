@@ -7,7 +7,6 @@
 cfg_alloc! {
     pub mod arc;
     pub mod boxed;
-    #[cfg(docs)]
     #[doc(no_inline)]
     pub use self::{
         arc::{ArcDynFn0, ArcDynFn1},
@@ -28,7 +27,6 @@ cfg_alloc! {
 }
 pub mod borrowed;
 
-#[cfg(docs)]
 #[doc(no_inline)]
 pub use borrowed::{RefDynFnMut0, RefDynFnMut1};
 #[cfg(not(docs))]

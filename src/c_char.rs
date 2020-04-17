@@ -1,7 +1,14 @@
 use_prelude!();
 
 #[repr(transparent)]
-#[derive(Clone, Copy)]
+#[derive(
+    Debug,
+    Clone, Copy,
+    Default,
+    PartialOrd, Ord,
+    PartialEq, Eq,
+    Hash,
+)]
 pub
 struct c_char /* = */ (
     pub

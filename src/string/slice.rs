@@ -7,13 +7,13 @@ cfg_alloc! {
         /// Same as [`Box`][`rust::Box`]`<str>`, but with a guaranteed
         /// `#[repr(C)]` layout.
         pub
-        struct BoxedStr (
-            BoxedSlice<c_char>,
+        struct str_boxed (
+            slice_boxed<c_char>,
         );
     }
 
     impl From<rust::Box<str>>
-        for BoxedStr
+        for str_boxed
     {
         #[inline]
         fn from (boxed_str: rust::Box<str>) -> Self
@@ -24,7 +24,7 @@ cfg_alloc! {
     }
 
     impl From<rust::Box<[u8]>>
-        for BoxedStr
+        for str_boxed
     {
         #[inline]
         fn from (boxed_bytes: rust::Box<[u8]>) -> Self
@@ -40,7 +40,7 @@ cfg_alloc! {
     }
 
     impl From<rust::String>
-        for BoxedStr
+        for str_boxed
     {
         #[inline]
         fn from (string: rust::String) -> Self
@@ -50,23 +50,23 @@ cfg_alloc! {
     }
 
     impl<'lt> From<&'lt str>
-        for BoxedStr
+        for str_boxed
     {
         #[inline]
         fn from (s: &'lt str)
-          -> BoxedStr
+          -> str_boxed
         {
             Self::from(rust::Box::<str>::from(s))
         }
     }
 
     impl Deref
-        for BoxedStr
+        for str_boxed
     {
         type Target = str;
 
         #[inline]
-        fn deref (self: &'_ BoxedStr)
+        fn deref (self: &'_ str_boxed)
           -> &'_ str
         {
             unsafe {
@@ -81,10 +81,10 @@ cfg_alloc! {
     }
 
     impl AsRef<str>
-        for BoxedStr
+        for str_boxed
     {
         #[inline]
-        fn as_ref (self: &'_ BoxedStr)
+        fn as_ref (self: &'_ str_boxed)
           -> &'_ str
         {
             &*self
@@ -92,7 +92,7 @@ cfg_alloc! {
     }
 
     impl fmt::Debug
-        for BoxedStr
+        for str_boxed
     {
         fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
           -> fmt::Result
@@ -106,17 +106,17 @@ ReprC! {
     #[repr(transparent)]
     /// `&'lt str`, but with a guaranteed `#[repr(C)]` layout.
     pub
-    struct RefStr['lt,] (
-        RefSlice<'lt, c_char>,
+    struct str_ref['lt,] (
+        slice_ref<'lt, c_char>,
     );
 }
 
 impl<'lt> From<&'lt str>
-    for RefStr<'lt>
+    for str_ref<'lt>
 {
     #[inline]
     fn from (s: &'lt str)
-      -> RefStr<'lt>
+      -> str_ref<'lt>
     {
         let bytes = s.as_bytes();
         unsafe { Self(
@@ -127,12 +127,12 @@ impl<'lt> From<&'lt str>
 }
 
 impl<'lt> Deref
-    for RefStr<'lt>
+    for str_ref<'lt>
 {
     type Target = str;
 
     #[inline]
-    fn deref (self: &'_ RefStr<'lt>)
+    fn deref (self: &'_ str_ref<'lt>)
       -> &'_ str
     {
         unsafe {
@@ -147,7 +147,7 @@ impl<'lt> Deref
 }
 
 impl AsRef<str>
-    for RefStr<'_>
+    for str_ref<'_>
 {
     #[inline]
     fn as_ref (self: &'_ Self)
@@ -158,7 +158,7 @@ impl AsRef<str>
 }
 
 impl fmt::Debug
-    for RefStr<'_>
+    for str_ref<'_>
 {
     fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
       -> fmt::Result

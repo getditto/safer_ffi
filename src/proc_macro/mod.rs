@@ -1,4 +1,4 @@
-#![allow(nonstandard_style)]
+#![allow(nonstandard_style, unused_imports)]
 
 extern crate proc_macro;
 
@@ -54,7 +54,6 @@ fn feed_to_macro_rules (input: TokenStream, name: Ident)
             semi_token: ref maybe_semi_colon,
         }) => {
             let (params, bounds) = generics.my_split();
-            let generics = quote!();
             quote! {
                 ::repr_c::layout::#name! {
                     #(#attrs)*
@@ -103,7 +102,22 @@ fn derive_CType (attrs: TokenStream, input: TokenStream)
 fn ffi_export (attrs: TokenStream, input: TokenStream)
   -> TokenStream
 {
-    dbg!(&input);
-    let _: ItemFn = parse_macro_input!(input);
-    TokenStream::new()
+    if let Some(tt) = TokenStream2::from(attrs).into_iter().next() {
+        return Error::new_spanned(tt,
+            "Unexpected parameter",
+        ).to_compile_error().into();
+    }
+    // dbg!(&input);
+    {
+        let input = input.clone();
+        let _: ItemFn = parse_macro_input!(input);
+    }
+    let input = TokenStream2::into_iter(input.into());
+    let ret = TokenStream::from(quote! {
+        ::repr_c::ffi_export_! {
+            #(#input)*
+        }
+    });
+    ret
+    // TokenStream::new()
 }

@@ -17,11 +17,11 @@ impl<T : ReprC> Vec<T> {
     #[inline]
     pub
     fn as_ref (self: &'_ Self)
-      -> RefSlice<'_, T>
+      -> slice_ref<'_, T>
     {
         let &Vec { ptr, len, .. } = self;
-        RefSlice(
-            crate::slice::SlicePtr { ptr, len },
+        slice_ref(
+            crate::slice::slice_ptr { ptr, len },
             PhantomCovariantLifetime::default(),
         )
     }
@@ -29,11 +29,11 @@ impl<T : ReprC> Vec<T> {
     #[inline]
     pub
     fn as_mut (self: &'_ mut Self)
-      -> MutSlice<'_, T>
+      -> slice_mut<'_, T>
     {
         let &mut Vec { ptr, len, .. } = self;
-        MutSlice(
-            crate::slice::SlicePtr { ptr, len },
+        slice_mut(
+            crate::slice::slice_ptr { ptr, len },
             PhantomCovariantLifetime::default(),
             PhantomInvariant::<T>::default(),
         )
@@ -104,7 +104,7 @@ impl<T : ReprC> Deref
         unsafe {
             slice::from_raw_parts(
                 self.ptr.as_ptr(),
-                self.len(),
+                self.len,
             )
         }
     }

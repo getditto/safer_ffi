@@ -1,3 +1,5 @@
+#![allow(missing_debug_implementations)]
+
 #[derive(Default, Clone, Copy)]
 pub
 struct PhantomCovariantLifetime<'lt> (

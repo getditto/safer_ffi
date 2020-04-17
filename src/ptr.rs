@@ -1,25 +1,20 @@
+//! Wrappers around `NonNull` to better express the semantics of such pointer.
+//!
+//! Useful when manually defining custom low-level `ReprC` types.
+
 use_prelude!();
+
+#[doc(no_inline)]
+/// Foo
+pub use ::core::ptr::*;
 
 #[repr(transparent)]
 #[derive(Clone, Copy)]
 pub
 struct NonNullRef<T> (
     pub
-    ptr::NonNull<T>,
+    ptr::NonNull<T>, // Variance OK because immutable
 );
-
-impl<T> ::core::ops::Deref
-    for NonNullRef<T>
-{
-    type Target = ptr::NonNull<T>;
-
-    #[inline]
-    fn deref (self: &'_ Self)
-      -> &'_ ptr::NonNull<T>
-    {
-        &self.0
-    }
-}
 
 #[repr(transparent)]
 pub
@@ -28,58 +23,160 @@ struct NonNullMut<T> (
     ptr::NonNull<T>,
 
     pub
-    PhantomInvariant<T>,
+    PhantomInvariant<T>, // Must be invariant because non-owning mutable.
 );
-
-impl<T> ::core::ops::Deref
-    for NonNullMut<T>
-{
-    type Target = ptr::NonNull<T>;
-
-    #[inline]
-    fn deref (self: &'_ Self)
-      -> &'_ ptr::NonNull<T>
-    {
-        &self.0
-    }
-}
-impl<T> ::core::ops::DerefMut
-    for NonNullMut<T>
-{
-    #[inline]
-    fn deref_mut (self: &'_ mut Self)
-      -> &'_ mut ptr::NonNull<T>
-    {
-        &mut self.0
-    }
-}
 
 #[repr(transparent)]
 pub
 struct NonNullOwned<T> (
     pub
-    ptr::NonNull<T>,
+    ptr::NonNull<T>, // Variance OK because ownership
+
+    pub
+    PhantomData<T>, // Express ownership to dropck
 );
 
-impl<T> ::core::ops::Deref
-    for NonNullOwned<T>
-{
-    type Target = ptr::NonNull<T>;
+macro_rules! impl_for_each {(
+    [$($T:ident),* $(,)?]
+        .impl_for_each!(|$dol:tt $NonNull:ident| {
+            $($expansion:tt)*
+        })
+    ;
+) => (
+    // const _: () = {
+        macro_rules! helper {(
+            $dol $NonNull : ident
+        ) => (
+            $($expansion)*
+        )}
+        $(
+            helper! { $T }
+        )*
+    // };
+)}
+
+impl_for_each! {
+    [NonNullRef, NonNullMut, NonNullOwned].impl_for_each!(|$NonNull| {
+        impl<T> From<NonNull<T>>
+            for $NonNull<T>
+        {
+            #[inline]
+            fn from (it: NonNull<T>)
+              -> Self
+            {
+                unsafe { ::core::mem::transmute(it) }
+            }
+        }
+
+        impl<T> ::core::ops::Deref
+            for $NonNull<T>
+        {
+            type Target = ptr::NonNull<T>;
+
+            #[inline]
+            fn deref (self: &'_ $NonNull<T>)
+            -> &'_ ptr::NonNull<T>
+            {
+                &self.0
+            }
+        }
+
+        impl<T> fmt::Debug
+            for $NonNull<T>
+        {
+            fn fmt (self: &'_ $NonNull<T>, fmt: &'_ mut fmt::Formatter<'_>)
+              -> fmt::Result
+            {
+                fmt .debug_tuple(stringify!($NonNull))
+                    .field(&self.0)
+                    .finish()
+            }
+        }
+
+        impl<T> $NonNull<T> {
+            #[inline]
+            pub
+            fn as_ptr (self: &'_ Self)
+              -> *const T
+            {
+                self.0.as_ptr()
+            }
+
+            #[inline]
+            pub
+            fn cast<U> (self: $NonNull<T>)
+              -> $NonNull<U>
+            {
+                unsafe { ::core::mem::transmute(self) }
+            }
+        }
+    });
+}
+
+impl_for_each! {
+    [NonNullMut, NonNullOwned].impl_for_each!(|$NonNull| {
+        impl<T> ::core::ops::DerefMut
+            for $NonNull<T>
+        {
+            #[inline]
+            fn deref_mut (self: &'_ mut $NonNull<T>)
+              -> &'_ mut ptr::NonNull<T>
+            {
+                &mut self.0
+            }
+        }
+
+        impl<T> $NonNull<T> {
+            #[inline]
+            pub
+            fn as_mut_ptr (self: &'_ mut Self)
+              -> *mut T
+            {
+                self.0.as_ptr()
+            }
+
+            #[inline]
+            pub
+            fn copy (self: &'_ mut $NonNull<T>)
+              -> $NonNull<T>
+            {
+                $NonNull::<T> { .. *self }
+            }
+        }
+    });
+}
+
+impl<__> NonNullOwned<__> {
+    cfg_alloc! {
+        #[inline]
+        pub
+        unsafe
+        fn dealloc<T> (self)
+        {
+            if ::core::mem::size_of::<T>() == 0 {
+                return;
+            }
+            ::alloc::alloc::dealloc(
+                self.0.as_ptr().cast(),
+                ::alloc::alloc::Layout::new::<T>(),
+            );
+        }
+
+        #[inline]
+        pub
+        unsafe
+        fn drop_in_place_and_dealloc<T> (mut self)
+        {
+            drop_in_place::<T>(self.copy().cast().as_mut());
+            self.dealloc::<T>();
+        }
+    }
 
     #[inline]
-    fn deref (self: &'_ Self)
-      -> &'_ ptr::NonNull<T>
+    pub
+    unsafe
+    fn drop_in_place<T> (mut self)
     {
-        &self.0
-    }
-}
-impl<T> ::core::ops::DerefMut
-    for NonNullOwned<T>
-{
-    #[inline]
-    fn deref_mut (self: &'_ mut Self)
-      -> &'_ mut ptr::NonNull<T>
-    {
-        &mut self.0
+        drop_in_place::<T>(self.0.cast().as_mut());
     }
 }

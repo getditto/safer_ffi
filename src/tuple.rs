@@ -7,6 +7,7 @@ use_prelude!();
 
 mod void {
     #[derive(Clone, Copy)]
+    #[allow(missing_debug_implementations)]
     pub
     struct CVoid {
         _0: (),
@@ -31,7 +32,11 @@ impl CType
         var_name: &'_ str,
     ) -> fmt::Result
     {
-        fmt.write_str("void")
+        write!(fmt,
+            "void{sep}{}",
+            var_name,
+            sep = if var_name.is_empty() { "" } else { " " },
+        )
     }
 }}
 from_CType_impl_ReprC! { CVoid }
@@ -42,7 +47,7 @@ impl ReprC
 {
     type CLayout = CVoid;
 
-    fn is_valid (it: &'_ CVoid)
+    fn is_valid (_: &'_ CVoid)
       -> bool
     {
         panic!("Trying to construct a `c_void` is a logic error");
@@ -52,6 +57,7 @@ impl ReprC
 #[cfg(not(docs))]
 ReprC! {
     #[repr(C)]
+    #[derive(Debug)]
     /// Simplified for lighter documentation, but the actual impls
     /// range from `Tuple1` up to `Tuple9`.
     pub
@@ -66,6 +72,7 @@ ReprC! {
 
 ReprC! {
     #[repr(C)]
+    #[derive(Debug)]
     /// Simplified for lighter documentation, but the actual impls
     /// range from `Tuple1` up to `Tuple9`.
     pub
@@ -83,6 +90,7 @@ ReprC! {
 #[cfg(not(docs))]
 ReprC! {
     #[repr(C)]
+    #[derive(Debug)]
     pub
     struct Tuple3[T0, T1, T2]
     where {
@@ -100,6 +108,7 @@ ReprC! {
 #[cfg(not(docs))]
 ReprC! {
     #[repr(C)]
+    #[derive(Debug)]
     pub
     struct Tuple4[T0, T1, T2, T3]
     where {
@@ -118,6 +127,7 @@ ReprC! {
 #[cfg(not(docs))]
 ReprC! {
     #[repr(C)]
+    #[derive(Debug)]
     pub
     struct Tuple5[T0, T1, T2, T3, T4]
     where {
@@ -138,6 +148,7 @@ ReprC! {
 #[cfg(not(docs))]
 ReprC! {
     #[repr(C)]
+    #[derive(Debug)]
     pub
     struct Tuple6[T0, T1, T2, T3, T4, T5]
     where {

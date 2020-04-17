@@ -1,19 +1,27 @@
-#![allow(nonstandard_style)]
-#![warn(
-    missing_copy_implementations,
-    missing_debug_implementations,
-    elided_lifetimes_in_paths,
-)]
 #![cfg_attr(feature = "nightly",
-    feature(doc_cfg, external_doc)
+    feature(doc_cfg, external_doc, trivial_bounds)
 )]
-
 #![cfg_attr(not(feature = "std"),
     no_std,
 )]
 
+#![allow(nonstandard_style)]
+#![warn(
+    missing_copy_implementations,
+    missing_debug_implementations,
+)]
+#![deny(
+    bare_trait_objects,
+    elided_lifetimes_in_paths,
+    unconditional_recursion,
+    unused_must_use,
+)]
+
 #[macro_use]
 extern crate _mod;
+
+#[macro_use]
+extern crate require_unsafe_in_body;
 
 extern crate proc_macro;
 pub use ::proc_macro::ffi_export;
@@ -27,8 +35,20 @@ mod utils;
 #[path = "layout/_mod.rs"]
 pub mod layout;
 
-pub
-mod tuple;
+cfg_headers! {
+    #[doc(hidden)] pub
+    use ::inventory;
+
+    #[doc(hidden)] pub
+    struct TypeDef(
+        pub
+        fn (&'_ mut dyn layout::Definer)
+          -> ::std::io::Result<()>
+        ,
+    );
+
+    ::inventory::collect!(TypeDef);
+}
 
 cfg_alloc! {
     extern crate alloc;
@@ -36,7 +56,7 @@ cfg_alloc! {
 
 cfg_alloc! {
     #[doc(inline)]
-    pub use boxed::{Box, BoxedSlice, BoxedStr};
+    pub use boxed::{Box, slice_boxed, str_boxed};
     pub mod boxed;
 }
 
@@ -44,21 +64,27 @@ use self::c_char_module::c_char;
 #[path = "c_char.rs"]
 mod c_char_module;
 
+pub mod char_p;
+
 pub mod closure;
 
-pub mod c_str;
+mod ffi_export;
 
+pub
 mod ptr;
 
 #[doc(inline)]
-pub use slice::{RefSlice, MutSlice};
+pub use slice::{slice_ref, slice_mut};
 pub mod slice;
 
 
 #[doc(inline)]
-pub use string::RefStr;
+pub use string::str_ref;
 
 _mod!(pub string);
+
+pub
+mod tuple;
 
 cfg_alloc! {
 
@@ -99,6 +125,7 @@ cfg_std! {
     #[doc(hidden)] pub use ::std;
 }
 
-#[doc(hidden)]
 #[derive(Clone, Copy)]
-pub struct NotZeroSized;
+#[allow(missing_debug_implementations)]
+#[doc(hidden)] pub
+struct NotZeroSized;
