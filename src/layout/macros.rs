@@ -13,6 +13,21 @@ macro_rules! cfg_headers {(
     // nothing
 )}
 
+#[cfg(not(feature = "headers"))]
+#[macro_export] #[doc(hidden)]
+macro_rules! cfg_not_headers {(
+    $($item:item)*
+) => (
+    $($item)*
+)}
+#[cfg(feature = "headers")]
+#[macro_export] #[doc(hidden)]
+macro_rules! cfg_not_headers {(
+    $($item:item)*
+) => (
+    // nothing
+)}
+
 #[macro_export] #[doc(hidden)]
 macro_rules! __with_doc__ {(
     #[doc = $doc:expr]
@@ -30,8 +45,11 @@ macro_rules! __with_doc__ {(
 
 #[macro_export]
 macro_rules! CType {(
+    $(
+        @doc_meta( $($doc_meta:tt)* )
+    )?
     #[repr(C)]
-    $(#[$meta:meta])*
+    $(#[$($meta:tt)*])*
     $pub:vis
     struct $StructName:ident $(
         [
@@ -42,20 +60,20 @@ macro_rules! CType {(
     )?
     {
         $(
-            $(#[$field_meta:meta])*
+            $(#[$($field_meta:tt)*])*
             $field_pub:vis
             $field_name:ident : $field_ty:ty
         ),+ $(,)?
     }
 ) => (
     #[repr(C)]
-    $(#[$meta])*
+    $(#[$($meta)*])*
     $pub
     struct $StructName
         $(<$($lt ,)* $($($generics),+)?> $(where $($bounds)* )?)?
     {
         $(
-            $(#[$field_meta])*
+            $(#[$($field_meta)*])*
             $field_pub
             $field_name : $field_ty,
         )*
@@ -80,7 +98,7 @@ macro_rules! CType {(
         ) -> R
         {
             ret(&{
-                let ret = stringify!($StructName);
+                let ret = $crate::core::stringify!($StructName);
                 $($(
                     let mut ret = ret.to_string();
                     $(
@@ -117,26 +135,33 @@ macro_rules! CType {(
                         <$field_ty as $crate::layout::CType>::c_define_self(definer)?;
                     )*
                     let out = definer.out();
-                    write!(out, "typedef struct {{\n")?;
+                    $(
+                        $crate::__output_docs__!(out, "", $($doc_meta)*);
+                    )?
+                    $crate::__output_docs__!(out, "", $(#[$($meta)*])*);
+                    $crate::core::writeln!(out, "typedef struct {{")?;
                     $(
                         if $crate::core::mem::size_of::<$field_ty>() > 0 {
-                            write!(out, "    {};\n",
+                            $crate::__output_docs__!(out, "   ",
+                                $(#[$($field_meta)*])*
+                            );
+                            $crate::core::writeln!(out, "    {};",
                                 <$field_ty as $crate::layout::CType>::c_display(
-                                    stringify!($field_name),
+                                    $crate::core::stringify!($field_name),
                                 ),
                             )?;
                         } else {
                             assert_eq!(
                                 $crate::core::mem::align_of::<$field_ty>(),
                                 1,
-                                concat!(
+                                $crate::core::concat!(
                                     "Zero-sized fields must have an ",
                                     "alignment of `1`."
                                 ),
                             );
                         }
                     )*
-                    $crate::core::write!(out, "}} {}_t;\n\n", me)
+                    $crate::core::writeln!(out, "}} {}_t;\n", me)
                 },
             )
         }
@@ -147,7 +172,7 @@ macro_rules! CType {(
         ) -> $crate::core::fmt::Result
         {
             <Self as $crate::layout::CType>::with_short_name(|me| {
-                write!(fmt,
+                $crate::core::write!(fmt,
                     "{}_t{sep}{}",
                     me, var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
@@ -172,7 +197,7 @@ macro_rules! ReprC {
     (
         $( @[doc = $doc:expr] )?
         #[repr(C)]
-        $(#[$meta:meta])*
+        $(#[$($meta:tt)*])*
         $pub:vis
         struct $StructName:ident $(
             [$($generics:tt)*] $(
@@ -181,21 +206,21 @@ macro_rules! ReprC {
         )?
         {
             $(
-                $(#[$field_meta:meta])*
+                $(#[$($field_meta:tt)*])*
                 $field_pub:vis
                 $field_name:ident : $field_ty:ty
             ),+ $(,)?
         }
     ) => (
         $crate::__with_doc__! {
-            #[doc = concat!(
+            #[doc = $crate::core::concat!(
                 "  - [`",
-                stringify!($StructName),
+                $crate::core::stringify!($StructName),
                 "_Layout`]"
             )]
             #[repr(C)]
             $(#[doc = $doc])?
-            $(#[$meta])*
+            $(#[$($meta)*])*
             /// # C Layout
             ///
             $pub
@@ -206,7 +231,7 @@ macro_rules! ReprC {
             )?
             {
                 $(
-                    $(#[$field_meta])*
+                    $(#[$($field_meta)*])*
                     $field_pub
                     $field_name : $field_ty,
                 )*
@@ -261,6 +286,7 @@ macro_rules! ReprC {
                 use super::*;
 
                 $crate::layout::CType! {
+                    @doc_meta( $(#[$($meta)*])* )
                     #[repr(C)]
                     #[allow(missing_debug_implementations)]
                     // $(#[$meta])*
@@ -276,7 +302,7 @@ macro_rules! ReprC {
                         )?)?
                     } {
                         $(
-                            // $(#[$field_meta])*
+                            $(#[$($field_meta)*])*
                             pub
                             $field_name :
                                 <$field_ty as $crate::layout::ReprC>::CLayout
@@ -336,9 +362,9 @@ macro_rules! ReprC {
         );
     ) => (
         $crate::__with_doc__! {
-            #[doc = concat!(
+            #[doc = $crate::core::concat!(
                 " - [`",
-                stringify!($field_ty),
+                $crate::core::stringify!($field_ty),
                 "`](#impl-ReprC)",
             )]
             #[repr(transparent)]
@@ -385,7 +411,7 @@ macro_rules! ReprC {
     // field-less `enum`
     (
         #[repr($Int:ident)]
-        $(#[$meta:meta])*
+        $(#[$($meta:tt)*])*
         $pub:vis
         enum $EnumName:ident {
             $(
@@ -402,7 +428,7 @@ macro_rules! ReprC {
         }
 
         #[repr($Int)]
-        $(#[$meta])*
+        $(#[$($meta)*])*
         $pub
         enum $EnumName {
             $(
@@ -438,10 +464,10 @@ macro_rules! ReprC {
                     ret: impl FnOnce(&'_ dyn $crate::core::fmt::Display) -> R,
                 ) -> R
                 {
-                    ret(&concat!(stringify!($EnumName)))
+                    ret(&$crate::core::concat!($crate::core::stringify!($EnumName)))
                 }
 
-                fn c_define_self (definer: &'_ mut $crate::layout::Definer)
+                fn c_define_self (definer: &'_ mut dyn $crate::layout::Definer)
                   -> $crate::std::io::Result<()>
                 {
                     let ref me =
@@ -454,26 +480,26 @@ macro_rules! ReprC {
                             <$crate::$Int as $crate::layout::CType>::c_define_self(
                                 definer,
                             )?;
-                            use $crate::std::io::Write;
-                            write!(definer.out(),
-                                concat!(
-                                    "enum {}_t {{\n",
+                            let out = definer.out();
+                            $crate::__output_docs__!(out, "", $(#[$($meta)*])*);
+                            $crate::core::writeln!(out,
+                                $crate::core::concat!(
+                                    "enum {}_t {{",
                                     $(
                                       "    ",
-                                        stringify!($EnumName),
+                                        $crate::core::stringify!($EnumName),
                                         "_",
-                                        stringify!($Variant),
+                                        $crate::core::stringify!($Variant),
                                         $( $crate::layout::ReprC! {
                                             @first(
                                                 " = {}"
                                             ) $discriminant
                                         },)?
-                                        ",\n",
+                                        ",",
                                     )*
                                     "}};\n",
                                     "\n",
-                                    "typedef {int}_t",
-                                    ";\n",
+                                    "typedef {int}_t;",
                                 ),
                                 me,
                                 $($(
@@ -493,7 +519,7 @@ macro_rules! ReprC {
                 ) -> $crate::core::fmt::Result
                 {
                     <Self as $crate::layout::CType>::with_short_name(|me| {
-                        write!(fmt,
+                        $crate::core::write!(fmt,
                             "{}_t{sep}{}",
                             me, var_name,
                             sep = if var_name.is_empty() { "" } else { " " },
@@ -556,19 +582,19 @@ macro_rules! ReprC {
     (@validate_int_repr i128) => ();
 
     (@deny_C C) => (
-        compile_error!(concat!(
+        compile_error!($crate::core::concat!(
             "A `#[repr(C)]` field-less `enum` is not supported,",
             " since the integer type of the discriminant is then",
             " platform dependent",
         ));
     );
     (@deny_C c_int) => (
-        compile_error!(concat!(
+        compile_error!($crate::core::concat!(
             "Type aliases in a `#[repr(...)]` are not supported by Rust.",
         ));
     );
     (@deny_C c_uint) => (
-        compile_error!(concat!(
+        compile_error!($crate::core::concat!(
             "Type aliases in a `#[repr(...)]` are not supported by Rust.",
         ));
     );
@@ -576,4 +602,93 @@ macro_rules! ReprC {
     (@deny_C $otherwise:tt) => ();
 
     (@first ($($fst:tt)*) $ignored:tt) => ($($fst)*);
+}
+
+#[cfg(feature = "headers")]
+#[doc(hidden)] #[macro_export]
+macro_rules! __output_docs__ {
+    (
+        $out:expr, $pad:expr,
+    ) => (
+        // Nothing
+    );
+
+    (
+        $out:expr, $pad:expr,
+            #[doc = $doc:expr]
+            $(#[$($meta:tt)*])*
+    ) => ({
+        $crate::core::writeln!($out,
+            "{pad}/** \\brief\n{pad} * {}", $doc,
+            pad = $pad,
+        )?;
+        $crate::__output_docs__! {
+            @opened
+            $out, $pad, $(#[$($meta)*])*
+        }
+    });
+
+    (
+        $out:expr, $pad:expr,
+            #[$not_doc_meta:meta]
+            $(#[$($meta:tt)*])*
+    ) => ({
+        $crate::__output_docs__! {
+            $out, $pad, $(#[$($meta)*])*
+        }
+    });
+
+    (@opened
+        $out:expr, $pad:expr, $(#[doc = $doc:expr])*
+    ) => ({
+        $(
+            $crate::core::writeln!($out,
+                "{pad} * {}", $doc,
+                pad = $pad,
+            )?;
+        )*
+        $crate::core::writeln!($out,
+            "{pad} */",
+            pad = $pad,
+        )?;
+    });
+
+    (@opened
+        $out:expr, $pad:expr,
+            #[doc = $doc:expr]
+            #[$not_doc_meta:meta]
+            $(#[$($meta:tt)*])*
+    ) => ({
+        $crate::core::writeln!($out,
+            "{pad} * {}", $doc,
+            pad = $pad,
+        )?;
+        $crate::__output_docs__! {
+            @opened
+            $out, $pad, $(#[$meta])*
+        }
+    });
+
+    (@opened
+        $out:expr, $pad:expr,
+            #[$not_doc_meta:meta]
+            $(#[$($meta:tt)*])*
+    ) => ({
+        $crate::__output_docs__! {
+            @opened
+            $out, $pad, $(#[$($meta)*])*
+        }
+    });
+}
+
+crate::layout::ReprC! {
+    // #[derive_ReprC]
+    #[repr(u8)]
+    #[derive(Debug)]
+    /// Some docstring
+    pub
+    enum MyBool {
+        False = 42,
+        True, // = 43
+    }
 }

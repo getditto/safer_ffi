@@ -297,6 +297,7 @@ cfg_alloc! {
     static EMPTY_SENTINEL: u8 = NUL;
 
     impl char_p_boxed {
+        #[inline]
         pub
         const
         unsafe
@@ -314,12 +315,7 @@ cfg_alloc! {
           -> char_p_ref<'_>
         {
             unsafe {
-                const_assert! {
-                    mem::size_of::<char_p_boxed>()
-                    ==
-                    mem::size_of::<char_p_ref<'_>>()
-                }
-                mem::transmute_copy(self)
+                mem::transmute(self.0.as_ref())
             }
         }
     }
@@ -363,14 +359,15 @@ cfg_alloc! {
         fn drop (self: &'_ mut char_p_boxed)
         {
             unsafe {
-                if self.0 .0 == ptr::NonNull::from(&EMPTY_SENTINEL).cast() {
+                if ptr::eq(self.0 .0.as_ptr().cast(), &EMPTY_SENTINEL) {
                     return;
                 }
                 let strlen = self.as_ref().bytes().count();
+                let num_bytes = strlen + 1;
                 drop::<rust::Box<[u8]>>(
                     rust::Box::from_raw(slice::from_raw_parts_mut(
                         self.0 .0.as_ptr().cast(),
-                        strlen,
+                        num_bytes,
                     ))
                 );
             }

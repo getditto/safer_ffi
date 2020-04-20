@@ -83,29 +83,95 @@ struct Crazy {
     closure: RefDynFnMut2<'static, (), i32, usize>,
 }
 
-/// Concatenate two strings
-#[ffi_export]
-fn concat (
-    fst: char_p_ref<'_>,
-    snd: char_p_ref<'_>,
-) -> char_p_boxed
+#[test]
+fn test_concat ()
 {
-    format!("{}{}\0", fst.to_str(), snd.to_str())
-        .try_into()
-        .unwrap()
+    use ::std::{os::raw::c_char, slice};
+
+    let () = {
+        #[ffi_export]
+        /// Concatenate two strings
+        fn concat (
+            fst: char_p_ref<'_>,
+            snd: char_p_ref<'_>,
+        ) -> char_p_boxed
+        {
+            format!("{}{}\0", fst.to_str(), snd.to_str())
+                .try_into()
+                .unwrap()
+        }
+    };
+    unsafe {
+        extern "C" {
+            fn concat (
+                fst: *const c_char,
+                snd: *const c_char,
+            ) -> *mut c_char;
+        }
+        let it = concat(
+            b"Hello, \0".as_ptr().cast(),
+            b"World!\0".as_ptr().cast(),
+        );
+        let bytes = ::std::ffi::CStr::from_ptr(it).to_bytes_with_nul();
+        assert_eq!(
+            bytes,
+            b"Hello, World!\0",
+        );
+        let len = bytes.len();
+        drop::<Box<[u8]>>(Box::from_raw(slice::from_raw_parts_mut(
+            it.cast(),
+            len,
+        )));
+    }
 }
 
-/// Some docstring
 #[ffi_export]
-pub fn max (
-    ints: slice_ref<'_, i32>
-) -> Option<&'_ i32>
+/// Some docstring
+pub fn max<'a> (
+    ints: slice_ref<'a, i32>
+) -> Option<&'a i32>
 {
     ints.as_slice().iter().max()
 }
 
-/// Returns a owned copy of the input array, with its elements sorted.
+#[repr(C)]
+struct int_slice {
+    ptr: *const i32,
+    len: usize,
+}
+extern "C" {
+    #[link_name = "max"]
+    fn ffi_max (
+        ints: int_slice,
+    ) -> *const i32;
+}
+
+#[test]
+fn test_max ()
+{
+    unsafe {
+        let empty = int_slice { ptr: 4 as _, len: 0 };
+        assert!(ffi_max(empty).is_null());
+        let xs = &[-8, -2, -4][..];
+        assert_eq!(
+            max(xs.into()),
+            ffi_max(int_slice { ptr: xs.as_ptr(), len: xs.len() }).as_ref(),
+        );
+    }
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic]
+fn test_max_invalid ()
+{
+    unsafe {
+        ffi_max(int_slice { ptr: 0 as _, len: 0 });
+    }
+}
+
 #[ffi_export]
+/// Returns a owned copy of the input array, with its elements sorted.
 pub fn clone_sorted (
     ints: slice_ref<'_, i32>
 ) -> repr_c::Vec<i32>
@@ -115,10 +181,10 @@ pub fn clone_sorted (
     ints.into()
 }
 
-/// Frees the input `Vec`.
 #[ffi_export]
+/// Frees the input `Vec`.
 pub fn free_vec (
-    _: repr_c::Vec<i32>,
+    _vec: repr_c::Vec<i32>,
 )
 {}
 

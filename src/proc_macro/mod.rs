@@ -119,5 +119,4 @@ fn ffi_export (attrs: TokenStream, input: TokenStream)
         }
     });
     ret
-    // TokenStream::new()
 }

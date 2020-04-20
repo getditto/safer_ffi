@@ -23,13 +23,15 @@ extern crate _mod;
 #[macro_use]
 extern crate require_unsafe_in_body;
 
-extern crate proc_macro;
-pub use ::proc_macro::ffi_export;
-
 #[macro_use]
 #[path = "utils/_mod.rs"]
 pub(in crate)
 mod utils;
+
+cfg_proc_macros! {
+    extern crate proc_macro;
+    pub use ::proc_macro::ffi_export;
+}
 
 #[macro_use]
 #[path = "layout/_mod.rs"]

@@ -4,10 +4,10 @@ macro_rules! ffi_export_ {(
     // $(#[$meta:meta])*
     $pub:vis
     $(unsafe $(@$hack:ident@)?)?
-    $(extern $($abi:literal)?)?
+    // $(extern $($abi:literal)?)?
     fn $fname:ident $(<$($lt:lifetime),* $(,)?>)? (
         $(
-            $arg_name:tt : $arg_ty:ty
+            $arg_name:ident : $arg_ty:ty
         ),* $(,)?
     ) $(-> $Ret:ty)?
     $( where {
@@ -18,8 +18,8 @@ macro_rules! ffi_export_ {(
     $($(#[doc = $doc])+)?
     // $(#[$meta])*
     $pub
-    $(unsafe $($hack)?)?
-    $(extern $($abi)?)?
+    $(unsafe $(@$hack@)?)?
+    // $(extern $($abi)?)?
     fn $fname $(<$($lt),*>)? (
         $(
             $arg_name : $arg_ty,
@@ -31,103 +31,122 @@ macro_rules! ffi_export_ {(
     )?
         $body
 
-    /// Guard against some param or return type not being `ReprC`
-    #[allow(dead_code, nonstandard_style)]
+    #[allow(dead_code, nonstandard_style, unused_parens)]
     const _: () = {
-        // introduce lifetime parameters
-        fn __ $(<$($lt),*>)? ()
-        {
+        $($(#[doc = $doc])+)?
+        #[no_mangle]
+        pub
+        unsafe extern "C"
+        fn $fname $(<$($lt),*>)? (
             $(
-                let _: <$arg_ty as $crate::layout::ReprC>::CLayout;
+                $arg_name : <$arg_ty as $crate::layout::ReprC>::CLayout,
             )*
+        ) $(-> $Ret)?
+        $(
+            where
+                $($bounds)*
+        )?
+        {
             $(
                 let _: <$Ret as $crate::layout::ReprC>::CLayout;
             )?
+            $(
+                let $arg_name = $crate::layout::from_raw_unchecked::<$arg_ty>(
+                    $arg_name,
+                );
+            )*
+            $body
         }
     };
 
     $crate::cfg_headers! {
         $crate::inventory::submit! {
-            $crate::TypeDef(|definer: &'_ mut dyn $crate::layout::Definer| Ok({
-                // FIXME: this merges the value namespace with the type
-                // namespace...
-                if ! definer.insert($crate::core::stringify!($fname)) {
-                    return $crate::core::result::Result::Err(
-                        $crate::std::io::Error::new(
-                            $crate::std::io::ErrorKind::AlreadyExists,
-                            $crate::core::concat!(
-                                "Error, attempted to declar `",
-                                stringify!($fname),
-                                "` while another declaration already exists",
-                            ),
-                        )
-                    );
-                }
-                $(
-                    <
-                        <$arg_ty as $crate::layout::ReprC>::CLayout
-                        as
-                        $crate::layout::CType
-                    >::c_define_self(definer)?;
-                )*
-                $(
-                    <
-                        <$Ret as $crate::layout::ReprC>::CLayout
-                        as
-                        $crate::layout::CType
-                    >::c_define_self(definer)?;
-                )?
-                let out = definer.out();
-                $(
-                    $crate::std::io::Write::write_all(out,
-                        b"/**\n",
+            $crate::TypeDef({
+                fn typedef $(<$($lt),*>)? (
+                    definer: &'_ mut dyn $crate::layout::Definer,
+                ) -> $crate::std::io::Result<()>
+                {Ok({
+                    // FIXME: this merges the value namespace with the type
+                    // namespace...
+                    if ! definer.insert($crate::core::stringify!($fname)) {
+                        return $crate::core::result::Result::Err(
+                            $crate::std::io::Error::new(
+                                $crate::std::io::ErrorKind::AlreadyExists,
+                                $crate::core::concat!(
+                                    "Error, attempted to declare `",
+                                    $crate::core::stringify!($fname),
+                                    "` while another declaration already exists",
+                                ),
+                            )
+                        );
+                    }
+                    $(
+                        <
+                            <$arg_ty as $crate::layout::ReprC>::CLayout
+                            as
+                            $crate::layout::CType
+                        >::c_define_self(definer)?;
+                    )*
+                    $(
+                        <
+                            <$Ret as $crate::layout::ReprC>::CLayout
+                            as
+                            $crate::layout::CType
+                        >::c_define_self(definer)?;
+                    )?
+                    let out = definer.out();
+                    $(
+                        $crate::std::io::Write::write_all(out,
+                            b"/** \\brief\n",
+                        )?;
+                        $(
+                            $crate::core::write!(out,
+                                " * {}\n", $doc,
+                            )?;
+                        )+
+                        $crate::std::io::Write::write_all(out,
+                            b" */\n",
+                        )?;
+                    )?
+
+                    $crate::core::write!(out,
+                        "{} (",
+                        <
+                            <($($Ret)?) as $crate::layout::ReprC>::CLayout
+                            as
+                            $crate::layout::CType
+                        >::c_display($crate::core::stringify!($fname)),
                     )?;
+                    // $crate::std::io::Write::write_all(out,
+                    //     $crate::core::concat!($crate::core::stringify!($fname), " (")
+                    //         .as_bytes()
+                    //     ,
+                    // )?;
+                    let mut has_args = false; has_args = has_args;
                     $(
                         $crate::core::write!(out,
-                            " * {}\n", $doc,
+                            "{comma}\n    {arg}",
+                            comma = if has_args { "," } else { "" },
+                            arg = <
+                                    <$arg_ty as $crate::layout::ReprC>::CLayout
+                                    as
+                                    $crate::layout::CType
+                                >::c_display({
+                                    let it = stringify!($arg_name);
+                                    if it == "_" { "" } else { it }
+                                })
+                            ,
                         )?;
-                    )+
+                        has_args |= true;
+                    )*
                     $crate::std::io::Write::write_all(out,
-                        b" */\n",
-                    )?;
-                )?
-
-                $crate::core::write!(out,
-                    "{} (",
-                    <
-                        <($($Ret)?) as $crate::layout::ReprC>::CLayout
-                        as
-                        $crate::layout::CType
-                    >::c_display($crate::core::stringify!($fname)),
-                )?;
-                // $crate::std::io::Write::write_all(out,
-                //     $crate::core::concat!($crate::core::stringify!($fname), " (")
-                //         .as_bytes()
-                //     ,
-                // )?;
-                let mut has_args = false; has_args = has_args;
-                $(
-                    $crate::core::write!(out,
-                        "{comma}\n    {arg}",
-                        comma = if has_args { "," } else { "" },
-                        arg = <
-                                <$arg_ty as $crate::layout::ReprC>::CLayout
-                                as
-                                $crate::layout::CType
-                            >::c_display({
-                                let it = stringify!($arg_name);
-                                if it == "_" { "" } else { it }
-                            })
+                        ");\n\n"
+                            .as_bytes()
                         ,
                     )?;
-                    has_args |= true;
-                )*
-                $crate::std::io::Write::write_all(out,
-                    ");\n\n"
-                        .as_bytes()
-                    ,
-                )?;
-            }))
+                })};
+                typedef
+            })
         }
     }
 )}
@@ -143,5 +162,15 @@ macro_rules! ffi_export_ {(
 //         format!("{}{}\0", fst.to_str(), snd.to_str())
 //             .try_into()
 //             .unwrap()
+//     }
+// }
+
+// ffi_export_! {
+//     /// Some docstring
+//     pub fn max<'a> (
+//         ints: crate::slice::slice_ref<'a, i32>
+//     ) -> Option<&'a i32>
+//     {
+//         ints.as_slice().iter().max()
 //     }
 // }
