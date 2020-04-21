@@ -238,7 +238,7 @@ macro_rules! ReprC {
             }
         }
 
-        ::paste::item! {
+        $crate::paste::item! {
             #[allow(nonstandard_style)]
             $pub use
                 [< __ $StructName _repr_c_mod >]::$StructName
@@ -665,7 +665,7 @@ macro_rules! __output_docs__ {
         )?;
         $crate::__output_docs__! {
             @opened
-            $out, $pad, $(#[$meta])*
+            $out, $pad, $(#[$($meta)*])*
         }
     });
 

@@ -9,7 +9,6 @@ use_prelude!();
 pub use ::core::ptr::*;
 
 #[repr(transparent)]
-#[derive(Clone, Copy)]
 pub
 struct NonNullRef<T> (
     pub
@@ -178,5 +177,19 @@ impl<__> NonNullOwned<__> {
     fn drop_in_place<T> (mut self)
     {
         drop_in_place::<T>(self.0.cast().as_mut());
+    }
+}
+
+impl<__> Copy
+    for NonNullRef<__>
+{}
+impl<__> Clone
+    for NonNullRef<__>
+{
+    #[inline]
+    fn clone (self: &'_ Self)
+      -> Self
+    {
+        *self
     }
 }

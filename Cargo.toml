@@ -14,14 +14,25 @@ license = "MIT"
 libc = { version = "0.2.66", default-features = false }
 
 [features]
-default = ["std", "derives"]
+default = [
+    "std",
+]
+
+nightly = []
 
 alloc = []
-proc_macros = ["proc_macro"]
-derives = [ "proc_macros"]  # alias
-headers = ["std", "inventory"]
-nightly = []
-std = ["alloc", "log"]
+std = [ "alloc" ]
+
+derives = ["proc_macros"] # alias
+proc_macros = [
+    "proc_macro",
+    "require_unsafe_in_body",
+]
+
+headers = [
+    "std",
+    "inventory",
+]
 
 [dev-dependencies]
 macro_rules_attribute = "0.0.1"
@@ -30,10 +41,10 @@ macro_rules_attribute = "0.0.1"
 members = ["src/proc_macro"]
 
 [dependencies]
-paste = "0.1.7"
+paste = { package = "mini_paste", version = "0.1.*" }
 _mod = { path = "../dhm/_mod" }
 log = { version = "0.4.8", optional = true }
-require_unsafe_in_body = "0.2.1"
+require_unsafe_in_body = { version = "0.2.1", optional = true }
 inventory = { version = "0.1.6", optional = true }
 
 [dependencies.proc_macro]

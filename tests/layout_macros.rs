@@ -43,37 +43,74 @@ struct Foo<'a> {
     field: slice_ref<'a, u32>,
 }
 
+#[repr(C)]
+struct i32_slice {
+    ptr: *const i32,
+    len: usize,
+}
+
+#[repr(C)]
+struct u32_slice {
+    ptr: *const i32,
+    len: usize,
+}
+
 #[test]
 fn validity ()
-{
+{ unsafe {
     // `Foo_Layout` is `<Foo as ReprC>::CLayout`
     assert!(
         Foo::is_valid(&
-            Foo_Layout { b: 42_u8.into(), field: slice_ptr_Layout { ptr: 4 as _, len: 0 } }
+            ::core::mem::transmute([
+                42_u8,
+                0,0,0,0,0,0,0,
+                0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            ])
         )
     );
     assert!(
         Foo::is_valid(&
-            Foo_Layout { b: 43_u8.into(), field: slice_ptr_Layout { ptr: 4 as _, len: 0 } }
+            ::core::mem::transmute([
+                43_u8,
+                0,0,0,0,0,0,0,
+                0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            ])
         )
     );
 
     assert!(
         bool::not(Foo::is_valid(&
-            Foo_Layout { b: 0.into(), field: slice_ptr_Layout { ptr: 4 as _, len: 0 } }
+            ::core::mem::transmute([
+                0_u8,
+                0,0,0,0,0,0,0,
+                0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            ])
         ))
     );
     assert!(
         bool::not(Foo::is_valid(&
-            Foo_Layout { b: 42_u8.into(), field: slice_ptr_Layout { ptr: 0 as _, len: 0 } }
+            ::core::mem::transmute([
+                42_u8,
+                0,0,0,0,0,0,0,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            ])
         ))
     );
     assert!(
         bool::not(Foo::is_valid(&
-            Foo_Layout { b: 42_u8.into(), field: slice_ptr_Layout { ptr: 3 as _, len: 0 } }
+            ::core::mem::transmute([
+                42_u8,
+                0,0,0,0,0,0,0,
+                0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            ])
         ))
     );
-}
+}}
 
 #[derive_ReprC]
 #[repr(C)]
@@ -134,15 +171,10 @@ pub fn max<'a> (
     ints.as_slice().iter().max()
 }
 
-#[repr(C)]
-struct int_slice {
-    ptr: *const i32,
-    len: usize,
-}
 extern "C" {
     #[link_name = "max"]
     fn ffi_max (
-        ints: int_slice,
+        ints: i32_slice,
     ) -> *const i32;
 }
 
@@ -150,12 +182,12 @@ extern "C" {
 fn test_max ()
 {
     unsafe {
-        let empty = int_slice { ptr: 4 as _, len: 0 };
+        let empty = i32_slice { ptr: 4 as _, len: 0 };
         assert!(ffi_max(empty).is_null());
         let xs = &[-8, -2, -4][..];
         assert_eq!(
             max(xs.into()),
-            ffi_max(int_slice { ptr: xs.as_ptr(), len: xs.len() }).as_ref(),
+            ffi_max(i32_slice { ptr: xs.as_ptr(), len: xs.len() }).as_ref(),
         );
     }
 }
@@ -166,12 +198,12 @@ fn test_max ()
 fn test_max_invalid ()
 {
     unsafe {
-        ffi_max(int_slice { ptr: 0 as _, len: 0 });
+        ffi_max(i32_slice { ptr: 0 as _, len: 0 });
     }
 }
 
 #[ffi_export]
-/// Returns a owned copy of the input array, with its elements sorted.
+/// Returns an owned copy of the input array, with its elements sorted.
 pub fn clone_sorted (
     ints: slice_ref<'_, i32>
 ) -> repr_c::Vec<i32>

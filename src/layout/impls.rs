@@ -505,7 +505,7 @@ macro_rules! impl_ReprC_for {(
                 if $expr {
                     true
                 } else {
-                    #[cfg(feature = "std")]
+                    #[cfg(feature = "log")]
                     ::log::error!(
                         "{:#x?} is not a _valid_ bit pattern for the type `{}`",
                         unsafe {

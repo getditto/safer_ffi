@@ -208,11 +208,16 @@ ReprC! {
     );
 }
 
-#[require_unsafe_in_bodies]
+#[cfg_attr(feature = "proc_macros",
+    require_unsafe_in_bodies,
+)]
+#[cfg_attr(not(feature = "proc_macros"),
+    allow(unused_unsafe),
+)]
 impl char_p_ref_ {
     /// # Safety
     ///
-    ///   - For the duration of the `'borrow`, the `CharPtr` must point to the
+    ///   - For the duration of the `'borrow`, the pointer must point to the
     ///     beginning of a valid and immutable null-terminated slice of
     ///     `c_char`s.
     pub

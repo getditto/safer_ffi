@@ -2,158 +2,48 @@
 
 use_prelude!();
 
-ReprC! {
-    #[repr(C)]
-    /// The C layout of a (fat) pointer to a slice: a `(ptr, len)` pair.
-    ///
-    /// # C layout (for some given type T)
-    ///
-    /// ```c
-    /// typedef struct {
-    ///     // Cannot be NULL
-    ///     T * ptr;
-    ///     uintptr_t len;
-    /// } slice_T;
-    /// ```
-    ///
-    /// # Nullable pointer?
-    ///
-    /// If you want to support the above typedef, but where the `ptr` field is
-    /// allowed to be `NULL` (with the contents of `len` then being undefined)
-    /// use the `Option< slice_ptr<_> >` type.
-    pub
-    struct slice_ptr[T]
-    where {
-        T : ReprC,
-    }
-    {
-        /// Pointer to the first element (if any).
-        pub
-        ptr: ptr::NonNull<T>, // /!\ Covariant /!\
-
-        /// Element count
-        pub
-        len: usize,
-    }
-}
-
-impl<T : ReprC> Copy
-    for slice_ptr<T>
-{}
-impl<T : ReprC> Clone
-    for slice_ptr<T>
-{
-    fn clone (self: &'_ Self)
-      -> Self
-    {
-        *self
-    }
-}
-
-impl<T : ReprC> fmt::Debug
-    for slice_ptr<T>
-{
-    fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
-      -> fmt::Result
-    {
-        fmt .debug_struct("slice_ptr")
-            .field("ptr", &self.ptr)
-            .field("len", &self.len)
-            .finish()
-    }
-}
-
-impl<T : ReprC> Eq
-    for slice_ptr<T>
-{}
-impl<T : ReprC> PartialEq
-    for slice_ptr<T>
-{
-    fn eq (self: &'_ Self, other: &'_ Self)
-      -> bool
-    {
-        self.ptr == other.ptr && self.len == other.len
-    }
-}
-
-impl<T : ReprC> slice_ptr<T> {
-    pub
-    unsafe
-    fn as_slice<'lt> (self: slice_ptr<T>)
-      -> &'lt [T]
-    where
-        T : 'lt,
-    {
-        let Self { ptr, len } = self;
-        slice::from_raw_parts(
-            ptr.as_ptr(),
-            len
-        )
-    }
-
-    pub
-    unsafe
-    fn as_mut_slice<'lt> (self: slice_ptr<T>)
-      -> &'lt mut [T]
-    where
-        T : 'lt,
-    {
-        let Self { ptr, len } = self;
-        slice::from_raw_parts_mut(
-            ptr.as_ptr(),
-            len,
-        )
-    }
-}
-
-impl<'lt, T : 'lt + ReprC> From<&'lt [T]>
-    for slice_ptr<T>
-{
-    #[inline]
-    fn from (slice: &'lt [T])
-      -> Self
-    {
-        Self {
-            len: slice.len(),
-            ptr: unsafe {
-                ptr::NonNull::new_unchecked(slice.as_ptr() as _)
-            },
-        }
-    }
-}
-
-impl<'lt, T : 'lt + ReprC> From<&'lt mut [T]>
-    for slice_ptr<T>
-{
-    #[inline]
-    fn from (slice: &'lt mut [T])
-      -> Self
-    {
-        Self {
-            len: slice.len(),
-            ptr: unsafe {
-                ptr::NonNull::new_unchecked(slice.as_mut_ptr())
-            },
-        }
-    }
-}
+/// The phantoms from the crate are not `ReprC`.
+type PhantomCovariantLifetime<'lt> =
+    PhantomData<&'lt ()>
+;
 
 cfg_alloc! {
     ReprC! {
-        #[repr(transparent)]
+        #[repr(C)]
         #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]
         /// [`Box`][`rust::Box`]`<[T]>` (fat pointer to a slice),
         /// but with a guaranteed `#[repr(C)]` layout.
+        ///
+        /// # C layout (for some given type T)
+        ///
+        /// ```c
+        /// typedef struct {
+        ///     // Cannot be NULL
+        ///     T * ptr;
+        ///     uintptr_t len;
+        /// } slice_T;
+        /// ```
+        ///
+        /// # Nullable pointer?
+        ///
+        /// If you want to support the above typedef, but where the `ptr` field is
+        /// allowed to be `NULL` (with the contents of `len` then being undefined)
+        /// use the `Option< slice_ptr<_> >` type.
         #[derive(Debug)]
         pub
         struct slice_boxed[T]
         where {
             T : ReprC,
         }
-        (
-            // Variance OK because ownership
-            slice_ptr<T>,
-        );
+        {
+            /// Pointer to the first element (if any).
+            pub(in crate)
+            ptr: ptr::NonNullOwned<T>,
+
+            /// Element count
+            pub(in crate)
+            len: usize,
+        }
     }
 
     impl<T : ReprC> slice_boxed<T> {
@@ -162,7 +52,7 @@ cfg_alloc! {
         fn as_ref<'borrow> (self: &'borrow Self)
           -> slice_ref<'borrow, T>
         {
-            slice_ref(self.0, PhantomCovariantLifetime::default())
+            Into::into(&self[..])
         }
 
         #[inline]
@@ -170,11 +60,7 @@ cfg_alloc! {
         fn as_mut<'borrow> (self: &'borrow mut Self)
           -> slice_mut<'borrow, T>
         {
-            slice_mut(
-                self.0,
-                PhantomCovariantLifetime::default(),
-                PhantomInvariant::<T>::default(),
-            )
+            Into::into(&mut self[..])
         }
     }
 
@@ -185,9 +71,14 @@ cfg_alloc! {
         fn from (boxed_slice: rust::Box<[T]>)
           -> Self
         {
-            Self(slice_ptr::from(
-                &mut **mem::ManuallyDrop::new(boxed_slice)
-            ))
+            slice_boxed {
+                len: boxed_slice.len(),
+                ptr: unsafe {
+                    ptr::NonNull::new_unchecked(
+                        rust::Box::leak(boxed_slice).as_mut_ptr()
+                    )
+                }.into(),
+            }
         }
     }
 
@@ -198,10 +89,13 @@ cfg_alloc! {
         fn into (self: slice_boxed<T>)
           -> rust::Box<[T]>
         {
-            let this = mem::ManuallyDrop::new(self);
+            let mut this = mem::ManuallyDrop::new(self);
             unsafe {
                 rust::Box::from_raw(
-                    this.0.as_mut_slice()
+                    slice::from_raw_parts_mut(
+                        this.ptr.as_mut_ptr(),
+                        this.len,
+                    )
                 )
             }
         }
@@ -216,7 +110,10 @@ cfg_alloc! {
             unsafe {
                 drop::<rust::Box<[T]>>(
                     rust::Box::from_raw(
-                        self.0.as_mut_slice()
+                        slice::from_raw_parts_mut(
+                            self.ptr.as_mut_ptr(),
+                            self.len,
+                        )
                     )
                 );
             }
@@ -233,7 +130,7 @@ cfg_alloc! {
           -> &'_ Self::Target
         {
             unsafe {
-                self.0.as_slice()
+                slice::from_raw_parts(self.ptr.as_ptr(), self.len)
             }
         }
     }
@@ -245,7 +142,7 @@ cfg_alloc! {
           -> &'_ mut Self::Target
         {
             unsafe {
-                self.0.as_mut_slice()
+                slice::from_raw_parts_mut(self.ptr.as_mut_ptr(), self.len)
             }
         }
     }
@@ -265,20 +162,41 @@ cfg_alloc! {
 }
 
 ReprC! {
-    #[repr(transparent)]
+    #[repr(C)]
     /// `&'lt [T]` but with a guaranteed `#[repr(C)]` layout.
+    ///
+    /// # C layout (for some given type T)
+    ///
+    /// ```c
+    /// typedef struct {
+    ///     // Cannot be NULL
+    ///     T * ptr;
+    ///     uintptr_t len;
+    /// } slice_T;
+    /// ```
+    ///
+    /// # Nullable pointer?
+    ///
+    /// If you want to support the above typedef, but where the `ptr` field is
+    /// allowed to be `NULL` (with the contents of `len` then being undefined)
+    /// use the `Option< slice_ptr<_> >` type.
     pub
     struct slice_ref['lt, T]
     where {
         T : ReprC + 'lt,
     }
-    (
+    {
+        /// Pointer to the first element (if any).
         pub(in crate)
-        slice_ptr<T>,
+        ptr: ptr::NonNullRef<T>,
+
+        /// Element count
+        pub(in crate)
+        len: usize,
 
         pub(in crate)
-        PhantomCovariantLifetime<'lt>,
-    );
+        _lt: PhantomCovariantLifetime<'lt>,
+    }
 }
 
 impl<'lt, T : 'lt + ReprC> From<&'lt [T]>
@@ -288,10 +206,13 @@ impl<'lt, T : 'lt + ReprC> From<&'lt [T]>
     fn from (slice: &'lt [T])
       -> slice_ref<'lt, T>
     {
-        slice_ref(
-            slice_ptr::from(slice),
-            PhantomCovariantLifetime::default(),
-        )
+        slice_ref {
+            len: slice.len(),
+            ptr: unsafe {
+                ptr::NonNull::new_unchecked(slice.as_ptr() as _)
+            }.into(),
+            _lt: PhantomCovariantLifetime::default(),
+        }
     }
 }
 
@@ -301,7 +222,7 @@ impl<'lt, T : ReprC> slice_ref<'lt, T> {
       -> &'lt [T]
     {
         unsafe {
-            self.0.as_slice()
+            slice::from_raw_parts(self.ptr.as_ptr(), self.len)
         }
     }
 }
@@ -361,23 +282,41 @@ impl<T : fmt::Debug + ReprC> fmt::Debug
 
 
 ReprC! {
-    #[repr(transparent)]
+    #[repr(C)]
     /// `&'lt mut [T]` but with a guaranteed `#[repr(C)]` layout.
+    ///
+    /// # C layout (for some given type T)
+    ///
+    /// ```c
+    /// typedef struct {
+    ///     // Cannot be NULL
+    ///     T * ptr;
+    ///     uintptr_t len;
+    /// } slice_T;
+    /// ```
+    ///
+    /// # Nullable pointer?
+    ///
+    /// If you want to support the above typedef, but where the `ptr` field is
+    /// allowed to be `NULL` (with the contents of `len` then being undefined)
+    /// use the `Option< slice_ptr<_> >` type.
     pub
     struct slice_mut['lt, T]
     where {
         T : ReprC + 'lt,
     }
-    (
+    {
+        /// Pointer to the first element (if any).
         pub(in crate)
-        slice_ptr<T>, // /!\ not invariant /!\ ----+
-                                                // |
-        pub(in crate)                           // |
-        PhantomCovariantLifetime<'lt>,          // |
-                                                // |
-        pub(in crate)                           // |
-        PhantomInvariant<T>, // <------------------+
-    );
+        ptr: ptr::NonNullMut<T>,
+
+        /// Element count
+        pub(in crate)
+        len: usize,
+
+        pub(in crate)
+        _lt: PhantomCovariantLifetime<'lt>,
+    }
 }
 
 impl<'lt, T : 'lt + ReprC> From<&'lt mut [T]>
@@ -387,11 +326,13 @@ impl<'lt, T : 'lt + ReprC> From<&'lt mut [T]>
     fn from (slice: &'lt mut [T])
       -> Self
     {
-        Self(
-            slice_ptr::from(slice),
-            PhantomCovariantLifetime::default(),
-            PhantomInvariant::<T>::default(),
-        )
+        slice_mut {
+            len: slice.len(),
+            ptr: unsafe {
+                ptr::NonNull::new_unchecked(slice.as_mut_ptr())
+            }.into(),
+            _lt: PhantomCovariantLifetime::default(),
+        }
     }
 }
 
@@ -447,10 +388,11 @@ impl<'lt, T : 'lt + ReprC> slice_mut<'lt, T> {
     where
         'lt : 'reborrow,
     {
-        unsafe {
-            self.0
-                .as_slice()
-                .into()
+        let &slice_mut { ptr: ptr::NonNullMut(ptr, ..), len, _lt } = self;
+        slice_ref {
+            ptr: ptr.into(),
+            len,
+            _lt,
         }
     }
 
@@ -461,18 +403,21 @@ impl<'lt, T : 'lt + ReprC> slice_mut<'lt, T> {
     where
         'lt : 'reborrow,
     {
-        unsafe {
-            slice_mut { .. *self }
+        let &mut slice_mut { ref mut ptr, len, _lt } = self;
+        slice_mut {
+            ptr: ptr.copy(),
+            len,
+            _lt,
         }
     }
 
     #[inline]
     pub
-    fn as_slice (self: slice_mut<'lt, T>)
+    fn as_slice (mut self: slice_mut<'lt, T>)
       -> &'lt mut [T]
     {
         unsafe {
-            slice::from_raw_parts_mut(self.0.ptr.as_ptr(), self.0.len)
+            slice::from_raw_parts_mut(self.ptr.as_mut_ptr(), self.len)
         }
     }
 }

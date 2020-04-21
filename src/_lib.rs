@@ -20,8 +20,12 @@
 #[macro_use]
 extern crate _mod;
 
+#[cfg(feature = "proc_macros")]
 #[macro_use]
 extern crate require_unsafe_in_body;
+
+#[doc(hidden)] pub
+extern crate paste;
 
 #[macro_use]
 #[path = "utils/_mod.rs"]
@@ -101,26 +105,16 @@ cfg_alloc! {
 macro_rules! reexport_primitive_types {(
     $($ty:ident)*
 ) => (
-    ::paste::item! {
-        mod hack {
-            $(
-                pub(in super)
-                type [< $ty _hack >] = $ty;
-            )*
-        }
-    }
     $(
-        ::paste::item! {
-            #[doc(hidden)]
-            pub type $ty = hack::[< $ty _hack >];
-        }
+        #[doc(hidden)]
+        pub use $ty;
     )*
 )} reexport_primitive_types! {
     u8 u16 u32 u64 u128
     i8 i16 i32 i64 i128
     char
     bool
-    // str
+    str
 }
 #[doc(hidden)] pub use ::core;
 cfg_std! {

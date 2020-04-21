@@ -6,7 +6,7 @@ ReprC! {
     /// Same as [`Vec<T>`][`rust::Vec`], but with guaranteed `#[repr(C)]` layout
     pub
     struct Vec[T] where { T : ReprC } {
-        ptr: ptr::NonNull<T>,
+        ptr: ptr::NonNullOwned<T>,
         len: usize,
 
         cap: usize,
@@ -19,11 +19,12 @@ impl<T : ReprC> Vec<T> {
     fn as_ref (self: &'_ Self)
       -> slice_ref<'_, T>
     {
-        let &Vec { ptr, len, .. } = self;
-        slice_ref(
-            crate::slice::slice_ptr { ptr, len },
-            PhantomCovariantLifetime::default(),
-        )
+        // should optimize to a `transmute_copy`.
+        crate::slice::slice_ref {
+            ptr: self.ptr.0.into(),
+            len: self.len,
+            _lt: Default::default(),
+        }
     }
 
     #[inline]
@@ -31,12 +32,12 @@ impl<T : ReprC> Vec<T> {
     fn as_mut (self: &'_ mut Self)
       -> slice_mut<'_, T>
     {
-        let &mut Vec { ptr, len, .. } = self;
-        slice_mut(
-            crate::slice::slice_ptr { ptr, len },
-            PhantomCovariantLifetime::default(),
-            PhantomInvariant::<T>::default(),
-        )
+        // should optimize to a `transmute_copy`.
+        crate::slice::slice_mut {
+            ptr: self.ptr.0.into(),
+            len: self.len,
+            _lt: Default::default(),
+        }
     }
 }
 
@@ -47,13 +48,14 @@ impl<T : ReprC> From<rust::Vec<T>>
     fn from (vec: rust::Vec<T>)
       -> Vec<T>
     {
-        let len = vec.len()/*.try_into().expect("Overflow")*/;
-        let cap = vec.capacity()/*.try_into().expect("Overflow")*/;
+        let len = vec.len();
+        let cap = vec.capacity();
         let ptr = mem::ManuallyDrop::new(vec).as_mut_ptr();
         Self {
             ptr: unsafe {
+                // Safety: `Vec` guarantees its pointer is nonnull.
                 ptr::NonNull::new_unchecked(ptr)
-            },
+            }.into(),
             len,
             cap,
         }
@@ -67,12 +69,13 @@ impl<T : ReprC> Into<rust::Vec<T>>
     fn into (self: Vec<T>)
       -> rust::Vec<T>
     {
-        let &mut Self { ptr, len, cap } = &mut *mem::ManuallyDrop::new(self);
+        let mut this = mem::ManuallyDrop::new(self);
         unsafe {
+            // Safety: pointers originate from `Vec`.
             rust::Vec::from_raw_parts(
-                ptr.as_ptr(),
-                len/*.try_into().expect("Overflow")*/,
-                cap/*.try_into().expect("Overflow")*/,
+                this.ptr.as_mut_ptr(),
+                this.len,
+                this.cap,
             )
         }
     }
@@ -117,29 +120,31 @@ impl<T : ReprC> DerefMut
     {
         unsafe {
             slice::from_raw_parts_mut(
-                self.ptr.as_ptr(),
+                self.ptr.as_mut_ptr(),
                 self.len(),
             )
         }
     }
 }
 
-unsafe impl<T : ReprC> Send
-    for Vec<T>
-where
-    rust::Vec<T> : Send,
-{}
+unsafe // Safety: from delegation
+    impl<T : ReprC> Send
+        for Vec<T>
+    where
+        rust::Vec<T> : Send,
+    {}
 
-unsafe impl<T : ReprC> Sync
-    for Vec<T>
-where
-    rust::Vec<T> : Sync,
-{}
+unsafe // Safety: from delegation
+    impl<T : ReprC> Sync
+        for Vec<T>
+    where
+        rust::Vec<T> : Sync,
+    {}
 
 impl<T : ReprC> Vec<T> {
     pub
     const EMPTY: Self = Self {
-        ptr: ptr::NonNull::dangling(),
+        ptr: ptr::NonNullOwned(ptr::NonNull::dangling(), PhantomData),
         len: 0,
         cap: 0,
     };

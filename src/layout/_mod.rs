@@ -183,7 +183,12 @@ fn from_raw_unchecked<T : ReprC> (c_layout: T::CLayout)
     }
 }
 
-#[require_unsafe_in_body]
+#[cfg_attr(feature = "proc_macros",
+    require_unsafe_in_body,
+)]
+#[cfg_attr(not(feature = "proc_macros"),
+    allow(unused_unsafe),
+)]
 #[inline]
 pub
 unsafe
