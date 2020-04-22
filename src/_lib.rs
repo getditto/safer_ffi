@@ -32,14 +32,18 @@ extern crate paste;
 pub(in crate)
 mod utils;
 
-cfg_proc_macros! {
-    extern crate proc_macro;
-    pub use ::proc_macro::ffi_export;
-}
+extern crate proc_macro;
+pub use ::proc_macro::ffi_export;
 
 #[macro_use]
 #[path = "layout/_mod.rs"]
 pub mod layout;
+
+#[cfg_attr(feature = "nightly",
+    doc(cfg(feature = "headers")),
+)]
+#[doc(hidden)] /** Not yet part of the public API **/ pub
+mod headers;
 
 cfg_headers! {
     #[doc(hidden)] pub
@@ -74,7 +78,10 @@ pub mod char_p;
 
 pub mod closure;
 
-mod ffi_export;
+const _: () = {
+    #[path = "ffi_export.rs"]
+    mod ffi_export;
+};
 
 pub
 mod ptr;
@@ -125,3 +132,58 @@ cfg_std! {
 #[allow(missing_debug_implementations)]
 #[doc(hidden)] pub
 struct NotZeroSized;
+
+pub
+mod prelude {
+    pub
+    mod repr_c {
+        cfg_alloc! {
+            #[doc(no_inline)]
+            pub use crate::{
+                Box,
+                Vec,
+                String,
+            };
+        }
+        #[doc(no_inline)]
+        pub use crate::tuple::*;
+    }
+    #[doc(no_inline)]
+    pub use crate::{
+        char_p::{
+            // char_p_raw,
+            char_p_ref,
+        },
+        closure::*,
+        ffi_export,
+        layout::ReprC,
+        slice::{
+            // slice_raw,
+            slice_ref,
+            slice_mut,
+        },
+        string::{
+            str_ref,
+        },
+    };
+    cfg_alloc! {
+        #[doc(no_inline)]
+        pub use crate::{
+            char_p::char_p_boxed,
+            slice::slice_boxed,
+            string::str_boxed,
+        };
+    }
+    cfg_proc_macros! {
+        #[doc(no_inline)]
+        pub use crate::layout::derive_ReprC;
+    }
+    #[doc(no_inline)]
+    pub use ::core::{
+        convert::{
+            TryFrom as _,
+            TryInto as _,
+        },
+        ops::Not as _,
+    };
+}

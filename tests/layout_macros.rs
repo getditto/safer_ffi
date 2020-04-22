@@ -25,6 +25,16 @@ use ::repr_c::{
 };
 
 #[derive_ReprC]
+#[repr(C)]
+pub
+struct Tuple1<T>
+where
+    T : ReprC,
+{
+    _0: T,
+}
+
+#[derive_ReprC]
 #[repr(u8)]
 #[derive(Debug)]
 /// Some docstring
@@ -63,7 +73,7 @@ fn validity ()
         Foo::is_valid(&
             ::core::mem::transmute([
                 42_u8,
-                0,0,0,0,0,0,0,
+                    /*pad*/ 0,0,0,0,0,0,0,
                 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             ])
@@ -73,7 +83,7 @@ fn validity ()
         Foo::is_valid(&
             ::core::mem::transmute([
                 43_u8,
-                0,0,0,0,0,0,0,
+                    /*pad*/ 0,0,0,0,0,0,0,
                 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             ])
@@ -84,7 +94,7 @@ fn validity ()
         bool::not(Foo::is_valid(&
             ::core::mem::transmute([
                 0_u8,
-                0,0,0,0,0,0,0,
+                    /*pad*/ 0,0,0,0,0,0,0,
                 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             ])
@@ -94,7 +104,7 @@ fn validity ()
         bool::not(Foo::is_valid(&
             ::core::mem::transmute([
                 42_u8,
-                0,0,0,0,0,0,0,
+                    /*pad*/ 0,0,0,0,0,0,0,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             ])
@@ -104,7 +114,7 @@ fn validity ()
         bool::not(Foo::is_valid(&
             ::core::mem::transmute([
                 42_u8,
-                0,0,0,0,0,0,0,
+                    /*pad*/ 0,0,0,0,0,0,0,
                 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             ])
@@ -219,6 +229,46 @@ pub fn free_vec (
     _vec: repr_c::Vec<i32>,
 )
 {}
+
+#[test]
+fn test_with_concat ()
+{
+    let () = {
+        #[ffi_export]
+        fn with_concat (
+            fst: char_p_ref<'_>,
+            snd: char_p_ref<'_>,
+            cb: RefDynFnMut1<'_, (), char_p_raw>,
+        )
+        {
+            let concat = &*format!("{}{}\0", fst.to_str(), snd.to_str());
+            let char_p_concat: char_p_ref<'_> = concat.try_into().unwrap();
+            {cb}.call(char_p_concat.into())
+        }
+    };
+    unsafe {
+        extern "C" {
+            fn with_concat (
+                fst: char_p_ref<'_>,
+                snd: char_p_ref<'_>,
+                cb: RefDynFnMut1<(), char_p_raw>,
+            );
+        }
+        let mut called = false;
+        with_concat(
+            "Hello, \0".try_into().unwrap(),
+            "World!\0".try_into().unwrap(),
+            RefDynFnMut1::new(&mut |concat: char_p_raw| {
+                called = true;
+                assert_eq!(
+                    unsafe { concat.as_ref() }.to_str(),
+                    "Hello, World!",
+                );
+            }),
+        );
+        assert!(called);
+    }
+}
 
 #[cfg(feature = "headers")]
 #[test]

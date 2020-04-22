@@ -199,11 +199,11 @@ ReprC! {
     #[allow(missing_copy_implementations)]
     /// Same as [`char_p_ref`], but without any lifetime attached whatsoever.
     ///
-    /// It is only intended to be used as the parameter of a callback that
+    /// It is only intended to be used as the parameter of a **callback** that
     /// locally borrows it, due to limitations of the [`ReprC`][
     /// `crate::layout::ReprCTrait`] design _w.r.t._ higher-rank trait bounds.
     pub
-    struct char_p_ref_ (
+    struct char_p_raw (
         ptr::NonNullRef<c_char>,
     );
 }
@@ -214,7 +214,7 @@ ReprC! {
 #[cfg_attr(not(feature = "proc_macros"),
     allow(unused_unsafe),
 )]
-impl char_p_ref_ {
+impl char_p_raw {
     /// # Safety
     ///
     ///   - For the duration of the `'borrow`, the pointer must point to the
@@ -222,7 +222,7 @@ impl char_p_ref_ {
     ///     `c_char`s.
     pub
     unsafe
-    fn assume_valid<'borrow> (self: &'borrow Self)
+    fn as_ref<'borrow> (self: &'borrow Self)
       -> char_p_ref<'borrow>
     {
         unsafe {
@@ -236,13 +236,26 @@ impl char_p_ref_ {
     }
 }
 
+impl<'lt> From<char_p_ref<'lt>>
+    for char_p_raw
+{
+    #[inline]
+    fn from (it: char_p_ref<'lt>)
+      -> char_p_raw
+    {
+        unsafe {
+            mem::transmute(it)
+        }
+    }
+}
+
 impl fmt::Debug
-    for char_p_ref_
+    for char_p_raw
 {
     fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
       -> fmt::Result
     {
-        fmt .debug_tuple("char_p_ref_")
+        fmt .debug_tuple("char_p_raw")
             .field(&self.0)
             .finish()
     }
@@ -409,6 +422,9 @@ cfg_std! {
 #[doc(no_inline)]
 pub use {
     char_p_ref as Ref,
-    char_p_boxed as Boxed,
-    char_p_ref_ as Ref_,
+    char_p_raw as Ref_,
 };
+cfg_alloc! {
+    #[doc(no_inline)]
+    pub use char_p_boxed as Boxed;
+}

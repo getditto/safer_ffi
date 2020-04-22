@@ -1,0 +1,22 @@
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[package]
+name = "ffi_tests"
+version = "0.1.0"
+authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+repr_c = { path = "..", features = [] }
+
+[features]
+generate-headers = ["repr_c/headers"]
+
+# [dev-dependencies]
+# cc = "1.0.50"
+
+[profile.dev]
+panic = "unwind"

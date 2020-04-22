@@ -7,6 +7,84 @@ type PhantomCovariantLifetime<'lt> =
     PhantomData<&'lt ()>
 ;
 
+ReprC! {
+    #[repr(C)]
+    /// Like [`slice_ref`] and [`slice_mut`], but with any lifetime attached
+    /// whatsoever.
+    ///
+    /// It is only intended to be used as the parameter of a **callback** that
+    /// locally borrows it, due to limitations of the [`ReprC`][
+    /// `crate::layout::ReprCTrait`] design _w.r.t._ higher-rank trait bounds.
+    ///
+    /// # C layout (for some given type T)
+    ///
+    /// ```c
+    /// typedef struct {
+    ///     // Cannot be NULL
+    ///     T * ptr;
+    ///     uintptr_t len;
+    /// } slice_T;
+    /// ```
+    ///
+    /// # Nullable pointer?
+    ///
+    /// If you want to support the above typedef, but where the `ptr` field is
+    /// allowed to be `NULL` (with the contents of `len` then being undefined)
+    /// use the `Option< slice_ptr<_> >` type.
+    pub
+    struct slice_raw[T]
+    where {
+        T : ReprC,
+    }
+    {
+        /// Pointer to the first element (if any).
+        pub
+        ptr: ptr::NonNull<T>,
+
+        /// Element count
+        pub
+        len: usize,
+    }
+}
+
+impl<T : ReprC> slice_raw<T> {
+    /// # Safety
+    ///
+    ///   - For the duration of the `'borrow`, the pointer must point to the
+    ///     beginning of a valid and immutable null-terminated slice of
+    ///     `len` `T`s.
+    #[inline]
+    pub
+    unsafe
+    fn as_ref<'borrow> (self: &'borrow slice_raw<T>)
+      -> slice_ref<'borrow, T>
+    {
+        slice_ref {
+            ptr: self.ptr.into(),
+            len: self.len,
+            _lt: PhantomCovariantLifetime::default(),
+        }
+    }
+
+    /// # Safety
+    ///
+    ///   - For the duration of the `'borrow`, the pointer must point to the
+    ///     beginning of a valid and immutable null-terminated slice of
+    ///     `len` `T`s.
+    #[inline]
+    pub
+    unsafe
+    fn as_mut<'borrow> (self: &'borrow mut slice_raw<T>)
+      -> slice_mut<'borrow, T>
+    {
+        slice_mut {
+            ptr: self.ptr.into(),
+            len: self.len,
+            _lt: PhantomCovariantLifetime::default(),
+        }
+    }
+}
+
 cfg_alloc! {
     ReprC! {
         #[repr(C)]

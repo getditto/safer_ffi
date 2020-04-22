@@ -1,3 +1,24 @@
+fn compile_error(err_msg: &'_ str, span: ::proc_macro::Span)
+  -> TokenStream
+{
+    use ::proc_macro::{*, TokenTree as TT};
+    macro_rules! spanned {($expr:expr) => ({
+        let mut it = $expr;
+        it.set_span(span);
+        it
+    })}
+    <TokenStream as ::std::iter::FromIterator<_>>::from_iter(vec![
+        TT::Ident(Ident::new("compile_error", span)),
+        TT::Punct(spanned!(Punct::new('!', Spacing::Alone))),
+        TT::Group(spanned!(Group::new(
+            Delimiter::Brace,
+            ::core::iter::once(TT::Literal(
+                spanned!(Literal::string(err_msg))
+            )).collect(),
+        ))),
+    ])
+}
+
 trait MySplit {
     type Ret;
     fn my_split (self: &'_ Self)
@@ -5,6 +26,7 @@ trait MySplit {
     ;
 }
 
+#[cfg(feature = "proc_macros")]
 impl MySplit for Generics {
     type Ret = (TokenStream2, Vec<WherePredicate>);
 

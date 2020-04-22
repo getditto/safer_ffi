@@ -1,5 +1,5 @@
-#[macro_export]
-macro_rules! ffi_export_ {(
+#[doc(hidden)] #[macro_export]
+macro_rules! __ffi_export__ {(
     $($(#[doc = $doc:expr])+)?
     // $(#[$meta:meta])*
     $pub:vis
@@ -46,21 +46,46 @@ macro_rules! ffi_export_ {(
             where
                 $($bounds)*
         )?
-        {
-            $(
-                let _: <$Ret as $crate::layout::ReprC>::CLayout;
-            )?
-            $(
-                let $arg_name = $crate::layout::from_raw_unchecked::<$arg_ty>(
-                    $arg_name,
-                );
-            )*
-            $body
-        }
+        {{
+            // let body = #[inline(always)] || {
+                $(
+                    let _: <$Ret as $crate::layout::ReprC>::CLayout;
+                )?
+                $(
+                    let $arg_name = $crate::layout::from_raw_unchecked::<$arg_ty>(
+                        $arg_name,
+                    );
+                )*
+                $body
+            // };
+            // let guard = {
+            //     struct $fname;
+            //     impl $crate::core::ops::Drop
+            //         for $fname
+            //     {
+            //         fn drop (self: &'_ mut Self)
+            //         {
+            //             $crate::core::panic!($crate::core::concat!(
+            //                 "Error, attempted to panic across the FFI ",
+            //                 "boundary of `",
+            //                 $crate::core::stringify!($fname),
+            //                 "()`, ",
+            //                 "which is Undefined Behavior.\n",
+            //                 "Aborting for soundness.",
+            //             ));
+            //         }
+            //     }
+            //     $fname
+            // };
+            // let ret = body();
+            // $crate::core::mem::forget(guard);
+            // ret
+        }}
     };
 
     $crate::cfg_headers! {
         $crate::inventory::submit! {
+            #![crate = $crate]
             $crate::TypeDef({
                 fn typedef $(<$($lt),*>)? (
                     definer: &'_ mut dyn $crate::layout::Definer,
@@ -151,7 +176,7 @@ macro_rules! ffi_export_ {(
     }
 )}
 
-// ffi_export_! {
+// __ffi_export__! {
 //     /// Concatenate two strings
 //     fn concat (
 //         fst: crate::char_p::char_p_ref<'_>,
@@ -165,7 +190,7 @@ macro_rules! ffi_export_ {(
 //     }
 // }
 
-// ffi_export_! {
+// __ffi_export__! {
 //     /// Some docstring
 //     pub fn max<'a> (
 //         ints: crate::slice::slice_ref<'a, i32>

@@ -10,9 +10,6 @@ edition = "2018"
 description = "#[repr(C)] equivalents of stdlib pervasive types for easier FFI"
 license = "MIT"
 
-[target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
-libc = { version = "0.2.66", default-features = false }
-
 [features]
 default = [
     "std",
@@ -25,8 +22,12 @@ std = [ "alloc" ]
 
 derives = ["proc_macros"] # alias
 proc_macros = [
-    "proc_macro",
+    "proc_macro/proc_macros",
     "require_unsafe_in_body",
+]
+debug_proc_macros = [
+    "proc_macros",
+    "proc_macro/verbose-expansions",
 ]
 
 headers = [
@@ -37,8 +38,8 @@ headers = [
 [dev-dependencies]
 macro_rules_attribute = "0.0.1"
 
-[workspace]
-members = ["src/proc_macro"]
+[target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
+libc = { version = "0.2.66", default-features = false }
 
 [dependencies]
 paste = { package = "mini_paste", version = "0.1.*" }
@@ -51,4 +52,7 @@ inventory = { version = "0.1.6", optional = true }
 package = "repr_c-proc_macro"
 path = "src/proc_macro"
 version = "0.1.0"
-optional = true
+
+[workspace]
+members = ["src/proc_macro"]
+exclude = ["ffi_tests"]

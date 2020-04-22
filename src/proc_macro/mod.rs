@@ -3,27 +3,31 @@
 extern crate proc_macro;
 
 use ::proc_macro::TokenStream;
-use ::proc_macro2::{
-    Span,
-    TokenStream as TokenStream2,
-};
-use ::quote::{
-    quote,
-    quote_spanned,
-    ToTokens,
-};
-use ::syn::{*,
-    parse::{
-        Parse,
-        Parser,
+#[cfg(feature = "proc_macros")]
+use ::{
+    proc_macro2::{
+        Span,
+        TokenStream as TokenStream2,
     },
-    punctuated::Punctuated,
-    spanned::Spanned,
-    Result,
+    quote::{
+        quote,
+        quote_spanned,
+        ToTokens,
+    },
+    syn::{*,
+        parse::{
+            Parse,
+            Parser,
+        },
+        punctuated::Punctuated,
+        spanned::Spanned,
+        Result,
+    },
 };
 
 include!("utils.rs");
 
+#[cfg(feature = "proc_macros")]
 fn feed_to_macro_rules (input: TokenStream, name: Ident)
   -> TokenStream
 {
@@ -34,7 +38,7 @@ fn feed_to_macro_rules (input: TokenStream, name: Ident)
         generics,
         data,
     } = parse_macro_input!(input);
-    TokenStream::from(match data {
+    let ret = TokenStream::from(match data {
         | Data::Enum(DataEnum {
             enum_token: ref enum_,
             ref variants,
@@ -59,7 +63,10 @@ fn feed_to_macro_rules (input: TokenStream, name: Ident)
                     #(#attrs)*
                     #vis
                     #struct_ #ident
-                                [#params] where { #(#bounds ,)* }
+                                [#params]
+                            where {
+                                #(#bounds ,)*
+                            }
                         #fields
                     #maybe_semi_colon
                 }
@@ -71,9 +78,13 @@ fn feed_to_macro_rules (input: TokenStream, name: Ident)
                 "`union`s are not supported yet."
             ).to_compile_error()
         },
-    })
+    });
+    #[cfg(feature = "verbose-expansions")]
+    println!("{}", ret.to_string());
+    ret
 }
 
+#[cfg(feature = "proc_macros")]
 #[proc_macro_attribute] pub
 fn derive_ReprC (attrs: TokenStream, input: TokenStream)
   -> TokenStream
@@ -86,14 +97,13 @@ fn derive_ReprC (attrs: TokenStream, input: TokenStream)
     feed_to_macro_rules(input, parse_quote!(ReprC))
 }
 
+#[cfg(feature = "proc_macros")]
 #[proc_macro_attribute] pub
 fn derive_CType (attrs: TokenStream, input: TokenStream)
   -> TokenStream
 {
-    if let Some(tt) = TokenStream2::from(attrs).into_iter().next() {
-        return Error::new_spanned(tt,
-            "Unexpected parameter",
-        ).to_compile_error().into();
+    if let Some(unexpected_tt) = attrs.into_iter().next() {
+        return compile_error("Unexpected parameter", unexpected_tt.span());
     }
     feed_to_macro_rules(input, parse_quote!(CType))
 }
@@ -102,21 +112,31 @@ fn derive_CType (attrs: TokenStream, input: TokenStream)
 fn ffi_export (attrs: TokenStream, input: TokenStream)
   -> TokenStream
 {
-    if let Some(tt) = TokenStream2::from(attrs).into_iter().next() {
-        return Error::new_spanned(tt,
-            "Unexpected parameter",
-        ).to_compile_error().into();
+    use ::proc_macro::{*, TokenTree as TT};
+    if let Some(unexpected_tt) = attrs.into_iter().next() {
+        return compile_error("Unexpected parameter", unexpected_tt.span());
     }
-    // dbg!(&input);
-    {
+    #[cfg(feature = "proc_macros")] {
         let input = input.clone();
         let _: ItemFn = parse_macro_input!(input);
     }
-    let input = TokenStream2::into_iter(input.into());
-    let ret = TokenStream::from(quote! {
-        ::repr_c::ffi_export_! {
-            #(#input)*
-        }
-    });
-    ret
+    let span = Span::call_site();
+    <TokenStream as ::std::iter::FromIterator<_>>::from_iter(vec![
+        TT::Punct(Punct::new(':', Spacing::Joint)),
+        TT::Punct(Punct::new(':', Spacing::Alone)),
+
+        TT::Ident(Ident::new("repr_c", span)),
+
+        TT::Punct(Punct::new(':', Spacing::Joint)),
+        TT::Punct(Punct::new(':', Spacing::Alone)),
+
+        TT::Ident(Ident::new("__ffi_export__", span)),
+
+        TT::Punct(Punct::new('!', Spacing::Alone)),
+
+        TT::Group(Group::new(
+            Delimiter::Brace,
+            input.into_iter().collect(),
+        )),
+    ])
 }

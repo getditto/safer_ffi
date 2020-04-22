@@ -143,6 +143,10 @@ trait ReprC : Sized {
     ;
 }
 
+#[doc(hidden)] /** For clarity;
+                   this macro may be stabilized
+                   if downstream users find it useful
+                **/
 #[macro_export]
 macro_rules! from_CType_impl_ReprC {(
     $(@for[$($generics:tt)*])? $T:ty $(where $($bounds:tt)*)?
