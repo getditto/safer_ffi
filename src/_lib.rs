@@ -17,9 +17,6 @@
     unused_must_use,
 )]
 
-#[macro_use]
-extern crate _mod;
-
 #[cfg(feature = "proc_macros")]
 #[macro_use]
 extern crate require_unsafe_in_body;
@@ -94,7 +91,8 @@ pub mod slice;
 #[doc(inline)]
 pub use string::str_ref;
 
-_mod!(pub string);
+#[path = "string/_mod.rs"]
+pub mod string;
 
 pub
 mod tuple;
@@ -151,14 +149,14 @@ mod prelude {
     #[doc(no_inline)]
     pub use crate::{
         char_p::{
-            // char_p_raw,
+            char_p_raw,
             char_p_ref,
         },
         closure::*,
         ffi_export,
         layout::ReprC,
         slice::{
-            // slice_raw,
+            slice_raw,
             slice_ref,
             slice_mut,
         },
