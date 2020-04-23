@@ -16,5 +16,6 @@ quote = { version = "1.0", optional = true }
 syn = { version = "1.0", features = ["full"], optional = true }
 
 [features]
+headers = []
 proc_macros = ["proc-macro2", "quote", "syn"]
 verbose-expansions = []

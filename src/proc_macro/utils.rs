@@ -1,4 +1,4 @@
-fn compile_error(err_msg: &'_ str, span: ::proc_macro::Span)
+fn compile_error (err_msg: &'_ str, span: Span)
   -> TokenStream
 {
     use ::proc_macro::{*, TokenTree as TT};
@@ -19,6 +19,7 @@ fn compile_error(err_msg: &'_ str, span: ::proc_macro::Span)
     ])
 }
 
+#[cfg(feature = "proc_macros")]
 trait MySplit {
     type Ret;
     fn my_split (self: &'_ Self)

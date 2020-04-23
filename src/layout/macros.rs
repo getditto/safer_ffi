@@ -1,13 +1,13 @@
 #[cfg(feature = "headers")]
 #[macro_export] #[doc(hidden)]
-macro_rules! cfg_headers {(
+macro_rules! __cfg_headers__ {(
     $($item:item)*
 ) => (
     $($item)*
 )}
 #[cfg(not(feature = "headers"))]
 #[macro_export] #[doc(hidden)]
-macro_rules! cfg_headers {(
+macro_rules! __cfg_headers__ {(
     $($item:item)*
 ) => (
     // nothing
@@ -15,14 +15,14 @@ macro_rules! cfg_headers {(
 
 #[cfg(not(feature = "headers"))]
 #[macro_export] #[doc(hidden)]
-macro_rules! cfg_not_headers {(
+macro_rules! __cfg_not_headers__ {(
     $($item:item)*
 ) => (
     $($item)*
 )}
 #[cfg(feature = "headers")]
 #[macro_export] #[doc(hidden)]
-macro_rules! cfg_not_headers {(
+macro_rules! __cfg_not_headers__ {(
     $($item:item)*
 ) => (
     // nothing
@@ -89,8 +89,8 @@ macro_rules! CType {(
         $(
             $($($bounds)*)?
         )?
-    { $crate::cfg_headers! {
-        fn with_short_name<R> (
+    { $crate::__cfg_headers__! {
+        fn with_c_short_name<R> (
             ret: impl
                 $crate::core::ops::FnOnce(&'_ dyn $crate::core::fmt::Display)
                   -> R
@@ -106,7 +106,7 @@ macro_rules! CType {(
                             <$generics as $crate::layout::ReprC>::CLayout
                             as
                             $crate::layout::CType
-                        >::with_short_name(|it| {
+                        >::with_c_short_name(|it| {
                             use $crate::core::fmt::Write;
                             $crate::core::write!(ret, "_{}", it)
                                 .unwrap()
@@ -126,7 +126,7 @@ macro_rules! CType {(
             );
             let ref me =
                 <Self as $crate::layout::CType>
-                    ::with_short_name(|it| it.to_string())
+                    ::with_c_short_name(|it| it.to_string())
             ;
             definer.define(
                 me,
@@ -139,13 +139,14 @@ macro_rules! CType {(
                         $crate::__output_docs__!(out, "", $($doc_meta)*);
                     )?
                     $crate::__output_docs__!(out, "", $(#[$($meta)*])*);
-                    $crate::core::writeln!(out, "typedef struct {{")?;
+                    $crate::core::writeln!(out, "typedef struct {{\n")?;
                     $(
                         if $crate::core::mem::size_of::<$field_ty>() > 0 {
-                            $crate::__output_docs__!(out, "   ",
+                            // $crate::core::writeln!(out, "")?;
+                            $crate::__output_docs__!(out, "    ",
                                 $(#[$($field_meta)*])*
                             );
-                            $crate::core::writeln!(out, "    {};",
+                            $crate::core::writeln!(out, "    {};\n",
                                 <$field_ty as $crate::layout::CType>::c_display(
                                     $crate::core::stringify!($field_name),
                                 ),
@@ -160,7 +161,7 @@ macro_rules! CType {(
                                 ),
                             );
                         }
-                    )*
+                    )+
                     $crate::core::writeln!(out, "}} {}_t;\n", me)
                 },
             )
@@ -171,7 +172,7 @@ macro_rules! CType {(
             var_name: &'_ str,
         ) -> $crate::core::fmt::Result
         {
-            <Self as $crate::layout::CType>::with_short_name(|me| {
+            <Self as $crate::layout::CType>::with_c_short_name(|me| {
                 $crate::core::write!(fmt,
                     "{}_t{sep}{}",
                     me, var_name,
@@ -459,8 +460,8 @@ macro_rules! ReprC {
             unsafe
             impl $crate::layout::CType
                 for [< $EnumName _Layout >]
-            { $crate::cfg_headers! {
-                fn with_short_name<R> (
+            { $crate::__cfg_headers__! {
+                fn with_c_short_name<R> (
                     ret: impl FnOnce(&'_ dyn $crate::core::fmt::Display) -> R,
                 ) -> R
                 {
@@ -472,7 +473,7 @@ macro_rules! ReprC {
                 {
                     let ref me =
                         <Self as $crate::layout::CType>
-                            ::with_short_name(|it| it.to_string())
+                            ::with_c_short_name(|it| it.to_string())
                     ;
                     definer.define(
                         me,
@@ -518,7 +519,7 @@ macro_rules! ReprC {
                     var_name: &'_ str,
                 ) -> $crate::core::fmt::Result
                 {
-                    <Self as $crate::layout::CType>::with_short_name(|me| {
+                    <Self as $crate::layout::CType>::with_c_short_name(|me| {
                         $crate::core::write!(fmt,
                             "{}_t{sep}{}",
                             me, var_name,

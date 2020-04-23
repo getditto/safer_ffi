@@ -70,12 +70,12 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         unsafe // Safety: Rust arrays _are_ `#[repr(C)]`
         impl<Item : CType> CType
             for [Item; $N]
-        { cfg_headers! {
-            fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
+        { __cfg_headers__! {
+            fn with_c_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
               -> R
             {
                 // item_t_N_array
-                Item::with_short_name(|item_t| ret(&
+                Item::with_c_short_name(|item_t| ret(&
                     format_args!(
                         concat!("{}_", stringify!($N), "_array"),
                         item_t,
@@ -87,7 +87,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
               -> io::Result<()>
             {
                 let ref mut buf = [0_u8; 256];
-                Self::with_short_name(|short_name| {
+                Self::with_c_short_name(|short_name| {
                     use ::std::io::Write;
                     write!(&mut buf[..], "{}", short_name)
                         .expect("`short_name()` was too long")
@@ -116,7 +116,7 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             ) -> fmt::Result
             {
                 // _e.g._, item_N_array_t
-                Self::with_short_name(|short_name| {
+                Self::with_c_short_name(|short_name| {
                     write!(fmt,
                         "{}_t{sep}{}", short_name, var_name,
                         sep = if var_name.is_empty() { "" } else { " " },
@@ -172,17 +172,17 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
             $Ai : CType,
         )*)?> CType
             for Option<unsafe extern "C" fn ($($An, $($Ai ,)*)?) -> Ret>
-        { cfg_headers! {
-            fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
+        { __cfg_headers__! {
+            fn with_c_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
               -> R
             {
                 ret(&{
                     // ret_t_arg1_t_arg2_t_fptr
-                    let mut ret = Ret::with_short_name(|it| it.to_string()); $(
-                    $An::with_short_name(|it| write!(&mut ret, "_{}", it))
+                    let mut ret = Ret::with_c_short_name(|it| it.to_string()); $(
+                    $An::with_c_short_name(|it| write!(&mut ret, "_{}", it))
                         .unwrap()
                     ; $(
-                    $Ai::with_short_name(|it| write!(&mut ret, "_{}", it))
+                    $Ai::with_c_short_name(|it| write!(&mut ret, "_{}", it))
                         .unwrap()
                     ; )*)?
                     ret.push_str("_fptr");
@@ -320,8 +320,8 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         $unsafe // Safety: guaranteed by the caller of the macro
         impl CType
             for $RustInt
-        { cfg_headers! {
-            fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
+        { __cfg_headers__! {
+            fn with_c_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
               -> R
             {
                 ret(&$CInt)
@@ -359,11 +359,11 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         unsafe
         impl<T : CType> CType
             for *const T
-        { cfg_headers! {
-            fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
+        { __cfg_headers__! {
+            fn with_c_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
               -> R
             {
-                T::with_short_name(|it| {
+                T::with_c_short_name(|it| {
                     ret(&format_args!("{}_const_ptr", it))
                 })
             }
@@ -404,11 +404,11 @@ const _: () = { use fmt::Write; macro_rules! impl_CTypes {
         unsafe
         impl<T : CType> CType
             for *mut T
-        { cfg_headers! {
-            fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
+        { __cfg_headers__! {
+            fn with_c_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
               -> R
             {
-                T::with_short_name(|it| {
+                T::with_c_short_name(|it| {
                     ret(&format_args!("{}_ptr", it))
                 })
             }

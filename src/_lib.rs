@@ -30,31 +30,32 @@ pub(in crate)
 mod utils;
 
 extern crate proc_macro;
-pub use ::proc_macro::ffi_export;
+pub use ::proc_macro::{ffi_export, cfg_headers};
 
 #[macro_use]
 #[path = "layout/_mod.rs"]
 pub mod layout;
 
-#[cfg_attr(feature = "nightly",
-    doc(cfg(feature = "headers")),
-)]
-#[doc(hidden)] /** Not yet part of the public API **/ pub
-mod headers;
-
-cfg_headers! {
+__cfg_headers__! {
     #[doc(hidden)] pub
     use ::inventory;
 
+    // #[doc(hidden)] /** Not yet part of the public API **/
+    #[cfg_attr(feature = "nightly",
+        doc(cfg(feature = "headers")),
+    )]
+    pub
+    mod headers;
+
     #[doc(hidden)] pub
-    struct TypeDef(
+    struct FfiExport(
         pub
         fn (&'_ mut dyn layout::Definer)
           -> ::std::io::Result<()>
         ,
     );
 
-    ::inventory::collect!(TypeDef);
+    ::inventory::collect!(FfiExport);
 }
 
 cfg_alloc! {
@@ -130,6 +131,7 @@ cfg_std! {
 #[allow(missing_debug_implementations)]
 #[doc(hidden)] pub
 struct NotZeroSized;
+
 
 pub
 mod prelude {

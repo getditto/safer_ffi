@@ -233,12 +233,13 @@ pub fn free_vec (
 #[test]
 fn test_with_concat ()
 {
+    use ::std::sync::Arc;
     let () = {
         #[ffi_export]
         fn with_concat (
             fst: char_p_ref<'_>,
             snd: char_p_ref<'_>,
-            cb: RefDynFnMut1<'_, (), char_p_raw>,
+            cb: RefDynFnMut1<(), char_p_raw>,
         )
         {
             let concat = &*format!("{}{}\0", fst.to_str(), snd.to_str());
@@ -284,7 +285,7 @@ fn generate_headers ()
         .collect::<Vec<_>>()
         .into_iter()
         .rev()
-        .try_for_each(|::repr_c::TypeDef(define)| define(definer))
+        .try_for_each(|::repr_c::FfiExport(define)| define(definer))
         ?
     ;
 

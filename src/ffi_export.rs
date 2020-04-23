@@ -52,7 +52,7 @@ macro_rules! __ffi_export__ {(
                     let _: <$Ret as $crate::layout::ReprC>::CLayout;
                 )?
                 $(
-                    let $arg_name = $crate::layout::from_raw_unchecked::<$arg_ty>(
+                    let $arg_name: $arg_ty = $crate::layout::from_raw_unchecked::<$arg_ty>(
                         $arg_name,
                     );
                 )*
@@ -83,10 +83,10 @@ macro_rules! __ffi_export__ {(
         }}
     };
 
-    $crate::cfg_headers! {
+    $crate::__cfg_headers__! {
         $crate::inventory::submit! {
             #![crate = $crate]
-            $crate::TypeDef({
+            $crate::FfiExport({
                 fn typedef $(<$($lt),*>)? (
                     definer: &'_ mut dyn $crate::layout::Definer,
                 ) -> $crate::std::io::Result<()>
@@ -192,7 +192,7 @@ macro_rules! __ffi_export__ {(
 
 // __ffi_export__! {
 //     /// Some docstring
-//     pub fn max<'a> (
+//     fn max<'a> (
 //         ints: crate::slice::slice_ref<'a, i32>
 //     ) -> Option<&'a i32>
 //     {

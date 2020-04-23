@@ -15,11 +15,17 @@ fn transmute_unchecked<T, U> (ref it: T)
     use ::core::ops::{Not as _};
     assert!(
         ::core::mem::size_of::<T>() == ::core::mem::size_of::<U>(),
-        "This is a soundness bug, please report an issue ASAP",
+        concat!(
+            "Error, size mismatch.",
+            " This is a soundness bug, please report an issue ASAP",
+        )
     );
     assert!(
         ::core::mem::needs_drop::<T>().not(),
-        "This is a soundness bug, please report an issue ASAP",
+        concat!(
+            "Error, input has drop glue.",
+            " This is a soundness bug, please report an issue ASAP",
+        ),
     );
     ::core::mem::transmute_copy(it)
 }

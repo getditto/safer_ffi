@@ -45,10 +45,19 @@ fn max<'a> (
         .max()
 }
 
-// The `#[test]` function is `#[ignore]`d
-// unless the `headers` feature of `::repr_c` is enabled.
-::repr_c::headers_generator! {
-    #[test]
-    generate_headers()
-        => "generated.h"
+#[repr_c::cfg_headers]
+#[test]
+fn generate_headers ()
+  -> ::std::io::Result<()>
+{
+    let builder = ::repr_c::headers::builder();
+    if ::std::env::var("FOO").ok().map_or(false, |it| it == "1") {
+        builder
+            .to_writer(::std::io::stdout())
+            .generate()
+    } else {
+        builder
+            .to_file(&"generated.h".to_string())?
+            .generate()
+    }
 }

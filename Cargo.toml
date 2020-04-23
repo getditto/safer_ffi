@@ -31,8 +31,9 @@ debug_proc_macros = [
 ]
 
 headers = [
-    "std",
     "inventory",
+    "proc_macro/headers",
+    "std",
 ]
 
 [dev-dependencies]

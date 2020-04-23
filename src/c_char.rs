@@ -39,8 +39,8 @@ const _: () = {
 unsafe
 impl CType
     for c_char
-{ cfg_headers! {
-    fn with_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
+{ __cfg_headers__! {
+    fn with_c_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
       -> R
     {
         ret(&"char")

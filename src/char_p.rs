@@ -8,7 +8,7 @@ ReprC! {
     #[repr(transparent)]
     #[derive(Clone, Copy)]
     /// A `#[repr(c)]` null-terminated UTF-8 encoded string, for compatibility
-    /// with both the C `char *` ABI and Rust's `str`.
+    /// with both the C `char *` API and Rust's `str`.
     ///
     /// This is a **borrowed** version, _i.e._, with the semantics of
     /// `&'lt CStr` / `&'lt str`, but for it being a _slim_ pointer.
