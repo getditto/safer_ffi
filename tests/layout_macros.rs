@@ -1,4 +1,3 @@
-#![feature(hash_set_entry)]
 #![allow(unused_imports)]
 
 #[macro_use]
@@ -55,12 +54,6 @@ struct Foo<'a> {
 
 #[repr(C)]
 struct i32_slice {
-    ptr: *const i32,
-    len: usize,
-}
-
-#[repr(C)]
-struct u32_slice {
     ptr: *const i32,
     len: usize,
 }
@@ -126,7 +119,13 @@ fn validity ()
 #[repr(C)]
 pub
 struct Crazy {
-    a: extern "C" fn (extern "C" fn(::repr_c::char_p::Ref_), Tuple2<[Foo<'static>; 12], ::repr_c::Box<MyBool>>),
+    a: extern "C" fn (
+        extern "C" fn(::repr_c::char_p::Ref_),
+        Tuple2<
+            [Foo<'static>; 12],
+            Option<::repr_c::Box<Option<MyBool>>>
+        >,
+    ),
     closure: RefDynFnMut2<'static, (), i32, usize>,
 }
 
@@ -262,13 +261,60 @@ fn test_with_concat ()
             RefDynFnMut1::new(&mut |concat: char_p_raw| {
                 called = true;
                 assert_eq!(
-                    unsafe { concat.as_ref() }.to_str(),
+                    concat.as_ref().to_str(),
                     "Hello, World!",
                 );
             }),
         );
         assert!(called);
     }
+}
+
+#[test]
+fn test_niche ()
+{
+    #[derive_ReprC]
+    #[repr(i8)]
+    enum MyBool {
+        True = 42,
+        False = 43,
+    }
+
+    assert!(
+        MyBool::is_valid(&
+            MyBool_Layout(42)
+        )
+    );
+    assert!(
+        MyBool::is_valid(&
+            MyBool_Layout(43)
+        )
+    );
+
+    assert!(bool::not(
+        MyBool::is_valid(&
+            MyBool_Layout(44)
+        )
+    ));
+
+    // Some(MyBool::True)
+    assert!(
+        <Option<MyBool>>::is_valid(&
+            MyBool_Layout(42)
+        )
+    );
+    // Some(MyBool::False)
+    assert!(
+        <Option<MyBool>>::is_valid(&
+            MyBool_Layout(43)
+        )
+    );
+    // None
+    assert!(
+        <Option<MyBool>>::is_valid(&
+            MyBool_Layout(unsafe { ::core::mem::transmute(None::<MyBool>) })
+        )
+    );
 }
 
 #[cfg(feature = "headers")]
@@ -300,12 +346,8 @@ fn generate_headers ()
         fn insert (self: &'_ mut Self, name: &'_ str)
           -> bool
         {
-            let mut inserted = false;
-            self.defines.get_or_insert_with(name, |name| {
-                inserted = true;
-                name.to_owned()
-            });
-            inserted
+            self.defines
+                .insert(name.to_owned())
         }
 
         fn out (self: &'_ mut Self)

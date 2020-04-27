@@ -247,6 +247,7 @@ macro_rules! ReprC {
                 [< $StructName _Layout >]
             ;
 
+            #[allow(trivial_bounds)]
             unsafe // Safety: struct is `#[repr(C)]` and contains `ReprC` fields
             impl $(<$($generics)*>)? $crate::layout::ReprC
                 for $StructName $(<$($generics)*>)?
@@ -282,7 +283,7 @@ macro_rules! ReprC {
                 }
             }
 
-            #[allow(nonstandard_style)]
+            #[allow(nonstandard_style, trivial_bounds)]
             mod [< __ $StructName _repr_c_mod >] {
                 use super::*;
 
@@ -387,6 +388,7 @@ macro_rules! ReprC {
             ;
         }
 
+        #[allow(trivial_bounds)]
         unsafe // Safety: struct is `#[repr(C)]` and contains `ReprC` fields
         impl $(<$($generics)*>)? $crate::layout::ReprC
             for $StructName $(<$($generics)*>)?
@@ -440,7 +442,7 @@ macro_rules! ReprC {
 
         ::paste::item! {
             #[repr(transparent)]
-            #[derive(Clone, Copy)]
+            #[derive(Clone, Copy, PartialEq, Eq)]
             pub
             struct [< $EnumName _Layout >] /* = */ (
                 $crate::$Int,
@@ -552,6 +554,20 @@ macro_rules! ReprC {
                     }
                 }
             }
+
+            unsafe
+            impl $crate::layout::__HasNiche__
+                for $EnumName
+            {
+                #[inline]
+                fn is_niche (it: &'_ <Self as $crate::layout::ReprC>::CLayout)
+                  -> bool
+                {
+                    *it == unsafe { $crate::core::mem::transmute(
+                        $crate::core::option::Option::None::<Self>
+                    ) }
+                }
+            }
         }
     );
 
@@ -564,7 +580,7 @@ macro_rules! ReprC {
             $($variants:tt)*
         }
     ) => (
-        compile_error! {
+        $crate::core::compile_error! {
             "Non field-less `enum`s are not supported yet."
         }
     );
@@ -583,19 +599,19 @@ macro_rules! ReprC {
     (@validate_int_repr i128) => ();
 
     (@deny_C C) => (
-        compile_error!($crate::core::concat!(
+        $crate::core::compile_error!($crate::core::concat!(
             "A `#[repr(C)]` field-less `enum` is not supported,",
             " since the integer type of the discriminant is then",
             " platform dependent",
         ));
     );
     (@deny_C c_int) => (
-        compile_error!($crate::core::concat!(
+        $crate::core::compile_error!($crate::core::concat!(
             "Type aliases in a `#[repr(...)]` are not supported by Rust.",
         ));
     );
     (@deny_C c_uint) => (
-        compile_error!($crate::core::concat!(
+        $crate::core::compile_error!($crate::core::concat!(
             "Type aliases in a `#[repr(...)]` are not supported by Rust.",
         ));
     );

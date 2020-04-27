@@ -87,6 +87,7 @@ macro_rules! __ffi_export__ {(
         $crate::inventory::submit! {
             #![crate = $crate]
             $crate::FfiExport({
+                #[allow(unused_parens)]
                 fn typedef $(<$($lt),*>)? (
                     definer: &'_ mut dyn $crate::layout::Definer,
                 ) -> $crate::std::io::Result<()>
@@ -164,6 +165,7 @@ macro_rules! __ffi_export__ {(
                         )?;
                         has_args |= true;
                     )*
+                    drop(has_args);
                     $crate::std::io::Write::write_all(out,
                         ");\n\n"
                             .as_bytes()

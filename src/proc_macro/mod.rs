@@ -59,5 +59,6 @@ fn cfg_headers (attrs: TokenStream, input: TokenStream)
     if let Some(unexpected_tt) = attrs.into_iter().next() {
         return compile_error("Unexpected parameter", unexpected_tt.span());
     }
+    let _ = input;
     TokenStream::new()
 }

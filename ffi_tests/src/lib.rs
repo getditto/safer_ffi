@@ -16,7 +16,7 @@ fn concat (
 
 /// Frees a string created by `concat`.
 #[ffi_export]
-fn free_char_p (_string: char_p_boxed)
+fn free_char_p (_string: Option<char_p_boxed>)
 {}
 
 /// Same as `concat`, but with a callback-based API to auto-free the created

@@ -5,7 +5,7 @@
     no_std,
 )]
 
-#![allow(nonstandard_style)]
+#![allow(nonstandard_style, trivial_bounds)]
 #![warn(
     missing_copy_implementations,
     missing_debug_implementations,
@@ -40,13 +40,13 @@ __cfg_headers__! {
     #[doc(hidden)] pub
     use ::inventory;
 
-    // #[doc(hidden)] /** Not yet part of the public API **/
     #[cfg_attr(feature = "nightly",
         doc(cfg(feature = "headers")),
     )]
     pub
     mod headers;
 
+    #[allow(missing_copy_implementations, missing_debug_implementations)]
     #[doc(hidden)] pub
     struct FfiExport(
         pub
@@ -135,19 +135,19 @@ struct NotZeroSized;
 
 pub
 mod prelude {
-    pub
-    mod repr_c {
-        cfg_alloc! {
-            #[doc(no_inline)]
-            pub use crate::{
-                Box,
-                Vec,
-                String,
-            };
-        }
-        #[doc(no_inline)]
-        pub use crate::tuple::*;
-    }
+    // pub
+    // mod repr_c {
+    //     cfg_alloc! {
+    //         #[doc(no_inline)]
+    //         pub use crate::{
+    //             Box,
+    //             Vec,
+    //             String,
+    //         };
+    //     }
+    //     #[doc(no_inline)]
+    //     pub use crate::tuple::*;
+    // }
     #[doc(no_inline)]
     pub use crate::{
         char_p::{

@@ -1,6 +1,8 @@
 use super::*;
 
-const _: () = { use fmt::Write; macro_rules! impl_CTypes {
+const _: () = {
+__cfg_headers__! { use ::core::fmt::Write; }
+macro_rules! impl_CTypes {
     () => (
         impl_CTypes! { @pointers }
         impl_CTypes! { @zsts }
@@ -591,18 +593,6 @@ impl_ReprC_for! { unsafe {
     ,
     @for[T : ReprC]
     Option< ptr::NonNullOwned<T> >
-        => |ref it: *mut T::CLayout| {
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
-        }
-    ,
-    @for['a, T : 'a + ReprC]
-    Option<&'a T>
-        => |ref it: *const T::CLayout| {
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
-        }
-    ,
-    @for['a, T : 'a + ReprC]
-    Option<&'a mut T>
         => |ref it: *mut T::CLayout| {
             (*it as usize) % ::core::mem::align_of::<T>() == 0
         }

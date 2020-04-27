@@ -15,7 +15,7 @@
 //!
 //! Then, to generate the bindings, just define a
 //! `#[repr_c::cfg_headers]`-gated `#[test]` function,
-//! which can then call to the [`builder`] to do the work:
+//! which can then call the [`builder`] to do the work:
 //!
 //! ```rust
 //! use ::std::{io, fs};
@@ -55,7 +55,15 @@
 //! # generate_c_header().unwrap();
 //! ```
 //!
-//! will generate a `"filename.h"` file (⚠️ overwriting it if it exists ⚠️) with
+//! so that
+//!
+//! ```shell
+//! cargo test --features generate-headers -- \
+//!     --exact generate_c_header \
+//!     --nocapture
+//! ```
+//!
+//! generates a `"filename.h"` file (⚠️ overwriting it if it exists ⚠️) with
 //! the following contents:
 //!
 //! <pre style="color:#000020;background:#f6f8ff;"><span style="color:#3f7f8f; ">/*! \file */</span>
@@ -90,13 +98,13 @@
 //! <span style="color:#004a43; ">#</span><span style="color:#004a43; ">endif</span><span style="color:#004a43; "> </span><span style="color:#595979; ">/* __ASGARD__ */</span>
 //! </pre>
 
+#![allow(missing_copy_implementations, missing_debug_implementations)]
+
 use ::std::{
     collections::HashSet,
     env,
     fs,
-    io::{self,
-        Write,
-    },
+    io,
     path::Path,
 };
 
@@ -187,7 +195,8 @@ macro_rules! with_optional_fields {(
             ))
         }
 
-        /// Specify the [`Write`] "stream" where the headers will be written to.
+        /// Specify the [`Write`][`io::Write`] "stream" where the headers will
+        /// be written to.
         ///
         /// # Example
         ///

@@ -31,6 +31,7 @@ ReprC! {
     /// If you want to support the above typedef, but where the `ptr` field is
     /// allowed to be `NULL` (with the contents of `len` then being undefined)
     /// use the `Option< slice_ptr<_> >` type.
+    #[derive(Debug)]
     pub
     struct slice_raw[T]
     where {
@@ -421,10 +422,8 @@ impl<'lt, T : 'lt + ReprC> From<slice_mut<'lt, T>>
     fn from (it: slice_mut<'lt, T>)
       -> slice_ref<'lt, T>
     {
-        unsafe {
-            (&*it.as_slice())
-                .into()
-        }
+        (&*it.as_slice())
+            .into()
     }
 }
 
@@ -437,10 +436,8 @@ impl<T : ReprC> Deref
     fn deref (self: &'_ Self)
       -> &'_ Self::Target
     {
-        unsafe {
-            self.as_ref()
-                .as_slice()
-        }
+        self.as_ref()
+            .as_slice()
     }
 }
 
@@ -451,10 +448,8 @@ impl<T : ReprC> DerefMut
     fn deref_mut (self: &'_ mut Self)
       -> &'_ mut Self::Target
     {
-        unsafe {
-            self.as_mut()
-                .as_slice()
-        }
+        self.as_mut()
+            .as_slice()
     }
 }
 

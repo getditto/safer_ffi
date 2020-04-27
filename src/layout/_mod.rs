@@ -2,8 +2,6 @@
 
 use_prelude!();
 
-use ::core::fmt;
-
 #[macro_use]
 mod macros;
 
@@ -561,6 +559,12 @@ fn from_raw<T : ReprC> (c_layout: T::CLayout)
     }
 }
 
+#[cfg_attr(all(feature = "proc_macros", not(docs)),
+    require_unsafe_in_body,
+)]
+#[cfg_attr(not(feature = "proc_macros"),
+    allow(unused_unsafe),
+)]
 #[inline]
 pub
 unsafe // May not be sound when input has uninit bytes that the output does not
@@ -576,3 +580,8 @@ fn into_raw<T : ReprC> (it: T)
 }
 
 mod impls;
+
+mod niche;
+
+#[doc(hidden)] /* Not part of the public API */ pub
+use niche::HasNiche as __HasNiche__;

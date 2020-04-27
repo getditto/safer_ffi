@@ -155,10 +155,29 @@ impl<T : ReprC> Vec<T> {
         f: impl FnOnce(&'_ mut rust::Vec<T>) -> R,
     ) -> R
     {
-        let mut s: rust::Vec<T> = mem::replace(self, Self::EMPTY).into();
-        let ret = f(&mut s);
-        *self = s.into();
-        ret
+        use mem::ManuallyDrop as MD;
+        let this: &'_ mut MD<Self> = unsafe {
+            mem::transmute(self)
+        };
+        let rust_vec: rust::Vec<T> =
+            unsafe { MD::take(this) }
+                .into()
+        ;
+        // f(&mut *::scopeguard::guard(rust_vec, |it| this.write(it.into())))
+        return f(&mut Guard(MD::new(rust_vec), this).0);
+        // where
+        struct Guard<'__, T : ReprC> (
+            MD<rust::Vec<T>>,
+            &'__ mut MD<Vec<T>>,
+        );
+        impl<T : ReprC> Drop for Guard<'_, T> {
+            fn drop (self: &'_ mut Self)
+            {
+                unsafe {
+                    *self.1 = MD::new(MD::take(&mut self.0).into())
+                }
+            }
+        }
     }
 }
 

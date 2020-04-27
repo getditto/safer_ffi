@@ -174,7 +174,7 @@ impl<__> NonNullOwned<__> {
     #[inline]
     pub
     unsafe
-    fn drop_in_place<T> (mut self)
+    fn drop_in_place<T> (self)
     {
         drop_in_place::<T>(self.0.cast().as_mut());
     }
