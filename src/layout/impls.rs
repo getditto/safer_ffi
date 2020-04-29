@@ -94,7 +94,7 @@ const _: () = { macro_rules! impl_CTypes {
                     buf = &mut buf[.. n];
                 }
                 let short_name = ::core::str::from_utf8(buf).unwrap();
-                definer.define(
+                definer.define_once(
                     short_name,
                     &mut |definer| {
                         Item::c_define_self(definer)?;
@@ -322,7 +322,7 @@ const _: () = { macro_rules! impl_CTypes {
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
-                definer.define(
+                definer.define_once(
                     "<stdint.h>",
                     &mut |definer| write!(definer.out(),
                         "\n#include <stdint.h>\n\n",

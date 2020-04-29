@@ -89,7 +89,7 @@ macro_rules! __ffi_export__ {(
             $crate::FfiExport({
                 #[allow(unused_parens)]
                 fn typedef $(<$($lt),*>)? (
-                    definer: &'_ mut dyn $crate::layout::Definer,
+                    definer: &'_ mut dyn $crate::headers::Definer,
                 ) -> $crate::std::io::Result<()>
                 {Ok({
                     // FIXME: this merges the value namespace with the type

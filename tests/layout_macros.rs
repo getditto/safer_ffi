@@ -340,7 +340,7 @@ fn generate_headers ()
         out: &'out mut dyn io::Write,
         defines: Set<String>,
     }
-    impl ::repr_c::layout::Definer
+    impl ::repr_c::headers::Definer
         for MyDefiner<'_>
     {
         fn insert (self: &'_ mut Self, name: &'_ str)

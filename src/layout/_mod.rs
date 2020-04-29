@@ -2,6 +2,10 @@
 
 use_prelude!();
 
+__cfg_headers__! {
+    use crate::headers::Definer;
+}
+
 #[macro_use]
 mod macros;
 
@@ -12,67 +16,6 @@ cfg_proc_macros! {
     pub use ::proc_macro::{
         derive_ReprC,
     };
-}
-
-__cfg_headers__! {
-    #[cfg_attr(feature = "nightly",
-        doc(cfg(feature = "headers")),
-    )]
-    /// Helper for the generation of C headers.
-    ///
-    /// Defining C headers requires _two_ abstractions:
-    ///
-    ///   - set-like lookup by name, to ensure each type is defined at most once;
-    ///
-    ///   - a [`Write`][`::std::io::Write`]able "out stream", where the headers
-    ///     should be written to.
-    ///
-    /// This trait minimally combines both abstractions.
-    pub
-    trait Definer : definer_ext::__ {
-        /// Must return `true` iff an actual `insert` happened.
-        fn insert (self: &'_ mut Self, name: &'_ str)
-          -> bool
-        ;
-
-        fn out (self: &'_ mut Self)
-          -> &'_ mut dyn io::Write
-        ;
-    }
-
-    mod definer_ext {
-        use super::*;
-
-        pub
-        trait __ {
-            fn define (
-                self: &'_ mut Self,
-                name: &'_ str,
-                write_typedef: &'_ mut dyn
-                    FnMut (&'_ mut dyn Definer) -> io::Result<()>
-                ,
-            ) -> io::Result<()>
-            ;
-        }
-
-        impl<T : Definer> __
-            for T
-        {
-            fn define (
-                self: &'_ mut Self,
-                name: &'_ str,
-                write_typedef: &'_ mut dyn
-                    FnMut (&'_ mut dyn Definer) -> io::Result<()>
-                ,
-            ) -> io::Result<()>
-            {
-                if self.insert(name) {
-                    write_typedef(self)?;
-                }
-                Ok(())
-            }
-        }
-    }
 }
 
 /// One of the two core traits of this crate (with [`ReprC`][`trait@ReprC`]).
@@ -187,24 +130,49 @@ unsafe trait CType
             short_name_impl_display::ImplDisplay { _phantom: PhantomData }
         }
 
-        /// Necessary one-time code for `c_var_fmt` to make sense.
+        /// Necessary one-time code for [`CType::c_var`]`()` to make sense.
         ///
         /// Some types, such as `char`, are part of the language, and can be
-        /// used directly by `c_var_fmt`. In that case, there is nothing else
-        /// to _define_, and all is fine.
+        /// used directly by [`CType::c_var`]`()`.
+        /// In that case, there is nothing else to _define_, and all is fine.
         ///
         ///   - That is the default implementation of this method: doing
         ///     nothing.
         ///
         /// But most often than not, a `typedef` or an `#include` is required.
         ///
-        /// In that case, here is the place to put it, using a provided
-        /// `Definer`.
+        /// In that case, here is the place to put it, with the help of the
+        /// provided `Definer`.
+        ///
+        /// # Idempotent
+        ///
+        /// Given some `definer: &mut dyn Definer`, **the `c_define_self(definer)`
+        /// call must be idempotent _w.r.t._ code generated**. In other words,
+        /// two or more such calls must not generate any extra code _w.r.t_ the
+        /// first call.
+        ///
+        /// This is easy to achieve thanks to `definer`:
+        ///
+        /// ```rust,ignore
+        /// // This ensures the idempotency requirements are met.
+        /// definer.define_once(
+        ///     // some unique `&str`, ideally the C name being defined:
+        ///     "my_super_type_t",
+        ///     // Actual code generation logic, writing to `definer.out()`
+        ///     &mut |definer| {
+        ///         // If the typdef recursively needs other types being defined,
+        ///         // ensure it is the case by explicitly calling
+        ///         // `c_define_self(definer)` on those types.
+        ///         OtherType::c_define_self(definer)?;
+        ///         write!(definer.out(), "typedef ... my_super_type_t;", ...)
+        ///     },
+        /// )?
+        /// ```
         ///
         /// # Safety
         ///
-        /// Given that the name outputted by `c_var_fmt` may refer to a definition
-        /// from here, the same safety disclaimers apply.
+        /// Given that the defined types may be used by [`CType::c_var_fmt`]`()`,
+        /// the same safety disclaimers apply.
         ///
         /// ## Examples
         ///
@@ -220,7 +188,7 @@ unsafe trait CType
         ///     fn c_define_self (definer: &'_ mut dyn Definer)
         ///       -> io::Result<()>
         ///     {
-        ///         definer.define("<stdint.h>", &mut |definer| {
+        ///         definer.define_once("<stdint.h>", &mut |definer| {
         ///             write!(definer.out(), "\n#include <stdint.h>\n")
         ///         })
         ///     }
@@ -242,7 +210,7 @@ unsafe trait CType
         ///     fn c_define_self (definer: &'_ mut dyn Definer)
         ///       -> io::Result<()>
         ///     {
-        ///         definer.define("Foo_t", &mut |definer| {
+        ///         definer.define_once("Foo_t", &mut |definer| {
         ///             // ensure int32_t makes sense
         ///             <i32 as CType>::c_define_self(definer)?;
         ///             write!(definer.out(),
@@ -304,23 +272,6 @@ unsafe trait CType
         /// }
         /// ```
         ///
-        /// #### `[i32; 42]`
-        ///
-        /// ```rust,ignore
-        /// unsafe impl CType for [i32; 42] {
-        ///     #[::repr_c::cfg_headers]
-        ///     fn c_var_fmt (
-        ///         fmt: &'_ mut fmt::Formatter<'_>,
-        ///         var_name: &'_ str,
-        ///     ) -> fmt::Result
-        ///     {
-        ///         write!(fmt, "int32_t {}[42]", var_name)
-        ///     }
-        ///
-        ///     // ...
-        /// }
-        /// ```
-        ///
         /// #### `Option<extern "C" fn (i32) -> u32>`
         ///
         /// ```rust,ignore
@@ -338,12 +289,41 @@ unsafe trait CType
         /// }
         /// ```
         ///
-        /// #### More advanced types
+        /// #### `[i32; 42]`
         ///
-        /// In this case, an actual `typedef` will need to be used to define the
-        /// type, using [`CType::c_define_self`]`()`, and then using `c_var_fmt` is
-        /// just a matter of outputing the name of the newly defined type next
-        /// to the `var_name`, like with `int32_t`.
+        /// ```rust,ignore
+        /// unsafe impl CType for [i32; 42] {
+        ///     #[::repr_c::cfg_headers]
+        ///     fn c_var_fmt (
+        ///         fmt: &'_ mut fmt::Formatter<'_>,
+        ///         var_name: &'_ str,
+        ///     ) -> fmt::Result
+        ///     {
+        ///         let typedef_name = format_args!("{}_t", Self::c_short_name());
+        ///         write!(fmt, "{} {}", typedef_name, var_name)
+        ///     }
+        ///
+        ///     // Since `c_var_fmt()` requires a one-time typedef, overriding
+        ///     // `c_define_self()` is necessary:
+        ///     #[::repr_c::cfg_headers]
+        ///     fn c_define_self (definer: &'_ mut dyn Definer)
+        ///       -> fmt::Result
+        ///     {
+        ///         let typedef_name = &format!("{}_t", Self::c_short_name());
+        ///         definer.define_once(typedef_name, &mut |definer| {
+        ///             // ensure the array element type is defined
+        ///             i32::c_define_self(definer)?;
+        ///             write!(definer.out(),
+        ///                 "typedef struct {{ {0}; }} {1};\n",
+        ///                 i32::c_var("arr[42]"), // `int32_t arr[42]`
+        ///                 typedef_name,
+        ///             )
+        ///         })
+        ///     }
+        ///
+        ///     // etc.
+        /// }
+        /// ```
         fn c_var_fmt (
             fmt: &'_ mut fmt::Formatter<'_>,
             var_name: &'_ str,
@@ -356,9 +336,9 @@ unsafe trait CType
         /// The `Display` logic is auto-derived from the implementation of
         /// [`CType::c_var_fmt`]`()`.
         #[inline]
-        fn c_var<'__> (
-            var_name: &'__ str,
-        ) -> var_impl_display::ImplDisplay<'__, Self>
+        fn c_var (
+            var_name: &'_ str,
+        ) -> var_impl_display::ImplDisplay<'_, Self>
         {
             var_impl_display::ImplDisplay {
                 var_name,

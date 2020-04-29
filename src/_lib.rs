@@ -50,7 +50,7 @@ __cfg_headers__! {
     #[doc(hidden)] pub
     struct FfiExport(
         pub
-        fn (&'_ mut dyn layout::Definer)
+        fn (&'_ mut dyn headers::Definer)
           -> ::std::io::Result<()>
         ,
     );

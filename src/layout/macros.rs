@@ -108,7 +108,7 @@ macro_rules! CType {(
             Ok(())
         }
 
-        fn c_define_self (definer: &'_ mut dyn $crate::layout::Definer)
+        fn c_define_self (definer: &'_ mut dyn $crate::headers::Definer)
           -> $crate::std::io::Result<()>
         {
             assert_ne!(
@@ -119,7 +119,7 @@ macro_rules! CType {(
                 <Self as $crate::layout::CType>
                     ::c_short_name().to_string()
             ;
-            definer.define(
+            definer.define_once(
                 me,
                 &mut |definer| {
                     $(
@@ -459,14 +459,14 @@ macro_rules! ReprC {
                     fmt.write_str($crate::core::stringify!($EnumName))
                 }
 
-                fn c_define_self (definer: &'_ mut dyn $crate::layout::Definer)
+                fn c_define_self (definer: &'_ mut dyn $crate::headers::Definer)
                   -> $crate::std::io::Result<()>
                 {
                     let ref me =
                         <Self as $crate::layout::CType>
                             ::c_short_name().to_string()
                     ;
-                    definer.define(
+                    definer.define_once(
                         me,
                         &mut |definer| {
                             <$crate::$Int as $crate::layout::CType>::c_define_self(
