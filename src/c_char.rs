@@ -40,13 +40,13 @@ unsafe
 impl CType
     for c_char
 { __cfg_headers__! {
-    fn with_c_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
-      -> R
+    fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+      -> fmt::Result
     {
-        ret(&"char")
+        fmt.write_str("char")
     }
 
-    fn c_fmt (
+    fn c_var_fmt (
         fmt: &'_ mut fmt::Formatter<'_>,
         var_name: &'_ str,
     ) -> fmt::Result

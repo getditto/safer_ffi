@@ -52,7 +52,7 @@
 //!         .to_file("filename.h")?
 //!         .generate()
 //! }
-//! # generate_c_header().unwrap();
+// // ! # generate_c_header().unwrap();
 //! ```
 //!
 //! so that

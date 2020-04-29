@@ -128,6 +128,8 @@ unsafe trait CType
         /// "placeholders" such as when monomorphising generics structs or
         /// arrays.
         ///
+        /// This provides the implementation used by [`CType::c_short_name`]`()`.
+        ///
         /// There are no bad implementations of this method, except,
         /// of course, for the obligation to provide a valid identifier chunk,
         /// _i.e._, the output must only contain alphanumeric digits and
@@ -138,7 +140,7 @@ unsafe trait CType
         /// type `T`) will be typedef-named as:
         ///
         /// ```rust,ignore
-        /// <T as CType>::with_c_short_name(|it| format!("{}_{}_array", it, N))
+        /// write!(fmt, "{}_{}_array", <T as CType>::c_short_name(), N)
         /// ```
         ///
         /// Generally, typedefs with a trailing `_t` will see that `_t` trimmed
@@ -168,26 +170,27 @@ unsafe trait CType
         ///
         /// will have `Foo_xxx` as its `short_name`, with `xxx` being `T`'s
         /// `short_name`.
-        ///
-        /// ## `with` ?
-        ///
-        /// To avoid performing too many allocations when recursing, this
-        /// function uses the Continuation Passing Style pattern to allow
-        /// using its own stack to allocate the result, and thus allow to:
-        ///
-        /// ```rust,ignore
-        /// ret(&format_args!(...))
-        /// ```
-        ///
-        /// when implementing the method.
-        fn with_c_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
-          -> R
+        fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+          -> fmt::Result
         ;
 
-        /// Necessary one-time code for `c_fmt` to make sense.
+
+        /// Convenience function for _callers_ / users of types implementing
+        /// [`CType`][`trait@CType`].
+        ///
+        /// The `Display` logic is auto-derived from the implementation of
+        /// [`CType::c_short_name_fmt`]`()`.
+        #[inline]
+        fn c_short_name ()
+          -> short_name_impl_display::ImplDisplay<Self>
+        {
+            short_name_impl_display::ImplDisplay { _phantom: PhantomData }
+        }
+
+        /// Necessary one-time code for `c_var_fmt` to make sense.
         ///
         /// Some types, such as `char`, are part of the language, and can be
-        /// used directly by `c_fmt`. In that case, there is nothing else
+        /// used directly by `c_var_fmt`. In that case, there is nothing else
         /// to _define_, and all is fine.
         ///
         ///   - That is the default implementation of this method: doing
@@ -200,7 +203,7 @@ unsafe trait CType
         ///
         /// # Safety
         ///
-        /// Given that the name outputted by `c_fmt` may refer to a definition
+        /// Given that the name outputted by `c_var_fmt` may refer to a definition
         /// from here, the same safety disclaimers apply.
         ///
         /// ## Examples
@@ -244,7 +247,7 @@ unsafe trait CType
         ///             <i32 as CType>::c_define_self(definer)?;
         ///             write!(definer.out(),
         ///                 "typedef struct {{ {}; }} Foo_t;",
-        ///                 <i32 as CType>::c_display("x"),
+        ///                 <i32 as CType>::c_var("x"),
         ///             )
         ///         })
         ///     }
@@ -261,7 +264,9 @@ unsafe trait CType
         }
 
         /// The core method of the trait: it provides the implementation to be
-        /// used by [`CType::c_display`], by bringing a `Formatter` in scope.
+        /// used by [`CType::c_var`], by bringing a `Formatter` in scope.
+        ///
+        /// This provides the implementation used by [`CType::c_var`]`()`.
         ///
         /// The implementations are thus much like any classic `Display` impl,
         /// except that:
@@ -287,7 +292,7 @@ unsafe trait CType
         /// ```rust,ignore
         /// unsafe impl CType for i32 {
         ///     #[::repr_c::cfg_headers]
-        ///     fn c_fmt (
+        ///     fn c_var_fmt (
         ///         fmt: &'_ mut fmt::Formatter<'_>,
         ///         var_name: &'_ str,
         ///     ) -> fmt::Result
@@ -304,7 +309,7 @@ unsafe trait CType
         /// ```rust,ignore
         /// unsafe impl CType for [i32; 42] {
         ///     #[::repr_c::cfg_headers]
-        ///     fn c_fmt (
+        ///     fn c_var_fmt (
         ///         fmt: &'_ mut fmt::Formatter<'_>,
         ///         var_name: &'_ str,
         ///     ) -> fmt::Result
@@ -321,7 +326,7 @@ unsafe trait CType
         /// ```rust,ignore
         /// unsafe impl CType for Option<extern "C" fn (i32) -> u32> {
         ///     #[::repr_c::cfg_headers]
-        ///     fn c_fmt (
+        ///     fn c_var_fmt (
         ///         fmt: &'_ mut fmt::Formatter<'_>,
         ///         var_name: &'_ str,
         ///     ) -> fmt::Result
@@ -336,10 +341,10 @@ unsafe trait CType
         /// #### More advanced types
         ///
         /// In this case, an actual `typedef` will need to be used to define the
-        /// type, using [`CType::c_define_self`]`()`, and then using `c_fmt` is
+        /// type, using [`CType::c_define_self`]`()`, and then using `c_var_fmt` is
         /// just a matter of outputing the name of the newly defined type next
         /// to the `var_name`, like with `int32_t`.
-        fn c_fmt (
+        fn c_var_fmt (
             fmt: &'_ mut fmt::Formatter<'_>,
             var_name: &'_ str,
         ) -> fmt::Result
@@ -348,17 +353,14 @@ unsafe trait CType
         /// Convenience function for _callers_ / users of types implementing
         /// [`CType`][`trait@CType`].
         ///
-        /// Indeed, since the function implemented in [`CType::c_fmt`] is not
-        /// `Display`, one cannot directly use `c_fmt` with `"{}"` formatting.
-        ///
-        /// Instead, `c_display` implements as way to derive a `Display` impl
-        /// by "capturing" the `var_name` parameter.
+        /// The `Display` logic is auto-derived from the implementation of
+        /// [`CType::c_var_fmt`]`()`.
         #[inline]
-        fn c_display<'__> (
+        fn c_var<'__> (
             var_name: &'__ str,
-        ) -> impl_display::ImplDisplay<'__, Self>
+        ) -> var_impl_display::ImplDisplay<'__, Self>
         {
-            impl_display::ImplDisplay {
+            var_impl_display::ImplDisplay {
                 var_name,
                 _phantom: Default::default(),
             }
@@ -367,7 +369,7 @@ unsafe trait CType
 }
 
 __cfg_headers__! {
-    mod impl_display {
+    mod var_impl_display {
         use super::*;
         use fmt::*;
 
@@ -384,10 +386,34 @@ __cfg_headers__! {
         impl<T : CType> Display
             for ImplDisplay<'_, T>
         {
+            #[inline]
             fn fmt (self: &'_ Self, fmt: &'_ mut Formatter<'_>)
               -> Result
             {
-                T::c_fmt(fmt, self.var_name)
+                T::c_var_fmt(fmt, self.var_name)
+            }
+        }
+    }
+
+    mod short_name_impl_display {
+        use super::*;
+        use fmt::*;
+
+        #[allow(missing_debug_implementations)]
+        pub
+        struct ImplDisplay<T : CType> {
+            pub(in super)
+            _phantom: ::core::marker::PhantomData<T>,
+        }
+
+        impl<T : CType> Display
+            for ImplDisplay<T>
+        {
+            #[inline]
+            fn fmt (self: &'_ Self, fmt: &'_ mut Formatter<'_>)
+              -> Result
+            {
+                T::c_short_name_fmt(fmt)
             }
         }
     }

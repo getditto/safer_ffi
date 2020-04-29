@@ -41,7 +41,7 @@ print_headers:
 
 clean:
 	cargo clean
-	rm -f "$(HEADER)" "$(RUST_BINARY)"
+	rm -f "$(RUST_BINARY)" "$(C_BINARY)"
 
 distclean: clean
-	rm -f "$(C_BINARY)"
+	rm -f "$(HEADER)"

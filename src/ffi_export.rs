@@ -141,7 +141,7 @@ macro_rules! __ffi_export__ {(
                             <($($Ret)?) as $crate::layout::ReprC>::CLayout
                             as
                             $crate::layout::CType
-                        >::c_display($crate::core::stringify!($fname)),
+                        >::c_var($crate::core::stringify!($fname)),
                     )?;
                     // $crate::std::io::Write::write_all(out,
                     //     $crate::core::concat!($crate::core::stringify!($fname), " (")
@@ -157,7 +157,7 @@ macro_rules! __ffi_export__ {(
                                     <$arg_ty as $crate::layout::ReprC>::CLayout
                                     as
                                     $crate::layout::CType
-                                >::c_display({
+                                >::c_var({
                                     let it = stringify!($arg_name);
                                     if it == "_" { "" } else { it }
                                 })

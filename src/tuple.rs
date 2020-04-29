@@ -20,14 +20,13 @@ unsafe
 impl CType
     for CVoid
 { __cfg_headers__! {
-    fn with_c_short_name<R> (
-        ret: impl FnOnce(&'_ dyn fmt::Display) -> R,
-    ) -> R
+    fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+      -> fmt::Result
     {
-        ret(&"void")
+        fmt.write_str("void")
     }
 
-    fn c_fmt (
+    fn c_var_fmt (
         fmt: &'_ mut fmt::Formatter<'_>,
         var_name: &'_ str,
     ) -> fmt::Result

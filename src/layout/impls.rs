@@ -1,8 +1,6 @@
 use super::*;
 
-const _: () = {
-__cfg_headers__! { use ::core::fmt::Write; }
-macro_rules! impl_CTypes {
+const _: () = { macro_rules! impl_CTypes {
     () => (
         impl_CTypes! { @pointers }
         impl_CTypes! { @zsts }
@@ -73,27 +71,25 @@ macro_rules! impl_CTypes {
         impl<Item : CType> CType
             for [Item; $N]
         { __cfg_headers__! {
-            fn with_c_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
-              -> R
+            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+              -> fmt::Result
             {
                 // item_t_N_array
-                Item::with_c_short_name(|item_t| ret(&
-                    format_args!(
-                        concat!("{}_", stringify!($N), "_array"),
-                        item_t,
-                    )
-                ))
+                write!(fmt,
+                    concat!("{}_", stringify!($N), "_array"),
+                    Item::c_short_name(),
+                )
             }
 
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
                 let mut buf = &mut [0_u8; 256][..];
-                Self::with_c_short_name(|short_name| {
+                {
                     use ::std::io::Write;
-                    write!(buf, "{}", short_name)
+                    write!(buf, "{}", Self::c_short_name())
                         .expect("`short_name()` was too long")
-                });
+                }
                 if let Some(n) = buf.iter().position(|&b| b == b'\0') {
                     buf = &mut buf[.. n];
                 }
@@ -104,7 +100,7 @@ macro_rules! impl_CTypes {
                         Item::c_define_self(definer)?;
                         write!(definer.out(),
                             "typedef struct {{ {}; }} {}_t;\n\n",
-                            Item::c_display(concat!(
+                            Item::c_var(concat!(
                                 "idx[", stringify!($N), "]",
                             )),
                             short_name,
@@ -113,18 +109,18 @@ macro_rules! impl_CTypes {
                 )
             }
 
-            fn c_fmt (
+            fn c_var_fmt (
                 fmt: &'_ mut fmt::Formatter<'_>,
                 var_name: &'_ str,
             ) -> fmt::Result
             {
                 // _e.g._, item_N_array_t
-                Self::with_c_short_name(|short_name| {
-                    write!(fmt,
-                        "{}_t{sep}{}", short_name, var_name,
-                        sep = if var_name.is_empty() { "" } else { " " },
-                    )
-                })
+                write!(fmt,
+                    "{}_t{sep}{}",
+                    Self::c_short_name(),
+                    var_name,
+                    sep = if var_name.is_empty() { "" } else { " " },
+                )
             }
         }}
 
@@ -176,21 +172,14 @@ macro_rules! impl_CTypes {
         )*)?> CType
             for Option<unsafe extern "C" fn ($($An, $($Ai ,)*)?) -> Ret>
         { __cfg_headers__! {
-            fn with_c_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
-              -> R
+            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+              -> fmt::Result
             {
-                ret(&{
-                    // ret_t_arg1_t_arg2_t_fptr
-                    let mut ret = Ret::with_c_short_name(|it| it.to_string()); $(
-                    $An::with_c_short_name(|it| write!(&mut ret, "_{}", it))
-                        .unwrap()
-                    ; $(
-                    $Ai::with_c_short_name(|it| write!(&mut ret, "_{}", it))
-                        .unwrap()
-                    ; )*)?
-                    ret.push_str("_fptr");
-                    ret
-                })
+                // ret_t_arg1_t_arg2_t_fptr
+                Ret::c_short_name_fmt(fmt)?; $(
+                write!(fmt, "_{}", $An::c_short_name())?; $(
+                write!(fmt, "_{}", $Ai::c_short_name())?; )*)?
+                fmt.write_str("_fptr")
             }
 
             fn c_define_self (definer: &'_ mut dyn Definer)
@@ -202,15 +191,15 @@ macro_rules! impl_CTypes {
                 Ok(())
             }
 
-            fn c_fmt (
+            fn c_var_fmt (
                 fmt: &'_ mut fmt::Formatter<'_>,
                 var_name: &'_ str,
             ) -> fmt::Result
             {
-                write!(fmt, "{} ", Ret::c_display(""))?;
+                write!(fmt, "{} ", Ret::c_var(""))?;
                 write!(fmt, "(*{})(", var_name)?; $(
-                write!(fmt, "{}", $An::c_display(""))?; $(
-                write!(fmt, ", {}", $Ai::c_display(""))?; )*)?
+                write!(fmt, "{}", $An::c_var(""))?; $(
+                write!(fmt, ", {}", $Ai::c_var(""))?; )*)?
                 fmt.write_str(")")
             }
         }}
@@ -324,10 +313,10 @@ macro_rules! impl_CTypes {
         impl CType
             for $RustInt
         { __cfg_headers__! {
-            fn with_c_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
-              -> R
+            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+              -> fmt::Result
             {
-                ret(&$CInt)
+                fmt.write_str($CInt)
             }
 
             fn c_define_self (definer: &'_ mut dyn Definer)
@@ -341,7 +330,7 @@ macro_rules! impl_CTypes {
                 )
             }
 
-            fn c_fmt (
+            fn c_var_fmt (
                 fmt: &'_ mut fmt::Formatter<'_>,
                 var_name: &'_ str,
             ) -> fmt::Result
@@ -363,12 +352,10 @@ macro_rules! impl_CTypes {
         impl<T : CType> CType
             for *const T
         { __cfg_headers__! {
-            fn with_c_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
-              -> R
+            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+              -> fmt::Result
             {
-                T::with_c_short_name(|it| {
-                    ret(&format_args!("{}_const_ptr", it))
-                })
+                write!(fmt, "{}_const_ptr", T::c_short_name())
             }
 
             fn c_define_self (definer: &'_ mut dyn Definer)
@@ -377,14 +364,14 @@ macro_rules! impl_CTypes {
                 T::c_define_self(definer)
             }
 
-            fn c_fmt (
+            fn c_var_fmt (
                 fmt: &'_ mut fmt::Formatter<'_>,
                 var_name: &'_ str,
             ) -> fmt::Result
             {
                 write!(fmt,
                     "{} const *{sep}{}",
-                    T::c_display(""),
+                    T::c_var(""),
                     var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
@@ -408,12 +395,10 @@ macro_rules! impl_CTypes {
         impl<T : CType> CType
             for *mut T
         { __cfg_headers__! {
-            fn with_c_short_name<R> (ret: impl FnOnce(&'_ dyn fmt::Display) -> R)
-              -> R
+            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+              -> fmt::Result
             {
-                T::with_c_short_name(|it| {
-                    ret(&format_args!("{}_ptr", it))
-                })
+                write!(fmt, "{}_ptr", T::c_short_name())
             }
 
             fn c_define_self (definer: &'_ mut dyn Definer)
@@ -422,14 +407,14 @@ macro_rules! impl_CTypes {
                 T::c_define_self(definer)
             }
 
-            fn c_fmt (
+            fn c_var_fmt (
                 fmt: &'_ mut fmt::Formatter<'_>,
                 var_name: &'_ str,
             ) -> fmt::Result
             {
                 write!(fmt,
                     "{} *{sep}{}",
-                    T::c_display(""),
+                    T::c_var(""),
                     var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
