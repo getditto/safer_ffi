@@ -88,24 +88,25 @@ macro_rules! impl_CTypes {
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
-                let ref mut buf = [0_u8; 256];
+                let mut buf = &mut [0_u8; 256][..];
                 Self::with_c_short_name(|short_name| {
                     use ::std::io::Write;
-                    write!(&mut buf[..], "{}", short_name)
+                    write!(buf, "{}", short_name)
                         .expect("`short_name()` was too long")
                 });
+                if let Some(n) = buf.iter().position(|&b| b == b'\0') {
+                    buf = &mut buf[.. n];
+                }
                 let short_name = ::core::str::from_utf8(buf).unwrap();
                 definer.define(
                     short_name,
                     &mut |definer| {
                         Item::c_define_self(definer)?;
                         write!(definer.out(),
-                            concat!(
-                                "typedef struct {{ {}[",
-                                stringify!($N),
-                                "]; }} {}_t;\n\n",
-                            ),
-                            Item::c_display("idx"),
+                            "typedef struct {{ {}; }} {}_t;\n\n",
+                            Item::c_display(concat!(
+                                "idx[", stringify!($N), "]",
+                            )),
                             short_name,
                         )
                     }

@@ -1,5 +1,5 @@
 [lib]
-crate-type = ["rlib", "cdylib"]
+crate-type = ["rlib", "staticlib"]
 
 [package]
 name = "ffi_tests"

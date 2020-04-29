@@ -3,7 +3,7 @@ fn test_c_code ()
 {
     const C_BINARY: &'static str = concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/target",
+        // "/target",
         "/c_binary"
     );
     assert!(
@@ -13,17 +13,14 @@ fn test_c_code ()
                 "-I", "..",
                 "-o", C_BINARY,
                 "main.c",
-                "-L", "../target/debug/",
+                "-L", "..",
                 "-l", "ffi_tests",
+                // "-Wl,rpath=$ORIGIN/", /* cdylib under Linux */
             ])
             .status()
             .expect("Failed to compile the C binary")
             .success()
     );
-    // ::cc::Build::new()
-    //     .file("main.c")
-    //     .compile(C_BINARY)
-    // ;
     assert!(
         ::std::process::Command::new(C_BINARY)
             .status()

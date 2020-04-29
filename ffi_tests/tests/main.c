@@ -7,6 +7,12 @@
 
 void cb (void *, char const *);
 
+#define SLICE_REF(ty, ...) /* __VA_ARGS__ is array input */ \
+    (slice_ref_ ## ty) { \
+        .ptr = __VA_ARGS__, \
+        .len = sizeof(__VA_ARGS__) / sizeof(ty), \
+    }
+
 int main (
     int argc,
     char const * const argv[])
@@ -35,21 +41,20 @@ int main (
     // test max
     {
         int32_t ints_array[] = { -27, -42, 9, -8 };
-        slice_ref_int32_t ints = {
-            .ptr = ints_array,
-            .len = sizeof(ints_array) / sizeof(*ints_array),
-        };
-        assert(*max(ints) == 9);
+        assert(
+            *max(SLICE_REF(int32_t, ints_array))
+            ==
+            9
+        );
     }
 
     // test max empty
     {
-        int32_t ints_array[] = { };
-        slice_ref_int32_t ints = {
-            .ptr = ints_array,
-            .len = sizeof(ints_array) / sizeof(*ints_array),
-        };
-        assert(max(ints) == NULL);
+        assert(
+            max(SLICE_REF(int32_t, (int32_t []) {}))
+            ==
+            NULL
+        );
     }
 
     return EXIT_SUCCESS;
@@ -59,6 +64,6 @@ void cb (
     void * called,
     char const * s)
 {
-    *(bool *) called = true;
+    *(bool *)called = true;
     assert(strcmp(s, "Hello, World!") == 0);
 }

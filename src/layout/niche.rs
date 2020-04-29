@@ -63,16 +63,6 @@ unsafe_impls! {
     char_p::char_p_raw => |it| it.is_null(),
 
     bool => |&it| {
-        // const NONE_BOOL: u8 = unsafe {
-        //     type Src = Option<bool>;
-        //     type Dst = u8;
-        //     const_assert!(mem::size_of::<Src>() == ::core::mem::size_of::<Dst>());
-        //     union Transmute {
-        //         src: Src,
-        //         dst: Dst,
-        //     }
-        //     Transmute { src: None }.dst
-        // };
         it == unsafe { mem::transmute(None::<bool>) }
     },
 }
