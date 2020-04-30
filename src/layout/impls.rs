@@ -4,7 +4,15 @@ const _: () = { macro_rules! impl_CTypes {
     () => (
         impl_CTypes! { @pointers }
         impl_CTypes! { @zsts }
+        impl_CTypes! { @floats
+            unsafe
+            f32 => "float",
+
+            unsafe
+            f64 => "double",
+        }
         impl_CTypes! { @integers
+
             unsafe // Safety: trivial integer equivalence.
             u8 => "uint8",
 
@@ -48,7 +56,7 @@ const _: () = { macro_rules! impl_CTypes {
         }
         #[cfg(docs)] impl_CTypes! { @fns (A1) } #[cfg(not(docs))]
         impl_CTypes! { @fns
-            (A6, A5, A4, A3, A2, A1)
+            (A9, A8, A7, A6, A5, A4, A3, A2, A1)
         }
         #[cfg(docs)] impl_CTypes! { @arrays 1 2 } #[cfg(not(docs))]
         impl_CTypes! { @arrays
@@ -161,7 +169,7 @@ const _: () = { macro_rules! impl_CTypes {
 
         // CType
         /// Simplified for lighter documentation, but the actual impls include
-        /// **up to 6 function parameters**.
+        /// **up to 9 function parameters**.
         unsafe // Safety: this is the "blessed" type recommended across Rust
                // literature. Still the alignment of function pointers is not
                // as well-defined, as one would wish.
@@ -205,7 +213,7 @@ const _: () = { macro_rules! impl_CTypes {
         }}
 
         /// Simplified for lighter documentation, but the actual impls include
-        /// **up to 6 function parameters**.
+        /// **up to 9 function parameters**.
         unsafe // Safety: byte-wise the layout is the same, but the safety
                // invariants will still have to be checked at each site.
         impl<
@@ -229,7 +237,7 @@ const _: () = { macro_rules! impl_CTypes {
         }
 
         /// Simplified for lighter documentation, but the actual impls include
-        /// **up to 6 function parameters**.
+        /// **up to 9 function parameters**.
         unsafe // Safety: byte-wise the layout is the same, but the safety
                // invariants will still have to be checked at each site.
         impl<
@@ -255,7 +263,7 @@ const _: () = { macro_rules! impl_CTypes {
         /* == ReprC for Option-less == */
 
         /// Simplified for lighter documentation, but the actual impls include
-        /// **up to 6 function parameters**.
+        /// **up to 9 function parameters**.
         unsafe // Safety: byte-wise the layout is the same, but the safety
                // invariants will still have to be checked at each site.
         impl<
@@ -279,7 +287,7 @@ const _: () = { macro_rules! impl_CTypes {
         }
 
         /// Simplified for lighter documentation, but the actual impls include
-        /// **up to 6 function parameters**.
+        /// **up to 9 function parameters**.
         unsafe // Safety: byte-wise the layout is the same, but the safety
                // invariants will still have to be checked at each site.
         impl<
@@ -343,6 +351,37 @@ const _: () = { macro_rules! impl_CTypes {
             }
         }}
         from_CType_impl_ReprC! { $RustInt }
+    )*);
+
+    (@floats
+        $(
+            $unsafe:tt
+            $fN:ident => $Cty:literal,
+        )*
+    ) => ($(
+        $unsafe // Safety: guaranteed by the caller of the macro
+        impl CType
+            for $fN
+        { __cfg_headers__! {
+            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+              -> fmt::Result
+            {
+                fmt.write_str($Cty)
+            }
+
+            fn c_var_fmt (
+                fmt: &'_ mut fmt::Formatter<'_>,
+                var_name: &'_ str,
+            ) -> fmt::Result
+            {
+                write!(fmt,
+                    concat!($Cty, "{sep}{}"),
+                    var_name,
+                    sep = if var_name.is_empty() { "" } else { " " },
+                )
+            }
+        }}
+        from_CType_impl_ReprC! { $fN }
     )*);
 
     (

@@ -201,7 +201,7 @@ ReprC! {
     ///
     /// It is only intended to be used as the parameter of a **callback** that
     /// locally borrows it, due to limitations of the [`ReprC`][
-    /// `crate::layout::ReprCTrait`] design _w.r.t._ higher-rank trait bounds.
+    /// `trait@crate::layout::ReprC`] design _w.r.t._ higher-rank trait bounds.
     pub
     struct char_p_raw (
         ptr::NonNullRef<c_char>,

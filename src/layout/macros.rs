@@ -43,6 +43,11 @@ macro_rules! __with_doc__ {(
     $($rest)*
 )}
 
+/// Safely implement [`CType`][`trait@crate::layout::CType`]
+/// for a `#[repr(C)]` struct **when all its fields are `CType`**.
+///
+/// Note: you rarely need to call this macro directly. Instead, look for the
+/// [`ReprC!`] macro to safely implement [`ReprC`][`trait@crate::layout::ReprC`].
 #[macro_export]
 macro_rules! CType {(
     $(
@@ -182,6 +187,70 @@ macro_rules! CType {(
     }
 )}
 
+/// Safely implement [`ReprC`][`trait@crate::layout::ReprC`]
+/// for a `#[repr(C)]` struct **when all its fields are `ReprC`**.
+///
+/// # Syntax
+///
+/// Note: given that this macro is implemented as a `macro_rules!` macro for
+/// the sake of compilation speed, it cannot parse arbitrary generic parameters
+/// and where clauses.
+///
+/// Instead, it expects a special syntax whereby the generic parameters are
+/// written between square brackets, and only introduce `lifetime` parameters
+/// and type parameters, with no bounds whatsoever (and a necessary trailing
+/// comma for the lifetime parameters); the bounds must all be added to the
+/// optional following `where { <where clauses here> }` (note the necessary
+/// braces):
+///
+///   - Instead of:
+///
+///     ```rust,compile_fail
+///     use ::repr_c::layout::ReprC;
+///
+///     ReprC! {
+///         #[repr(C)]
+///         struct GenericStruct<'lifetime, T : 'lifetime>
+///         where
+///             T : ReprC,
+///         {
+///             inner: &'lifetime T,
+///         }
+///     }
+///     ```
+///
+///   - You need to write:
+///
+///     ```rust
+///     use ::repr_c::layout::ReprC;
+///
+///     ReprC! {
+///         #[repr(C)]
+///         struct GenericStruct['lifetime, T]
+///         where {
+///             T : 'lifetime + ReprC,
+///         }
+///         {
+///             inner: &'lifetime T,
+///         }
+///     }
+///     # fn main () {}
+///     ```
+///
+/// # `#[derive_ReprC]`
+///
+/// If all this looks cumbersome to you, and if you don't care about the
+/// compilation-from-scratch time, then it is highly advised you enable
+/// the `proc_macros` feature:
+///
+/// ```toml
+/// [dependencies]
+/// repr_c = { version = "...", features = ["proc_macros"] }
+/// ```
+///
+/// and use the [`#[derive_ReprC]`](
+/// /repr_c/layout/attr.derive_ReprC.html) attribute macro instead,
+/// which will do the rewriting for you.
 #[macro_export]
 macro_rules! ReprC {
     // struct
@@ -236,7 +305,9 @@ macro_rules! ReprC {
                 as
                 [< $StructName _Layout >]
             ;
+        }
 
+        $crate::paste::item! {
             #[allow(trivial_bounds)]
             unsafe // Safety: struct is `#[repr(C)]` and contains `ReprC` fields
             impl $(<$($generics)*>)? $crate::layout::ReprC
@@ -272,7 +343,8 @@ macro_rules! ReprC {
                     )*
                 }
             }
-
+        }
+        $crate::paste::item! {
             #[allow(nonstandard_style, trivial_bounds)]
             mod [< __ $StructName _repr_c_mod >] {
                 use super::*;
@@ -686,6 +758,7 @@ macro_rules! __output_docs__ {
     });
 }
 
+#[cfg(test)]
 crate::layout::ReprC! {
     // #[derive_ReprC]
     #[repr(u8)]
@@ -696,4 +769,58 @@ crate::layout::ReprC! {
         False = 42,
         True, // = 43
     }
+}
+
+#[cfg(any(test, docs))]
+mod test {
+    use crate::layout::ReprC;
+
+    ReprC! {
+        // #[derive_ReprC]
+        #[repr(u8)]
+        #[derive(Debug)]
+        /// Some docstring
+        pub
+        enum MyBool {
+            False = 42,
+            True, // = 43
+        }
+    }
+
+    ReprC! {
+        #[repr(C)]
+        struct GenericStruct['lifetime, T]
+        where {
+            T : 'lifetime + ReprC,
+        }
+        {
+            inner: &'lifetime T,
+        }
+    }
+
+    cfg_proc_macros! { #[doc = "```rust"] #[doc = r#"
+        use ::repr_c::prelude::*;
+
+        #[derive_ReprC]
+        #[repr(u8)]
+        #[derive(Debug)]
+        /// Some docstring
+        pub
+        enum MyBool {
+            False = 42,
+            True, // = 43
+        }
+
+        #[derive_ReprC]
+        #[repr(C)]
+        struct GenericStruct<'lifetime, T : 'lifetime>
+        where
+            T : ReprC,
+        {
+            inner: &'lifetime T,
+        }
+
+        fn main ()
+        {}
+    "#] extern {} }
 }

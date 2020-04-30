@@ -399,9 +399,6 @@ __cfg_headers__! {
     }
 }
 
-#[cfg(docs)]
-pub(in crate) use ReprC as ReprCTrait;
-
 /// The meat of the crate. _The_ trait.
 /// This trait describes that **a type has a defined / fixed `#[repr(C)]`
 /// layout**.
@@ -416,16 +413,182 @@ pub(in crate) use ReprC as ReprCTrait;
 /// Then, `#[ffi_export]` will transmute the `CType` parameters back to the
 /// provided `ReprC` types, using [`from_raw_unchecked`].
 ///
-/// Although from a pure point of view, no checks are performed at this step
-/// whatsoever, in practice, when `debug_assertions` are enabled some "sanity
+/// Although, from a pure point of view, no checks are performed at this step
+/// whatsoever, in practice, when `debug_assertions` are enabled, some "sanity
 /// checks" are performed on the input parameters: [`ReprC::is_valid`] is
 /// called in that case (as part of the implementation of [`from_raw`]).
 ///
 ///   - Although that may look innocent, it is actually pretty powerful tool:
 ///
-///     For instance, a non-null pointer coming from C can, this way, be
+///     **For instance, a non-null pointer coming from C can, this way, be
 ///     automatically checked and unwrapped, and the same applies for
-///     enumerations having a finite number of valid bit-patterns.
+///     enumerations having a finite number of valid bit-patterns.**
+///
+/// # Safety
+///
+/// It must be sound to transmute from a `ReprC::CLayout` instance when the
+/// bit pattern represents a _safe_ instance of `Self`.
+///
+/// # Implementing `ReprC`
+///
+/// It is generally recommended to avoid manually (and `unsafe`-ly)
+/// implementing the [`ReprC`] trait. Instead, the recommended and blessed way
+/// is to use the [`#[derive_ReprC]`](/repr_c/layout/attr.derive_ReprC.html)
+/// attribute (when the `proc_macros` feature is enabled, or the [`ReprC!`]
+/// macro when it is not) on your `#[repr(C)] struct` (or your field-less
+/// `#[repr(<integer>)] enum`).
+///
+/// [`ReprC`]: `trait@ReprC`
+///
+/// ## Examples
+///
+/// #### Simple `struct`
+///
+/// ```rust,no_run
+/// # fn main () {}
+/// use ::repr_c::prelude::*;
+///
+/// #[derive_ReprC]
+/// #[repr(C)]
+/// struct Instant {
+///     seconds: u64,
+///     nanos: u32,
+/// }
+/// ```
+///
+///   - corresponding to the following C definition:
+///
+///     ```C
+///     typedef struct {
+///         uint64_t seconds;
+///         uint32_t nanos;
+///     } Instant_t;
+///     ```
+///
+/// or you can use what the attribute macro expands to, to avoid requiring
+/// the `proc_macros` feature:
+///
+/// ```rust,no_run
+/// # fn main () {}
+/// use ::repr_c::prelude::*;
+///
+/// ReprC! {
+///     #[repr(C)]
+///     struct Instant {
+///         seconds: u64,
+///         nanos: u32,
+///     }
+/// }
+/// ```
+///
+/// #### Field-less `enum`
+///
+/// ```rust,no_run
+/// # fn main () {}
+/// use ::repr_c::prelude::*;
+///
+/// #[derive_ReprC]
+/// #[repr(u8)]
+/// enum Status {
+///     Ok = 0,
+///     Busy,
+///     NotInTheMood,
+///     OnStrike,
+///     OhNo,
+/// }
+/// ```
+///
+///   - corresponding to the following C definition:
+///
+///     ```C
+///     enum Status {
+///         Ok = 0,
+///         Busy,
+///         NotInTheMood,
+///         OnStrike,
+///         OhNo,
+///     }
+///     typedef uint8_t Status_t;
+///     ```
+///
+/// or you can use what the attribute macro expands to, to avoid requiring
+/// the `proc_macros` feature:
+///
+/// ```rust,no_run
+/// # fn main () {}
+/// use ::repr_c::prelude::*;
+///
+/// ReprC! {
+///     #[repr(u8)]
+///     enum Status {
+///         Ok = 0,
+///         Busy,
+///         NotInTheMood,
+///         OnStrike,
+///         OhNo,
+///     }
+/// }
+/// ```
+///
+/// #### Generic `struct`
+///
+/// In that case, it is required that the struct's generic types carry a
+/// `: ReprC` bound each:
+///
+/// ```rust,no_run
+/// # fn main () {}
+/// use ::repr_c::prelude::*;
+///
+/// #[derive_ReprC]
+/// #[repr(C)]
+/// struct Point<Coordinate : ReprC> {
+///     x: Coordinate,
+///     y: Coordinate,
+/// }
+/// ```
+///
+/// Each monomorphization leads to its own C definition:
+///
+///   - **`Point<i32>`**
+///
+///     ```C
+///     typedef struct {
+///         int32_t x;
+///         int32_t y;
+///     } Point_int32_t;
+///     ```
+///
+///   - **`Point<f64>`**
+///
+///     ```C
+///     typedef struct {
+///         double x;
+///         double y;
+///     } Point_double_t;
+///     ```
+///
+/// This is where the attribute macro shines. Indeed, the [`ReprC!`] macro has
+/// some parsing limitations (for the sake of simplicity and performance) that
+/// require unorthodox syntax when generics are involved (see
+/// [the macro documentation][`ReprC!`] for more info about it):
+///
+///
+/// ```rust,no_run
+/// # fn main () {}
+/// use ::repr_c::prelude::*;
+///
+/// ReprC! {
+///     #[repr(C)]
+///     struct Point[Coordinate]
+///     where {
+///         Coordinate : ReprC,
+///     }
+///     {
+///         x: Coordinate,
+///         y: Coordinate,
+///     }
+/// }
+/// ```
 pub
 unsafe
 trait ReprC : Sized {
@@ -460,7 +623,7 @@ trait ReprC : Sized {
     /// inconclusive; there is no explicit reason to stop going on, but that
     /// doesn't necessarily make it sound.
     ///
-    /// # Tl,DR
+    /// # TL,DR
     ///
     /// > This function **may yield false positives** but no false negatives.
     ///

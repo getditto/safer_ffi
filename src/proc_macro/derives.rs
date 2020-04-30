@@ -54,6 +54,99 @@ fn feed_to_macro_rules (input: TokenStream, name: Ident)
     ret
 }
 
+/// Safely implement [`ReprC`]
+/// for a `#[repr(C)]` struct **when all its fields are [`ReprC`]**.
+///
+/// [`ReprC`]: /repr_c/layout/trait.ReprC.html
+///
+/// # Examples
+///
+/// ### Simple `struct`
+///
+/// ```rust
+/// use ::repr_c::prelude::*;
+///
+/// #[derive_ReprC]
+/// #[repr(C)]
+/// struct Instant {
+///     seconds: u64,
+///     nanos: u32,
+/// }
+/// ```
+///
+///   - corresponding to the following C definition:
+///
+///     ```C
+///     typedef struct {
+///         uint64_t seconds;
+///         uint32_t nanos;
+///     } Instant_t;
+///     ```
+///
+/// ### Field-less `enum`
+///
+/// ```rust
+/// use ::repr_c::prelude::*;
+///
+/// #[derive_ReprC]
+/// #[repr(u8)]
+/// enum Status {
+///     Ok = 0,
+///     Busy,
+///     NotInTheMood,
+///     OnStrike,
+///     OhNo,
+/// }
+/// ```
+///
+///   - corresponding to the following C definition:
+///
+///     ```C
+///     enum Status {
+///         Ok = 0,
+///         Busy,
+///         NotInTheMood,
+///         OnStrike,
+///         OhNo,
+///     }
+///     typedef uint8_t Status_t;
+///     ```
+///
+/// ### Generic `struct`
+///
+/// In that case, it is required that the struct's generic types carry a
+/// `: ReprC` bound each:
+///
+/// ```rust
+/// use ::repr_c::prelude::*;
+///
+/// #[derive_ReprC]
+/// #[repr(C)]
+/// struct Point<Coordinate : ReprC> {
+///     x: Coordinate,
+///     y: Coordinate,
+/// }
+/// ```
+///
+/// Each monomorphization leads to its own C definition:
+///
+///   - **`Point<i32>`**
+///
+///     ```C
+///     typedef struct {
+///         int32_t x;
+///         int32_t y;
+///     } Point_int32_t;
+///     ```
+///
+///   - **`Point<f64>`**
+///
+///     ```C
+///     typedef struct {
+///         double x;
+///         double y;
+///     } Point_double_t;
+///     ```
 #[cfg(feature = "proc_macros")]
 #[proc_macro_attribute] pub
 fn derive_ReprC (attrs: TokenStream, input: TokenStream)

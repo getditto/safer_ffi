@@ -43,6 +43,7 @@ __cfg_headers__! {
     #[cfg_attr(feature = "nightly",
         doc(cfg(feature = "headers")),
     )]
+    #[path = "headers/_mod.rs"]
     pub
     mod headers;
 

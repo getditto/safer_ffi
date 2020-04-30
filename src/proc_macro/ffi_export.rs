@@ -1,3 +1,53 @@
+/// Export a function to be callable by C.
+///
+/// # Example
+///
+/// ```rust
+/// use ::repr_c::prelude::ffi_export;
+///
+/// #[ffi_export]
+/// /// Add two integers together.
+/// fn add (x: i32, y: i32) -> i32
+/// {
+///     x + y
+/// }
+/// ```
+///
+///   - ensures that [the generated headers](/repr_c/headers/) will include the
+///     following definition:
+///
+///     ```C
+///     #include <stdint.h>
+///
+///     /* \brief
+///      * Add two integers together.
+///      */
+///     int32_t add (int32_t x, int32_t y);
+///     ```
+///
+///   - exports an `add` symbol pointing to the C-ABI compatible
+///     `int32_t (*)(int32_t x, int32_t y)` function.
+///
+///     (The crate type needs to be `cdylib` or `staticlib` for this to work,
+///     and, of course, the C compiler invocation needs to include
+///     `-L path/to/the/compiled/library -l name_of_your_crate`)
+///
+///       - when in doubt, use `staticlib`.
+///
+/// # `ReprC`
+///
+/// [`ReprC`]: /repr_c/layout/trait.ReprC.html
+///
+/// You can use any Rust types in the singature of an `#[ffi_export]`-
+/// function, provided each of the types involved in the signature is [`ReprC`].
+///
+/// Otherwise the layout of the involved types in the C world is **undefined**,
+/// which `#[ffi_export]` will detect, leading to a compilation error.
+///
+/// To have custom structs implement [`ReprC`], it suffices to annotate the
+/// `struct` definitions with the [`#[derive_ReprC]`](
+/// /repr_c/layout/attr.derive_ReprC.html)
+/// (on top of the obviously required `#[repr(C)]`).
 #[proc_macro_attribute] pub
 fn ffi_export (attrs: TokenStream, input: TokenStream)
   -> TokenStream
