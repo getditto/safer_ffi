@@ -104,3 +104,51 @@ macro_rules! const_assert {
         } as usize];
     );
 }
+
+macro_rules! type_level_enum {(
+    $(#[$meta:meta])*
+    $pub:vis
+    enum $EnumName:ident {
+        $(
+            $(#[$variant_meta:meta])*
+            $Variant:ident
+        ),+ $(,)?
+    }
+) => (
+    #[allow(
+        bad_style,
+        missing_copy_implementations,
+        missing_debug_implementations,
+    )]
+    $(#[$meta])*
+    $pub
+    mod $EnumName {
+        use private::Sealed; mod private { pub trait Sealed {} }
+        pub trait __ : Sealed {}
+        $(
+            $(#[$variant_meta])*
+            pub
+            enum $Variant {}
+                impl __ for $Variant {} impl Sealed for $Variant {}
+        )+
+    }
+)}
+
+macro_rules! trait_alias {(
+    $(#[$meta:meta])*
+    $pub:vis
+    trait $TraitName:ident
+    where
+        $($bounds:tt)*
+) => (
+    $(#[$meta])*
+    $pub
+    trait $TraitName
+    where
+        $($bounds)*
+
+    impl<__ : ?Sized> $TraitName for __
+    where
+        $($bounds)*
+
+)}

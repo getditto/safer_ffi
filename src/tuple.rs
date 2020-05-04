@@ -37,7 +37,7 @@ impl CType
             sep = if var_name.is_empty() { "" } else { " " },
         )
     }
-}}
+} type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete; }
 from_CType_impl_ReprC! { CVoid }
 
 unsafe
@@ -60,11 +60,7 @@ ReprC! {
     /// Simplified for lighter documentation, but the actual impls
     /// range from `Tuple1` up to `Tuple9`.
     pub
-    struct Tuple1[T0]
-    where {
-        T0 : ReprC,
-    }
-    {
+    struct Tuple1[T0] {
         pub _0: T0,
     }
 }
@@ -75,12 +71,7 @@ ReprC! {
     /// Simplified for lighter documentation, but the actual impls
     /// range from `Tuple1` up to `Tuple9`.
     pub
-    struct Tuple2[T0, T1]
-    where {
-        T0 : ReprC,
-        T1 : ReprC,
-    }
-    {
+    struct Tuple2[T0, T1] {
         pub _0: T0,
         pub _1: T1,
     }
@@ -91,13 +82,7 @@ ReprC! {
     #[repr(C)]
     #[derive(Debug)]
     pub
-    struct Tuple3[T0, T1, T2]
-    where {
-        T0 : ReprC,
-        T1 : ReprC,
-        T2 : ReprC,
-    }
-    {
+    struct Tuple3[T0, T1, T2] {
         pub _0: T0,
         pub _1: T1,
         pub _2: T2,
@@ -109,14 +94,7 @@ ReprC! {
     #[repr(C)]
     #[derive(Debug)]
     pub
-    struct Tuple4[T0, T1, T2, T3]
-    where {
-        T0 : ReprC,
-        T1 : ReprC,
-        T2 : ReprC,
-        T3 : ReprC,
-    }
-    {
+    struct Tuple4[T0, T1, T2, T3] {
         pub _0: T0,
         pub _1: T1,
         pub _2: T2,
@@ -128,15 +106,7 @@ ReprC! {
     #[repr(C)]
     #[derive(Debug)]
     pub
-    struct Tuple5[T0, T1, T2, T3, T4]
-    where {
-        T0 : ReprC,
-        T1 : ReprC,
-        T2 : ReprC,
-        T3 : ReprC,
-        T4 : ReprC,
-    }
-    {
+    struct Tuple5[T0, T1, T2, T3, T4] {
         pub _0: T0,
         pub _1: T1,
         pub _2: T2,
@@ -149,16 +119,7 @@ ReprC! {
     #[repr(C)]
     #[derive(Debug)]
     pub
-    struct Tuple6[T0, T1, T2, T3, T4, T5]
-    where {
-        T0 : ReprC,
-        T1 : ReprC,
-        T2 : ReprC,
-        T3 : ReprC,
-        T4 : ReprC,
-        T5 : ReprC,
-    }
-    {
+    struct Tuple6[T0, T1, T2, T3, T4, T5] {
         pub _0: T0,
         pub _1: T1,
         pub _2: T2,

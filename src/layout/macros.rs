@@ -42,7 +42,6 @@ macro_rules! __with_doc__ {(
     struct
     $($rest)*
 )}
-
 /// Safely implement [`CType`][`trait@crate::layout::CType`]
 /// for a `#[repr(C)]` struct **when all its fields are `CType`**.
 ///
@@ -92,6 +91,9 @@ macro_rules! CType {(
         //     $field_ty : $crate::layout::CType,
         // )*
         $(
+            $($(
+                $generics : $crate::layout::ReprC,
+            )+)?
             $($($bounds)*)?
         )?
     { $crate::__cfg_headers__! {
@@ -175,7 +177,7 @@ macro_rules! CType {(
                 sep = if var_name.is_empty() { "" } else { " " },
             )
         }
-    }}
+    } type OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete; }
 
     $crate::layout::from_CType_impl_ReprC! {
         $(@for [$($lt ,)* $($($generics),+)?])?
@@ -260,9 +262,11 @@ macro_rules! ReprC {
         $(#[$($meta:tt)*])*
         $pub:vis
         struct $StructName:ident $(
-            [$($generics:tt)*] $(
-                where { $($bounds:tt)* }
-            )?
+            [
+                $($lt:lifetime ,)*
+                $($($generics:ident),+ $(,)?)?
+            ]
+                $(where { $($bounds:tt)* })?
         )?
         {
             $(
@@ -285,7 +289,7 @@ macro_rules! ReprC {
             ///
             $pub
             struct $StructName $(
-                <$($generics)*> $(
+                <$($lt ,)* $($($generics),+)?> $(
                     where $($bounds)*
                 )?
             )?
@@ -307,46 +311,49 @@ macro_rules! ReprC {
             ;
         }
 
-        $crate::paste::item! {
-            #[allow(trivial_bounds)]
-            unsafe // Safety: struct is `#[repr(C)]` and contains `ReprC` fields
-            impl $(<$($generics)*>)? $crate::layout::ReprC
-                for $StructName $(<$($generics)*>)?
-            where
-                $(
-                    $field_ty : $crate::layout::ReprC,
-                )*
+        #[allow(trivial_bounds)]
+        unsafe // Safety: struct is `#[repr(C)]` and contains `ReprC` fields
+        impl $(<$($lt ,)* $($($generics),+)?>)? $crate::layout::ReprC
+            for $StructName $(<$($lt ,)* $($($generics),+)?>)?
+        where
+            $(
+                $field_ty : $crate::layout::ReprC,
+            )*
+            $(
                 $($(
-                    $($bounds)*
-                )?)?
-            {
-                type CLayout =
-                    [<$StructName _Layout>]
-                        $(<$($generics)*>)?
-                ;
+                    $generics : $crate::layout::ReprC,
+                )+)?
+                $($($bounds)*)?
+            )?
+        {
 
-                #[inline]
-                fn is_valid (it: &'_ Self::CLayout)
-                    -> bool
-                {
-                    let _ = it;
-                    true $(
-                        && (
-                            $crate::core::mem::size_of::<
-                                <$field_ty as $crate::layout::ReprC>::CLayout
-                            >() == 0
-                            ||
-                            <$field_ty as $crate::layout::ReprC>::is_valid(
-                                &it.$field_name
-                            )
+            type CLayout = $crate::paste::__item__! {
+                [<$StructName _Layout>]
+                    $(<$($lt ,)* $($($generics),+)?>)?
+            };
+
+            #[inline]
+            fn is_valid (it: &'_ Self::CLayout)
+                -> bool
+            {
+                let _ = it;
+                true $(
+                    && (
+                        $crate::core::mem::size_of::<
+                            <$field_ty as $crate::layout::ReprC>::CLayout
+                        >() == 0
+                        ||
+                        <$field_ty as $crate::layout::ReprC>::is_valid(
+                            &it.$field_name
                         )
-                    )*
-                }
+                    )
+                )*
             }
         }
         $crate::paste::item! {
             #[allow(nonstandard_style, trivial_bounds)]
             mod [< __ $StructName _repr_c_mod >] {
+                #[allow(unused_imports)]
                 use super::*;
 
                 $crate::layout::CType! {
@@ -356,14 +363,17 @@ macro_rules! ReprC {
                     // $(#[$meta])*
                     pub
                     struct $StructName
-                        [$($($generics)*)?]
+                        [$($($lt ,)* $($($generics),+)?)?]
                     where {
                         $(
                             $field_ty : $crate::layout::ReprC,
                         )*
-                        $($(
-                            $($bounds)*
-                        )?)?
+                        $(
+                            $($(
+                                $generics : $crate::layout::ReprC,
+                            )+)?
+                            $($($bounds)*)?
+                        )?
                     } {
                         $(
                             $(#[$($field_meta)*])*
@@ -374,37 +384,48 @@ macro_rules! ReprC {
                         )*
                     }
                 }
-
-                impl $(<$($generics)*>)? $crate::core::marker::Copy
-                    for $StructName $(<$($generics)*>)?
-                where
-                    $(
-                        $field_ty : $crate::layout::ReprC,
-                    )*
-                    $($(
-                        $($bounds)*
-                    )?)?
-                {}
-
-                impl $(<$($generics)*>)? $crate::core::clone::Clone
-                    for $StructName $(<$($generics)*>)?
-                where
-                    $(
-                        $field_ty : $crate::layout::ReprC,
-                    )*
-                    $($(
-                        $($bounds)*
-                    )?)?
-                {
-                    #[inline]
-                    fn clone (self: &'_ Self)
-                      -> Self
-                    {
-                        *self
-                    }
-                }
             }
         }
+        const _: () = {
+            $crate::paste::item! {
+                use [< __ $StructName _repr_c_mod >]::*;
+            }
+
+            impl $(<$($lt ,)* $($($generics),+)?>)? $crate::core::marker::Copy
+                for $StructName $(<$($lt ,)* $($($generics),+)?>)?
+            where
+                $(
+                    $field_ty : $crate::layout::ReprC,
+                )*
+                $(
+                    $($(
+                        $generics : $crate::layout::ReprC,
+                    )+)?
+                    $($($bounds)*)?
+                )?
+            {}
+
+            impl $(<$($lt ,)* $($($generics),+)?>)? $crate::core::clone::Clone
+                for $StructName $(<$($lt ,)* $($($generics),+)?>)?
+            where
+                $(
+                    $field_ty : $crate::layout::ReprC,
+                )*
+                $(
+                    $($(
+                        $generics : $crate::layout::ReprC,
+                    )+)?
+                    $($($bounds)*)?
+                )?
+            {
+                #[inline]
+                fn clone (self: &'_ Self)
+                    -> Self
+                {
+                    *self
+                }
+            }
+        };
     );
 
     // `#[repr(transparent)]`
@@ -589,7 +610,8 @@ macro_rules! ReprC {
                         sep = if var_name.is_empty() { "" } else { " " },
                     )
                 }
-            }}
+            } type OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete; }
+
             $crate::layout::from_CType_impl_ReprC! {
                 [< $EnumName _Layout >]
             }
@@ -791,7 +813,7 @@ mod test {
         #[repr(C)]
         struct GenericStruct['lifetime, T]
         where {
-            T : 'lifetime + ReprC,
+            T : 'lifetime,
         }
         {
             inner: &'lifetime T,

@@ -32,9 +32,6 @@ macro_rules! inline_mod {($modname:ident) => (
 
 inline_mod!(utils);
 
-
-inline_mod!(bindings_generator);
-
 #[cfg(feature = "proc_macros")]
 inline_mod!(derives);
 

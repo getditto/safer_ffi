@@ -5,7 +5,7 @@ ReprC! {
     #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]
     /// Same as [`Vec<T>`][`rust::Vec`], but with guaranteed `#[repr(C)]` layout
     pub
-    struct Vec[T] where { T : ReprC } {
+    struct Vec[T] {
         ptr: ptr::NonNullOwned<T>,
         len: usize,
 
@@ -13,7 +13,7 @@ ReprC! {
     }
 }
 
-impl<T : ReprC> Vec<T> {
+impl<T> Vec<T> {
     #[inline]
     pub
     fn as_ref (self: &'_ Self)
@@ -41,7 +41,7 @@ impl<T : ReprC> Vec<T> {
     }
 }
 
-impl<T : ReprC> From<rust::Vec<T>>
+impl<T> From<rust::Vec<T>>
     for Vec<T>
 {
     #[inline]
@@ -62,7 +62,7 @@ impl<T : ReprC> From<rust::Vec<T>>
     }
 }
 
-impl<T : ReprC> Into<rust::Vec<T>>
+impl<T> Into<rust::Vec<T>>
     for Vec<T>
 {
     #[inline]
@@ -81,7 +81,7 @@ impl<T : ReprC> Into<rust::Vec<T>>
     }
 }
 
-impl<T : ReprC> Drop
+impl<T> Drop
     for Vec<T>
 {
     #[inline]
@@ -96,7 +96,7 @@ impl<T : ReprC> Drop
     }
 }
 
-impl<T : ReprC> Deref
+impl<T> Deref
     for Vec<T>
 {
     type Target = [T];
@@ -112,7 +112,7 @@ impl<T : ReprC> Deref
         }
     }
 }
-impl<T : ReprC> DerefMut
+impl<T> DerefMut
     for Vec<T>
 {
     fn deref_mut (self: &'_ mut Vec<T>)
@@ -128,20 +128,20 @@ impl<T : ReprC> DerefMut
 }
 
 unsafe // Safety: from delegation
-    impl<T : ReprC> Send
+    impl<T> Send
         for Vec<T>
     where
         rust::Vec<T> : Send,
     {}
 
 unsafe // Safety: from delegation
-    impl<T : ReprC> Sync
+    impl<T> Sync
         for Vec<T>
     where
         rust::Vec<T> : Sync,
     {}
 
-impl<T : ReprC> Vec<T> {
+impl<T> Vec<T> {
     pub
     const EMPTY: Self = Self {
         ptr: ptr::NonNullOwned(ptr::NonNull::dangling(), PhantomData),
@@ -166,11 +166,11 @@ impl<T : ReprC> Vec<T> {
         // f(&mut *::scopeguard::guard(rust_vec, |it| this.write(it.into())))
         return f(&mut Guard(MD::new(rust_vec), this).0);
         // where
-        struct Guard<'__, T : ReprC> (
+        struct Guard<'__, T> (
             MD<rust::Vec<T>>,
             &'__ mut MD<Vec<T>>,
         );
-        impl<T : ReprC> Drop for Guard<'_, T> {
+        impl<T> Drop for Guard<'_, T> {
             fn drop (self: &'_ mut Self)
             {
                 unsafe {
