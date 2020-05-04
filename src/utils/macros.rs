@@ -134,21 +134,39 @@ macro_rules! type_level_enum {(
     }
 )}
 
-macro_rules! trait_alias {(
-    $(#[$meta:meta])*
-    $pub:vis
-    trait $TraitName:ident
-    where
-        $($bounds:tt)*
+macro_rules! with_doc {(
+    #[doc = $doc:expr]
+    $($rest:tt)*
 ) => (
-    $(#[$meta])*
-    $pub
-    trait $TraitName
-    where
-        $($bounds)*
-
-    impl<__ : ?Sized> $TraitName for __
-    where
-        $($bounds)*
-
+    #[doc = $doc]
+    $($rest)*
 )}
+
+macro_rules! doc_test {
+    ($name:ident :
+        #![$attr:ident]
+        $($code:tt)*
+    ) => (
+        with_doc! {
+            #[doc = concat!(
+                "```rust,", stringify!($attr), "\n",
+                stringify!($($code)*),
+                "\n```\n",
+            )]
+            pub mod $name {}
+        }
+    );
+
+    ($name:ident :
+        $($code:tt)*
+    ) => (
+        with_doc! {
+            #[doc = concat!(
+                "```rust\n",
+                stringify!($($code)*),
+                "\n```\n",
+            )]
+            pub mod $name {}
+        }
+    );
+}

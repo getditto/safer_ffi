@@ -190,3 +190,8 @@ impl<T : fmt::Debug + ReprC> fmt::Debug
         <[T] as fmt::Debug>::fmt(&self[..], fmt)
     }
 }
+
+#[macro_export]
+macro_rules! c_vec { [$($input:tt)*] => (
+    $crate::Vec::from($crate::std::vec![ $($input)* ])
+)}

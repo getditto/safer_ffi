@@ -29,6 +29,15 @@ impl<T> From<rust::Box<T>>
 impl<T> Box<T> {
     #[inline]
     pub
+    fn new (value: T)
+      -> Self
+    {
+        rust::Box::new(value)
+            .into()
+    }
+
+    #[inline]
+    pub
     fn into (self: Box<T>)
       -> rust::Box<T>
     {

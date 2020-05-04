@@ -26,21 +26,11 @@ type_level_enum! {
     }
 }
 
-trait_alias! {
-    pub
-    trait ConcreteCType
-    where
-        Self : CType<OPAQUE_KIND = OpaqueKind::Concrete>,
-    {}
-}
-trait_alias! {
-    pub
-    trait ConcreteReprC
-    where
-        Self : ReprC<CLayout = OpaqueKind::Concrete>,
-        <Self as ReprC>::CLayout : ConcreteCType,
-    {}
-}
+pub
+fn __assert_concrete__<T>() where
+    T : ReprC,
+    <T as ReprC>::CLayout : CType<OPAQUE_KIND = OpaqueKind::Concrete>,
+{}
 
 /// One of the two core traits of this crate (with [`ReprC`][`trait@ReprC`]).
 ///
