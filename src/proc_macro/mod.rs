@@ -35,6 +35,9 @@ inline_mod!(utils);
 #[cfg(feature = "proc_macros")]
 inline_mod!(derives);
 
+#[cfg(feature = "proc_macros")]
+inline_mod!(c_str);
+
 inline_mod!(ffi_export);
 
 #[cfg(feature = "headers")]

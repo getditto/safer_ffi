@@ -31,6 +31,17 @@ mod utils;
 
 extern crate proc_macro;
 pub use ::proc_macro::{ffi_export, cfg_headers};
+cfg_proc_macros! {
+    #[::proc_macro_hack::proc_macro_hack]
+    /// Creates a compile-time checked [`char_p_ref`]`<'static>` out of a
+    /// string literal.
+    ///
+    /// [`char_p_ref`]: `crate::prelude::char_p_ref`
+    pub use ::proc_macro::c_str as c;
+
+    #[doc(inline)]
+    pub use ::proc_macro::derive_ReprC;
+}
 
 #[macro_use]
 #[path = "layout/_mod.rs"]
@@ -133,7 +144,6 @@ cfg_std! {
 #[doc(hidden)] pub
 struct NotZeroSized;
 
-
 pub
 mod prelude {
     // pub
@@ -178,6 +188,8 @@ mod prelude {
     cfg_proc_macros! {
         #[doc(no_inline)]
         pub use crate::layout::derive_ReprC;
+        #[doc(no_inline)]
+        pub use c;
     }
     #[doc(no_inline)]
     pub use ::core::{

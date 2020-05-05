@@ -11,6 +11,27 @@
 #define __RUST_FFI_TESTS__
 
 
+
+#include <stdint.h>
+
+enum Bar_t {
+    Bar_A,
+};
+
+typedef uint8_t Bar_t;
+void check_bar (
+    Bar_t bar);
+
+typedef struct foo foo_t;
+
+foo_t * new_foo ();
+
+int32_t read_foo (
+    foo_t const * foo);
+
+void free_foo (
+    foo_t * foo);
+
 /** \brief
  *  Concatenate the two input strings into a new one.
  * 
@@ -42,9 +63,6 @@ void with_concat (
     char const * fst,
     char const * snd,
     RefDynFnMut1_void_char_const_ptr_t cb);
-
-
-#include <stdint.h>
 
 /** \brief
  *  `&'lt [T]` but with a guaranteed `#[repr(C)]` layout.
@@ -85,16 +103,6 @@ typedef struct {
  */
 int32_t const * max (
     slice_ref_int32_t xs);
-
-typedef struct foo foo_t;
-
-foo_t * new_foo ();
-
-int32_t read_foo (
-    foo_t const * foo);
-
-void free_foo (
-    foo_t * foo);
 
 
 #endif /* __RUST_FFI_TESTS__ */

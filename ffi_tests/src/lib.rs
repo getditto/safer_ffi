@@ -72,6 +72,18 @@ mod foo {
     }
 }
 
+mod bar {
+    use super::*;
+    #[derive_ReprC]
+    #[repr(u8)]
+    pub
+    enum Bar { A }
+
+    #[ffi_export]
+    fn check_bar (bar: Bar)
+    {}
+}
+
 #[repr_c::cfg_headers]
 #[test]
 fn generate_headers ()

@@ -63,7 +63,7 @@ unsafe_impls! {
     char_p::char_p_raw => |it| it.is_null(),
 
     bool => |&it| {
-        it == unsafe { mem::transmute(None::<bool>) }
+        it == unsafe { mem::transmute(None::<Self>) }
     },
 }
 

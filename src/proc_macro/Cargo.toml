@@ -8,14 +8,13 @@ version = "0.1.0"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 proc-macro2 = { version = "1.0", optional = true }
 quote = { version = "1.0", optional = true }
 syn = { version = "1.0", features = ["full"], optional = true }
+proc-macro-hack = { version = "0.5.15", optional = true }
 
 [features]
 headers = []
-proc_macros = ["proc-macro2", "quote", "syn"]
+proc_macros = ["proc-macro2", "proc-macro-hack", "quote", "syn"]
 verbose-expansions = []

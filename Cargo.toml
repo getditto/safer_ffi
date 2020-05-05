@@ -24,6 +24,7 @@ derives = ["proc_macros"] # alias
 proc_macros = [
     "proc_macro/proc_macros",
     "require_unsafe_in_body",
+    "proc-macro-hack",
 ]
 debug_proc_macros = [
     "proc_macros",
@@ -47,6 +48,7 @@ paste = { package = "mini_paste", version = "0.1.*" }
 log = { version = "0.4.8", optional = true }
 require_unsafe_in_body = { version = "0.2.1", optional = true }
 inventory = { version = "0.1.6", optional = true }
+proc-macro-hack = { version = "0.5.15", optional = true }
 
 [dependencies.proc_macro]
 package = "repr_c-proc_macro"

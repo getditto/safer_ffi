@@ -527,7 +527,7 @@ macro_rules! ReprC {
             )+
         }
 
-        ::paste::item! {
+        $crate::paste::item! {
             #[repr(transparent)]
             #[derive(Clone, Copy, PartialEq, Eq)]
             pub
@@ -553,7 +553,7 @@ macro_rules! ReprC {
                 fn c_short_name_fmt (fmt: &'_ mut $crate::core::fmt::Formatter<'_>)
                   -> $crate::core::fmt::Result
                 {
-                    fmt.write_str($crate::core::stringify!($EnumName))
+                    fmt.write_str($crate::core::stringify!($EnumName).trim())
                 }
 
                 fn c_define_self (definer: &'_ mut dyn $crate::headers::Definer)
@@ -573,27 +573,25 @@ macro_rules! ReprC {
                             $crate::__output_docs__!(out, "", $(#[$($meta)*])*);
                             $crate::core::writeln!(out,
                                 $crate::core::concat!(
-                                    "enum {}_t {{",
+                                    "enum {}_t {{\n",
                                     $(
-                                      "    ",
-                                        $crate::core::stringify!($EnumName),
-                                        "_",
-                                        $crate::core::stringify!($Variant),
+                                        "    {0}_{}",
                                         $( $crate::layout::ReprC! {
                                             @first(
                                                 " = {}"
                                             ) $discriminant
                                         },)?
-                                        ",",
+                                        ",\n",
                                     )*
                                     "}};\n",
                                     "\n",
                                     "typedef {int}_t;",
                                 ),
                                 me,
-                                $($(
-                                    $discriminant,
-                                )?)*
+                                $(
+                                    $crate::core::stringify!($Variant).trim(),
+                                    $($discriminant,)?
+                                )*
                                 int = <$crate::$Int as $crate::layout::CType>::c_var(
                                     me,
                                 ),
@@ -704,7 +702,6 @@ macro_rules! ReprC {
         { $($opaque)* }
 
         const _: () = {
-            #[derive(Clone, Copy)]
             pub
             struct __repr_c_Opaque__ $(
                 <$($lt ,)* $($($generics),+)?>
@@ -726,6 +723,31 @@ macro_rules! ReprC {
                 _void: $crate::core::convert::Infallible,
             }
 
+            impl $(<$($lt ,)* $($($generics),+)?>)?
+                $crate::core::marker::Copy
+            for
+                __repr_c_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
+            $(
+                where
+                    $($($bounds)*)?
+            )?
+            {}
+
+            impl $(<$($lt ,)* $($($generics),+)?>)?
+                $crate::core::clone::Clone
+            for
+                __repr_c_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
+            $(
+                where
+                    $($($bounds)*)?
+            )?
+            {
+                fn clone (self: &'_ Self) -> Self
+                {
+                    match self._void {}
+                }
+            }
+
             unsafe
             impl $(<$($lt ,)* $($($generics),+)?>)?
                 $crate::layout::CType
@@ -745,7 +767,8 @@ macro_rules! ReprC {
                         let mut c_name = $crate::core::stringify!($StructName);
                         c_name = c_name;
                         $($(
-                            c_name = $c_name;
+                            let it = $c_name;
+                            c_name = it.as_ref();
                         )?)?
                         fmt.write_str(c_name)
                     }
@@ -755,7 +778,8 @@ macro_rules! ReprC {
                         let mut c_name = $crate::core::stringify!($StructName);
                         c_name = c_name;
                         $($(
-                            c_name = $c_name;
+                            let it = $c_name;
+                            c_name = it.as_ref();
                         )?)?
                         definer.define_once(c_name, &mut |definer| {
                             assert!(c_name.chars().all(|c| $crate::core::matches!(c,
@@ -777,7 +801,8 @@ macro_rules! ReprC {
                         let mut c_name = $crate::core::stringify!($StructName);
                         c_name = c_name;
                         $($(
-                            c_name = $c_name;
+                            let it = $c_name;
+                            c_name = it.as_ref();
                         )?)?
                         $crate::core::write!(fmt,
                             "{}_t{sep}{}",
@@ -1039,7 +1064,7 @@ mod test {
             use ::repr_c::prelude::*;
 
             ReprC! {
-                #[::repr_c::opaque("Foo")]
+                #[::repr_c::opaque]
                 pub
                 struct Foo {}
             }

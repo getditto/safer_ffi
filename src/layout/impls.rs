@@ -309,6 +309,44 @@ const _: () = { macro_rules! impl_CTypes {
                 c_layout.is_some()
             }
         }
+
+        // Improve the error message when encountering a non-`extern "C"` fn
+        // wrapped in an `Option` (otherwise `rustc` tunnelvisions _w.r.t_
+        // the lack of Niche).
+        unsafe // Safety: `Self : ReprC` is not met so this impl never happens
+        impl<
+            Ret : ReprC, $(
+            $An : ReprC, $(
+            $Ai : ReprC,
+        )*)?> crate::layout::__HasNiche__
+            for /*unsafe*/ /*extern "C"*/ fn ($($An, $($Ai ,)*)?) -> Ret
+        where
+            Self : ReprC, // bound not met
+        {
+            #[inline]
+            fn is_niche (c_layout: &'_ Self::CLayout)
+              -> bool
+            {
+                unreachable!()
+            }
+        }
+        unsafe // Safety: `Self : ReprC` is not met so this impl never happens
+        impl<
+            Ret : ReprC, $(
+            $An : ReprC, $(
+            $Ai : ReprC,
+        )*)?> crate::layout::__HasNiche__
+            for unsafe /*extern "C"*/ fn ($($An, $($Ai ,)*)?) -> Ret
+        where
+            Self : ReprC, // bound not met
+        {
+            #[inline]
+            fn is_niche (c_layout: &'_ Self::CLayout)
+            -> bool
+            {
+                unreachable!()
+            }
+        }
     );
 
     (@integers
