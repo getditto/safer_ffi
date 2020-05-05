@@ -1,5 +1,11 @@
 use super::*;
 
+const_assert! {
+    ::core::mem::size_of::<::libc::uintptr_t>()
+    ==
+    ::core::mem::size_of::<::libc::size_t>()
+}
+
 const _: () = { macro_rules! impl_CTypes {
     () => (
         impl_CTypes! { @pointers }
@@ -31,7 +37,24 @@ const _: () = { macro_rules! impl_CTypes {
                    // `usize` is not a `size_t` but an `uintptr_t`,
                    // since it has a guaranteed non-`unsafe` transmute (`as`)
                    // with pointers.
-            usize => "uintptr",
+                   //
+                   // That being said, many places where Rust uses `usize`
+                   // C would expect a `size_t` instead, so there is definitely
+                   // a confusion going on with Rust in that regard.
+                   //
+                   // In practice, it looks like Rust will therefore never
+                   // support a platform where `size_t != uintptr_t`.
+                   //
+                   // Given that, and given how `size_t` for, for instance,
+                   // slice lengths, feels far more natural and idiomatic,
+                   // this crate makes the opinionated choice not to support
+                   // such a platform, so as to use `size_t` instead.
+                   //
+                   // To ensure soundness in case Rust were to support such as
+                   // platform, a compile-time assertion is added, that
+                   // ensure the crate will not compile on such platforms.
+                   // (search for `size_of` in this file).
+            usize => "size",
 
 
             unsafe // Safety: trivial integer equivalence.
@@ -48,11 +71,8 @@ const _: () = { macro_rules! impl_CTypes {
 
             // unsafe i128 => "int128",
 
-            unsafe // Safety: Contrary to what most people think,
-                   // `isize` is not a `ssize_t` but an `intptr_t`,
-                   // since it has a guaranteed non-`unsafe` transmute (`as`)
-                   // with pointers.
-            isize => "intptr",
+            unsafe // Safety: See `usize`'s
+            isize => "ssize",
         }
         #[cfg(docs)] impl_CTypes! { @fns (A1) } #[cfg(not(docs))]
         impl_CTypes! { @fns
