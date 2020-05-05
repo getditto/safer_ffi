@@ -1,3 +1,5 @@
+#![allow(unused_macros)]
+
 macro_rules! use_prelude { () => (
     #[allow(unused_imports)]
     use crate::utils::prelude::*;
