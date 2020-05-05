@@ -104,3 +104,69 @@ macro_rules! const_assert {
         } as usize];
     );
 }
+
+macro_rules! type_level_enum {(
+    $(#[$meta:meta])*
+    $pub:vis
+    enum $EnumName:ident {
+        $(
+            $(#[$variant_meta:meta])*
+            $Variant:ident
+        ),+ $(,)?
+    }
+) => (
+    #[allow(
+        bad_style,
+        missing_copy_implementations,
+        missing_debug_implementations,
+    )]
+    $(#[$meta])*
+    $pub
+    mod $EnumName {
+        use private::Sealed; mod private { pub trait Sealed {} }
+        pub trait __ : Sealed {}
+        $(
+            $(#[$variant_meta])*
+            pub
+            enum $Variant {}
+                impl __ for $Variant {} impl Sealed for $Variant {}
+        )+
+    }
+)}
+
+macro_rules! with_doc {(
+    #[doc = $doc:expr]
+    $($rest:tt)*
+) => (
+    #[doc = $doc]
+    $($rest)*
+)}
+
+macro_rules! doc_test {
+    ($name:ident :
+        #![$attr:ident]
+        $($code:tt)*
+    ) => (
+        with_doc! {
+            #[doc = concat!(
+                "```rust,", stringify!($attr), "\n",
+                stringify!($($code)*),
+                "\n```\n",
+            )]
+            pub mod $name {}
+        }
+    );
+
+    ($name:ident :
+        $($code:tt)*
+    ) => (
+        with_doc! {
+            #[doc = concat!(
+                "```rust\n",
+                stringify!($($code)*),
+                "\n```\n",
+            )]
+            pub mod $name {}
+        }
+    );
+}

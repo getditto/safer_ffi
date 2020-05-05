@@ -26,10 +26,7 @@ use ::repr_c::{
 #[derive_ReprC]
 #[repr(C)]
 pub
-struct Tuple1<T>
-where
-    T : ReprC,
-{
+struct Tuple1<T> {
     _0: T,
 }
 

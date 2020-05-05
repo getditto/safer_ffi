@@ -18,6 +18,20 @@ cfg_proc_macros! {
     };
 }
 
+type_level_enum! {
+    pub
+    enum OpaqueKind {
+        Concrete,
+        Opaque,
+    }
+}
+
+pub
+fn __assert_concrete__<T>() where
+    T : ReprC,
+    <T as ReprC>::CLayout : CType<OPAQUE_KIND = OpaqueKind::Concrete>,
+{}
+
 /// One of the two core traits of this crate (with [`ReprC`][`trait@ReprC`]).
 ///
 /// `CType` is an `unsafe` trait that binds a Rust type to a C typedef.
@@ -66,6 +80,7 @@ unsafe trait CType
     Sized +
     Copy +
 {
+    type OPAQUE_KIND : OpaqueKind::__;
     __cfg_headers__! {
         /// A short-name description of the type, mainly used to fill
         /// "placeholders" such as when monomorphising generics structs or

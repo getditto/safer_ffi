@@ -42,7 +42,6 @@ macro_rules! __with_doc__ {(
     struct
     $($rest)*
 )}
-
 /// Safely implement [`CType`][`trait@crate::layout::CType`]
 /// for a `#[repr(C)]` struct **when all its fields are `CType`**.
 ///
@@ -88,10 +87,13 @@ macro_rules! CType {(
     impl $(<$($lt ,)* $($($generics),+)?>)? $crate::layout::CType
         for $StructName$(<$($lt ,)* $($($generics),+)?>)?
     where
-        // $(
-        //     $field_ty : $crate::layout::CType,
-        // )*
         $(
+            $field_ty : $crate::layout::CType,
+        )*
+        $(
+            $($(
+                $generics : $crate::layout::ReprC,
+            )+)?
             $($($bounds)*)?
         )?
     { $crate::__cfg_headers__! {
@@ -175,7 +177,7 @@ macro_rules! CType {(
                 sep = if var_name.is_empty() { "" } else { " " },
             )
         }
-    }}
+    } type OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete; }
 
     $crate::layout::from_CType_impl_ReprC! {
         $(@for [$($lt ,)* $($($generics),+)?])?
@@ -260,9 +262,11 @@ macro_rules! ReprC {
         $(#[$($meta:tt)*])*
         $pub:vis
         struct $StructName:ident $(
-            [$($generics:tt)*] $(
-                where { $($bounds:tt)* }
-            )?
+            [
+                $($lt:lifetime ,)*
+                $($($generics:ident),+ $(,)?)?
+            ]
+                $(where { $($bounds:tt)* })?
         )?
         {
             $(
@@ -285,7 +289,7 @@ macro_rules! ReprC {
             ///
             $pub
             struct $StructName $(
-                <$($generics)*> $(
+                <$($lt ,)* $($($generics),+)?> $(
                     where $($bounds)*
                 )?
             )?
@@ -307,46 +311,53 @@ macro_rules! ReprC {
             ;
         }
 
-        $crate::paste::item! {
-            #[allow(trivial_bounds)]
-            unsafe // Safety: struct is `#[repr(C)]` and contains `ReprC` fields
-            impl $(<$($generics)*>)? $crate::layout::ReprC
-                for $StructName $(<$($generics)*>)?
-            where
-                $(
-                    $field_ty : $crate::layout::ReprC,
-                )*
+        #[allow(trivial_bounds)]
+        unsafe // Safety: struct is `#[repr(C)]` and contains `ReprC` fields
+        impl $(<$($lt ,)* $($($generics),+)?>)? $crate::layout::ReprC
+            for $StructName $(<$($lt ,)* $($($generics),+)?>)?
+        where
+            $(
+                $field_ty : $crate::layout::ReprC,
+                <$field_ty as $crate::layout::ReprC>::CLayout
+                    : $crate::layout::CType<
+                        OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete,
+                    >,
+            )*
+            $(
                 $($(
-                    $($bounds)*
-                )?)?
-            {
-                type CLayout =
-                    [<$StructName _Layout>]
-                        $(<$($generics)*>)?
-                ;
+                    $generics : $crate::layout::ReprC,
+                )+)?
+                $($($bounds)*)?
+            )?
+        {
 
-                #[inline]
-                fn is_valid (it: &'_ Self::CLayout)
-                    -> bool
-                {
-                    let _ = it;
-                    true $(
-                        && (
-                            $crate::core::mem::size_of::<
-                                <$field_ty as $crate::layout::ReprC>::CLayout
-                            >() == 0
-                            ||
-                            <$field_ty as $crate::layout::ReprC>::is_valid(
-                                &it.$field_name
-                            )
+            type CLayout = $crate::paste::__item__! {
+                [<$StructName _Layout>]
+                    $(<$($lt ,)* $($($generics),+)?>)?
+            };
+
+            #[inline]
+            fn is_valid (it: &'_ Self::CLayout)
+                -> bool
+            {
+                let _ = it;
+                true $(
+                    && (
+                        $crate::core::mem::size_of::<
+                            <$field_ty as $crate::layout::ReprC>::CLayout
+                        >() == 0
+                        ||
+                        <$field_ty as $crate::layout::ReprC>::is_valid(
+                            &it.$field_name
                         )
-                    )*
-                }
+                    )
+                )*
             }
         }
         $crate::paste::item! {
             #[allow(nonstandard_style, trivial_bounds)]
             mod [< __ $StructName _repr_c_mod >] {
+                #[allow(unused_imports)]
                 use super::*;
 
                 $crate::layout::CType! {
@@ -356,14 +367,17 @@ macro_rules! ReprC {
                     // $(#[$meta])*
                     pub
                     struct $StructName
-                        [$($($generics)*)?]
+                        [$($($lt ,)* $($($generics),+)?)?]
                     where {
                         $(
                             $field_ty : $crate::layout::ReprC,
                         )*
-                        $($(
-                            $($bounds)*
-                        )?)?
+                        $(
+                            $($(
+                                $generics : $crate::layout::ReprC,
+                            )+)?
+                            $($($bounds)*)?
+                        )?
                     } {
                         $(
                             $(#[$($field_meta)*])*
@@ -374,37 +388,48 @@ macro_rules! ReprC {
                         )*
                     }
                 }
-
-                impl $(<$($generics)*>)? $crate::core::marker::Copy
-                    for $StructName $(<$($generics)*>)?
-                where
-                    $(
-                        $field_ty : $crate::layout::ReprC,
-                    )*
-                    $($(
-                        $($bounds)*
-                    )?)?
-                {}
-
-                impl $(<$($generics)*>)? $crate::core::clone::Clone
-                    for $StructName $(<$($generics)*>)?
-                where
-                    $(
-                        $field_ty : $crate::layout::ReprC,
-                    )*
-                    $($(
-                        $($bounds)*
-                    )?)?
-                {
-                    #[inline]
-                    fn clone (self: &'_ Self)
-                      -> Self
-                    {
-                        *self
-                    }
-                }
             }
         }
+        const _: () = {
+            $crate::paste::item! {
+                use [< __ $StructName _repr_c_mod >]::*;
+            }
+
+            impl $(<$($lt ,)* $($($generics),+)?>)? $crate::core::marker::Copy
+                for $StructName $(<$($lt ,)* $($($generics),+)?>)?
+            where
+                $(
+                    $field_ty : $crate::layout::ReprC,
+                )*
+                $(
+                    $($(
+                        $generics : $crate::layout::ReprC,
+                    )+)?
+                    $($($bounds)*)?
+                )?
+            {}
+
+            impl $(<$($lt ,)* $($($generics),+)?>)? $crate::core::clone::Clone
+                for $StructName $(<$($lt ,)* $($($generics),+)?>)?
+            where
+                $(
+                    $field_ty : $crate::layout::ReprC,
+                )*
+                $(
+                    $($(
+                        $generics : $crate::layout::ReprC,
+                    )+)?
+                    $($($bounds)*)?
+                )?
+            {
+                #[inline]
+                fn clone (self: &'_ Self)
+                    -> Self
+                {
+                    *self
+                }
+            }
+        };
     );
 
     // `#[repr(transparent)]`
@@ -589,7 +614,8 @@ macro_rules! ReprC {
                         sep = if var_name.is_empty() { "" } else { " " },
                     )
                 }
-            }}
+            } type OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete; }
+
             $crate::layout::from_CType_impl_ReprC! {
                 [< $EnumName _Layout >]
             }
@@ -643,6 +669,133 @@ macro_rules! ReprC {
         $crate::core::compile_error! {
             "Non field-less `enum`s are not supported yet."
         }
+    );
+
+    // opaque
+    (
+        #[$(::)?repr_c::opaque($c_name:expr)]
+        $(#[$meta:meta])*
+        $pub:vis
+        struct $StructName:ident $(
+            [
+                $($lt:lifetime ,)*
+                $($($generics:ident),+ $(,)?)?
+            ]
+                $(where { $($bounds:tt)* })?
+        )?
+        $($opaque:tt)*
+    ) => (
+        $(#[$meta])*
+        $pub
+        struct $StructName $(
+            <$($lt ,)* $($($generics),+)?>
+            $(
+                where $($bounds)*
+            )?
+        )?
+        $($opaque)*
+
+        const _: () = {
+            #[derive(Clone, Copy)]
+            pub
+            struct __repr_c_Opaque__ $(
+                <$($lt ,)* $($($generics),+)?>
+                $(
+                    where $($bounds)*
+                )?
+            )?
+            {
+                $(
+                    _marker: $crate::core::marker::PhantomData<(
+                        $(
+                            *mut &$lt (),
+                        )*
+                        $($(
+                            *mut $generics,
+                        )+)?
+                    )>,
+                )?
+                _void: $crate::core::convert::Infallible,
+            }
+
+            unsafe
+            impl $(<$($lt ,)* $($($generics),+)?>)?
+                $crate::layout::CType
+            for
+                __repr_c_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
+            $(
+                where
+                    $($($bounds)*)?
+            )?
+            {
+                type OPAQUE_KIND = $crate::layout::OpaqueKind::Opaque;
+
+                $crate::__cfg_headers__! {
+                    fn c_short_name_fmt (fmt: &'_ mut $crate::core::fmt::Formatter<'_>)
+                        -> $crate::core::fmt::Result
+                    {
+                        fmt.write_str($c_name)
+                    }
+                    fn c_define_self (definer: &'_ mut (dyn $crate::headers::Definer))
+                        -> $crate::std::io::Result<()>
+                    {
+                        let c_name: &'_ $crate::str = $c_name;
+                        definer.define_once(c_name, &mut |definer| {
+                            assert!(c_name.chars().all(|c| $crate::core::matches!(c,
+                                'a' ..= 'z' |
+                                'A' ..= 'Z' |
+                                '0' ..= '9' | '_'
+                            )));
+                            $crate::core::write!(definer.out(),
+                                "typedef struct {0} {0}_t;\n\n",
+                                c_name,
+                            )
+                        })
+                    }
+                    fn c_var_fmt (
+                        fmt: &'_ mut $crate::core::fmt::Formatter<'_>,
+                        var_name: &'_ $crate::str,
+                    ) -> $crate::core::fmt::Result
+                    {
+                        $crate::core::write!(fmt,
+                            "{}_t{sep}{}",
+                            $c_name,
+                            var_name,
+                            sep = if var_name.is_empty() { "" } else { " " },
+                        )
+                    }
+                }
+            }
+            $crate::layout::from_CType_impl_ReprC! {
+                $(@for[$($lt ,)* $($($generics),+)?])?
+                __repr_c_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
+                $(
+                    where
+                        $($($bounds)*)?
+                )?
+            }
+
+            unsafe // Safety: layout is opaque
+            impl $(<$($lt ,)* $($($generics),+)?>)?
+                $crate::layout::ReprC
+            for
+                $StructName $(<$($lt ,)* $($($generics),+)?>)?
+            $(
+                where
+                    $($($bounds)*)?
+            )?
+            {
+                type CLayout =
+                    __repr_c_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
+                ;
+
+                fn is_valid (it: &'_ Self::CLayout)
+                  -> bool
+                {
+                    match it._void {}
+                }
+            }
+        };
     );
 
     /* == Helpers == */
@@ -788,17 +941,25 @@ mod test {
     }
 
     ReprC! {
+        #[repr_c::opaque("Opaque")]
+        struct Opaque
+        {}
+    }
+
+    ReprC! {
         #[repr(C)]
         struct GenericStruct['lifetime, T]
         where {
-            T : 'lifetime + ReprC,
+            T : 'lifetime,
         }
         {
             inner: &'lifetime T,
         }
     }
 
-    cfg_proc_macros! { #[doc = "```rust"] #[doc = r#"
+    cfg_proc_macros! { doc_test! { derive_ReprC_supports_generics:
+        fn main () {}
+
         use ::repr_c::prelude::*;
 
         #[derive_ReprC]
@@ -819,8 +980,51 @@ mod test {
         {
             inner: &'lifetime T,
         }
+    }}
 
-        fn main ()
-        {}
-    "#] extern {} }
+    mod opaque {
+        doc_test! { unused:
+            fn main () {}
+
+            use ::repr_c::prelude::*;
+
+            ReprC! {
+                #[::repr_c::opaque("Foo")]
+                struct Foo;
+            }
+        }
+
+        doc_test! { with_indirection:
+            fn main () {}
+
+            use ::repr_c::prelude::*;
+
+            ReprC! {
+                #[::repr_c::opaque("Foo")]
+                pub
+                struct Foo;
+            }
+
+            #[ffi_export]
+            fn foo (_it: &'_ Foo)
+            {}
+        }
+
+        doc_test! { without_indirection:
+            #![compile_fail]
+            fn main () {}
+
+            use ::repr_c::prelude::*;
+
+            ReprC! {
+                #[::repr_c::opaque("Foo")]
+                pub
+                struct Foo;
+            }
+
+            #[ffi_export]
+            fn foo (it: Foo)
+            {}
+        }
+    }
 }

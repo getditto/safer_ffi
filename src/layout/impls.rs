@@ -130,7 +130,7 @@ const _: () = { macro_rules! impl_CTypes {
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
             }
-        }}
+        } type OPAQUE_KIND = OpaqueKind::Concrete; }
 
         // ReprC
         /// Simplified for lighter documentation, but the actual impls
@@ -210,7 +210,7 @@ const _: () = { macro_rules! impl_CTypes {
                 write!(fmt, ", {}", $Ai::c_var(""))?; )*)?
                 fmt.write_str(")")
             }
-        }}
+        } type OPAQUE_KIND = OpaqueKind::Concrete; }
 
         /// Simplified for lighter documentation, but the actual impls include
         /// **up to 9 function parameters**.
@@ -349,7 +349,7 @@ const _: () = { macro_rules! impl_CTypes {
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
             }
-        }}
+        } type OPAQUE_KIND = OpaqueKind::Concrete; }
         from_CType_impl_ReprC! { $RustInt }
     )*);
 
@@ -380,7 +380,7 @@ const _: () = { macro_rules! impl_CTypes {
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
             }
-        }}
+        } type OPAQUE_KIND = OpaqueKind::Concrete; }
         from_CType_impl_ReprC! { $fN }
     )*);
 
@@ -415,7 +415,7 @@ const _: () = { macro_rules! impl_CTypes {
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
             }
-        }}
+        } type OPAQUE_KIND = OpaqueKind::Concrete; }
         unsafe
         impl<T : ReprC> ReprC
         for *const T
@@ -458,7 +458,7 @@ const _: () = { macro_rules! impl_CTypes {
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
             }
-        }}
+        } type OPAQUE_KIND = OpaqueKind::Concrete; }
         unsafe
         impl<T : ReprC> ReprC
             for *mut T

@@ -42,16 +42,41 @@ macro_rules! __ffi_export__ {(
                 $arg_name : <$arg_ty as $crate::layout::ReprC>::CLayout,
             )*
         ) $(-> $Ret)?
-        $(
-            where
-                $($bounds)*
-        )?
+        where
+            $( $($bounds)* )?
         {{
             // let body = #[inline(always)] || {
                 $(
+                    {
+                        fn __return_type__<T> (_: T)
+                        where
+                            T : $crate::layout::ReprC,
+                            <T as $crate::layout::ReprC>::CLayout
+                            :
+                            $crate::layout::CType<
+                                OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete,
+                            >,
+                        {}
+                        let _ = __return_type__::<$Ret>;
+                    }
                     let _: <$Ret as $crate::layout::ReprC>::CLayout;
                 )?
                 $(
+                    {
+                        mod __parameter__ {
+                            pub(in super)
+                            fn $arg_name<T> (_: T)
+                            where
+                                T : $crate::layout::ReprC,
+                                <T as $crate::layout::ReprC>::CLayout
+                                :
+                                $crate::layout::CType<
+                                    OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete,
+                                >,
+                            {}
+                        }
+                        let _ = __parameter__::$arg_name::<$arg_ty>;
+                    }
                     let $arg_name: $arg_ty = $crate::layout::from_raw_unchecked::<$arg_ty>(
                         $arg_name,
                     );

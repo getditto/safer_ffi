@@ -33,11 +33,7 @@ ReprC! {
     /// use the `Option< slice_ptr<_> >` type.
     #[derive(Debug)]
     pub
-    struct slice_raw[T]
-    where {
-        T : ReprC,
-    }
-    {
+    struct slice_raw[T] {
         /// Pointer to the first element (if any).
         pub
         ptr: ptr::NonNull<T>,
@@ -48,7 +44,7 @@ ReprC! {
     }
 }
 
-impl<T : ReprC> slice_raw<T> {
+impl<T> slice_raw<T> {
     /// # Safety
     ///
     ///   - For the duration of the `'borrow`, the pointer must point to the
@@ -110,11 +106,7 @@ cfg_alloc! {
         /// use the `Option< slice_ptr<_> >` type.
         #[derive(Debug)]
         pub
-        struct slice_boxed[T]
-        where {
-            T : ReprC,
-        }
-        {
+        struct slice_boxed[T] {
             /// Pointer to the first element (if any).
             pub(in crate)
             ptr: ptr::NonNullOwned<T>,
@@ -125,7 +117,7 @@ cfg_alloc! {
         }
     }
 
-    impl<T : ReprC> slice_boxed<T> {
+    impl<T> slice_boxed<T> {
         #[inline]
         pub
         fn as_ref<'borrow> (self: &'borrow Self)
@@ -143,7 +135,7 @@ cfg_alloc! {
         }
     }
 
-    impl<T : ReprC> From<rust::Box<[T]>>
+    impl<T> From<rust::Box<[T]>>
         for slice_boxed<T>
     {
         #[inline]
@@ -161,7 +153,7 @@ cfg_alloc! {
         }
     }
 
-    impl<T : ReprC> Into<rust::Box<[T]>>
+    impl<T> Into<rust::Box<[T]>>
         for slice_boxed<T>
     {
         #[inline]
@@ -180,7 +172,7 @@ cfg_alloc! {
         }
     }
 
-    impl<T : ReprC> Drop
+    impl<T> Drop
         for slice_boxed<T>
     {
         #[inline]
@@ -199,7 +191,7 @@ cfg_alloc! {
         }
     }
 
-    impl<T : ReprC> Deref
+    impl<T> Deref
         for slice_boxed<T>
     {
         type Target = [T];
@@ -213,7 +205,7 @@ cfg_alloc! {
             }
         }
     }
-    impl<T : ReprC> DerefMut
+    impl<T> DerefMut
         for slice_boxed<T>
     {
         #[inline]
@@ -227,13 +219,13 @@ cfg_alloc! {
     }
 
     unsafe // Safety: equivalent to that of the `where` bound
-        impl<T : ReprC> Send
+        impl<T> Send
             for slice_boxed<T>
         where
             rust::Box<[T]> : Send,
         {}
     unsafe // Safety: equivalent to that of the `where` bound
-        impl<T : ReprC> Sync
+        impl<T> Sync
             for slice_boxed<T>
         where
             rust::Box<[T]> : Sync,
@@ -262,7 +254,7 @@ ReprC! {
     pub
     struct slice_ref['lt, T]
     where {
-        T : ReprC + 'lt,
+        T : 'lt,
     }
     {
         /// Pointer to the first element (if any).
@@ -278,7 +270,7 @@ ReprC! {
     }
 }
 
-impl<'lt, T : 'lt + ReprC> From<&'lt [T]>
+impl<'lt, T : 'lt> From<&'lt [T]>
     for slice_ref<'lt, T>
 {
     #[inline]
@@ -295,7 +287,7 @@ impl<'lt, T : 'lt + ReprC> From<&'lt [T]>
     }
 }
 
-impl<'lt, T : ReprC> slice_ref<'lt, T> {
+impl<'lt, T : 'lt> slice_ref<'lt, T> {
     pub
     fn as_slice (self: slice_ref<'lt, T>)
       -> &'lt [T]
@@ -306,11 +298,11 @@ impl<'lt, T : ReprC> slice_ref<'lt, T> {
     }
 }
 
-impl<'lt, T : 'lt + ReprC> Copy
+impl<'lt, T : 'lt> Copy
     for slice_ref<'lt, T>
 {}
 
-impl<'lt, T : 'lt + ReprC> Clone
+impl<'lt, T : 'lt> Clone
     for slice_ref<'lt, T>
 {
     #[inline]
@@ -321,7 +313,7 @@ impl<'lt, T : 'lt + ReprC> Clone
     }
 }
 
-impl<'lt, T : 'lt + ReprC> Deref
+impl<'lt, T : 'lt> Deref
     for slice_ref<'lt, T>
 {
     type Target = [T];
@@ -335,20 +327,20 @@ impl<'lt, T : 'lt + ReprC> Deref
 }
 
 unsafe // Safety: equivalent to that of the `where` bound
-    impl<'lt, T : 'lt + ReprC> Send
+    impl<'lt, T : 'lt> Send
         for slice_ref<'lt, T>
     where
         &'lt [T] : Send,
     {}
 
 unsafe // Safety: equivalent to that of the `where` bound
-    impl<'lt, T : 'lt + ReprC> Sync
+    impl<'lt, T : 'lt> Sync
         for slice_ref<'lt, T>
     where
         &'lt [T] : Sync,
     {}
 
-impl<T : fmt::Debug + ReprC> fmt::Debug
+impl<T : fmt::Debug> fmt::Debug
     for slice_ref<'_, T>
 {
     #[inline]
@@ -382,7 +374,7 @@ ReprC! {
     pub
     struct slice_mut['lt, T]
     where {
-        T : ReprC + 'lt,
+        T : 'lt,
     }
     {
         /// Pointer to the first element (if any).
@@ -398,7 +390,7 @@ ReprC! {
     }
 }
 
-impl<'lt, T : 'lt + ReprC> From<&'lt mut [T]>
+impl<'lt, T : 'lt> From<&'lt mut [T]>
     for slice_mut<'lt, T>
 {
     #[inline]
@@ -415,7 +407,7 @@ impl<'lt, T : 'lt + ReprC> From<&'lt mut [T]>
     }
 }
 
-impl<'lt, T : 'lt + ReprC> From<slice_mut<'lt, T>>
+impl<'lt, T : 'lt> From<slice_mut<'lt, T>>
     for slice_ref<'lt, T>
 {
     #[inline]
@@ -427,7 +419,7 @@ impl<'lt, T : 'lt + ReprC> From<slice_mut<'lt, T>>
     }
 }
 
-impl<T : ReprC> Deref
+impl<T> Deref
     for slice_mut<'_, T>
 {
     type Target = [T];
@@ -441,7 +433,7 @@ impl<T : ReprC> Deref
     }
 }
 
-impl<T : ReprC> DerefMut
+impl<T> DerefMut
     for slice_mut<'_, T>
 {
     #[inline]
@@ -453,7 +445,7 @@ impl<T : ReprC> DerefMut
     }
 }
 
-impl<'lt, T : 'lt + ReprC> slice_mut<'lt, T> {
+impl<'lt, T : 'lt> slice_mut<'lt, T> {
     #[inline]
     pub
     fn as_ref<'reborrow> (self: &'reborrow slice_mut<'lt, T>)
@@ -496,19 +488,19 @@ impl<'lt, T : 'lt + ReprC> slice_mut<'lt, T> {
 }
 
 unsafe // Safety: equivalent to that of the `where` bound
-    impl<'lt, T : 'lt + ReprC> Send
+    impl<'lt, T : 'lt> Send
         for slice_mut<'lt, T>
     where
         &'lt mut [T] : Send,
     {}
 unsafe // Safety: equivalent to that of the `where` bound
-    impl<'lt, T : 'lt + ReprC> Sync
+    impl<'lt, T : 'lt> Sync
         for slice_mut<'lt, T>
     where
         &'lt mut [T] : Sync,
     {}
 
-impl<T : fmt::Debug + ReprC> fmt::Debug
+impl<T : fmt::Debug> fmt::Debug
     for slice_mut<'_, T>
 {
     #[inline]
@@ -526,7 +518,7 @@ const _: () = {
         cmp::Ordering,
     };
 
-    impl<T : ReprC + Ord> Ord
+    impl<T : Ord> Ord
         for slice_ref<'_, T>
     {
         #[inline]
@@ -536,7 +528,7 @@ const _: () = {
             self[..].cmp(&other[..])
         }
     }
-    impl<T : ReprC + PartialOrd> PartialOrd
+    impl<T : PartialOrd> PartialOrd
         for slice_ref<'_, T>
     {
         #[inline]
@@ -546,10 +538,10 @@ const _: () = {
             self[..].partial_cmp(&other[..])
         }
     }
-    impl<T : ReprC + Eq> Eq
+    impl<T : Eq> Eq
         for slice_ref<'_, T>
     {}
-    impl<T : ReprC + PartialEq> PartialEq
+    impl<T : PartialEq> PartialEq
         for slice_ref<'_, T>
     {
         #[inline]
@@ -559,7 +551,7 @@ const _: () = {
             self[..] == other[..]
         }
     }
-    impl<T : ReprC + Hash> Hash
+    impl<T : Hash> Hash
         for slice_ref<'_, T>
     {
         #[inline]
@@ -568,7 +560,7 @@ const _: () = {
             self[..].hash(hasher)
         }
     }
-    impl<T : ReprC> Default
+    impl<T> Default
         for slice_ref<'_, T>
     {
         #[inline]
@@ -579,7 +571,7 @@ const _: () = {
         }
     }
 
-    impl<T : ReprC + Ord> Ord
+    impl<T : Ord> Ord
         for slice_mut<'_, T>
     {
         #[inline]
@@ -589,7 +581,7 @@ const _: () = {
             self[..].cmp(&other[..])
         }
     }
-    impl<T : ReprC + PartialOrd> PartialOrd
+    impl<T : PartialOrd> PartialOrd
         for slice_mut<'_, T>
     {
         #[inline]
@@ -599,10 +591,10 @@ const _: () = {
             self[..].partial_cmp(&other[..])
         }
     }
-    impl<T : ReprC + Eq> Eq
+    impl<T : Eq> Eq
         for slice_mut<'_, T>
     {}
-    impl<T : ReprC + PartialEq> PartialEq
+    impl<T : PartialEq> PartialEq
         for slice_mut<'_, T>
     {
         #[inline]
@@ -612,7 +604,7 @@ const _: () = {
             self[..] == other[..]
         }
     }
-    impl<T : ReprC + Hash> Hash
+    impl<T : Hash> Hash
         for slice_mut<'_, T>
     {
         #[inline]
@@ -621,7 +613,7 @@ const _: () = {
             self[..].hash(hasher)
         }
     }
-    impl<T : ReprC> Default
+    impl<T> Default
         for slice_mut<'_, T>
     {
         #[inline]
@@ -633,7 +625,7 @@ const _: () = {
     }
 
     cfg_alloc! {
-        impl<T : ReprC + Ord> Ord
+        impl<T : Ord> Ord
             for slice_boxed<T>
         {
             #[inline]
@@ -643,7 +635,7 @@ const _: () = {
                 self[..].cmp(&other[..])
             }
         }
-        impl<T : ReprC + PartialOrd> PartialOrd
+        impl<T : PartialOrd> PartialOrd
             for slice_boxed<T>
         {
             #[inline]
@@ -653,10 +645,10 @@ const _: () = {
                 self[..].partial_cmp(&other[..])
             }
         }
-        impl<T : ReprC + Eq> Eq
+        impl<T : Eq> Eq
             for slice_boxed<T>
         {}
-        impl<T : ReprC + PartialEq> PartialEq
+        impl<T : PartialEq> PartialEq
             for slice_boxed<T>
         {
             #[inline]
@@ -666,7 +658,7 @@ const _: () = {
                 self[..] == other[..]
             }
         }
-        impl<T : ReprC + Hash> Hash
+        impl<T : Hash> Hash
             for slice_boxed<T>
         {
             #[inline]
@@ -675,7 +667,7 @@ const _: () = {
                 self[..].hash(hasher)
             }
         }
-        impl<T : ReprC> Default
+        impl<T> Default
             for slice_boxed<T>
         {
             #[inline]

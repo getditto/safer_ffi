@@ -57,7 +57,7 @@ impl CType
             sep = if var_name.is_empty() { "" } else { " " },
         )
     }
-}}
+} type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete; }
 
 from_CType_impl_ReprC! {
     c_char
