@@ -86,5 +86,15 @@ typedef struct {
 int32_t const * max (
     slice_ref_int32_t xs);
 
+typedef struct foo foo_t;
+
+foo_t * new_foo ();
+
+int32_t read_foo (
+    foo_t const * foo);
+
+void free_foo (
+    foo_t * foo);
+
 
 #endif /* __RUST_FFI_TESTS__ */

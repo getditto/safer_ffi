@@ -673,7 +673,15 @@ macro_rules! ReprC {
 
     // opaque
     (
-        #[$(::)?repr_c::opaque($c_name:expr)]
+        #[
+            $(::)?
+            repr_c
+            ::
+            opaque
+            $(
+                ( $($c_name:expr)? )
+            )?
+        ]
         $(#[$meta:meta])*
         $pub:vis
         struct $StructName:ident $(
@@ -683,7 +691,7 @@ macro_rules! ReprC {
             ]
                 $(where { $($bounds:tt)* })?
         )?
-        $($opaque:tt)*
+        { $($opaque:tt)* }
     ) => (
         $(#[$meta])*
         $pub
@@ -693,7 +701,7 @@ macro_rules! ReprC {
                 where $($bounds)*
             )?
         )?
-        $($opaque)*
+        { $($opaque)* }
 
         const _: () = {
             #[derive(Clone, Copy)]
@@ -734,12 +742,21 @@ macro_rules! ReprC {
                     fn c_short_name_fmt (fmt: &'_ mut $crate::core::fmt::Formatter<'_>)
                         -> $crate::core::fmt::Result
                     {
-                        fmt.write_str($c_name)
+                        let mut c_name = $crate::core::stringify!($StructName);
+                        c_name = c_name;
+                        $($(
+                            c_name = $c_name;
+                        )?)?
+                        fmt.write_str(c_name)
                     }
                     fn c_define_self (definer: &'_ mut (dyn $crate::headers::Definer))
                         -> $crate::std::io::Result<()>
                     {
-                        let c_name: &'_ $crate::str = $c_name;
+                        let mut c_name = $crate::core::stringify!($StructName);
+                        c_name = c_name;
+                        $($(
+                            c_name = $c_name;
+                        )?)?
                         definer.define_once(c_name, &mut |definer| {
                             assert!(c_name.chars().all(|c| $crate::core::matches!(c,
                                 'a' ..= 'z' |
@@ -757,9 +774,14 @@ macro_rules! ReprC {
                         var_name: &'_ $crate::str,
                     ) -> $crate::core::fmt::Result
                     {
+                        let mut c_name = $crate::core::stringify!($StructName);
+                        c_name = c_name;
+                        $($(
+                            c_name = $c_name;
+                        )?)?
                         $crate::core::write!(fmt,
                             "{}_t{sep}{}",
-                            $c_name,
+                            c_name,
                             var_name,
                             sep = if var_name.is_empty() { "" } else { " " },
                         )
@@ -990,7 +1012,7 @@ mod test {
 
             ReprC! {
                 #[::repr_c::opaque("Foo")]
-                struct Foo;
+                struct Foo {}
             }
         }
 
@@ -1002,7 +1024,7 @@ mod test {
             ReprC! {
                 #[::repr_c::opaque("Foo")]
                 pub
-                struct Foo;
+                struct Foo {}
             }
 
             #[ffi_export]
@@ -1019,7 +1041,7 @@ mod test {
             ReprC! {
                 #[::repr_c::opaque("Foo")]
                 pub
-                struct Foo;
+                struct Foo {}
             }
 
             #[ffi_export]

@@ -5,13 +5,19 @@
 
 #include "generated.h"
 
-void cb (void *, char const *);
-
 #define SLICE_REF(ty, ...) /* __VA_ARGS__ is array input */ \
     (slice_ref_ ## ty) { \
         .ptr = __VA_ARGS__, \
         .len = sizeof(__VA_ARGS__) / sizeof(ty), \
     }
+
+void cb (
+    void * called,
+    char const * s)
+{
+    *(bool *)called = true;
+    assert(strcmp(s, "Hello, World!") == 0);
+}
 
 int main (
     int argc,
@@ -57,13 +63,17 @@ int main (
         );
     }
 
-    return EXIT_SUCCESS;
-}
+    // test foo
+    {
+        foo_t * foo = new_foo();
+        assert(
+            read_foo(foo)
+            ==
+            42
+        );
+        free_foo(foo);
+        free_foo(NULL);
+    }
 
-void cb (
-    void * called,
-    char const * s)
-{
-    *(bool *)called = true;
-    assert(strcmp(s, "Hello, World!") == 0);
+    return EXIT_SUCCESS;
 }
