@@ -20,7 +20,7 @@ enum Bar_t {
 
 typedef uint8_t Bar_t;
 void check_bar (
-    Bar_t bar);
+    Bar_t _bar);
 
 typedef struct foo foo_t;
 
@@ -93,7 +93,7 @@ typedef struct {
     /** \brief
      *  Element count
      */
-    uintptr_t len;
+    size_t len;
 
 } slice_ref_int32_t;
 

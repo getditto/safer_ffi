@@ -344,7 +344,7 @@ const _: () = { macro_rules! impl_CTypes {
             Self : ReprC, // bound not met
         {
             #[inline]
-            fn is_niche (c_layout: &'_ Self::CLayout)
+            fn is_niche (_: &'_ Self::CLayout)
               -> bool
             {
                 unreachable!()
@@ -361,7 +361,7 @@ const _: () = { macro_rules! impl_CTypes {
             Self : ReprC, // bound not met
         {
             #[inline]
-            fn is_niche (c_layout: &'_ Self::CLayout)
+            fn is_niche (_: &'_ Self::CLayout)
             -> bool
             {
                 unreachable!()

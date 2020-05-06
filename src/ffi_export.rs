@@ -4,7 +4,7 @@ macro_rules! __ffi_export__ {(
     // $(#[$meta:meta])*
     $pub:vis
     $(unsafe $(@$hack:ident@)?)?
-    // $(extern $($abi:literal)?)?
+    $(extern $("C")?)?
     fn $fname:ident $(<$($lt:lifetime),* $(,)?>)? (
         $(
             $arg_name:ident : $arg_ty:ty
@@ -19,7 +19,7 @@ macro_rules! __ffi_export__ {(
     // $(#[$meta])*
     $pub
     $(unsafe $(@$hack@)?)?
-    // $(extern $($abi)?)?
+    extern "C"
     fn $fname $(<$($lt),*>)? (
         $(
             $arg_name : $arg_ty,
@@ -36,7 +36,8 @@ macro_rules! __ffi_export__ {(
         $($(#[doc = $doc])+)?
         #[no_mangle]
         pub
-        unsafe extern "C"
+        $(unsafe $(@$hack@)?)? /* Safety: function is not visible but to the linker */
+        extern "C"
         fn $fname $(<$($lt),*>)? (
             $(
                 $arg_name : <$arg_ty as $crate::layout::ReprC>::CLayout,
@@ -77,9 +78,12 @@ macro_rules! __ffi_export__ {(
                         }
                         let _ = __parameter__::$arg_name::<$arg_ty>;
                     }
-                    let $arg_name: $arg_ty = $crate::layout::from_raw_unchecked::<$arg_ty>(
-                        $arg_name,
-                    );
+                    #[allow(unused_unsafe)]
+                    let $arg_name: $arg_ty = unsafe {
+                        $crate::layout::from_raw_unchecked::<$arg_ty>(
+                            $arg_name,
+                        )
+                    };
                 )*
                 $body
             // };

@@ -80,7 +80,7 @@ mod bar {
     enum Bar { A }
 
     #[ffi_export]
-    fn check_bar (bar: Bar)
+    fn check_bar (_bar: Bar)
     {}
 }
 
