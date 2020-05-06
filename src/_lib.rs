@@ -200,3 +200,8 @@ mod prelude {
         ops::Not as _,
     };
 }
+
+#[macro_export]
+macro_rules! NULL {() => (
+    $crate::core::ptr::null_mut()
+)}
