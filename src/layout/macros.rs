@@ -258,6 +258,7 @@ macro_rules! ReprC {
     // struct
     (
         $( @[doc = $doc:expr] )?
+        $(#[doc = $prev_doc:tt])* // support doc comments _before_ `#[repr(C)]`
         #[repr(C)]
         $(#[$($meta:tt)*])*
         $pub:vis
@@ -282,6 +283,7 @@ macro_rules! ReprC {
                 $crate::core::stringify!($StructName),
                 "_Layout`]"
             )]
+            $(#[doc = $prev_doc])*
             #[repr(C)]
             $(#[doc = $doc])?
             $(#[$($meta)*])*
@@ -361,7 +363,10 @@ macro_rules! ReprC {
                 use super::*;
 
                 $crate::layout::CType! {
-                    @doc_meta( $(#[$($meta)*])* )
+                    @doc_meta(
+                        $(#[doc = $prev_doc])*
+                        $(#[$($meta)*])*
+                    )
                     #[repr(C)]
                     #[allow(missing_debug_implementations)]
                     // $(#[$meta])*
@@ -435,6 +440,7 @@ macro_rules! ReprC {
     // `#[repr(transparent)]`
     (
         $( @[doc = $doc:expr] )?
+        $(#[doc = $prev_doc:tt])*
         #[repr(transparent)]
         $(#[$meta:meta])*
         $pub:vis
@@ -456,6 +462,7 @@ macro_rules! ReprC {
                 $crate::core::stringify!($field_ty),
                 "`](#impl-ReprC)",
             )]
+            $(#[doc = $prev_doc])*
             #[repr(transparent)]
             $(#[doc = $doc])?
             $(#[$meta])*
@@ -500,6 +507,7 @@ macro_rules! ReprC {
 
     // field-less `enum`
     (
+        $(#[doc = $prev_doc:tt])*
         #[repr($Int:ident)]
         $(#[$($meta:tt)*])*
         $pub:vis
@@ -517,6 +525,7 @@ macro_rules! ReprC {
             @deny_C $Int
         }
 
+        $(#[doc = $prev_doc])*
         #[repr($Int)]
         $(#[$($meta)*])*
         $pub
@@ -570,7 +579,10 @@ macro_rules! ReprC {
                                 definer,
                             )?;
                             let out = definer.out();
-                            $crate::__output_docs__!(out, "", $(#[$($meta)*])*);
+                            $crate::__output_docs__!(out, "",
+                                $(#[doc = $prev_doc])*
+                                $(#[$($meta)*])*
+                            );
                             $crate::core::writeln!(out,
                                 $crate::core::concat!(
                                     "enum {}_t {{\n",
@@ -657,6 +669,7 @@ macro_rules! ReprC {
 
     // non-field-less repr-c-only enum
     (
+        $(#[doc = $prev_doc:tt])*
         #[repr(C $(, $Int:ident)?)]
         $(#[$meta:meta])*
         $pub:vis
@@ -671,6 +684,7 @@ macro_rules! ReprC {
 
     // opaque
     (
+        $(#[doc = $prev_doc:tt])*
         #[
             $(::)?
             repr_c
@@ -691,6 +705,7 @@ macro_rules! ReprC {
         )?
         { $($opaque:tt)* }
     ) => (
+        $(#[doc = $prev_doc])*
         $(#[$meta])*
         $pub
         struct $StructName $(
@@ -976,10 +991,10 @@ mod test {
     use crate::layout::ReprC;
 
     ReprC! {
-        // #[derive_ReprC]
+        /// Some docstring before
         #[repr(u8)]
         #[derive(Debug)]
-        /// Some docstring
+        /// Some docstring after
         pub
         enum MyBool {
             False = 42,
@@ -1009,10 +1024,11 @@ mod test {
 
         use ::repr_c::prelude::*;
 
+        /// Some docstring before
         #[derive_ReprC]
         #[repr(u8)]
         #[derive(Debug)]
-        /// Some docstring
+        /// Some docstring after
         pub
         enum MyBool {
             False = 42,
