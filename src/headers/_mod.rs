@@ -25,8 +25,8 @@
 //! ///
 //! /// The returned value must be freed with `rust_free`
 //! #[ffi_export]
-//! fn rust_concat (fst: char_p_ref<'_>, snd: char_p_ref<'_>)
-//!   -> char_p_boxed
+//! fn rust_concat (fst: char_p::Ref<'_>, snd: char_p::Ref<'_>)
+//!   -> char_p::Box
 //! {
 //!     let s: String = format!("{}{}\0", fst, snd);
 //!     s   .try_into() // Try to convert to a boxed `char *` pointer
@@ -35,7 +35,7 @@
 //!
 //! /// Frees a pointer obtained by calling `rust_concat`.
 //! #[ffi_export]
-//! fn rust_free (it: char_p_boxed)
+//! fn rust_free (it: char_p::Box)
 //! {
 //!     drop(it);
 //! }

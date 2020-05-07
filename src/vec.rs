@@ -1,4 +1,6 @@
 use_prelude!();
+use ::core::slice;
+use crate::slice::*;
 
 ReprC! {
     #[repr(C)]

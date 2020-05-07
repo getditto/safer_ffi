@@ -11,15 +11,12 @@ use ::std::{
     ops::Not as _,
 };
 use ::repr_c::{
-    char_p::*,
-    closure::*,
-    ffi_export,
+    prelude::*,
     layout::{
         CType,
         ReprC,
         derive_ReprC,
     },
-    slice::*,
     tuple::Tuple2,
 };
 
@@ -46,7 +43,7 @@ enum MyBool {
 pub
 struct Foo<'a> {
     b: MyBool,
-    field: slice_ref<'a, u32>,
+    field: slice::Ref<'a, u32>,
 }
 
 #[repr(C)]
@@ -117,7 +114,7 @@ fn validity ()
 pub
 struct Crazy {
     a: extern "C" fn (
-        extern "C" fn(::repr_c::char_p::Ref_),
+        extern "C" fn(char_p::Raw),
         Tuple2<
             [Foo<'static>; 12],
             Option<::repr_c::Box<Option<MyBool>>>
@@ -135,9 +132,9 @@ fn test_concat ()
         #[ffi_export]
         /// Concatenate two strings
         fn concat (
-            fst: char_p_ref<'_>,
-            snd: char_p_ref<'_>,
-        ) -> char_p_boxed
+            fst: char_p::Ref<'_>,
+            snd: char_p::Ref<'_>,
+        ) -> char_p::Box
         {
             format!("{}{}\0", fst.to_str(), snd.to_str())
                 .try_into()
@@ -171,7 +168,7 @@ fn test_concat ()
 #[ffi_export]
 /// Some docstring
 pub fn max<'a> (
-    ints: slice_ref<'a, i32>
+    ints: slice::Ref<'a, i32>
 ) -> Option<&'a i32>
 {
     ints.as_slice().iter().max()
@@ -211,7 +208,7 @@ fn test_max_invalid ()
 #[ffi_export]
 /// Returns an owned copy of the input array, with its elements sorted.
 pub fn clone_sorted (
-    ints: slice_ref<'_, i32>
+    ints: slice::Ref<'_, i32>
 ) -> repr_c::Vec<i32>
 {
     let mut ints = ints.as_slice().to_vec();
@@ -233,29 +230,29 @@ fn test_with_concat ()
     let () = {
         #[ffi_export]
         fn with_concat (
-            fst: char_p_ref<'_>,
-            snd: char_p_ref<'_>,
-            cb: RefDynFnMut1<(), char_p_raw>,
+            fst: char_p::Ref<'_>,
+            snd: char_p::Ref<'_>,
+            cb: RefDynFnMut1<(), char_p::Raw>,
         )
         {
             let concat = &*format!("{}{}\0", fst.to_str(), snd.to_str());
-            let char_p_concat: char_p_ref<'_> = concat.try_into().unwrap();
+            let char_p_concat: char_p::Ref<'_> = concat.try_into().unwrap();
             {cb}.call(char_p_concat.into())
         }
     };
     unsafe {
         extern "C" {
             fn with_concat (
-                fst: char_p_ref<'_>,
-                snd: char_p_ref<'_>,
-                cb: RefDynFnMut1<(), char_p_raw>,
+                fst: char_p::Ref<'_>,
+                snd: char_p::Ref<'_>,
+                cb: RefDynFnMut1<(), char_p::Raw>,
             );
         }
         let mut called = false;
         with_concat(
             "Hello, \0".try_into().unwrap(),
             "World!\0".try_into().unwrap(),
-            RefDynFnMut1::new(&mut |concat: char_p_raw| {
+            RefDynFnMut1::new(&mut |concat: char_p::Raw| {
                 called = true;
                 assert_eq!(
                     concat.as_ref().to_str(),
@@ -312,6 +309,15 @@ fn test_niche ()
             MyBool_Layout(unsafe { ::core::mem::transmute(None::<MyBool>) })
         )
     );
+}
+
+#[test]
+fn test_c_str_macro ()
+{
+    let mut it: char_p::Ref<'static> = c!();
+    assert_eq!(it.to_str(), "");
+    it = c!("Hello, World!");
+    assert_eq!(it.to_str(), "Hello, World!");
 }
 
 #[cfg(feature = "headers")]

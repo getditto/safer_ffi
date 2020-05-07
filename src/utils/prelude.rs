@@ -1,10 +1,19 @@
 #![allow(unused_imports)]
 
-pub(in crate) use crate::{*,
+pub(in crate) use crate::{
+    __cfg_headers__,
+    c_char,
     layout::*,
     tuple::*,
     utils::markers::*,
 };
+cfg_alloc! {
+    pub(in crate) use crate::{
+        Box,
+        String,
+        Vec,
+    };
+}
 pub(in crate) use ::core::{
     convert::{TryFrom, TryInto},
     ffi::c_void,
@@ -15,7 +24,6 @@ pub(in crate) use ::core::{
         Deref, DerefMut,
         Not as _,
     },
-    slice,
 };
 #[cfg(not(target_arch = "wasm32"))]
 pub(in crate) use ::libc::size_t;
@@ -46,3 +54,6 @@ cfg_std! {
         io,
     };
 }
+
+pub(in crate)
+use crate::prelude::*;

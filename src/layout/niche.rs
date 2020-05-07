@@ -1,4 +1,5 @@
-use super::*;
+use_prelude!();
+use crate::prelude::slice;
 
 pub
 unsafe
@@ -50,17 +51,17 @@ unsafe_impls! {
     &'__ mut T => |it| it.is_null(),
 
     @for['__, T : '__ + ReprC]
-    crate::slice_mut<'__, T> => |it| it.ptr.is_null(),
+    slice::Mut<'__, T> => |it| it.ptr.is_null(),
     @for['__, T : '__ + ReprC]
-    crate::slice_ref<'__, T> => |it| it.ptr.is_null(),
+    slice::Ref<'__, T> => |it| it.ptr.is_null(),
     @for[T : ReprC]
-    crate::slice::slice_raw<T> => |it| it.ptr.is_null(),
+    slice::Raw<T> => |it| it.ptr.is_null(),
 
-    // crate::str_raw => |it| it.ptr.is_null(),
-    crate::str_ref<'_> => |it| it.ptr.is_null(),
+    // crate::str::Raw => |it| it.ptr.is_null(),
+    str::Ref<'_> => |it| it.ptr.is_null(),
 
     char_p::Ref<'_> => |it| it.is_null(),
-    char_p::char_p_raw => |it| it.is_null(),
+    char_p::Raw => |it| it.is_null(),
 
     bool => |&it| {
         it == unsafe { mem::transmute(None::<Self>) }
@@ -72,13 +73,13 @@ cfg_alloc! {
         @for[T : ReprC]
         Box<T> => |it| it.is_null(),
         @for[T : ReprC]
-        crate::slice_boxed<T> => |it| it.ptr.is_null(),
+        slice::Box<T> => |it| it.ptr.is_null(),
         @for[T : ReprC]
         Vec<T> => |it| it.ptr.is_null(),
 
-        crate::str_boxed => |it| it.ptr.is_null(),
+        str::Box => |it| it.ptr.is_null(),
         String => |it| it.ptr.is_null(),
 
-        char_p::Boxed => |it| it.is_null(),
+        char_p::Box => |it| it.is_null(),
     }
 }

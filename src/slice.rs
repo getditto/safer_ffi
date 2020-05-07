@@ -1,6 +1,17 @@
 //! Logic common to all fat pointers.
 
 use_prelude!();
+use ::core::slice;
+
+#[doc(no_inline)]
+pub use self::{
+    slice_ref as Ref,
+    slice_mut as Mut,
+};
+cfg_alloc! {
+    #[doc(no_inline)]
+    pub use slice_boxed as Box;
+}
 
 /// The phantoms from the crate are not `ReprC`.
 type PhantomCovariantLifetime<'lt> =

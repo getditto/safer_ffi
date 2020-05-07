@@ -161,29 +161,46 @@ mod prelude {
     // }
     #[doc(no_inline)]
     pub use crate::{
-        char_p::{
-            char_p_raw,
-            char_p_ref,
-        },
         closure::*,
         ffi_export,
         layout::ReprC,
-        slice::{
-            slice_raw,
-            slice_ref,
-            slice_mut,
-        },
-        string::{
-            str_ref,
-        },
     };
-    cfg_alloc! {
+    pub
+    mod char_p {
         #[doc(no_inline)]
-        pub use crate::{
-            char_p::char_p_boxed,
-            slice::slice_boxed,
-            string::str_boxed,
+        pub use crate::char_p::{
+            char_p_raw as Raw,
+            char_p_ref as Ref,
         };
+        cfg_alloc! {
+            #[doc(no_inline)]
+            pub use crate::char_p::char_p_boxed as Box;
+        }
+    }
+    pub
+    mod slice {
+        #[doc(no_inline)]
+        pub use crate::slice::{
+            slice_mut as Mut,
+            slice_raw as Raw,
+            slice_ref as Ref,
+        };
+        cfg_alloc! {
+            #[doc(no_inline)]
+            pub use crate::slice::slice_boxed as Box;
+        }
+    }
+    pub
+    mod str {
+        #[doc(no_inline)]
+        pub use crate::string::{
+            // str_raw as Raw,
+            str_ref as Ref,
+        };
+        cfg_alloc! {
+            #[doc(no_inline)]
+            pub use crate::string::str_boxed as Box;
+        }
     }
     cfg_proc_macros! {
         #[doc(no_inline)]

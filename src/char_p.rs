@@ -3,6 +3,7 @@
 //! They thus do not support inner nulls, nor string appending.
 
 use_prelude!();
+use ::core::slice;
 
 ReprC! {
     #[repr(transparent)]
@@ -417,14 +418,4 @@ cfg_std! {
             }
         }
     }
-}
-
-#[doc(no_inline)]
-pub use {
-    char_p_ref as Ref,
-    char_p_raw as Ref_,
-};
-cfg_alloc! {
-    #[doc(no_inline)]
-    pub use char_p_boxed as Boxed;
 }
