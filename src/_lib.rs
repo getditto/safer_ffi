@@ -190,6 +190,8 @@ mod prelude {
             pub use crate::slice::slice_boxed as Box;
         }
     }
+    #[doc(no_inline)]
+    pub use self::slice as c_slice; /* in case of clash with ::std::slice */
     pub
     mod str {
         #[doc(no_inline)]
