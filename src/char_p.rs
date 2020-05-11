@@ -160,19 +160,6 @@ impl<'lt> char_p_ref<'lt> {
 
     #[inline]
     pub
-    fn to_bytes (self: char_p_ref<'lt>)
-      -> &'lt [u8]
-    {
-        unsafe {
-            slice::from_raw_parts(
-                self.0.as_ptr().cast(),
-                self.bytes().count(),
-            )
-        }
-    }
-
-    #[inline]
-    pub
     fn to_nonzero_bytes (self: char_p_ref<'lt>)
       -> &'lt [::core::num::NonZeroU8]
     {
@@ -186,12 +173,58 @@ impl<'lt> char_p_ref<'lt> {
 
     #[inline]
     pub
+    fn to_bytes (self: char_p_ref<'lt>)
+      -> &'lt [u8]
+    {
+        unsafe {
+            slice::from_raw_parts(
+                self.0.as_ptr().cast(),
+                self.bytes().count(),
+            )
+        }
+    }
+
+    #[inline]
+    pub
+    fn to_bytes_with_null (self: char_p_ref<'lt>)
+      -> &'lt [u8]
+    {
+        unsafe {
+            slice::from_raw_parts(
+                self.0.as_ptr().cast(),
+                self.bytes().count() + 1,
+            )
+        }
+    }
+
+    #[inline]
+    pub
     fn to_str (self: char_p_ref<'lt>)
       -> &'lt str
     {
         unsafe {
             ::core::str::from_utf8_unchecked(self.to_bytes())
         }
+    }
+
+    #[inline]
+    pub
+    fn to_str_with_null (self: char_p_ref<'lt>)
+      -> &'lt str
+    {
+        unsafe {
+            ::core::str::from_utf8_unchecked(self.to_bytes_with_null())
+        }
+    }
+}
+
+impl<'lt> Eq for char_p_ref<'lt> {}
+impl<'lt> PartialEq for char_p_ref<'lt> {
+    #[inline]
+    fn eq (self: &'_ Self, other: &'_ Self)
+      -> bool
+    {
+        *self.to_str() == *other.to_str()
     }
 }
 
@@ -378,18 +411,109 @@ cfg_alloc! {
         fn drop (self: &'_ mut char_p_boxed)
         {
             unsafe {
-                if ptr::eq(self.0 .0.as_ptr().cast(), &EMPTY_SENTINEL) {
+                if ptr::eq(self.0.as_mut_ptr().cast(), &EMPTY_SENTINEL) {
                     return;
                 }
-                let strlen = self.as_ref().bytes().count();
-                let num_bytes = strlen + 1;
+                let num_bytes = self.to_bytes_with_null().len();
                 drop::<rust::Box<[u8]>>(
                     rust::Box::from_raw(slice::from_raw_parts_mut(
-                        self.0 .0.as_ptr().cast(),
+                        self.0.as_mut_ptr().cast(),
                         num_bytes,
                     ))
                 );
             }
+        }
+    }
+
+    impl char_p_boxed {
+        #[inline]
+        pub
+        fn bytes<'lt> (self: &'lt char_p_boxed)
+          -> impl Iterator<Item = ::core::num::NonZeroU8> + 'lt
+        {
+            self.as_ref().bytes()
+        }
+
+        #[inline]
+        pub
+        fn to_nonzero_bytes (self: &'_ char_p_boxed)
+          -> &'_ [::core::num::NonZeroU8]
+        {
+            self.as_ref().to_nonzero_bytes()
+        }
+
+        #[inline]
+        pub
+        fn to_bytes (self: &'_ char_p_boxed)
+          -> &'_ [u8]
+        {
+            self.as_ref().to_bytes()
+        }
+
+        #[inline]
+        pub
+        fn to_bytes_with_null (self: &'_ char_p_boxed)
+          -> &'_ [u8]
+        {
+            self.as_ref().to_bytes_with_null()
+        }
+
+        #[inline]
+        pub
+        fn to_str (self: &'_ char_p_boxed)
+          -> &'_ str
+        {
+            self.as_ref().to_str()
+        }
+
+        #[inline]
+        pub
+        fn to_str_with_null (self: &'_ char_p_boxed)
+          -> &'_ str
+        {
+            self.as_ref().to_str_with_null()
+        }
+
+        pub
+        fn into_vec (mut self: char_p_boxed)
+          -> rust::Vec<u8>
+        {
+            if ptr::eq(self.0.as_mut_ptr().cast(), &EMPTY_SENTINEL) {
+                return vec![];
+            }
+            let num_bytes = self.to_bytes_with_null().len();
+            let ptr = mem::ManuallyDrop::new(self).0.as_mut_ptr();
+            let boxed_bytes = unsafe {
+                rust::Box::from_raw(slice::from_raw_parts_mut(
+                    ptr.cast(),
+                    num_bytes,
+                ))
+            };
+            let mut vec = rust::Vec::from(boxed_bytes);
+            vec.pop();
+            vec
+        }
+
+        #[inline]
+        pub
+        fn into_string (self: char_p_boxed)
+          -> rust::String
+        {
+            unsafe {
+                rust::String::from_utf8_unchecked(
+                    self.into_vec()
+                )
+            }
+        }
+    }
+
+    impl Eq for char_p_boxed {}
+    impl PartialEq for char_p_boxed {
+        #[inline]
+        fn eq (self: &'_ Self, other: &'_ Self)
+          -> bool
+        {
+            self.as_ref() == other.as_ref()
         }
     }
 }
