@@ -5,7 +5,7 @@ macro_rules! __ffi_export__ {(
     $pub:vis
     $(unsafe $(@$hack:ident@)?)?
     $(extern $("C")?)?
-    fn $fname:ident $(<$($lt:lifetime),* $(,)?>)? (
+    fn $fname:ident $(<$($lt:lifetime $(: $sup_lt:lifetime)?),* $(,)?>)? (
         $(
             $arg_name:ident : $arg_ty:ty
         ),* $(,)?
@@ -20,7 +20,7 @@ macro_rules! __ffi_export__ {(
     $pub
     $(unsafe $(@$hack@)?)?
     extern "C"
-    fn $fname $(<$($lt),*>)? (
+    fn $fname $(<$($lt $(: $sup_lt)?),*>)? (
         $(
             $arg_name : $arg_ty,
         )*
@@ -38,7 +38,7 @@ macro_rules! __ffi_export__ {(
         pub
         $(unsafe $(@$hack@)?)? /* Safety: function is not visible but to the linker */
         extern "C"
-        fn $fname $(<$($lt),*>)? (
+        fn $fname $(<$($lt $(: $sup_lt)?),*>)? (
             $(
                 $arg_name : <$arg_ty as $crate::layout::ReprC>::CLayout,
             )*
@@ -117,7 +117,7 @@ macro_rules! __ffi_export__ {(
             #![crate = $crate]
             $crate::FfiExport({
                 #[allow(unused_parens)]
-                fn typedef $(<$($lt),*>)? (
+                fn typedef $(<$($lt $(: $sup_lt)?),*>)? (
                     definer: &'_ mut dyn $crate::headers::Definer,
                 ) -> $crate::std::io::Result<()>
                 {Ok({
@@ -223,7 +223,7 @@ macro_rules! __ffi_export__ {(
 
 // __ffi_export__! {
 //     /// Some docstring
-//     fn max<'a> (
+//     fn max<'a, 'b : 'a> (
 //         ints: crate::slice::slice_ref<'a, i32>
 //     ) -> Option<&'a i32>
 //     {
