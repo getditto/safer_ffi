@@ -144,6 +144,30 @@ impl_for_each! {
         }
     });
 }
+impl_for_each! {
+    [NonNullMut, NonNullRef].impl_for_each!(|$NonNull| {
+        impl<'lt, T : 'lt> From<&'lt mut T>
+            for $NonNull<T>
+        {
+            #[inline]
+            fn from (it: &'lt mut T)
+              -> $NonNull<T>
+            {
+                $NonNull::from(NonNull::from(it))
+            }
+        }
+    });
+}
+impl<'lt, T : 'lt> From<&'lt T>
+    for NonNullRef<T>
+{
+    #[inline]
+    fn from (it: &'lt T)
+      -> NonNullRef<T>
+    {
+        NonNullRef::from(NonNull::from(it))
+    }
+}
 
 impl<__> NonNullOwned<__> {
     cfg_alloc! {
