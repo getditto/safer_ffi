@@ -144,6 +144,22 @@ cfg_alloc! {
         {
             Into::into(&mut self[..])
         }
+
+        #[inline]
+        pub
+        fn as_slice<'borrow> (self: &'borrow Self)
+          -> &'borrow [T]
+        {
+            self.as_ref().as_slice()
+        }
+
+        #[inline]
+        pub
+        fn as_slice_mut<'borrow> (self: &'borrow mut Self)
+          -> &'borrow mut [T]
+        {
+            self.as_mut().as_slice()
+        }
     }
 
     impl<T> From<rust::Box<[T]>>
