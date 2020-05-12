@@ -216,6 +216,18 @@ impl<'lt> char_p_ref<'lt> {
             ::core::str::from_utf8_unchecked(self.to_bytes_with_null())
         }
     }
+
+    cfg_alloc! {
+        #[inline]
+        pub
+        fn to_owned (self: char_p_ref<'lt>)
+          -> char_p_boxed
+        {
+            self.to_str_with_null()
+                .to_owned()
+                .try_into().unwrap()
+        }
+    }
 }
 
 impl<'lt> Eq for char_p_ref<'lt> {}
@@ -505,15 +517,37 @@ cfg_alloc! {
                 )
             }
         }
+
+        #[inline]
+        pub
+        fn to_owned (self: &'_ char_p_boxed)
+          -> char_p_boxed
+        {
+            self.as_ref().to_owned()
+        }
     }
 
-    impl Eq for char_p_boxed {}
-    impl PartialEq for char_p_boxed {
+    impl Eq
+        for char_p_boxed
+    {}
+    impl PartialEq
+        for char_p_boxed {
         #[inline]
         fn eq (self: &'_ Self, other: &'_ Self)
           -> bool
         {
             self.as_ref() == other.as_ref()
+        }
+    }
+
+    impl Clone
+        for char_p_boxed
+    {
+        #[inline]
+        fn clone (self: &'_ Self)
+          -> Self
+        {
+            self.to_owned()
         }
     }
 }
