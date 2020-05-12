@@ -362,6 +362,16 @@ impl<T : fmt::Debug> fmt::Debug
     }
 }
 
+impl<'lt, T : 'lt> From<slice_ref<'lt, T>>
+    for slice_raw<T>
+{
+    #[inline]
+    fn from (slice_ref { ptr, len, .. }: slice_ref<'lt, T>)
+      -> slice_raw<T>
+    {
+        slice_raw { ptr: ptr.0, len }
+    }
+}
 
 ReprC! {
     #[repr(C)]
