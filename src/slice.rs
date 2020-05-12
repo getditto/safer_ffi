@@ -532,6 +532,17 @@ impl<T : fmt::Debug> fmt::Debug
     }
 }
 
+impl<'lt, T : 'lt> From<slice_mut<'lt, T>>
+    for slice_raw<T>
+{
+    #[inline]
+    fn from (slice_mut { ptr, len, .. }: slice_mut<'lt, T>)
+      -> slice_raw<T>
+    {
+        slice_raw { ptr: ptr.0, len }
+    }
+}
+
 /// Extra traits for these `#[repr(C)]` slices.
 const _: () = {
     use ::core::{
