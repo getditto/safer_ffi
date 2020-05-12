@@ -112,16 +112,7 @@ const _: () = { macro_rules! impl_CTypes {
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
-                let mut buf = &mut [0_u8; 256][..];
-                {
-                    use ::std::io::Write;
-                    write!(buf, "{}", Self::c_short_name())
-                        .expect("`short_name()` was too long")
-                }
-                if let Some(n) = buf.iter().position(|&b| b == b'\0') {
-                    buf = &mut buf[.. n];
-                }
-                let short_name = ::core::str::from_utf8(buf).unwrap();
+                let short_name = &Self::c_short_name().to_string();
                 definer.define_once(
                     short_name,
                     &mut |definer| {
