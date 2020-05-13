@@ -107,6 +107,9 @@ pub use string::str_ref;
 #[path = "string/_mod.rs"]
 pub mod string;
 
+#[doc(no_inline)]
+pub use tuple::*;
+
 pub
 mod tuple;
 

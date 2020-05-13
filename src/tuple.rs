@@ -1,7 +1,7 @@
 //! Tuple types with a guaranteed `#[repr(C)]` layout.
 //!
 //! Simplified for lighter documentation, but the actual `struct` definitions
-//! and impls range from `Tuple1` up to `Tuple9`.
+//! and impls range from `Tuple1` up to `Tuple6`.
 
 use_prelude!();
 
@@ -58,7 +58,7 @@ ReprC! {
     #[repr(C)]
     #[derive(Debug)]
     /// Simplified for lighter documentation, but the actual impls
-    /// range from `Tuple1` up to `Tuple9`.
+    /// range from `Tuple1` up to `Tuple6`.
     pub
     struct Tuple1[T0] {
         pub _0: T0,
@@ -69,7 +69,7 @@ ReprC! {
     #[repr(C)]
     #[derive(Debug)]
     /// Simplified for lighter documentation, but the actual impls
-    /// range from `Tuple1` up to `Tuple9`.
+    /// range from `Tuple1` up to `Tuple6`.
     pub
     struct Tuple2[T0, T1] {
         pub _0: T0,
