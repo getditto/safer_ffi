@@ -37,7 +37,7 @@ fn with_concat (
 /// it is empty.
 #[ffi_export]
 fn max<'a> (
-    xs: slice::Ref<'a, i32>,
+    xs: c_slice::Ref<'a, i32>,
 ) -> Option<&'a i32>
 {
     xs  .as_slice()

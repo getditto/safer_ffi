@@ -14,11 +14,21 @@
 
 #include <stdint.h>
 
-enum Bar_t {
-    Bar_A,
-};
+/** \remark Has the same ABI as `uint8_t` **/
+#ifdef DOXYGEN
+typedef enum Bar
+#else
+typedef uint8_t Bar_t; enum
+#endif
+{
+    /** . */
+    BAR_A,
+}
+#ifdef DOXYGEN
+Bar_t
+#endif
+;
 
-typedef uint8_t Bar_t;
 void check_bar (
     Bar_t _bar);
 

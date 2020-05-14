@@ -29,3 +29,31 @@ fn transmute_unchecked<T, U> (ref it: T)
     );
     ::core::mem::transmute_copy(it)
 }
+
+#[allow(warnings)]
+pub
+struct screaming_case<'__>(
+    pub &'__ str,
+    pub &'__ str,
+);
+
+const _: () = {
+    use ::core::fmt::{self, Display, Write};
+
+    impl Display for screaming_case<'_> {
+        fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
+        -> fmt::Result
+        {
+            let mut not_first = false;
+            [self.0, self.1].iter().copied().flat_map(|s| s.chars()).try_for_each(|c| {
+                if true
+                    && ::core::mem::replace(&mut not_first, true)
+                    && c.is_ascii_uppercase()
+                {
+                    fmt.write_char('_')?;
+                }
+                fmt.write_char(c.to_ascii_uppercase())
+            })
+        }
+    }
+};

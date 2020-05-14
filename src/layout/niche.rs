@@ -1,5 +1,5 @@
 use_prelude!();
-use crate::prelude::slice;
+use crate::prelude::c_slice;
 
 pub
 unsafe
@@ -51,11 +51,11 @@ unsafe_impls! {
     &'__ mut T => |it| it.is_null(),
 
     @for['__, T : '__ + ReprC]
-    slice::Mut<'__, T> => |it| it.ptr.is_null(),
+    c_slice::Mut<'__, T> => |it| it.ptr.is_null(),
     @for['__, T : '__ + ReprC]
-    slice::Ref<'__, T> => |it| it.ptr.is_null(),
+    c_slice::Ref<'__, T> => |it| it.ptr.is_null(),
     @for[T : ReprC]
-    slice::Raw<T> => |it| it.ptr.is_null(),
+    c_slice::Raw<T> => |it| it.ptr.is_null(),
 
     // crate::str::Raw => |it| it.ptr.is_null(),
     str::Ref<'_> => |it| it.ptr.is_null(),
@@ -73,7 +73,7 @@ cfg_alloc! {
         @for[T : ReprC]
         Box<T> => |it| it.is_null(),
         @for[T : ReprC]
-        slice::Box<T> => |it| it.ptr.is_null(),
+        c_slice::Box<T> => |it| it.ptr.is_null(),
         @for[T : ReprC]
         Vec<T> => |it| it.ptr.is_null(),
 

@@ -26,8 +26,9 @@ extern crate paste;
 
 #[macro_use]
 #[path = "utils/_mod.rs"]
-pub(in crate)
-mod utils;
+#[doc(hidden)] /** Not part of the public API **/ pub
+mod __utils__;
+use __utils__ as utils;
 
 extern crate proc_macro;
 pub use ::proc_macro::{ffi_export, cfg_headers};
@@ -114,7 +115,6 @@ pub
 mod tuple;
 
 cfg_alloc! {
-
     #[doc(inline)]
     pub use string::String;
 
@@ -133,6 +133,7 @@ macro_rules! reexport_primitive_types {(
 )} reexport_primitive_types! {
     u8 u16 u32 u64 u128
     i8 i16 i32 i64 i128
+    f32 f64
     char
     bool
     str
@@ -149,19 +150,6 @@ struct NotZeroSized;
 
 pub
 mod prelude {
-    // pub
-    // mod repr_c {
-    //     cfg_alloc! {
-    //         #[doc(no_inline)]
-    //         pub use crate::{
-    //             Box,
-    //             Vec,
-    //             String,
-    //         };
-    //     }
-    //     #[doc(no_inline)]
-    //     pub use crate::tuple::*;
-    // }
     #[doc(no_inline)]
     pub use crate::{
         closure::*,
@@ -181,7 +169,7 @@ mod prelude {
         }
     }
     pub
-    mod slice {
+    mod c_slice {
         #[doc(no_inline)]
         pub use crate::slice::{
             slice_mut as Mut,
@@ -193,8 +181,6 @@ mod prelude {
             pub use crate::slice::slice_boxed as Box;
         }
     }
-    #[doc(no_inline)]
-    pub use self::slice as c_slice; /* in case of clash with ::std::slice */
     pub
     mod str {
         #[doc(no_inline)]

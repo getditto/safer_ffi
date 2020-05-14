@@ -513,7 +513,8 @@ macro_rules! ReprC {
         $pub:vis
         enum $EnumName:ident {
             $(
-                $(#[$variant_meta:meta])*
+                $($(#[doc = $variant_doc:expr])+)?
+                // $(#[$variant_meta:meta])*
                 $Variant:ident $(= $discriminant:expr)?
             ),+ $(,)?
         }
@@ -531,7 +532,8 @@ macro_rules! ReprC {
         $pub
         enum $EnumName {
             $(
-                $(#[$variant_meta])*
+                $($(#[doc = $variant_doc])+)?
+                // $(#[$variant_meta])*
                 $Variant $(= $discriminant)? ,
             )+
         }
@@ -585,9 +587,27 @@ macro_rules! ReprC {
                             );
                             $crate::core::writeln!(out,
                                 $crate::core::concat!(
-                                    "enum {}_t {{\n",
+                                    "/** \\remark Has the same ABI as `{int}` **/\n",
+                                    "#ifdef DOXYGEN\n",
+                                    "typedef enum {me}\n",
+                                    "#else\n",
+                                    "typedef {int__me}_t; enum\n",
+                                    "#endif\n",
+                                    "{{\n",
                                     $(
-                                        "    {0}_{}",
+                                        $crate::layout::ReprC! { @first
+                                            $((concat!(
+                                                "    /** \\brief\n",
+                                                $(
+                                                    "     * ", $variant_doc, "\n",
+                                                )*
+                                                "     */\n",
+                                            )))?
+                                            (
+                                                "    /** . */\n"
+                                            )
+                                        },
+                                        "    {}",
                                         $( $crate::layout::ReprC! {
                                             @first(
                                                 " = {}"
@@ -595,16 +615,22 @@ macro_rules! ReprC {
                                         },)?
                                         ",\n",
                                     )*
-                                    "}};\n",
-                                    "\n",
-                                    "typedef {int}_t;",
+                                    "}}\n",
+                                    "#ifdef DOXYGEN\n",
+                                    "{me}_t\n",
+                                    "#endif\n",
+                                    ";\n",
                                 ),
-                                me,
                                 $(
-                                    $crate::core::stringify!($Variant).trim(),
+                                    $crate::__utils__::screaming_case(
+                                        me,
+                                        $crate::core::stringify!($Variant).trim(),
+                                    ),
                                     $($discriminant,)?
                                 )*
-                                int = <$crate::$Int as $crate::layout::CType>::c_var(
+                                me = me,
+                                int = <$crate::$Int as $crate::layout::CType>::c_var(""),
+                                int__me = <$crate::$Int as $crate::layout::CType>::c_var(
                                     me,
                                 ),
                             )
@@ -893,7 +919,7 @@ macro_rules! ReprC {
 
     (@deny_C $otherwise:tt) => ();
 
-    (@first ($($fst:tt)*) $ignored:tt) => ($($fst)*);
+    (@first ($($fst:tt)*) $($ignored:tt)?) => ($($fst)*);
 }
 
 #[cfg(feature = "headers")]
@@ -981,6 +1007,7 @@ crate::layout::ReprC! {
     /// Some docstring
     pub
     enum MyBool {
+        /// Some variant docstring
         False = 42,
         True, // = 43
     }

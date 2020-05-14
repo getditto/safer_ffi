@@ -43,7 +43,7 @@ enum MyBool {
 pub
 struct Foo<'a> {
     b: MyBool,
-    field: slice::Ref<'a, u32>,
+    field: c_slice::Ref<'a, u32>,
 }
 
 #[repr(C)]
@@ -168,7 +168,7 @@ fn test_concat ()
 #[ffi_export]
 /// Some docstring
 pub fn max<'a> (
-    ints: slice::Ref<'a, i32>
+    ints: c_slice::Ref<'a, i32>
 ) -> Option<&'a i32>
 {
     ints.as_slice().iter().max()
@@ -208,7 +208,7 @@ fn test_max_invalid ()
 #[ffi_export]
 /// Returns an owned copy of the input array, with its elements sorted.
 pub fn clone_sorted (
-    ints: slice::Ref<'_, i32>
+    ints: c_slice::Ref<'_, i32>
 ) -> repr_c::Vec<i32>
 {
     let mut ints = ints.as_slice().to_vec();
