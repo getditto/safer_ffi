@@ -380,9 +380,14 @@ const _: () = { macro_rules! impl_CTypes {
               -> io::Result<()>
             {
                 definer.define_once(
-                    "<stdint.h>",
+                    "__int_headers__",
                     &mut |definer| write!(definer.out(),
-                        "\n#include <stdint.h>\n\n",
+                        concat!(
+                            "\n",
+                            "#include <stdint.h>\n",
+                            "#include <stdlib.h>\n",
+                            "\n",
+                        ),
                     ),
                 )
             }

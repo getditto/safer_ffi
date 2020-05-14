@@ -974,7 +974,6 @@ macro_rules! __output_docs__ {
     (@opened
         $out:expr, $pad:expr,
             #[doc = $doc:expr]
-            #[$not_doc_meta:meta]
             $(#[$($meta:tt)*])*
     ) => ({
         $crate::core::writeln!($out,

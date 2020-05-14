@@ -13,6 +13,7 @@
 
 
 #include <stdint.h>
+#include <stdlib.h>
 
 /** \remark Has the same ABI as `uint8_t` **/
 #ifdef DOXYGEN
