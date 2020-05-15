@@ -194,6 +194,9 @@ macro_rules! __ffi_export__ {(
                         )?;
                         has_args |= true;
                     )*
+                    if has_args.not() {
+                        out.write_all(b"void")?;
+                    }
                     drop(has_args);
                     $crate::std::io::Write::write_all(out,
                         ");\n\n"

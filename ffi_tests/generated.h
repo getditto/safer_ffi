@@ -35,7 +35,7 @@ void check_bar (
 
 typedef struct foo foo_t;
 
-foo_t * new_foo ();
+foo_t * new_foo (void);
 
 int32_t read_foo (
     foo_t const * foo);

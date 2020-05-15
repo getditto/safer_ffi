@@ -216,9 +216,14 @@ const _: () = { macro_rules! impl_CTypes {
             ) -> fmt::Result
             {
                 write!(fmt, "{} ", Ret::c_var(""))?;
-                write!(fmt, "(*{})(", var_name)?; $(
+                write!(fmt, "(*{})(", var_name)?;
+                let _empty = true; $(
+                let _empty = false;
                 write!(fmt, "{}", $An::c_var(""))?; $(
                 write!(fmt, ", {}", $Ai::c_var(""))?; )*)?
+                if _empty {
+                    fmt.write_str("void")?;
+                }
                 fmt.write_str(")")
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
@@ -604,9 +609,54 @@ macro_rules! impl_ReprC_for {(
     )*
 )}
 
+#[repr(transparent)]
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub
+struct Bool(u8);
+
+unsafe
+    impl CType
+        for Bool
+    {
+        __cfg_headers__! {
+            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+              -> fmt::Result
+            {
+                fmt.write_str("bool")
+            }
+
+            fn c_define_self (definer: &'_ mut dyn Definer)
+              -> io::Result<()>
+            {
+                definer.define_once(
+                    "bool",
+                    &mut |definer| {
+                        definer.out().write_all(
+                            b"\n#include <stdbool.h>\n\n"
+                        )
+                    },
+                )
+            }
+
+            fn c_var_fmt (
+                fmt: &'_ mut fmt::Formatter<'_>,
+                var_name: &'_ str,
+            ) -> fmt::Result
+            {
+                write!(fmt,
+                    "bool{sep}{}",
+                    var_name,
+                    sep = if var_name.is_empty() { "" } else { " " },
+                )
+            }
+        }
+
+        type OPAQUE_KIND = OpaqueKind::Concrete;
+    }
+
 impl_ReprC_for! { unsafe {
     bool
-        => |ref byte: u8| (*byte & !0b1) == 0
+        => |ref byte: Bool| (byte.0 & !0b1) == 0
     ,
 
     @for[T : ReprC]
