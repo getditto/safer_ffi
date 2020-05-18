@@ -212,7 +212,14 @@ mod prelude {
     #[cfg_attr(feature = "nightly",
         doc(cfg(feature = "out-refs"))
     )]
-    pub use ::uninit::out_ref::Out;
+    pub use ::uninit::prelude::{
+        // Out reference itself
+        Out,
+        // Helper trait to go from `&mut T` and `&mut MaybeUninit<T>` to `Out<T>`
+        AsOut as _,
+        // Helper trait to have `AsOut` when `T : !Copy`
+        ManuallyDropMut as _,
+    };
 }
 
 #[macro_export]
