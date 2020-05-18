@@ -611,6 +611,7 @@ macro_rules! impl_ReprC_for {(
 
 #[repr(transparent)]
 #[derive(Clone, Copy, PartialEq, Eq)]
+#[allow(missing_debug_implementations)]
 pub
 struct Bool(u8);
 

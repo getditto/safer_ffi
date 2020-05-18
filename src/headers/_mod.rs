@@ -331,23 +331,41 @@ impl Builder<'_, WhereTo> {
             " *                                      *\n",
             " *  Do not manually edit this file.     *\n",
             " *                                      *\n",
-            " ****************************************/\n",
+            " ****************************************/",
         ));
 
         write!(definer.out(),
-            "{banner}\n#ifndef {guard}\n#define {guard}\n\n\n",
+            concat!(
+                "{banner}\n\n",
+                "#ifndef {guard}\n",
+                "#define {guard}\n",
+                "\n",
+                "#ifdef __cplusplus\n",
+                "extern \"C\" {{\n",
+                "#endif\n\n",
+            ),
             guard = guard,
             banner = banner,
         )?;
         crate::inventory::iter
             .into_iter()
-            .collect::<Vec<_>>()
-            .into_iter()
-            .rev()
+            // Iterate in reverse fashion to more closely match
+            // the Rust definition order.
+            .collect::<Vec<_>>().into_iter().rev()
             .try_for_each(|crate::FfiExport(define)| define(&mut definer))
             ?
         ;
-        write!(definer.out(), "\n#endif /* {} */", guard)?;
+        write!(definer.out(),
+            concat!(
+                "\n",
+                "#ifdef __cplusplus\n",
+                "}} /* extern \"C\" */\n",
+                "#endif\n",
+                "\n",
+                "#endif /* {} */\n",
+            ),
+            guard,
+        )?;
         Ok(())
     }
 }

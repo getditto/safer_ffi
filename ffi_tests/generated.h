@@ -10,6 +10,9 @@
 #ifndef __RUST_FFI_TESTS__
 #define __RUST_FFI_TESTS__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 #include <stdint.h>
@@ -115,5 +118,9 @@ typedef struct {
 int32_t const * max (
     slice_ref_int32_t xs);
 
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* __RUST_FFI_TESTS__ */
