@@ -50,6 +50,15 @@ unsafe_impls! {
     @for['__, T : '__ + ReprC]
     &'__ mut T => |it| it.is_null(),
 
+    @for[T : ReprC]
+    ptr::NonNull<T> => |it| it.is_null(),
+    @for[T : ReprC]
+    ptr::NonNullRef<T> => |it| it.is_null(),
+    @for[T : ReprC]
+    ptr::NonNullMut<T> => |it| it.is_null(),
+    @for[T : ReprC]
+    ptr::NonNullOwned<T> => |it| it.is_null(),
+
     @for['__, T : '__ + ReprC]
     c_slice::Mut<'__, T> => |it| it.ptr.is_null(),
     @for['__, T : '__ + ReprC]
@@ -64,7 +73,7 @@ unsafe_impls! {
     char_p::Raw => |it| it.is_null(),
 
     bool => |&it| {
-        it == unsafe { mem::transmute(None::<Self>) }
+        it == unsafe { mem::transmute(None::<bool>) }
     },
 }
 
@@ -82,4 +91,10 @@ cfg_alloc! {
 
         char_p::Box => |it| it.is_null(),
     }
+}
+
+#[cfg(feature = "out-refs")]
+unsafe_impls! {
+    @for['out, T : 'out + ReprC]
+    Out<'out, T> => |it| it.is_null()
 }

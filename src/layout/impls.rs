@@ -701,29 +701,15 @@ impl_ReprC_for! { unsafe {
             (*it as usize) % ::core::mem::align_of::<T>() == 0
         }
     ,
+}}
 
-    @for[T : ReprC]
-    Option<ptr::NonNull<T>>
-        => |ref it: *const T::CLayout| {
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
-        }
-    ,
-    @for[T : ReprC]
-    Option< ptr::NonNullRef<T> >
-        => |ref it: *const T::CLayout| {
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
-        }
-    ,
-    @for[T : ReprC]
-    Option< ptr::NonNullMut<T> >
+/* `HasNiche` from `niche.rs` impls `ReprC` for `Option<ptr>` types. */
+
+#[cfg(feature = "out-refs")]
+impl_ReprC_for! { unsafe {
+    @for['out, T : 'out + Sized + ReprC]
+    Out<'out, T>
         => |ref it: *mut T::CLayout| {
             (*it as usize) % ::core::mem::align_of::<T>() == 0
-        }
-    ,
-    @for[T : ReprC]
-    Option< ptr::NonNullOwned<T> >
-        => |ref it: *mut T::CLayout| {
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
-        }
-    ,
+        },
 }}

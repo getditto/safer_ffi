@@ -31,6 +31,8 @@ debug_proc_macros = [
     "proc_macro/verbose-expansions",
 ]
 
+out-refs = ["uninit"]
+
 headers = [
     "inventory",
     "proc_macro/headers",
@@ -54,6 +56,12 @@ proc-macro-hack = { version = "0.5.15", optional = true }
 package = "repr_c-proc_macro"
 path = "src/proc_macro"
 version = "0.1.0"
+
+[dependencies.uninit]
+optional = true
+# Since we are relying on internals of their `Out` reference,
+# we pin the version.
+version = "=0.3.0"
 
 [workspace]
 members = ["src/proc_macro"]

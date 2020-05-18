@@ -207,6 +207,12 @@ mod prelude {
         },
         ops::Not as _,
     };
+
+    #[cfg(feature = "out-refs")]
+    #[cfg_attr(feature = "nightly",
+        doc(cfg(feature = "out-refs"))
+    )]
+    pub use ::uninit::out_ref::Out;
 }
 
 #[macro_export]
