@@ -805,32 +805,30 @@ macro_rules! ReprC {
                     fn c_short_name_fmt (fmt: &'_ mut $crate::core::fmt::Formatter<'_>)
                         -> $crate::core::fmt::Result
                     {
-                        let mut c_name = $crate::core::stringify!($StructName);
-                        c_name = c_name;
+                        let _c_name = $crate::core::stringify!($StructName);
                         $($(
                             let it = $c_name;
-                            c_name = it.as_ref();
+                            let _c_name = it.as_ref();
                         )?)?
-                        fmt.write_str(c_name)
+                        fmt.write_str(_c_name)
                     }
                     fn c_define_self (definer: &'_ mut (dyn $crate::headers::Definer))
                         -> $crate::std::io::Result<()>
                     {
-                        let mut c_name = $crate::core::stringify!($StructName);
-                        c_name = c_name;
+                        let _c_name = $crate::core::stringify!($StructName);
                         $($(
                             let it = $c_name;
-                            c_name = it.as_ref();
+                            let _c_name = it.as_ref();
                         )?)?
-                        definer.define_once(c_name, &mut |definer| {
-                            assert!(c_name.chars().all(|c| $crate::core::matches!(c,
+                        definer.define_once(_c_name, &mut |definer| {
+                            assert!(_c_name.chars().all(|c| $crate::core::matches!(c,
                                 'a' ..= 'z' |
                                 'A' ..= 'Z' |
                                 '0' ..= '9' | '_'
                             )));
                             $crate::core::write!(definer.out(),
                                 "typedef struct {0} {0}_t;\n\n",
-                                c_name,
+                                _c_name,
                             )
                         })
                     }
@@ -839,15 +837,14 @@ macro_rules! ReprC {
                         var_name: &'_ $crate::str,
                     ) -> $crate::core::fmt::Result
                     {
-                        let mut c_name = $crate::core::stringify!($StructName);
-                        c_name = c_name;
+                        let _c_name = $crate::core::stringify!($StructName);
                         $($(
                             let it = $c_name;
-                            c_name = it.as_ref();
+                            let _c_name: &'_ $crate::str = it.as_ref();
                         )?)?
                         $crate::core::write!(fmt,
                             "{}_t{sep}{}",
-                            c_name,
+                            _c_name,
                             var_name,
                             sep = if var_name.is_empty() { "" } else { " " },
                         )

@@ -162,6 +162,7 @@ mod prelude {
         pub use crate::char_p::{
             char_p_raw as Raw,
             char_p_ref as Ref,
+            new,
         };
         cfg_alloc! {
             #[doc(no_inline)]
@@ -209,7 +210,7 @@ mod prelude {
     };
 
     #[cfg(feature = "out-refs")]
-    #[cfg_attr(feature = "nightly",
+    #[cfg_attr(all(docs, feature = "nightly"),
         doc(cfg(feature = "out-refs"))
     )]
     pub use ::uninit::prelude::{

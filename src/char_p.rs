@@ -308,6 +308,16 @@ impl fmt::Debug
 }
 
 cfg_alloc! {
+    #[inline]
+    pub
+    fn new<Str> (s: Str)
+      -> char_p_boxed
+    where
+        char_p_boxed : hidden::__<Str>,
+    {
+        MyFrom::my_from(s)
+    }
+
     ReprC! {
         #[repr(transparent)]
         /// A `#[repr(c)]` null-terminated UTF-8 encoded string, for compatibility
@@ -366,7 +376,7 @@ cfg_alloc! {
         const
         unsafe
         fn from_ptr_unchecked (ptr: ptr::NonNull<u8>)
-          -> Self
+          -> char_p_boxed
         {
             Self(
                 ptr::NonNullOwned(ptr.cast(), PhantomData),
@@ -382,6 +392,43 @@ cfg_alloc! {
                 mem::transmute(self.0.as_ref())
             }
         }
+    }
+
+    use hidden::__ as MyFrom; mod hidden {
+        pub
+        trait __<Orig> { fn my_from (it: Orig) -> Self; }
+    }
+    macro_rules! derive_MyFrom_from {(
+        $(
+            $(@for[$($generics:tt)*])?
+            $T:ty => $Intermediate:ty
+        ),* $(,)?
+    ) => ($(
+        impl$(<$($generics)*>)? MyFrom<$T>
+            for char_p_boxed
+        {
+            #[inline]
+            fn my_from (it: $T)
+              -> char_p_boxed
+            {
+                // Note, the TryFrom for CString is unfallible so the bad error
+                // message is not seen
+                <Self as TryFrom<$Intermediate>>::try_from(it.into())
+                    .unwrap_or_else(|s| panic!(concat!(
+                        "Error, the string `{:?}` contains an inner nul byte",
+                        " and can thus not be converted to a C string without ",
+                        "truncating it.",
+                    ), s))
+            }
+        }
+    )*)}
+    derive_MyFrom_from! {
+        @for['lt] &'lt str => rust::String,
+        // @for['lt] str::Ref<'lt> => rust::String,
+        @for['lt] &'lt ::std::ffi::CStr => ::std::ffi::CString,
+        rust::String => rust::String,
+        String => rust::String,
+        ::std::ffi::CString => ::std::ffi::CString,
     }
 
     impl TryFrom<rust::String> for char_p_boxed {
