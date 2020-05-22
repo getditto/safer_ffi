@@ -1,0 +1,19 @@
+[book]
+title = "`repr_c` User Guide"
+guide = "A guide to learn how to use the `::repr_c` FFI framework"
+authors = ["Daniel Henry-Mantilla"]
+language = "en"
+multilingual = false
+src = "src"
+
+[build]
+build-dir = "../docs"
+create-missing = true
+
+[output.html]
+# theme = "theme"
+additional-css = ["theme/additional-css.css"]
+default-theme = "rust"
+fold = { enable = true, level = 5 }
+
+# [output.linkcheck]  # enable the "mdbook-linkcheck" renderer
