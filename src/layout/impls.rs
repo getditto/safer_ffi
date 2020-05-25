@@ -389,8 +389,8 @@ const _: () = { macro_rules! impl_CTypes {
                     &mut |definer| write!(definer.out(),
                         concat!(
                             "\n",
+                            "#include <stddef.h>\n",
                             "#include <stdint.h>\n",
-                            "#include <stdlib.h>\n",
                             "\n",
                         ),
                     ),

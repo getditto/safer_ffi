@@ -102,14 +102,13 @@ fn feed_to_macro_rules (input: TokenStream, name: Ident)
 ///   - corresponding to the following C definition:
 ///
 ///     ```C
-///     enum Status {
-///         Ok = 0,
-///         Busy,
-///         NotInTheMood,
-///         OnStrike,
-///         OhNo,
+///     typedef uint8_t Status_t; enum {
+///         STATUS_OK = 0,
+///         STATUS_BUSY,
+///         STATUS_NOT_IN_THE_MOOD,
+///         STATUS_ON_STRIKE,
+///         STATUS_OH_NO,
 ///     }
-///     typedef uint8_t Status_t;
 ///     ```
 ///
 /// ### Generic `struct`

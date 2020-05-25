@@ -5,7 +5,6 @@
 use_prelude!();
 
 #[doc(no_inline)]
-/// Foo
 pub use ::core::ptr::*;
 
 #[repr(transparent)]

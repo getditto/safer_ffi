@@ -24,7 +24,7 @@ fn get_origin ()
 }
 ```
 
-<details><summary>Generated C code</summary>
+<details><summary>Generated C header</summary>
 
 ```c
 typedef struct Point {
@@ -63,6 +63,29 @@ fn get_origin ()
 }
 ```
 
+<details><summary>Generated C header</summary>
+
+Each monomorphization leads to its own C definition:
+
+  - **`Point<i32>`**
+
+    ```C
+    typedef struct {
+        int32_t x;
+        int32_t y;
+    } Point_int32_t;
+    ```
+
+  - **`Point<f64>`**
+
+    ```C
+    typedef struct {
+        double x;
+        double y;
+    } Point_double_t;
+    ```
+</details>
+
 ## Requirements
 
   - All the fields must be [`ReprC`] or generic.
@@ -72,7 +95,9 @@ fn get_origin ()
 
   - The struct must be non-empty (because ANSI C does not support empty structs)
 
-## Going further: `transparent` newtype wrapper
+## Going further
+
+<details><summary>Transparent newtype wrapper</summary>
 
 ```rust,noplaypen
 use ::repr_c::{prelude::*, ptr};
@@ -113,5 +138,7 @@ would then generate:
 int32_t * new_int (
     int32_t x);
 ```
+
+</details>
 
 </details>

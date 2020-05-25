@@ -1,30 +1,10 @@
 {{#include ../links.md}}
 
-# `#[derive_ReprC] enum`
+# Deriving `ReprC` for custom enums
 
-## (Basic) enums
+## C enums
 
-### Usage
-
-```rust,noplaypen
-use ::repr_c::prelude:*;
-
-#[derive_ReprC] // <- `::repr_c`'s attribute
-#[repr(u8)]     // <- explicit integer `repr` is mandatory!
-pub
-enum LogLevel {
-    Off = 0,    // <- explicit discriminants are supported
-    Error,
-    Warning,
-    Info,
-    Debug,
-}
-```
-
-### What is a _basic_ enum?
-
-It is an enum that only has _unit_ variants. It is also
-called a field-less enum, or a C-like enum.
+A C enum is a field-less enum, _i.e._, an enum that only has _unit_ variants.
 
 <details><summary>Examples</summary>
 
@@ -50,7 +30,40 @@ enum ErrorKind {
 
 See [the reference for more info about them][rust-reference-fieldless-enums].
 
-Such an `enum` is generally used to define a _closed_ set of _distinct_
+### Usage
+
+```rust,noplaypen
+use ::repr_c::prelude:*;
+
+#[derive_ReprC] // <- `::repr_c`'s attribute
+#[repr(u8)]     // <- explicit integer `repr` is mandatory!
+pub
+enum LogLevel {
+    Off = 0,    // <- explicit discriminants are supported
+    Error,
+    Warning,
+    Info,
+    Debug,
+}
+```
+
+<details><summary>Generated C header</summary>
+
+```c
+typedef uint8_t LogLevel_t; enum {
+    LOGLEVEL_OFF = 0,
+    LOGLEVEL_ERROR,
+    LOGLEVEL_WARNING,
+    LOGLEVEL_INFO,
+    LOGLEVEL_DEBUG,
+};
+```
+
+</details>
+
+### Layout of C enums
+
+These enums are generally used to define a _closed_ set of _distinct_ integral
 constants in a _type-safe_ fashion.
 
 But when used from C, the type safety is kind of lost, given how loosely C
@@ -58,21 +71,26 @@ converts back and forth between `enum`s and integers.
 
 This leads to a very important point:
 
-### What is the integer type of the enum discriminants?
+> What is the integer type of the enum discriminants?
 
 With **no** `#[repr(...)]` annotation whatsoever, Rust reserves the right to
-choose whatevery it wants: no defined C layout, so **not FFI-safe** either.
+choose whatever it wants: no defined C layout, so **not FFI-safe**.
 
 With `#[repr(Int)]` (where `Int` can be `u8`, `i8`, `u32`,
 _etc._) Rust is forced to use that very `Int` type.
 
-With `#[repr(C)]`, Rust will pick what C would pick with an equivalent
-definition...
+With `#[repr(C)]`, Rust will pick what C would pick if it were given an
+equivalent definition.
 
-... and it turns out C itself does not really define a concrete integer layout
-for its enums ⚠️
+<span class="warning">
 
-Indeed, the C standard only states that:
+`#[repr(C)]` enums can cause UB when used across FFI ⚠️
+
+</span>
+
+<details><summary>Click for more info</summary>
+It turns out C itself does not really define a concrete integer layout
+for its enums. Indeed, the C standard only states that:
 
   - the discriminants are `int`s.
 
@@ -89,12 +107,6 @@ Indeed, the C standard only states that:
         or a Rust generated `staticlib` / `cdylib`, then such mimsatch is
         very likely to cause Undefined Behavior!
 
-<span class="warning">
-
-`#[repr(C)]` enums can cause UB when used across FFI ⚠️
-
-</span>
-
 In practice, when C defines an `enum` to be used by Rust, there is no other
 choice but to use `#[repr(C)]` and pray / ensure that the C library is compiled
 with the same semantics that Rust expects (_e.g._, no `-fshort-enums` flag).
@@ -103,37 +115,16 @@ But when doing FFI in the other direction, there is no reason whatsoever to use
 `#[repr(C)]`: **picking a fixed-size integer is then the most sensible thing to
 do for a well-defined and thus robust FFI interface**.
 
+</details>
+
 That's why [`#[derive_ReprC]`][derive_ReprC] makes the opinionated choice of
-refusing to handle an `enum` definition that does not provide an
-explicit fixed-size integer representation.
+**refusing to handle an `enum` definition that does not provide an
+explicit fixed-size integer representation**.
 
-## Example
+## More complex enums
 
-```rust,noplaypen
-#[derive_ReprC]
-#[repr(i8)]
-pub
-enum Direction {
-    Up = 1,
-    Down = -1,
-}
+<span class="warning">
 
-#[ffi_export]
-fn is_up (dir: Direction)
-  -> bool
-{
-    matches!(dir, Direction::Up)
-}
-```
+Are not supported yet.
 
-  - generates:
-
-    ```c
-    typedef int8_t Direction_t; enum {
-        DIRECTION_UP = 1,
-        DIRECTION_DOWN = -1,
-    };
-
-    bool is_up (
-        Direction_t dir);
-    ```
+</span>

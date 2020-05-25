@@ -422,7 +422,7 @@ __cfg_headers__! {
 /// association of `ReprC::CLayout`, which must be a [`CType`][`trait@CType`].
 ///
 /// Because of that property, the type may be used in the API of an
-/// `#[ffi_export]`-ed function, where ABI-wise it will can replaced by its
+/// `#[ffi_export]`-ed function, where ABI-wise it will be replaced by its
 /// equivalent [C layout][`ReprC::CLayout`].
 ///
 /// Then, `#[ffi_export]` will transmute the `CType` parameters back to the
@@ -516,14 +516,13 @@ __cfg_headers__! {
 ///   - corresponding to the following C definition:
 ///
 ///     ```C
-///     enum Status {
-///         Ok = 0,
-///         Busy,
-///         NotInTheMood,
-///         OnStrike,
-///         OhNo,
+///     typedef uint8_t Status_t; enum {
+///         STATUS_OK = 0,
+///         STATUS_BUSY,
+///         STATUS_NOT_IN_THE_MOOD,
+///         STATUS_ON_STRIKE,
+///         STATUS_OH_NO,
 ///     }
-///     typedef uint8_t Status_t;
 ///     ```
 ///
 /// or you can use what the attribute macro expands to, to avoid requiring
@@ -546,9 +545,6 @@ __cfg_headers__! {
 /// ```
 ///
 /// #### Generic `struct`
-///
-/// In that case, it is required that the struct's generic types carry a
-/// `: ReprC` bound each:
 ///
 /// ```rust,no_run
 /// # fn main () {}

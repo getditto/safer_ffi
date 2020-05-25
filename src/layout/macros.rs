@@ -518,7 +518,7 @@ macro_rules! ReprC {
             fn is_niche (it: &'_ <Self as $crate::layout::ReprC>::CLayout)
               -> bool
             {
-                <$field_ty as $crate::layout::ReprC>::is_niche(it)
+                <$field_ty as $crate::layout::__HasNiche__>::is_niche(it)
             }
         }
     );

@@ -33,7 +33,7 @@ ReprC! {
     /// typedef struct {
     ///     // Cannot be NULL
     ///     T * ptr;
-    ///     uintptr_t len;
+    ///     size_t len;
     /// } slice_T;
     /// ```
     ///
@@ -106,7 +106,7 @@ cfg_alloc! {
         /// typedef struct {
         ///     // Cannot be NULL
         ///     T * ptr;
-        ///     uintptr_t len;
+        ///     size_t len;
         /// } slice_T;
         /// ```
         ///
@@ -269,7 +269,7 @@ ReprC! {
     /// typedef struct {
     ///     // Cannot be NULL
     ///     T * ptr;
-    ///     uintptr_t len;
+    ///     size_t len;
     /// } slice_T;
     /// ```
     ///
@@ -399,7 +399,7 @@ ReprC! {
     /// typedef struct {
     ///     // Cannot be NULL
     ///     T * ptr;
-    ///     uintptr_t len;
+    ///     size_t len;
     /// } slice_T;
     /// ```
     ///

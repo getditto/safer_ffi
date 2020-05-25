@@ -1,3 +1,5 @@
+# Appendix: Being compatible with `free()`
+
 ```rust,noplaypen
 use ::repr_c::{prelude::*, ptr};
 
