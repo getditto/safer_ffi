@@ -7,7 +7,6 @@ multilingual = false
 src = "src"
 
 [build]
-build-dir = "../docs"
 create-missing = true
 
 [output.html]
