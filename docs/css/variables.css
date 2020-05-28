@@ -170,12 +170,12 @@
     --search-mark-bg: #a2cff5;
 }
 
-.rust {
-    --bg: hsl(60, 9%, 87%);
+.ditto {
+    --bg: #ffffff;
     --fg: #262625;
 
-    --sidebar-bg: #3b2e2a;
-    --sidebar-fg: #c8c9db;
+    --sidebar-bg: #335EEA;
+    --sidebar-fg: #ffffff;
     --sidebar-non-existant: #505254;
     --sidebar-active: #e69f67;
     --sidebar-spacer: #45373a;
@@ -185,7 +185,7 @@
     --icons: #737480;
     --icons-hover: #262625;
 
-    --links: #2b79a2;
+    --links: #335EEA;
 
     --inline-code-color: #6e6b5e;
 
