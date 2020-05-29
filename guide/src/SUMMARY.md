@@ -16,10 +16,10 @@
 
   - [`#[derive_ReprC]`](derive-reprc/_.md)
 
-      - [`#[repr(C)] struct`](derive-reprc/repr-c-struct.md)
+      - [On a `struct`](derive-reprc/struct.md)
 
-      - [`#[repr({int})] enum`](derive-reprc/repr-int-enum.md)
+      - [On an `enum`](derive-reprc/enum.md)
 
-  - [Example: our own `hashmap` in C](hashmap-example/_.md)
+  - [Example: Real-world use case at Ditto](example-ditto/_.md)
 
-  - [Real-world example at Ditto](ditto/_.md)
+  - [Example: our own `hashmap` in C](example-hashmap/_.md)

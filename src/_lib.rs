@@ -34,10 +34,10 @@ extern crate proc_macro;
 pub use ::proc_macro::{ffi_export, cfg_headers};
 cfg_proc_macros! {
     #[::proc_macro_hack::proc_macro_hack]
-    /// Creates a compile-time checked [`char_p_ref`]`<'static>` out of a
+    /// Creates a compile-time checked [`char_p::Ref`]`<'static>` out of a
     /// string literal.
     ///
-    /// [`char_p_ref`]: `crate::prelude::char_p_ref`
+    /// [`char_p::Ref`]: `crate::prelude::char_p::Ref`
     pub use ::proc_macro::c_str as c;
 
     #[doc(inline)]

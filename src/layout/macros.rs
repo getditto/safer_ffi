@@ -503,6 +503,24 @@ macro_rules! ReprC {
                 )
             }
         }
+
+        #[allow(trivial_bounds)]
+        unsafe // Safety: niches are preserved across `#[repr(transparent)]`
+        impl $(<$($generics)*>)? $crate::layout::__HasNiche__
+            for $StructName $(<$($generics)*>)?
+        where
+            $field_ty : $crate::layout::__HasNiche__,
+            $($(
+                $($bounds)*
+            )?)?
+        {
+            #[inline]
+            fn is_niche (it: &'_ <Self as $crate::layout::ReprC>::CLayout)
+              -> bool
+            {
+                <$field_ty as $crate::layout::ReprC>::is_niche(it)
+            }
+        }
     );
 
     // field-less `enum`
