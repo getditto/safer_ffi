@@ -25,34 +25,34 @@
     DITTO LINKS
 )
 [Ditto]: https://www.ditto.live/about/company
-[Ditto-logo]: /assets/ditto-small.png
+[Ditto-logo]: /safer_ffi/assets/ditto-small.png
 
 [comments]: <> (
     INTERNAL CHAPTERS OR SECTIONS
 )
-[usage]: /usage/_.md
-[ffi_export]: /ffi-export/_.md
-[derive_ReprC]: /derive-reprc/_.md
-[how-does-safer_ffi-work]: /appendix/how-does-safer_ffi-work.md
-[cargo-toml]: /usage/cargo-toml.md
-[header-generation]: /usage/lib-rs.md#header-generation
-[c-compilation]: /appendix/c-compilation.md
-[repr-c-forall]: /motivation/repr-c-forall.md
+[usage]: /safer_ffi/usage/_.md
+[ffi_export]: /safer_ffi/ffi-export/_.md
+[derive_ReprC]: /safer_ffi/derive-reprc/_.md
+[how-does-safer_ffi-work]: /safer_ffi/appendix/how-does-safer_ffi-work.md
+[cargo-toml]: /safer_ffi/usage/cargo-toml.md
+[header-generation]: /safer_ffi/usage/lib-rs.md#header-generation
+[c-compilation]: /safer_ffi/appendix/c-compilation.md
+[repr-c-forall]: /safer_ffi/motivation/repr-c-forall.md
 
 [comments]: <> (
     RUST DOCUMENTATION
 )
-[Rust documentation]: /rustdoc/safer_ffi/
-[`ReprC`]: /rustdoc/safer_ffi/layout/trait.ReprC.html
-[`CType`]: /rustdoc/safer_ffi/layout/trait.CType.html
-[`repr_c::Box`]: /rustdoc/safer_ffi/boxed/struct.Box.html
-[`c_slice::Box`]: /rustdoc/safer_ffi/slice/struct.slice_boxed.html
-[`c_slice::Ref`]: /rustdoc/safer_ffi/slice/struct.slice_ref.html
-[`c_slice::Mut`]: /rustdoc/safer_ffi/slice/struct.slice_mut.html
-[`repr_c::Vec`]: /rustdoc/safer_ffi/vec/struct.Vec.html
-[`repr_c::String`]: /rustdoc/safer_ffi/string/struct.String.html
-[`str::Box`]: /rustdoc/safer_ffi/string/struct.str_boxed.html
-[`str::Ref`]: /rustdoc/safer_ffi/string/struct.str_ref.html
-[`char_p::Box`]: /rustdoc/safer_ffi/char_p/struct.char_p_boxed.html
-[`char_p::Ref`]: /rustdoc/safer_ffi/char_p/struct.char_p_ref.html
-[`safer_ffi::headers::builder()`]: /rustdoc/safer_ffi/headers/struct.Builder.html
+[Rust documentation]: /safer_ffi/rustdoc/safer_ffi/
+[`ReprC`]: /safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html
+[`CType`]: /safer_ffi/rustdoc/safer_ffi/layout/trait.CType.html
+[`repr_c::Box`]: /safer_ffi/rustdoc/safer_ffi/boxed/struct.Box.html
+[`c_slice::Box`]: /safer_ffi/rustdoc/safer_ffi/slice/struct.slice_boxed.html
+[`c_slice::Ref`]: /safer_ffi/rustdoc/safer_ffi/slice/struct.slice_ref.html
+[`c_slice::Mut`]: /safer_ffi/rustdoc/safer_ffi/slice/struct.slice_mut.html
+[`repr_c::Vec`]: /safer_ffi/rustdoc/safer_ffi/vec/struct.Vec.html
+[`repr_c::String`]: /safer_ffi/rustdoc/safer_ffi/string/struct.String.html
+[`str::Box`]: /safer_ffi/rustdoc/safer_ffi/string/struct.str_boxed.html
+[`str::Ref`]: /safer_ffi/rustdoc/safer_ffi/string/struct.str_ref.html
+[`char_p::Box`]: /safer_ffi/rustdoc/safer_ffi/char_p/struct.char_p_boxed.html
+[`char_p::Ref`]: /safer_ffi/rustdoc/safer_ffi/char_p/struct.char_p_ref.html
+[`safer_ffi::headers::builder()`]: /safer_ffi/rustdoc/safer_ffi/headers/struct.Builder.html
