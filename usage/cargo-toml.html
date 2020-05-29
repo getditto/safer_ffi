@@ -1,0 +1,287 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js rust">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Cargo.toml - `safer_ffi` User Guide</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+        <link rel="stylesheet" href="../theme/additional-css.css">
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "rust" : "rust";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('rust')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../introduction/getting_started.html"><strong aria-hidden="true">1.1.</strong> Getting Started</a></li></ol></li><li class="chapter-item expanded "><a href="../motivation/_.html"><strong aria-hidden="true">2.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../motivation/traditional-ffi.html"><strong aria-hidden="true">2.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="../motivation/repr-c-forall.html"><strong aria-hidden="true">2.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="../simple-examples/_.html"><strong aria-hidden="true">3.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../simple-examples/string_concat.html"><strong aria-hidden="true">3.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="../simple-examples/max.html"><strong aria-hidden="true">3.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="../usage/_.html"><strong aria-hidden="true">4.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../usage/cargo-toml.html" class="active"><strong aria-hidden="true">4.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="../usage/lib-rs.html"><strong aria-hidden="true">4.2.</strong> src/lib.rs and header generation</a></li></ol></li><li class="chapter-item expanded "><a href="../derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="../derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="../ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="../ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="../example-ditto/_.html">Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded affix "><a href="../example-hashmap/_.html">Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="../appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="../appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <footer style="margin: 0 0 25px 0; display: flex; align-items: center">
+    <span stle="font-size: small">Sponsored by </span>
+    <a href="https://www.ditto.live/about/company"><img style="margin-left:5px;" src="https://www.ditto.live/assets/img/brand/footer_logo.png" alt="Ditto" height="30"/></a>
+</footer>
+
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">`safer_ffi` User Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#cargotoml" id="cargotoml"><code>Cargo.toml</code></a></h1>
+<h3><a class="header" href="#lib-crate-type" id="lib-crate-type"><code>[lib] crate-type</code></a></h3>
+<p>So, to ensure we compile a <a href="/safer_ffi/appendix/c-compilation.html">static or dynamic library</a>
+containing the definitions of our <code>#[ffi_export]</code> functions (+ any code they
+transitively depend on), we need to tell to <code>cargo</code> that our crate is of that
+type:</p>
+<pre><code class="language-toml"># Cargo.toml
+
+[lib]
+crate-type = [
+    &quot;staticlib&quot;,  # to generate a C _static_ library file:
+                  # `target/{debug,release}/libcrate_name.a`
+    # and / or:
+    &quot;cdylib&quot;,     # to generate a C _dynamic_ library file,
+                  # `target/{debug,release}/libcrate_name.{so,dylib}`
+]
+</code></pre>
+<h3><a class="header" href="#dependenciessafer_ffi" id="dependenciessafer_ffi"><code>[dependencies.safer_ffi]</code></a></h3>
+<p>To get access to <code>safer_ffi</code> and its ergonomic attribute macros we add <code>safer_ffi</code> as
+a dependency, and enable the <code>proc-macros</code> feature:</p>
+<pre><code class="language-toml">[dependencies]
+safer-ffi = { version = &quot;...&quot;, features = [&quot;proc-macros&quot;] }
+</code></pre>
+<ul>
+<li>or instead simply run <code>cargo add safer_ffi --features proc-macros</code> if you
+have <a href="https://github.com/killercup/cargo-edit"><code>cargo edit</code></a>.</li>
+</ul>
+<details><summary>About the <code>proc-macros</code> feature</summary>
+<p>although still a WIP, the author of <code>safer_ffi</code> is making an important effort
+to make the usage of procedural macros be as optional as possible, so
+as to allow downstream users to avoid pulling the very heavyweight
+<code>syn + quote</code> dependencies, by offering alternative basic macros
+alternatives (such as <code>ReprC!</code> instead of <code>#[derive_ReprC]</code>)</p>
+</details>
+<ul>
+<li>
+<p>If working in a <code>no_std</code> environment, you will need to disable the default
+<code>std</code> feature by adding <code>default-features = false</code>.</p>
+<ul>
+<li>if, however, you still have access to an allocator, you can enable the
+<code>alloc</code> feature, to get the defintions of <code>safer_ffi::{Box, String, Vec}</code>
+<em>etc.</em></li>
+</ul>
+</li>
+<li>
+<p>You may also enable the <code>log</code> feature so that <code>safer_ffi</code> may log <code>error!</code>s
+when the semi-checked casts from raw C types into their Rust counterparts
+fail (<em>e.g.</em>, when receiving a <code>bool</code> that is nether <code>0</code> nor <code>1</code>).</p>
+</li>
+</ul>
+<h3><a class="header" href="#features-c-headers" id="features-c-headers"><code>[features] c-headers</code></a></h3>
+<p>Finally, in order to alleviate the compile-time when not generating the headers
+(it is customary to bundle pre-generated headers when distributing an
+FFI-compatible Rust crate), the runtime C reflection and header generation
+machinery (the most heavyweight part of <code>safer_ffi</code>) is feature-gated away by
+default (behind the <code>safer_ffi/headers</code> feature).</p>
+<p>However, when <a href="/safer_ffi/usage/lib-rs.html#header-generation">generating the headers</a>, such machinery is
+needed. Thus the simplest solution is for the FFI crate to have a Cargo feature
+(flag) that transitively enables the <code>safer_ffi/headers</code> feature. You can name such
+feature however you want. In this guide, it is named <code>c-headers</code>.</p>
+<pre><code class="language-toml">[features]
+c-headers = [&quot;safer_ffi/headers&quot;]
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../usage/_.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../usage/lib-rs.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../usage/_.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../usage/lib-rs.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js rust">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Auto-generated checks - `safer_ffi` User Guide</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+        <link rel="stylesheet" href="../theme/additional-css.css">
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "rust" : "rust";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('rust')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../introduction/getting_started.html"><strong aria-hidden="true">1.1.</strong> Getting Started</a></li></ol></li><li class="chapter-item expanded "><a href="../motivation/_.html"><strong aria-hidden="true">2.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../motivation/traditional-ffi.html"><strong aria-hidden="true">2.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="../motivation/repr-c-forall.html"><strong aria-hidden="true">2.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="../simple-examples/_.html"><strong aria-hidden="true">3.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../simple-examples/string_concat.html"><strong aria-hidden="true">3.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="../simple-examples/max.html"><strong aria-hidden="true">3.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="../usage/_.html"><strong aria-hidden="true">4.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../usage/cargo-toml.html"><strong aria-hidden="true">4.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="../usage/lib-rs.html"><strong aria-hidden="true">4.2.</strong> src/lib.rs and header generation</a></li></ol></li><li class="chapter-item expanded "><a href="../derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="../derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="../ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ffi-export/sanity-checks.html" class="active"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="../ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="../example-ditto/_.html">Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded affix "><a href="../example-hashmap/_.html">Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="../appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="../appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <footer style="margin: 0 0 25px 0; display: flex; align-items: center">
+    <span stle="font-size: small">Sponsored by </span>
+    <a href="https://www.ditto.live/about/company"><img style="margin-left:5px;" src="https://www.ditto.live/assets/img/brand/footer_logo.png" alt="Ditto" height="30"/></a>
+</footer>
+
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">`safer_ffi` User Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#ffi_export" id="ffi_export"><code>#[ffi_export]</code></a></h1>
+<h2><a class="header" href="#auto-generated-sanity-checks" id="auto-generated-sanity-checks">Auto-generated sanity checks</a></h2>
+<p>The whole design of the <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> trait, <em>i.e.</em>, a trait that expresses that a
+type has a C layout, <em>i.e.</em>, that it has an <em>associated</em> &quot;raw&quot;
+<a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.CType.html">C type</a> (types with no validity invariants whatsoever), means that
+the actual <code>#[no_mangle]</code>-exported function is one using the associated
+<a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.CType.html">C types</a> in its function signature. This ensures that a foreign call
+to such functions (<em>i.e.</em>, C calling into that function) <strong>will not directly
+trigger &quot;instant UB&quot;</strong>, contrary to a hand-crafted definition.</p>
+<ul>
+<li>
+<p>Indeed, if you were to export a function such as:</p>
+<pre><code class="language-rust noplaypen">#[repr(C)]
+enum LogLevel {
+    Error,
+    Warning,
+    Info,
+    Debug,
+}
+
+#[no_mangle] pub extern &quot;C&quot;
+fn set_log_level (level: LogLevel)
+{
+    // ...
+}
+</code></pre>
+<p>then C code calling <code>set_log_level</code> with a value different to the four only
+possible discriminants of <code>LogLevel</code> (<code>0, 1, 2, 3</code> in this case) would
+instantly trigger Undefined Behavior no matter what the body of
+<code>set_log_level</code> would be.</p>
+<p>Instead, when using <code>safer_ffi</code>, the following code:</p>
+<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
+
+#[derive_ReprC]
+#[repr(u8)] // Associated CType: a plain `u8`
+enum LogLevel {
+    Error,
+    Warning,
+    Info,
+    Debug,
+}
+
+#[ffi_export]
+fn set_log_level (level: LogLevel)
+{
+    // ...
+}
+</code></pre>
+<p>unsugars to (something along the lines of):</p>
+<pre><code class="language-rust noplaypen">fn set_log_level (level: LogLevel)
+{
+    // ...
+}
+
+mod hidden {
+    #[no_mangle] pub unsafe extern &quot;C&quot;
+    fn set_log_level (level: u8)
+    {
+        match ::safer_ffi::layout::from_raw(level) {
+            | Some(level /* : LogLevel */) =&gt; {
+                super::set_log_level(level)
+            },
+            | None =&gt; {
+                // Got an invalid `LogLevel` bit-pattern
+                if compile_time_condition() {
+                    eprintln!(&quot;Got an invalid `LogLevel` bit-pattern&quot;)
+                    abort();
+                } else {
+                    use ::std::hint::unreachable_unchecked as UB;
+                    UB()
+                }
+            },
+        }
+    }
+}
+</code></pre>
+</li>
+</ul>
+<p>So, basically, there is an attempt to <code>transmute</code> the input
+<a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.CType.html">C type</a> to the expected <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> type, but such attempt can fail
+if the auto-generated sanity-check detects that so doing would not be
+safe (<em>e.g.</em>, input integer corresponding to no <code>enum</code> variant, NULL pointer
+when the <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> type is guaranteed not to be it, unaligned pointer when
+the <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> type is guaranteed to be aligned).</p>
+<h3><a class="header" href="#caveats" id="caveats">Caveats</a></h3>
+<p>Such check cannot be exhaustive (in the case of pointers for instance, <code>safer_ffi</code>
+cannot possibly know if it is valid to dereference a non-null and well-aligned
+pointer). This means that there are still cases where UB can be triggered
+nevertheless, hence it being named a <em>sanity</em> check and not a <em>safety</em> check.</p>
+<ul>
+<li>Only in the case of a (field-less) <code>enum</code> can <code>safer_ffi</code> ensure lack of
+UB no matter the (integral) <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.CType.html">C type</a> instance given as input.</li>
+</ul>
+<p>As you may notice by looking at the code, there is a <code>compile_time_condition()</code>
+to actually <code>abort</code> instead of triggering UB. This means that when such
+condition is not met, UB is actually triggered and we are back to the
+<code>#[no_mangle]</code> case.</p>
+<p>This is by design: such runtime checks may have a performance impact that some
+programmers may deem unacceptable, so it is logical that there be some escape
+hatch in that regard.</p>
+<p>As of this writing, <code>compile_time_condition()</code> is currently
+<code>cfg!(debug_assertions)</code>, which means that by default such checks are
+<em>disabled</em> on release.</p>
+<ul>
+<li>
+<p>This is not optimal safety-wise, since the default configuration is too
+loose. The author of the crate is aware of that and intending to replace
+that with:</p>
+<ul>
+<li><a href="attributes.html#unsafely-disabling-the-runtime-sanity-checks">an <code>unsafe</code> attribute parameter</a>
+that would nevertheless only truly opt-out when
+<code>debug_assertions</code> are disabled.</li>
+</ul>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../ffi-export/_.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../ffi-export/attributes.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../ffi-export/_.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../ffi-export/attributes.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

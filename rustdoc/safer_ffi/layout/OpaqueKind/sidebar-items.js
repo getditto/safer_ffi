@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Concrete",""],["Opaque",""]],"trait":[["__",""]]});

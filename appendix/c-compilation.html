@@ -1,0 +1,343 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js rust">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Appendix: FFI and C compilation - `safer_ffi` User Guide</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+        <link rel="stylesheet" href="../theme/additional-css.css">
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "rust" : "rust";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('rust')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../introduction/getting_started.html"><strong aria-hidden="true">1.1.</strong> Getting Started</a></li></ol></li><li class="chapter-item expanded "><a href="../motivation/_.html"><strong aria-hidden="true">2.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../motivation/traditional-ffi.html"><strong aria-hidden="true">2.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="../motivation/repr-c-forall.html"><strong aria-hidden="true">2.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="../simple-examples/_.html"><strong aria-hidden="true">3.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../simple-examples/string_concat.html"><strong aria-hidden="true">3.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="../simple-examples/max.html"><strong aria-hidden="true">3.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="../usage/_.html"><strong aria-hidden="true">4.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../usage/cargo-toml.html"><strong aria-hidden="true">4.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="../usage/lib-rs.html"><strong aria-hidden="true">4.2.</strong> src/lib.rs and header generation</a></li></ol></li><li class="chapter-item expanded "><a href="../derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="../derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="../ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="../ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="../example-ditto/_.html">Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded affix "><a href="../example-hashmap/_.html">Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="../appendix/c-compilation.html" class="active">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="../appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <footer style="margin: 0 0 25px 0; display: flex; align-items: center">
+    <span stle="font-size: small">Sponsored by </span>
+    <a href="https://www.ditto.live/about/company"><img style="margin-left:5px;" src="https://www.ditto.live/assets/img/brand/footer_logo.png" alt="Ditto" height="30"/></a>
+</footer>
+
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">`safer_ffi` User Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#appendix-a-quick-reminder-of-c-compilation-in-unix" id="appendix-a-quick-reminder-of-c-compilation-in-unix">Appendix: A quick reminder of C compilation in Unix</a></h1>
+<p>Exporting / generating a C library requires <em>two</em> things:</p>
+<ul>
+<li>
+<p><strong>the header file(s)</strong> (<code>.h</code>), which contain the C signatures and thus the
+type (and ABI!) information of the exported functions and types.</p>
+<ul>
+<li>
+<p>Such file(s) must be <code>#include</code>d at the beginning of the C code, and are
+thus required to compile any C source file that <em>directly</em> calls into
+our Rust functions.</p>
+</li>
+<li>
+<p>It may be necessary to tell the compiler (the C preprocessor, to be
+exact) the path to the folder containg the file(s), by using the <code>-I</code>
+flag: <code>-I path/to/headers/dir</code></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>the object file(s)</strong> (<code>.o</code>), or archive (<code>.a</code>) of such files (also called
+a <em>static library</em>), or a dynamic library (<code>.so</code> on Linux, <code>.dylib</code> on
+OS X), which contain the machine code with the actual logic of such
+functions.</p>
+<ul>
+<li>
+<p>When linking, such file(s) must be referred to:</p>
+<ul>
+<li>
+<p>either by full path in the case of <code>.o</code> and <code>.a</code> files,</p>
+</li>
+<li>
+<p>or, in the case of libraries (<code>.a</code> and <code>.so</code> / <code>.dylib</code>),
+when those are named as <code>libsome_name.extension</code>, by using the
+<code>-l</code> flag, and feeding it the parameter <code>some_name</code>
+(<code>-l some_name</code>).</p>
+<ul>
+<li>It may be necessary to tell the compiler (the linker, to be
+exact) the path to the folder containg the file(s), by using
+the <code>-L</code> flag: <code>-L path/to/libraries/dir</code></li>
+</ul>
+</li>
+<li>
+<p>yes, there are <em>two</em> ways to refer to a static library, due to its
+dual nature of being both a library and a &quot;simple&quot; archive of raw
+<code>.o</code> files.</p>
+</li>
+</ul>
+<p>In all cases, &quot;remember&quot; to refer to the library object files <em>after</em>
+the files for your downstream binary:</p>
+<pre><code class="language-bash"># Incorrect
+cc -L my_lib/dir -l mylib_name main.o -o main
+# Correct
+cc main.o -L my_lib/dir -l mylib_name -o main
+</code></pre>
+<ul>
+<li>This is because the linker may disregard symbols that are not (yet)
+needed, so the callers need to come before the callees.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2><a class="header" href="#static-vs-dynamic-library" id="static-vs-dynamic-library">Static <em>vs.</em> Dynamic library</a></h2>
+<p>If you don't know which to use, <strong>it is highly recommended to use a static
+library</strong>. Indeed:</p>
+<ul>
+<li>
+<p>Dynamic (also named <em>shared</em>) libraries are mainly a file-size optimization
+when having multiple downstream binaries that all depend upon the same
+(<em>shared</em>) library, which is quite unlikely to be the case for a Rust
+library.</p>
+</li>
+<li>
+<p>Dynamic libraries result in the produced program being split among multiple
+files (the main binary and the dynamic library), which is not only
+slightly less convinient than a bundled single file, but it also incurs in
+requiring a correct setup system-wise or binary-wise so that the dynamic
+library can be found at <em>load time</em>, <em>i.e.</em>, each and every time the binary
+is run.</p>
+<p>This means the the dynamic library needs to be located:</p>
+<ul>
+<li>
+<p>either in special directories such as <code>/usr/lib</code>, which may require
+<code>root</code> access and/or a special (<code>make</code>) <code>install</code>ation step.</p>
+<ul>
+<li>I'd even say that this is, by the way, the main <em>raison d'être</em> for
+tools such as Docker: having a reliable dynamic-library setup is
+so painful that one ends up scripting each and every step of the
+installation process to guarantee that all the tools are correcly
+laid out within the filesystem, and that there are no extraneous
+misinteractions.</li>
+</ul>
+</li>
+<li>
+<p>or in a relative path (<code>-Wl,-rpath,...</code> flag), either relative to the
+working directory, or relative to the location of the main binary. In
+both cases this may expose the user to code injection (one can easily
+shadow the dynamic library with their own in such cases), which,
+especially when the main binary has special privileges, is a security
+hazard.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>When <em>all</em> the libraries used by a binary are static, one gets to have a
+<strong>stand-alone program</strong>, also called &quot;portable&quot; (only across machines of
+the same architecture, though), which, contrary to &quot;setup hell&quot;, leads to
+very simple &quot;installation&quot;s (simply copy-paste the binary, and you can run
+it!)</p>
+</li>
+<li>
+<p>That being said, the layer of indirection that dynamic libraries introduce
+can be beneficial or interesting in very special cases, which leads to some
+situations where releasing the library as a dynamic one is mandatory.
+In such cases there is no real choice, and you should be using Rust's
+<code>cdylib</code>'s <code>crate-type</code> to generate the shared library.</p>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../example-hashmap/_.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../appendix/how-does-safer_ffi-work.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../example-hashmap/_.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../appendix/how-does-safer_ffi-work.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

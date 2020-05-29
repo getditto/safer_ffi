@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["IterOut","The value obtained when calling `.into_iter()` on a `Out<'out, [T]>`."]]});

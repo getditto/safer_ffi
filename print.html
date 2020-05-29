@@ -1,0 +1,1639 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js rust">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>`safer_ffi` User Guide</title>
+        
+        <meta name="robots" content="noindex" />
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+        <link rel="stylesheet" href="theme/additional-css.css">
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "rust" : "rust";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('rust')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="introduction/getting_started.html"><strong aria-hidden="true">1.1.</strong> Getting Started</a></li></ol></li><li class="chapter-item expanded "><a href="motivation/_.html"><strong aria-hidden="true">2.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="motivation/traditional-ffi.html"><strong aria-hidden="true">2.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="motivation/repr-c-forall.html"><strong aria-hidden="true">2.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="simple-examples/_.html"><strong aria-hidden="true">3.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-examples/string_concat.html"><strong aria-hidden="true">3.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="simple-examples/max.html"><strong aria-hidden="true">3.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="usage/_.html"><strong aria-hidden="true">4.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="usage/cargo-toml.html"><strong aria-hidden="true">4.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="usage/lib-rs.html"><strong aria-hidden="true">4.2.</strong> src/lib.rs and header generation</a></li></ol></li><li class="chapter-item expanded "><a href="derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="example-ditto/_.html">Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded affix "><a href="example-hashmap/_.html">Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <footer style="margin: 0 0 25px 0; display: flex; align-items: center">
+    <span stle="font-size: small">Sponsored by </span>
+    <a href="https://www.ditto.live/about/company"><img style="margin-left:5px;" src="https://www.ditto.live/assets/img/brand/footer_logo.png" alt="Ditto" height="30"/></a>
+</footer>
+
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">`safer_ffi` User Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <span class="warning">
+<p>Warning: <code>safer_ffi</code> is still in an alpha stage.
+Some features may be missing, while others may be changed when further improving it.</p>
+</span>
+<h1><a class="header" href="#introduction" id="introduction">Introduction</a></h1>
+<blockquote>
+<p><code>safer_ffi</code> is a rust framework to generate a foreign function interface (or FFI) easily and safely.</p>
+</blockquote>
+<p>This framework is primarily used to annotate rust functions and types to
+generate C headers without polluting nor endangering the rust code with
+<code>unsafe</code>.</p>
+<table><thead><tr><th></th><th>Traditional FFI</th><th><code>safer_ffi</code></th></tr></thead><tbody>
+<tr><td>Mutable pointer or NULL</td><td><code>*mut T</code></td><td><code>Option&lt;&amp;mut T&gt;</code></td></tr>
+<tr><td>Mutable pointer</td><td><code>*mut T</code></td><td><code>&amp;mut T</code></td></tr>
+<tr><td>Owned pointer or NULL</td><td><code>*mut T</code></td><td><code>Option&lt;repr_c::Box&lt;T&gt;&gt;</code></td></tr>
+<tr><td>Owned pointer</td><td><code>*mut T</code></td><td><code>repr_c::Box&lt;T&gt;</code></td></tr>
+</tbody></table>
+<p>It's inspired by <a href="https://github.com/rustwasm/wasm-bindgen"><code>#[wasm_bindgen]</code></a>. It mainly targets
+Rust→C FFI (<em>i.e.</em>, C code calling into Rust code), although it does have some
+usages for C→Rust over the FFI (callbacks or hand-rolled <code>extern { ... }</code>
+headers).</p>
+<h2><a class="header" href="#rust-documentation" id="rust-documentation">Rust documentation</a></h2>
+<p>Link to <a href="introduction//safer_ffi/rustdoc/safer_ffi/">the <code>rustdoc</code>-generated API documentation</a>.</p>
+<h2><a class="header" href="#prerequisites" id="prerequisites">Prerequisites</a></h2>
+<ul>
+<li>Minimum Supported Rust Version: <code>1.43.0</code></li>
+</ul>
+<h2><a class="header" href="#getting-started" id="getting-started">Getting started</a></h2>
+<p>See <a href="introduction//introduction/getting_started.html">the next chapter</a> or <a href="introduction//safer_ffi/usage/_.html">the chapter on <em>Detailed Usage</em></a>.</p>
+<h1><a class="header" href="#getting-started-1" id="getting-started-1">Getting started</a></h1>
+<h3><a class="header" href="#cargotoml" id="cargotoml"><code>Cargo.toml</code></a></h3>
+<p>To start using <code>::safer_ffi</code>, edit your <code>Cargo.toml</code> like so:</p>
+<pre><code class="language-toml">[lib]
+crate-type = [&quot;staticlib&quot;]  # and/or &quot;cdylib&quot;
+
+[dependencies]
+safer-ffi = { version = &quot;...&quot;, features = [&quot;proc_macros&quot;] }
+
+[features]
+c-headers = [&quot;safer_ffi/headers&quot;]
+</code></pre>
+<ul>
+<li>See the <a href="introduction//safer_ffi/usage/cargo-toml.html">dedicated chapter on <code>Cargo.toml</code></a> for more info.</li>
+</ul>
+<h3><a class="header" href="#srclibrs" id="srclibrs"><code>src/lib.rs</code></a></h3>
+<p>Then, to export a Rust function to FFI, add the <a href="introduction//safer_ffi/ffi-export/_.html"><code>#[ffi_export]</code></a>
+attribute like so:</p>
+<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
+
+/// Adds two integers together.
+///
+/// \remark Wraps on overflow.
+#[ffi_export]
+fn add (x: i32, y: i32) -&gt; i32
+{
+    x.wrapping_add(y)
+}
+</code></pre>
+<ul>
+<li>See <a href="introduction//safer_ffi/ffi-export/_.html">the dedicated chapter on <code>#[ffi_export]</code></a> for more info.</li>
+</ul>
+<h4><a class="header" href="#generating-the-library-binary-file" id="generating-the-library-binary-file">Generating the library (binary file)</a></h4>
+<p>Simply run <code>cargo build</code> or <code>cargo build --release</code> to generate the library
+file at <code>target/{debug,release}/libcrate_name.ext</code></p>
+<h4><a class="header" href="#generating-the-c-header-file" id="generating-the-c-header-file">Generating the C header file</a></h4>
+<p>To let <code>safer_ffi</code> generate the corresponding C headers, add also the following to
+your <strong><code>src/lib.rs</code></strong>:</p>
+<pre><code class="language-rust noplaypen">#[::safer_ffi::cfg_headers]
+#[test]
+fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
+{
+    ::safer_ffi::headers::builder()
+        .to_file(&quot;filename.h&quot;)?
+        .generate()
+}
+</code></pre>
+<p>and then run the following command:</p>
+<pre><code class="language-bash">cargo test --features c-headers -- generate_headers --nocapture
+</code></pre>
+<details><summary><code>filename.h</code></summary>
+<pre><code class="language-C">/*! \file */
+/*******************************************
+ *                                         *
+ *  File auto-generated by `::safer_ffi`.  *
+ *                                         *
+ *  Do not manually edit this file.        *
+ *                                         *
+ *******************************************/
+
+#ifndef __RUST_EXAMPLE__
+#define __RUST_EXAMPLE__
+
+#ifdef __cplusplus
+extern &quot;C&quot; {
+#endif
+
+
+#include &lt;stddef.h&gt;
+#include &lt;stdint.h&gt;
+
+/** \brief
+ *  Adds two integers together.
+ *
+ *  \remark Wraps on overflow.
+ */
+int32_t add (
+    int32_t x,
+    int32_t y);
+
+
+#ifdef __cplusplus
+} /* extern &quot;C&quot; */
+#endif
+
+#endif /* __RUST_EXAMPLE__ */
+</code></pre>
+</details>
+<h3><a class="header" href="#using-it-from-c" id="using-it-from-c">Using it from C</a></h3>
+<details><Summary>Click to expand</summary>
+<p>Here is a basic example to showcase FFI calling into our <code>add</code>
+function:</p>
+<pre><code class="language-C">// main.rs
+#include &lt;inttypes.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+#include &quot;filename.h&quot;
+
+int main (int argc, char const * const argv[])
+{
+    printf(&quot;42 + 27 = %&quot; PRId32 &quot;\n&quot;, add(42, 27));
+    return EXIT_SUCCESS;
+}
+</code></pre>
+<p>compile it with:</p>
+<pre><code class="language-bash">cc main.c -o main -L target/debug -l crate_name
+./main  # Run it!
+</code></pre>
+</details>
+<h2><a class="header" href="#custom-types" id="custom-types">Custom Types</a></h2>
+<p>Custom types are also supported, as long as they:</p>
+<ul>
+<li>
+<p>have a defined C layout;</p>
+</li>
+<li>
+<p>have a <a href="introduction//safer_ffi/derive-reprc/_.html"><code>#[derive_ReprC]</code></a> attribute.</p>
+</li>
+</ul>
+<h3><a class="header" href="#usage-with-structs" id="usage-with-structs">Usage with structs</a></h3>
+<pre><code class="language-rust noplaypen">#[derive_ReprC] // &lt;- `::safer_ffi`'s attribute
+#[repr(C)]      // &lt;- defined C layout is mandatory!
+struct Point {
+    x: i32,
+    y: i32,
+}
+</code></pre>
+<ul>
+<li>See <a href="introduction//derive-reprc/struct.html">the dedicated chapter on structs</a> for more info.</li>
+</ul>
+<h3><a class="header" href="#usage-with-enums" id="usage-with-enums">Usage with enums</a></h3>
+<pre><code class="language-rust noplaypen">#[derive_ReprC] // &lt;- `::safer_ffi`'s attribute
+#[repr(u8)]     // &lt;- explicit integer `repr` is mandatory!
+pub enum Direction {
+    Up = 1,
+    Down = -1,
+}
+</code></pre>
+<ul>
+<li>See <a href="introduction//derive-reprc/enum.html">the dedicated chapter on enums</a> for more info.</li>
+</ul>
+<p>In this chapter we will see why my company,
+<a href="https://www.ditto.live/about/company"><img src="motivation//safer_ffi/assets/ditto-small.png" alt="Ditto" /></a>, and I, chose to develop the <code>::safer_ffi</code>
+framework, which should help illustrate why using it can also be a
+good thing for you.</p>
+<ol>
+<li>
+<p>We will start with an overview of <a href="motivation/traditional-ffi.html">the traditional way to write Rust→C FFI</a>,</p>
+</li>
+<li>
+<p>We will then discuss about using idiomatic Rust types such as <code>Vec</code> and
+<code>[_]</code> slices in FFI, and how <code>::safer_ffi</code> helps in that regard.</p>
+</li>
+</ol>
+<h1><a class="header" href="#why-use-safer_ffi" id="why-use-safer_ffi">Why use <code>safer_ffi</code>?</a></h1>
+<p>Traditionally, to generate FFI from Rust to C developers would use <code>#[no_mangle]</code> and <a href="https://github.com/eqrion/cbindgen"><code>cbindgen</code></a> like so:</p>
+<pre><code class="language-rust noplaypen">#[repr(C)]
+pub
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+#[no_mangle] pub extern &quot;C&quot;
+fn origin () -&gt; Point
+{
+    Point { x: 0, y: 0 }
+}
+</code></pre>
+<p>And this is already quite good! For simple FFI projects (<em>e.g.</em>, exporting just
+one or two Rust functions to C), this pattern works wonderfully. So kudos to
+<a href="https://github.com/eqrion/cbindgen"><code>cbindgen</code></a> authors for such a convenient, customizable and easy to use tool!</p>
+<p>But it turns out that this can struggle with more complex scenarios. My
+company, <a href="https://www.ditto.live/about/company"><img src="motivation//safer_ffi/assets/ditto-small.png" alt="Ditto" /></a>, extensively uses FFI with Rust
+and has run into the limitations outlined below.</p>
+<p><a href="motivation/../ditto/_.html">Learn more about Ditto's experience with FFI and Rust.</a></p>
+<h2><a class="header" href="#safer_ffi-features-that-traditional-ffi-struggles-to-support" id="safer_ffi-features-that-traditional-ffi-struggles-to-support"><code>safer_ffi</code> features that traditional FFI struggles to support</a></h2>
+<ul>
+<li><em>These have been tested with (<code>cbindgen v0.14.2</code>).</em></li>
+</ul>
+<h3><a class="header" href="#support-for-complex-types-and-respective-layout-or-abi-semantics" id="support-for-complex-types-and-respective-layout-or-abi-semantics">Support for complex types and respective layout or ABI semantics</a></h3>
+<p>Traditionally, if one were to write the following FFI definition:</p>
+<pre><code class="language-rust noplaypen">#[no_mangle] pub extern &quot;C&quot;
+fn my_free (ptr: Box&lt;i32&gt;)
+{
+    drop(ptr)
+}
+</code></pre>
+<p>they would get:</p>
+<pre><code class="language-C">typedef struct Box_i32 Box_i32;
+
+void my_free(Box_i32 ptr);
+</code></pre>
+<p>which does not even compile.</p>
+<p>This means that the moment <a href="https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/">you want to use types to express properties
+and invariants</a>, you quickly stumble upon this limitation.
+This is why, traditional Rust→C FFI code uses &quot;flat&quot; raw pointers. <strong>This
+results in <code>unsafe</code> implementations which are more error-prone</strong>.</p>
+<p><code>::safer_ffi</code> solves this issue by using more evolved types:</p>
+<table><thead><tr><th></th><th>Traditional FFI</th><th><code>safer_ffi</code></th></tr></thead><tbody>
+<tr><td>Mutable pointer or NULL</td><td><code>*mut T</code></td><td><code>Option&lt;&amp;mut T&gt;</code></td></tr>
+<tr><td>Mutable pointer</td><td><code>*mut T</code></td><td><code>&amp;mut T</code></td></tr>
+<tr><td>Owned pointer or NULL</td><td><code>*mut T</code></td><td><code>Option&lt;repr_c::Box&lt;T&gt;&gt;</code></td></tr>
+<tr><td>Owned pointer</td><td><code>*mut T</code></td><td><code>repr_c::Box&lt;T&gt;</code></td></tr>
+</tbody></table>
+<details><summary>Example</summary>
+<pre><code class="language-rust noplaypen">#[ffi_export]
+fn my_free (ptr: repr_c::Box&lt;i32&gt;)
+{
+    drop(ptr)
+}
+</code></pre>
+<p>correctly generates</p>
+<pre><code class="language-C">void my_free(int32_t * ptr);
+</code></pre>
+</details>
+<p>For instance, what better way to guard against <code>NULL</code> pointer dereferences than
+to express nullability (or lack thereof) with <code>Option&lt;_&gt;</code>-wrapped pointer
+types?</p>
+<details><summary>Example</summary>
+<pre><code class="language-rust noplaypen">#[ffi_export]
+fn my_free_supports_null (ptr: Option&lt;repr_c::Box&lt;i32&gt;&gt;)
+{
+    drop(ptr)
+}
+</code></pre>
+</details>
+<h3><a class="header" href="#consistent-support-for-macro-generated-definitions" id="consistent-support-for-macro-generated-definitions">Consistent support for macro-generated definitions</a></h3>
+<p>Since <code>safer_ffi</code> is integrated within the compiler, it supports macros expanding
+to <code>#[ffi_export]</code> function definitions or <code>#[derive_ReprC]</code> type definitions.</p>
+<details><summary>Example</summary>
+<p>To make the following code work:</p>
+<pre><code class="language-rust noplaypen">macro_rules! adders {(
+    $(
+        $T:ty =&gt; $add_T:ident,
+    )*
+) =&gt; (
+    $(
+        #[no_mangle] pub extern &quot;C&quot;
+        fn $add_T (x: $T, y: $T) -&gt; $T
+        {
+            x.wrapping_add(y)
+        }
+    )*
+)}
+
+adders! {
+    u8  =&gt; add_uint8,
+    i8  =&gt; add_int8,
+    u16 =&gt; add_uint16,
+    i16 =&gt; add_int16,
+    u32 =&gt; add_uint32,
+    i32 =&gt; add_int32,
+    u64 =&gt; add_uint64,
+    i64 =&gt; add_int64,
+}
+</code></pre>
+<p>one only has to:</p>
+<pre><code class="language-diff">-       #[no_mangle] pub extern &quot;C&quot;
++       #[ffi_export]
+</code></pre>
+</details>
+<h3><a class="header" href="#support-for-shadowed-paths" id="support-for-shadowed-paths">Support for shadowed paths</a></h3>
+<p>Since <code>safer_ffi</code> is integrated withing the compiler, the types the code refers to
+are unambiguously understood by both <code>#[derive_ReprC]</code> and <code>#[ffi_export]</code>.</p>
+<details><summary>Example</summary>
+<p>The following examples confuses traditional FFI:</p>
+<pre><code class="language-rust noplaypen">/// Let's imagine that we have a custom `Option` type with a defined C layout.
+/// We are opting out of a niche layout optimization.
+/// (https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#niche)
+#[repr(C)]
+pub
+struct Option&lt;T&gt; {
+    is_some: bool,
+    value: ::core::mem::MaybeUninit&lt;T&gt;,
+}
+
+mod ffi_functions {
+    use super::*; // &lt;- This is what `cbindgen` currently struggles with
+
+    #[no_mangle] pub extern &quot;C&quot;
+    fn with_my_option (my_opt: Option&lt;&amp;'_ i32&gt;) -&gt; i8
+    {
+        if my_opt.is_some {
+            let value: &amp;'_ i32 = unsafe { my_opt.value.assume_init() };
+            println!(&quot;{}&quot;, *value);
+            0
+        } else {
+            -1
+        }
+    }
+}
+</code></pre>
+<p>Indeed, it generates:</p>
+<pre><code class="language-C">void with_my_option(const int32_t *_it);
+</code></pre>
+<p>Which corresponds to the signature of a function using the standard <code>Option</code>
+type: ⚠️ an incorrect function signature, with no warnings whatsoever ⚠️</p>
+</details>
+<p>This is another instance where</p>
+<pre><code class="language-diff">-   #[no_mangle] pub extern &quot;C&quot;
++   #[ffi_export]
+</code></pre>
+<p>saves the day 🙂</p>
+<h1><a class="header" href="#idiomatic-rust-types-in-ffi-signatures" id="idiomatic-rust-types-in-ffi-signatures">Idiomatic Rust types in FFI signatures?</a></h1>
+<p>That was the main objective when creating and using <code>::safer_ffi</code>:</p>
+<p>Why go through <strong>the dangerously <code>unsafe</code> hassle</strong> of:</p>
+<ul>
+<li>
+<p>using <code>ptr: *const/mut T, len: usize</code> pairs when wanting to use slices?</p>
+</li>
+<li>
+<p>using <code>*const c_char</code> and <code>*mut c_char</code> and <code>CStr / CString / String</code>
+dances when wanting to use strings?</p>
+</li>
+<li>
+<p>losing all kind of ownership-borrow information with signatures such as:</p>
+<pre><code class="language-rust noplaypen">// Is this taking ownership of `Foo` or &quot;just&quot; mutating it?
+#[no_mangle] pub unsafe extern &quot;C&quot;
+fn foo_stuff (foo: *mut Foo)
+{
+    /* ... */
+}
+</code></pre>
+</li>
+</ul>
+<blockquote>
+<p>Can't we use our good ol' idiomatic <code>&amp;/&amp;mut/Box</code> trinity types? And some
+equivalent to <code>[_]</code> slices, <code>Vec</code>s and <code>String</code>s? And <em>quid</em> of closure
+types?</p>
+</blockquote>
+<p>To which the answer is <em>yes!</em> All these types can be FFI-compatible,
+<strong>provided they have a defined C layout</strong>. And this is precisely what <code>safer_ffi</code> does:</p>
+<blockquote>
+<p><code>safer_ffi</code> defines a bunch of idiomatic Rust types with a defined <code>#[repr(C)]</code>
+layout, to get both FFI compatibility and non-<code>unsafe</code> ergonomics.</p>
+</blockquote>
+<p>That is, for any type <code>T</code> that has a defined C layout, <em>i.e.</em>, that is
+<a href="motivation//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> (and <code>Sized</code>):</p>
+<ul>
+<li>
+<p><code>&amp;'_ T</code> and <code>&amp;'_ mut T</code> are themselves <a href="motivation//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a>!</p>
+<ul>
+<li>
+<p>Same goes for <a href="motivation//safer_ffi/rustdoc/safer_ffi/boxed/struct.Box.html"><code>repr_c::Box</code></a><code>&lt;T&gt;</code>.</p>
+</li>
+<li>
+<p>They all have the C layout of a (non-nullable) raw pointer.</p>
+</li>
+<li>
+<p>And all three support being <code>Option</code>-wrapped (the layout remains that
+of a (now nullable) raw pointer, thanks to the
+<a href="https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#niche">enum layout optimization</a>)</p>
+</li>
+</ul>
+</li>
+<li>
+<p><a href="motivation//safer_ffi/rustdoc/safer_ffi/slice/struct.slice_ref.html"><code>c_slice::Ref</code></a><code>&lt;'_, T&gt;</code> and <a href="motivation//safer_ffi/rustdoc/safer_ffi/slice/struct.slice_mut.html"><code>c_slice::Mut</code></a><code>&lt;'_, T&gt;</code> are
+also <a href="motivation//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> equivalents of <code>&amp;'_ [T]</code> and <code>&amp;'_ mut [T]</code>.</p>
+<ul>
+<li>
+<p>Same goes for <a href="motivation//safer_ffi/rustdoc/safer_ffi/slice/struct.slice_boxed.html"><code>c_slice::Box</code></a><code>&lt;T&gt;</code> (to represent <code>Box&lt;[T]&gt;</code>).</p>
+</li>
+<li>
+<p>They all have the C layout of a <code>struct</code> with a <code>.ptr</code>, <code>.len</code> pair
+of fields (where <code>.ptr</code> is non-nullable).</p>
+</li>
+<li>
+<p>And all three support being <code>Option</code>-wrapped too.</p>
+<ol>
+<li>
+<p>In that case, the <code>.ptr</code> field becomes nullable;</p>
+</li>
+<li>
+<p>when it is <code>NULL</code>, the <code>.len</code> field can be uninitialized: ⚠️ it is
+thus then UB to read the <code>.len</code> field ⚠️ (type safety and encapsulation ensure this UB cannot be
+triggered from within Rust; only the encapsulation-deprived C side
+can do that).</p>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>There is <a href="motivation//safer_ffi/rustdoc/safer_ffi/vec/struct.Vec.html"><code>repr_c::Vec</code></a><code>&lt;T&gt;</code> as well (extra <code>.capacity</code> field <em>w.r.t.</em>
+generalization to <a href="motivation//safer_ffi/rustdoc/safer_ffi/slice/struct.slice_boxed.html"><code>c_slice::Box</code></a><code>&lt;T&gt;</code>),</p>
+</li>
+<li>
+<p>as well as <a href="motivation//safer_ffi/rustdoc/safer_ffi/string/struct.String.html"><code>repr_c::String</code></a>!</p>
+<ul>
+<li>
+<p>with the slice versions (<code>.capacity</code>-stripped) too: <a href="motivation//safer_ffi/rustdoc/safer_ffi/string/struct.str_boxed.html"><code>str::Box</code></a> and
+<a href="motivation//safer_ffi/rustdoc/safer_ffi/string/struct.str_ref.html"><code>str::Ref</code></a><code>&lt;'_&gt;</code> (<code>Box&lt;str&gt;</code> and <code>&amp;'_ str</code> respectively).</p>
+</li>
+<li>
+<p>although these definitions are capable of representing any sequence of
+UTF-8 encoded strings (thus supporting NULL bytes), since the C world is
+not really capable of handling those (except as opaque blobs of bytes),
+<code>char *</code>-compatible null-terminated UTF-8 string types are available
+as well:</p>
+<ul>
+<li>
+<p><a href="motivation//safer_ffi/rustdoc/safer_ffi/char_p/struct.char_p_ref.html"><code>char_p::Ref</code></a><code>&lt;'_&gt;</code> for <code>char const *</code>: a temporary borrow of such
+string (useful as input parameter).</p>
+</li>
+<li>
+<p><a href="motivation//safer_ffi/rustdoc/safer_ffi/char_p/struct.char_p_boxed.html"><code>char_p::Box</code></a> for <code>char *</code>: a pointer owning a <code>Box</code>-allocated
+such string (useful to <em>return</em> strings).</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1><a class="header" href="#simple-examples" id="simple-examples">Simple examples</a></h1>
+<p>To better grasp how easy and readable writing FFI code becomes, a few simple
+examples will be showcased here.</p>
+<h1><a class="header" href="#simple-examples-string_concat" id="simple-examples-string_concat">Simple examples: <code>string_concat</code></a></h1>
+<pre><code class="language-rust noplaypen">#![deny(unsafe_code)] /* No `unsafe` needed! */
+
+use ::safer_ffi::prelude::*;
+
+/// Concatenate two input UTF-8 (_e.g._, ASCII) strings.
+///
+/// \remark The returned string must be freed with `rust_free_string`
+#[ffi_export]
+fn concat (fst: char_p::Ref&lt;'_&gt;, snd: char_p::Ref&lt;'_&gt;)
+  -&gt; char_p::Box
+{
+   let fst = fst.to_str(); // : &amp;'_ str
+   let snd = snd.to_str(); // : &amp;'_ str
+   format!(&quot;{}{}&quot;, fst, snd) // -------+
+      .try_into() //                   |
+      .unwrap() // &lt;- no inner nulls --+
+}
+
+/// Frees a Rust-allocated string.
+#[ffi_export]
+fn rust_free_string (string: char_p::Box)
+{
+    drop(string)
+}
+</code></pre>
+<details><summary>generates</summary>
+<pre><code class="language-C">/* \brief
+ * Concatenate two input UTF-8 (_e.g._, ASCII) strings.
+ *
+ * \remark The returned string must be freed with `rust_free_string`.
+ */
+char * concat (
+    char const * fst,
+    char const * snd);
+
+/* \brief
+ * Frees a Rust-allocated string.
+ */
+void free_string (
+    char * string);
+</code></pre>
+</details>
+<h1><a class="header" href="#simple-examples-maximum-member-of-an-array" id="simple-examples-maximum-member-of-an-array">Simple examples: maximum member of an array</a></h1>
+<pre><code class="language-rust noplaypen">#![deny(unsafe_code)] /* No `unsafe` needed! */
+
+use ::safer_ffi::prelude::*;
+
+/// Returns a pointer to the maximum element of the slice
+/// when it is not empty, and `NULL` otherwise.
+#[ffi_export]
+fn max&lt;'xs&gt; (xs: c_slice::Ref&lt;'xs, i32&gt;)
+  -&gt; Option&lt;&amp;'xs i32&gt;
+{
+    xs  .as_slice() // : &amp;'xs [i32]
+        .iter()
+        .max()
+}
+</code></pre>
+<details><summary>generates</summary>
+something along the lines of:
+<pre><code class="language-C">#include &lt;stddef.h&gt;
+#include &lt;stdint.h&gt;
+
+typedef struct slice_ref_int32 {
+    /* \brief
+     * Pointer to the first element (if any).
+     *
+     * \remark Cannot be NULL.
+     */
+    int32_t const * ptr;
+
+    /* \brief
+     * Number of elements.
+     */
+    size_t len;
+} slice_ref_int32_t;
+
+/* \brief
+ * Returns a pointer to the maximum element of the slice
+ * when it is not empty, and `NULL` otherwise.
+ */
+int32_t const * max (
+    slice_ref_int32_t xs);
+</code></pre>
+</details>
+<h1><a class="header" href="#usage" id="usage">Usage</a></h1>
+<p>Using <code>safer_ffi</code> is pretty simple, provided one knows <a href="usage//safer_ffi/appendix/c-compilation.html">how C compilation
+works</a>.</p>
+<h2><a class="header" href="#tldr" id="tldr">TL,DR</a></h2>
+<h3><a class="header" href="#cargotoml-1" id="cargotoml-1"><code>Cargo.toml</code></a></h3>
+<pre><code class="language-toml">[lib]
+crate-type = [&quot;staticlib&quot;]
+
+[dependencies]
+safer-ffi = { version = &quot;...&quot;, features = [&quot;proc_macros&quot;] }
+
+[features]
+c-headers = [&quot;safer_ffi/headers&quot;]
+</code></pre>
+<h3><a class="header" href="#srclibrs-1" id="srclibrs-1"><code>src/lib.rs</code></a></h3>
+<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
+
+#[ffi_export]
+fn add (x: i32, y: i32) -&gt; i32
+{
+    x.wrapping_add(y)
+}
+
+#[::safer_ffi::cfg_headers]
+#[test]
+fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
+{
+    ::safer_ffi::headers::builder()
+        .to_file(&quot;filename.h&quot;)?
+        .generate()
+}
+</code></pre>
+<ul>
+<li>
+<p>And run:</p>
+<pre><code class="language-bash">cargo test --features c-headers -- generate_headers --nocapture
+</code></pre>
+<p>to generate the headers.</p>
+</li>
+</ul>
+<h1><a class="header" href="#cargotoml-2" id="cargotoml-2"><code>Cargo.toml</code></a></h1>
+<h3><a class="header" href="#lib-crate-type" id="lib-crate-type"><code>[lib] crate-type</code></a></h3>
+<p>So, to ensure we compile a <a href="usage//safer_ffi/appendix/c-compilation.html">static or dynamic library</a>
+containing the definitions of our <code>#[ffi_export]</code> functions (+ any code they
+transitively depend on), we need to tell to <code>cargo</code> that our crate is of that
+type:</p>
+<pre><code class="language-toml"># Cargo.toml
+
+[lib]
+crate-type = [
+    &quot;staticlib&quot;,  # to generate a C _static_ library file:
+                  # `target/{debug,release}/libcrate_name.a`
+    # and / or:
+    &quot;cdylib&quot;,     # to generate a C _dynamic_ library file,
+                  # `target/{debug,release}/libcrate_name.{so,dylib}`
+]
+</code></pre>
+<h3><a class="header" href="#dependenciessafer_ffi" id="dependenciessafer_ffi"><code>[dependencies.safer_ffi]</code></a></h3>
+<p>To get access to <code>safer_ffi</code> and its ergonomic attribute macros we add <code>safer_ffi</code> as
+a dependency, and enable the <code>proc-macros</code> feature:</p>
+<pre><code class="language-toml">[dependencies]
+safer-ffi = { version = &quot;...&quot;, features = [&quot;proc-macros&quot;] }
+</code></pre>
+<ul>
+<li>or instead simply run <code>cargo add safer_ffi --features proc-macros</code> if you
+have <a href="https://github.com/killercup/cargo-edit"><code>cargo edit</code></a>.</li>
+</ul>
+<details><summary>About the <code>proc-macros</code> feature</summary>
+<p>although still a WIP, the author of <code>safer_ffi</code> is making an important effort
+to make the usage of procedural macros be as optional as possible, so
+as to allow downstream users to avoid pulling the very heavyweight
+<code>syn + quote</code> dependencies, by offering alternative basic macros
+alternatives (such as <code>ReprC!</code> instead of <code>#[derive_ReprC]</code>)</p>
+</details>
+<ul>
+<li>
+<p>If working in a <code>no_std</code> environment, you will need to disable the default
+<code>std</code> feature by adding <code>default-features = false</code>.</p>
+<ul>
+<li>if, however, you still have access to an allocator, you can enable the
+<code>alloc</code> feature, to get the defintions of <code>safer_ffi::{Box, String, Vec}</code>
+<em>etc.</em></li>
+</ul>
+</li>
+<li>
+<p>You may also enable the <code>log</code> feature so that <code>safer_ffi</code> may log <code>error!</code>s
+when the semi-checked casts from raw C types into their Rust counterparts
+fail (<em>e.g.</em>, when receiving a <code>bool</code> that is nether <code>0</code> nor <code>1</code>).</p>
+</li>
+</ul>
+<h3><a class="header" href="#features-c-headers" id="features-c-headers"><code>[features] c-headers</code></a></h3>
+<p>Finally, in order to alleviate the compile-time when not generating the headers
+(it is customary to bundle pre-generated headers when distributing an
+FFI-compatible Rust crate), the runtime C reflection and header generation
+machinery (the most heavyweight part of <code>safer_ffi</code>) is feature-gated away by
+default (behind the <code>safer_ffi/headers</code> feature).</p>
+<p>However, when <a href="usage//safer_ffi/usage/lib-rs.html#header-generation">generating the headers</a>, such machinery is
+needed. Thus the simplest solution is for the FFI crate to have a Cargo feature
+(flag) that transitively enables the <code>safer_ffi/headers</code> feature. You can name such
+feature however you want. In this guide, it is named <code>c-headers</code>.</p>
+<pre><code class="language-toml">[features]
+c-headers = [&quot;safer_ffi/headers&quot;]
+</code></pre>
+<h1><a class="header" href="#srclibrs-2" id="srclibrs-2"><code>src/lib.rs</code></a></h1>
+<h3><a class="header" href="#export-items-to-the-ffi-world" id="export-items-to-the-ffi-world">Export items to the FFI world</a></h3>
+<p>To do this, simply slap the <code>#[ffi_export]</code> attribute on any &quot;item&quot; that you
+wish to see exported to C.</p>
+<div class="warning">
+<p>The only currently supported such &quot;item&quot;s are function definitions: <code>const</code> and
+<code>static</code>s are not supported yet. This ought to be fixed soon.</p>
+</div>
+<p>If using non-primitive non-<code>safer_ffi</code>-provided types, then those must be
+<a href="usage//safer_ffi/derive-reprc/_.html"><code>#[derive_ReprC]</code> annotated</a>.</p>
+<p>At which point the only thing remaining is to generate the header file.</p>
+<h3><a class="header" href="#header-generation" id="header-generation">Header generation</a></h3>
+<p>Given how <code>safer_ffi</code> implements the C reflection logic as methods within
+<a href="usage//safer_ffi/rustdoc/safer_ffi/layout/trait.CType.html">a trait</a> related to <a href="usage//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a>, the only way to generate the headers
+is to be a &quot;Rust downstream&quot; user of the library, within the same compilation
+unit / crate (a limitation that comes from the way the machinery currently
+operates). That is, a <strong>unit test</strong>.</p>
+<p>So you need to define a <code>cfg</code>-gated unit test that calls into the
+<a href="usage//safer_ffi/rustdoc/safer_ffi/headers/struct.Builder.html"><code>safer_ffi::headers::builder()</code></a> to <code>.generate()</code> the headers into the given
+file(name), or into the given <code>Write</code>-able / &quot;write sink&quot;:</p>
+<ul>
+<li>
+<p>Basic example:</p>
+<pre><code class="language-rust noplaypen">#[::safer_ffi::cfg_headers]
+#[test]
+fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
+{
+    ::safer_ffi::headers::builder()
+        .to_file(&quot;filename.h&quot;)?
+        .generate()
+}
+</code></pre>
+</li>
+<li>
+<p>And run:</p>
+<pre><code class="language-bash">cargo test --features c-headers -- generate_headers --nocapture
+</code></pre>
+<p>to generate the headers.</p>
+</li>
+</ul>
+<details>
+<summary>More advanced example (runtime-dependent header output)</summary>
+<pre><code class="language-rust noplaypen">#[::safer_ffi::cfg_headers]
+#[test]
+fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
+{
+    let builder = ::safer_ffi::headers::builder();
+    if let Ok(filename) = ::std::env::var(&quot;HEADERS_FILE&quot;) {
+        builder
+            .to_file(&amp;filename)?
+            .generate()
+    } else {
+        builder
+            .to_writer(::std::io::stdout())
+            .generate()
+    }
+}
+</code></pre>
+<p>and run</p>
+<pre><code class="language-bash">HEADERS_FILE=/path/to/headers.h \
+cargo test --features c-headers -- generate_headers --nocapture
+</code></pre>
+</details>
+<h1><a class="header" href="#the-reprc-trait" id="the-reprc-trait">The <code>ReprC</code> trait</a></h1>
+<ul>
+<li><a href="derive-reprc//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html">API Documentation</a></li>
+</ul>
+<p><code>ReprC</code> is the core trait around <code>safer_ffi</code>'s design.</p>
+<ul>
+<li>Feel free to <a href="derive-reprc//safer_ffi/appendix/how-does-safer_ffi-work.html">look at the appendix to understand why and
+how</a>.</li>
+</ul>
+<p>Indeed,</p>
+<blockquote>
+<p>a function can only be marked <a href="derive-reprc//safer_ffi/ffi-export/_.html"><code>#[ffi_export]</code></a> if its parameters
+and returned value are all <code>ReprC</code>.</p>
+</blockquote>
+<h3><a class="header" href="#when-is-a-type-reprc" id="when-is-a-type-reprc">When is a type <code>ReprC</code>?</a></h3>
+<p>A type is <code>ReprC</code>:</p>
+<ul>
+<li>when it is a primitive type with a C layout (integer types, floating point
+types, <del><code>char</code></del>, <code>bool</code>, non-zero-sized arrays, and <code>extern &quot;C&quot; fn</code>
+pointers),</li>
+</ul>
+<details><summary>Function pointers do not support lifetimes yet</summary>
+<span class="warning">
+<p>Due to a type-system limitation, function pointers that use lifetimes
+are not <code>ReprC</code> yet. Only function pointers with a non-generic
+signature can be made <code>ReprC</code>, but this requires defining a newtype
+wrapper. A convenience macro is planned to be added to automate that step.</p>
+</span>
+</details>
+<ul>
+<li>
+<p>when it is <a href="derive-reprc/../motivation/repr-c-forall.html">a specialy-crafted type exported from the <code>safer_ffi</code> crate</a>,</p>
+</li>
+<li>
+<p>or <strong>when it is a custom type that is <code>#[derive_ReprC]</code>-annotated</strong>.</p>
+</li>
+</ul>
+<h2><a class="header" href="#derive_reprc" id="derive_reprc"><code>#[derive_ReprC]</code></a></h2>
+<p><span id="derive-reprc"></span></p>
+<p>You can (safely) make a custom type be <code>ReprC</code> by adding the <code>#[derive_ReprC]</code>
+attribute on it.</p>
+<details><summary>Supported types</summary>
+<p>Currently, the supported types for the attribute are:</p>
+<ul>
+<li>
+<p>a (non-zero-sized) <code>#[repr(C)]</code> struct having only <code>ReprC</code> fields.</p>
+<ul>
+<li>or a <code>#[repr(transparent)]</code> tuple struct wrapper around a <code>ReprC</code> type.</li>
+</ul>
+</li>
+<li>
+<p>a field-less <code>#[repr({integer})]</code> <code>enum</code> (A &quot;C-like&quot; <code>enum</code>).</p>
+</li>
+<li>
+<p>an arbitrary type that you will only use through (pointer) indirection.</p>
+<p>This leads to the &quot;opaque object&quot; pattern, based on an undefined / forward
+declaration: <code>typedef struct MyOpaque MyOpaque_t;</code></p>
+<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
+
+#[derive_ReprC]
+#[ReprC::opaque]
+struct MyOpaque {
+    /* anything goes here */
+}
+</code></pre>
+</li>
+</ul>
+<div class="warning">
+<p>The following are not yet implemented</p>
+</div>
+<ul>
+<li>
+<p>a <code>#[repr(C)]</code> <code>union</code>.</p>
+</li>
+<li>
+<p>Some kind of <code>#[repr(to_be_determined)]</code> <code>enum</code> which would be allowed to
+have fields (thus leading to <code>repr_c::Option</code> and <code>repr_c::Result</code> types,
+which ought to get rid of any need to use out-parameters).</p>
+</li>
+</ul>
+</details>
+<h1><a class="header" href="#deriving-reprc-for-custom-structs" id="deriving-reprc-for-custom-structs">Deriving <code>ReprC</code> for custom structs</a></h1>
+<h2><a class="header" href="#usage-1" id="usage-1">Usage</a></h2>
+<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
+
+#[derive_ReprC] // &lt;- `::safer_ffi`'s attribute
+#[repr(C)]      // &lt;- defined C layout is mandatory!
+pub
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+#[ffi_export]
+fn get_origin ()
+  -&gt; Point
+{
+    Point { x: 0, y: 0 }
+}
+</code></pre>
+<details><summary>Generated C header</summary>
+<pre><code class="language-c">typedef struct Point {
+    int32_t x;
+    int32_t y;
+} Point_t;
+
+Point_t get_origin (void);
+</code></pre>
+</details>
+<h3><a class="header" href="#generics" id="generics">Generics</a></h3>
+<p><code>#[derive_ReprC]</code> supports generic structs:</p>
+<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
+
+/// The struct can be generic...
+#[derive_ReprC]
+#[repr(C)]
+pub
+struct Point&lt;Coordinate&gt; {
+    x: Coordinate,
+    y: Coordinate,
+}
+
+/// ... but its usage within an `#[ffi_export]`-ed function must
+/// no longer be generic (it must have been instanced with a concrete type)
+#[ffi_export]
+fn get_origin ()
+  -&gt; Point&lt;i32&gt;
+{
+    Point { x: 0, y: 0 }
+}
+</code></pre>
+<details><summary>Generated C header</summary>
+<p>Each monomorphization leads to its own C definition:</p>
+<ul>
+<li>
+<p><strong><code>Point&lt;i32&gt;</code></strong></p>
+<pre><code class="language-C">typedef struct {
+    int32_t x;
+    int32_t y;
+} Point_int32_t;
+</code></pre>
+</li>
+<li>
+<p><strong><code>Point&lt;f64&gt;</code></strong></p>
+<pre><code class="language-C">typedef struct {
+    double x;
+    double y;
+} Point_double_t;
+</code></pre>
+</li>
+</ul>
+</details>
+<h2><a class="header" href="#requirements" id="requirements">Requirements</a></h2>
+<ul>
+<li>
+<p>All the fields must be <a href="derive-reprc//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> or generic.</p>
+<ul>
+<li>In the generic case, the struct is <a href="derive-reprc//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> only when it is instanced
+with concrete <a href="derive-reprc//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> types.</li>
+</ul>
+</li>
+<li>
+<p>The struct must be non-empty (because ANSI C does not support empty structs)</p>
+</li>
+</ul>
+<h2><a class="header" href="#going-further" id="going-further">Going further</a></h2>
+<details><summary>Transparent newtype wrapper</summary>
+<pre><code class="language-rust noplaypen">use ::safer_ffi::{prelude::*, ptr};
+
+/// A `Box`-like owned pointer type, but which can be freed using `free()`.
+#[derive_ReprC]
+#[repr(transparent)]
+pub struct Malloc&lt;T&gt;(ptr::NonNullOwned&lt;T&gt;);
+
+impl&lt;T&gt; Malloc&lt;T&gt; {
+    pub fn new(value: T) -&gt; Option&lt;Self&gt; {
+        /* Uses `posix_memalign()` to handle the allocation */
+    }
+}
+</code></pre>
+<p>This pattern allows you to define a new type with thus specific Rust semantics
+attached to it (<em>e.g.</em>, specific constructor, destructor and methods) while
+hiding all that to the C side:</p>
+<ul>
+<li>in the C world, <code>Malloc&lt;T&gt;</code> will be referred to in the same way that
+<code>ptr::NonNullOwned&lt;T&gt;</code> is, <em>i.e.</em>, as a (non-nullable) <code>*mut T</code>.</li>
+</ul>
+<details><summary>Example</summary>
+<pre><code class="language-rust noplaypen">#[ffi_export]
+fn new_int (x: i32)
+  -&gt; Option&lt;Malloc&lt;i32&gt;&gt;
+{
+    Malloc::new(x)
+}
+</code></pre>
+<p>would then generate:</p>
+<pre><code class="language-C">int32_t * new_int (
+    int32_t x);
+</code></pre>
+</details>
+</details>
+<h1><a class="header" href="#deriving-reprc-for-custom-enums" id="deriving-reprc-for-custom-enums">Deriving <code>ReprC</code> for custom enums</a></h1>
+<h2><a class="header" href="#c-enums" id="c-enums">C enums</a></h2>
+<p>A C enum is a field-less enum, <em>i.e.</em>, an enum that only has <em>unit</em> variants.</p>
+<details><summary>Examples</summary>
+<pre><code class="language-rust noplaypen">enum Ordering {
+    Less    /* = 0 */,
+    Equal   /* = 1 */,
+    Greater /* = 2 */,
+}
+
+/// The following discriminants are all guaranteed to be &gt; 0.
+enum ErrorKind {
+    NotFound            = 1,
+    PermissionDenied /* = 2 */,
+    TimedOut         /* = 3 */,
+    Interrupted      /* = 4 */,
+    Other            /* = 5 */,
+    // ...
+}
+</code></pre>
+</details>
+<p>See <a href="https://doc.rust-lang.org/stable/reference/items/enumerations.html#custom-discriminant-values-for-fieldless-enumerations">the reference for more info about them</a>.</p>
+<h3><a class="header" href="#usage-2" id="usage-2">Usage</a></h3>
+<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude:*;
+
+#[derive_ReprC] // &lt;- `::safer_ffi`'s attribute
+#[repr(u8)]     // &lt;- explicit integer `repr` is mandatory!
+pub
+enum LogLevel {
+    Off = 0,    // &lt;- explicit discriminants are supported
+    Error,
+    Warning,
+    Info,
+    Debug,
+}
+</code></pre>
+<details><summary>Generated C header</summary>
+<pre><code class="language-c">typedef uint8_t LogLevel_t; enum {
+    LOGLEVEL_OFF = 0,
+    LOGLEVEL_ERROR,
+    LOGLEVEL_WARNING,
+    LOGLEVEL_INFO,
+    LOGLEVEL_DEBUG,
+};
+</code></pre>
+</details>
+<h3><a class="header" href="#layout-of-c-enums" id="layout-of-c-enums">Layout of C enums</a></h3>
+<p>These enums are generally used to define a <em>closed</em> set of <em>distinct</em> integral
+constants in a <em>type-safe</em> fashion.</p>
+<p>But when used from C, the type safety is kind of lost, given how loosely C
+converts back and forth between <code>enum</code>s and integers.</p>
+<p>This leads to a very important point:</p>
+<blockquote>
+<p>What is the integer type of the enum discriminants?</p>
+</blockquote>
+<p>With <strong>no</strong> <code>#[repr(...)]</code> annotation whatsoever, Rust reserves the right to
+choose whatever it wants: no defined C layout, so <strong>not FFI-safe</strong>.</p>
+<p>With <code>#[repr(Int)]</code> (where <code>Int</code> can be <code>u8</code>, <code>i8</code>, <code>u32</code>,
+<em>etc.</em>) Rust is forced to use that very <code>Int</code> type.</p>
+<p>With <code>#[repr(C)]</code>, Rust will pick what C would pick if it were given an
+equivalent definition.</p>
+<span class="warning">
+<p><code>#[repr(C)]</code> enums can cause UB when used across FFI ⚠️</p>
+</span>
+<details><summary>Click for more info</summary>
+It turns out C itself does not really define a concrete integer layout
+for its enums. Indeed, the C standard only states that:
+<ul>
+<li>
+<p>the discriminants are <code>int</code>s.</p>
+</li>
+<li>
+<p>the enum itself represents an integer type that must fit in an <code>int</code>.</p>
+<ul>
+<li>
+<p>Very often this is an <code>int</code> too.</p>
+</li>
+<li>
+<p>but since there is no explicit guarantee that it must be <em>exactly</em>
+an <code>int</code> too, <a href="https://oroboro.com/short-enum/">compiler flags such as <code>-fshort-enums</code> can lead to
+smaller integer types</a>.</p>
+<p>This means that when you link against a library that was compiled
+with a different set of flags, such as a system-wide shared library
+or a Rust generated <code>staticlib</code> / <code>cdylib</code>, then such mimsatch is
+very likely to cause Undefined Behavior!</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>In practice, when C defines an <code>enum</code> to be used by Rust, there is no other
+choice but to use <code>#[repr(C)]</code> and pray / ensure that the C library is compiled
+with the same semantics that Rust expects (<em>e.g.</em>, no <code>-fshort-enums</code> flag).</p>
+<p>But when doing FFI in the other direction, there is no reason whatsoever to use
+<code>#[repr(C)]</code>: <strong>picking a fixed-size integer is then the most sensible thing to
+do for a well-defined and thus robust FFI interface</strong>.</p>
+</details>
+<p>That's why <a href="derive-reprc//safer_ffi/derive-reprc/_.html"><code>#[derive_ReprC]</code></a> makes the opinionated choice of
+<strong>refusing to handle an <code>enum</code> definition that does not provide an
+explicit fixed-size integer representation</strong>.</p>
+<h2><a class="header" href="#more-complex-enums" id="more-complex-enums">More complex enums</a></h2>
+<span class="warning">
+<p>Are not supported yet.</p>
+</span>
+<h1><a class="header" href="#ffi_export" id="ffi_export"><code>#[ffi_export]</code></a></h1>
+<p>This is a very simple attribute: simply slap it on an &quot;item&quot; that you wish to
+export to the FFI world (C), and <em>voilà</em>!</p>
+<div class="warning">
+<p>The only currently supported such &quot;item&quot;s are function definitions: <code>const</code> and
+<code>static</code>s are not supported yet. This ought to be fixed soon.</p>
+</div>
+<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
+
+#[ffi_export]
+fn adder (x: i32, y: i32) -&gt; i32
+{
+    x.wrapping_add(y)
+}
+</code></pre>
+<h2><a class="header" href="#requirements-1" id="requirements-1">Requirements</a></h2>
+<ul>
+<li>
+<p><strong>all the types used in the function signature need to be <a href="ffi-export//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a></strong></p>
+<p>This is the core property that ensures both the safety of exporting such
+functions to the FFI (contrary to the rather poor <code>improper_ctypes</code> lint
+and its false positives) and the associated C-header-generating logic.</p>
+</li>
+<li>
+<p>The only allowed generic parameters of the function are <strong>lifetime
+parameters</strong>.</p>
+<ul>
+<li>
+<p>That is, the following function definition is valid:</p>
+<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
+
+#[ffi_export]
+fn max&lt;'xs&gt; (xs: c_slice::Ref&lt;'xs, i32&gt;)
+  -&gt; Option&lt;&amp;'xs i32&gt;
+{
+    xs  .as_slice()  // : &amp;'xs [i32]
+        .iter()
+        .max()
+}
+</code></pre>
+</li>
+<li>
+<p>But the following one is <strong>not</strong>:</p>
+<pre><code class="language-rust noplaypen compile_fail">use ::safer_ffi::prelude::*;
+
+#[derive_ReprC]
+#[repr(C)]
+#[derive(Default)]
+pub
+struct Point&lt;Coordinate&gt; {
+    x: Coordinate,
+    y: Coordinate,
+}
+
+#[ffi_export] // Error, generic _type_ parameter
+fn origin&lt;Coordinate&gt; ()
+  -&gt; Point&lt;Coordinate&gt;
+where
+    Coordinate : Default,
+{
+    Point::default()
+}
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+<h1><a class="header" href="#ffi_export-1" id="ffi_export-1"><code>#[ffi_export]</code></a></h1>
+<h2><a class="header" href="#auto-generated-sanity-checks" id="auto-generated-sanity-checks">Auto-generated sanity checks</a></h2>
+<p>The whole design of the <a href="ffi-export//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> trait, <em>i.e.</em>, a trait that expresses that a
+type has a C layout, <em>i.e.</em>, that it has an <em>associated</em> &quot;raw&quot;
+<a href="ffi-export//safer_ffi/rustdoc/safer_ffi/layout/trait.CType.html">C type</a> (types with no validity invariants whatsoever), means that
+the actual <code>#[no_mangle]</code>-exported function is one using the associated
+<a href="ffi-export//safer_ffi/rustdoc/safer_ffi/layout/trait.CType.html">C types</a> in its function signature. This ensures that a foreign call
+to such functions (<em>i.e.</em>, C calling into that function) <strong>will not directly
+trigger &quot;instant UB&quot;</strong>, contrary to a hand-crafted definition.</p>
+<ul>
+<li>
+<p>Indeed, if you were to export a function such as:</p>
+<pre><code class="language-rust noplaypen">#[repr(C)]
+enum LogLevel {
+    Error,
+    Warning,
+    Info,
+    Debug,
+}
+
+#[no_mangle] pub extern &quot;C&quot;
+fn set_log_level (level: LogLevel)
+{
+    // ...
+}
+</code></pre>
+<p>then C code calling <code>set_log_level</code> with a value different to the four only
+possible discriminants of <code>LogLevel</code> (<code>0, 1, 2, 3</code> in this case) would
+instantly trigger Undefined Behavior no matter what the body of
+<code>set_log_level</code> would be.</p>
+<p>Instead, when using <code>safer_ffi</code>, the following code:</p>
+<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
+
+#[derive_ReprC]
+#[repr(u8)] // Associated CType: a plain `u8`
+enum LogLevel {
+    Error,
+    Warning,
+    Info,
+    Debug,
+}
+
+#[ffi_export]
+fn set_log_level (level: LogLevel)
+{
+    // ...
+}
+</code></pre>
+<p>unsugars to (something along the lines of):</p>
+<pre><code class="language-rust noplaypen">fn set_log_level (level: LogLevel)
+{
+    // ...
+}
+
+mod hidden {
+    #[no_mangle] pub unsafe extern &quot;C&quot;
+    fn set_log_level (level: u8)
+    {
+        match ::safer_ffi::layout::from_raw(level) {
+            | Some(level /* : LogLevel */) =&gt; {
+                super::set_log_level(level)
+            },
+            | None =&gt; {
+                // Got an invalid `LogLevel` bit-pattern
+                if compile_time_condition() {
+                    eprintln!(&quot;Got an invalid `LogLevel` bit-pattern&quot;)
+                    abort();
+                } else {
+                    use ::std::hint::unreachable_unchecked as UB;
+                    UB()
+                }
+            },
+        }
+    }
+}
+</code></pre>
+</li>
+</ul>
+<p>So, basically, there is an attempt to <code>transmute</code> the input
+<a href="ffi-export//safer_ffi/rustdoc/safer_ffi/layout/trait.CType.html">C type</a> to the expected <a href="ffi-export//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> type, but such attempt can fail
+if the auto-generated sanity-check detects that so doing would not be
+safe (<em>e.g.</em>, input integer corresponding to no <code>enum</code> variant, NULL pointer
+when the <a href="ffi-export//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> type is guaranteed not to be it, unaligned pointer when
+the <a href="ffi-export//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> type is guaranteed to be aligned).</p>
+<h3><a class="header" href="#caveats" id="caveats">Caveats</a></h3>
+<p>Such check cannot be exhaustive (in the case of pointers for instance, <code>safer_ffi</code>
+cannot possibly know if it is valid to dereference a non-null and well-aligned
+pointer). This means that there are still cases where UB can be triggered
+nevertheless, hence it being named a <em>sanity</em> check and not a <em>safety</em> check.</p>
+<ul>
+<li>Only in the case of a (field-less) <code>enum</code> can <code>safer_ffi</code> ensure lack of
+UB no matter the (integral) <a href="ffi-export//safer_ffi/rustdoc/safer_ffi/layout/trait.CType.html">C type</a> instance given as input.</li>
+</ul>
+<p>As you may notice by looking at the code, there is a <code>compile_time_condition()</code>
+to actually <code>abort</code> instead of triggering UB. This means that when such
+condition is not met, UB is actually triggered and we are back to the
+<code>#[no_mangle]</code> case.</p>
+<p>This is by design: such runtime checks may have a performance impact that some
+programmers may deem unacceptable, so it is logical that there be some escape
+hatch in that regard.</p>
+<p>As of this writing, <code>compile_time_condition()</code> is currently
+<code>cfg!(debug_assertions)</code>, which means that by default such checks are
+<em>disabled</em> on release.</p>
+<ul>
+<li>
+<p>This is not optimal safety-wise, since the default configuration is too
+loose. The author of the crate is aware of that and intending to replace
+that with:</p>
+<ul>
+<li><a href="ffi-export/attributes.html#unsafely-disabling-the-runtime-sanity-checks">an <code>unsafe</code> attribute parameter</a>
+that would nevertheless only truly opt-out when
+<code>debug_assertions</code> are disabled.</li>
+</ul>
+</li>
+</ul>
+<h1><a class="header" href="#ffi_export-2" id="ffi_export-2"><code>#[ffi_export]</code></a></h1>
+<h2><a class="header" href="#attributes" id="attributes">Attributes</a></h2>
+<div class="warning">
+<p>These are not yet implemented</p>
+</div>
+<ul>
+<li>
+<p><strong>Non-<code>&quot;C&quot;</code> ABIs</strong></p>
+<p>Currently <code>#[ffi_export]</code> defaults to a <code>#[no_mangle] pub extern &quot;C&quot;</code>
+function definition, <em>i.e.</em>, it exports a function using the default C ABI
+of the platform it is compiled against (<em>target</em> platform).</p>
+<p>Sometimes a special ABI is required, in which case specifying the ABI is
+desirable.</p>
+<p><strong>Imagined syntax</strong>: an optional <code>ABI = &quot;&lt;abi&gt;&quot;</code> attribute parameter:</p>
+<pre><code class="language-rust noplaypen">#[ffi_export(ABI = &quot;system&quot;)]
+fn ...
+</code></pre>
+</li>
+<li>
+<p><strong>Custom <code>export_name</code></strong>.</p>
+<p>To override the name (the <em>symbol</em>) the item is exported with (by virtue of
+the default <code>#[no_mangle]</code>, the item is exported with a symbol equal to the
+identifier used for its name), one could imagine someone wanting to develop
+their own namespacing tool / name mangling convention when controling both
+ends of the FFI, so they may want to provide an <code>export_name</code> override too.</p>
+<p><strong>Imagined syntax</strong>: an optional <code>export_name = ...</code> attribute parameter.</p>
+</li>
+<li>
+<p><strong><code>unsafe</code>-ly disabling the runtime <a href="ffi-export/sanity-checks.html">sanity checks</a></strong>.</p>
+<p><span id="unsafely-disabling-the-runtime-sanity-checks"></span></p>
+<p>As mentioned in the <a href="ffi-export/sanity-checks.html">sanity checks</a> section, it is intended that all
+<code>#[ffi_export]</code>-ed functions perform some sanity checks on the raw inputs
+they receive, before transmuting those to the actual <a href="ffi-export//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> types.
+Still, for some functions where performance is critical and the caller
+of the <code>#[ffi_export]</code>-ed function is trusted not give invalid values,
+it will be possible to opt-out of such check when <code>debug_assertions</code> are
+disabled by marking each function where one wants to disable the checks
+with an <code>unsafe</code> parameter, such as:</p>
+<pre><code class="language-rust noplaypen">#[ffi_export]
+#[safer_ffi(unsafe { skip_sanity_checks() })]
+fn ...
+</code></pre>
+<p>or on specific params:</p>
+<pre><code class="language-rust noplaypen">#[ffi_export]
+fn set_log_level (
+    #[safer_ffi(unsafe { skip_sanity_checks() })]
+    level: LogLevel,
+    ...
+) -&gt; ...
+</code></pre>
+</li>
+</ul>
+<h1><a class="header" href="#real-world-example-at-a-hrefhttpswwwdittoliveaboutcompanyimg-srcexample-dittosafer_ffiassetsditto-smallpng-altditto-logo-a" id="real-world-example-at-a-hrefhttpswwwdittoliveaboutcompanyimg-srcexample-dittosafer_ffiassetsditto-smallpng-altditto-logo-a">Real-world example at <a href="https://www.ditto.live/about/company"><img src="example-ditto//safer_ffi/assets/ditto-small.png" alt="Ditto-logo" /></a></a></h1>
+<span class="warning">
+<p>TBD (speak of 282→60 reduction of number of <code>unsafe</code> blocks,
+with concrete example of some cbor creator (example of &quot;returning <code>Box&lt;[u8]&gt;</code> through FFI) and the change of
+function signature)</p>
+</span>
+<h1><a class="header" href="#example-our-own-hashmap-in-c" id="example-our-own-hashmap-in-c">Example: our own <code>hashmap</code> in C</a></h1>
+<span class="warning">
+<p>Coming soon</p>
+</span>
+<h1><a class="header" href="#appendix-a-quick-reminder-of-c-compilation-in-unix" id="appendix-a-quick-reminder-of-c-compilation-in-unix">Appendix: A quick reminder of C compilation in Unix</a></h1>
+<p>Exporting / generating a C library requires <em>two</em> things:</p>
+<ul>
+<li>
+<p><strong>the header file(s)</strong> (<code>.h</code>), which contain the C signatures and thus the
+type (and ABI!) information of the exported functions and types.</p>
+<ul>
+<li>
+<p>Such file(s) must be <code>#include</code>d at the beginning of the C code, and are
+thus required to compile any C source file that <em>directly</em> calls into
+our Rust functions.</p>
+</li>
+<li>
+<p>It may be necessary to tell the compiler (the C preprocessor, to be
+exact) the path to the folder containg the file(s), by using the <code>-I</code>
+flag: <code>-I path/to/headers/dir</code></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>the object file(s)</strong> (<code>.o</code>), or archive (<code>.a</code>) of such files (also called
+a <em>static library</em>), or a dynamic library (<code>.so</code> on Linux, <code>.dylib</code> on
+OS X), which contain the machine code with the actual logic of such
+functions.</p>
+<ul>
+<li>
+<p>When linking, such file(s) must be referred to:</p>
+<ul>
+<li>
+<p>either by full path in the case of <code>.o</code> and <code>.a</code> files,</p>
+</li>
+<li>
+<p>or, in the case of libraries (<code>.a</code> and <code>.so</code> / <code>.dylib</code>),
+when those are named as <code>libsome_name.extension</code>, by using the
+<code>-l</code> flag, and feeding it the parameter <code>some_name</code>
+(<code>-l some_name</code>).</p>
+<ul>
+<li>It may be necessary to tell the compiler (the linker, to be
+exact) the path to the folder containg the file(s), by using
+the <code>-L</code> flag: <code>-L path/to/libraries/dir</code></li>
+</ul>
+</li>
+<li>
+<p>yes, there are <em>two</em> ways to refer to a static library, due to its
+dual nature of being both a library and a &quot;simple&quot; archive of raw
+<code>.o</code> files.</p>
+</li>
+</ul>
+<p>In all cases, &quot;remember&quot; to refer to the library object files <em>after</em>
+the files for your downstream binary:</p>
+<pre><code class="language-bash"># Incorrect
+cc -L my_lib/dir -l mylib_name main.o -o main
+# Correct
+cc main.o -L my_lib/dir -l mylib_name -o main
+</code></pre>
+<ul>
+<li>This is because the linker may disregard symbols that are not (yet)
+needed, so the callers need to come before the callees.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2><a class="header" href="#static-vs-dynamic-library" id="static-vs-dynamic-library">Static <em>vs.</em> Dynamic library</a></h2>
+<p>If you don't know which to use, <strong>it is highly recommended to use a static
+library</strong>. Indeed:</p>
+<ul>
+<li>
+<p>Dynamic (also named <em>shared</em>) libraries are mainly a file-size optimization
+when having multiple downstream binaries that all depend upon the same
+(<em>shared</em>) library, which is quite unlikely to be the case for a Rust
+library.</p>
+</li>
+<li>
+<p>Dynamic libraries result in the produced program being split among multiple
+files (the main binary and the dynamic library), which is not only
+slightly less convinient than a bundled single file, but it also incurs in
+requiring a correct setup system-wise or binary-wise so that the dynamic
+library can be found at <em>load time</em>, <em>i.e.</em>, each and every time the binary
+is run.</p>
+<p>This means the the dynamic library needs to be located:</p>
+<ul>
+<li>
+<p>either in special directories such as <code>/usr/lib</code>, which may require
+<code>root</code> access and/or a special (<code>make</code>) <code>install</code>ation step.</p>
+<ul>
+<li>I'd even say that this is, by the way, the main <em>raison d'être</em> for
+tools such as Docker: having a reliable dynamic-library setup is
+so painful that one ends up scripting each and every step of the
+installation process to guarantee that all the tools are correcly
+laid out within the filesystem, and that there are no extraneous
+misinteractions.</li>
+</ul>
+</li>
+<li>
+<p>or in a relative path (<code>-Wl,-rpath,...</code> flag), either relative to the
+working directory, or relative to the location of the main binary. In
+both cases this may expose the user to code injection (one can easily
+shadow the dynamic library with their own in such cases), which,
+especially when the main binary has special privileges, is a security
+hazard.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>When <em>all</em> the libraries used by a binary are static, one gets to have a
+<strong>stand-alone program</strong>, also called &quot;portable&quot; (only across machines of
+the same architecture, though), which, contrary to &quot;setup hell&quot;, leads to
+very simple &quot;installation&quot;s (simply copy-paste the binary, and you can run
+it!)</p>
+</li>
+<li>
+<p>That being said, the layer of indirection that dynamic libraries introduce
+can be beneficial or interesting in very special cases, which leads to some
+situations where releasing the library as a dynamic one is mandatory.
+In such cases there is no real choice, and you should be using Rust's
+<code>cdylib</code>'s <code>crate-type</code> to generate the shared library.</p>
+</li>
+</ul>
+<h1><a class="header" href="#appendix-how-does-safer_ffi-work" id="appendix-how-does-safer_ffi-work">Appendix: how does <code>safer_ffi</code> work</a></h1>
+<p>Most of the limitations of traditional FFI are related to the design of
+<code>cbindgen</code> and its being <strong>implemented as a syntactic tool</strong>: without access to
+the semantics of the code, only its representation, <code>cbindgen</code> will never truly
+be able to overcome these issues.</p>
+<p>Instead, a tool for true FFI integration, including header generation, needs to
+<strong>have a way to interact with the high-level code and type semantics created by
+the compiler</strong>, instead of just the original source code.</p>
+<p>There are two ways to achieve this (outside official compiler support, of
+course):</p>
+<ul>
+<li>
+<p>either through a compiler plugin, such as <code>clippy</code>. This requires a very
+advanced knowledge of unstable compiler implementation details and
+internals, thus leading to a high maintenance burden: every new release
+of Rust could break such a compiler plugin (<em>c.f.</em> <code>clippy</code>-incompatible
+<code>nightly</code> Rust releases).</p>
+</li>
+<li>
+<p>by encoding invariants and reflection within the type system, through a
+complex but stable use of helper traits. <strong>This is the choice made by
+<code>safer_ffi</code></strong>, whereby <em>two</em> traits suffice to express the necssary semantics
+for FFI compatibility and integration:</p>
+<ul>
+<li>
+<p>the user-facing <a href="appendix//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> trait, implemented for types having a defined
+C layout:</p>
+<ul>
+<li>
+<p>either directly provided by the <code>safer_ffi</code> crate (<em>c.f.</em> <a href="appendix//safer_ffi/motivation/repr-c-forall.html">its
+dedicated chapter</a>),</p>
+</li>
+<li>
+<p>or implemented for custom types having the
+<a href="appendix//safer_ffi/derive-reprc/_.html"><code>#[derive_ReprC]</code></a> attribute.</p>
+</li>
+<li>
+<p>this is the trait that <a href="appendix//safer_ffi/ffi-export/_.html"><code>[ffi_export]</code></a>
+<em>directly</em> relies on.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>the more avdanced raw <a href="appendix//safer_ffi/rustdoc/safer_ffi/layout/trait.CType.html"><code>CType</code></a> trait, that you can simply dismiss as
+an internal trait.</p>
+<ul>
+<li>Still, for those interested, know that it defines the necessary
+logic for C reflection, that you can, by the way, <code>unsafe</code>-ly
+implement for your custom definitions for an <strong>advanced but doable
+custom extension of the framework</strong>!</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+        
+        
+
+    </body>
+</html>

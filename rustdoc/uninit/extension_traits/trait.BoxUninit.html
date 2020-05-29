@@ -1,0 +1,97 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `BoxUninit` trait in crate `uninit`."><meta name="keywords" content="rust, rustlang, rust-lang, BoxUninit"><title>uninit::extension_traits::BoxUninit - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc trait"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../uninit/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a><p class='location'>Trait BoxUninit</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#associated-types">Associated Types</a><div class="sidebar-links"><a href="#associatedtype.T">T</a></div><a class="sidebar-title" href="#required-methods">Required Methods</a><div class="sidebar-links"><a href="#tymethod.init">init</a><a href="#tymethod.try_alloc">try_alloc</a><a href="#tymethod.uninit">uninit</a></div><a class="sidebar-title" href="#foreign-impls">Implementations on Foreign Types</a><div class="sidebar-links"><a href="#impl-BoxUninit-for-Box%3CMaybeUninit%3CT%3E%3E">Box&lt;MaybeUninit&lt;T&gt;&gt;</a></div><a class="sidebar-title" href="#implementors">Implementors</a></div><p class='location'><a href='../index.html'>uninit</a>::<wbr><a href='index.html'>extension_traits</a></p><script>window.sidebarCurrent = {name: 'BoxUninit', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../../src/uninit/extension_traits/boxed.rs.html#153-165' title='goto source code'>[src]</a></span><span class='in-band'>Trait <a href='../index.html'>uninit</a>::<wbr><a href='index.html'>extension_traits</a>::<wbr><a class="trait" href=''>BoxUninit</a></span></h1><div class="docblock type-decl hidden-by-usual-hider"><pre class='rust trait'>pub trait BoxUninit: Sealed {
+    type <a href='#associatedtype.T' class="type">T</a>;
+    fn <a href='#tymethod.uninit' class='fnname'>uninit</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.init' class='fnname'>init</a>(self, value: Self::<a class="type" href="../../uninit/extension_traits/trait.BoxUninit.html#associatedtype.T" title="type uninit::extension_traits::BoxUninit::T">T</a>) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;Self::<a class="type" href="../../uninit/extension_traits/trait.BoxUninit.html#associatedtype.T" title="type uninit::extension_traits::BoxUninit::T">T</a>&gt;;
+<div class='item-spacer'></div>    fn <a href='#tymethod.try_alloc' class='fnname'>try_alloc</a>() -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;Self&gt;;
+}</pre></div><div class='docblock'><p>Extension trait for uninitalized <code>Box</code> allocations and
+the optimized delayed-initialization pattern.</p>
+</div>
+            <h2 id='associated-types' class='small-section-header'>Associated Types<a href='#associated-types' class='anchor'></a></h2><div class='methods'><h3 id='associatedtype.T' class='method'><code id='T.t'>type <a href='#associatedtype.T' class="type">T</a></code></h3></div><span class='loading-content'>Loading content...</span>
+            <h2 id='required-methods' class='small-section-header'>Required methods<a href='#required-methods' class='anchor'></a></h2><div class='methods'><h3 id='tymethod.uninit' class='method'><code id='uninit.v'>fn <a href='#tymethod.uninit' class='fnname'>uninit</a>() -&gt; Self</code></h3><h3 id='tymethod.init' class='method'><code id='init.v'>fn <a href='#tymethod.init' class='fnname'>init</a>(self, value: Self::<a class="type" href="../../uninit/extension_traits/trait.BoxUninit.html#associatedtype.T" title="type uninit::extension_traits::BoxUninit::T">T</a>) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;Self::<a class="type" href="../../uninit/extension_traits/trait.BoxUninit.html#associatedtype.T" title="type uninit::extension_traits::BoxUninit::T">T</a>&gt;</code></h3><h3 id='tymethod.try_alloc' class='method'><code id='try_alloc.v'>fn <a href='#tymethod.try_alloc' class='fnname'>try_alloc</a>() -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;Self&gt;</code></h3></div><span class='loading-content'>Loading content...</span>
+            <h2 id='foreign-impls' class='small-section-header'>Implementations on Foreign Types<a href='#foreign-impls' class='anchor'></a></h2><h3 id='impl-BoxUninit-for-Box%3CMaybeUninit%3CT%3E%3E' class='impl'><code class='in-band'>impl&lt;T&gt; <a class="trait" href="../../uninit/extension_traits/trait.BoxUninit.html" title="trait uninit::extension_traits::BoxUninit">BoxUninit</a> for <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;<a class="union" href="../../uninit/prelude/union.MaybeUninit.html" title="union uninit::prelude::MaybeUninit">MaybeUninit</a>&lt;T&gt;&gt;</code><a href='#impl-BoxUninit-for-Box%3CMaybeUninit%3CT%3E%3E' class='anchor'></a><a class='srclink' href='../../src/uninit/extension_traits/boxed.rs.html#99-149' title='goto source code'>[src]</a></h3><div class='docblock'><p>Extension trait for uninitalized <code>Box</code> allocations and
+the optimized delayed-initialization pattern.</p>
+<h1 id="optimized-in-place-heap-initialization" class="section-header"><a href="#optimized-in-place-heap-initialization">Optimized in-place heap initialization</a></h1>
+<p>The <code>Box::uninit().init(...)</code> delayed-initialization pattern is suprisingly
+effective in helping the optimizer inline the creation of the value directly
+into the heap.</p>
+<ul>
+<li>
+<p>In other words, this bundles <a href="https://docs.rs/copyless"><code>::copyless</code></a>
+functionality.</p>
+</li>
+<li>
+<p>For those wondering why <code>Box::new(...)</code> could not be made as efficient,
+the answer lies in temporaries: the <code>...</code> temporary when calling
+<code>Box::new()</code> is created <em>before</em> attempting the allocation, and given
+that this allocation can fail / have side-effects, the optimizer is not
+allowed to reorder the creation of the temporary after the allocation,
+since it can change the semantics of the code for these corner (but
+not unreachable) cases. It is hence illegal for the optimizer to inline
+the creation of <code>...</code> directly into the heap.</p>
+<p>Whereas <code>Box::uninit().init(...)</code> only creates the temporary after
+the allocation attempted in <code>uninit()</code> has succeeded, at which point
+it should be trivial for the optimizer to inline its creation directly
+into the heap.</p>
+</li>
+<li>
+<p>Note, however, that this property cannot be guaranteed from a library
+perspective; for instance, <strong>the heap-inlined initialization does not
+seem to happen when the optimization level (<code>opt-level</code>) is less than
+<code>2</code>. Inversely, the author has observed that the heap-inlined
+initialization does seem to kick in when compiling with <code>-C opt-level=2</code></strong> (or <code>3</code>), <em>e.g.</em>, when running on <code>--release</code>.</p>
+</li>
+</ul>
+<h3 id="example" class="section-header"><a href="#example">Example</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> ::<span class="ident">uninit</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="ident">ft</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">uninit</span>().<span class="ident">init</span>(<span class="number">42</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">ft</span>, <span class="number">42</span>);</pre></div>
+<p>This optimization can even allow creating arrays too big to fit in the
+stack.</p>
+<ul>
+<li>
+<p>For instance, the following implementation panics:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">fn</span> <span class="ident">alloc_big_boxed_array</span> () <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span>[<span class="ident">u64</span>; <span class="number">10_000_000</span>]<span class="op">&gt;</span>
+{
+    <span class="comment">// This can panic because of the `[0; 10_000_000]` stack</span>
+    <span class="comment">// temporary overflowing the stack.</span>
+    <span class="ident">Box</span>::<span class="ident">new</span>([<span class="number">0</span>; <span class="number">10_000_000</span>])
+}</pre></div>
+</li>
+<li>
+<p>Whereas the following one does not
+(doc-tested with <code>RUSTDOCFLAGS=-Copt-level=2</code>):</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">fn</span> <span class="ident">alloc_big_boxed_array</span> () <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span>[<span class="ident">u64</span>; <span class="number">10_000_000</span>]<span class="op">&gt;</span>
+{
+    <span class="comment">// But this works fine, since there is no stack temporary!</span>
+    <span class="ident">Box</span>::<span class="ident">uninit</span>().<span class="ident">init</span>([<span class="number">0</span>; <span class="number">10_000_000</span>])
+}</pre></div>
+</li>
+</ul>
+<h1 id="handling-allocation-failure" class="section-header"><a href="#handling-allocation-failure">Handling allocation failure</a></h1>
+<p>A neat side-effect of this implementation is to expose the intermediate
+state of <code>Box::try_alloc()</code>, which yields an <code>Option&lt;Box&lt;MaybeUninit&lt;T&gt;&gt;&gt;</code>
+depending on whether the attempted allocation succeeded or not.</p>
+<h3 id="example-1" class="section-header"><a href="#example-1">Example</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> ::<span class="ident">uninit</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="ident">buf</span>: <span class="ident">Box</span><span class="op">&lt;</span>[<span class="ident">u8</span>; ::<span class="ident">core</span>::<span class="ident">i32</span>::<span class="ident">MAX</span> <span class="kw">as</span> <span class="kw">_</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">Box</span>::<span class="ident">try_alloc</span>() {
+    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">uninit</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">uninit</span>.<span class="ident">init</span>([<span class="number">0</span>; ::<span class="ident">core</span>::<span class="ident">i32</span>::<span class="ident">MAX</span> <span class="kw">as</span> <span class="kw">_</span>]),
+    <span class="op">|</span> <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Failed to allocate 2GB of memory&quot;</span>);
+    }
+};</pre></div>
+</div><div class='impl-items'><h4 id='associatedtype.T-1' class="type"><code id='T.t-1'>type <a href='#associatedtype.T' class="type">T</a> = T</code></h4><h4 id='method.uninit' class="method"><code id='uninit.v-1'>fn <a href='#method.uninit' class='fnname'>uninit</a>() -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;<a class="union" href="../../uninit/prelude/union.MaybeUninit.html" title="union uninit::prelude::MaybeUninit">MaybeUninit</a>&lt;T&gt;&gt;</code><a class='srclink' href='../../src/uninit/extension_traits/boxed.rs.html#104-111' title='goto source code'>[src]</a></h4><div class='docblock'><p>Idiomatic allocation-failure unwrapping of <a href="../../uninit/extension_traits/trait.BoxUninit.html#tymethod.try_alloc" title="`BoxUninit::try_alloc`"><code>BoxUninit::try_alloc</code></a><code>()</code>.</p>
+</div><h4 id='method.try_alloc' class="method"><code id='try_alloc.v-1'>fn <a href='#method.try_alloc' class='fnname'>try_alloc</a>() -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;<a class="union" href="../../uninit/prelude/union.MaybeUninit.html" title="union uninit::prelude::MaybeUninit">MaybeUninit</a>&lt;T&gt;&gt;&gt;</code><a class='srclink' href='../../src/uninit/extension_traits/boxed.rs.html#117-134' title='goto source code'>[src]</a></h4><div class='docblock'><p>Attempts to <code>Box</code>-allocate memory for <code>T</code>, without initializing it.</p>
+<p>Returns <code>None</code> when the allocation fails.</p>
+</div><h4 id='method.init' class="method"><code id='init.v-1'>fn <a href='#method.init' class='fnname'>init</a>(self: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;<a class="union" href="../../uninit/prelude/union.MaybeUninit.html" title="union uninit::prelude::MaybeUninit">MaybeUninit</a>&lt;T&gt;&gt;, value: T) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;T&gt;</code><a class='srclink' href='../../src/uninit/extension_traits/boxed.rs.html#140-148' title='goto source code'>[src]</a></h4><div class='docblock'><p>Safely initialize a <code>Box::MaybeUninit&lt;T&gt;</code> by providing a <code>value: T</code>
+(that can be inlined into the <code>Box</code>), and safely return the ergonomic
+<code>Box&lt;T&gt;</code> witness of that initialization.</p>
+</div></div><span class='loading-content'>Loading content...</span>
+            <h2 id='implementors' class='small-section-header'>Implementors<a href='#implementors' class='anchor'></a></h2><div class='item-list' id='implementors-list'></div><span class='loading-content'>Loading content...</span><script type="text/javascript" src="../../implementors/uninit/extension_traits/trait.BoxUninit.js" async></script></section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "uninit";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script defer src="../../search-index.js"></script></body></html>

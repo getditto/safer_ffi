@@ -1,0 +1,334 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js rust">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Defined layout for Rust's pervasive types - `safer_ffi` User Guide</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+        <link rel="stylesheet" href="../theme/additional-css.css">
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "rust" : "rust";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('rust')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../introduction/getting_started.html"><strong aria-hidden="true">1.1.</strong> Getting Started</a></li></ol></li><li class="chapter-item expanded "><a href="../motivation/_.html"><strong aria-hidden="true">2.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../motivation/traditional-ffi.html"><strong aria-hidden="true">2.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="../motivation/repr-c-forall.html" class="active"><strong aria-hidden="true">2.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="../simple-examples/_.html"><strong aria-hidden="true">3.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../simple-examples/string_concat.html"><strong aria-hidden="true">3.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="../simple-examples/max.html"><strong aria-hidden="true">3.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="../usage/_.html"><strong aria-hidden="true">4.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../usage/cargo-toml.html"><strong aria-hidden="true">4.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="../usage/lib-rs.html"><strong aria-hidden="true">4.2.</strong> src/lib.rs and header generation</a></li></ol></li><li class="chapter-item expanded "><a href="../derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="../derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="../ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="../ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="../example-ditto/_.html">Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded affix "><a href="../example-hashmap/_.html">Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="../appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="../appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <footer style="margin: 0 0 25px 0; display: flex; align-items: center">
+    <span stle="font-size: small">Sponsored by </span>
+    <a href="https://www.ditto.live/about/company"><img style="margin-left:5px;" src="https://www.ditto.live/assets/img/brand/footer_logo.png" alt="Ditto" height="30"/></a>
+</footer>
+
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">`safer_ffi` User Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#idiomatic-rust-types-in-ffi-signatures" id="idiomatic-rust-types-in-ffi-signatures">Idiomatic Rust types in FFI signatures?</a></h1>
+<p>That was the main objective when creating and using <code>::safer_ffi</code>:</p>
+<p>Why go through <strong>the dangerously <code>unsafe</code> hassle</strong> of:</p>
+<ul>
+<li>
+<p>using <code>ptr: *const/mut T, len: usize</code> pairs when wanting to use slices?</p>
+</li>
+<li>
+<p>using <code>*const c_char</code> and <code>*mut c_char</code> and <code>CStr / CString / String</code>
+dances when wanting to use strings?</p>
+</li>
+<li>
+<p>losing all kind of ownership-borrow information with signatures such as:</p>
+<pre><code class="language-rust noplaypen">// Is this taking ownership of `Foo` or &quot;just&quot; mutating it?
+#[no_mangle] pub unsafe extern &quot;C&quot;
+fn foo_stuff (foo: *mut Foo)
+{
+    /* ... */
+}
+</code></pre>
+</li>
+</ul>
+<blockquote>
+<p>Can't we use our good ol' idiomatic <code>&amp;/&amp;mut/Box</code> trinity types? And some
+equivalent to <code>[_]</code> slices, <code>Vec</code>s and <code>String</code>s? And <em>quid</em> of closure
+types?</p>
+</blockquote>
+<p>To which the answer is <em>yes!</em> All these types can be FFI-compatible,
+<strong>provided they have a defined C layout</strong>. And this is precisely what <code>safer_ffi</code> does:</p>
+<blockquote>
+<p><code>safer_ffi</code> defines a bunch of idiomatic Rust types with a defined <code>#[repr(C)]</code>
+layout, to get both FFI compatibility and non-<code>unsafe</code> ergonomics.</p>
+</blockquote>
+<p>That is, for any type <code>T</code> that has a defined C layout, <em>i.e.</em>, that is
+<a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> (and <code>Sized</code>):</p>
+<ul>
+<li>
+<p><code>&amp;'_ T</code> and <code>&amp;'_ mut T</code> are themselves <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a>!</p>
+<ul>
+<li>
+<p>Same goes for <a href="/safer_ffi/rustdoc/safer_ffi/boxed/struct.Box.html"><code>repr_c::Box</code></a><code>&lt;T&gt;</code>.</p>
+</li>
+<li>
+<p>They all have the C layout of a (non-nullable) raw pointer.</p>
+</li>
+<li>
+<p>And all three support being <code>Option</code>-wrapped (the layout remains that
+of a (now nullable) raw pointer, thanks to the
+<a href="https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#niche">enum layout optimization</a>)</p>
+</li>
+</ul>
+</li>
+<li>
+<p><a href="/safer_ffi/rustdoc/safer_ffi/slice/struct.slice_ref.html"><code>c_slice::Ref</code></a><code>&lt;'_, T&gt;</code> and <a href="/safer_ffi/rustdoc/safer_ffi/slice/struct.slice_mut.html"><code>c_slice::Mut</code></a><code>&lt;'_, T&gt;</code> are
+also <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> equivalents of <code>&amp;'_ [T]</code> and <code>&amp;'_ mut [T]</code>.</p>
+<ul>
+<li>
+<p>Same goes for <a href="/safer_ffi/rustdoc/safer_ffi/slice/struct.slice_boxed.html"><code>c_slice::Box</code></a><code>&lt;T&gt;</code> (to represent <code>Box&lt;[T]&gt;</code>).</p>
+</li>
+<li>
+<p>They all have the C layout of a <code>struct</code> with a <code>.ptr</code>, <code>.len</code> pair
+of fields (where <code>.ptr</code> is non-nullable).</p>
+</li>
+<li>
+<p>And all three support being <code>Option</code>-wrapped too.</p>
+<ol>
+<li>
+<p>In that case, the <code>.ptr</code> field becomes nullable;</p>
+</li>
+<li>
+<p>when it is <code>NULL</code>, the <code>.len</code> field can be uninitialized: ⚠️ it is
+thus then UB to read the <code>.len</code> field ⚠️ (type safety and encapsulation ensure this UB cannot be
+triggered from within Rust; only the encapsulation-deprived C side
+can do that).</p>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>There is <a href="/safer_ffi/rustdoc/safer_ffi/vec/struct.Vec.html"><code>repr_c::Vec</code></a><code>&lt;T&gt;</code> as well (extra <code>.capacity</code> field <em>w.r.t.</em>
+generalization to <a href="/safer_ffi/rustdoc/safer_ffi/slice/struct.slice_boxed.html"><code>c_slice::Box</code></a><code>&lt;T&gt;</code>),</p>
+</li>
+<li>
+<p>as well as <a href="/safer_ffi/rustdoc/safer_ffi/string/struct.String.html"><code>repr_c::String</code></a>!</p>
+<ul>
+<li>
+<p>with the slice versions (<code>.capacity</code>-stripped) too: <a href="/safer_ffi/rustdoc/safer_ffi/string/struct.str_boxed.html"><code>str::Box</code></a> and
+<a href="/safer_ffi/rustdoc/safer_ffi/string/struct.str_ref.html"><code>str::Ref</code></a><code>&lt;'_&gt;</code> (<code>Box&lt;str&gt;</code> and <code>&amp;'_ str</code> respectively).</p>
+</li>
+<li>
+<p>although these definitions are capable of representing any sequence of
+UTF-8 encoded strings (thus supporting NULL bytes), since the C world is
+not really capable of handling those (except as opaque blobs of bytes),
+<code>char *</code>-compatible null-terminated UTF-8 string types are available
+as well:</p>
+<ul>
+<li>
+<p><a href="/safer_ffi/rustdoc/safer_ffi/char_p/struct.char_p_ref.html"><code>char_p::Ref</code></a><code>&lt;'_&gt;</code> for <code>char const *</code>: a temporary borrow of such
+string (useful as input parameter).</p>
+</li>
+<li>
+<p><a href="/safer_ffi/rustdoc/safer_ffi/char_p/struct.char_p_boxed.html"><code>char_p::Box</code></a> for <code>char *</code>: a pointer owning a <code>Box</code>-allocated
+such string (useful to <em>return</em> strings).</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../motivation/traditional-ffi.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../simple-examples/_.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../motivation/traditional-ffi.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../simple-examples/_.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
