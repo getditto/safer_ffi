@@ -11,7 +11,7 @@ To start using `::safer_ffi`, edit your `Cargo.toml` like so:
 crate-type = ["staticlib"]  # and/or "cdylib"
 
 [dependencies]
-safer_ffi = { version = "...", features = ["proc_macros"] }
+safer-ffi = { version = "...", features = ["proc_macros"] }
 
 [features]
 c-headers = ["safer_ffi/headers"]

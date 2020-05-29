@@ -27,7 +27,7 @@ edition = "2018"
 crate-type = ["staticlib"]
 
 [dependencies]
-safer_ffi = { git = "https://github.com/getditto/rust-safer_ffi.git", features = ["proc_macros"] }
+safer-ffi = { git = "https://github.com/getditto/rust-safer_ffi.git", features = ["proc_macros"] }
 
 [features]
 c-headers = ["safer_ffi/headers"]

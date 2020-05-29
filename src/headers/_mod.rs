@@ -7,7 +7,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! safer_ffi = { version = "...", features = ["proc_macros"] }
+//! safer-ffi = { version = "...", features = ["proc_macros"] }
 //!
 //! [features]
 //! generate-headers = ["safer_ffi/headers"]

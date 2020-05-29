@@ -29,7 +29,7 @@ a dependency, and enable the `proc-macros` feature:
 
 ```toml
 [dependencies]
-safer_ffi = { version = "...", features = ["proc-macros"] }
+safer-ffi = { version = "...", features = ["proc-macros"] }
 ```
 
   - or instead simply run `cargo add safer_ffi --features proc-macros` if you

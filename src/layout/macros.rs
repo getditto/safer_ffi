@@ -247,7 +247,7 @@ macro_rules! CType {(
 ///
 /// ```toml
 /// [dependencies]
-/// safer_ffi = { version = "...", features = ["proc_macros"] }
+/// safer-ffi = { version = "...", features = ["proc_macros"] }
 /// ```
 ///
 /// and use the [`#[derive_ReprC]`](
