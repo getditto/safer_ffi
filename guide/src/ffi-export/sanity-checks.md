@@ -35,10 +35,10 @@ trigger "instant UB"**, contrary to a hand-crafted definition.
     instantly trigger Undefined Behavior no matter what the body of
     `set_log_level` would be.
 
-    Instead, when using `repr_c`, the following code:
+    Instead, when using `safer_ffi`, the following code:
 
     ```rust,noplaypen
-    use ::repr_c::prelude::*;
+    use ::safer_ffi::prelude::*;
 
     #[derive_ReprC]
     #[repr(u8)] // Associated CType: a plain `u8`
@@ -68,7 +68,7 @@ trigger "instant UB"**, contrary to a hand-crafted definition.
         #[no_mangle] pub unsafe extern "C"
         fn set_log_level (level: u8)
         {
-            match ::repr_c::layout::from_raw(level) {
+            match ::safer_ffi::layout::from_raw(level) {
                 | Some(level /* : LogLevel */) => {
                     super::set_log_level(level)
                 },
@@ -96,12 +96,12 @@ the [`ReprC`] type is guaranteed to be aligned).
 
 ### Caveats
 
-Such check cannot be exhaustive (in the case of pointers for instance, `repr_c`
+Such check cannot be exhaustive (in the case of pointers for instance, `safer_ffi`
 cannot possibly know if it is valid to dereference a non-null and well-aligned
 pointer). This means that there are still cases where UB can be triggered
 nevertheless, hence it being named a _sanity_ check and not a _safety_ check.
 
-  - Only in the case of a (field-less) `enum` can `repr_c` ensure lack of
+  - Only in the case of a (field-less) `enum` can `safer_ffi` ensure lack of
     UB no matter the (integral) [C type][`CType`] instance given as input.
 
 As you may notice by looking at the code, there is a `compile_time_condition()`

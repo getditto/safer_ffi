@@ -33,9 +33,9 @@ See [the reference for more info about them][rust-reference-fieldless-enums].
 ### Usage
 
 ```rust,noplaypen
-use ::repr_c::prelude:*;
+use ::safer_ffi::prelude:*;
 
-#[derive_ReprC] // <- `::repr_c`'s attribute
+#[derive_ReprC] // <- `::safer_ffi`'s attribute
 #[repr(u8)]     // <- explicit integer `repr` is mandatory!
 pub
 enum LogLevel {

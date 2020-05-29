@@ -6,9 +6,9 @@
 ## Usage
 
 ```rust,noplaypen
-use ::repr_c::prelude::*;
+use ::safer_ffi::prelude::*;
 
-#[derive_ReprC] // <- `::repr_c`'s attribute
+#[derive_ReprC] // <- `::safer_ffi`'s attribute
 #[repr(C)]      // <- defined C layout is mandatory!
 pub
 struct Point {
@@ -42,7 +42,7 @@ Point_t get_origin (void);
 `#[derive_ReprC]` supports generic structs:
 
 ```rust,noplaypen
-use ::repr_c::prelude::*;
+use ::safer_ffi::prelude::*;
 
 /// The struct can be generic...
 #[derive_ReprC]
@@ -100,7 +100,7 @@ Each monomorphization leads to its own C definition:
 <details><summary>Transparent newtype wrapper</summary>
 
 ```rust,noplaypen
-use ::repr_c::{prelude::*, ptr};
+use ::safer_ffi::{prelude::*, ptr};
 
 /// A `Box`-like owned pointer type, but which can be freed using `free()`.
 #[derive_ReprC]

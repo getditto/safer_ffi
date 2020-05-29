@@ -208,7 +208,7 @@ macro_rules! CType {(
 ///   - Instead of:
 ///
 ///     ```rust,compile_fail
-///     use ::repr_c::layout::ReprC;
+///     use ::safer_ffi::layout::ReprC;
 ///
 ///     ReprC! {
 ///         #[repr(C)]
@@ -224,7 +224,7 @@ macro_rules! CType {(
 ///   - You need to write:
 ///
 ///     ```rust
-///     use ::repr_c::layout::ReprC;
+///     use ::safer_ffi::layout::ReprC;
 ///
 ///     ReprC! {
 ///         #[repr(C)]
@@ -247,11 +247,11 @@ macro_rules! CType {(
 ///
 /// ```toml
 /// [dependencies]
-/// repr_c = { version = "...", features = ["proc_macros"] }
+/// safer_ffi = { version = "...", features = ["proc_macros"] }
 /// ```
 ///
 /// and use the [`#[derive_ReprC]`](
-/// /repr_c/layout/attr.derive_ReprC.html) attribute macro instead,
+/// /safer_ffi/layout/attr.derive_ReprC.html) attribute macro instead,
 /// which will do the rewriting for you.
 #[macro_export]
 macro_rules! ReprC {
@@ -307,7 +307,7 @@ macro_rules! ReprC {
         $crate::paste::item! {
             #[allow(nonstandard_style)]
             $pub use
-                [< __ $StructName _repr_c_mod >]::$StructName
+                [< __ $StructName _safer_ffi_mod >]::$StructName
                 as
                 [< $StructName _Layout >]
             ;
@@ -358,7 +358,7 @@ macro_rules! ReprC {
         }
         $crate::paste::item! {
             #[allow(nonstandard_style, trivial_bounds)]
-            mod [< __ $StructName _repr_c_mod >] {
+            mod [< __ $StructName _safer_ffi_mod >] {
                 #[allow(unused_imports)]
                 use super::*;
 
@@ -397,7 +397,7 @@ macro_rules! ReprC {
         }
         const _: () = {
             $crate::paste::item! {
-                use [< __ $StructName _repr_c_mod >]::*;
+                use [< __ $StructName _safer_ffi_mod >]::*;
             }
 
             impl $(<$($lt ,)* $($($generics),+)?>)? $crate::core::marker::Copy
@@ -730,8 +730,7 @@ macro_rules! ReprC {
     (
         $(#[doc = $prev_doc:tt])*
         #[
-            $(::)?
-            repr_c
+            ReprC
             ::
             opaque
             $(
@@ -762,7 +761,7 @@ macro_rules! ReprC {
 
         const _: () = {
             pub
-            struct __repr_c_Opaque__ $(
+            struct __safer_ffi_Opaque__ $(
                 <$($lt ,)* $($($generics),+)?>
                 $(
                     where $($bounds)*
@@ -785,7 +784,7 @@ macro_rules! ReprC {
             impl $(<$($lt ,)* $($($generics),+)?>)?
                 $crate::core::marker::Copy
             for
-                __repr_c_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
+                __safer_ffi_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
             $(
                 where
                     $($($bounds)*)?
@@ -795,7 +794,7 @@ macro_rules! ReprC {
             impl $(<$($lt ,)* $($($generics),+)?>)?
                 $crate::core::clone::Clone
             for
-                __repr_c_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
+                __safer_ffi_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
             $(
                 where
                     $($($bounds)*)?
@@ -811,7 +810,7 @@ macro_rules! ReprC {
             impl $(<$($lt ,)* $($($generics),+)?>)?
                 $crate::layout::CType
             for
-                __repr_c_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
+                __safer_ffi_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
             $(
                 where
                     $($($bounds)*)?
@@ -871,7 +870,7 @@ macro_rules! ReprC {
             }
             $crate::layout::from_CType_impl_ReprC! {
                 $(@for[$($lt ,)* $($($generics),+)?])?
-                __repr_c_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
+                __safer_ffi_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
                 $(
                     where
                         $($($bounds)*)?
@@ -889,7 +888,7 @@ macro_rules! ReprC {
             )?
             {
                 type CLayout =
-                    __repr_c_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
+                    __safer_ffi_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
                 ;
 
                 fn is_valid (it: &'_ Self::CLayout)
@@ -1044,7 +1043,7 @@ mod test {
     }
 
     ReprC! {
-        #[repr_c::opaque("Opaque")]
+        #[ReprC::opaque("Opaque")]
         struct Opaque
         {}
     }
@@ -1063,7 +1062,7 @@ mod test {
     cfg_proc_macros! { doc_test! { derive_ReprC_supports_generics:
         fn main () {}
 
-        use ::repr_c::prelude::*;
+        use ::safer_ffi::prelude::*;
 
         /// Some docstring before
         #[derive_ReprC]
@@ -1090,10 +1089,10 @@ mod test {
         doc_test! { unused:
             fn main () {}
 
-            use ::repr_c::prelude::*;
+            use ::safer_ffi::prelude::*;
 
             ReprC! {
-                #[::repr_c::opaque("Foo")]
+                #[ReprC::opaque("Foo")]
                 struct Foo {}
             }
         }
@@ -1101,10 +1100,10 @@ mod test {
         doc_test! { with_indirection:
             fn main () {}
 
-            use ::repr_c::prelude::*;
+            use ::safer_ffi::prelude::*;
 
             ReprC! {
-                #[::repr_c::opaque("Foo")]
+                #[ReprC::opaque("Foo")]
                 pub
                 struct Foo {}
             }
@@ -1118,10 +1117,10 @@ mod test {
             #![compile_fail]
             fn main () {}
 
-            use ::repr_c::prelude::*;
+            use ::safer_ffi::prelude::*;
 
             ReprC! {
-                #[::repr_c::opaque]
+                #[ReprC::opaque]
                 pub
                 struct Foo {}
             }

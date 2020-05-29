@@ -1,7 +1,7 @@
 # Appendix: Being compatible with `free()`
 
 ```rust,noplaypen
-use ::repr_c::{prelude::*, ptr};
+use ::safer_ffi::{prelude::*, ptr};
 
 /// A `Box`-like owned pointer type, but which can be freed using `free()`.
 #[derive_ReprC]

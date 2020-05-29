@@ -10,7 +10,7 @@ use ::std::{
     ptr,
     ops::Not as _,
 };
-use ::repr_c::{
+use ::safer_ffi::{
     prelude::*,
     layout::{
         CType,
@@ -329,12 +329,12 @@ fn generate_headers ()
         out: &mut ::std::io::stderr(),
         defines: Default::default(),
     };
-    ::repr_c::inventory::iter
+    ::safer_ffi::inventory::iter
         .into_iter()
         .collect::<Vec<_>>()
         .into_iter()
         .rev()
-        .try_for_each(|::repr_c::FfiExport(define)| define(definer))
+        .try_for_each(|::safer_ffi::FfiExport(define)| define(definer))
         ?
     ;
 
@@ -343,7 +343,7 @@ fn generate_headers ()
         out: &'out mut dyn io::Write,
         defines: Set<String>,
     }
-    impl ::repr_c::headers::Definer
+    impl ::safer_ffi::headers::Definer
         for MyDefiner<'_>
     {
         fn insert (self: &'_ mut Self, name: &'_ str)

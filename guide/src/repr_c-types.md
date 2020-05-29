@@ -1,4 +1,4 @@
-|                         | Traditional FFI | `repr_c`                 |
+|                         | Traditional FFI | `safer_ffi`              |
 |-------------------------|-----------------|--------------------------|
 | Mutable pointer or NULL | `*mut T`        | `Option<&mut T>`         |
 | Mutable pointer         | `*mut T`        | `&mut T`                 |

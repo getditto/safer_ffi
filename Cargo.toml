@@ -2,7 +2,7 @@
 path = "src/_lib.rs"
 
 [package]
-name = "repr_c"
+name = "safer_ffi"
 version = "0.1.0"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
@@ -53,7 +53,7 @@ inventory = { version = "0.1.6", optional = true }
 proc-macro-hack = { version = "0.5.15", optional = true }
 
 [dependencies.proc_macro]
-package = "repr_c-proc_macro"
+package = "safer_ffi-proc_macro"
 path = "src/proc_macro"
 version = "0.1.0"
 

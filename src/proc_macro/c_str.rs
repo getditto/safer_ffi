@@ -4,7 +4,7 @@ fn c_str (input: TokenStream)
 {
     let input: LitStr = if let Some(it) = parse_macro_input!(input) { it } else {
         return ::quote::quote!(
-            ::repr_c::char_p::char_p_ref::EMPTY
+            ::safer_ffi::char_p::char_p_ref::EMPTY
         ).into();
     };
     let bytes = input.value();
@@ -28,8 +28,8 @@ fn c_str (input: TokenStream)
     ::quote::quote!(
         unsafe {
             const STATIC_BYTES: &'static [u8] = #byte_str;
-            ::repr_c::char_p::char_p_ref::from_ptr_unchecked(
-                ::repr_c::ptr::NonNull::new_unchecked(STATIC_BYTES.as_ptr() as _)
+            ::safer_ffi::char_p::char_p_ref::from_ptr_unchecked(
+                ::safer_ffi::ptr::NonNull::new_unchecked(STATIC_BYTES.as_ptr() as _)
             )
         }
     ).into()

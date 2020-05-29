@@ -3,7 +3,7 @@ path = "mod.rs"
 proc-macro = true
 
 [package]
-name = "repr_c-proc_macro"
+name = "safer_ffi-proc_macro"
 version = "0.1.0"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"

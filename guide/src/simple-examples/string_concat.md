@@ -3,7 +3,7 @@
 ```rust,noplaypen
 #![deny(unsafe_code)] /* No `unsafe` needed! */
 
-use ::repr_c::prelude::*;
+use ::safer_ffi::prelude::*;
 
 /// Concatenate two input UTF-8 (_e.g._, ASCII) strings.
 ///

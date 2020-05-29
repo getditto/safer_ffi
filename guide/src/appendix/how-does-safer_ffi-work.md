@@ -1,6 +1,6 @@
 {{#include ../links.md}}
 
-# Appendix: how does `repr_c` work
+# Appendix: how does `safer_ffi` work
 
 Most of the limitations of traditional FFI are related to the design of
 `cbindgen` and its being **implemented as a syntactic tool**: without access to
@@ -22,13 +22,13 @@ course):
 
   -  by encoding invariants and reflection within the type system, through a
     complex but stable use of helper traits. **This is the choice made by
-    `repr_c`**, whereby _two_ traits suffice to express the necssary semantics
+    `safer_ffi`**, whereby _two_ traits suffice to express the necssary semantics
     for FFI compatibility and integration:
 
       - the user-facing [`ReprC`] trait, implemented for types having a defined
         C layout:
 
-          - either directly provided by the `repr_c` crate (_c.f._ [its
+          - either directly provided by the `safer_ffi` crate (_c.f._ [its
             dedicated chapter][repr-c-forall]),
 
           - or implemented for custom types having the

@@ -8,10 +8,10 @@ authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-repr_c = { path = "..", features = ["proc_macros"] }
+safer_ffi = { path = "..", features = ["proc_macros"] }
 
 [features]
-generate-headers = ["repr_c/headers"]
+generate-headers = ["safer_ffi/headers"]
 
 # [dev-dependencies]
 # cc = "1.0.50"

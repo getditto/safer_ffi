@@ -51,7 +51,7 @@ These are not yet implemented
 
     ```rust,noplaypen
     #[ffi_export]
-    #[repr_c(unsafe { skip_sanity_checks() })]
+    #[safer_ffi(unsafe { skip_sanity_checks() })]
     fn ...
     ```
 
@@ -60,7 +60,7 @@ These are not yet implemented
     ```rust,noplaypen
     #[ffi_export]
     fn set_log_level (
-        #[repr_c(unsafe { skip_sanity_checks() })]
+        #[safer_ffi(unsafe { skip_sanity_checks() })]
         level: LogLevel,
         ...
     ) -> ...

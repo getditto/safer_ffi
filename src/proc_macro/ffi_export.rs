@@ -3,7 +3,7 @@
 /// # Example
 ///
 /// ```rust
-/// use ::repr_c::prelude::ffi_export;
+/// use ::safer_ffi::prelude::ffi_export;
 ///
 /// #[ffi_export]
 /// /// Add two integers together.
@@ -13,7 +13,7 @@
 /// }
 /// ```
 ///
-///   - ensures that [the generated headers](/repr_c/headers/) will include the
+///   - ensures that [the generated headers](/safer_ffi/headers/) will include the
 ///     following definition:
 ///
 ///     ```C
@@ -36,7 +36,7 @@
 ///
 /// # `ReprC`
 ///
-/// [`ReprC`]: /repr_c/layout/trait.ReprC.html
+/// [`ReprC`]: /safer_ffi/layout/trait.ReprC.html
 ///
 /// You can use any Rust types in the singature of an `#[ffi_export]`-
 /// function, provided each of the types involved in the signature is [`ReprC`].
@@ -46,7 +46,7 @@
 ///
 /// To have custom structs implement [`ReprC`], it suffices to annotate the
 /// `struct` definitions with the [`#[derive_ReprC]`](
-/// /repr_c/layout/attr.derive_ReprC.html)
+/// /safer_ffi/layout/attr.derive_ReprC.html)
 /// (on top of the obviously required `#[repr(C)]`).
 #[proc_macro_attribute] pub
 fn ffi_export (attrs: TokenStream, input: TokenStream)
@@ -65,7 +65,7 @@ fn ffi_export (attrs: TokenStream, input: TokenStream)
         TT::Punct(Punct::new(':', Spacing::Joint)),
         TT::Punct(Punct::new(':', Spacing::Alone)),
 
-        TT::Ident(Ident::new("repr_c", span)),
+        TT::Ident(Ident::new("safer_ffi", span)),
 
         TT::Punct(Punct::new(':', Spacing::Joint)),
         TT::Punct(Punct::new(':', Spacing::Alone)),

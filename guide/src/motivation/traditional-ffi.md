@@ -1,6 +1,6 @@
 {{#include ../links.md}}
 
-# Why use `repr_c`?
+# Why use `safer_ffi`?
 
 Traditionally, to generate FFI from Rust to C developers would use `#[no_mangle]` and [`cbindgen`] like so:
 
@@ -29,7 +29,7 @@ and has run into the limitations outlined below.
 
 [Learn more about Ditto's experience with FFI and Rust.](../ditto/_.md)
 
-## `repr_c` features that traditional FFI struggles to support
+## `safer_ffi` features that traditional FFI struggles to support
 
   - _These have been tested with (`cbindgen v0.14.2`)._
 
@@ -60,7 +60,7 @@ and invariants][parse-dont-validate], you quickly stumble upon this limitation.
 This is why, traditional Rust→C FFI code uses "flat" raw pointers. **This
 results in `unsafe` implementations which are more error-prone**.
 
-`::repr_c` solves this issue by using more evolved types:
+`::safer_ffi` solves this issue by using more evolved types:
 
 {{#include ../repr_c-types.md}}
 
@@ -100,7 +100,7 @@ fn my_free_supports_null (ptr: Option<repr_c::Box<i32>>)
 
 ### Consistent support for macro-generated definitions
 
-Since `repr_c` is integrated within the compiler, it supports macros expanding
+Since `safer_ffi` is integrated within the compiler, it supports macros expanding
 to `#[ffi_export]` function definitions or `#[derive_ReprC]` type definitions.
 
 <details><summary>Example</summary>
@@ -145,7 +145,7 @@ one only has to:
 
 ### Support for shadowed paths
 
-Since `repr_c` is integrated withing the compiler, the types the code refers to
+Since `safer_ffi` is integrated withing the compiler, the types the code refers to
 are unambiguously understood by both `#[derive_ReprC]` and `#[ffi_export]`.
 
 <details><summary>Example</summary>

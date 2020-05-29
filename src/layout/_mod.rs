@@ -46,8 +46,8 @@ fn __assert_concrete__<T>() where
 ///   - If you trully want a manual implementation of `CType` (_e.g._, for an
 ///     "opaque type" pattern, _i.e._, a forward declaration), then, to
 ///     implement the trait so that it works no matter the status of
-///     the `repr_c/headers` feature, one must define the methods as if
-///     feature was present, but with a `#[::repr_c::cfg_headers]` gate slapped
+///     the `safer_ffi/headers` feature, one must define the methods as if
+///     feature was present, but with a `#[::safer_ffi::cfg_headers]` gate slapped
 ///     on _each_ method.
 ///
 /// # Safety
@@ -199,7 +199,7 @@ unsafe trait CType
         ///
         /// ```rust,ignore
         /// unsafe impl CType for i32 {
-        ///     #[::repr_c::cfg_headers]
+        ///     #[::safer_ffi::cfg_headers]
         ///     fn c_define_self (definer: &'_ mut dyn Definer)
         ///       -> io::Result<()>
         ///     {
@@ -221,7 +221,7 @@ unsafe trait CType
         /// }
         ///
         /// unsafe impl CType for i32 {
-        ///     #[::repr_c::cfg_headers]
+        ///     #[::safer_ffi::cfg_headers]
         ///     fn c_define_self (definer: &'_ mut dyn Definer)
         ///       -> io::Result<()>
         ///     {
@@ -274,7 +274,7 @@ unsafe trait CType
         ///
         /// ```rust,ignore
         /// unsafe impl CType for i32 {
-        ///     #[::repr_c::cfg_headers]
+        ///     #[::safer_ffi::cfg_headers]
         ///     fn c_var_fmt (
         ///         fmt: &'_ mut fmt::Formatter<'_>,
         ///         var_name: &'_ str,
@@ -291,7 +291,7 @@ unsafe trait CType
         ///
         /// ```rust,ignore
         /// unsafe impl CType for Option<extern "C" fn (i32) -> u32> {
-        ///     #[::repr_c::cfg_headers]
+        ///     #[::safer_ffi::cfg_headers]
         ///     fn c_var_fmt (
         ///         fmt: &'_ mut fmt::Formatter<'_>,
         ///         var_name: &'_ str,
@@ -308,7 +308,7 @@ unsafe trait CType
         ///
         /// ```rust,ignore
         /// unsafe impl CType for [i32; 42] {
-        ///     #[::repr_c::cfg_headers]
+        ///     #[::safer_ffi::cfg_headers]
         ///     fn c_var_fmt (
         ///         fmt: &'_ mut fmt::Formatter<'_>,
         ///         var_name: &'_ str,
@@ -320,7 +320,7 @@ unsafe trait CType
         ///
         ///     // Since `c_var_fmt()` requires a one-time typedef, overriding
         ///     // `c_define_self()` is necessary:
-        ///     #[::repr_c::cfg_headers]
+        ///     #[::safer_ffi::cfg_headers]
         ///     fn c_define_self (definer: &'_ mut dyn Definer)
         ///       -> fmt::Result
         ///     {
@@ -448,7 +448,7 @@ __cfg_headers__! {
 ///
 /// It is generally recommended to avoid manually (and `unsafe`-ly)
 /// implementing the [`ReprC`] trait. Instead, the recommended and blessed way
-/// is to use the [`#[derive_ReprC]`](/repr_c/layout/attr.derive_ReprC.html)
+/// is to use the [`#[derive_ReprC]`](/safer_ffi/layout/attr.derive_ReprC.html)
 /// attribute (when the `proc_macros` feature is enabled, or the [`ReprC!`]
 /// macro when it is not) on your `#[repr(C)] struct` (or your field-less
 /// `#[repr(<integer>)] enum`).
@@ -461,7 +461,7 @@ __cfg_headers__! {
 ///
 /// ```rust,no_run
 /// # fn main () {}
-/// use ::repr_c::prelude::*;
+/// use ::safer_ffi::prelude::*;
 ///
 /// #[derive_ReprC]
 /// #[repr(C)]
@@ -485,7 +485,7 @@ __cfg_headers__! {
 ///
 /// ```rust,no_run
 /// # fn main () {}
-/// use ::repr_c::prelude::*;
+/// use ::safer_ffi::prelude::*;
 ///
 /// ReprC! {
 ///     #[repr(C)]
@@ -500,7 +500,7 @@ __cfg_headers__! {
 ///
 /// ```rust,no_run
 /// # fn main () {}
-/// use ::repr_c::prelude::*;
+/// use ::safer_ffi::prelude::*;
 ///
 /// #[derive_ReprC]
 /// #[repr(u8)]
@@ -530,7 +530,7 @@ __cfg_headers__! {
 ///
 /// ```rust,no_run
 /// # fn main () {}
-/// use ::repr_c::prelude::*;
+/// use ::safer_ffi::prelude::*;
 ///
 /// ReprC! {
 ///     #[repr(u8)]
@@ -548,7 +548,7 @@ __cfg_headers__! {
 ///
 /// ```rust,no_run
 /// # fn main () {}
-/// use ::repr_c::prelude::*;
+/// use ::safer_ffi::prelude::*;
 ///
 /// #[derive_ReprC]
 /// #[repr(C)]
@@ -586,7 +586,7 @@ __cfg_headers__! {
 ///
 /// ```rust,no_run
 /// # fn main () {}
-/// use ::repr_c::prelude::*;
+/// use ::safer_ffi::prelude::*;
 ///
 /// ReprC! {
 ///     #[repr(C)]

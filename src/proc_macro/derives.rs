@@ -14,7 +14,7 @@ fn feed_to_macro_rules (input: TokenStream, name: Ident)
             ref variants,
             ..
         }) => quote! {
-            ::repr_c::layout::ReprC! {
+            ::safer_ffi::layout::ReprC! {
                 #(#attrs)*
                 #vis
                 #enum_ #ident {
@@ -29,7 +29,7 @@ fn feed_to_macro_rules (input: TokenStream, name: Ident)
         }) => {
             let (params, bounds) = generics.my_split();
             quote! {
-                ::repr_c::layout::#name! {
+                ::safer_ffi::layout::#name! {
                     #(#attrs)*
                     #vis
                     #struct_ #ident
@@ -57,14 +57,14 @@ fn feed_to_macro_rules (input: TokenStream, name: Ident)
 /// Safely implement [`ReprC`]
 /// for a `#[repr(C)]` struct **when all its fields are [`ReprC`]**.
 ///
-/// [`ReprC`]: /repr_c/layout/trait.ReprC.html
+/// [`ReprC`]: /safer_ffi/layout/trait.ReprC.html
 ///
 /// # Examples
 ///
 /// ### Simple `struct`
 ///
 /// ```rust
-/// use ::repr_c::prelude::*;
+/// use ::safer_ffi::prelude::*;
 ///
 /// #[derive_ReprC]
 /// #[repr(C)]
@@ -86,7 +86,7 @@ fn feed_to_macro_rules (input: TokenStream, name: Ident)
 /// ### Field-less `enum`
 ///
 /// ```rust
-/// use ::repr_c::prelude::*;
+/// use ::safer_ffi::prelude::*;
 ///
 /// #[derive_ReprC]
 /// #[repr(u8)]
@@ -117,7 +117,7 @@ fn feed_to_macro_rules (input: TokenStream, name: Ident)
 /// `: ReprC` bound each:
 ///
 /// ```rust
-/// use ::repr_c::prelude::*;
+/// use ::safer_ffi::prelude::*;
 ///
 /// #[derive_ReprC]
 /// #[repr(C)]

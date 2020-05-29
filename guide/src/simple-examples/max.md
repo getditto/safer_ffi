@@ -3,7 +3,7 @@
 ```rust,noplaypen
 #![deny(unsafe_code)] /* No `unsafe` needed! */
 
-use ::repr_c::prelude::*;
+use ::safer_ffi::prelude::*;
 
 /// Returns a pointer to the maximum element of the slice
 /// when it is not empty, and `NULL` otherwise.

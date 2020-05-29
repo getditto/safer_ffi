@@ -1,6 +1,6 @@
 [book]
-title = "`repr_c` User Guide"
-guide = "A guide to learn how to use the `::repr_c` FFI framework"
+title = "`safer_ffi` User Guide"
+guide = "A guide to learn how to use the `::safer_ffi` FFI framework"
 authors = ["Daniel Henry-Mantilla"]
 language = "en"
 multilingual = false

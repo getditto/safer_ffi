@@ -1,4 +1,4 @@
-use ::repr_c::prelude::*;
+use ::safer_ffi::prelude::*;
 
 /// Concatenate the two input strings into a new one.
 ///
@@ -49,7 +49,7 @@ mod foo {
     use super::*;
 
     #[derive_ReprC]
-    #[repr_c::opaque("foo")]
+    #[ReprC::opaque("foo")]
     pub
     struct Foo { hidden: i32 }
 
@@ -84,12 +84,12 @@ mod bar {
     {}
 }
 
-#[repr_c::cfg_headers]
+#[safer_ffi::cfg_headers]
 #[test]
 fn generate_headers ()
   -> ::std::io::Result<()>
 {
-    let builder = ::repr_c::headers::builder();
+    let builder = ::safer_ffi::headers::builder();
     if ::std::env::var("HEADERS_TO_STDOUT").ok().map_or(false, |it| it == "1") {
         builder
             .to_writer(::std::io::stdout())

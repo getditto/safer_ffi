@@ -8,7 +8,7 @@ pub(in crate) use crate::{
     utils::markers::*,
 };
 cfg_alloc! {
-    pub(in crate) use crate::{
+    pub(in crate) use crate::prelude::repr_c::{
         Box,
         String,
         Vec,

@@ -40,4 +40,4 @@
 
 [Appendix: FFI and C compilation](appendix/c-compilation.md)
 
-[Appendix: how does `repr_c` work](appendix/how-does-repr_c-work.md)
+[Appendix: how does `safer_ffi` work](appendix/how-does-safer_ffi-work.md)

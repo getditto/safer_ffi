@@ -22,22 +22,22 @@ crate-type = [
 ]
 ```
 
-### `[dependencies.repr_c]`
+### `[dependencies.safer_ffi]`
 
-To get access to `repr_c` and its ergonomic attribute macros we add `repr_c` as
+To get access to `safer_ffi` and its ergonomic attribute macros we add `safer_ffi` as
 a dependency, and enable the `proc-macros` feature:
 
 ```toml
 [dependencies]
-repr_c = { version = "...", features = ["proc-macros"] }
+safer_ffi = { version = "...", features = ["proc-macros"] }
 ```
 
-  - or instead simply run `cargo add repr_c --features proc-macros` if you
+  - or instead simply run `cargo add safer_ffi --features proc-macros` if you
     have [`cargo edit`][cargo-edit].
 
 <details><summary>About the <code>proc-macros</code> feature</summary>
 
-although still a WIP, the author of `repr_c` is making an important effort
+although still a WIP, the author of `safer_ffi` is making an important effort
 to make the usage of procedural macros be as optional as possible, so
 as to allow downstream users to avoid pulling the very heavyweight
 `syn + quote` dependencies, by offering alternative basic macros
@@ -49,10 +49,10 @@ alternatives (such as `ReprC!` instead of `#[derive_ReprC]`)
     `std` feature by adding `default-features = false`.
 
       - if, however, you still have access to an allocator, you can enable the
-        `alloc` feature, to get the defintions of `repr_c::{Box, String, Vec}`
+        `alloc` feature, to get the defintions of `safer_ffi::{Box, String, Vec}`
         _etc._
 
-  - You may also enable the `log` feature so that `repr_c` may log `error!`s
+  - You may also enable the `log` feature so that `safer_ffi` may log `error!`s
     when the semi-checked casts from raw C types into their Rust counterparts
     fail (_e.g._, when receiving a `bool` that is nether `0` nor `1`).
 
@@ -61,15 +61,15 @@ alternatives (such as `ReprC!` instead of `#[derive_ReprC]`)
 Finally, in order to alleviate the compile-time when not generating the headers
 (it is customary to bundle pre-generated headers when distributing an
 FFI-compatible Rust crate), the runtime C reflection and header generation
-machinery (the most heavyweight part of `repr_c`) is feature-gated away by
-default (behind the `repr_c/headers` feature).
+machinery (the most heavyweight part of `safer_ffi`) is feature-gated away by
+default (behind the `safer_ffi/headers` feature).
 
 However, when [generating the headers][header-generation], such machinery is
 needed. Thus the simplest solution is for the FFI crate to have a Cargo feature
-(flag) that transitively enables the `repr_c/headers` feature. You can name such
+(flag) that transitively enables the `safer_ffi/headers` feature. You can name such
 feature however you want. In this guide, it is named `c-headers`.
 
 ```toml
 [features]
-c-headers = ["repr_c/headers"]
+c-headers = ["safer_ffi/headers"]
 ```

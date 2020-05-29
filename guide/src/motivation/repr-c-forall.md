@@ -2,7 +2,7 @@
 
 # Idiomatic Rust types in FFI signatures?
 
-That was the main objective when creating and using `::repr_c`:
+That was the main objective when creating and using `::safer_ffi`:
 
 Why go through **the dangerously `unsafe` hassle** of:
 
@@ -27,9 +27,9 @@ equivalent to `[_]` slices, `Vec`s and `String`s? And _quid_ of closure
 types?
 
 To which the answer is _yes!_ All these types can be FFI-compatible,
-**provided they have a defined C layout**. And this is precisely what `repr_c` does:
+**provided they have a defined C layout**. And this is precisely what `safer_ffi` does:
 
-> `repr_c` defines a bunch of idiomatic Rust types with a defined `#[repr(C)]`
+> `safer_ffi` defines a bunch of idiomatic Rust types with a defined `#[repr(C)]`
   layout, to get both FFI compatibility and non-`unsafe` ergonomics.
 
 That is, for any type `T` that has a defined C layout, _i.e._, that is

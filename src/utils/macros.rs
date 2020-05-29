@@ -175,13 +175,13 @@ macro_rules! doc_test {
 
 cfg_proc_macros! {
     doc_test! { c_str:
-        use ::repr_c::prelude::*;
+        use ::safer_ffi::prelude::*;
 
         let _ = c!("Hello, World!");
     }
     doc_test! { c_str_inner_nul_byte:
         #![compile_fail]
-        use ::repr_c::prelude::*;
+        use ::safer_ffi::prelude::*;
 
         let _ = c!("Hell\0, World!");
     }

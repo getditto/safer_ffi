@@ -17,6 +17,8 @@
     unused_must_use,
 )]
 
+//! See the [user guide](https://getditto.github.io/safer_ffi).
+
 #[cfg(feature = "proc_macros")]
 #[macro_use]
 extern crate require_unsafe_in_body;
@@ -76,18 +78,19 @@ cfg_alloc! {
 }
 
 cfg_alloc! {
-    #[doc(inline)]
-    pub use boxed::{Box, slice_boxed, str_boxed};
-    pub mod boxed;
+    pub
+    mod boxed;
 }
 
 use self::c_char_module::c_char;
 #[path = "c_char.rs"]
 mod c_char_module;
 
-pub mod char_p;
+pub
+mod char_p;
 
-pub mod closure;
+pub
+mod closure;
 
 const _: () = {
     #[path = "ffi_export.rs"]
@@ -97,19 +100,16 @@ const _: () = {
 pub
 mod ptr;
 
-#[doc(inline)]
-pub use slice::{slice_ref, slice_mut};
-pub mod slice;
-
-
-#[doc(inline)]
-pub use string::str_ref;
+pub
+mod slice;
 
 #[path = "string/_mod.rs"]
-pub mod string;
+pub
+mod string;
 
 #[doc(no_inline)]
-pub use tuple::*;
+pub
+use tuple::*;
 
 pub
 mod tuple;
@@ -183,6 +183,17 @@ mod prelude {
         }
     }
     pub
+    mod repr_c {
+        cfg_alloc! {
+            #[doc(no_inline)]
+            pub use crate::{
+                boxed::Box,
+                string::String,
+                vec::Vec,
+            };
+        }
+    }
+    pub
     mod str {
         #[doc(no_inline)]
         pub use crate::string::{
@@ -217,9 +228,9 @@ mod prelude {
         // Out reference itself
         Out,
         // Helper trait to go from `&mut T` and `&mut MaybeUninit<T>` to `Out<T>`
-        AsOut as _,
+        AsOut,
         // Helper trait to have `AsOut` when `T : !Copy`
-        ManuallyDropMut as _,
+        ManuallyDropMut,
     };
 }
 

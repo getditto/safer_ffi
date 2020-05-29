@@ -33,7 +33,7 @@
 [usage]: /usage/_.md
 [ffi_export]: /ffi-export/_.md
 [derive_ReprC]: /derive-reprc/_.md
-[how-does-repr_c-work]: /appendix/how-does-repr_c-work.md
+[how-does-safer_ffi-work]: /appendix/how-does-safer_ffi-work.md
 [cargo-toml]: /usage/cargo-toml.md
 [header-generation]: /usage/lib-rs.md#header-generation
 [c-compilation]: /appendix/c-compilation.md
@@ -42,17 +42,17 @@
 [comments]: <> (
     RUST DOCUMENTATION
 )
-[Rust documentation]: /rustdoc/repr_c/
-[`ReprC`]: /rustdoc/repr_c/layout/trait.ReprC.html
-[`CType`]: /rustdoc/repr_c/layout/trait.CType.html
-[`repr_c::Box`]: /rustdoc/repr_c/boxed/struct.Box.html
-[`c_slice::Box`]: /rustdoc/repr_c/slice/struct.slice_boxed.html
-[`c_slice::Ref`]: /rustdoc/repr_c/slice/struct.slice_ref.html
-[`c_slice::Mut`]: /rustdoc/repr_c/slice/struct.slice_mut.html
-[`repr_c::Vec`]: /rustdoc/repr_c/vec/struct.Vec.html
-[`repr_c::String`]: /rustdoc/repr_c/string/struct.String.html
-[`str::Box`]: /rustdoc/repr_c/string/struct.str_boxed.html
-[`str::Ref`]: /rustdoc/repr_c/string/struct.str_ref.html
-[`char_p::Box`]: /rustdoc/repr_c/char_p/struct.char_p_boxed.html
-[`char_p::Ref`]: /rustdoc/repr_c/char_p/struct.char_p_ref.html
-[`repr_c::headers::builder()`]: /rustdoc/repr_c/headers/struct.Builder.html
+[Rust documentation]: /rustdoc/safer_ffi/
+[`ReprC`]: /rustdoc/safer_ffi/layout/trait.ReprC.html
+[`CType`]: /rustdoc/safer_ffi/layout/trait.CType.html
+[`repr_c::Box`]: /rustdoc/safer_ffi/boxed/struct.Box.html
+[`c_slice::Box`]: /rustdoc/safer_ffi/slice/struct.slice_boxed.html
+[`c_slice::Ref`]: /rustdoc/safer_ffi/slice/struct.slice_ref.html
+[`c_slice::Mut`]: /rustdoc/safer_ffi/slice/struct.slice_mut.html
+[`repr_c::Vec`]: /rustdoc/safer_ffi/vec/struct.Vec.html
+[`repr_c::String`]: /rustdoc/safer_ffi/string/struct.String.html
+[`str::Box`]: /rustdoc/safer_ffi/string/struct.str_boxed.html
+[`str::Ref`]: /rustdoc/safer_ffi/string/struct.str_ref.html
+[`char_p::Box`]: /rustdoc/safer_ffi/char_p/struct.char_p_boxed.html
+[`char_p::Ref`]: /rustdoc/safer_ffi/char_p/struct.char_p_ref.html
+[`safer_ffi::headers::builder()`]: /rustdoc/safer_ffi/headers/struct.Builder.html

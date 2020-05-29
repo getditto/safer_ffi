@@ -14,31 +14,31 @@ The only currently supported such "item"s are function definitions: `const` and
 
 </div>
 
-If using non-primitive non-`repr_c`-provided types, then those must be
+If using non-primitive non-`safer_ffi`-provided types, then those must be
 [`#[derive_ReprC]` annotated][derive_ReprC].
 
 At which point the only thing remaining is to generate the header file.
 
 ### Header generation
 
-Given how `repr_c` implements the C reflection logic as methods within
+Given how `safer_ffi` implements the C reflection logic as methods within
 [a trait][`CType`] related to [`ReprC`], the only way to generate the headers
 is to be a "Rust downstream" user of the library, within the same compilation
 unit / crate (a limitation that comes from the way the machinery currently
 operates). That is, a **unit test**.
 
 So you need to define a `cfg`-gated unit test that calls into the
-[`repr_c::headers::builder()`] to `.generate()` the headers into the given
+[`safer_ffi::headers::builder()`] to `.generate()` the headers into the given
 file(name), or into the given `Write`-able / "write sink":
 
   - Basic example:
 
     ```rust,noplaypen
-    #[::repr_c::cfg_headers]
+    #[::safer_ffi::cfg_headers]
     #[test]
     fn generate_headers () -> ::std::io::Result<()>
     {
-        ::repr_c::headers::builder()
+        ::safer_ffi::headers::builder()
             .to_file("filename.h")?
             .generate()
     }
@@ -56,11 +56,11 @@ file(name), or into the given `Write`-able / "write sink":
 <summary>More advanced example (runtime-dependent header output)</summary>
 
 ```rust,noplaypen
-#[::repr_c::cfg_headers]
+#[::safer_ffi::cfg_headers]
 #[test]
 fn generate_headers () -> ::std::io::Result<()>
 {
-    let builder = ::repr_c::headers::builder();
+    let builder = ::safer_ffi::headers::builder();
     if let Ok(filename) = ::std::env::var("HEADERS_FILE") {
         builder
             .to_file(&filename)?
