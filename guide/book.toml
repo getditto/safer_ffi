@@ -6,13 +6,7 @@ language = "en"
 multilingual = false
 src = "src"
 
-[build]
-create-missing = true
-
 [output.html]
-# theme = "theme"
-additional-css = ["theme/additional-css.css"]
-default-theme = "rust"
+theme = "theme"
+additional-css = ["theme/book.css"]
 fold = { enable = true, level = 5 }
-
-# [output.linkcheck]  # enable the "mdbook-linkcheck" renderer

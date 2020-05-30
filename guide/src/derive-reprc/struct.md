@@ -37,7 +37,7 @@ Point_t get_origin (void);
 
 </details>
 
-### Generics
+### Usage with Generic Structs
 
 `#[derive_ReprC]` supports generic structs:
 
