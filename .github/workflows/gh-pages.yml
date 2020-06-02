@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  URL_ROOT_PATH: /safer_ffi/
+
+jobs:
+  # == CHECK == #
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust:
+          - 1.43.0
+          - stable
+          - nightly
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          override: true
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --features proc_macros,log,out-refs
+
+  # == BUILD & TEST == #
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          override: true
+          toolchain: 1.43.0
+
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --features proc_macros,std,out-refs
+
+  # Deploy to Github pages #
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-18.04
+    needs:
+      - build-and-test
+    steps:
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: default
+          override: true
+          toolchain: nightly
+
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - name: Build docs
+        uses: actions-rs/cargo@v1
+        with:
+          command: doc
+          args: --all-features
+
+      - name: Install `mdbook`
+        uses: peaceiris/actions-mdbook@v1
+        with:
+          mdbook-version: '0.3.7'
+
+      - name: Build guide and documentation
+        run: |
+          (cd guide
+            mdbook build
+            mkdir -p book/{assets,rustdoc}
+            cp -r assets/* book/assets/
+            cp -r ../target/doc/* book/rustdoc/
+          )
+
+      - name: Deploy to Github Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./guide/book
