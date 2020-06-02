@@ -31,7 +31,7 @@ and has run into the limitations outlined below.
 
 ## `safer_ffi` features that traditional FFI struggles to support
 
-  - _These have been tested with (`cbindgen v0.14.2`)._
+  - _These have been tested with `cbindgen v0.14.2`._
 
 ### Support for complex types and respective layout or ABI semantics
 
