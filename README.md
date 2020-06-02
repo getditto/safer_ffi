@@ -1,5 +1,7 @@
 # `::safer_ffi`
 
+![CI](https://github.com/getditto/safer_ffi/workflows/CI/badge.svg?branch=master)
+
 See the [user guide](https://getditto.github.io/safer_ffi).
 
 # ⚠️ WIP ⚠️

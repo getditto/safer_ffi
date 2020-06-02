@@ -117,7 +117,7 @@ struct Crazy {
         extern "C" fn(char_p::Raw),
         Tuple2<
             [Foo<'static>; 12],
-            Option<::repr_c::Box<Option<MyBool>>>
+            Option<repr_c::Box<Option<MyBool>>>
         >,
     ),
     closure: RefDynFnMut2<'static, (), i32, usize>,
