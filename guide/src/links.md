@@ -25,7 +25,7 @@
     DITTO LINKS
 )
 [Ditto]: https://www.ditto.live/about/company
-[Ditto-logo]: assets/ditto-logo.png
+[Ditto-logo]: /assets/ditto-logo-with-title-small.png
 
 [comments]: <> (
     INTERNAL CHAPTERS OR SECTIONS
