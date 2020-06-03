@@ -55,7 +55,7 @@ proc-macro-hack = { version = "0.5.15", optional = true }
 [dependencies.proc_macro]
 package = "safer_ffi-proc_macro"
 path = "src/proc_macro"
-version = "0.0.1-alpha-1"  # Keep in sync with main version and proc-macros
+version = "0.0.1-alpha-2.0"  # Keep in sync with main version and proc-macros
 
 [dependencies.uninit]
 optional = true
