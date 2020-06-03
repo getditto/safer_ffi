@@ -3,7 +3,7 @@
     easier to maintain.
     Given how the rendered `book/` becomes the root of the published site,
     absolute paths can be used, _e.g._, when referring to other chapters:
-    the `src/` directory can be seen as `/`.
+    the `src/` directory can be seen as `{ROOT_PATH}`.
 )
 
 [comments]: <> (
@@ -26,6 +26,7 @@
 )
 [Ditto]: https://www.ditto.live/about/company
 [Ditto-logo]: {ROOT_PATH}assets/ditto-logo-with-title-small.png
+[ferris-safety-hat]: {ROOT_PATH}assets/ferris-safety-hat-by-Byter.png
 
 [comments]: <> (
     INTERNAL CHAPTERS OR SECTIONS
@@ -42,6 +43,7 @@
 [header-generation]: {ROOT_PATH}usage/lib-rs.md#header-generation
 [c-compilation]: {ROOT_PATH}appendix/c-compilation.md
 [repr-c-forall]: {ROOT_PATH}motivation/repr-c-forall.md
+[traditional-ffi-limits]: {ROOT_PATH}motivation/traditional-ffi.md
 
 [comments]: <> (
     RUST DOCUMENTATION

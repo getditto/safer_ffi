@@ -41,7 +41,7 @@ c-headers = ["safer-ffi/headers"]
 
 ### `src/lib.rs`
 
-```rust
+```rust,no_run
 use ::safer_ffi::prelude::*;
 
 /// A `struct` usable from both Rust and C
