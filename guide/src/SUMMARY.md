@@ -2,7 +2,15 @@
 
   - [Introduction](introduction/_.md)
 
-      - [Getting Started](introduction/getting_started.md)
+      - [Quickstart](introduction/quickstart.md)
+
+  - [Detailed usage](usage/_.md)
+
+    - [`Cargo.toml`](usage/cargo-toml.md)
+
+    - [`src/lib.rs` and header generation](usage/lib-rs.md)
+
+    - [Custom types](usage/custom-types.md)
 
   - [Motivation: safer types across FFI](motivation/_.md)
 
@@ -15,12 +23,6 @@
     - [`string_concat`](simple-examples/string_concat.md)
 
     - [Maximum member of an array](simple-examples/max.md)
-
-  - [Detailed usage](usage/_.md)
-
-    - [`Cargo.toml`](usage/cargo-toml.md)
-
-    - [`src/lib.rs` and header generation](usage/lib-rs.md)
 
   - [`ReprC` and `#[derive_ReprC]`](derive-reprc/_.md)
 

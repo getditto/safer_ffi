@@ -166,3 +166,7 @@ blockquote {
 .tooltipped .tooltiptext {
     visibility: visible;
 }
+
+#sponsored {
+    text-align: center;
+}
