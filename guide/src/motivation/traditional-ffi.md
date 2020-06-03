@@ -105,7 +105,7 @@ to `#[ffi_export]` function definitions or `#[derive_ReprC]` type definitions.
 
 <details><summary>Example</summary>
 
-To make the following code work:
+To make the following code work (_w.r.t._ auto-generated headers):
 
 ```rust,noplaypen
 macro_rules! adders {(
