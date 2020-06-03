@@ -14,7 +14,7 @@ env:
 jobs:
   # == CHECK == #
   check:
-    name: Check
+    name: Check nightly stable and MSRV
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -22,6 +22,27 @@ jobs:
           - 1.43.0
           - stable
           - nightly
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          override: true
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --features proc_macros,log,out-refs
+
+  check-features:
+    name: Check all the features combinations on MSRV
+    runs-on: ubuntu-latest
+    needs: check
+    strategy:
+      matrix:
         feature--proc_macros: ['', '--features proc_macros']
         feature--std: ['', '--features std']
         feature--alloc: ['', '--features alloc']
