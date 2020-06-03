@@ -104,7 +104,7 @@ for its enums. Indeed, the C standard only states that:
 
         This means that when you link against a library that was compiled
         with a different set of flags, such as a system-wide shared library
-        or a Rust generated `staticlib` / `cdylib`, then such mimsatch is
+        or a Rust generated `staticlib` / `cdylib`, then such mismatch is
         very likely to cause Undefined Behavior!
 
 In practice, when C defines an `enum` to be used by Rust, there is no other

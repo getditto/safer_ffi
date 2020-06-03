@@ -25,17 +25,18 @@ crate-type = [
 ### `[dependencies.safer_ffi]`
 
 To get access to `safer_ffi` and its ergonomic attribute macros we add `safer_ffi` as
-a dependency, and enable the `proc-macros` feature:
+a dependency, and enable the `proc_macros` feature:
 
 ```toml
 [dependencies]
-safer-ffi = { version = "...", features = ["proc-macros"] }
+safer-ffi = { version = "*", features = ["proc-macros"] }
 ```
 
-  - or instead simply run `cargo add safer_ffi --features proc-macros` if you
-    have [`cargo edit`][cargo-edit].
+  - Where `"*"` ought to be replaced by the last released version, which you
+    can find by running `cargo search safer-ffi` or
+    [`cargo add`][cargo-edit]`safer-ffi --features proc_macros`
 
-<details><summary>About the <code>proc-macros</code> feature</summary>
+<details><summary>About the <code>proc_macros</code> feature</summary>
 
 although still a WIP, the author of `safer_ffi` is making an important effort
 to make the usage of procedural macros be as optional as possible, so

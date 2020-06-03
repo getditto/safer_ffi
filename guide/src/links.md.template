@@ -30,6 +30,7 @@
 [comments]: <> (
     INTERNAL CHAPTERS OR SECTIONS
 )
+[quickstart]: {ROOT_PATH}introduction/quickstart.md
 [usage]: {ROOT_PATH}usage/_.md
 [ffi_export]: {ROOT_PATH}ffi-export/_.md
 [derive_ReprC]: {ROOT_PATH}derive-reprc/_.md
@@ -37,6 +38,7 @@
 [derive_ReprC-enum]: {ROOT_PATH}derive-reprc/enum.md
 [how-does-safer_ffi-work]: {ROOT_PATH}appendix/how-does-safer_ffi-work.md
 [cargo-toml]: {ROOT_PATH}usage/cargo-toml.md
+[lib-rs]: {ROOT_PATH}usage/lib-rs.md
 [header-generation]: {ROOT_PATH}usage/lib-rs.md#header-generation
 [c-compilation]: {ROOT_PATH}appendix/c-compilation.md
 [repr-c-forall]: {ROOT_PATH}motivation/repr-c-forall.md
