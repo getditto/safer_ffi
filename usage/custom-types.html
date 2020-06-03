@@ -4,7 +4,7 @@
 <head>
     <!-- Book generated using mdBook -->
     <meta charset="UTF-8">
-    <title>On an enum - `safer_ffi` User Guide</title>
+    <title>Custom types - `safer_ffi` User Guide</title>
     
 
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -87,7 +87,7 @@
 
     <nav id="sidebar" class="sidebar" aria-label="Table of contents">
         <div class="sidebar-scrollbox">
-            <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../introduction/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li></ol></li><li class="chapter-item expanded "><a href="../usage/_.html"><strong aria-hidden="true">2.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../usage/cargo-toml.html"><strong aria-hidden="true">2.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="../usage/lib-rs.html"><strong aria-hidden="true">2.2.</strong> src/lib.rs and header generation</a></li><li class="chapter-item expanded "><a href="../usage/custom-types.html"><strong aria-hidden="true">2.3.</strong> Custom types</a></li></ol></li><li class="chapter-item expanded "><a href="../motivation/_.html"><strong aria-hidden="true">3.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../motivation/traditional-ffi.html"><strong aria-hidden="true">3.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="../motivation/repr-c-forall.html"><strong aria-hidden="true">3.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="../simple-examples/_.html"><strong aria-hidden="true">4.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../simple-examples/string_concat.html"><strong aria-hidden="true">4.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="../simple-examples/max.html"><strong aria-hidden="true">4.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="../derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="../derive-reprc/enum.html" class="active"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="../ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="../ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="../example-ditto/_.html">Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded affix "><a href="../example-hashmap/_.html">Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="../appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="../appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
+            <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../introduction/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li></ol></li><li class="chapter-item expanded "><a href="../usage/_.html"><strong aria-hidden="true">2.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../usage/cargo-toml.html"><strong aria-hidden="true">2.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="../usage/lib-rs.html"><strong aria-hidden="true">2.2.</strong> src/lib.rs and header generation</a></li><li class="chapter-item expanded "><a href="../usage/custom-types.html" class="active"><strong aria-hidden="true">2.3.</strong> Custom types</a></li></ol></li><li class="chapter-item expanded "><a href="../motivation/_.html"><strong aria-hidden="true">3.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../motivation/traditional-ffi.html"><strong aria-hidden="true">3.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="../motivation/repr-c-forall.html"><strong aria-hidden="true">3.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="../simple-examples/_.html"><strong aria-hidden="true">4.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../simple-examples/string_concat.html"><strong aria-hidden="true">4.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="../simple-examples/max.html"><strong aria-hidden="true">4.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="../derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="../derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="../ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="../ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="../example-ditto/_.html">Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded affix "><a href="../example-hashmap/_.html">Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="../appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="../appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
             <span id="sponsored">
                 Sponsored by<br/>
                 <a href="https://www.ditto.live"><img src="../assets/ditto-logo-with-title-small.png" /></a>
@@ -168,123 +168,52 @@
 
             <div id="content" class="content">
                 <main>
-                    <h1><a class="header" href="#deriving-reprc-for-custom-enums" id="deriving-reprc-for-custom-enums">Deriving <code>ReprC</code> for custom enums</a></h1>
-<h2><a class="header" href="#c-enums" id="c-enums">C enums</a></h2>
-<p>A C enum is a field-less enum, <em>i.e.</em>, an enum that only has <em>unit</em> variants.</p>
-<details><summary>Examples</summary>
-<pre><code class="language-rust noplaypen">enum Ordering {
-    Less    /* = 0 */,
-    Equal   /* = 1 */,
-    Greater /* = 2 */,
-}
-
-/// The following discriminants are all guaranteed to be &gt; 0.
-enum ErrorKind {
-    NotFound            = 1,
-    PermissionDenied /* = 2 */,
-    TimedOut         /* = 3 */,
-    Interrupted      /* = 4 */,
-    Other            /* = 5 */,
-    // ...
+                    <h1><a class="header" href="#custom-types" id="custom-types">Custom Types</a></h1>
+<p>Custom types are also supported, as long as they:</p>
+<ul>
+<li>
+<p>have a defined C layout;</p>
+</li>
+<li>
+<p>have a <a href="/safer_ffi/derive-reprc/_.html"><code>#[derive_ReprC]</code></a> attribute.</p>
+</li>
+</ul>
+<h3><a class="header" href="#usage-with-structs" id="usage-with-structs">Usage with structs</a></h3>
+<pre><code class="language-rust noplaypen">#[derive_ReprC] // &lt;- `::safer_ffi`'s attribute
+#[repr(C)]      // &lt;- defined C layout is mandatory!
+struct Point {
+    x: i32,
+    y: i32,
 }
 </code></pre>
-</details>
-<p>See <a href="https://doc.rust-lang.org/stable/reference/items/enumerations.html#custom-discriminant-values-for-fieldless-enumerations">the reference for more info about them</a>.</p>
-<h3><a class="header" href="#usage" id="usage">Usage</a></h3>
-<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude:*;
-
-#[derive_ReprC] // &lt;- `::safer_ffi`'s attribute
+<ul>
+<li>See <a href="/safer_ffi/derive-reprc/struct.html">the dedicated chapter on structs</a> for more info.</li>
+</ul>
+<h3><a class="header" href="#usage-with-enums" id="usage-with-enums">Usage with enums</a></h3>
+<pre><code class="language-rust noplaypen">#[derive_ReprC] // &lt;- `::safer_ffi`'s attribute
 #[repr(u8)]     // &lt;- explicit integer `repr` is mandatory!
-pub
-enum LogLevel {
-    Off = 0,    // &lt;- explicit discriminants are supported
-    Error,
-    Warning,
-    Info,
-    Debug,
+pub enum Direction {
+    Up = 1,
+    Down = -1,
 }
 </code></pre>
-<details><summary>Generated C header</summary>
-<pre><code class="language-c">typedef uint8_t LogLevel_t; enum {
-    LOGLEVEL_OFF = 0,
-    LOGLEVEL_ERROR,
-    LOGLEVEL_WARNING,
-    LOGLEVEL_INFO,
-    LOGLEVEL_DEBUG,
-};
-</code></pre>
-</details>
-<h3><a class="header" href="#layout-of-c-enums" id="layout-of-c-enums">Layout of C enums</a></h3>
-<p>These enums are generally used to define a <em>closed</em> set of <em>distinct</em> integral
-constants in a <em>type-safe</em> fashion.</p>
-<p>But when used from C, the type safety is kind of lost, given how loosely C
-converts back and forth between <code>enum</code>s and integers.</p>
-<p>This leads to a very important point:</p>
-<blockquote>
-<p>What is the integer type of the enum discriminants?</p>
-</blockquote>
-<p>With <strong>no</strong> <code>#[repr(...)]</code> annotation whatsoever, Rust reserves the right to
-choose whatever it wants: no defined C layout, so <strong>not FFI-safe</strong>.</p>
-<p>With <code>#[repr(Int)]</code> (where <code>Int</code> can be <code>u8</code>, <code>i8</code>, <code>u32</code>,
-<em>etc.</em>) Rust is forced to use that very <code>Int</code> type.</p>
-<p>With <code>#[repr(C)]</code>, Rust will pick what C would pick if it were given an
-equivalent definition.</p>
-<span class="warning">
-<p><code>#[repr(C)]</code> enums can cause UB when used across FFI ⚠️</p>
-</span>
-<details><summary>Click for more info</summary>
-It turns out C itself does not really define a concrete integer layout
-for its enums. Indeed, the C standard only states that:
 <ul>
-<li>
-<p>the discriminants are <code>int</code>s.</p>
-</li>
-<li>
-<p>the enum itself represents an integer type that must fit in an <code>int</code>.</p>
-<ul>
-<li>
-<p>Very often this is an <code>int</code> too.</p>
-</li>
-<li>
-<p>but since there is no explicit guarantee that it must be <em>exactly</em>
-an <code>int</code> too, <a href="https://oroboro.com/short-enum/">compiler flags such as <code>-fshort-enums</code> can lead to
-smaller integer types</a>.</p>
-<p>This means that when you link against a library that was compiled
-with a different set of flags, such as a system-wide shared library
-or a Rust generated <code>staticlib</code> / <code>cdylib</code>, then such mimsatch is
-very likely to cause Undefined Behavior!</p>
-</li>
+<li>See <a href="/safer_ffi/derive-reprc/enum.html">the dedicated chapter on enums</a> for more info.</li>
 </ul>
-</li>
-</ul>
-<p>In practice, when C defines an <code>enum</code> to be used by Rust, there is no other
-choice but to use <code>#[repr(C)]</code> and pray / ensure that the C library is compiled
-with the same semantics that Rust expects (<em>e.g.</em>, no <code>-fshort-enums</code> flag).</p>
-<p>But when doing FFI in the other direction, there is no reason whatsoever to use
-<code>#[repr(C)]</code>: <strong>picking a fixed-size integer is then the most sensible thing to
-do for a well-defined and thus robust FFI interface</strong>.</p>
-</details>
-<p>That's why <a href="/safer_ffi/derive-reprc/_.html"><code>#[derive_ReprC]</code></a> makes the opinionated choice of
-<strong>refusing to handle an <code>enum</code> definition that does not provide an
-explicit fixed-size integer representation</strong>.</p>
-<h2><a class="header" href="#more-complex-enums" id="more-complex-enums">More complex enums</a></h2>
-<span class="warning">
-<p>Are not supported yet.</p>
-</span>
 
                 </main>
 
                 <nav class="nav-wrapper" aria-label="Page navigation">
                     <!-- Mobile navigation buttons -->
                     
-                    <a rel="prev" href="../derive-reprc/struct.html" class="mobile-nav-chapters previous"
+                    <a rel="prev" href="../usage/lib-rs.html" class="mobile-nav-chapters previous"
                         title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                     
 
                     
-                    <a rel="next" href="../ffi-export/_.html" class="mobile-nav-chapters next"
+                    <a rel="next" href="../motivation/_.html" class="mobile-nav-chapters next"
                         title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
@@ -297,14 +226,14 @@ explicit fixed-size integer representation</strong>.</p>
 
         <nav class="nav-wide-wrapper" aria-label="Page navigation">
             
-            <a rel="prev" href="../derive-reprc/struct.html" class="nav-chapters previous" title="Previous chapter"
+            <a rel="prev" href="../usage/lib-rs.html" class="nav-chapters previous" title="Previous chapter"
                 aria-label="Previous chapter" aria-keyshortcuts="Left">
                 <i class="fa fa-angle-left"></i>
             </a>
             
 
             
-            <a rel="next" href="../ffi-export/_.html" class="nav-chapters next" title="Next chapter"
+            <a rel="next" href="../motivation/_.html" class="nav-chapters next" title="Next chapter"
                 aria-label="Next chapter" aria-keyshortcuts="Right">
                 <i class="fa fa-angle-right"></i>
             </a>

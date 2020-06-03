@@ -4,7 +4,7 @@
 <head>
     <!-- Book generated using mdBook -->
     <meta charset="UTF-8">
-    <title>Getting Started - `safer_ffi` User Guide</title>
+    <title>Quickstart - `safer_ffi` User Guide</title>
     
 
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -87,10 +87,10 @@
 
     <nav id="sidebar" class="sidebar" aria-label="Table of contents">
         <div class="sidebar-scrollbox">
-            <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../introduction/getting_started.html" class="active"><strong aria-hidden="true">1.1.</strong> Getting Started</a></li></ol></li><li class="chapter-item expanded "><a href="../motivation/_.html"><strong aria-hidden="true">2.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../motivation/traditional-ffi.html"><strong aria-hidden="true">2.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="../motivation/repr-c-forall.html"><strong aria-hidden="true">2.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="../simple-examples/_.html"><strong aria-hidden="true">3.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../simple-examples/string_concat.html"><strong aria-hidden="true">3.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="../simple-examples/max.html"><strong aria-hidden="true">3.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="../usage/_.html"><strong aria-hidden="true">4.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../usage/cargo-toml.html"><strong aria-hidden="true">4.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="../usage/lib-rs.html"><strong aria-hidden="true">4.2.</strong> src/lib.rs and header generation</a></li></ol></li><li class="chapter-item expanded "><a href="../derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="../derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="../ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="../ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="../example-ditto/_.html">Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded affix "><a href="../example-hashmap/_.html">Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="../appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="../appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
+            <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../introduction/quickstart.html" class="active"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li></ol></li><li class="chapter-item expanded "><a href="../usage/_.html"><strong aria-hidden="true">2.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../usage/cargo-toml.html"><strong aria-hidden="true">2.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="../usage/lib-rs.html"><strong aria-hidden="true">2.2.</strong> src/lib.rs and header generation</a></li><li class="chapter-item expanded "><a href="../usage/custom-types.html"><strong aria-hidden="true">2.3.</strong> Custom types</a></li></ol></li><li class="chapter-item expanded "><a href="../motivation/_.html"><strong aria-hidden="true">3.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../motivation/traditional-ffi.html"><strong aria-hidden="true">3.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="../motivation/repr-c-forall.html"><strong aria-hidden="true">3.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="../simple-examples/_.html"><strong aria-hidden="true">4.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../simple-examples/string_concat.html"><strong aria-hidden="true">4.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="../simple-examples/max.html"><strong aria-hidden="true">4.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="../derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="../derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="../ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="../ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="../example-ditto/_.html">Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded affix "><a href="../example-hashmap/_.html">Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="../appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="../appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
             <span id="sponsored">
-                Sponsored by 
-                <a href="https://www.ditto.live">Ditto</a>
+                Sponsored by<br/>
+                <a href="https://www.ditto.live"><img src="../assets/ditto-logo-with-title-small.png" /></a>
             </span>
         </div>
         <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
@@ -168,7 +168,7 @@
 
             <div id="content" class="content">
                 <main>
-                    <h1><a class="header" href="#getting-started" id="getting-started">Getting started</a></h1>
+                    <h1><a class="header" href="#quickstart" id="quickstart">Quickstart</a></h1>
 <h3><a class="header" href="#step-1-cargotoml" id="step-1-cargotoml">Step 1: <code>Cargo.toml</code></a></h3>
 <p>To start using <code>::safer_ffi</code>, edit your <code>Cargo.toml</code> like so:</p>
 <pre><code class="language-toml">[lib]
@@ -278,38 +278,6 @@ int main (int argc, char const * const argv[])
 ./main  # Run it!
 </code></pre>
 </details>
-<h2><a class="header" href="#custom-types" id="custom-types">Custom Types</a></h2>
-<p>Custom types are also supported, as long as they:</p>
-<ul>
-<li>
-<p>have a defined C layout;</p>
-</li>
-<li>
-<p>have a <a href="/safer_ffi/derive-reprc/_.html"><code>#[derive_ReprC]</code></a> attribute.</p>
-</li>
-</ul>
-<h3><a class="header" href="#usage-with-structs" id="usage-with-structs">Usage with structs</a></h3>
-<pre><code class="language-rust noplaypen">#[derive_ReprC] // &lt;- `::safer_ffi`'s attribute
-#[repr(C)]      // &lt;- defined C layout is mandatory!
-struct Point {
-    x: i32,
-    y: i32,
-}
-</code></pre>
-<ul>
-<li>See <a href="/derive-reprc/struct.html">the dedicated chapter on structs</a> for more info.</li>
-</ul>
-<h3><a class="header" href="#usage-with-enums" id="usage-with-enums">Usage with enums</a></h3>
-<pre><code class="language-rust noplaypen">#[derive_ReprC] // &lt;- `::safer_ffi`'s attribute
-#[repr(u8)]     // &lt;- explicit integer `repr` is mandatory!
-pub enum Direction {
-    Up = 1,
-    Down = -1,
-}
-</code></pre>
-<ul>
-<li>See <a href="/derive-reprc/enum.html">the dedicated chapter on enums</a> for more info.</li>
-</ul>
 
                 </main>
 
@@ -323,7 +291,7 @@ pub enum Direction {
                     
 
                     
-                    <a rel="next" href="../motivation/_.html" class="mobile-nav-chapters next"
+                    <a rel="next" href="../usage/_.html" class="mobile-nav-chapters next"
                         title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
@@ -343,7 +311,7 @@ pub enum Direction {
             
 
             
-            <a rel="next" href="../motivation/_.html" class="nav-chapters next" title="Next chapter"
+            <a rel="next" href="../usage/_.html" class="nav-chapters next" title="Next chapter"
                 aria-label="Next chapter" aria-keyshortcuts="Right">
                 <i class="fa fa-angle-right"></i>
             </a>
