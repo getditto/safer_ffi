@@ -187,15 +187,16 @@ crate-type = [
 </code></pre>
 <h3><a class="header" href="#dependenciessafer_ffi" id="dependenciessafer_ffi"><code>[dependencies.safer_ffi]</code></a></h3>
 <p>To get access to <code>safer_ffi</code> and its ergonomic attribute macros we add <code>safer_ffi</code> as
-a dependency, and enable the <code>proc-macros</code> feature:</p>
+a dependency, and enable the <code>proc_macros</code> feature:</p>
 <pre><code class="language-toml">[dependencies]
-safer-ffi = { version = &quot;...&quot;, features = [&quot;proc-macros&quot;] }
+safer-ffi = { version = &quot;*&quot;, features = [&quot;proc-macros&quot;] }
 </code></pre>
 <ul>
-<li>or instead simply run <code>cargo add safer_ffi --features proc-macros</code> if you
-have <a href="https://github.com/killercup/cargo-edit"><code>cargo edit</code></a>.</li>
+<li>Where <code>&quot;*&quot;</code> ought to be replaced by the last released version, which you
+can find by running <code>cargo search safer-ffi</code> or
+<a href="https://github.com/killercup/cargo-edit"><code>cargo add</code></a><code>safer-ffi --features proc_macros</code></li>
 </ul>
-<details><summary>About the <code>proc-macros</code> feature</summary>
+<details><summary>About the <code>proc_macros</code> feature</summary>
 <p>although still a WIP, the author of <code>safer_ffi</code> is making an important effort
 to make the usage of procedural macros be as optional as possible, so
 as to allow downstream users to avoid pulling the very heavyweight

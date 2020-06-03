@@ -199,56 +199,83 @@ headers).</p>
 <li>Minimum Supported Rust Version: <code>1.43.0</code></li>
 </ul>
 <h2><a class="header" href="#getting-started" id="getting-started">Getting started</a></h2>
-<p>See <a href="introduction//introduction/getting_started.html">the next chapter</a> or <a href="introduction//safer_ffi/usage/_.html">the chapter on <em>Detailed Usage</em></a>.</p>
+<p>See <a href="introduction//safer_ffi/introduction/quickstart.html">the next chapter</a> or <a href="introduction//safer_ffi/usage/_.html">the chapter on <em>Detailed Usage</em></a>.</p>
 <h1><a class="header" href="#quickstart" id="quickstart">Quickstart</a></h1>
-<h3><a class="header" href="#step-1-cargotoml" id="step-1-cargotoml">Step 1: <code>Cargo.toml</code></a></h3>
 <p>To start using <code>::safer_ffi</code>, edit your <code>Cargo.toml</code> like so:</p>
-<pre><code class="language-toml">[lib]
-crate-type = [&quot;staticlib&quot;]  # and/or &quot;cdylib&quot;
+<h3><a class="header" href="#step-1-cargotoml" id="step-1-cargotoml">Step 1: <code>Cargo.toml</code></a></h3>
+<pre><code class="language-toml">[package]
+name = &quot;crate_name&quot;
+version = &quot;0.1.0&quot;
+edition = &quot;2018&quot;
+
+[lib]
+crate-type = [&quot;staticlib&quot;]
 
 [dependencies]
-safer-ffi = { version = &quot;...&quot;, features = [&quot;proc_macros&quot;] }
+safer-ffi = { version = &quot;*&quot;, features = [&quot;proc_macros&quot;] }
 
 [features]
-c-headers = [&quot;safer_ffi/headers&quot;]
+c-headers = [&quot;safer-ffi/headers&quot;]
 </code></pre>
 <ul>
 <li>See the <a href="introduction//safer_ffi/usage/cargo-toml.html">dedicated chapter on <code>Cargo.toml</code></a> for more info.</li>
 </ul>
 <h3><a class="header" href="#step-2-srclibrs" id="step-2-srclibrs">Step 2: <code>src/lib.rs</code></a></h3>
-<p>Then, to export a Rust function to FFI, add the <a href="introduction//safer_ffi/ffi-export/_.html"><code>#[ffi_export]</code></a>
-attribute like so:</p>
+<p>Then, to export a Rust function to FFI, add the
+<a href="introduction//safer_ffi/derive-reprc/_.html"><code>#[derive_ReprC]</code></a> and <a href="introduction//safer_ffi/ffi-export/_.html"><code>#[ffi_export]</code></a> attributes
+like so:</p>
 <pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
 
-/// Adds two integers together.
-///
-/// \remark Wraps on overflow.
-#[ffi_export]
-fn add (x: i32, y: i32) -&gt; i32
-{
-    x.wrapping_add(y)
+/// A `struct` usable from both Rust and C
+#[derive_ReprC]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub
+struct Point {
+    x: f64,
+    y: f64,
 }
-</code></pre>
-<ul>
-<li>See <a href="introduction//safer_ffi/ffi-export/_.html">the dedicated chapter on <code>#[ffi_export]</code></a> for more info.</li>
-</ul>
-<h4><a class="header" href="#step-3-build-the-library-into-a-binary-file" id="step-3-build-the-library-into-a-binary-file">Step 3: Build the library into a binary file</a></h4>
-<p>Simply run <code>cargo build</code> or <code>cargo build --release</code> [to compile the library][
-c-compilation] to <code>target/{debug,release}/libcrate_name.ext</code> (binary file)</p>
-<h4><a class="header" href="#step-4-generate-the-c-header-file" id="step-4-generate-the-c-header-file">Step 4: Generate the C header file</a></h4>
-<p>To let <code>safer_ffi</code> generate the corresponding C headers, add also the following
-to your <strong><code>src/lib.rs</code></strong>:</p>
-<pre><code class="language-rust noplaypen">#[::safer_ffi::cfg_headers]
+
+/* Export a Rust function to the C world. */
+/// Returns the middle point of `[a, b]`.
+#[ffi_export]
+fn mid_point (
+    a: &amp;Point,
+    b: &amp;Point,
+) -&gt; Point
+{
+    Point {
+        x: (a.x + b.x) / 2.,
+        y: (a.y + b.y) / 2.,
+    }
+}
+
+/// Pretty-prints a point using Rust's formatting logic.
+#[ffi_export]
+fn print_point (point: &amp;Point)
+{
+    println!(&quot;{:?}&quot;, point);
+}
+
+/// The following test function is necessary for the header generation.
+#[::safer_ffi::cfg_headers]
 #[test]
 fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
 {
     ::safer_ffi::headers::builder()
-        .to_file(&quot;filename.h&quot;)?
+        .to_file(&quot;rust_points.h&quot;)?
         .generate()
 }
 </code></pre>
-<p>and then run the following command:</p>
-<pre><code class="language-bash">cargo test --features c-headers -- generate_headers --nocapture
+<ul>
+<li>See <a href="introduction//safer_ffi/usage/lib-rs.html">the dedicated chapter on <code>src/lib.rs</code></a> for more info.</li>
+</ul>
+<h3><a class="header" href="#step-3-compilation--header-generation" id="step-3-compilation--header-generation">Step 3: Compilation &amp; header generation</a></h3>
+<pre><code class="language-bash"># Compile the C library (in `target/{debug,release}/libcrate_name.ext`)
+cargo build # --release
+
+# Generate the C header
+cargo test --features c-headers -- generate_headers
 </code></pre>
 <details><summary><code>filename.h</code></summary>
 <pre><code class="language-C">/*! \file */
@@ -260,55 +287,80 @@ fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
  *                                         *
  *******************************************/
 
-#ifndef __RUST_EXAMPLE__
-#define __RUST_EXAMPLE__
+#ifndef __RUST_CRATE_NAME__
+#define __RUST_CRATE_NAME__
 
 #ifdef __cplusplus
 extern &quot;C&quot; {
 #endif
 
+/** \brief
+ *  A `struct` usable from both Rust and C
+ */
+typedef struct {
 
-#include &lt;stddef.h&gt;
-#include &lt;stdint.h&gt;
+    double x;
+
+    double y;
+
+} Point_t;
 
 /** \brief
- *  Adds two integers together.
- *
- *  \remark Wraps on overflow.
+ *  Returns the middle point of `[a, b]`.
  */
-int32_t add (
-    int32_t x,
-    int32_t y);
+Point_t mid_point (
+    Point_t const * a,
+    Point_t const * b);
+
+/** \brief
+ *  Pretty-prints a point using Rust's formatting logic.
+ */
+void print_point (
+    Point_t const * point);
 
 
 #ifdef __cplusplus
 } /* extern &quot;C&quot; */
 #endif
 
-#endif /* __RUST_EXAMPLE__ */
+#endif /* __RUST_CRATE_NAME__ */
 </code></pre>
 </details>
-<h3><a class="header" href="#using-it-from-c" id="using-it-from-c">Using it from C</a></h3>
-<details><Summary>Click to expand</summary>
-<p>Here is a basic example to showcase FFI calling into our <code>add</code>
-function:</p>
-<pre><code class="language-C">// main.rs
-#include &lt;inttypes.h&gt;
-#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
+<ul>
+<li>See <a href="introduction//safer_ffi/usage/lib-rs.html#header-generation">the dedicated chapter on header generation</a> for
+more info.</li>
+</ul>
+<hr />
+<h2><a class="header" href="#using-it-from-c" id="using-it-from-c">Using it from C</a></h2>
+<details>
+<summary>
+Here is a basic example to showcase FFI calling into our exported Rust
+functions:
+</summary>
+<h4><a class="header" href="#mainc" id="mainc"><code>main.c</code></a></h4>
+<pre><code class="language-C">#include &lt;stdlib.h&gt;
 
-#include &quot;filename.h&quot;
+#include &quot;rust_points.h&quot;
 
 int main (int argc, char const * const argv[])
 {
-    printf(&quot;42 + 27 = %&quot; PRId32 &quot;\n&quot;, add(42, 27));
+    Point_t a = { .x = 84, .y = 45 };
+    Point_t b = { .x = 0, .y = 39 };
+    Point_t m = mid_point(&amp;a, &amp;b);
+    print_point(&amp;m);
     return EXIT_SUCCESS;
 }
 </code></pre>
-<p>compile it with:</p>
+<h4><a class="header" href="#compilation-command" id="compilation-command">Compilation command</a></h4>
 <pre><code class="language-bash">cc main.c -o main -L target/debug -l crate_name
-./main  # Run it!
+
+# Now feel free to run the compiled binary
+./main
 </code></pre>
+<p>which outputs:</p>
+<pre><code class="language-text">Point { x: 42.0, y: 42.0 }
+</code></pre>
+<p>🚀🚀</p>
 </details>
 <h1><a class="header" href="#usage" id="usage">Usage</a></h1>
 <p>Using <code>safer_ffi</code> is pretty simple, provided one knows <a href="usage//safer_ffi/appendix/c-compilation.html">how C compilation
@@ -322,7 +374,7 @@ crate-type = [&quot;staticlib&quot;]
 safer-ffi = { version = &quot;...&quot;, features = [&quot;proc_macros&quot;] }
 
 [features]
-c-headers = [&quot;safer_ffi/headers&quot;]
+c-headers = [&quot;safer-ffi/headers&quot;]
 </code></pre>
 <h3><a class="header" href="#srclibrs" id="srclibrs"><code>src/lib.rs</code></a></h3>
 <pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
@@ -369,15 +421,16 @@ crate-type = [
 </code></pre>
 <h3><a class="header" href="#dependenciessafer_ffi" id="dependenciessafer_ffi"><code>[dependencies.safer_ffi]</code></a></h3>
 <p>To get access to <code>safer_ffi</code> and its ergonomic attribute macros we add <code>safer_ffi</code> as
-a dependency, and enable the <code>proc-macros</code> feature:</p>
+a dependency, and enable the <code>proc_macros</code> feature:</p>
 <pre><code class="language-toml">[dependencies]
-safer-ffi = { version = &quot;...&quot;, features = [&quot;proc-macros&quot;] }
+safer-ffi = { version = &quot;*&quot;, features = [&quot;proc-macros&quot;] }
 </code></pre>
 <ul>
-<li>or instead simply run <code>cargo add safer_ffi --features proc-macros</code> if you
-have <a href="https://github.com/killercup/cargo-edit"><code>cargo edit</code></a>.</li>
+<li>Where <code>&quot;*&quot;</code> ought to be replaced by the last released version, which you
+can find by running <code>cargo search safer-ffi</code> or
+<a href="https://github.com/killercup/cargo-edit"><code>cargo add</code></a><code>safer-ffi --features proc_macros</code></li>
 </ul>
-<details><summary>About the <code>proc-macros</code> feature</summary>
+<details><summary>About the <code>proc_macros</code> feature</summary>
 <p>although still a WIP, the author of <code>safer_ffi</code> is making an important effort
 to make the usage of procedural macros be as optional as possible, so
 as to allow downstream users to avoid pulling the very heavyweight
@@ -1154,7 +1207,7 @@ an <code>int</code> too, <a href="https://oroboro.com/short-enum/">compiler flag
 smaller integer types</a>.</p>
 <p>This means that when you link against a library that was compiled
 with a different set of flags, such as a system-wide shared library
-or a Rust generated <code>staticlib</code> / <code>cdylib</code>, then such mimsatch is
+or a Rust generated <code>staticlib</code> / <code>cdylib</code>, then such mismatch is
 very likely to cause Undefined Behavior!</p>
 </li>
 </ul>
