@@ -22,6 +22,11 @@ jobs:
           - 1.43.0
           - stable
           - nightly
+        feature--proc_macros: ['', '--features proc_macros']
+        feature--std: ['', '--features std']
+        feature--alloc: ['', '--features alloc']
+        feature--log: ['', '--features log']
+        feature--out-refs: ['', '--features out-refs']
     steps:
       - name: Clone repo
         uses: actions/checkout@v2
@@ -35,7 +40,13 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --features proc_macros,log,out-refs
+          args: |
+            --no-default-features
+            ${{ matrix.feature--proc_macros }}
+            ${{ matrix.feature--std }}
+            ${{ matrix.feature--alloc }}
+            ${{ matrix.feature--log }}
+            ${{ matrix.feature--out-refs }}
 
   # == BUILD & TEST == #
   build-and-test:
@@ -46,9 +57,9 @@ jobs:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
+          profile: default
           override: true
-          toolchain: 1.43.0
+          toolchain: nightly
 
       - name: Clone repo
         uses: actions/checkout@v2
@@ -56,7 +67,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --features proc_macros,std,out-refs
+          args: --features nightly,proc_macros,std,out-refs
 
   # Deploy to Github pages #
   deploy:
