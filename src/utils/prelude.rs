@@ -32,6 +32,14 @@ pub(in crate) use ::libc::size_t;
 #[allow(bad_style)]
 pub(in crate) type size_t = u32;
 
+cfg_alloc! {
+    pub(in crate) use ::alloc::{
+        borrow::ToOwned,
+        string::ToString,
+        vec,
+    };
+}
+
 pub(in crate)
 mod rust {
     cfg_alloc! {

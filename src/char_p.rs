@@ -425,10 +425,14 @@ cfg_alloc! {
     derive_MyFrom_from! {
         @for['lt] &'lt str => rust::String,
         // @for['lt] str::Ref<'lt> => rust::String,
-        @for['lt] &'lt ::std::ffi::CStr => ::std::ffi::CString,
         rust::String => rust::String,
         String => rust::String,
-        ::std::ffi::CString => ::std::ffi::CString,
+    }
+    cfg_std! {
+        derive_MyFrom_from! {
+            @for['lt] &'lt ::std::ffi::CStr => ::std::ffi::CString,
+            ::std::ffi::CString => ::std::ffi::CString,
+        }
     }
 
     impl TryFrom<rust::String> for char_p_boxed {
