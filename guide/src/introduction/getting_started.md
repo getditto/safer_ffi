@@ -2,7 +2,7 @@
 
 # Getting started
 
-### `Cargo.toml`
+### Step 1: `Cargo.toml`
 
 To start using `::safer_ffi`, edit your `Cargo.toml` like so:
 
@@ -19,7 +19,7 @@ c-headers = ["safer_ffi/headers"]
 
   - See the [dedicated chapter on `Cargo.toml`][cargo-toml] for more info.
 
-### `src/lib.rs`
+### Step 2: `src/lib.rs`
 
 Then, to export a Rust function to FFI, add the [`#[ffi_export]`][ffi_export]
 attribute like so:
@@ -39,15 +39,15 @@ fn add (x: i32, y: i32) -> i32
 
   - See [the dedicated chapter on `#[ffi_export]`][ffi_export] for more info.
 
-#### Generating the library (binary file)
+#### Step 3: Build the library into a binary file
 
-Simply run `cargo build` or `cargo build --release` to generate the library
-file at `target/{debug,release}/libcrate_name.ext`
+Simply run `cargo build` or `cargo build --release` [to compile the library][
+c-compilation] to `target/{debug,release}/libcrate_name.ext` (binary file)
 
-#### Generating the C header file
+#### Step 4: Generate the C header file
 
-To let `safer_ffi` generate the corresponding C headers, add also the following to
-your **`src/lib.rs`**:
+To let `safer_ffi` generate the corresponding C headers, add also the following
+to your **`src/lib.rs`**:
 
 ```rust,noplaypen
 #[::safer_ffi::cfg_headers]

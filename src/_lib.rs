@@ -162,11 +162,13 @@ mod prelude {
         pub use crate::char_p::{
             char_p_raw as Raw,
             char_p_ref as Ref,
-            new,
         };
         cfg_alloc! {
             #[doc(no_inline)]
-            pub use crate::char_p::char_p_boxed as Box;
+            pub use crate::char_p::{
+                char_p_boxed as Box,
+                new,
+            };
         }
     }
     pub
