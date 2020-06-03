@@ -89,6 +89,7 @@ jobs:
       - name: Build guide and documentation
         run: |
           (cd guide
+            (cd src && sed -e "s@{ROOT_PATH}@${URL_ROOT_PATH}@" links.md.template > links.md)
             mdbook build
             mkdir -p book/{assets,rustdoc}
             cp -r assets/* book/assets/
