@@ -4,9 +4,12 @@ proc-macro = true
 
 [package]
 name = "safer_ffi-proc_macro"
-version = "0.1.0"
+version = "0.0.1-alpha-1.0"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
+
+description = "Procedural macro internals of `::safer_ffi`"
+license = "MIT"
 
 [dependencies]
 proc-macro2 = { version = "1.0", optional = true }

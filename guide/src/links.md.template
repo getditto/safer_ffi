@@ -33,6 +33,8 @@
 [usage]: {ROOT_PATH}usage/_.md
 [ffi_export]: {ROOT_PATH}ffi-export/_.md
 [derive_ReprC]: {ROOT_PATH}derive-reprc/_.md
+[derive_ReprC-struct]: {ROOT_PATH}derive-reprc/struct.md
+[derive_ReprC-enum]: {ROOT_PATH}derive-reprc/enum.md
 [how-does-safer_ffi-work]: {ROOT_PATH}appendix/how-does-safer_ffi-work.md
 [cargo-toml]: {ROOT_PATH}usage/cargo-toml.md
 [header-generation]: {ROOT_PATH}usage/lib-rs.md#header-generation
