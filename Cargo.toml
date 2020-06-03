@@ -62,6 +62,7 @@ optional = true
 # Since we are relying on internals of their `Out` reference,
 # we pin the version.
 version = "=0.3.0"
+default-features = false
 
 [workspace]
 members = ["src/proc_macro"]
