@@ -624,6 +624,10 @@
 <span id="624">624</span>
 <span id="625">625</span>
 <span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! `char *`-compatible strings (slim pointers), for easier use from within C.</span>
 <span class="comment">//</span>
@@ -1052,10 +1056,14 @@
     <span class="macro">derive_MyFrom_from</span><span class="macro">!</span> {
         @<span class="kw">for</span>[<span class="lifetime">&#39;lt</span>] <span class="kw-2">&amp;</span><span class="lifetime">&#39;lt</span> <span class="ident">str</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">rust</span>::<span class="ident">String</span>,
         <span class="comment">// @for[&#39;lt] str::Ref&lt;&#39;lt&gt; =&gt; rust::String,</span>
-        @<span class="kw">for</span>[<span class="lifetime">&#39;lt</span>] <span class="kw-2">&amp;</span><span class="lifetime">&#39;lt</span> ::<span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CStr</span> <span class="op">=</span><span class="op">&gt;</span> ::<span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CString</span>,
         <span class="ident">rust</span>::<span class="ident">String</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">rust</span>::<span class="ident">String</span>,
         <span class="ident">String</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">rust</span>::<span class="ident">String</span>,
-        ::<span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CString</span> <span class="op">=</span><span class="op">&gt;</span> ::<span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CString</span>,
+    }
+    <span class="macro">cfg_std</span><span class="macro">!</span> {
+        <span class="macro">derive_MyFrom_from</span><span class="macro">!</span> {
+            @<span class="kw">for</span>[<span class="lifetime">&#39;lt</span>] <span class="kw-2">&amp;</span><span class="lifetime">&#39;lt</span> ::<span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CStr</span> <span class="op">=</span><span class="op">&gt;</span> ::<span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CString</span>,
+            ::<span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CString</span> <span class="op">=</span><span class="op">&gt;</span> ::<span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CString</span>,
+        }
     }
 
     <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">rust</span>::<span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">char_p_boxed</span> {

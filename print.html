@@ -1,161 +1,176 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js rust">
-    <head>
-        <!-- Book generated using mdBook -->
-        <meta charset="UTF-8">
-        <title>`safer_ffi` User Guide</title>
-        
-        <meta name="robots" content="noindex" />
-        
+<html lang="en" class="sidebar-visible no-js light">
 
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff" />
+<head>
+    <!-- Book generated using mdBook -->
+    <meta charset="UTF-8">
+    <title>`safer_ffi` User Guide</title>
+    
+    <meta name="robots" content="noindex" />
+    
 
-        <link rel="shortcut icon" href="favicon.png">
-        <link rel="stylesheet" href="css/variables.css">
-        <link rel="stylesheet" href="css/general.css">
-        <link rel="stylesheet" href="css/chrome.css">
-        <link rel="stylesheet" href="css/print.css" media="print">
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff" />
 
-        <!-- Fonts -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+    <link rel="shortcut icon" href="favicon.png">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/general.css">
+    <link rel="stylesheet" href="css/chrome.css">
+    <link rel="stylesheet" href="css/print.css" media="print">
 
-        <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+    <!-- Fonts -->
+    <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"
+        rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
 
-        <!-- Custom theme stylesheets -->
-        
-        <link rel="stylesheet" href="theme/additional-css.css">
-        
+    <!-- Highlight.js Stylesheets -->
+    <link rel="stylesheet" href="highlight.css">
+    <link rel="stylesheet" href="tomorrow-night.css">
+    <link rel="stylesheet" href="ayu-highlight.css">
 
-        
-    </head>
-    <body>
-        <!-- Provide site root to javascript -->
-        <script type="text/javascript">
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "rust" : "rust";
-        </script>
+    <!-- Custom theme stylesheets -->
+    
+    <link rel="stylesheet" href="theme/book.css">
+    
 
-        <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
-            try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+    
+</head>
 
-                if (theme.startsWith('"') && theme.endsWith('"')) {
-                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
-                }
+<body>
+    <!-- Provide site root to javascript -->
+    <script type="text/javascript">
+        var path_to_root = "";
+        var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+    </script>
 
-                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
-                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
-                }
-            } catch (e) { }
-        </script>
+    <!-- Work around some values being stored in localStorage wrapped in quotes -->
+    <script type="text/javascript">
+        try {
+            var theme = localStorage.getItem('mdbook-theme');
+            var sidebar = localStorage.getItem('mdbook-sidebar');
 
-        <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
-            var theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
-            if (theme === null || theme === undefined) { theme = default_theme; }
-            var html = document.querySelector('html');
-            html.classList.remove('no-js')
-            html.classList.remove('rust')
-            html.classList.add(theme);
-            html.classList.add('js');
-        </script>
-
-        <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
-            var html = document.querySelector('html');
-            var sidebar = 'hidden';
-            if (document.body.clientWidth >= 1080) {
-                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
-                sidebar = sidebar || 'visible';
+            if (theme.startsWith('"') && theme.endsWith('"')) {
+                localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
             }
-            html.classList.remove('sidebar-visible');
-            html.classList.add("sidebar-" + sidebar);
-        </script>
 
-        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="introduction/getting_started.html"><strong aria-hidden="true">1.1.</strong> Getting Started</a></li></ol></li><li class="chapter-item expanded "><a href="motivation/_.html"><strong aria-hidden="true">2.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="motivation/traditional-ffi.html"><strong aria-hidden="true">2.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="motivation/repr-c-forall.html"><strong aria-hidden="true">2.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="simple-examples/_.html"><strong aria-hidden="true">3.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-examples/string_concat.html"><strong aria-hidden="true">3.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="simple-examples/max.html"><strong aria-hidden="true">3.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="usage/_.html"><strong aria-hidden="true">4.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="usage/cargo-toml.html"><strong aria-hidden="true">4.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="usage/lib-rs.html"><strong aria-hidden="true">4.2.</strong> src/lib.rs and header generation</a></li></ol></li><li class="chapter-item expanded "><a href="derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="example-ditto/_.html">Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded affix "><a href="example-hashmap/_.html">Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
+            if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+            }
+        } catch (e) { }
+    </script>
+
+    <!-- Set the theme before any content is loaded, prevents flash -->
+    <script type="text/javascript">
+        var theme;
+        try { theme = localStorage.getItem('mdbook-theme'); } catch (e) { }
+        if (theme === null || theme === undefined) { theme = default_theme; }
+        var html = document.querySelector('html');
+        html.classList.remove('no-js')
+        html.classList.remove('light')
+        html.classList.add(theme);
+        html.classList.add('js');
+    </script>
+
+    <!-- Hide / unhide sidebar before it is displayed -->
+    <script type="text/javascript">
+        var html = document.querySelector('html');
+        var sidebar = 'hidden';
+        if (document.body.clientWidth >= 1080) {
+            try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch (e) { }
+            sidebar = sidebar || 'visible';
+        }
+        html.classList.remove('sidebar-visible');
+        html.classList.add("sidebar-" + sidebar);
+    </script>
+
+    <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+        <div class="sidebar-scrollbox">
+            <ol class="chapter"><li class="chapter-item expanded "><a href="introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="introduction/getting_started.html"><strong aria-hidden="true">1.1.</strong> Getting Started</a></li></ol></li><li class="chapter-item expanded "><a href="motivation/_.html"><strong aria-hidden="true">2.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="motivation/traditional-ffi.html"><strong aria-hidden="true">2.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="motivation/repr-c-forall.html"><strong aria-hidden="true">2.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="simple-examples/_.html"><strong aria-hidden="true">3.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-examples/string_concat.html"><strong aria-hidden="true">3.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="simple-examples/max.html"><strong aria-hidden="true">3.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="usage/_.html"><strong aria-hidden="true">4.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="usage/cargo-toml.html"><strong aria-hidden="true">4.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="usage/lib-rs.html"><strong aria-hidden="true">4.2.</strong> src/lib.rs and header generation</a></li></ol></li><li class="chapter-item expanded "><a href="derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="example-ditto/_.html">Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded affix "><a href="example-hashmap/_.html">Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
+            <span id="sponsored">
+                Sponsored by 
+                <a href="https://www.ditto.live">Ditto</a>
+            </span>
+        </div>
+        <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+    </nav>
+
+    <div id="page-wrapper" class="page-wrapper">
+
+        <div class="page">
+            
+            <div id="menu-bar-hover-placeholder"></div>
+            <div id="menu-bar" class="menu-bar sticky bordered">
+                <div class="left-buttons">
+                    <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents"
+                        aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <button id="theme-toggle" class="icon-button" type="button" title="Change theme"
+                        aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                        <i class="fa fa-paint-brush"></i>
+                    </button>
+                    <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                        <li role="none"><button role="menuitem" class="theme"
+                                id="light">Light (default)</button></li>
+                        <li role="none"><button role="menuitem" class="theme"
+                                id="rust">Rust</button></li>
+                        <li role="none"><button role="menuitem" class="theme"
+                                id="coal">Coal</button></li>
+                        <li role="none"><button role="menuitem" class="theme"
+                                id="navy">Navy</button></li>
+                        <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button>
+                        </li>
+                    </ul>
+                    
+                    <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)"
+                        aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S"
+                        aria-controls="searchbar">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    
+                </div>
+
+                <h1 class="menu-title">`safer_ffi` User Guide</h1>
+
+                <div class="right-buttons">
+                    <a href="print.html" title="Print this book" aria-label="Print this book">
+                        <i id="print-button" class="fa fa-print"></i>
+                    </a>
+                    
+                </div>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
-        </nav>
 
-        <div id="page-wrapper" class="page-wrapper">
-
-            <div class="page">
-                <footer style="margin: 0 0 25px 0; display: flex; align-items: center">
-    <span stle="font-size: small">Sponsored by </span>
-    <a href="https://www.ditto.live/about/company"><img style="margin-left:5px;" src="https://www.ditto.live/assets/img/brand/footer_logo.png" alt="Ditto" height="30"/></a>
-</footer>
-
-                <div id="menu-bar-hover-placeholder"></div>
-                <div id="menu-bar" class="menu-bar sticky bordered">
-                    <div class="left-buttons">
-                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                            <i class="fa fa-bars"></i>
-                        </button>
-                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                            <i class="fa fa-paint-brush"></i>
-                        </button>
-                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust (default)</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                        </ul>
-                        
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                            <i class="fa fa-search"></i>
-                        </button>
-                        
-                    </div>
-
-                    <h1 class="menu-title">`safer_ffi` User Guide</h1>
-
-                    <div class="right-buttons">
-                        <a href="print.html" title="Print this book" aria-label="Print this book">
-                            <i id="print-button" class="fa fa-print"></i>
-                        </a>
-                        
-                    </div>
+            
+            <div id="search-wrapper" class="hidden">
+                <form id="searchbar-outer" class="searchbar-outer">
+                    <input type="search" name="search" id="searchbar" name="searchbar"
+                        placeholder="Search this book ..." aria-controls="searchresults-outer"
+                        aria-describedby="searchresults-header">
+                </form>
+                <div id="searchresults-outer" class="searchresults-outer hidden">
+                    <div id="searchresults-header" class="searchresults-header"></div>
+                    <ul id="searchresults">
+                    </ul>
                 </div>
+            </div>
+            
 
-                
-                <div id="search-wrapper" class="hidden">
-                    <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
-                    </form>
-                    <div id="searchresults-outer" class="searchresults-outer hidden">
-                        <div id="searchresults-header" class="searchresults-header"></div>
-                        <ul id="searchresults">
-                        </ul>
-                    </div>
-                </div>
-                
+            <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+            <script type="text/javascript">
+                document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                Array.from(document.querySelectorAll('#sidebar a')).forEach(function (link) {
+                    link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                });
+            </script>
 
-                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
-                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
-                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
-                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
-                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
-                    });
-                </script>
-
-                <div id="content" class="content">
-                    <main>
-                        <span class="warning">
+            <div id="content" class="content">
+                <main>
+                    <span class="warning">
 <p>Warning: <code>safer_ffi</code> is still in an alpha stage.
 Some features may be missing, while others may be changed when further improving it.</p>
 </span>
@@ -164,18 +179,19 @@ Some features may be missing, while others may be changed when further improving
 <p><code>safer_ffi</code> is a rust framework to generate a foreign function interface (or FFI) easily and safely.</p>
 </blockquote>
 <p>This framework is primarily used to annotate rust functions and types to
-generate C headers without polluting nor endangering the rust code with
+generate C headers without polluting your rust code with
 <code>unsafe</code>.</p>
+<p>It's inspired by <a href="https://github.com/rustwasm/wasm-bindgen"><code>#[wasm_bindgen]</code></a>. It's mainly expose Rust to C
+over the FFI (allowing C code calling into Rust code). However, it does have some
+usages for C to Rust over the FFI (callbacks or <code>extern { ... }</code>
+headers).</p>
+<p>This chart shows the comparison of traditional FFI types vs ones using <code>safer_ffi</code>.</p>
 <table><thead><tr><th></th><th>Traditional FFI</th><th><code>safer_ffi</code></th></tr></thead><tbody>
 <tr><td>Mutable pointer or NULL</td><td><code>*mut T</code></td><td><code>Option&lt;&amp;mut T&gt;</code></td></tr>
 <tr><td>Mutable pointer</td><td><code>*mut T</code></td><td><code>&amp;mut T</code></td></tr>
 <tr><td>Owned pointer or NULL</td><td><code>*mut T</code></td><td><code>Option&lt;repr_c::Box&lt;T&gt;&gt;</code></td></tr>
 <tr><td>Owned pointer</td><td><code>*mut T</code></td><td><code>repr_c::Box&lt;T&gt;</code></td></tr>
 </tbody></table>
-<p>It's inspired by <a href="https://github.com/rustwasm/wasm-bindgen"><code>#[wasm_bindgen]</code></a>. It mainly targets
-Rust→C FFI (<em>i.e.</em>, C code calling into Rust code), although it does have some
-usages for C→Rust over the FFI (callbacks or hand-rolled <code>extern { ... }</code>
-headers).</p>
 <h2><a class="header" href="#rust-documentation" id="rust-documentation">Rust documentation</a></h2>
 <p>Link to <a href="introduction//safer_ffi/rustdoc/safer_ffi/">the <code>rustdoc</code>-generated API documentation</a>.</p>
 <h2><a class="header" href="#prerequisites" id="prerequisites">Prerequisites</a></h2>
@@ -185,7 +201,7 @@ headers).</p>
 <h2><a class="header" href="#getting-started" id="getting-started">Getting started</a></h2>
 <p>See <a href="introduction//introduction/getting_started.html">the next chapter</a> or <a href="introduction//safer_ffi/usage/_.html">the chapter on <em>Detailed Usage</em></a>.</p>
 <h1><a class="header" href="#getting-started-1" id="getting-started-1">Getting started</a></h1>
-<h3><a class="header" href="#cargotoml" id="cargotoml"><code>Cargo.toml</code></a></h3>
+<h3><a class="header" href="#step-1-cargotoml" id="step-1-cargotoml">Step 1: <code>Cargo.toml</code></a></h3>
 <p>To start using <code>::safer_ffi</code>, edit your <code>Cargo.toml</code> like so:</p>
 <pre><code class="language-toml">[lib]
 crate-type = [&quot;staticlib&quot;]  # and/or &quot;cdylib&quot;
@@ -199,7 +215,7 @@ c-headers = [&quot;safer_ffi/headers&quot;]
 <ul>
 <li>See the <a href="introduction//safer_ffi/usage/cargo-toml.html">dedicated chapter on <code>Cargo.toml</code></a> for more info.</li>
 </ul>
-<h3><a class="header" href="#srclibrs" id="srclibrs"><code>src/lib.rs</code></a></h3>
+<h3><a class="header" href="#step-2-srclibrs" id="step-2-srclibrs">Step 2: <code>src/lib.rs</code></a></h3>
 <p>Then, to export a Rust function to FFI, add the <a href="introduction//safer_ffi/ffi-export/_.html"><code>#[ffi_export]</code></a>
 attribute like so:</p>
 <pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
@@ -216,12 +232,12 @@ fn add (x: i32, y: i32) -&gt; i32
 <ul>
 <li>See <a href="introduction//safer_ffi/ffi-export/_.html">the dedicated chapter on <code>#[ffi_export]</code></a> for more info.</li>
 </ul>
-<h4><a class="header" href="#generating-the-library-binary-file" id="generating-the-library-binary-file">Generating the library (binary file)</a></h4>
-<p>Simply run <code>cargo build</code> or <code>cargo build --release</code> to generate the library
-file at <code>target/{debug,release}/libcrate_name.ext</code></p>
-<h4><a class="header" href="#generating-the-c-header-file" id="generating-the-c-header-file">Generating the C header file</a></h4>
-<p>To let <code>safer_ffi</code> generate the corresponding C headers, add also the following to
-your <strong><code>src/lib.rs</code></strong>:</p>
+<h4><a class="header" href="#step-3-build-the-library-into-a-binary-file" id="step-3-build-the-library-into-a-binary-file">Step 3: Build the library into a binary file</a></h4>
+<p>Simply run <code>cargo build</code> or <code>cargo build --release</code> [to compile the library][
+c-compilation] to <code>target/{debug,release}/libcrate_name.ext</code> (binary file)</p>
+<h4><a class="header" href="#step-4-generate-the-c-header-file" id="step-4-generate-the-c-header-file">Step 4: Generate the C header file</a></h4>
+<p>To let <code>safer_ffi</code> generate the corresponding C headers, add also the following
+to your <strong><code>src/lib.rs</code></strong>:</p>
 <pre><code class="language-rust noplaypen">#[::safer_ffi::cfg_headers]
 #[test]
 fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
@@ -327,7 +343,7 @@ pub enum Direction {
 <li>See <a href="introduction//derive-reprc/enum.html">the dedicated chapter on enums</a> for more info.</li>
 </ul>
 <p>In this chapter we will see why my company,
-<a href="https://www.ditto.live/about/company"><img src="motivation//safer_ffi/assets/ditto-small.png" alt="Ditto" /></a>, and I, chose to develop the <code>::safer_ffi</code>
+<a href="https://www.ditto.live/about/company"><img src="motivation//safer_ffi/assets/ditto-logo-with-title-small.png" alt="Ditto" /></a>, and I, chose to develop the <code>::safer_ffi</code>
 framework, which should help illustrate why using it can also be a
 good thing for you.</p>
 <ol>
@@ -358,7 +374,7 @@ fn origin () -&gt; Point
 one or two Rust functions to C), this pattern works wonderfully. So kudos to
 <a href="https://github.com/eqrion/cbindgen"><code>cbindgen</code></a> authors for such a convenient, customizable and easy to use tool!</p>
 <p>But it turns out that this can struggle with more complex scenarios. My
-company, <a href="https://www.ditto.live/about/company"><img src="motivation//safer_ffi/assets/ditto-small.png" alt="Ditto" /></a>, extensively uses FFI with Rust
+company, <a href="https://www.ditto.live/about/company"><img src="motivation//safer_ffi/assets/ditto-logo-with-title-small.png" alt="Ditto" /></a>, extensively uses FFI with Rust
 and has run into the limitations outlined below.</p>
 <p><a href="motivation/../ditto/_.html">Learn more about Ditto's experience with FFI and Rust.</a></p>
 <h2><a class="header" href="#safer_ffi-features-that-traditional-ffi-struggles-to-support" id="safer_ffi-features-that-traditional-ffi-struggles-to-support"><code>safer_ffi</code> features that traditional FFI struggles to support</a></h2>
@@ -692,7 +708,7 @@ int32_t const * max (
 <p>Using <code>safer_ffi</code> is pretty simple, provided one knows <a href="usage//safer_ffi/appendix/c-compilation.html">how C compilation
 works</a>.</p>
 <h2><a class="header" href="#tldr" id="tldr">TL,DR</a></h2>
-<h3><a class="header" href="#cargotoml-1" id="cargotoml-1"><code>Cargo.toml</code></a></h3>
+<h3><a class="header" href="#cargotoml" id="cargotoml"><code>Cargo.toml</code></a></h3>
 <pre><code class="language-toml">[lib]
 crate-type = [&quot;staticlib&quot;]
 
@@ -702,7 +718,7 @@ safer-ffi = { version = &quot;...&quot;, features = [&quot;proc_macros&quot;] }
 [features]
 c-headers = [&quot;safer_ffi/headers&quot;]
 </code></pre>
-<h3><a class="header" href="#srclibrs-1" id="srclibrs-1"><code>src/lib.rs</code></a></h3>
+<h3><a class="header" href="#srclibrs" id="srclibrs"><code>src/lib.rs</code></a></h3>
 <pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
 
 #[ffi_export]
@@ -728,7 +744,7 @@ fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
 <p>to generate the headers.</p>
 </li>
 </ul>
-<h1><a class="header" href="#cargotoml-2" id="cargotoml-2"><code>Cargo.toml</code></a></h1>
+<h1><a class="header" href="#cargotoml-1" id="cargotoml-1"><code>Cargo.toml</code></a></h1>
 <h3><a class="header" href="#lib-crate-type" id="lib-crate-type"><code>[lib] crate-type</code></a></h3>
 <p>So, to ensure we compile a <a href="usage//safer_ffi/appendix/c-compilation.html">static or dynamic library</a>
 containing the definitions of our <code>#[ffi_export]</code> functions (+ any code they
@@ -791,7 +807,7 @@ feature however you want. In this guide, it is named <code>c-headers</code>.</p>
 <pre><code class="language-toml">[features]
 c-headers = [&quot;safer_ffi/headers&quot;]
 </code></pre>
-<h1><a class="header" href="#srclibrs-2" id="srclibrs-2"><code>src/lib.rs</code></a></h1>
+<h1><a class="header" href="#srclibrs-1" id="srclibrs-1"><code>src/lib.rs</code></a></h1>
 <h3><a class="header" href="#export-items-to-the-ffi-world" id="export-items-to-the-ffi-world">Export items to the FFI world</a></h3>
 <p>To do this, simply slap the <code>#[ffi_export]</code> attribute on any &quot;item&quot; that you
 wish to see exported to C.</p>
@@ -963,7 +979,7 @@ fn get_origin ()
 Point_t get_origin (void);
 </code></pre>
 </details>
-<h3><a class="header" href="#generics" id="generics">Generics</a></h3>
+<h3><a class="header" href="#usage-with-generic-structs" id="usage-with-generic-structs">Usage with Generic Structs</a></h3>
 <p><code>#[derive_ReprC]</code> supports generic structs:</p>
 <pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
 
@@ -1392,7 +1408,7 @@ fn set_log_level (
 </code></pre>
 </li>
 </ul>
-<h1><a class="header" href="#real-world-example-at-a-hrefhttpswwwdittoliveaboutcompanyimg-srcexample-dittosafer_ffiassetsditto-smallpng-altditto-logo-a" id="real-world-example-at-a-hrefhttpswwwdittoliveaboutcompanyimg-srcexample-dittosafer_ffiassetsditto-smallpng-altditto-logo-a">Real-world example at <a href="https://www.ditto.live/about/company"><img src="example-ditto//safer_ffi/assets/ditto-small.png" alt="Ditto-logo" /></a></a></h1>
+<h1><a class="header" href="#real-world-example-at-a-hrefhttpswwwdittoliveaboutcompanyimg-srcexample-dittosafer_ffiassetsditto-logo-with-title-smallpng-altditto-logo-a" id="real-world-example-at-a-hrefhttpswwwdittoliveaboutcompanyimg-srcexample-dittosafer_ffiassetsditto-logo-with-title-smallpng-altditto-logo-a">Real-world example at <a href="https://www.ditto.live/about/company"><img src="example-ditto//safer_ffi/assets/ditto-logo-with-title-small.png" alt="Ditto-logo" /></a></a></h1>
 <span class="warning">
 <p>TBD (speak of 282→60 reduction of number of <code>unsafe</code> blocks,
 with concrete example of some cbor creator (example of &quot;returning <code>Box&lt;[u8]&gt;</code> through FFI) and the change of
@@ -1577,63 +1593,64 @@ custom extension of the framework</strong>!</li>
 </li>
 </ul>
 
-                    </main>
+                </main>
 
-                    <nav class="nav-wrapper" aria-label="Page navigation">
-                        <!-- Mobile navigation buttons -->
-                        
+                <nav class="nav-wrapper" aria-label="Page navigation">
+                    <!-- Mobile navigation buttons -->
+                    
 
-                        
+                    
 
-                        <div style="clear: both"></div>
-                    </nav>
-                </div>
+                    <div style="clear: both"></div>
+                </nav>
             </div>
-
-            <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                
-
-                
-            </nav>
-
         </div>
 
-        
+        <nav class="nav-wide-wrapper" aria-label="Page navigation">
+            
 
-        
+            
+        </nav>
 
-        
-        
-        
-        <script type="text/javascript">
-            window.playpen_copyable = true;
-        </script>
-        
+    </div>
 
-        
+    
 
-        
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
-        
+    
 
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+    
 
-        <!-- Custom JS scripts -->
-        
+    
+    <script type="text/javascript">
+        window.playpen_copyable = true;
+    </script>
+    
 
-        
-        
-        <script type="text/javascript">
-        window.addEventListener('load', function() {
+    
+
+    
+    <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+    
+
+    <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+    <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- Custom JS scripts -->
+    
+
+    
+    
+    <script type="text/javascript">
+        window.addEventListener('load', function () {
             window.setTimeout(window.print, 100);
         });
-        </script>
-        
-        
+    </script>
+    
+    
 
-    </body>
+</body>
+
 </html>
