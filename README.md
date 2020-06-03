@@ -2,12 +2,13 @@
 
 ![CI](https://github.com/getditto/safer_ffi/workflows/CI/badge.svg?branch=master)
 
-See the [user guide](https://getditto.github.io/safer_ffi).
+# The User Guide
 
-# ⚠️ WIP ⚠️
+The recommended way to learn about `::safer_ffi` is through the user guide:
 
-This is currently still being developed and at an experimental stage, hence its
-not being published to crates.io yet.
+> [**📚 Read the `::safer_ffi` User guide here📚**][user guide]
+
+[user guide]: https://getditto.github.io/safer_ffi
 
 ## Prerequisites
 
@@ -29,17 +30,21 @@ edition = "2018"
 crate-type = ["staticlib"]
 
 [dependencies]
-safer-ffi = { git = "https://github.com/getditto/rust-safer_ffi.git", features = ["proc_macros"] }
+safer-ffi = { version = "*", features = ["proc_macros"] }
 
 [features]
-c-headers = ["safer_ffi/headers"]
+c-headers = ["safer-ffi/headers"]
 ```
+
+  - Where `"*"` ought to be replaced by the last released version, which you
+    can find by running `cargo search safer-ffi`.
 
 ### `src/lib.rs`
 
 ```rust
 use ::safer_ffi::prelude::*;
 
+/// A `struct` usable from both Rust and C
 #[derive_ReprC]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
@@ -49,24 +54,28 @@ struct Point {
     y: f64,
 }
 
+/* Export a Rust function to the C world. */
+/// Returns the middle point of `[a, b]`.
 #[ffi_export]
 fn mid_point (
-    left: &'_ Point,
-    right: &'_ Point,
+    a: &Point,
+    b: &Point,
 ) -> Point
 {
     Point {
-        x: (left.x + right.x) / 2.,
-        y: (left.y + right.y) / 2.,
+        x: (a.x + b.x) / 2.,
+        y: (a.y + b.y) / 2.,
     }
 }
 
+/// Pretty-prints a point using Rust's formatting logic.
 #[ffi_export]
-fn print_point (point: &'_ Point)
+fn print_point (point: &Point)
 {
     println!("{:?}", point);
 }
 
+/// The following test function is necessary for the header generation.
 #[::safer_ffi::cfg_headers]
 #[test]
 fn generate_headers () -> ::std::io::Result<()>
@@ -75,11 +84,12 @@ fn generate_headers () -> ::std::io::Result<()>
         .to_file("rust_points.h")?
         .generate()
 }
+
 ```
 
 ### Compilation & header generation
 
-```shell
+```bash
 # Compile the C library (in `target/{debug,release}/libcrate_name.ext`)
 cargo build # --release
 
@@ -106,16 +116,27 @@ cargo test --features c-headers -- generate_headers
 extern "C" {
 #endif
 
+/** \brief
+ *  A `struct` usable from both Rust and C
+ */
 typedef struct {
+
     double x;
 
     double y;
+
 } Point_t;
 
+/** \brief
+ *  Returns the middle point of `[a, b]`.
+ */
 Point_t mid_point (
-    Point_t const * left,
-    Point_t const * right);
+    Point_t const * a,
+    Point_t const * b);
 
+/** \brief
+ *  Pretty-prints a point using Rust's formatting logic.
+ */
 void print_point (
     Point_t const * point);
 
@@ -162,3 +183,5 @@ which outputs:
 ```text
 Point { x: 42.0, y: 42.0 }
 ```
+
+🚀🚀

@@ -2,68 +2,89 @@
 
 # Quickstart
 
-### Step 1: `Cargo.toml`
-
 To start using `::safer_ffi`, edit your `Cargo.toml` like so:
 
+### Step 1: `Cargo.toml`
+
 ```toml
+[package]
+name = "crate_name"
+version = "0.1.0"
+edition = "2018"
+
 [lib]
-crate-type = ["staticlib"]  # and/or "cdylib"
+crate-type = ["staticlib"]
 
 [dependencies]
-safer-ffi = { version = "...", features = ["proc_macros"] }
+safer-ffi = { version = "*", features = ["proc_macros"] }
 
 [features]
-c-headers = ["safer_ffi/headers"]
+c-headers = ["safer-ffi/headers"]
 ```
 
   - See the [dedicated chapter on `Cargo.toml`][cargo-toml] for more info.
 
 ### Step 2: `src/lib.rs`
 
-Then, to export a Rust function to FFI, add the [`#[ffi_export]`][ffi_export]
-attribute like so:
+Then, to export a Rust function to FFI, add the
+[`#[derive_ReprC]`][derive_ReprC] and [`#[ffi_export]`][ffi_export] attributes
+like so:
 
 ```rust,noplaypen
 use ::safer_ffi::prelude::*;
 
-/// Adds two integers together.
-///
-/// \remark Wraps on overflow.
-#[ffi_export]
-fn add (x: i32, y: i32) -> i32
-{
-    x.wrapping_add(y)
+/// A `struct` usable from both Rust and C
+#[derive_ReprC]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub
+struct Point {
+    x: f64,
+    y: f64,
 }
-```
 
-  - See [the dedicated chapter on `#[ffi_export]`][ffi_export] for more info.
+/* Export a Rust function to the C world. */
+/// Returns the middle point of `[a, b]`.
+#[ffi_export]
+fn mid_point (
+    a: &Point,
+    b: &Point,
+) -> Point
+{
+    Point {
+        x: (a.x + b.x) / 2.,
+        y: (a.y + b.y) / 2.,
+    }
+}
 
-#### Step 3: Build the library into a binary file
+/// Pretty-prints a point using Rust's formatting logic.
+#[ffi_export]
+fn print_point (point: &Point)
+{
+    println!("{:?}", point);
+}
 
-Simply run `cargo build` or `cargo build --release` [to compile the library][
-c-compilation] to `target/{debug,release}/libcrate_name.ext` (binary file)
-
-#### Step 4: Generate the C header file
-
-To let `safer_ffi` generate the corresponding C headers, add also the following
-to your **`src/lib.rs`**:
-
-```rust,noplaypen
+/// The following test function is necessary for the header generation.
 #[::safer_ffi::cfg_headers]
 #[test]
 fn generate_headers () -> ::std::io::Result<()>
 {
     ::safer_ffi::headers::builder()
-        .to_file("filename.h")?
+        .to_file("rust_points.h")?
         .generate()
 }
 ```
 
-and then run the following command:
+  - See [the dedicated chapter on `src/lib.rs`][lib-rs] for more info.
+
+### Step 3: Compilation & header generation
 
 ```bash
-cargo test --features c-headers -- generate_headers --nocapture
+# Compile the C library (in `target/{debug,release}/libcrate_name.ext`)
+cargo build # --release
+
+# Generate the C header
+cargo test --features c-headers -- generate_headers
 ```
 
 <details><summary><code>filename.h</code></summary>
@@ -78,63 +99,92 @@ cargo test --features c-headers -- generate_headers --nocapture
  *                                         *
  *******************************************/
 
-#ifndef __RUST_EXAMPLE__
-#define __RUST_EXAMPLE__
+#ifndef __RUST_CRATE_NAME__
+#define __RUST_CRATE_NAME__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/** \brief
+ *  A `struct` usable from both Rust and C
+ */
+typedef struct {
 
-#include <stddef.h>
-#include <stdint.h>
+    double x;
+
+    double y;
+
+} Point_t;
 
 /** \brief
- *  Adds two integers together.
- *
- *  \remark Wraps on overflow.
+ *  Returns the middle point of `[a, b]`.
  */
-int32_t add (
-    int32_t x,
-    int32_t y);
+Point_t mid_point (
+    Point_t const * a,
+    Point_t const * b);
+
+/** \brief
+ *  Pretty-prints a point using Rust's formatting logic.
+ */
+void print_point (
+    Point_t const * point);
 
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
-#endif /* __RUST_EXAMPLE__ */
+#endif /* __RUST_CRATE_NAME__ */
 ```
 
 </details>
 
-### Using it from C
+  - See [the dedicated chapter on header generation][header-generation] for
+    more info.
 
-<details><Summary>Click to expand</summary>
+___
 
-Here is a basic example to showcase FFI calling into our `add`
-function:
+## Using it from C
+
+<details>
+<summary>
+Here is a basic example to showcase FFI calling into our exported Rust
+functions:
+</summary>
+
+#### `main.c`
 
 ```C
-// main.rs
-#include <inttypes.h>
-#include <stdio.h>
 #include <stdlib.h>
 
-#include "filename.h"
+#include "rust_points.h"
 
 int main (int argc, char const * const argv[])
 {
-    printf("42 + 27 = %" PRId32 "\n", add(42, 27));
+    Point_t a = { .x = 84, .y = 45 };
+    Point_t b = { .x = 0, .y = 39 };
+    Point_t m = mid_point(&a, &b);
+    print_point(&m);
     return EXIT_SUCCESS;
 }
 ```
 
-compile it with:
+#### Compilation command
 
 ```bash
 cc main.c -o main -L target/debug -l crate_name
-./main  # Run it!
+
+# Now feel free to run the compiled binary
+./main
 ```
+
+which outputs:
+
+```text
+Point { x: 42.0, y: 42.0 }
+```
+
+🚀🚀
 
 </details>
