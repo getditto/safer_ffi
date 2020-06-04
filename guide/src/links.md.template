@@ -9,56 +9,68 @@
 [comments]: <> (
     EXTERNAL TOOLS
 )
-[`cbindgen`]: https://github.com/eqrion/cbindgen
 [cargo-edit]: https://github.com/killercup/cargo-edit
+[`cbindgen`]: https://github.com/eqrion/cbindgen
+[closures magic functions]: https://rustyyato.github.io/rust/syntactic/sugar/2019/01/17/Closures-Magic-Functions.html
 [wasm_bindgen]: https://github.com/rustwasm/wasm-bindgen
 
 [comments]: <> (
     EXTERNAL REFERENCES
 )
 [`niche-layout`]: https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#niche
-[rust-reference-fieldless-enums]: https://doc.rust-lang.org/stable/reference/items/enumerations.html#custom-discriminant-values-for-fieldless-enumerations
 [parse-dont-validate]: https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/
-
+[rust-reference-fieldless-enums]: https://doc.rust-lang.org/stable/reference/items/enumerations.html#custom-discriminant-values-for-fieldless-enumerations
 
 [comments]: <> (
     DITTO LINKS
 )
 [Ditto]: https://www.ditto.live/about/company
+
+[comments]: <> (
+    ASSETS
+)
 [Ditto-logo]: {ROOT_PATH}assets/ditto-logo-with-title-small.png
 [ferris-safety-hat]: {ROOT_PATH}assets/ferris-safety-hat-by-Byter.png
+[ffi-call-you-back]: {ROOT_PATH}assets/ffi-call-you-back.jpg "😝"
 
 [comments]: <> (
     INTERNAL CHAPTERS OR SECTIONS
 )
-[quickstart]: {ROOT_PATH}introduction/quickstart.md
-[usage]: {ROOT_PATH}usage/_.md
+[c-compilation]: {ROOT_PATH}appendix/c-compilation.md
+[callbacks]: {ROOT_PATH}callbacks/_.md
+[cargo-toml]: {ROOT_PATH}usage/cargo-toml.md
 [ffi_export]: {ROOT_PATH}ffi-export/_.md
+[header-generation]: {ROOT_PATH}usage/lib-rs.md#header-generation
+[how-does-safer_ffi-work]: {ROOT_PATH}appendix/how-does-safer_ffi-work.md
 [derive_ReprC]: {ROOT_PATH}derive-reprc/_.md
 [derive_ReprC-struct]: {ROOT_PATH}derive-reprc/struct.md
 [derive_ReprC-enum]: {ROOT_PATH}derive-reprc/enum.md
-[how-does-safer_ffi-work]: {ROOT_PATH}appendix/how-does-safer_ffi-work.md
-[cargo-toml]: {ROOT_PATH}usage/cargo-toml.md
 [lib-rs]: {ROOT_PATH}usage/lib-rs.md
-[header-generation]: {ROOT_PATH}usage/lib-rs.md#header-generation
-[c-compilation]: {ROOT_PATH}appendix/c-compilation.md
+[quickstart]: {ROOT_PATH}introduction/quickstart.md
 [repr-c-forall]: {ROOT_PATH}motivation/repr-c-forall.md
+[sanity checks]: {ROOT_PATH}ffi-export/sanity-checks.md
 [traditional-ffi-limits]: {ROOT_PATH}motivation/traditional-ffi.md
+[usage]: {ROOT_PATH}usage/_.md
 
 [comments]: <> (
     RUST DOCUMENTATION
 )
 [Rust documentation]: {ROOT_PATH}rustdoc/safer_ffi/
-[`ReprC`]: {ROOT_PATH}rustdoc/safer_ffi/layout/trait.ReprC.html
-[`CType`]: {ROOT_PATH}rustdoc/safer_ffi/layout/trait.CType.html
-[`repr_c::Box`]: {ROOT_PATH}rustdoc/safer_ffi/boxed/struct.Box.html
 [`c_slice::Box`]: {ROOT_PATH}rustdoc/safer_ffi/slice/struct.slice_boxed.html
 [`c_slice::Ref`]: {ROOT_PATH}rustdoc/safer_ffi/slice/struct.slice_ref.html
 [`c_slice::Mut`]: {ROOT_PATH}rustdoc/safer_ffi/slice/struct.slice_mut.html
-[`repr_c::Vec`]: {ROOT_PATH}rustdoc/safer_ffi/vec/struct.Vec.html
-[`repr_c::String`]: {ROOT_PATH}rustdoc/safer_ffi/string/struct.String.html
-[`str::Box`]: {ROOT_PATH}rustdoc/safer_ffi/string/struct.str_boxed.html
-[`str::Ref`]: {ROOT_PATH}rustdoc/safer_ffi/string/struct.str_ref.html
 [`char_p::Box`]: {ROOT_PATH}rustdoc/safer_ffi/char_p/struct.char_p_boxed.html
 [`char_p::Ref`]: {ROOT_PATH}rustdoc/safer_ffi/char_p/struct.char_p_ref.html
+[`CType`]: {ROOT_PATH}rustdoc/safer_ffi/layout/trait.CType.html
+[`ReprC`]: {ROOT_PATH}rustdoc/safer_ffi/layout/trait.ReprC.html
+[`repr_c::Box`]: {ROOT_PATH}rustdoc/safer_ffi/boxed/struct.Box.html
+[`repr_c::Vec`]: {ROOT_PATH}rustdoc/safer_ffi/vec/struct.Vec.html
+[`repr_c::String`]: {ROOT_PATH}rustdoc/safer_ffi/string/struct.String.html
 [`safer_ffi::headers::builder()`]: {ROOT_PATH}rustdoc/safer_ffi/headers/struct.Builder.html
+[`str::Box`]: {ROOT_PATH}rustdoc/safer_ffi/string/struct.str_boxed.html
+[`str::Ref`]: {ROOT_PATH}rustdoc/safer_ffi/string/struct.str_ref.html
+[`RefDynFnMut0`]: {ROOT_PATH}rustdoc/safer_ffi/closure/borrowed/struct.RefDynFnMut0.html
+[`RefDynFnMutN`]: {ROOT_PATH}rustdoc/safer_ffi/closure/borrowed/index.html
+[`BoxDynFnMutN`]: {ROOT_PATH}rustdoc/safer_ffi/closure/boxed/index.html
+[`ArcDynFnN`]: {ROOT_PATH}rustdoc/safer_ffi/closure/arc/index.html
+[`::safer_ffi::closure`]: {ROOT_PATH}rustdoc/safer_ffi/closure/index.html

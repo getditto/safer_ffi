@@ -2,7 +2,6 @@
 
 # Deriving `ReprC` for custom structs
 
-
 ## Usage
 
 ```rust,noplaypen
