@@ -1,6 +1,8 @@
 # `::safer_ffi`
 
-![CI](https://github.com/getditto/safer_ffi/workflows/CI/badge.svg?branch=master)
+[![CI](
+https://github.com/getditto/safer_ffi/workflows/CI/badge.svg?branch=master)](
+https://github.com/getditto/safer_ffi/actions)
 
 # The User Guide
 
