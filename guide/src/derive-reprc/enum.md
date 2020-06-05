@@ -89,6 +89,7 @@ equivalent definition.
 </span>
 
 <details><summary>Click for more info</summary>
+
 It turns out C itself does not really define a concrete integer layout
 for its enums. Indeed, the C standard only states that:
 

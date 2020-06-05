@@ -43,7 +43,7 @@ c-headers = ["safer-ffi/headers"]
 
 ### `src/lib.rs`
 
-```rust,no_run
+```rust,ignore
 use ::safer_ffi::prelude::*;
 
 /// A `struct` usable from both Rust and C
@@ -86,7 +86,6 @@ fn generate_headers () -> ::std::io::Result<()>
         .to_file("rust_points.h")?
         .generate()
 }
-
 ```
 
 ### Compilation & header generation

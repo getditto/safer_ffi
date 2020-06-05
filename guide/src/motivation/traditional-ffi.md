@@ -46,7 +46,7 @@ Traditionally, if one were to write the following FFI definition:
 #[repr(C)]
 pub
 struct MyCallback {
-    cb: fn(), /* Wops, forgot to `extern "C"` annotate */
+    cb: fn(), /* Wops, forgot to mark it `extern "C"` */
 }
 
 #[no_mangle] pub extern "C"
@@ -65,10 +65,10 @@ they would get (with no warnings whatsoever!):
 #include <stdlib.h>
 
 typedef struct {
-    void (*cb)(void);
+    void (*cb)(void); // Wrong, this header corresponds to an `extern "C"` ABI
 } MyCallback;
 
-void call(MyCallback it); /* UB to call from C! */
+void call(MyCallback it); /* => UB to call from C! */
 ```
 
 Fix:
@@ -92,16 +92,16 @@ pointers are [`ReprC`]):
 
 ```rust,noplaypen
 error[E0277]: the trait bound `fn(): safer_ffi::layout::ReprC` is not satisfied
---> src/lib.rs:3:1
-|
+ --> src/lib.rs:3:1
+  |
 3 | #[derive_ReprC]
-| ^^^^^^^^^^^^^^^ the trait `safer_ffi::layout::ReprC` is not implemented for `fn()`
-|
-= help: the following implementations were found:
+  | ^^^^^^^^^^^^^^^ the trait `safer_ffi::layout::ReprC` is not implemented for `fn()`
+  |
+  = help: the following implementations were found:
             <extern "C" fn() -> Ret as safer_ffi::layout::ReprC>
             <unsafe extern "C" fn() -> Ret as safer_ffi::layout::ReprC>
-= help: see issue #48214
-= note: this error originates in a macro (in Nightly builds, run with -Z macro-backtrace for more info)
+  = help: see issue #48214
+  = note: this error originates in a macro (in Nightly builds, run with -Z macro-backtrace for more info)
 ```
 
 💪

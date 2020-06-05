@@ -21,8 +21,8 @@ called.
 
     </span>
 
-    This is why all function pointers involved in FFI need to be `extern "C"`.
-    Forgetting to annotate it results in code that triggers _Undefined
+    This is why all function pointers involved in FFI need to be
+    `extern`-annotated. Forgetting it results in code that triggers _Undefined
     Behavior_ (and
     [traditional FFI fails to guard against it][traditional-ffi-limits])⚠️
 
