@@ -94,7 +94,9 @@ safe (_e.g._, input integer corresponding to no `enum` variant, NULL pointer
 when the [`ReprC`] type is guaranteed not to be it, unaligned pointer when
 the [`ReprC`] type is guaranteed to be aligned).
 
-### Caveats
+___
+
+<details><summary>Caveats</summary>
 
 Such check cannot be exhaustive (in the case of pointers for instance, `safer_ffi`
 cannot possibly know if it is valid to dereference a non-null and well-aligned
@@ -125,3 +127,5 @@ _disabled_ on release.
         attributes.md#unsafely-disabling-the-runtime-sanity-checks)
         that would nevertheless only truly opt-out when
         `debug_assertions` are disabled.
+
+</details>

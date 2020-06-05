@@ -29,8 +29,10 @@
 [comments]: <> (
     ASSETS
 )
+[before-and-after]: {ROOT_PATH}assets/safer_ffi_code_comparison.png
 [Ditto-logo]: {ROOT_PATH}assets/ditto-logo-with-title-small.png
 [ferris-safety-hat]: {ROOT_PATH}assets/ferris-safety-hat-by-Byter.png
+[ferris-unsafe]: {ROOT_PATH}assets/ferris-unsafe-by-Karen.png
 [ffi-call-you-back]: {ROOT_PATH}assets/ffi-call-you-back.jpg "😝"
 
 [comments]: <> (
