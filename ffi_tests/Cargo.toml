@@ -11,7 +11,7 @@ edition = "2018"
 safer-ffi = { path = "..", features = ["proc_macros"] }
 
 [features]
-generate-headers = ["safer_ffi/headers"]
+generate-headers = ["safer-ffi/headers"]
 
 # [dev-dependencies]
 # cc = "1.0.50"

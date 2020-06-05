@@ -56,7 +56,7 @@ macro_rules! with_tuple {(
     {
         #[inline]
         pub
-        fn new<F> (f: &'lt F) -> Self
+        fn new<F> (f: &'lt mut F) -> Self
         where
             F : FnMut( $($A_N $(, $A_k)*)? ) -> Ret,
             F : 'lt + Send,

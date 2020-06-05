@@ -15,6 +15,7 @@ fn test_c_code ()
                 "main.c",
                 "-L", "..",
                 "-l", "ffi_tests",
+                "-l", "pthread", "-l", "dl", // For Linux
                 // "-Wl,rpath=$ORIGIN/", /* cdylib under Linux */
             ])
             .status()

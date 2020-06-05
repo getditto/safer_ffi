@@ -13,9 +13,14 @@ jobs:
   # == CHECK == #
   check:
     name: Check nightly stable and MSRV
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
         rust:
           - 1.43.0
           - stable
@@ -27,6 +32,10 @@ jobs:
           profile: minimal
           toolchain: ${{ matrix.rust }}
           override: true
+
+      - name: Instal LLVM
+        run: choco install -y llvm
+        if: runner.os == 'Windows'
 
       - name: Clone repo
         uses: actions/checkout@v2
@@ -72,8 +81,12 @@ jobs:
   # == BUILD & TEST == #
   build-and-test:
     name: Build and test
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     needs: [check, check-features]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -85,10 +98,14 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v2
 
-      - uses: actions-rs/cargo@v1
+      - name: Cargo test
+        uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --features nightly,proc_macros,std,out-refs
+          args: --all-features
+
+      - name: FFI test
+        run: make -C ffi_tests
 
   # Deploy to Github pages #
   deploy:
