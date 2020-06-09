@@ -6,7 +6,7 @@ Since bare function pointers cannot carry any non-global instance-specific
 state, their usability is quite limited. For a callback-based API to be good,
 it must be able to support some associated state.
 
-## Stateful closures in C
+## Stateful callbacks in C
 
 In C, the idiomatic way to achieve this is to carry an extra `void *` parameter
 (traditionally called `data`, `ctx`, `env` or `payload`), and have the function pointer
@@ -115,7 +115,7 @@ void my_cb (
 ## Back to Rust
 
 In Rust, the situation is quite more subtle, since the properties of the
-closure are not wave-handed as they are in C, and instead, there are very
+closure are not wave-handed like they are in C. Instead, there are very
 rigurous things to take into account:
 
   - #### `'static`
@@ -140,8 +140,8 @@ rigurous things to take into account:
     Is the closure thread-safe / can it be called in parallel?
 
 > To get a better understanding of the `Fn*` traits and the `move? |...| ...`
-> closure sugar in Rust I highly recommend reading
-> [the _Closures: Magic functions_ blog post][Closures: Magic functions]
+> closure sugar in Rust I highly recommend reading the
+> [_Closures: Magic functions_ blog post][closures magic functions].
 
 ___
 

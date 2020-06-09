@@ -12,17 +12,11 @@ TODO: better reorganize this section
 
 ### Interesting stat: evolution of the number of `unsafe` blocks
 
-Counted using
-
-```shell
-find ffi/src -name '*.rs' -exec grep 'unsafe\s*{' '{}' \; | wc -l
-```
-
 #### Old
 
 > 282
 
-#### Now
+#### New
 
 > 48
 
@@ -30,7 +24,7 @@ That is, **a whopping 83% decrease!**
 
   - <small>(by the way, we should be able to get rid of these remaining `unsafe`
     blocks once support for lifetimes in [callback][callbacks] signatures is
-    supported).</small>
+    added).</small>
 
 ## Returning a Vec when doing FFI
 
