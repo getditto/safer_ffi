@@ -13,6 +13,8 @@ keywords = ["ffi", "no_std", "framework", "safety", "bindings"]
 license = "MIT"
 repository = "https://github.com/getditto/safer_ffi"
 
+readme = "README.md"
+
 [features]
 default = [
     "std",
@@ -69,4 +71,6 @@ default-features = false
 
 [workspace]
 members = ["src/proc_macro"]
-exclude = ["ffi_tests"]
+
+[package.metadata.docs.rs]
+all-features = true
