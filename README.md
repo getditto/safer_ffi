@@ -1,6 +1,7 @@
 <span style="text-align: center;">
 
-# `::safer_ffi`
+![safer-ffi-banner](
+https://github.com/getditto/safer_ffi/blob/banner/guide/assets/safer_ffi.jpg?raw=true)
 
 [![CI](
 https://github.com/getditto/safer_ffi/workflows/CI/badge.svg?branch=master)](
@@ -13,9 +14,6 @@ https://getditto.github.io/safer_ffi/rustdoc)
 https://crates.io/crates/safer-ffi)
 [![repository](https://img.shields.io/badge/repository-GitHub-brightgreen.svg)](
 https://github.com/getditto/safer_ffi)
-
-![safer-ffi-banner](
-https://github.com/getditto/safer_ffi/blob/banner/guide/assets/safer_ffi.jpg?raw=true)
 
 </span>
 
