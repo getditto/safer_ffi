@@ -4,6 +4,9 @@
 https://github.com/getditto/safer_ffi/workflows/CI/badge.svg?branch=master)](
 https://github.com/getditto/safer_ffi/actions)
 
+![safer-ffi-banner](
+https://github.com/getditto/safer_ffi/blob/banner/guide/assets/safer_ffi.jpg)
+
 # The User Guide
 
 The recommended way to learn about `::safer_ffi` is through the user guide:

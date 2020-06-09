@@ -44,8 +44,6 @@
 
   - [Example: Real-world use case at Ditto](example-ditto/_.md)
 
-    - [How `::safer_ffi` improved our FFI](example-ditto/improvements.md)
-
   - [Example: our own `hashmap` in C](example-hashmap/_.md)
 
 [Appendix: FFI and C compilation](appendix/c-compilation.md)
