@@ -4,7 +4,7 @@ path = "src/_lib.rs"
 [package]
 name = "safer-ffi"
 # Keep in sync with `[dependencies.proc_macro]` and `src/proc_macro/Cargo.toml`
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
 
@@ -58,7 +58,7 @@ proc-macro-hack = { version = "0.5.15", optional = true }
 [dependencies.proc_macro]
 package = "safer_ffi-proc_macro"
 path = "src/proc_macro"
-version = "0.0.1"
+version = "0.0.2"
 
 [dependencies.uninit]
 optional = true
