@@ -240,6 +240,12 @@
 <span id="240">240</span>
 <span id="241">241</span>
 <span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>,
     <span class="ident">feature</span>(<span class="ident">doc_cfg</span>, <span class="ident">external_doc</span>, <span class="ident">trivial_bounds</span>)
@@ -260,7 +266,13 @@
     <span class="ident">unused_must_use</span>,
 )]</span>
 
-<span class="doccomment">//! See the [user guide](https://getditto.github.io/safer_ffi).</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>,
+    <span class="ident">doc</span>(<span class="ident">include</span> <span class="op">=</span> <span class="string">&quot;../README.md&quot;</span>)
+)]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>),
+    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;See the [user guide](https://getditto.github.io/safer_ffi).&quot;</span>
+)]</span>
+
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;proc_macros&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>

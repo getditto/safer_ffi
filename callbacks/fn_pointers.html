@@ -4,7 +4,7 @@
 <head>
     <!-- Book generated using mdBook -->
     <meta charset="UTF-8">
-    <title>Attributes - `safer_ffi` User Guide</title>
+    <title>Function pointers - `safer_ffi` User Guide</title>
     
 
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -87,7 +87,7 @@
 
     <nav id="sidebar" class="sidebar" aria-label="Table of contents">
         <div class="sidebar-scrollbox">
-            <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../introduction/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li></ol></li><li class="chapter-item expanded "><a href="../usage/_.html"><strong aria-hidden="true">2.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../usage/cargo-toml.html"><strong aria-hidden="true">2.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="../usage/lib-rs.html"><strong aria-hidden="true">2.2.</strong> src/lib.rs and header generation</a></li><li class="chapter-item expanded "><a href="../usage/custom-types.html"><strong aria-hidden="true">2.3.</strong> Custom types</a></li></ol></li><li class="chapter-item expanded "><a href="../motivation/_.html"><strong aria-hidden="true">3.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../motivation/traditional-ffi.html"><strong aria-hidden="true">3.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="../motivation/repr-c-forall.html"><strong aria-hidden="true">3.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="../simple-examples/_.html"><strong aria-hidden="true">4.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../simple-examples/string_concat.html"><strong aria-hidden="true">4.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="../simple-examples/max.html"><strong aria-hidden="true">4.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="../derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="../derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="../ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="../ffi-export/attributes.html" class="active"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="../callbacks/_.html"><strong aria-hidden="true">7.</strong> Callbacks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../callbacks/fn_pointers.html"><strong aria-hidden="true">7.1.</strong> Function pointers</a></li><li class="chapter-item expanded "><a href="../callbacks/closures.html"><strong aria-hidden="true">7.2.</strong> Closures</a></li></ol></li><li class="chapter-item expanded "><a href="../example-ditto/_.html"><strong aria-hidden="true">8.</strong> Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded "><a href="../example-hashmap/_.html"><strong aria-hidden="true">9.</strong> Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="../appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="../appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
+            <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../introduction/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li></ol></li><li class="chapter-item expanded "><a href="../usage/_.html"><strong aria-hidden="true">2.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../usage/cargo-toml.html"><strong aria-hidden="true">2.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="../usage/lib-rs.html"><strong aria-hidden="true">2.2.</strong> src/lib.rs and header generation</a></li><li class="chapter-item expanded "><a href="../usage/custom-types.html"><strong aria-hidden="true">2.3.</strong> Custom types</a></li></ol></li><li class="chapter-item expanded "><a href="../motivation/_.html"><strong aria-hidden="true">3.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../motivation/traditional-ffi.html"><strong aria-hidden="true">3.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="../motivation/repr-c-forall.html"><strong aria-hidden="true">3.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="../simple-examples/_.html"><strong aria-hidden="true">4.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../simple-examples/string_concat.html"><strong aria-hidden="true">4.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="../simple-examples/max.html"><strong aria-hidden="true">4.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="../derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="../derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="../ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="../ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="../callbacks/_.html"><strong aria-hidden="true">7.</strong> Callbacks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../callbacks/fn_pointers.html" class="active"><strong aria-hidden="true">7.1.</strong> Function pointers</a></li><li class="chapter-item expanded "><a href="../callbacks/closures.html"><strong aria-hidden="true">7.2.</strong> Closures</a></li></ol></li><li class="chapter-item expanded "><a href="../example-ditto/_.html"><strong aria-hidden="true">8.</strong> Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded "><a href="../example-hashmap/_.html"><strong aria-hidden="true">9.</strong> Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="../appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="../appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
             <span id="sponsored">
                 Sponsored by<br/>
                 <a href="https://www.ditto.live"><img src="../assets/ditto-logo-with-title-small.png" /></a>
@@ -175,72 +175,74 @@
 
             <div id="content" class="content">
                 <main>
-                    <h1><a class="header" href="#ffi_export" id="ffi_export"><code>#[ffi_export]</code></a></h1>
-<h2><a class="header" href="#attributes" id="attributes">Attributes</a></h2>
-<div class="warning">
-<p>These are not yet implemented</p>
-</div>
+                    <h1><a class="header" href="#function-pointers" id="function-pointers">Function pointers</a></h1>
+<p>These are the most simple callback objects. They consist of a single (function)
+pointer, that is, the address of the (beginning of the) code that is to be
+called.</p>
 <ul>
 <li>
-<p><strong>Non-<code>&quot;C&quot;</code> ABIs</strong></p>
-<p>Currently <code>#[ffi_export]</code> defaults to a <code>#[no_mangle] pub extern &quot;C&quot;</code>
-function definition, <em>i.e.</em>, it exports a function using the default C ABI
-of the platform it is compiled against (<em>target</em> platform).</p>
-<p>Sometimes a special ABI is required, in which case specifying the ABI is
-desirable.</p>
-<p><strong>Imagined syntax</strong>: an optional <code>ABI = &quot;&lt;abi&gt;&quot;</code> attribute parameter:</p>
-<pre><code class="language-rust noplaypen">#[ffi_export(ABI = &quot;system&quot;)]
-fn ...
-</code></pre>
+<p>In Rust, this is the family of <code>fn(...) -&gt; _</code> types.</p>
+<p>To avoid (very bad) bugs when mixing calling conventions (ABIs), Rust
+includes the ABI within the type of the function pointer, granting
+additional type-level safety.
+When dealing with C, the calling convention that matches C's is
+almost always <code>extern &quot;C&quot;</code> and is <em>never</em> <code>extern &quot;Rust&quot;</code>.</p>
+<span class = "warning">
+<p>When unspecified, the calling convention defaults to <code>extern &quot;Rust&quot;</code>, which
+is different from <code>extern &quot;C&quot;</code>!</p>
+</span>
+<p>This is why all function pointers involved in FFI need to be
+<code>extern</code>-annotated. Forgetting it results in code that triggers <em>Undefined
+Behavior</em> (and
+<a href="/safer_ffi/motivation/traditional-ffi.html">traditional FFI fails to guard against it</a>)⚠️</p>
 </li>
 <li>
-<p><strong>Custom <code>export_name</code></strong>.</p>
-<p>To override the name (the <em>symbol</em>) the item is exported with (by virtue of
-the default <code>#[no_mangle]</code>, the item is exported with a symbol equal to the
-identifier used for its name), one could imagine someone wanting to develop
-their own namespacing tool / name mangling convention when controling both
-ends of the FFI, so they may want to provide an <code>export_name</code> override too.</p>
-<p><strong>Imagined syntax</strong>: an optional <code>export_name = ...</code> attribute parameter.</p>
-</li>
-<li>
-<p><strong><code>unsafe</code>-ly disabling the runtime <a href="/safer_ffi/ffi-export/sanity-checks.html">sanity checks</a></strong>.</p>
-<p><span id="unsafely-disabling-the-runtime-sanity-checks"></span></p>
-<p>As mentioned in the <a href="/safer_ffi/ffi-export/sanity-checks.html">sanity checks</a> section, it is intended that all
-<code>#[ffi_export]</code>-ed functions perform some sanity checks on the raw inputs
-they receive, before transmuting those to the actual <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> types.
-Still, for some functions where performance is critical and the caller
-of the <code>#[ffi_export]</code>-ed function is trusted not give invalid values,
-it will be possible to opt-out of such check when <code>debug_assertions</code> are
-disabled by marking each function where one wants to disable the checks
-with an <code>unsafe</code> parameter, such as:</p>
-<pre><code class="language-rust noplaypen">#[ffi_export]
-#[safer_ffi(unsafe { skip_sanity_checks() })]
-fn ...
-</code></pre>
-<p>or on specific params:</p>
-<pre><code class="language-rust noplaypen">#[ffi_export]
-fn set_log_level (
-    #[safer_ffi(unsafe { skip_sanity_checks() })]
-    level: LogLevel,
-    ...
-) -&gt; ...
-</code></pre>
+<p>In C, these are written as <code>ret_t (*name)(function_args)</code>, where <code>name</code> is
+the name of a variable or parameter that has the function pointer type,
+or the name of the type being type-aliased to the function pointer type.</p>
 </li>
 </ul>
+<h2><a class="header" href="#examples" id="examples">Examples</a></h2>
+<table><thead><tr><th align="center">Rust</th><th align="center">C</th></tr></thead><tbody>
+<tr><td align="center"><code>cb: extern &quot;C&quot; fn()</code></td><td align="center"><code>void (*cb)(void)</code></td></tr>
+<tr><td align="center"><code>f: extern &quot;C&quot; fn(arg1_t, arg2_t) -&gt; ret_t</code></td><td align="center"><code>ret_t (*f)(arg1_t, arg2_t)</code></td></tr>
+<tr><td align="center"><code>transmute::&lt;_, extern &quot;C&quot; fn(arg_t) -&gt; ret_t&gt;(f)</code></td><td align="center"><code>(ret_t (*)(arg_t)) (f)</code></td></tr>
+<tr><td align="center"><code>type cb_t = extern &quot;C&quot; fn(arg_t) -&gt; ret_t;</code><br/><code>let f: cb_t = ...;</code><br/><code>transmute::&lt;_, cb_t&gt;(f)</code></td><td align="center"><code>typedef ret_t (*cb_t)(arg_t);</code><br/><code>cb_t f = ...;</code><br/><code>(cb_t) (f)</code></td></tr>
+</tbody></table>
+<p>So, for instance,</p>
+<pre><code class="language-rust noplaypen">#[ffi_export]
+fn call (
+    ctx: *mut c_void,
+    cb: unsafe extern &quot;C&quot; fn(ctx: *mut c_void),
+)
+</code></pre>
+<p>becomes</p>
+<pre><code class="language-C">void call (
+    void * ctx,
+    void (*cb)(void * ctx)
+);
+</code></pre>
+<h3><a class="header" href="#nullable-function-pointers" id="nullable-function-pointers">Nullable function pointers</a></h3>
+<span class = "warning">
+<p>A Rust <code>fn</code> pointer <em>cannot</em> possibly be NULL!</p>
+</span>
+<p>This means that when <code>NULL</code>-able function pointers are involved, <strong>forgetting to
+<code>Option</code>-wrap them can lead to <em>Undefined Behavior</em></strong>. Luckily, this is something
+that is easily caught by <a href="/safer_ffi/ffi-export/sanity-checks.html"><code>::safer_ffi</code>'s sanity checks</a>.</p>
 
                 </main>
 
                 <nav class="nav-wrapper" aria-label="Page navigation">
                     <!-- Mobile navigation buttons -->
                     
-                    <a rel="prev" href="../ffi-export/sanity-checks.html" class="mobile-nav-chapters previous"
+                    <a rel="prev" href="../callbacks/_.html" class="mobile-nav-chapters previous"
                         title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                     
 
                     
-                    <a rel="next" href="../callbacks/_.html" class="mobile-nav-chapters next"
+                    <a rel="next" href="../callbacks/closures.html" class="mobile-nav-chapters next"
                         title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
@@ -253,14 +255,14 @@ fn set_log_level (
 
         <nav class="nav-wide-wrapper" aria-label="Page navigation">
             
-            <a rel="prev" href="../ffi-export/sanity-checks.html" class="nav-chapters previous" title="Previous chapter"
+            <a rel="prev" href="../callbacks/_.html" class="nav-chapters previous" title="Previous chapter"
                 aria-label="Previous chapter" aria-keyshortcuts="Left">
                 <i class="fa fa-angle-left"></i>
             </a>
             
 
             
-            <a rel="next" href="../callbacks/_.html" class="nav-chapters next" title="Next chapter"
+            <a rel="next" href="../callbacks/closures.html" class="nav-chapters next" title="Next chapter"
                 aria-label="Next chapter" aria-keyshortcuts="Right">
                 <i class="fa fa-angle-right"></i>
             </a>

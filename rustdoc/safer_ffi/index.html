@@ -1,4 +1,162 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `safer_ffi` crate."><meta name="keywords" content="rust, rustlang, rust-lang, safer_ffi"><title>safer_ffi - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="shortcut icon" href="../favicon.ico"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../safer_ffi/index.html'><div class='logo-container'><img src='../rust-logo.png' alt='logo'></div></a><p class='location'>Crate safer_ffi</p><div class="sidebar-elems"><a id='all-types' href='all.html'><p>See all safer_ffi's items</p></a><div class="block items"><ul><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'safer_ffi', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/safer_ffi/_lib.rs.html#1-242' title='goto source code'>[src]</a></span><span class='in-band'>Crate <a class="mod" href=''>safer_ffi</a></span></h1><div class='docblock'><p>See the <a href="https://getditto.github.io/safer_ffi">user guide</a>.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `safer_ffi` crate."><meta name="keywords" content="rust, rustlang, rust-lang, safer_ffi"><title>safer_ffi - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="shortcut icon" href="../favicon.ico"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../safer_ffi/index.html'><div class='logo-container'><img src='../rust-logo.png' alt='logo'></div></a><p class='location'>Crate safer_ffi</p><div class="sidebar-elems"><a id='all-types' href='all.html'><p>See all safer_ffi's items</p></a><div class="block items"><ul><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'safer_ffi', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/safer_ffi/_lib.rs.html#1-248' title='goto source code'>[src]</a></span><span class='in-band'>Crate <a class="mod" href=''>safer_ffi</a></span></h1><div class='docblock'><span style="text-align: center;">
+<p><img src="https://github.com/getditto/safer_ffi/blob/banner/guide/assets/safer_ffi.jpg?raw=true" alt="safer-ffi-banner" /></p>
+<p><a href="https://github.com/getditto/safer_ffi/actions"><img src="https://github.com/getditto/safer_ffi/workflows/CI/badge.svg?branch=master" alt="CI" /></a>
+<a href="https://getditto.github.io/safer_ffi"><img src="https://img.shields.io/badge/guide-mdbook-blue" alt="guide" /></a>
+<a href="https://getditto.github.io/safer_ffi/rustdoc"><img src="https://docs.rs/safer-ffi/badge.svg" alt="docs-rs" /></a>
+<a href="https://crates.io/crates/safer-ffi"><img src="https://img.shields.io/crates/v/safer-ffi.svg" alt="crates-io" /></a>
+<a href="https://github.com/getditto/safer_ffi"><img src="https://img.shields.io/badge/repository-GitHub-brightgreen.svg" alt="repository" /></a></p>
+</span>
+<h1 id="the-user-guide" class="section-header"><a href="#the-user-guide">The User Guide</a></h1>
+<p>The recommended way to learn about <code>::safer_ffi</code> is through the user guide:</p>
+<blockquote>
+<p><a href="https://getditto.github.io/safer_ffi"><strong>📚 Read the <code>::safer_ffi</code> User guide here📚</strong></a></p>
+</blockquote>
+<h2 id="prerequisites" class="section-header"><a href="#prerequisites">Prerequisites</a></h2>
+<p>Minimum Supported Rust Version: <code>1.43.0</code></p>
+<h2 id="quickstart" class="section-header"><a href="#quickstart">Quickstart</a></h2><h3 id="cargotoml" class="section-header"><a href="#cargotoml"><code>Cargo.toml</code></a></h3>
+<p>Edit your <code>Cargo.toml</code> like so:</p>
+<pre><code class="language-toml">[package]
+name = &quot;crate_name&quot;
+version = &quot;0.1.0&quot;
+edition = &quot;2018&quot;
+
+[lib]
+crate-type = [&quot;staticlib&quot;]
+
+[dependencies]
+safer-ffi = { version = &quot;*&quot;, features = [&quot;proc_macros&quot;] }
+
+[features]
+c-headers = [&quot;safer-ffi/headers&quot;]
+</code></pre>
+<ul>
+<li>Where <code>&quot;*&quot;</code> ought to be replaced by the last released version, which you
+can find by running <code>cargo search safer-ffi</code>.</li>
+</ul>
+<h3 id="srclibrs" class="section-header"><a href="#srclibrs"><code>src/lib.rs</code></a></h3>
+<div class='information'><div class='tooltip ignore'>ⓘ<span class='tooltiptext'>This example is not tested</span></div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="kw">use</span> ::<span class="ident">safer_ffi</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
+
+<span class="doccomment">/// A `struct` usable from both Rust and C</span>
+<span class="attribute">#[<span class="ident">derive_ReprC</span>]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
+<span class="kw">pub</span>
+<span class="kw">struct</span> <span class="ident">Point</span> {
+    <span class="ident">x</span>: <span class="ident">f64</span>,
+    <span class="ident">y</span>: <span class="ident">f64</span>,
+}
+
+<span class="comment">/* Export a Rust function to the C world. */</span>
+<span class="doccomment">/// Returns the middle point of `[a, b]`.</span>
+<span class="attribute">#[<span class="ident">ffi_export</span>]</span>
+<span class="kw">fn</span> <span class="ident">mid_point</span> (
+    <span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">Point</span>,
+    <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">Point</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Point</span>
+{
+    <span class="ident">Point</span> {
+        <span class="ident">x</span>: (<span class="ident">a</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">b</span>.<span class="ident">x</span>) <span class="op">/</span> <span class="number">2.</span>,
+        <span class="ident">y</span>: (<span class="ident">a</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">b</span>.<span class="ident">y</span>) <span class="op">/</span> <span class="number">2.</span>,
+    }
+}
+
+<span class="doccomment">/// Pretty-prints a point using Rust&#39;s formatting logic.</span>
+<span class="attribute">#[<span class="ident">ffi_export</span>]</span>
+<span class="kw">fn</span> <span class="ident">print_point</span> (<span class="ident">point</span>: <span class="kw-2">&amp;</span><span class="ident">Point</span>)
+{
+    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">point</span>);
+}
+
+<span class="doccomment">/// The following test function is necessary for the header generation.</span>
+<span class="attribute">#[::<span class="ident">safer_ffi</span>::<span class="ident">cfg_headers</span>]</span>
+<span class="attribute">#[<span class="ident">test</span>]</span>
+<span class="kw">fn</span> <span class="ident">generate_headers</span> () <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">std</span>::<span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+{
+    ::<span class="ident">safer_ffi</span>::<span class="ident">headers</span>::<span class="ident">builder</span>()
+        .<span class="ident">to_file</span>(<span class="string">&quot;rust_points.h&quot;</span>)<span class="question-mark">?</span>
+        .<span class="ident">generate</span>()
+}</pre></div>
+<h3 id="compilation--header-generation" class="section-header"><a href="#compilation--header-generation">Compilation &amp; header generation</a></h3>
+<pre><code class="language-bash"># Compile the C library (in `target/{debug,release}/libcrate_name.ext`)
+cargo build # --release
+
+# Generate the C header
+cargo test --features c-headers -- generate_headers
+</code></pre>
+<details><summary>Generated C header</summary>
+<pre><code class="language-C">/*! \file */
+/*******************************************
+ *                                         *
+ *  File auto-generated by `::safer_ffi`.  *
+ *                                         *
+ *  Do not manually edit this file.        *
+ *                                         *
+ *******************************************/
+
+#ifndef __RUST_CRATE_NAME__
+#define __RUST_CRATE_NAME__
+
+#ifdef __cplusplus
+extern &quot;C&quot; {
+#endif
+
+/** \brief
+ *  A `struct` usable from both Rust and C
+ */
+typedef struct {
+
+    double x;
+
+    double y;
+
+} Point_t;
+
+/** \brief
+ *  Returns the middle point of `[a, b]`.
+ */
+Point_t mid_point (
+    Point_t const * a,
+    Point_t const * b);
+
+/** \brief
+ *  Pretty-prints a point using Rust's formatting logic.
+ */
+void print_point (
+    Point_t const * point);
+
+
+#ifdef __cplusplus
+} /* extern &quot;C&quot; */
+#endif
+
+#endif /* __RUST_CRATE_NAME__ */
+</code></pre>
+</details>
+<h3 id="testing-it" class="section-header"><a href="#testing-it">Testing it</a></h3><h4 id="mainc" class="section-header"><a href="#mainc"><code>main.c</code></a></h4>
+<pre><code class="language-C">#include &lt;stdlib.h&gt;
+
+#include &quot;rust_points.h&quot;
+
+int main (int argc, char const * const argv[])
+{
+    Point_t a = { .x = 84, .y = 45 };
+    Point_t b = { .x = 0, .y = 39 };
+    Point_t m = mid_point(&amp;a, &amp;b);
+    print_point(&amp;m);
+    return EXIT_SUCCESS;
+}
+</code></pre>
+<h4 id="compilation-command" class="section-header"><a href="#compilation-command">Compilation command</a></h4>
+<pre><code class="language-bash">cc main.c -o main -L target/debug -l crate_name
+
+# Now feel free to run the compiled binary
+./main
+</code></pre>
+<p>which outputs:</p>
+<pre><code class="language-text">Point { x: 42.0, y: 42.0 }
+</code></pre>
+<p>🚀🚀</p>
 </div><h2 id='reexports' class='section-header'><a href="#reexports">Re-exports</a></h2>
 <table><tr><td><code>pub use <a class="mod" href="../safer_ffi/tuple/index.html" title="mod safer_ffi::tuple">tuple</a>::*;</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table><tr class='module-item'><td><a class="mod" href="boxed/index.html" title='safer_ffi::boxed mod'>boxed</a></td><td class='docblock-short'><span class="stab portability"><code>feature="alloc"</code></span><p><code>#[repr(C)]</code> <a href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html" title="`rust::Box`"><code>Box</code></a>ed types.</p>

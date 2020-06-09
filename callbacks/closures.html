@@ -1,0 +1,554 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+
+<head>
+    <!-- Book generated using mdBook -->
+    <meta charset="UTF-8">
+    <title>Closures - `safer_ffi` User Guide</title>
+    
+
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff" />
+
+    <link rel="shortcut icon" href="../favicon.png">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/general.css">
+    <link rel="stylesheet" href="../css/chrome.css">
+    <link rel="stylesheet" href="../css/print.css" media="print">
+
+    <!-- Fonts -->
+    <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"
+        rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+    <!-- Highlight.js Stylesheets -->
+    <link rel="stylesheet" href="../highlight.css">
+    <link rel="stylesheet" href="../tomorrow-night.css">
+    <link rel="stylesheet" href="../ayu-highlight.css">
+
+    <!-- Custom theme stylesheets -->
+    
+    <link rel="stylesheet" href="../theme/book.css">
+    
+
+    
+</head>
+
+<body>
+    <!-- Provide site root to javascript -->
+    <script type="text/javascript">
+        var path_to_root = "../";
+        var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+    </script>
+
+    <!-- Work around some values being stored in localStorage wrapped in quotes -->
+    <script type="text/javascript">
+        try {
+            var theme = localStorage.getItem('mdbook-theme');
+            var sidebar = localStorage.getItem('mdbook-sidebar');
+
+            if (theme.startsWith('"') && theme.endsWith('"')) {
+                localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+            }
+
+            if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+            }
+        } catch (e) { }
+    </script>
+
+    <!-- Set the theme before any content is loaded, prevents flash -->
+    <script type="text/javascript">
+        var theme;
+        try { theme = localStorage.getItem('mdbook-theme'); } catch (e) { }
+        if (theme === null || theme === undefined) { theme = default_theme; }
+        var html = document.querySelector('html');
+        html.classList.remove('no-js')
+        html.classList.remove('light')
+        html.classList.add(theme);
+        html.classList.add('js');
+    </script>
+
+    <!-- Hide / unhide sidebar before it is displayed -->
+    <script type="text/javascript">
+        var html = document.querySelector('html');
+        var sidebar = 'hidden';
+        if (document.body.clientWidth >= 1080) {
+            try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch (e) { }
+            sidebar = sidebar || 'visible';
+        }
+        html.classList.remove('sidebar-visible');
+        html.classList.add("sidebar-" + sidebar);
+    </script>
+
+    <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+        <div class="sidebar-scrollbox">
+            <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../introduction/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li></ol></li><li class="chapter-item expanded "><a href="../usage/_.html"><strong aria-hidden="true">2.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../usage/cargo-toml.html"><strong aria-hidden="true">2.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="../usage/lib-rs.html"><strong aria-hidden="true">2.2.</strong> src/lib.rs and header generation</a></li><li class="chapter-item expanded "><a href="../usage/custom-types.html"><strong aria-hidden="true">2.3.</strong> Custom types</a></li></ol></li><li class="chapter-item expanded "><a href="../motivation/_.html"><strong aria-hidden="true">3.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../motivation/traditional-ffi.html"><strong aria-hidden="true">3.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="../motivation/repr-c-forall.html"><strong aria-hidden="true">3.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="../simple-examples/_.html"><strong aria-hidden="true">4.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../simple-examples/string_concat.html"><strong aria-hidden="true">4.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="../simple-examples/max.html"><strong aria-hidden="true">4.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="../derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="../derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="../ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="../ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="../callbacks/_.html"><strong aria-hidden="true">7.</strong> Callbacks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../callbacks/fn_pointers.html"><strong aria-hidden="true">7.1.</strong> Function pointers</a></li><li class="chapter-item expanded "><a href="../callbacks/closures.html" class="active"><strong aria-hidden="true">7.2.</strong> Closures</a></li></ol></li><li class="chapter-item expanded "><a href="../example-ditto/_.html"><strong aria-hidden="true">8.</strong> Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded "><a href="../example-hashmap/_.html"><strong aria-hidden="true">9.</strong> Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="../appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="../appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
+            <span id="sponsored">
+                Sponsored by<br/>
+                <a href="https://www.ditto.live"><img src="../assets/ditto-logo-with-title-small.png" /></a>
+            </span>
+        </div>
+        <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+    </nav>
+
+    <div id="page-wrapper" class="page-wrapper">
+
+        <div class="page">
+            
+            <div id="menu-bar-hover-placeholder"></div>
+            <div id="menu-bar" class="menu-bar sticky bordered">
+                <div class="left-buttons">
+                    <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents"
+                        aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <button id="theme-toggle" class="icon-button" type="button" title="Change theme"
+                        aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                        <i class="fa fa-paint-brush"></i>
+                    </button>
+                    <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                        <li role="none"><button role="menuitem" class="theme"
+                                id="light">Light (default)</button></li>
+                        <li role="none"><button role="menuitem" class="theme"
+                                id="rust">Rust</button></li>
+                        <li role="none"><button role="menuitem" class="theme"
+                                id="coal">Coal</button></li>
+                        <li role="none"><button role="menuitem" class="theme"
+                                id="navy">Navy</button></li>
+                        <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button>
+                        </li>
+                    </ul>
+                    
+                    <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)"
+                        aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S"
+                        aria-controls="searchbar">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    
+                </div>
+
+                <h1 class="menu-title">`safer_ffi` User Guide</h1>
+
+                <div class="right-buttons">
+                    
+                    <a href="https://github.com/getditto/safer_ffi" title="Git repository" aria-label="Git repository">
+                        <i id="git-repository-button" class="fa fa-github"></i>
+                    </a>
+                    
+                    <a href="../rustdoc/safer_ffi" title="Rust docs" aria-label="Rust docs">
+                        <i id="rust-docs-button" class="fa fa-cubes"></i>
+                    </a>
+                    <a href="../print.html" title="Print this book" aria-label="Print this book">
+                        <i id="print-button" class="fa fa-print"></i>
+                    </a>
+                </div>
+            </div>
+
+            
+            <div id="search-wrapper" class="hidden">
+                <form id="searchbar-outer" class="searchbar-outer">
+                    <input type="search" name="search" id="searchbar" name="searchbar"
+                        placeholder="Search this book ..." aria-controls="searchresults-outer"
+                        aria-describedby="searchresults-header">
+                </form>
+                <div id="searchresults-outer" class="searchresults-outer hidden">
+                    <div id="searchresults-header" class="searchresults-header"></div>
+                    <ul id="searchresults">
+                    </ul>
+                </div>
+            </div>
+            
+
+            <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+            <script type="text/javascript">
+                document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                Array.from(document.querySelectorAll('#sidebar a')).forEach(function (link) {
+                    link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                });
+            </script>
+
+            <div id="content" class="content">
+                <main>
+                    <h1><a class="header" href="#adding-state-closures" id="adding-state-closures">Adding state: Closures</a></h1>
+<p>Since bare function pointers cannot carry any non-global instance-specific
+state, their usability is quite limited. For a callback-based API to be good,
+it must be able to support some associated state.</p>
+<h2><a class="header" href="#stateful-callbacks-in-c" id="stateful-callbacks-in-c">Stateful callbacks in C</a></h2>
+<p>In C, the idiomatic way to achieve this is to carry an extra <code>void *</code> parameter
+(traditionally called <code>data</code>, <code>ctx</code>, <code>env</code> or <code>payload</code>), and have the function pointer
+receive it as one of its parameters:</p>
+<details><summary>Example</summary>
+<pre><code class="language-C">#include &lt;assert.h&gt;
+#include &lt;stdlib.h&gt;
+
+void call_n_times (
+    size_t repeat_count,
+    void (*cb)(void * cb_ctx),
+    void * cb_ctx)
+{
+    for (size_t i = 0; i &lt; repeat_count; ++i) {
+        (*cb)(cb_ctx);
+    }
+}
+
+void my_cb (
+    void * cb_ctx);
+
+int main (void)
+{
+    int counter = 0; // state to be shared
+    int * at_counter = &amp;counter; // pointer to the state
+    void * cb_ctx = (void *) at_counter; // type-erased
+    call_n_times(
+        42,
+        my_cb,
+        cb_ctx)
+    ;
+    assert(counter == 42);
+    return EXIT_SUCCESS;
+}
+// where
+void my_cb (
+    void * cb_ctx)
+{
+    int * at_counter = (int *) cb_ctx; // undo type erasure
+    *at_counter += 1; // access state through dereference
+}
+</code></pre>
+</details>
+<p>This pattern is so pervasive that the natural thing to do is to bundle those
+two fields (data pointer, and function pointer) within a <code>struct</code>:</p>
+<pre><code class="language-C">typedef struct MyCallback {
+    void (*cb)(void * ctx);
+    void * ctx;
+} MyCallback_t;
+</code></pre>
+<details><summary>Example</summary>
+<pre><code class="language-C">#include &lt;assert.h&gt;
+#include &lt;stdlib.h&gt;
+
+typedef struct MyCallback {
+    void * ctx;
+    void (*fptr)(void * ctx);
+} MyCallback_t;
+
+void call_n_times (
+    size_t repeat_count,
+    MyCallback_t cb)
+{
+    for (size_t i = 0; i &lt; repeat_count; ++i) {
+        (*cb.fptr)(cb.ctx);
+    }
+}
+
+void my_cb (
+    void * cb_ctx);
+
+int main (void)
+{
+    int counter = 0;
+    call_n_times(
+        42,
+        (MyCallback_t) {
+            .fptr = my_cb,
+            .ctx = (void *) &amp;counter,
+        })
+    ;
+    assert(counter == 42);
+    return EXIT_SUCCESS;
+}
+// where
+void my_cb (
+    void * cb_ctx)
+{
+    int * at_counter = (int *) cb_ctx;
+    *at_counter += 1;
+}
+</code></pre>
+</details>
+<h2><a class="header" href="#back-to-rust" id="back-to-rust">Back to Rust</a></h2>
+<p>In Rust, the situation is quite more subtle, since the properties of the
+closure are not wave-handed like they are in C. Instead, there are very
+rigurous things to take into account:</p>
+<ul>
+<li>
+<h4><a class="header" href="#static" id="static"><code>'static</code></a></h4>
+<p>Can the environment be held arbitrarily long, or is there some call frame /
+scope / lifetime it cannot outlive?</p>
+</li>
+<li>
+<h4><a class="header" href="#send" id="send"><code>Send</code></a></h4>
+<p>Can the environment be accessed (non-concurrently) from another thread?</p>
+<ul>
+<li>For the sake of sanity, non-<code>Send</code> closures are not supported.</li>
+</ul>
+</li>
+<li>
+<h4><a class="header" href="#fn-vs-fnmut" id="fn-vs-fnmut"><code>Fn</code> <em>vs.</em> <code>FnMut</code></a></h4>
+<p>Both involve a callable API, but <code>FnMut</code> involves non-concurrent access
+whereas <code>Fn</code> allows concurrent access (<em>e.g.</em>, closure then has to be
+reentrant-safe and, when <code>Sync</code>, thread-safe too).</p>
+</li>
+<li>
+<h4><a class="header" href="#sync--fn" id="sync--fn"><code>Sync</code> (+ <code>Fn</code>)</a></h4>
+<p>Is the closure thread-safe / can it be called in parallel?</p>
+</li>
+</ul>
+<blockquote>
+<p>To get a better understanding of the <code>Fn*</code> traits and the <code>move? |...| ...</code>
+closure sugar in Rust I highly recommend reading the
+<a href="https://rustyyato.github.io/rust/syntactic/sugar/2019/01/17/Closures-Magic-Functions.html"><em>Closures: Magic functions</em> blog post</a>.</p>
+</blockquote>
+<hr />
+<p>Such struct definitions are available, in a generic fashion, in <code>::safer_ffi</code>,
+under the <a href="/safer_ffi/rustdoc/safer_ffi/closure/index.html"><code>::safer_ffi::closure</code> module</a>.</p>
+<details class="warning">
+<summary>Disclaimer about callbacks using lifetimes</summary>
+<p>Function signatures involving lifetimes are not supported yet (and will
+probably never be, due to a limitation of Rust's typesystem). Using a
+transparent newtype around concrete closure signatures would circumvent that
+genericity limitation, and the crate's author intends to release a macro that
+would automate that step. In the meantime, you will have to use raw pointers or
+the <code>Raw</code> variants of the <a href="/safer_ffi/motivation/repr-c-forall.html">provided C types</a> (<em>e.g.</em>,
+<code>c_slice::Raw</code>, <code>char_p::Raw</code>).</p>
+</details>
+<p>For instance, <code>MyCallback_t</code> above is equivalent to using, within Rust, the
+<a href="/safer_ffi/rustdoc/safer_ffi/closure/borrowed/struct.RefDynFnMut0.html"><code>RefDynFnMut0</code></a><code>&lt;'_, ()&gt;</code> type, a <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> version of
+<code>&amp;'_ mut (dyn Send + FnMut())</code>:</p>
+<details><summary>C layout</summary>
+<pre><code class="language-C">typedef struct {
+    // Cannot be NULL
+    void * env_ptr;
+    // Cannot be NULL
+    void (*call)(void * env_ptr);
+} RefDynFnMut0_void_t;
+</code></pre>
+</details>
+<h3><a class="header" href="#borrowed-closures" id="borrowed-closures">Borrowed closures</a></h3>
+<p>More generally, when having to deal with a
+<span title="no destructor or ressources to release whatsoever, but instead a scope / lifetime that must not be outlived. This is the most common situation in the C world"><u>borrowed</u><sup>?</sup></span>
+stateful callback
+having <code>N</code> inputs of type <code>A1, A2, ..., An</code>, and a return type of <code>Ret</code>, <em>i.e.</em>,
+a <code>&amp;'_ mut (dyn Send + FnMut(A1, ..., An) -&gt; Ret)</code>, then the <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a>
+equivalent to use is:</p>
+<blockquote>
+<p><a href="/safer_ffi/rustdoc/safer_ffi/closure/borrowed/index.html"><code>RefDynFnMutN</code></a><code>&lt;'_, Ret, A1, ..., An&gt;</code></p>
+</blockquote>
+<ul>
+<li>
+<p>C layout:</p>
+<pre><code class="language-C">typedef struct {
+    // Cannot be NULL
+    void * env_ptr; // &amp;'_ mut TypeErased
+    // Cannot be NULL
+    Ret_t (*call)(void * env_ptr,
+        A1_t arg_1,
+        A2_t arg2,
+        ...,
+        An_t arg_n);
+} RefDynFnMutN_Ret_A1_A2_..._An_t;
+</code></pre>
+</li>
+</ul>
+</details>
+<details><summary>Example: <code>call_n_times</code> in Rust</summary>
+<p>The previously shown API:</p>
+<pre><code class="language-C">typedef struct MyCallback {
+    void * ctx;
+    void (*fptr)(void * ctx);
+} MyCallback_t;
+
+void call_n_times (
+    size_t repeat_count,
+    MyCallback_t cb)
+{
+    for (size_t i = 0; i &lt; repeat_count; ++i) {
+        (*cb.fptr)(cb.ctx);
+    }
+}
+</code></pre>
+<p>can be trivially implemented in Rust with the following code:</p>
+<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
+
+#[ffi_export]
+fn call_n_times (
+    repeat_count: usize,
+    cb: RefDynFnMut0&lt;'_, ()&gt;,
+)
+{
+    // A current limitation of the `#[ffi_export]` is that it does not support
+    // any non-identifier patterns such as `mut cb`.
+    // We thus need to rebind it at the beginning of the function's body.
+    // This ought to be fixed very soon.
+    let mut cb = cb;
+    for _ in 0 .. repeat_count {
+        cb.call();
+    }
+}
+</code></pre>
+<details><summary>Bonus: calling it from Rust</summary>
+<p>Although most FFI functions are only to be called by C, sometimes we wish to
+call them from Rust too (<em>e.g.</em>, when wanting to test them). In that case,
+know that the <code>...DynFn...N&lt;...&gt;</code> family of <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> closures all come with:</p>
+<ul>
+<li>
+<p>constructors supporting the equivalent Rust types (before type erasure!);</p>
+</li>
+<li>
+<p>as well as as <code>.call(...)</code> method as showcased just above;</p>
+</li>
+<li>
+<p>when dealing with owned variants, the Rust types implement <code>Drop</code> (so that
+offering a function to free a closure is as simple as exporting a function
+that simply <code>drop</code>s its input);</p>
+</li>
+<li>
+<p>and finally, when dealing with <code>ArcDynFnN&lt;...&gt;</code>, it also implements <code>Clone</code>,
+although it will <code>panic!</code> if the <code>.retain</code> function pointer happens to be
+<code>NULL</code>.</p>
+</li>
+</ul>
+<pre><code class="language-rust noplaypen">let mut count = 0;
+call_n_times(42, RefDynFnMut0::new(&amp;mut || { count += 1; }));
+assert_eq!(count, 42);
+</code></pre>
+</details>
+</details>
+<h3><a class="header" href="#owned-closures" id="owned-closures">Owned closures</a></h3>
+<p>When, instead, the closure may be held arbitrarily long (<em>e.g.</em>, in another
+thread), and may have some destructor logic, <em>i.e.</em>, when dealing with a
+heap-allocation-agnostic generalization of:</p>
+<pre><code class="language-rust noplaypen">Box&lt;dyn 'static + Send + FnMut(A1, ..., An) -&gt; Ret&gt;
+</code></pre>
+<p>then, the <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> equivalent type to use is:</p>
+<blockquote>
+<p><a href="/safer_ffi/rustdoc/safer_ffi/closure/boxed/index.html"><code>BoxDynFnMutN</code></a><code>&lt;Ret, A1, ..., An&gt;</code></p>
+</blockquote>
+<details><summary>C layout</summary>
+<pre><code class="language-C">typedef struct {
+    // Cannot be NULL
+    void * env_ptr; // Box&lt;TypeErased&gt;
+    // Cannot be NULL
+    Ret_t (*call)(void * env_ptr,
+        A1_t arg_1,
+        A2_t arg2,
+        ...,
+        An_t arg_n);
+    // Cannot be NULL
+    void (*free)(void * env_ptr);
+} BoxDynFnMutN_Ret_A1_A2_..._An_t;
+</code></pre>
+</details>
+<h3><a class="header" href="#ref-counted-thread-safe-closures" id="ref-counted-thread-safe-closures">Ref-counted thread-safe closures</a></h3>
+<p>And, finally, when, on top of the previous considerations, the closure may have
+multiple owners (requiring ref-counting) and/or may be called by concurrent
+(<code>Fn</code> instead of <code>FnMut</code>) and even <em>parallel</em> (added <code>Sync</code> bound) code, <em>i.e.</em>,
+when dealing with a heap-allocation-agnostic generalization of:</p>
+<pre><code class="language-rust noplaypen">Arc&lt;dyn 'static + Send + Sync + Fn(A1, ..., An) -&gt; Ret&gt;
+</code></pre>
+<p>then, the <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a> equivalent type to use is:</p>
+<blockquote>
+<p><a href="/safer_ffi/rustdoc/safer_ffi/closure/arc/index.html"><code>ArcDynFnN</code></a><code>&lt;Ret, A1, ..., An&gt;</code></p>
+</blockquote>
+<details><summary>C layout</summary>
+<pre><code class="language-C">typedef struct {
+    // Cannot be NULL
+    void * env_ptr; // Arc&lt;TypeErased&gt;
+    // Cannot be NULL
+    Ret_t (*call)(void * env_ptr,
+        A1_t arg_1,
+        A2_t arg2,
+        ...,
+        An_t arg_n);
+    // Cannot be NULL
+    void (*release)(void * env_ptr);
+    // May be NULL
+    void (*retain)(void * env_ptr);
+} ArcDynFnN_Ret_A1_A2_..._An_t;
+</code></pre>
+<ul>
+<li>Note how an <code>ArcDynFnN... *</code> can be casted to a <code>BoxDynFnMutN... *</code> (same
+prefix), and how the latter can be converted to the former by having
+<code>.retain = NULL</code>.</li>
+</ul>
+</details>
+
+                </main>
+
+                <nav class="nav-wrapper" aria-label="Page navigation">
+                    <!-- Mobile navigation buttons -->
+                    
+                    <a rel="prev" href="../callbacks/fn_pointers.html" class="mobile-nav-chapters previous"
+                        title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    
+
+                    
+                    <a rel="next" href="../example-ditto/_.html" class="mobile-nav-chapters next"
+                        title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                    
+
+                    <div style="clear: both"></div>
+                </nav>
+            </div>
+        </div>
+
+        <nav class="nav-wide-wrapper" aria-label="Page navigation">
+            
+            <a rel="prev" href="../callbacks/fn_pointers.html" class="nav-chapters previous" title="Previous chapter"
+                aria-label="Previous chapter" aria-keyshortcuts="Left">
+                <i class="fa fa-angle-left"></i>
+            </a>
+            
+
+            
+            <a rel="next" href="../example-ditto/_.html" class="nav-chapters next" title="Next chapter"
+                aria-label="Next chapter" aria-keyshortcuts="Right">
+                <i class="fa fa-angle-right"></i>
+            </a>
+            
+        </nav>
+
+    </div>
+
+    
+
+    
+
+    
+
+    
+    <script type="text/javascript">
+        window.playpen_copyable = true;
+    </script>
+    
+
+    
+
+    
+    <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+    
+
+    <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- Custom JS scripts -->
+    
+
+    
+
+</body>
+
+</html>
