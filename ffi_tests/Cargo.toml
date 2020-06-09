@@ -18,3 +18,5 @@ generate-headers = ["safer-ffi/headers"]
 
 [profile.dev]
 panic = "unwind"
+
+[workspace]

@@ -4,7 +4,7 @@ path = "src/_lib.rs"
 [package]
 name = "safer-ffi"
 # Keep in sync with `[dependencies.proc_macro]` and `src/proc_macro/Cargo.toml`
-version = "0.0.1"
+version = "0.0.3"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
 
@@ -12,6 +12,8 @@ description = "Write safer FFI code in Rust without polluting it with unsafe cod
 keywords = ["ffi", "no_std", "framework", "safety", "bindings"]
 license = "MIT"
 repository = "https://github.com/getditto/safer_ffi"
+
+readme = "README.md"
 
 [features]
 default = [
@@ -58,7 +60,7 @@ proc-macro-hack = { version = "0.5.15", optional = true }
 [dependencies.proc_macro]
 package = "safer_ffi-proc_macro"
 path = "src/proc_macro"
-version = "0.0.1"
+version = "0.0.3"
 
 [dependencies.uninit]
 optional = true
@@ -69,4 +71,6 @@ default-features = false
 
 [workspace]
 members = ["src/proc_macro"]
-exclude = ["ffi_tests"]
+
+[package.metadata.docs.rs]
+all-features = true
