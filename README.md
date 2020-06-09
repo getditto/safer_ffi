@@ -1,6 +1,21 @@
-# `::safer_ffi`
+<span style="text-align: center;">
 
-![CI](https://github.com/getditto/safer_ffi/workflows/CI/badge.svg?branch=master)
+![safer-ffi-banner](
+https://github.com/getditto/safer_ffi/blob/banner/guide/assets/safer_ffi.jpg?raw=true)
+
+[![CI](
+https://github.com/getditto/safer_ffi/workflows/CI/badge.svg?branch=master)](
+https://github.com/getditto/safer_ffi/actions)
+[![guide](https://img.shields.io/badge/guide-mdbook-blue)](
+https://getditto.github.io/safer_ffi)
+[![docs-rs](https://docs.rs/safer-ffi/badge.svg)](
+https://getditto.github.io/safer_ffi/rustdoc)
+[![crates-io](https://img.shields.io/crates/v/safer-ffi.svg)](
+https://crates.io/crates/safer-ffi)
+[![repository](https://img.shields.io/badge/repository-GitHub-brightgreen.svg)](
+https://github.com/getditto/safer_ffi)
+
+</span>
 
 # The User Guide
 
@@ -41,7 +56,7 @@ c-headers = ["safer-ffi/headers"]
 
 ### `src/lib.rs`
 
-```rust
+```rust,ignore
 use ::safer_ffi::prelude::*;
 
 /// A `struct` usable from both Rust and C
@@ -84,7 +99,6 @@ fn generate_headers () -> ::std::io::Result<()>
         .to_file("rust_points.h")?
         .generate()
 }
-
 ```
 
 ### Compilation & header generation

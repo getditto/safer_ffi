@@ -17,7 +17,13 @@
     unused_must_use,
 )]
 
-//! See the [user guide](https://getditto.github.io/safer_ffi).
+#![cfg_attr(feature = "nightly",
+    doc(include = "../README.md")
+)]
+#![cfg_attr(not(feature = "nightly"),
+    doc = "See the [user guide](https://getditto.github.io/safer_ffi)."
+)]
+
 
 #[cfg(feature = "proc_macros")]
 #[macro_use]

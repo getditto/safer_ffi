@@ -36,9 +36,15 @@
 
       - [Attributes](ffi-export/attributes.md)
 
-[Example: Real-world use case at Ditto](example-ditto/_.md)
+  - [Callbacks](callbacks/_.md)
 
-[Example: our own `hashmap` in C](example-hashmap/_.md)
+      - [Function pointers](callbacks/fn_pointers.md)
+
+      - [Closures](callbacks/closures.md)
+
+  - [Example: Real-world use case at Ditto](example-ditto/_.md)
+
+  - [Example: our own `hashmap` in C](example-hashmap/_.md)
 
 [Appendix: FFI and C compilation](appendix/c-compilation.md)
 

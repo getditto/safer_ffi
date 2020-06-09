@@ -33,6 +33,79 @@ and has run into the limitations outlined below.
 
   - _These have been tested with `cbindgen v0.14.2`._
 
+### Correctly detecting `fn` pointers that use an incorrect ABI
+
+As mentioned in the [callbacks chapter][callbacks], functions have an associated
+calling convention, and getting it wrong leads to Undefined Behavior.
+
+<details><summary>Example</summary>
+
+Traditionally, if one were to write the following FFI definition:
+
+```rust,noplaypen
+#[repr(C)]
+pub
+struct MyCallback {
+    cb: fn(), /* Wops, forgot to mark it `extern "C"` */
+}
+
+#[no_mangle] pub extern "C"
+fn call (it: MyCallback)
+{
+    (it.cb)()
+}
+```
+
+they would get (with no warnings whatsoever!):
+
+```C
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+
+typedef struct {
+    void (*cb)(void); // Wrong, this header corresponds to an `extern "C"` ABI
+} MyCallback;
+
+void call(MyCallback it); /* => UB to call from C! */
+```
+
+Fix:
+
+```diff
++ use ::safer_ffi::prelude::*;
++
++ #[derive_ReprC]
+  #[repr(C)]
+
+...
+
+- #[no_mangle] pub extern "C"
++ #[ffi_export]
+```
+
+</details>
+
+By using `::safer_ffi`, such errors are caught (since only `extern "C" fn`
+pointers are [`ReprC`]):
+
+```rust,noplaypen
+error[E0277]: the trait bound `fn(): safer_ffi::layout::ReprC` is not satisfied
+ --> src/lib.rs:3:1
+  |
+3 | #[derive_ReprC]
+  | ^^^^^^^^^^^^^^^ the trait `safer_ffi::layout::ReprC` is not implemented for `fn()`
+  |
+  = help: the following implementations were found:
+            <extern "C" fn() -> Ret as safer_ffi::layout::ReprC>
+            <unsafe extern "C" fn() -> Ret as safer_ffi::layout::ReprC>
+  = help: see issue #48214
+  = note: this error originates in a macro (in Nightly builds, run with -Z macro-backtrace for more info)
+```
+
+💪
+
 ### Support for complex types and respective layout or ABI semantics
 
 Traditionally, if one were to write the following FFI definition:

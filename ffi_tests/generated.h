@@ -14,19 +14,9 @@
 extern "C" {
 #endif
 
-typedef struct foo foo_t;
-
-foo_t * new_foo (void);
-
 
 #include <stddef.h>
 #include <stdint.h>
-
-int32_t read_foo (
-    foo_t const * foo);
-
-void free_foo (
-    foo_t * foo);
 
 /** \remark Has the same ABI as `uint8_t` **/
 #ifdef DOXYGEN
@@ -45,6 +35,16 @@ Bar_t
 
 void check_bar (
     Bar_t _bar);
+
+typedef struct foo foo_t;
+
+foo_t * new_foo (void);
+
+int32_t read_foo (
+    foo_t const * foo);
+
+void free_foo (
+    foo_t * foo);
 
 /** \brief
  *  Concatenate the two input strings into a new one.

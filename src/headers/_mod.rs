@@ -10,7 +10,7 @@
 //! safer-ffi = { version = "...", features = ["proc_macros"] }
 //!
 //! [features]
-//! generate-headers = ["safer_ffi/headers"]
+//! generate-headers = ["safer-ffi/headers"]
 //! ```
 //!
 //! Then, to generate the bindings, just define a
@@ -52,7 +52,7 @@
 //!         .to_file("filename.h")?
 //!         .generate()
 //! }
-// // ! # generate_c_header().unwrap();
+// //! # generate_c_header().unwrap();
 //! ```
 //!
 //! so that

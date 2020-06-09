@@ -2,7 +2,6 @@
 
 # Deriving `ReprC` for custom structs
 
-
 ## Usage
 
 ```rust,noplaypen
@@ -86,14 +85,128 @@ Each monomorphization leads to its own C definition:
     ```
 </details>
 
-## Requirements
+### Requirements
 
   - All the fields must be [`ReprC`] or generic.
 
-      - In the generic case, the struct is [`ReprC`] only when it is instanced
-        with concrete [`ReprC`] types.
+      - In the generic case, the struct is [`ReprC`] only when instanced with
+        concrete [`ReprC`] types.
 
   - The struct must be non-empty (because ANSI C does not support empty structs)
+
+## Opaque types (_forward declarations_)
+
+Sometimes you may be dealing with a complex Rust type and you don't want to go
+through the hassle of recusrively changing each field to make it [`ReprC`].
+
+In that case, the type can be defined as an _opaque_ object _w.r.t._ the C API,
+which will make it usable by C but only through a layer of pointer indirection
+and function abstraction:
+
+```rust,noplaypen
+#[derive_ReprC]
+#[ReprC::opaque] // <-- instead of `#[repr(C)]`
+pub
+struct ComplicatedStruct {
+    path: PathBuf,
+    cb: Rc<dyn 'static + Fn(&'_ Path)>,
+    x: i32,
+}
+```
+
+<span class = "warning">
+
+Only braced struct definitions are currently supported. Opaque tuple structs and
+`enum`s ought to supported soon.
+
+</span>
+
+<details><summary>Example</summary>
+
+```rust,noplaypen
+use ::std::{
+    path::{Path, PathBuf},
+    rc::Rc,
+};
+
+use ::safer_ffi::prelude::*;
+
+#[derive_ReprC]
+#[ReprC::opaque]
+pub
+struct ComplicatedStruct {
+    path: PathBuf,
+    cb: Rc<dyn 'static + Fn(&'_ Path)>,
+    x: i32,
+}
+
+#[ffi_export]
+fn create ()
+  -> repr_c::Box<ComplicatedStruct>
+{
+    repr_c::Box::new(ComplicatedStruct {
+        path: "/tmp".into(),
+        cb: Rc::new(|path| println!("path = `{}`", path.to_string_lossy())),
+        x: 42,
+    })
+}
+
+#[ffi_export]
+fn call_and_get_x (it: &'_ ComplicatedStruct)
+  -> i32
+{
+    (it.cb)(&it.path);
+    it.x
+}
+
+#[ffi_export]
+fn destroy (it: repr_c::Box<ComplicatedStruct>)
+{
+    drop(it)
+}
+```
+
+<details><summary>Generated C header</summary>
+
+```C
+/* Forward declaration */
+typedef struct ComplicatedStruct ComplicatedStruct_t;
+
+ComplicatedStruct_t * create (void);
+
+int32_t call_and_get_x (
+    ComplicatedStruct_t const * it);
+
+void destroy (
+    ComplicatedStruct_t * it);
+```
+
+</details>
+
+<br/>
+
+<details><summary>Testing it from C</summary>
+
+```C
+#include <assert.h>
+#include <stdlib.h>
+
+#include "dem_header.h"
+
+int main (
+    int argc,
+    char const * const argv[])
+{
+    ComplicatedStruct_t * it = create();
+    assert(call_and_get_x(it) == 42); // Prints 'path = `/tmp`'
+    destroy(it);
+    return EXIT_SUCCESS;
+}
+```
+
+</details>
+
+</details>
 
 ## Going further
 
