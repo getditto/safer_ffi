@@ -10,3 +10,5 @@ src = "src"
 theme = "theme"
 additional-css = ["theme/book.css"]
 fold = { enable = true, level = 5 }
+git-repository-url = "https://github.com/getditto/safer_ffi"
+git-repository-icon = "fa-github"
