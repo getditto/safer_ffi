@@ -9,7 +9,7 @@ https://github.com/getditto/safer_ffi/actions)
 [![guide](https://img.shields.io/badge/guide-mdbook-blue)](
 https://getditto.github.io/safer_ffi)
 [![docs-rs](https://docs.rs/safer-ffi/badge.svg)](
-https://getditto.github.io/safer_ffi/rustdoc)
+https://getditto.github.io/safer_ffi/rustdoc/safer_ffi)
 [![crates-io](https://img.shields.io/crates/v/safer-ffi.svg)](
 https://crates.io/crates/safer-ffi)
 [![repository](https://img.shields.io/badge/repository-GitHub-brightgreen.svg)](
