@@ -246,3 +246,42 @@ mod prelude {
 macro_rules! NULL {() => (
     $crate::core::ptr::null_mut()
 )}
+
+#[cfg(feature = "log")]
+#[doc(hidden)]
+pub use ::log;
+
+#[allow(missing_copy_implementations, missing_debug_implementations)]
+#[doc(hidden)] /** Not part of the public API **/ pub
+struct __PanicOnDrop__; impl Drop for __PanicOnDrop__ {
+    fn drop (self: &'_ mut Self)
+    {
+        panic!()
+    }
+}
+
+#[cfg(feature = "log")]
+#[doc(hidden)] /** Not part of the public API **/ #[macro_export]
+macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
+    $crate::log::error!($($tt)*);
+    let _panic_on_drop = $crate::__PanicOnDrop__;
+    $crate::core::panic!($($tt)*);
+})}
+#[cfg(all(
+    not(feature = "log"),
+    feature = "std",
+))]
+#[doc(hidden)] /** Not part of the public API **/ #[macro_export]
+macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
+    $crate::std::eprintln!($($tt)*);
+    $crate::std::process::abort();
+})}
+#[cfg(all(
+    not(feature = "log"),
+    not(feature = "std"),
+))]
+#[doc(hidden)] /** Not part of the public API **/ #[macro_export]
+macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
+    let _panic_on_drop = $crate::__PanicOnDrop__;
+    $crate::core::panic!($($tt)*);
+})}

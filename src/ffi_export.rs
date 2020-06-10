@@ -46,7 +46,7 @@ macro_rules! __ffi_export__ {(
         where
             $( $($bounds)* )?
         {{
-            // let body = #[inline(always)] || {
+            let body = /* #[inline(always)] */ || {
                 $(
                     {
                         fn __return_type__<T> (_: T)
@@ -86,29 +86,29 @@ macro_rules! __ffi_export__ {(
                     };
                 )*
                 $body
-            // };
-            // let guard = {
-            //     struct $fname;
-            //     impl $crate::core::ops::Drop
-            //         for $fname
-            //     {
-            //         fn drop (self: &'_ mut Self)
-            //         {
-            //             $crate::core::panic!($crate::core::concat!(
-            //                 "Error, attempted to panic across the FFI ",
-            //                 "boundary of `",
-            //                 $crate::core::stringify!($fname),
-            //                 "()`, ",
-            //                 "which is Undefined Behavior.\n",
-            //                 "Aborting for soundness.",
-            //             ));
-            //         }
-            //     }
-            //     $fname
-            // };
-            // let ret = body();
-            // $crate::core::mem::forget(guard);
-            // ret
+            };
+            let guard = {
+                struct $fname;
+                impl $crate::core::ops::Drop
+                    for $fname
+                {
+                    fn drop (self: &'_ mut Self)
+                    {
+                        $crate::__abort_with_msg__!($crate::core::concat!(
+                            "Error, attempted to panic across the FFI ",
+                            "boundary of `",
+                            $crate::core::stringify!($fname),
+                            "()`, ",
+                            "which is Undefined Behavior.\n",
+                            "Aborting for soundness.",
+                        ));
+                    }
+                }
+                $fname
+            };
+            let ret = body();
+            $crate::core::mem::forget(guard);
+            ret
         }}
     };
 

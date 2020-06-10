@@ -14,31 +14,13 @@
 extern "C" {
 #endif
 
-
-#include <stddef.h>
-#include <stdint.h>
-
-/** \remark Has the same ABI as `uint8_t` **/
-#ifdef DOXYGEN
-typedef enum Bar
-#else
-typedef uint8_t Bar_t; enum
-#endif
-{
-    /** . */
-    BAR_A,
-}
-#ifdef DOXYGEN
-Bar_t
-#endif
-;
-
-void check_bar (
-    Bar_t _bar);
-
 typedef struct foo foo_t;
 
 foo_t * new_foo (void);
+
+
+#include <stddef.h>
+#include <stdint.h>
 
 int32_t read_foo (
     foo_t const * foo);
@@ -117,6 +99,24 @@ typedef struct {
  */
 int32_t const * max (
     slice_ref_int32_t xs);
+
+/** \remark Has the same ABI as `uint8_t` **/
+#ifdef DOXYGEN
+typedef enum Bar
+#else
+typedef uint8_t Bar_t; enum
+#endif
+{
+    /** . */
+    BAR_A,
+}
+#ifdef DOXYGEN
+Bar_t
+#endif
+;
+
+void check_bar (
+    Bar_t _bar);
 
 
 #ifdef __cplusplus
