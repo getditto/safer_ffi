@@ -5,7 +5,7 @@ proc-macro = true
 [package]
 name = "safer_ffi-proc_macro"
 # Keep in sync with `/Cargo.toml`
-version = "0.0.4"
+version = "0.0.5"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
 
