@@ -17,7 +17,7 @@ https://github.com/getditto/safer_ffi)
 
 </span>
 
-# What is `safer_ffi`? 
+# What is `safer_ffi`?
 
 `safer_ffi` is a framework that helps you write foreign function interfaces (FFI) without polluting your Rust code with `unsafe { ... }` code blocks while making functions far easier to read and maintain.
 

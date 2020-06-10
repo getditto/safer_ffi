@@ -195,15 +195,15 @@ fn test_max ()
     }
 }
 
-#[cfg(debug_assertions)]
-#[test]
-#[should_panic]
-fn test_max_invalid ()
-{
-    unsafe {
-        ffi_max(i32_slice { ptr: 0 as _, len: 0 });
-    }
-}
+// #[cfg(debug_assertions)]
+// #[test]
+// #[should_panic] /* Currently abort guard prevents it */
+// fn test_max_invalid ()
+// {
+//     unsafe {
+//         ffi_max(i32_slice { ptr: 0 as _, len: 0 });
+//     }
+// }
 
 #[ffi_export]
 /// Returns an owned copy of the input array, with its elements sorted.
