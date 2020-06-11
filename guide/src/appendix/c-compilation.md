@@ -42,11 +42,17 @@ Exporting / generating a C library requires _two_ things:
         # Incorrect
         cc -L my_lib/dir -l mylib_name main.o -o main
         # Correct
-        cc main.o -L my_lib/dir -l mylib_name -o main
+        cc main.o -o main -L my_lib/dir -l mylib_name
         ```
 
           - This is because the linker may disregard symbols that are not (yet)
             needed, so the callers need to come before the callees.
+
+          - In the case of a Rust-originated library, the `dl` and `pthread`
+            libraries are very likely to be required. On Linux, they are not
+            included in the compilation command by default, so, when linking,
+            you may need to append `-lpthread -ldl` to the command for it to
+            work.
 
 
 ## Static _vs._ Dynamic library

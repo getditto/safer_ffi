@@ -186,7 +186,7 @@ int main (int argc, char const * const argv[])
 #### Compilation command
 
 ```bash
-cc main.c -o main -L target/debug -l crate_name
+cc main.c -o main -L target/debug -l crate_name -l pthread -l dl
 
 # Now feel free to run the compiled binary
 ./main
