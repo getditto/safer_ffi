@@ -145,7 +145,7 @@ int main (int argc, char const * const argv[])
 }
 </code></pre>
 <h4 id="compilation-command" class="section-header"><a href="#compilation-command">Compilation command</a></h4>
-<pre><code class="language-bash">cc main.c -o main -L target/debug -l crate_name
+<pre><code class="language-bash">cc main.c -o main -L target/debug -l crate_name -l pthread -l dl
 
 # Now feel free to run the compiled binary
 ./main

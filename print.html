@@ -360,7 +360,7 @@ int main (int argc, char const * const argv[])
 }
 </code></pre>
 <h4><a class="header" href="#compilation-command" id="compilation-command">Compilation command</a></h4>
-<pre><code class="language-bash">cc main.c -o main -L target/debug -l crate_name
+<pre><code class="language-bash">cc main.c -o main -L target/debug -l crate_name -l pthread -l dl
 
 # Now feel free to run the compiled binary
 ./main
@@ -2058,11 +2058,20 @@ the files for your downstream binary:</p>
 <pre><code class="language-bash"># Incorrect
 cc -L my_lib/dir -l mylib_name main.o -o main
 # Correct
-cc main.o -L my_lib/dir -l mylib_name -o main
+cc main.o -o main -L my_lib/dir -l mylib_name
 </code></pre>
 <ul>
-<li>This is because the linker may disregard symbols that are not (yet)
-needed, so the callers need to come before the callees.</li>
+<li>
+<p>This is because the linker may disregard symbols that are not (yet)
+needed, so the callers need to come before the callees.</p>
+</li>
+<li>
+<p>In the case of a Rust-originated library, the <code>dl</code> and <code>pthread</code>
+libraries are very likely to be required. On Linux, they are not
+included in the compilation command by default, so, when linking,
+you may need to append <code>-lpthread -ldl</code> to the command for it to
+work.</p>
+</li>
 </ul>
 </li>
 </ul>
