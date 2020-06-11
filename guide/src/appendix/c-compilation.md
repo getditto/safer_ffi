@@ -50,9 +50,8 @@ Exporting / generating a C library requires _two_ things:
 
           - In the case of a Rust-originated library, the `dl` and `pthread`
             libraries are very likely to be required. On Linux, they are not
-            included in the compilation command by default, so, when linking,
-            you may need to append `-lpthread -ldl` to the command for it to
-            work.
+            included by default, so, when linking, you may need to append
+            `-lpthread -ldl` to the command for it to work.
 
 
 ## Static _vs._ Dynamic library
