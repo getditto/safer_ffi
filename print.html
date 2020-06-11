@@ -2068,9 +2068,8 @@ needed, so the callers need to come before the callees.</p>
 <li>
 <p>In the case of a Rust-originated library, the <code>dl</code> and <code>pthread</code>
 libraries are very likely to be required. On Linux, they are not
-included in the compilation command by default, so, when linking,
-you may need to append <code>-lpthread -ldl</code> to the command for it to
-work.</p>
+included by default, so, when linking, you may need to append
+<code>-lpthread -ldl</code> to the command for it to work.</p>
 </li>
 </ul>
 </li>
