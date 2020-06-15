@@ -27,7 +27,7 @@ But it turns out that this can struggle with more complex scenarios. My
 company, [![Ditto][Ditto-logo]][Ditto], extensively uses FFI with Rust
 and has run into the limitations outlined below.
 
-[Learn more about Ditto's experience with FFI and Rust.](../ditto/_.md)
+[Learn more about Ditto's experience with FFI and Rust.](../example-ditto/_.md)
 
 ## `safer_ffi` features that traditional FFI struggles to support
 
