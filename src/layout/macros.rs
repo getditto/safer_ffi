@@ -523,6 +523,180 @@ macro_rules! ReprC {
         }
     );
 
+    // field-less `#[repr(C)] enum`
+    (
+        $(#[doc = $prev_doc:tt])*
+        #[repr(C)]
+        $(#[$($meta:tt)*])*
+        $pub:vis
+        enum $EnumName:ident {
+            $(
+                $($(#[doc = $variant_doc:expr])+)?
+                // $(#[$variant_meta:meta])*
+                $Variant:ident $(= $discriminant:expr)?
+            ),+ $(,)?
+        }
+    ) => (
+        const _: () = { mod repr { mod C {
+            #[deprecated(note =
+                "`#[repr(C)]` enums are not well-defined in C; \
+                it is thus ill-advised to use them \
+                in a multi-compiler scenario such as FFI"
+            )]
+            fn Enum () {}
+            const _: () = { let _ = || Enum(); };
+        }}};
+
+        $(#[doc = $prev_doc])*
+        #[repr(C)]
+        $(#[$($meta)*])*
+        $pub
+        enum $EnumName {
+            $(
+                $($(#[doc = $variant_doc])+)?
+                // $(#[$variant_meta])*
+                $Variant $(= $discriminant)? ,
+            )+
+        }
+
+        $crate::paste::item! {
+            #[repr(transparent)]
+            #[derive(Clone, Copy, PartialEq, Eq)]
+            pub
+            struct [< $EnumName _Layout >] /* = */ (
+                $crate::c_int,
+            );
+
+            impl $crate::core::convert::From<$crate::c_int>
+                for [< $EnumName _Layout >]
+            {
+                #[inline]
+                fn from (it: $crate::c_int)
+                  -> Self
+                {
+                    Self(it)
+                }
+            }
+
+            unsafe
+            impl $crate::layout::CType
+                for [< $EnumName _Layout >]
+            { $crate::__cfg_headers__! {
+                fn c_short_name_fmt (fmt: &'_ mut $crate::core::fmt::Formatter<'_>)
+                  -> $crate::core::fmt::Result
+                {
+                    fmt.write_str($crate::core::stringify!($EnumName).trim())
+                }
+
+                fn c_define_self (definer: &'_ mut dyn $crate::headers::Definer)
+                  -> $crate::std::io::Result<()>
+                {
+                    let ref me =
+                        <Self as $crate::layout::CType>
+                            ::c_short_name().to_string()
+                    ;
+                    definer.define_once(
+                        me,
+                        &mut |definer| {
+                            let out = definer.out();
+                            $crate::__output_docs__!(out, "",
+                                $(#[doc = $prev_doc])*
+                                $(#[$($meta)*])*
+                            );
+                            $crate::core::writeln!(out,
+                                $crate::core::concat!(
+                                    "typedef enum {me} {{\n",
+                                    $(
+                                        $crate::layout::ReprC! { @first
+                                            $((concat!(
+                                                "    /** \\brief\n",
+                                                $(
+                                                    "     * ", $variant_doc, "\n",
+                                                )*
+                                                "     */\n",
+                                            )))?
+                                            (
+                                                "    /** . */\n"
+                                            )
+                                        },
+                                        "    {}",
+                                        $( $crate::layout::ReprC! {
+                                            @first(
+                                                " = {}"
+                                            ) $discriminant
+                                        },)?
+                                        ",\n",
+                                    )*
+                                    "}} {me}_t;\n",
+                                ),
+                                $(
+                                    $crate::__utils__::screaming_case(
+                                        me,
+                                        $crate::core::stringify!($Variant).trim(),
+                                    ),
+                                    $($discriminant,)?
+                                )*
+                                me = me,
+                            )
+                        },
+                    )
+                }
+
+                fn c_var_fmt (
+                    fmt: &'_ mut $crate::core::fmt::Formatter<'_>,
+                    var_name: &'_ str,
+                ) -> $crate::core::fmt::Result
+                {
+                    $crate::core::write!(fmt,
+                        "{}_t{sep}{}",
+                        <Self as $crate::layout::CType>::c_short_name(),
+                        var_name,
+                        sep = if var_name.is_empty() { "" } else { " " },
+                    )
+                }
+            } type OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete; }
+
+            $crate::layout::from_CType_impl_ReprC! {
+                [< $EnumName _Layout >]
+            }
+
+            unsafe
+            impl $crate::layout::ReprC
+                for $EnumName
+            {
+                type CLayout = [< $EnumName _Layout >];
+
+                #[inline]
+                fn is_valid (&discriminant: &'_ Self::CLayout)
+                  -> bool
+                {
+                    #![allow(nonstandard_style)]
+                    $(
+                        const $Variant: $crate::c_int = $crate::c_int($EnumName::$Variant as _);
+                    )+
+                    match discriminant.0 {
+                        $( | $Variant )+ => true,
+                        | _ => false,
+                    }
+                }
+            }
+
+            unsafe
+            impl $crate::layout::__HasNiche__
+                for $EnumName
+            {
+                #[inline]
+                fn is_niche (it: &'_ <Self as $crate::layout::ReprC>::CLayout)
+                  -> bool
+                {
+                    *it == unsafe { $crate::core::mem::transmute(
+                        $crate::core::option::Option::None::<Self>
+                    ) }
+                }
+            }
+        }
+    );
+
     // field-less `enum`
     (
         $(#[doc = $prev_doc:tt])*

@@ -149,6 +149,9 @@ cfg_std! {
     #[doc(hidden)] pub use ::std;
 }
 
+#[doc(hidden)] /** Not part of the public API **/ pub
+use layout::impls::c_int;
+
 #[derive(Clone, Copy)]
 #[allow(missing_debug_implementations)]
 #[doc(hidden)] pub

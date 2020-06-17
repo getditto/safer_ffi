@@ -84,6 +84,24 @@ mod bar {
     {}
 }
 
+#[allow(nonstandard_style)]
+mod baz {
+    use super::*;
+
+    /// This is a `#[repr(C)]` enum, which leads to a classic enum def.
+    #[derive_ReprC]
+    #[repr(C)]
+    pub
+    enum SomeReprCEnum {
+        /// This is some variant.
+        SomeVariant,
+    }
+
+    #[ffi_export]
+    fn check_SomeReprCEnum (_baz: SomeReprCEnum)
+    {}
+}
+
 #[safer_ffi::cfg_headers]
 #[test]
 fn generate_headers ()

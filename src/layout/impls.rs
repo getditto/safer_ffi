@@ -655,6 +655,39 @@ unsafe
         type OPAQUE_KIND = OpaqueKind::Concrete;
     }
 
+#[repr(transparent)]
+#[derive(Clone, Copy, PartialEq, Eq)]
+#[allow(missing_debug_implementations)]
+pub
+struct c_int(pub ::libc::c_int);
+
+unsafe
+    impl CType
+        for c_int
+    {
+        __cfg_headers__! {
+            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+                -> fmt::Result
+            {
+                fmt.write_str("int")
+            }
+
+            fn c_var_fmt (
+                fmt: &'_ mut fmt::Formatter<'_>,
+                var_name: &'_ str,
+            ) -> fmt::Result
+            {
+                write!(fmt,
+                    "int{sep}{}",
+                    var_name,
+                    sep = if var_name.is_empty() { "" } else { " " },
+                )
+            }
+        }
+
+        type OPAQUE_KIND = OpaqueKind::Concrete;
+    }
+
 impl_ReprC_for! { unsafe {
     bool
         => |ref byte: Bool| (byte.0 & !0b1) == 0

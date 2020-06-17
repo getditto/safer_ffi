@@ -759,6 +759,7 @@ fn into_raw<T : ReprC> (it: T)
     }
 }
 
+pub(in crate)
 mod impls;
 
 mod niche;
