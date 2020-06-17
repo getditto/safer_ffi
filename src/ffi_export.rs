@@ -208,6 +208,38 @@ macro_rules! __ffi_export__ {(
             })
         }
     }
+);
+
+(
+    $(#[doc = $doc:expr])*
+    $pub:vis const $VAR:ident : $T:ty = $value:expr;
+) => (
+    $(#[doc = $doc])*
+    $pub const $VAR : $T = $value;
+
+    $crate::__cfg_headers__! {
+        $crate::inventory::submit! {
+            #![crate = $crate]
+            $crate::FfiExport(|definer: &mut dyn $crate::headers::Definer| {
+                write!(
+                    definer.out(),
+                    concat!(
+                        "\n#define ",
+                        stringify!($VAR),
+                        " (({ty_cast}) ({expr}))\n\n",
+                    ),
+                    ty_cast =
+                        <
+                            <$T as $crate::layout::ReprC>::CLayout
+                            as
+                            $crate::layout::CType
+                        >::c_var("")
+                    ,
+                    expr = stringify!($value),
+                )
+            })
+        }
+    }
 )}
 
 // __ffi_export__! {

@@ -108,6 +108,9 @@ typedef struct {
 int32_t const * max (
     slice_ref_int32_t xs);
 
+
+#define FOO ((int32_t) (42))
+
 typedef struct foo foo_t;
 
 foo_t * new_foo (void);

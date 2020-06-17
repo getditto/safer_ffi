@@ -118,3 +118,6 @@ fn generate_headers ()
             .generate()
     }
 }
+
+#[ffi_export]
+pub const FOO: i32 = 42;
