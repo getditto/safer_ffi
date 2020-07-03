@@ -12,7 +12,7 @@ cfg_alloc! {
         #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]
         /// Same as [`String`][`rust::String`], but with guaranteed `#[repr(C)]` layout
         pub
-        struct String (
+        struct String ( // FIXME: not make it transparent anymore
             Vec<u8>,
         );
     }

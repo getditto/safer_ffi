@@ -51,7 +51,7 @@ macro_rules_attribute = "0.0.1"
 libc = { version = "0.2.66", default-features = false }
 
 [dependencies]
-paste = { package = "mini_paste", version = "0.1.*" }
+paste = { version = "0.1.*"}#, package = "mini_paste" }
 log = { version = "0.4.8", optional = true }
 require_unsafe_in_body = { version = "0.2.1", optional = true }
 inventory = { version = "0.1.6", optional = true }

@@ -1,5 +1,6 @@
 #[doc(hidden)] #[macro_export]
-macro_rules! __ffi_export__ {(
+macro_rules! __ffi_export__ {
+(
     $($(#[doc = $doc:expr])+)?
     // $(#[$meta:meta])*
     $pub:vis
@@ -240,7 +241,33 @@ macro_rules! __ffi_export__ {(
             })
         }
     }
-)}
+);
+
+(
+    $(#[doc = $doc:expr])*
+    $pub:vis static $VAR:ident : $T:ty = $value:expr;
+) => (
+    $(#[doc = $doc])*
+    #[no_mangle]
+    $pub static $VAR : $T = $value;
+
+    $crate::__cfg_headers__! {
+        $crate::inventory::submit! {
+            #![crate = $crate]
+            $crate::FfiExport(|definer: &mut dyn $crate::headers::Definer| {
+                write!(definer.out(), "extern {};\n",
+                    <
+                        <$T as $crate::layout::ReprC>::CLayout
+                        as
+                        $crate::layout::CType
+                    >::c_var(stringify!($VAR))
+                )
+            })
+        }
+    }
+);
+
+} // End of `ffi_export!` macro
 
 // __ffi_export__! {
 //     /// Concatenate two strings
