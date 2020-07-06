@@ -44,6 +44,8 @@ headers = [
     "std",
 ]
 
+csharp = []
+
 [dev-dependencies]
 macro_rules_attribute = "0.0.1"
 

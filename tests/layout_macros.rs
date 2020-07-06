@@ -114,7 +114,7 @@ fn validity ()
 pub
 struct Crazy {
     a: extern "C" fn (
-        extern "C" fn(char_p::Raw),
+        extern "C" fn(char_p::Raw) -> bool,
         Tuple2<
             [Foo<'static>; 12],
             Option<repr_c::Box<Option<MyBool>>>
@@ -319,6 +319,18 @@ fn test_c_str_macro ()
     it = c!("Hello, World!");
     assert_eq!(it.to_str(), "Hello, World!");
 }
+
+#[cfg(all(feature = "csharp", feature = "headers"))]
+#[test]
+fn c_sharp_header_gen ()
+  -> ::std::io::Result<()>
+{Ok({
+    let ref mut definer = ::safer_ffi::headers::HashSetDefiner {
+        defines_set: Default::default(),
+        out: &mut ::std::io::stdout(),
+    };
+    <Crazy as ReprC>::CLayout::csharp_define_self(definer)?;
+})}
 
 #[cfg(feature = "headers")]
 #[test]
