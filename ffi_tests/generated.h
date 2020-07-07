@@ -14,9 +14,32 @@
 extern "C" {
 #endif
 
+/** \brief
+ *  This is a `#[repr(C)]` enum, which leads to a classic enum def.
+ */
+typedef enum SomeReprCEnum {
+    /** \brief
+     *  This is some variant.
+     */
+    SOME_REPR_C_ENUM_SOME_VARIANT,
+} SomeReprCEnum_t;
+
+void check_SomeReprCEnum (
+    SomeReprCEnum_t _baz);
+
+typedef struct foo foo_t;
+
+foo_t * new_foo (void);
+
 
 #include <stddef.h>
 #include <stdint.h>
+
+int32_t read_foo (
+    foo_t const * foo);
+
+void free_foo (
+    foo_t * foo);
 
 /** \remark Has the same ABI as `uint8_t` **/
 #ifdef DOXYGEN
@@ -107,32 +130,6 @@ typedef struct {
  */
 int32_t const * max (
     slice_ref_int32_t xs);
-
-
-#define FOO ((int32_t) (42))
-
-typedef struct foo foo_t;
-
-foo_t * new_foo (void);
-
-int32_t read_foo (
-    foo_t const * foo);
-
-void free_foo (
-    foo_t * foo);
-
-/** \brief
- *  This is a `#[repr(C)]` enum, which leads to a classic enum def.
- */
-typedef enum SomeReprCEnum {
-    /** \brief
-     *  This is some variant.
-     */
-    SOME_REPR_C_ENUM_SOME_VARIANT,
-} SomeReprCEnum_t;
-
-void check_SomeReprCEnum (
-    SomeReprCEnum_t _baz);
 
 
 #ifdef __cplusplus

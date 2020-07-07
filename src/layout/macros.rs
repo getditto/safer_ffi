@@ -28,7 +28,7 @@ macro_rules! __cfg_headers__ {(
 //     // nothing
 // )}
 
-#[cfg(feature = "csharp")]
+#[cfg(feature = "csharp-headers")]
 #[macro_export] #[doc(hidden)]
 macro_rules! __cfg_csharp__ {(
     $($item:item)*
@@ -36,7 +36,7 @@ macro_rules! __cfg_csharp__ {(
     $($item)*
 )}
 
-#[cfg(not(feature = "csharp"))]
+#[cfg(not(feature = "csharp-headers"))]
 #[macro_export] #[doc(hidden)]
 macro_rules! __cfg_csharp__ {(
     $($item:item)*
@@ -209,28 +209,32 @@ macro_rules! CType {(
                 $(
                     <$field_ty as $crate::layout::CType>::csharp_define_self(definer)?;
                 )*
-                definer.define_once(me, &mut |definer| $crate::core::write!(definer.out(),
+                definer.define_once(me, &mut |definer| $crate::core::writeln!(definer.out(),
                     $crate::core::concat!(
-                        "[StructLayout(LayoutKind.Sequential)]\n",
+                        "[StructLayout(LayoutKind.Sequential, Size = {size})]\n",
                         "public unsafe struct {short_name} {{\n",
                         $(
-                            "    {}{", stringify!($field_name), "};\n",
+                            "{}{", stringify!($field_name), "}",
                         )*
                         "}}\n",
                     ),
                     $(
                         <$field_ty as $crate::layout::CType>::csharp_marshaler()
-                            .map(|m| $crate::std::format!("[MarshalAs({})]\n    ", m))
+                            .map(|m| $crate::std::format!("    [MarshalAs({})]\n", m))
                             .as_deref()
                             .unwrap_or("")
                         ,
                     )*
+                    size = $crate::core::mem::size_of::<Self>(),
                     short_name = Self::c_short_name(), $(
                     $field_name = {
                         if $crate::core::mem::size_of::<$field_ty>() > 0 {
-                            <$field_ty as $crate::layout::CType>::csharp_var(
-                                $crate::core::stringify!($field_name),
-                            ).to_string()
+                            format!(
+                                "    public {};\n",
+                                <$field_ty as $crate::layout::CType>::csharp_var(
+                                    $crate::core::stringify!($field_name),
+                                ),
+                            )
                         } else {
                             assert_eq!(
                                 $crate::core::mem::align_of::<$field_ty>(),
@@ -240,7 +244,7 @@ macro_rules! CType {(
                                     "alignment of `1`."
                                 ),
                             );
-                            "// ZST".into() // FIXME: remove heap allocation
+                            "".into() // FIXME: remove heap allocation
                         }
                     }, )*
                 ))
@@ -731,10 +735,14 @@ macro_rules! ReprC {
                 }
 
                 $crate::__cfg_csharp__! {
-                    fn csharp_ty_def ()
-                      -> $crate::std::string::String
+                    fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
+                      -> $crate::std::io::Result<()>
                     {
-                        $crate::std::format!(
+                        let ref me =
+                            <Self as $crate::layout::CType>::c_short_name()
+                                .to_string()
+                        ;
+                        definer.define_once(me, &mut |definer| $crate::core::writeln!(definer.out(),
                             $crate::core::concat!(
                                 "public enum {me} {{\n",
                                 $(
@@ -755,7 +763,7 @@ macro_rules! ReprC {
                                 )?
                             )*
                             me = <Self as $crate::layout::CType>::c_short_name(),
-                        )
+                        ))
                     }
 
                     fn csharp_ty ()
@@ -1200,8 +1208,13 @@ macro_rules! ReprC {
                                     .to_string()
                             ;
                             definer.define_once(me, &mut |definer| {
-                                $crate::std::write!(definer.out(),
-                                    "public class {} {{ /* OPAQUE */}}\n",
+                                $crate::std::writeln!(definer.out(),
+                                    concat!(
+                                        "public struct {} {{\n",
+                                        "   #pragma warning disable 0169\n",
+                                        "   private byte OPAQUE;\n",
+                                        "}}\n",
+                                    ),
                                     me,
                                 )
                             })

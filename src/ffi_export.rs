@@ -119,6 +119,7 @@ macro_rules! __ffi_export__ {(
                 #[allow(unused_parens)]
                 fn typedef $(<$($lt $(: $sup_lt)?),*>)? (
                     definer: &'_ mut dyn $crate::headers::Definer,
+                    lang: $crate::headers::Language,
                 ) -> $crate::std::io::Result<()>
                 {Ok({
                     // FIXME: this merges the value namespace with the type
@@ -136,18 +137,10 @@ macro_rules! __ffi_export__ {(
                         );
                     }
                     $(
-                        <
-                            <$arg_ty as $crate::layout::ReprC>::CLayout
-                            as
-                            $crate::layout::CType
-                        >::c_define_self(definer)?;
+                        $crate::headers::__define_self__::<$arg_ty>(definer, lang)?;
                     )*
                     $(
-                        <
-                            <$Ret as $crate::layout::ReprC>::CLayout
-                            as
-                            $crate::layout::CType
-                        >::c_define_self(definer)?;
+                        $crate::headers::__define_self__::<$Ret>(definer, lang)?;
                     )?
                     let out = definer.out();
                     $(
@@ -163,45 +156,25 @@ macro_rules! __ffi_export__ {(
                             b" */\n",
                         )?;
                     )?
+                    drop(out); // of school?
 
-                    $crate::core::write!(out,
-                        "{} (",
-                        <
-                            <($($Ret)?) as $crate::layout::ReprC>::CLayout
-                            as
-                            $crate::layout::CType
-                        >::c_var($crate::core::stringify!($fname)),
-                    )?;
-                    // $crate::std::io::Write::write_all(out,
-                    //     $crate::core::concat!($crate::core::stringify!($fname), " (")
-                    //         .as_bytes()
-                    //     ,
-                    // )?;
-                    let mut has_args = false; has_args = has_args;
+                    let mut fname_and_args = String::new();
+                    $crate::headers::__define_fn__::name(
+                        &mut fname_and_args,
+                        $crate::core::stringify!($fname),
+                        lang,
+                    );
                     $(
-                        $crate::core::write!(out,
-                            "{comma}\n    {arg}",
-                            comma = if has_args { "," } else { "" },
-                            arg = <
-                                    <$arg_ty as $crate::layout::ReprC>::CLayout
-                                    as
-                                    $crate::layout::CType
-                                >::c_var({
-                                    let it = stringify!($arg_name);
-                                    if it == "_" { "" } else { it }
-                                })
-                            ,
-                        )?;
-                        has_args |= true;
+                        $crate::headers::__define_fn__::arg::<$arg_ty>(
+                            &mut fname_and_args,
+                            $crate::core::stringify!($arg_name),
+                            lang,
+                        );
                     )*
-                    if has_args.not() {
-                        out.write_all(b"void")?;
-                    }
-                    drop(has_args);
-                    $crate::std::io::Write::write_all(out,
-                        ");\n\n"
-                            .as_bytes()
-                        ,
+                    $crate::headers::__define_fn__::ret::<($($Ret)?)>(
+                        definer,
+                        lang,
+                        fname_and_args,
                     )?;
                 })};
                 typedef

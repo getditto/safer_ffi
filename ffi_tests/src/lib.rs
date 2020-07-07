@@ -9,7 +9,7 @@ fn concat (
     snd: char_p::Ref<'_>,
 ) -> char_p::Box
 {
-    format!("{}{}\0", fst.to_str(), snd.to_str())
+    format!("{}{}", fst.to_str(), snd.to_str())
         .try_into()
         .unwrap()
 }
@@ -29,8 +29,8 @@ fn with_concat (
 )
 {
     let mut cb = cb;
-    let concat = concat(fst, snd);
-    cb.call(concat.as_ref().into());
+    let s = concat(fst, snd);
+    cb.call(s.as_ref().into());
 }
 
 /// Returns a pointer to the maximum integer of the input slice, or `NULL` if
@@ -106,18 +106,27 @@ mod baz {
 #[test]
 fn generate_headers ()
   -> ::std::io::Result<()>
-{
-    let builder = ::safer_ffi::headers::builder();
-    if ::std::env::var("HEADERS_TO_STDOUT").ok().map_or(false, |it| it == "1") {
-        builder
-            .to_writer(::std::io::stdout())
-            .generate()
-    } else {
-        builder
-            .to_file(&"generated.h".to_string())?
-            .generate()
+{Ok({
+    use ::safer_ffi::headers::Language::*;
+    for &(language, ext) in &[(C, "h"), (CSharp, "cs")] {
+        let builder =
+            ::safer_ffi::headers::builder()
+                .with_language(language)
+        ;
+        if  ::std::env::var("HEADERS_TO_STDOUT")
+                .ok()
+                .map_or(false, |it| it == "1")
+        {
+            builder
+                .to_writer(::std::io::stdout())
+                .generate()?
+        } else {
+            builder
+                .to_file(&format!("generated.{}", ext))?
+                .generate()?
+        }
     }
-}
+})}
 
-#[ffi_export]
-pub const FOO: i32 = 42;
+// #[ffi_export]
+// pub const FOO: i32 = 42;
