@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Text;
-
+using FfiTests;
 static class Tests
 {
     public unsafe delegate R WithUTF8Continuation<R>(byte * _);
@@ -29,13 +29,13 @@ static class Tests
         }
     }
 
-    public unsafe delegate R WithSliceRefContinuation<R>(FfiTests.slice_ref_int32_t _);
+    public unsafe delegate R WithSliceRefContinuation<R>(slice_ref_int32_t _);
 
     public static R WithSliceRef<R>(this Int32[] arr, WithSliceRefContinuation<R> f)
     {
         unsafe {
             fixed (Int32 * p = arr) {
-                return f(new FfiTests.slice_ref_int32_t {
+                return f(new slice_ref_int32_t {
                     len = (UIntPtr)arr.Length,
                     ptr =
                         arr.Length > 0
@@ -53,9 +53,9 @@ static class Tests
         // test concat
         unsafe {
             var s = s1.WithUTF8(p1 => s2.WithUTF8(p2 => {
-                var p = FfiTests.concat(p1, p2);
+                var p = Ffi.concat(p1, p2);
                 var ret = Marshal.PtrToStringUTF8((IntPtr)p);
-                FfiTests.free_char_p(p);
+                Ffi.free_char_p(p);
                 return ret;
             }));
             Trace.Assert(s == s1 + s2);
@@ -65,10 +65,10 @@ static class Tests
         unsafe {
             string s = null;
             s1.WithUTF8(p1 => s2.WithUTF8(p2 => {
-                FfiTests.with_concat(
+                Ffi.with_concat(
                     p1,
                     p2,
-                    new FfiTests.RefDynFnMut1_void_char_const_ptr_t { env_ptr = (void *) 0xbad00, call = (void * _,
+                    new RefDynFnMut1_void_char_const_ptr_t { env_ptr = (void *) 0xbad00, call = (void * _,
                     byte * p) => {
                         s = Marshal.PtrToStringUTF8((IntPtr)p);
                     },
@@ -82,7 +82,7 @@ static class Tests
         unsafe {
             Int32[] arr = { -27, -42, 9, -8 };
             arr.WithSliceRef(slice_ref => {
-                Int32 * p = FfiTests.max(slice_ref);
+                Int32 * p = Ffi.max(slice_ref);
                 Trace.Assert(p != null);
                 Trace.Assert(*p == 9);
                 return 0;
@@ -93,7 +93,7 @@ static class Tests
         unsafe {
             int[] arr = {};
             arr.WithSliceRef(slice_ref => {
-                Int32 * p = FfiTests.max(slice_ref);
+                Int32 * p = Ffi.max(slice_ref);
                 Trace.Assert(p == null);
                 return 0;
             });
@@ -101,14 +101,14 @@ static class Tests
 
         // test foo
         unsafe {
-            FfiTests.foo_t * foo = FfiTests.new_foo();
+            foo_t * foo = Ffi.new_foo();
             Trace.Assert(
-                FfiTests.read_foo(foo)
+                Ffi.read_foo(foo)
                 ==
                 42
             );
-            FfiTests.free_foo(foo);
-            FfiTests.free_foo(null);
+            Ffi.free_foo(foo);
+            Ffi.free_foo(null);
         }
 
         Console.WriteLine("[ok]");

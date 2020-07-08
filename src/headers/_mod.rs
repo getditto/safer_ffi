@@ -396,25 +396,27 @@ impl Builder<'_, WhereTo> {
             | Language::CSharp => write!(definer.out(),
                 concat!(
 r#"#pragma warning disable IDE0044, IDE0049, IDE0055, IDE1006,
-#pragma warning disable SA1004, SA1008, SA1023,
+#pragma warning disable SA1004, SA1008, SA1023, SA1028,
 #pragma warning disable SA1121, SA1134,
 #pragma warning disable SA1201,
 #pragma warning disable SA1300, SA1306, SA1307, SA1310, SA1313,
-#pragma warning disable SA1500, SA1505,
-#pragma warning disable SA1600, SA1604, SA1611, SA1615, SA1649,
+#pragma warning disable SA1500, SA1505, SA1507,
+#pragma warning disable SA1600, SA1601, SA1604, SA1605, SA1611, SA1615, SA1649,
 
 "#,
+                    "namespace {} {{\n",
                     "using System;\n",
                     "using System.Runtime.InteropServices;\n",
                     "\n",
                     // "[StructLayout(LayoutKind.Sequential)]\n",
-                    // "internal readonly struct Const<T>\n",
+                    // "public readonly struct Const<T>\n",
                     // "{{\n",
                     // "    public readonly T value;\n",
                     // "}}\n",
                     // "\n",
-                    "internal class {} {{\n",
-                    "public const string RustLib = \"{}\";\n",
+                    "public unsafe partial class Ffi {{\n",
+                    "    private const string RustLib = \"{}\";\n",
+                    "}}\n",
                     "\n",
                 ),
                 PkgName,
@@ -539,10 +541,10 @@ hidden_export! {
 
                 #[cfg(feature = "csharp-headers")]
                 | Language::CSharp => write!(out,
-                    "\n    {marshaler}{}", Arg::CLayout::csharp_var(arg_name),
+                    "\n        {marshaler}{}", Arg::CLayout::csharp_var(arg_name),
                     marshaler =
                         Arg::CLayout::csharp_marshaler()
-                            .map(|m| format!("[MarshalAs({})]\n    ", m))
+                            .map(|m| format!("[MarshalAs({})]\n        ", m))
                             .as_deref()
                             .unwrap_or("")
                     ,
@@ -573,14 +575,16 @@ hidden_export! {
                 | Language::CSharp => {
                     writeln!(out,
                         concat!(
+                            "public unsafe partial class Ffi {{\n    ",
                             "{mb_marshaler}",
                             "[DllImport(RustLib)] public static unsafe extern\n",
-                            "{});\n",
+                            "    {});\n",
+                            "}}\n",
                         ),
                         Ret::CLayout::csharp_var(&fname_and_args),
                         mb_marshaler =
                             Ret::CLayout::csharp_marshaler()
-                                .map(|m| format!("[return: MarshalAs({})]\n", m))
+                                .map(|m| format!("[return: MarshalAs({})]\n    ", m))
                                 .as_deref()
                                 .unwrap_or("")
                         ,
