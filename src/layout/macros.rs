@@ -1213,6 +1213,7 @@ macro_rules! ReprC {
                                         "public struct {} {{\n",
                                         "   #pragma warning disable 0169\n",
                                         "   private byte OPAQUE;\n",
+                                        "   #pragma warning restore 0169\n",
                                         "}}\n",
                                     ),
                                     me,
