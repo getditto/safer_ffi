@@ -113,17 +113,21 @@ const _: () = { macro_rules! impl_CTypes {
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
-                let short_name = &Self::c_short_name().to_string();
+                let ref me = Self::c_var("").to_string();
                 definer.define_once(
-                    short_name,
+                    me,
                     &mut |definer| {
                         Item::c_define_self(definer)?;
-                        write!(definer.out(),
-                            "typedef struct {{ {}; }} {}_t;\n\n",
-                            Item::c_var(concat!(
+                        writeln!(definer.out(),
+                            concat!(
+                                "typedef struct {{\n",
+                                "    {inline_array};\n",
+                                "}} {me};\n",
+                            ),
+                            inline_array = Item::c_var(concat!(
                                 "idx[", stringify!($N), "]",
                             )),
-                            short_name,
+                            me = me,
                         )
                     }
                 )
@@ -147,7 +151,7 @@ const _: () = { macro_rules! impl_CTypes {
                 fn csharp_define_self (definer: &'_ mut dyn Definer)
                   -> io::Result<()>
                 {
-                    let ref me = Self::c_short_name().to_string();
+                    let ref me = Self::csharp_ty();
                     Item::csharp_define_self(definer)?;
                     definer.define_once(me, &mut |definer| {
                         let array_items = {
@@ -197,18 +201,6 @@ const _: () = { macro_rules! impl_CTypes {
                             size = mem::size_of::<Self>(),
                         )
                     })
-                }
-
-                fn csharp_marshaler ()
-                  -> Option<rust::String>
-                {
-                    None
-                }
-
-                fn csharp_ty ()
-                  -> rust::String
-                {
-                    Self::c_short_name().to_string()
                 }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
@@ -304,12 +296,11 @@ const _: () = { macro_rules! impl_CTypes {
                     Ret::csharp_define_self(definer)?; $(
                     $An::csharp_define_self(definer)?; $(
                     $Ai::csharp_define_self(definer)?; )*)?
-                    let ref me = Self::c_short_name().to_string();
-                    let mut _arg = {
+                    let ref me = Self::csharp_ty();
+                    let ref mut _arg = {
                         let mut iter = (0 ..).map(|c| format!("_{}", c));
                         move || iter.next().unwrap()
                     };
-                    _arg = _arg;
                     definer.define_once(me, &mut |definer| writeln!(definer.out(),
                         concat!(
                             // IIUC,
@@ -652,6 +643,7 @@ const _: () = { macro_rules! impl_CTypes {
                 }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
+
         unsafe
         impl<T : ReprC> ReprC
         for *const T

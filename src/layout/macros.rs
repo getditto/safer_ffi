@@ -139,8 +139,8 @@ macro_rules! CType {(
                 "C does not support zero-sized structs!",
             );
             let ref me =
-                <Self as $crate::layout::CType>
-                    ::c_short_name().to_string()
+                <Self as $crate::layout::CType>::c_var("")
+                    .to_string()
             ;
             definer.define_once(
                 me,
@@ -176,7 +176,7 @@ macro_rules! CType {(
                             );
                         }
                     )+
-                    $crate::core::writeln!(out, "}} {}_t;\n", me)
+                    $crate::core::writeln!(out, "}} {};\n", me)
                 },
             )
         }
@@ -202,17 +202,14 @@ macro_rules! CType {(
                     $crate::core::mem::size_of::<Self>(), 0,
                     "C# does not support zero-sized structs!",
                 );
-                let ref me =
-                    <Self as $crate::layout::CType>::c_short_name()
-                        .to_string()
-                ;
+                let ref me = <Self as $crate::layout::CType>::csharp_ty();
                 $(
                     <$field_ty as $crate::layout::CType>::csharp_define_self(definer)?;
                 )*
                 definer.define_once(me, &mut |definer| $crate::core::writeln!(definer.out(),
                     $crate::core::concat!(
                         "[StructLayout(LayoutKind.Sequential, Size = {size})]\n",
-                        "public unsafe struct {short_name} {{\n",
+                        "public unsafe struct {me} {{\n",
                         $(
                             "{}{", stringify!($field_name), "}",
                         )*
@@ -226,7 +223,7 @@ macro_rules! CType {(
                         ,
                     )*
                     size = $crate::core::mem::size_of::<Self>(),
-                    short_name = Self::c_short_name(), $(
+                    me = me, $(
                     $field_name = {
                         if $crate::core::mem::size_of::<$field_ty>() > 0 {
                             format!(
@@ -248,12 +245,6 @@ macro_rules! CType {(
                         }
                     }, )*
                 ))
-            }
-
-            fn csharp_ty ()
-              -> $crate::std::string::String
-            {
-                <Self as $crate::layout::CType>::c_short_name().to_string()
             }
         }
     } type OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete; }
@@ -671,12 +662,17 @@ macro_rules! ReprC {
                   -> $crate::std::io::Result<()>
                 {
                     let ref me =
-                        <Self as $crate::layout::CType>
-                            ::c_short_name().to_string()
+                        <Self as $crate::layout::CType>::c_var("")
+                            .to_string()
                     ;
                     definer.define_once(
                         me,
                         &mut |definer| {
+                            let me_t = me;
+                            let ref me =
+                                <Self as $crate::layout::CType>::c_short_name()
+                                    .to_string()
+                            ;
                             let out = definer.out();
                             $crate::__output_docs__!(out, "",
                                 $(#[doc = $prev_doc])*
@@ -706,7 +702,7 @@ macro_rules! ReprC {
                                         },)?
                                         ",\n",
                                     )*
-                                    "}} {me}_t;\n",
+                                    "}} {me_t};\n",
                                 ),
                                 $(
                                     $crate::__utils__::screaming_case(
@@ -716,6 +712,7 @@ macro_rules! ReprC {
                                     $($discriminant,)?
                                 )*
                                 me = me,
+                                me_t = me_t,
                             )
                         },
                     )
@@ -738,10 +735,7 @@ macro_rules! ReprC {
                     fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
                       -> $crate::std::io::Result<()>
                     {
-                        let ref me =
-                            <Self as $crate::layout::CType>::c_short_name()
-                                .to_string()
-                        ;
+                        let ref me = <Self as $crate::layout::CType>::csharp_ty();
                         definer.define_once(me, &mut |definer| $crate::core::writeln!(definer.out(),
                             $crate::core::concat!(
                                 "public enum {me} {{\n",
@@ -762,14 +756,8 @@ macro_rules! ReprC {
                                     $discriminant,
                                 )?
                             )*
-                            me = <Self as $crate::layout::CType>::c_short_name(),
+                            me = me,
                         ))
-                    }
-
-                    fn csharp_ty ()
-                      -> $crate::std::string::String
-                    {
-                        <Self as $crate::layout::CType>::c_short_name().to_string()
                     }
                 }
             } type OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete; }
@@ -881,12 +869,17 @@ macro_rules! ReprC {
                   -> $crate::std::io::Result<()>
                 {
                     let ref me =
-                        <Self as $crate::layout::CType>
-                            ::c_short_name().to_string()
+                        <Self as $crate::layout::CType>::c_var("")
+                            .to_string()
                     ;
                     definer.define_once(
                         me,
                         &mut |definer| {
+                            let me_t = me;
+                            let ref me =
+                                <Self as $crate::layout::CType>::c_short_name()
+                                    .to_string()
+                            ;
                             <$crate::$Int as $crate::layout::CType>::c_define_self(
                                 definer,
                             )?;
@@ -901,7 +894,7 @@ macro_rules! ReprC {
                                     "#ifdef DOXYGEN\n",
                                     "typedef enum {me}\n",
                                     "#else\n",
-                                    "typedef {int__me}_t; enum\n",
+                                    "typedef {int__me_t}; enum\n",
                                     "#endif\n",
                                     "{{\n",
                                     $(
@@ -927,7 +920,7 @@ macro_rules! ReprC {
                                     )*
                                     "}}\n",
                                     "#ifdef DOXYGEN\n",
-                                    "{me}_t\n",
+                                    "{me_t}\n",
                                     "#endif\n",
                                     ";\n",
                                 ),
@@ -939,9 +932,10 @@ macro_rules! ReprC {
                                     $($discriminant,)?
                                 )*
                                 me = me,
+                                me_t = me_t,
                                 int = <$crate::$Int as $crate::layout::CType>::c_var(""),
-                                int__me = <$crate::$Int as $crate::layout::CType>::c_var(
-                                    me,
+                                int__me_t = <$crate::$Int as $crate::layout::CType>::c_var(
+                                    me_t,
                                 ),
                             )
                         },
@@ -965,10 +959,7 @@ macro_rules! ReprC {
                     fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
                       -> $crate::std::io::Result<()>
                     {
-                        let ref me =
-                            <Self as $crate::layout::CType>::c_short_name()
-                                .to_string()
-                        ;
+                        let ref me = <Self as $crate::layout::CType>::csharp_ty();
                         definer.define_once(me, &mut |definer| $crate::core::writeln!(definer.out(),
                             $crate::core::concat!(
                                 "public enum {me} : {int} {{\n",
@@ -989,15 +980,9 @@ macro_rules! ReprC {
                                     $discriminant,
                                 )?
                             )*
-                            me = <Self as $crate::layout::CType>::c_short_name(),
+                            me = me,
                             int = <$crate::$Int as $crate::layout::CType>::csharp_ty(),
                         ))
-                    }
-
-                    fn csharp_ty ()
-                      -> $crate::std::string::String
-                    {
-                        <Self as $crate::layout::CType>::c_short_name().to_string()
                     }
                 }
             } type OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete; }
@@ -1161,39 +1146,36 @@ macro_rules! ReprC {
                         )?)?
                         fmt.write_str(_c_name)
                     }
-                    fn c_define_self (definer: &'_ mut (dyn $crate::headers::Definer))
+
+                    fn c_define_self (definer: &'_ mut dyn $crate::headers::Definer)
                         -> $crate::std::io::Result<()>
                     {
-                        let _c_name = $crate::core::stringify!($StructName);
-                        $($(
-                            let it = $c_name;
-                            let _c_name = it.as_ref();
-                        )?)?
-                        definer.define_once(_c_name, &mut |definer| {
-                            assert!(_c_name.chars().all(|c| $crate::core::matches!(c,
+                        let ref me =
+                            <Self as $crate::layout::CType>::c_var("")
+                                .to_string()
+                        ;
+                        definer.define_once(me, &mut |definer| {
+                            assert!(me.chars().all(|c| $crate::core::matches!(c,
                                 'a' ..= 'z' |
                                 'A' ..= 'Z' |
                                 '0' ..= '9' | '_'
                             )));
                             $crate::core::write!(definer.out(),
-                                "typedef struct {0} {0}_t;\n\n",
-                                _c_name,
+                                "typedef struct {} {};\n\n",
+                                <Self as $crate::layout::CType>::c_short_name(),
+                                me,
                             )
                         })
                     }
+
                     fn c_var_fmt (
                         fmt: &'_ mut $crate::core::fmt::Formatter<'_>,
                         var_name: &'_ $crate::str,
                     ) -> $crate::core::fmt::Result
                     {
-                        let _c_name = $crate::core::stringify!($StructName);
-                        $($(
-                            let it = $c_name;
-                            let _c_name: &'_ $crate::str = it.as_ref();
-                        )?)?
                         $crate::core::write!(fmt,
                             "{}_t{sep}{}",
-                            _c_name,
+                            <Self as $crate::layout::CType>::c_short_name(),
                             var_name,
                             sep = if var_name.is_empty() { "" } else { " " },
                         )
@@ -1203,10 +1185,7 @@ macro_rules! ReprC {
                         fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
                           -> $crate::std::io::Result<()>
                         {
-                            let ref me =
-                                <Self as $crate::layout::CType>::c_short_name()
-                                    .to_string()
-                            ;
+                            let ref me = <Self as $crate::layout::CType>::csharp_ty();
                             definer.define_once(me, &mut |definer| {
                                 $crate::std::writeln!(definer.out(),
                                     concat!(
@@ -1219,12 +1198,6 @@ macro_rules! ReprC {
                                     me,
                                 )
                             })
-                        }
-
-                        fn csharp_ty ()
-                          -> $crate::std::string::String
-                        {
-                            <Self as $crate::layout::CType>::c_short_name().to_string()
                         }
                     }
                 }

@@ -390,7 +390,9 @@ unsafe trait CType
             /// Type name (_e.g._, `int`, `string`, `IntPtr`)
             fn csharp_ty ()
               -> rust::String
-            ;
+            {
+                Self::c_var("").to_string()
+            }
 
             /// Convenience function for formatting `{ty} {var}` in CSharp.
             fn csharp_var (var_name: &'_ str)

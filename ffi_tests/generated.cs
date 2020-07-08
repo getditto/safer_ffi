@@ -20,37 +20,38 @@ internal class FfiTests {
 
 public const string RustLib = "ffi_tests";
 
-public enum SomeReprCEnum {
+public enum SomeReprCEnum_t {
     SomeVariant,
 }
 
 [DllImport(RustLib)] public unsafe extern static
 void check_SomeReprCEnum (
-    SomeReprCEnum _baz);
+    SomeReprCEnum_t _baz);
 
-public struct foo {
+public struct foo_t {
    #pragma warning disable 0169
    private byte OPAQUE;
+   #pragma warning restore 0169
 }
 
 [DllImport(RustLib)] public unsafe extern static
-foo * new_foo ();
+foo_t * new_foo ();
 
 [DllImport(RustLib)] public unsafe extern static
 Int32 read_foo (
-    Const<foo> * foo);
+    Const<foo_t> * foo);
 
 [DllImport(RustLib)] public unsafe extern static
 void free_foo (
-    foo * foo);
+    foo_t * foo);
 
-public enum Bar : byte {
+public enum Bar_t : byte {
     A,
 }
 
 [DllImport(RustLib)] public unsafe extern static
 void check_bar (
-    Bar _bar);
+    Bar_t _bar);
 
 /** \brief
  *  Concatenate the two input strings into a new one.
@@ -77,7 +78,7 @@ public unsafe /* static */ delegate
         Const<byte> * _1);
 
 [StructLayout(LayoutKind.Sequential, Size = 16)]
-public unsafe struct RefDynFnMut1_void_char_const_ptr {
+public unsafe struct RefDynFnMut1_void_char_const_ptr_t {
     public void * env_ptr;
     [MarshalAs(UnmanagedType.FunctionPtr)]
     public void_void_ptr_char_const_ptr_fptr call;
@@ -91,10 +92,10 @@ public unsafe struct RefDynFnMut1_void_char_const_ptr {
 void with_concat (
     Const<byte> * fst,
     Const<byte> * snd,
-    RefDynFnMut1_void_char_const_ptr cb);
+    RefDynFnMut1_void_char_const_ptr_t cb);
 
 [StructLayout(LayoutKind.Sequential, Size = 16)]
-public unsafe struct slice_ref_int32 {
+public unsafe struct slice_ref_int32_t {
     public Const<Int32> * ptr;
     public UIntPtr len;
 }
@@ -105,7 +106,7 @@ public unsafe struct slice_ref_int32 {
  */
 [DllImport(RustLib)] public unsafe extern static
 Const<Int32> * max (
-    slice_ref_int32 xs);
+    slice_ref_int32_t xs);
 
 
 } /* FfiTests */

@@ -29,20 +29,19 @@ static class Tests
         }
     }
 
-    public unsafe delegate R WithSliceRefContinuation<R>(FfiTests.slice_ref_int32 _);
+    public unsafe delegate R WithSliceRefContinuation<R>(FfiTests.slice_ref_int32_t _);
 
     public static R WithSliceRef<R>(this Int32[] arr, WithSliceRefContinuation<R> f)
     {
         unsafe {
             fixed (Int32 * p = arr) {
-                FfiTests.slice_ref_int32 slice;
-                slice.len = (UIntPtr)arr.Length;
-                slice.ptr =
-                    arr.Length > 0
-                        ? (Const<Int32> *)p
-                        : (Const<Int32> *)0xbad00
-                ;
-                return f(slice);
+                return f(new FfiTests.slice_ref_int32_t {
+                    len = (UIntPtr)arr.Length,
+                    ptr =
+                        arr.Length > 0
+                            ? (Const<Int32> *)p
+                            : (Const<Int32> *)0xbad00
+                });
             }
         }
     }
@@ -64,18 +63,19 @@ static class Tests
 
         // test with_concat
         unsafe {
-            bool called = false;
-            FfiTests.RefDynFnMut1_void_char_const_ptr cb;
-            cb.env_ptr = (void *)0xbad00;
-            cb.call = (void * _, Const<byte> * p) => {
-                Trace.Assert(s1 + s2 == Marshal.PtrToStringUTF8((IntPtr)p));
-                called = true;
-            };
+            string s = null;
             s1.WithUTF8(p1 => s2.WithUTF8(p2 => {
-                FfiTests.with_concat(p1, p2, cb);
+                FfiTests.with_concat(
+                    p1,
+                    p2,
+                    new FfiTests.RefDynFnMut1_void_char_const_ptr_t { env_ptr = (void *) 0xbad00, call = (void * _,
+                    Const<byte> * p) => {
+                        s = Marshal.PtrToStringUTF8((IntPtr)p);
+                    },
+                });
                 return 0;
             }));
-            Trace.Assert(called);
+            Trace.Assert(s == s1 + s2);
         }
 
         // test max
@@ -101,9 +101,9 @@ static class Tests
 
         // test foo
         unsafe {
-            FfiTests.foo * foo = FfiTests.new_foo();
+            FfiTests.foo_t * foo = FfiTests.new_foo();
             Trace.Assert(
-                FfiTests.read_foo((Const<FfiTests.foo> *) foo)
+                FfiTests.read_foo((Const<FfiTests.foo_t> *) foo)
                 ==
                 42
             );
