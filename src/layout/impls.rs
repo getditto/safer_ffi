@@ -639,7 +639,7 @@ const _: () = { macro_rules! impl_CTypes {
                 fn csharp_ty ()
                   -> rust::String
                 {
-                    format!("Const<{}> *", T::csharp_ty())
+                    format!("{} /*const*/ *", T::csharp_ty())
                 }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }

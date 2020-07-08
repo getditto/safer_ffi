@@ -7,24 +7,25 @@
  *                                         *
  *******************************************/
 
+#pragma warning disable IDE0044, IDE0049, IDE0055, IDE1006,
+#pragma warning disable SA1004, SA1008, SA1023,
+#pragma warning disable SA1121, SA1134,
+#pragma warning disable SA1201,
+#pragma warning disable SA1300, SA1306, SA1307, SA1310, SA1313,
+#pragma warning disable SA1500, SA1505,
+#pragma warning disable SA1600, SA1604, SA1611, SA1615, SA1649,
+
 using System;
 using System.Runtime.InteropServices;
 
-[StructLayout(LayoutKind.Sequential)]
-internal readonly struct Const<T>
-{
-    public readonly T value;
-}
-
 internal class FfiTests {
-
 public const string RustLib = "ffi_tests";
 
 public enum SomeReprCEnum_t {
     SomeVariant,
 }
 
-[DllImport(RustLib)] public unsafe extern static
+[DllImport(RustLib)] public static unsafe extern
 void check_SomeReprCEnum (
     SomeReprCEnum_t _baz);
 
@@ -34,14 +35,14 @@ public struct foo_t {
    #pragma warning restore 0169
 }
 
-[DllImport(RustLib)] public unsafe extern static
+[DllImport(RustLib)] public static unsafe extern
 foo_t * new_foo ();
 
-[DllImport(RustLib)] public unsafe extern static
+[DllImport(RustLib)] public static unsafe extern
 Int32 read_foo (
-    Const<foo_t> * foo);
+    foo_t /*const*/ * foo);
 
-[DllImport(RustLib)] public unsafe extern static
+[DllImport(RustLib)] public static unsafe extern
 void free_foo (
     foo_t * foo);
 
@@ -49,7 +50,7 @@ public enum Bar_t : byte {
     A,
 }
 
-[DllImport(RustLib)] public unsafe extern static
+[DllImport(RustLib)] public static unsafe extern
 void check_bar (
     Bar_t _bar);
 
@@ -58,15 +59,15 @@ void check_bar (
  * 
  *  The returned string must be freed using `free_char_p`.
  */
-[DllImport(RustLib)] public unsafe extern static
+[DllImport(RustLib)] public static unsafe extern
 byte * concat (
-    Const<byte> * fst,
-    Const<byte> * snd);
+    byte /*const*/ * fst,
+    byte /*const*/ * snd);
 
 /** \brief
  *  Frees a string created by `concat`.
  */
-[DllImport(RustLib)] public unsafe extern static
+[DllImport(RustLib)] public static unsafe extern
 void free_char_p (
     byte * _string);
 
@@ -75,7 +76,7 @@ public unsafe /* static */ delegate
     void
     void_void_ptr_char_const_ptr_fptr (
         void * _0,
-        Const<byte> * _1);
+        byte /*const*/ * _1);
 
 [StructLayout(LayoutKind.Sequential, Size = 16)]
 public unsafe struct RefDynFnMut1_void_char_const_ptr_t {
@@ -88,15 +89,15 @@ public unsafe struct RefDynFnMut1_void_char_const_ptr_t {
  *  Same as `concat`, but with a callback-based API to auto-free the created
  *  string.
  */
-[DllImport(RustLib)] public unsafe extern static
+[DllImport(RustLib)] public static unsafe extern
 void with_concat (
-    Const<byte> * fst,
-    Const<byte> * snd,
+    byte /*const*/ * fst,
+    byte /*const*/ * snd,
     RefDynFnMut1_void_char_const_ptr_t cb);
 
 [StructLayout(LayoutKind.Sequential, Size = 16)]
 public unsafe struct slice_ref_int32_t {
-    public Const<Int32> * ptr;
+    public Int32 /*const*/ * ptr;
     public UIntPtr len;
 }
 
@@ -104,8 +105,8 @@ public unsafe struct slice_ref_int32_t {
  *  Returns a pointer to the maximum integer of the input slice, or `NULL` if
  *  it is empty.
  */
-[DllImport(RustLib)] public unsafe extern static
-Const<Int32> * max (
+[DllImport(RustLib)] public static unsafe extern
+Int32 /*const*/ * max (
     slice_ref_int32_t xs);
 
 
