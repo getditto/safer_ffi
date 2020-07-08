@@ -395,6 +395,14 @@ impl Builder<'_, WhereTo> {
             #[cfg(feature = "csharp-headers")]
             | Language::CSharp => write!(definer.out(),
                 concat!(
+r#"#pragma warning disable IDE0044, IDE0049, IDE0055, IDE1006,
+#pragma warning disable SA1004, SA1008, SA1023,
+#pragma warning disable SA1121, SA1134,
+#pragma warning disable SA1201,
+#pragma warning disable SA1300, SA1306, SA1307, SA1310, SA1313,
+#pragma warning disable SA1500, SA1505,
+#pragma warning disable SA1600, SA1604, SA1611, SA1615, SA1649,
+"#,
                     "using System;\n",
                     "using System.Runtime.InteropServices;\n",
                     "\n",
@@ -565,7 +573,7 @@ hidden_export! {
                     writeln!(out,
                         concat!(
                             "{mb_marshaler}",
-                            "[DllImport(RustLib)] public unsafe extern static\n",
+                            "[DllImport(RustLib)] public static unsafe extern\n",
                             "{});\n",
                         ),
                         Ret::CLayout::csharp_var(&fname_and_args),

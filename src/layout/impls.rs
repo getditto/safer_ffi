@@ -164,7 +164,7 @@ const _: () = { macro_rules! impl_CTypes {
                                 ].contains(&::core::any::type_name::<Item>())
                             {
                                 format!(
-                                    "    public fixed {ItemTy}[{N}] arr;\n",
+                                    "    public fixed {ItemTy} arr[{N}];\n",
                                     ItemTy = Item::csharp_ty(),
                                     N = $N,
                                     // no need for a marshaler here
