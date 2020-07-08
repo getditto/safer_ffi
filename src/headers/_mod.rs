@@ -194,7 +194,7 @@ macro_rules! with_optional_fields {(
                 fs::OpenOptions::new()
                     .create(true)/*or*/.truncate(true)
                     .write(true)
-                    .open(filename)?
+                    .open(filename.as_ref())?
             ))
         }
 
@@ -300,6 +300,11 @@ with_optional_fields! {
     /// <span style="color:#3f7f8f; ">&nbsp;*******************************************/</span>
     /// </pre>
     banner: &'__ str,
+
+    /// Sets the [`Language`] of the generated headers.
+    ///
+    /// It defaults to [`Language::C`].
+    language: Language,
 }
 
 impl Builder<'_, WhereTo> {
@@ -311,6 +316,41 @@ impl Builder<'_, WhereTo> {
     fn generate_with_definer (self, mut definer: impl Definer)
       -> io::Result<()>
     {
+        let pkg_name =
+            ::std::env::var("CARGO_PKG_NAME")
+                .expect("Missing `CARGO_PKG_NAME` env var")
+        ;
+        #[cfg(feature = "csharp-headers")]
+        #[allow(nonstandard_style)]
+        let PkgName =
+            pkg_name
+                .chars()
+                .flat_map({
+                    let mut underscore = true;
+                    move |c| Some(match c {
+                        | _
+                            if underscore
+                        => {
+                            underscore = false;
+                            c.to_ascii_uppercase()
+                        },
+
+                        | '_'
+                        | '-'
+                        => {
+                            underscore = true;
+                            return None; // continue
+                        },
+
+                        | _
+                        => {
+                            c
+                        },
+                    })
+                })
+                .collect::<String>()
+        ;
+
         let s;
         let config = self;
         let guard: &'_ str =
@@ -333,39 +373,211 @@ impl Builder<'_, WhereTo> {
             " *                                         *\n",
             " *******************************************/",
         ));
+        let lang = config.language.unwrap_or(Language::C);
 
-        write!(definer.out(),
-            concat!(
-                "{banner}\n\n",
-                "#ifndef {guard}\n",
-                "#define {guard}\n",
-                "\n",
-                "#ifdef __cplusplus\n",
-                "extern \"C\" {{\n",
-                "#endif\n\n",
-            ),
-            guard = guard,
-            banner = banner,
-        )?;
+        // Banner
+        write!(definer.out(), "{}\n\n", banner)?;
+        // Prelude
+        match lang {
+            | Language::C => write!(definer.out(),
+                concat!(
+                    "#ifndef {guard}\n",
+                    "#define {guard}\n",
+                    "\n",
+                    // we could have Language::Cpp and use `#pragma once`...
+                    "#ifdef __cplusplus\n",
+                    "extern \"C\" {{\n",
+                    "#endif\n\n",
+                ),
+                guard = guard,
+            )?,
+
+            #[cfg(feature = "csharp-headers")]
+            | Language::CSharp => write!(definer.out(),
+                concat!(
+                    "using System;\n",
+                    "using System.Runtime.InteropServices;\n",
+                    "\n",
+                    "[StructLayout(LayoutKind.Sequential)]\n",
+                    "internal readonly struct Const<T>\n",
+                    "{{\n",
+                    "    public readonly T value;\n",
+                    "}}\n",
+                    "\n",
+                    "internal class {} {{\n\n",
+                    "public const string RustLib = \"{}\";\n",
+                    "\n",
+                ),
+                PkgName,
+                pkg_name,
+            )?,
+        }
+        // User-provided defs!
         crate::inventory::iter
             .into_iter()
             // Iterate in reverse fashion to more closely match
             // the Rust definition order.
             .collect::<Vec<_>>().into_iter().rev()
-            .try_for_each(|crate::FfiExport(define)| define(&mut definer))
+            .try_for_each(|crate::FfiExport(define)| define(&mut definer, lang))
             ?
         ;
-        write!(definer.out(),
-            concat!(
-                "\n",
-                "#ifdef __cplusplus\n",
-                "}} /* extern \"C\" */\n",
-                "#endif\n",
-                "\n",
-                "#endif /* {} */\n",
-            ),
-            guard,
-        )?;
+        // Epilogue
+        match lang {
+            | Language::C => write!(definer.out(),
+                concat!(
+                    "\n",
+                    "#ifdef __cplusplus\n",
+                    "}} /* extern \"C\" */\n",
+                    "#endif\n",
+                    "\n",
+                    "#endif /* {} */\n",
+                ),
+                guard,
+            )?,
+
+            #[cfg(feature = "csharp-headers")]
+            | Language::CSharp => write!(definer.out(),
+                concat!(
+                    "\n",
+                    "}} /* {} */\n",
+                ),
+                PkgName,
+            )?,
+        }
         Ok(())
+    }
+}
+
+/// Language of the generated headers.
+#[derive(
+    Debug,
+    Copy, Clone,
+    PartialEq, Eq,
+)]
+pub
+enum Language {
+    /// C, _lingua franca_ of FFI interop.
+    C,
+
+    /// C# (experimental).
+    #[cfg(feature = "csharp-headers")]
+    #[cfg_attr(feature = "nightly",
+        doc(cfg(feature = "csharp-headers"))
+    )]
+    CSharp,
+}
+
+hidden_export! {
+    fn __define_self__<T : ReprC> (
+        definer: &'_ mut dyn Definer,
+        lang: Language,
+    ) -> ::std::io::Result<()>
+    {
+        match lang {
+            | Language::C => {
+                <T::CLayout as CType>::c_define_self(definer)
+            },
+            #[cfg(feature = "csharp-headers")]
+            | Language::CSharp => {
+                <T::CLayout as CType>::csharp_define_self(definer)
+            },
+        }
+    }
+}
+
+hidden_export! {
+    /// Helpers for the generation of FFI-imported function declarations.
+    mod __define_fn__ {
+        use super::*;
+        use ::std::{
+            fmt::Write as _,
+            io::Result,
+        };
+
+        pub
+        fn name (
+            out: &'_ mut String,
+            f_name: &'_ str,
+            lang: Language,
+        )
+        {
+            match lang {
+                | Language::C => write!(out,
+                    "{} (", f_name.trim(),
+                ),
+
+                #[cfg(feature = "csharp-headers")]
+                | Language::CSharp => write!(out,
+                    "{} (", f_name.trim(),
+                ),
+            }.expect("`write!`-ing to a `String` cannot fail")
+        }
+
+        pub
+        fn arg<Arg : ReprC> (
+            out: &'_ mut String,
+            arg_name: &'_ str,
+            lang: Language,
+        )
+        {
+            if out.ends_with("(").not() {
+                out.push_str(",");
+            }
+            match lang {
+                | Language::C => write!(out,
+                    "\n    {}", Arg::CLayout::c_var(arg_name),
+                ),
+
+                #[cfg(feature = "csharp-headers")]
+                | Language::CSharp => write!(out,
+                    "\n    {marshaler}{}", Arg::CLayout::csharp_var(arg_name),
+                    marshaler =
+                        Arg::CLayout::csharp_marshaler()
+                            .map(|m| format!("[MarshalAs({})]\n    ", m))
+                            .as_deref()
+                            .unwrap_or("")
+                    ,
+                ),
+            }.expect("`write!`-ing to a `String` cannot fail")
+        }
+
+        pub
+        fn ret<Ret : ReprC> (
+            definer: &'_ mut dyn Definer,
+            lang: Language,
+            mut fname_and_args: String,
+        ) -> Result<()>
+        {
+            let out = definer.out();
+            match lang {
+                | Language::C => {
+                    if fname_and_args.ends_with("(") {
+                        fname_and_args.push_str("void");
+                    }
+                    writeln!(out,
+                        "{});\n",
+                        Ret::CLayout::c_var(&fname_and_args),
+                    )
+                },
+
+                #[cfg(feature = "csharp-headers")]
+                | Language::CSharp => {
+                    writeln!(out,
+                        concat!(
+                            "{mb_marshaler}",
+                            "[DllImport(RustLib)] public unsafe extern static\n",
+                            "{});\n",
+                        ),
+                        Ret::CLayout::csharp_var(&fname_and_args),
+                        mb_marshaler =
+                            Ret::CLayout::csharp_marshaler()
+                                .map(|m| format!("[return: MarshalAs({})]\n", m))
+                                .as_deref()
+                                .unwrap_or("")
+                        ,
+                    )
+                },
+            }
+        }
     }
 }

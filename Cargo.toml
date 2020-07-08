@@ -43,6 +43,7 @@ headers = [
     "proc_macro/headers",
     "std",
 ]
+csharp-headers = ["headers"]
 
 [dev-dependencies]
 macro_rules_attribute = "0.0.1"

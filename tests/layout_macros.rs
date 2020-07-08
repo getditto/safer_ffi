@@ -114,7 +114,7 @@ fn validity ()
 pub
 struct Crazy {
     a: extern "C" fn (
-        extern "C" fn(char_p::Raw),
+        extern "C" fn(char_p::Raw) -> bool,
         Tuple2<
             [Foo<'static>; 12],
             Option<repr_c::Box<Option<MyBool>>>
@@ -325,38 +325,17 @@ fn test_c_str_macro ()
 fn generate_headers ()
   -> ::std::io::Result<()>
 {Ok({
-    let ref mut definer = MyDefiner {
-        out: &mut ::std::io::stderr(),
-        defines: Default::default(),
-    };
-    ::safer_ffi::inventory::iter
-        .into_iter()
-        .collect::<Vec<_>>()
-        .into_iter()
-        .rev()
-        .try_for_each(|::safer_ffi::FfiExport(define)| define(definer))
-        ?
-    ;
-
-    // where
-    struct MyDefiner<'out> {
-        out: &'out mut dyn io::Write,
-        defines: Set<String>,
-    }
-    impl ::safer_ffi::headers::Definer
-        for MyDefiner<'_>
+    use ::safer_ffi::headers::Language::*;
+    for &language
+        in  &[
+                C,
+                #[cfg(feature = "csharp-headers")]
+                CSharp,
+            ]
     {
-        fn insert (self: &'_ mut Self, name: &'_ str)
-          -> bool
-        {
-            self.defines
-                .insert(name.to_owned())
-        }
-
-        fn out (self: &'_ mut Self)
-          -> &'_ mut dyn io::Write
-        {
-            &mut self.out
-        }
+        ::safer_ffi::headers::builder()
+            .with_language(language)
+            .to_writer(&mut ::std::io::stderr())
+            .generate()?
     }
 })}

@@ -1,5 +1,9 @@
 [lib]
-crate-type = ["rlib", "staticlib"]
+crate-type = [
+    "rlib", # cargo test
+    "staticlib", # C test (os X)
+    "cdylib", # CSharp test
+]
 
 [package]
 name = "ffi_tests"
@@ -11,7 +15,7 @@ edition = "2018"
 safer-ffi = { path = "..", features = ["proc_macros"] }
 
 [features]
-generate-headers = ["safer-ffi/headers"]
+generate-headers = ["safer-ffi/csharp-headers"]
 
 # [dev-dependencies]
 # cc = "1.0.50"

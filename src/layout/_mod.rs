@@ -360,6 +360,49 @@ unsafe trait CType
                 _phantom: Default::default(),
             }
         }
+
+        __cfg_csharp__! {
+            /// CSharp namespace imports that may be required to use this type.
+            /// (besides `InteropServices`).
+            fn csharp_imports ()
+              -> &'static str
+            {
+                ""
+            }
+
+            /// Extra typedef code (_e.g._ `[LayoutKind.Sequential] struct ...`)
+            fn csharp_define_self (definer: &'_ mut dyn Definer)
+              -> io::Result<()>
+            {
+                let _ = definer;
+                Ok(())
+            }
+
+            /// Optional marshaler attached to the type (_e.g._,
+            /// `[MarshalAs(UnmanagedType.FunctionPtr)]`)
+            fn csharp_marshaler ()
+              -> Option<rust::String>
+            {
+                None
+            }
+
+            // TODO: Optimize out those unnecessary heap-allocations
+            /// Type name (_e.g._, `int`, `string`, `IntPtr`)
+            fn csharp_ty ()
+              -> rust::String
+            ;
+
+            /// Convenience function for formatting `{ty} {var}` in CSharp.
+            fn csharp_var (var_name: &'_ str)
+              -> rust::String
+            {
+                format!(
+                    "{}{sep}{}",
+                    Self::csharp_ty(), var_name,
+                    sep = if var_name.is_empty() { "" } else { " " },
+                )
+            }
+        }
     }
 }
 

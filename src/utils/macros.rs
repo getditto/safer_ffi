@@ -186,3 +186,49 @@ cfg_proc_macros! {
         let _ = c!("Hell\0, World!");
     }
 }
+
+/// Items exported through this macro are internal implementation details
+/// that exported macros may need access to.
+///
+/// Users of this crate should not directly use them (unless the pinpoint the
+/// version dependency), since they are considered to be semver-exempt and
+/// could thus cause breakage.
+macro_rules! hidden_export {
+    (
+        $(#[$attr:meta])*
+        macro_rules! $($rest:tt)*
+    ) => (
+        $(#[$attr])*
+        #[doc(hidden)] /** Not part of the public API **/ #[macro_export]
+        macro_rules! $($rest)*
+    );
+
+    (
+        @attrs[ $($attr:tt)* ]
+        #[$current:meta]
+        $($rest:tt)*
+    ) => (
+        hidden_export! {
+            @attrs[ $($attr)* $current ]
+            $($rest)*
+        }
+    );
+
+    (
+        @attrs[ $($attr:tt)* ]
+        $($item:tt)*
+    ) => (
+        $(#[$attr])*
+        #[doc(hidden)] /** Not part of the public API **/ pub
+        $($item)*
+    );
+
+    (
+        $($input:tt)*
+    ) => (
+        hidden_export! {
+            @attrs[]
+            $($input)*
+        }
+    )
+}

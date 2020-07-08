@@ -18,18 +18,19 @@ const _: () = { macro_rules! impl_CTypes {
             f64 => "double",
         }
         impl_CTypes! { @integers
+            // C# safety: equivalence based onhttps://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/built-in-types
 
             unsafe // Safety: trivial integer equivalence.
-            u8 => "uint8",
+            u8 => "uint8" "byte",
 
             unsafe // Safety: trivial integer equivalence.
-            u16 => "uint16",
+            u16 => "uint16" "UInt16",
 
             unsafe // Safety: trivial integer equivalence.
-            u32 => "uint32",
+            u32 => "uint32" "UInt32",
 
             unsafe // Safety: trivial integer equivalence.
-            u64 => "uint64",
+            u64 => "uint64" "UInt64",
 
             // unsafe u128 => "uint128",
 
@@ -54,25 +55,25 @@ const _: () = { macro_rules! impl_CTypes {
                    // platform, a compile-time assertion is added, that
                    // ensure the crate will not compile on such platforms.
                    // (search for `size_of` in this file).
-            usize => "size",
+            usize => "size" "UIntPtr",
 
 
             unsafe // Safety: trivial integer equivalence.
-            i8 => "int8",
+            i8 => "int8" "sbyte",
 
             unsafe // Safety: trivial integer equivalence.
-            i16 => "int16",
+            i16 => "int16" "Int16",
 
             unsafe // Safety: trivial integer equivalence.
-            i32 => "int32",
+            i32 => "int32" "Int32",
 
             unsafe // Safety: trivial integer equivalence.
-            i64 => "int64",
+            i64 => "int64" "Int32",
 
             // unsafe i128 => "int128",
 
             unsafe // Safety: See `usize`'s
-            isize => "ssize",
+            isize => "ssize" "IntPtr",
         }
         #[cfg(docs)] impl_CTypes! { @fns (A1) } #[cfg(not(docs))]
         impl_CTypes! { @fns
@@ -140,6 +141,75 @@ const _: () = { macro_rules! impl_CTypes {
                     var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
+            }
+
+            __cfg_csharp__! {
+                fn csharp_define_self (definer: &'_ mut dyn Definer)
+                  -> io::Result<()>
+                {
+                    let ref me = Self::c_short_name().to_string();
+                    Item::csharp_define_self(definer)?;
+                    definer.define_once(me, &mut |definer| {
+                        let array_items = {
+                            // Poor man's specialization to use `fixed` arrays.
+                            if  [
+                                    "bool",
+                                    "u8", "u16", "u32", "u64", "usize",
+                                    "i8", "i16", "i32", "i64", "isize",
+                                    "float", "double",
+                                ].contains(&::core::any::type_name::<Item>())
+                            {
+                                format!(
+                                    "    public fixed {ItemTy}[{N}] arr;\n",
+                                    ItemTy = Item::csharp_ty(),
+                                    N = $N,
+                                    // no need for a marshaler here
+                                )
+                            } else {
+                                // Sadly for the general case fixed arrays are
+                                // not supported.
+                                (0 .. $N)
+                                    .map(|i| format!(
+                                        "    \
+                                        {marshaler}\
+                                        public {ItemTy} _{i};\n",
+                                        ItemTy = Item::csharp_ty(),
+                                        i = i,
+                                        marshaler =
+                                            Item::csharp_marshaler()
+                                                .map(|m| format!("[MarshalAs({})]\n    ", m))
+                                                .as_deref()
+                                                .unwrap_or("")
+                                        ,
+                                    ))
+                                    .collect::<rust::String>()
+                            }
+                        };
+                        writeln!(definer.out(),
+                            concat!(
+                                "[StructLayout(LayoutKind.Sequential, Size = {size})]\n",
+                                "public unsafe struct {me} {{\n",
+                                "{array_items}",
+                                "}}\n",
+                            ),
+                            me = me,
+                            array_items = array_items,
+                            size = mem::size_of::<Self>(),
+                        )
+                    })
+                }
+
+                fn csharp_marshaler ()
+                  -> Option<rust::String>
+                {
+                    None
+                }
+
+                fn csharp_ty ()
+                  -> rust::String
+                {
+                    Self::c_short_name().to_string()
+                }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
 
@@ -225,6 +295,74 @@ const _: () = { macro_rules! impl_CTypes {
                     fmt.write_str("void")?;
                 }
                 fmt.write_str(")")
+            }
+
+            __cfg_csharp__! {
+                fn csharp_define_self (definer: &'_ mut dyn Definer)
+                  -> io::Result<()>
+                {
+                    Ret::csharp_define_self(definer)?; $(
+                    $An::csharp_define_self(definer)?; $(
+                    $Ai::csharp_define_self(definer)?; )*)?
+                    let ref me = Self::c_short_name().to_string();
+                    let mut _arg = {
+                        let mut iter = (0 ..).map(|c| format!("_{}", c));
+                        move || iter.next().unwrap()
+                    };
+                    _arg = _arg;
+                    definer.define_once(me, &mut |definer| writeln!(definer.out(),
+                        concat!(
+                            // IIUC,
+                            //   - For 32-bits / x86,
+                            //     Rust's extern "C" is the same as C#'s (default) Winapi:
+                            //     "cdecl" for Linux, and "stdcall" for Windows.
+                            //
+                            //   - For everything else, this is param is ignored.
+                            //     I guess because both OSes agree on the calling convention?
+                            "[UnmanagedFunctionPointer(CallingConvention.Winapi)]\n",
+
+                            "{}public unsafe /* static */ delegate\n",
+                            "    {Ret}\n",
+                            "    {me} (", $("\n",
+                            "        {}{", stringify!($An), "}", $(",\n",
+                            "        {}{", stringify!($Ai), "}", )*)?
+                            ");\n"
+                        ),
+                        Ret::csharp_marshaler()
+                            .map(|m| format!("[return: MarshalAs({})]\n", m))
+                            .as_deref()
+                            .unwrap_or("")
+                        , $(
+                        $An::csharp_marshaler()
+                            .map(|m| format!("[MarshalAs({})]\n        ", m))
+                            .as_deref()
+                            .unwrap_or("")
+                        , $(
+                        $Ai::csharp_marshaler()
+                            .map(|m| format!("[MarshalAs({})]\n        ", m))
+                            .as_deref()
+                            .unwrap_or("")
+                        , )*)?
+                        me = me,
+                        Ret = Ret::csharp_ty(), $(
+                        $An = $An::csharp_var(&_arg()), $(
+                        $Ai = $Ai::csharp_var(&_arg()), )*)?
+                    ))
+                }
+
+                fn csharp_marshaler ()
+                  -> Option<rust::String>
+                {
+                    // This assumes the calling convention from the above
+                    // `UnmanagedFunctionPointer` attribute.
+                    Some("UnmanagedType.FunctionPtr".into())
+                }
+
+                fn csharp_ty ()
+                  -> rust::String
+                {
+                    Self::c_short_name().to_string()
+                }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
 
@@ -368,7 +506,7 @@ const _: () = { macro_rules! impl_CTypes {
     (@integers
         $(
             $unsafe:tt
-            $RustInt:ident => $CInt:literal,
+            $RustInt:ident => $CInt:literal $CSharpInt:literal,
         )*
     ) => ($(
         $unsafe // Safety: guaranteed by the caller of the macro
@@ -408,6 +546,14 @@ const _: () = { macro_rules! impl_CTypes {
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
             }
+
+            __cfg_csharp__! {
+                fn csharp_ty ()
+                  -> rust::String
+                {
+                    $CSharpInt.into()
+                }
+            }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
         from_CType_impl_ReprC! { $RustInt }
     )*);
@@ -438,6 +584,14 @@ const _: () = { macro_rules! impl_CTypes {
                     var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
+            }
+
+            __cfg_csharp__! {
+                fn csharp_ty ()
+                  -> rust::String
+                {
+                    $Cty.into()
+                }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
         from_CType_impl_ReprC! { $fN }
@@ -473,6 +627,29 @@ const _: () = { macro_rules! impl_CTypes {
                     var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
+            }
+
+            __cfg_csharp__! {
+                fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
+                  -> $crate::std::io::Result<()>
+                {
+                    T::csharp_define_self(definer)?;
+                    // definer.define_once("Const", &mut |definer| {
+                    //     definer.out().write_all(concat!(
+                    //         "[StructLayout(LayoutKind.Sequential)]\n",
+                    //         "public readonly struct Const<T> {\n",
+                    //         "    public readonly T value;\n",
+                    //         "}\n\n",
+                    //     ).as_bytes())
+                    // })?
+                    Ok(())
+                }
+
+                fn csharp_ty ()
+                  -> rust::String
+                {
+                    format!("Const<{}> *", T::csharp_ty())
+                }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
         unsafe
@@ -516,6 +693,20 @@ const _: () = { macro_rules! impl_CTypes {
                     var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
+            }
+
+            __cfg_csharp__! {
+                fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
+                  -> $crate::std::io::Result<()>
+                {
+                    T::csharp_define_self(definer)
+                }
+
+                fn csharp_ty ()
+                  -> rust::String
+                {
+                    format!("{} *", T::csharp_ty())
+                }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
         unsafe
@@ -650,6 +841,20 @@ unsafe
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
             }
+
+            __cfg_csharp__! {
+                fn csharp_marshaler ()
+                  -> Option<rust::String>
+                {
+                    Some("UnmanagedType.U1".into())
+                }
+
+                fn csharp_ty ()
+                  -> rust::String
+                {
+                    "bool".into()
+                }
+            }
         }
 
         type OPAQUE_KIND = OpaqueKind::Concrete;
@@ -682,6 +887,14 @@ unsafe
                     var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
+            }
+
+            __cfg_csharp__! {
+                fn csharp_ty ()
+                  -> rust::String
+                {
+                    "int".into()
+                }
             }
         }
 

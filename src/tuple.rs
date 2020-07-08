@@ -37,6 +37,14 @@ impl CType
             sep = if var_name.is_empty() { "" } else { " " },
         )
     }
+
+    __cfg_csharp__! {
+        fn csharp_ty ()
+          -> rust::String
+        {
+            "void".into()
+        }
+    }
 } type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete; }
 from_CType_impl_ReprC! { CVoid }
 
