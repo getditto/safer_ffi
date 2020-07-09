@@ -1,9 +1,9 @@
 use super::*;
 
 const_assert! {
-    ::core::mem::size_of::<::libc::uintptr_t>()
+    ::core::mem::size_of::<crate::libc::uintptr_t>()
     ==
-    ::core::mem::size_of::<::libc::size_t>()
+    ::core::mem::size_of::<crate::libc::size_t>()
 }
 
 const _: () = { macro_rules! impl_CTypes {
@@ -856,7 +856,7 @@ unsafe
 #[derive(Clone, Copy, PartialEq, Eq)]
 #[allow(missing_debug_implementations)]
 pub
-struct c_int(pub ::libc::c_int);
+struct c_int(pub crate::libc::c_int);
 
 unsafe
     impl CType

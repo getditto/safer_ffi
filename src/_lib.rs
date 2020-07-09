@@ -324,3 +324,12 @@ hidden_export! {
         $crate::core::panic!($($tt)*);
     })}
 }
+
+#[cfg(target_arch = "wasm32")]
+mod libc {
+    pub type c_int = i32;
+    pub type size_t = u32;
+    pub type uintptr_t = u32;
+}
+#[cfg(not(target_arch = "wasm32"))]
+use ::libc;
