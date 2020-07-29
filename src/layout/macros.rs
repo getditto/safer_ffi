@@ -1272,7 +1272,7 @@ macro_rules! ReprC {
 
     (@deny_C $otherwise:tt) => ();
 
-    (@first ($($fst:tt)*) $($ignored:tt)?) => ($($fst)*);
+    (@first ($($fst:tt)*) $($ignored:tt)*) => ($($fst)*);
 }
 
 #[cfg(feature = "headers")]

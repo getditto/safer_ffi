@@ -9,11 +9,9 @@
 
 #ifndef __RUST_FFI_TESTS__
 #define __RUST_FFI_TESTS__
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /** \brief
  *  This is a `#[repr(C)]` enum, which leads to a classic enum def.
  */
@@ -133,7 +131,7 @@ int32_t const * max (
 
 
 #ifdef __cplusplus
-} /* extern "C" */
+} /* extern \"C\" */
 #endif
 
 #endif /* __RUST_FFI_TESTS__ */

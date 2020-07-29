@@ -8,12 +8,12 @@
  *******************************************/
 
 #pragma warning disable IDE0044, IDE0049, IDE0055, IDE1006,
-#pragma warning disable SA1004, SA1008, SA1023,
+#pragma warning disable SA1004, SA1008, SA1023, SA1028,
 #pragma warning disable SA1121, SA1134,
 #pragma warning disable SA1201,
 #pragma warning disable SA1300, SA1306, SA1307, SA1310, SA1313,
-#pragma warning disable SA1500, SA1505,
-#pragma warning disable SA1600, SA1601, SA1604, SA1611, SA1615, SA1649,
+#pragma warning disable SA1500, SA1505, SA1507,
+#pragma warning disable SA1600, SA1601, SA1604, SA1605, SA1611, SA1615, SA1649,
 
 namespace FfiTests {
 using System;
@@ -22,13 +22,12 @@ using System.Runtime.InteropServices;
 public unsafe partial class Ffi {
     private const string RustLib = "ffi_tests";
 }
-
 public enum SomeReprCEnum_t {
     SomeVariant,
 }
 
 public unsafe partial class Ffi {
-    [DllImport(RustLib)] public static unsafe extern
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     void check_SomeReprCEnum (
         SomeReprCEnum_t _baz);
 }
@@ -40,18 +39,18 @@ public struct foo_t {
 }
 
 public unsafe partial class Ffi {
-    [DllImport(RustLib)] public static unsafe extern
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     foo_t * new_foo ();
 }
 
 public unsafe partial class Ffi {
-    [DllImport(RustLib)] public static unsafe extern
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     Int32 read_foo (
         foo_t /*const*/ * foo);
 }
 
 public unsafe partial class Ffi {
-    [DllImport(RustLib)] public static unsafe extern
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     void free_foo (
         foo_t * foo);
 }
@@ -61,7 +60,7 @@ public enum Bar_t : byte {
 }
 
 public unsafe partial class Ffi {
-    [DllImport(RustLib)] public static unsafe extern
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     void check_bar (
         Bar_t _bar);
 }
@@ -72,7 +71,7 @@ public unsafe partial class Ffi {
  *  The returned string must be freed using `free_char_p`.
  */
 public unsafe partial class Ffi {
-    [DllImport(RustLib)] public static unsafe extern
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     byte * concat (
         byte /*const*/ * fst,
         byte /*const*/ * snd);
@@ -82,7 +81,7 @@ public unsafe partial class Ffi {
  *  Frees a string created by `concat`.
  */
 public unsafe partial class Ffi {
-    [DllImport(RustLib)] public static unsafe extern
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     void free_char_p (
         byte * _string);
 }
@@ -90,7 +89,7 @@ public unsafe partial class Ffi {
 [UnmanagedFunctionPointer(CallingConvention.Winapi)]
 public unsafe /* static */ delegate
     void
-    void_void_ptr_char_const_ptr_fptr (
+    void (*)(void *, char const *) (
         void * _0,
         byte /*const*/ * _1);
 
@@ -98,7 +97,7 @@ public unsafe /* static */ delegate
 public unsafe struct RefDynFnMut1_void_char_const_ptr_t {
     public void * env_ptr;
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    public void_void_ptr_char_const_ptr_fptr call;
+    public void (*)(void *, char const *) call;
 }
 
 /** \brief
@@ -106,7 +105,7 @@ public unsafe struct RefDynFnMut1_void_char_const_ptr_t {
  *  string.
  */
 public unsafe partial class Ffi {
-    [DllImport(RustLib)] public static unsafe extern
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     void with_concat (
         byte /*const*/ * fst,
         byte /*const*/ * snd,
@@ -124,7 +123,7 @@ public unsafe struct slice_ref_int32_t {
  *  it is empty.
  */
 public unsafe partial class Ffi {
-    [DllImport(RustLib)] public static unsafe extern
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     Int32 /*const*/ * max (
         slice_ref_int32_t xs);
 }
