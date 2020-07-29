@@ -342,6 +342,12 @@ const _: () = { macro_rules! impl_CTypes {
                     ))
                 }
 
+                fn csharp_ty ()
+                  -> rust::String
+                {
+                    Self::c_short_name().to_string()
+                }
+
                 fn csharp_marshaler ()
                   -> Option<rust::String>
                 {

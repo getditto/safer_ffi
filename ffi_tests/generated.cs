@@ -89,7 +89,7 @@ public unsafe partial class Ffi {
 [UnmanagedFunctionPointer(CallingConvention.Winapi)]
 public unsafe /* static */ delegate
     void
-    void (*)(void *, char const *) (
+    void_void_ptr_char_const_ptr_fptr_t (
         void * _0,
         byte /*const*/ * _1);
 
@@ -97,7 +97,7 @@ public unsafe /* static */ delegate
 public unsafe struct RefDynFnMut1_void_char_const_ptr_t {
     public void * env_ptr;
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    public void (*)(void *, char const *) call;
+    public void_void_ptr_char_const_ptr_fptr_t call;
 }
 
 /** \brief
