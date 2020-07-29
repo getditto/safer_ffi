@@ -362,14 +362,6 @@ unsafe trait CType
         }
 
         __cfg_csharp__! {
-            /// CSharp namespace imports that may be required to use this type.
-            /// (besides `InteropServices`).
-            fn csharp_imports ()
-              -> &'static str
-            {
-                ""
-            }
-
             /// Extra typedef code (_e.g._ `[LayoutKind.Sequential] struct ...`)
             fn csharp_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>

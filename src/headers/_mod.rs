@@ -325,7 +325,7 @@ impl Builder<'_, WhereTo> {
         let PkgName =
             pkg_name
                 .chars()
-                .flat_map({
+                .filter_map({
                     let mut underscore = true;
                     move |c| Some(match c {
                         | _
@@ -371,56 +371,24 @@ impl Builder<'_, WhereTo> {
             " *                                         *\n",
             " *  Do not manually edit this file.        *\n",
             " *                                         *\n",
-            " *******************************************/",
+            " *******************************************/\n",
         ));
         let lang = config.language.unwrap_or(Language::C);
 
         // Banner
-        write!(definer.out(), "{}\n\n", banner)?;
+        writeln!(definer.out(), "{}", banner)?;
         // Prelude
         match lang {
             | Language::C => write!(definer.out(),
-                concat!(
-                    "#ifndef {guard}\n",
-                    "#define {guard}\n",
-                    "\n",
-                    // we could have Language::Cpp and use `#pragma once`...
-                    "#ifdef __cplusplus\n",
-                    "extern \"C\" {{\n",
-                    "#endif\n\n",
-                ),
+                include_str!("templates/c/_prelude.h"),
                 guard = guard,
             )?,
 
             #[cfg(feature = "csharp-headers")]
             | Language::CSharp => write!(definer.out(),
-                concat!(
-r#"#pragma warning disable IDE0044, IDE0049, IDE0055, IDE1006,
-#pragma warning disable SA1004, SA1008, SA1023, SA1028,
-#pragma warning disable SA1121, SA1134,
-#pragma warning disable SA1201,
-#pragma warning disable SA1300, SA1306, SA1307, SA1310, SA1313,
-#pragma warning disable SA1500, SA1505, SA1507,
-#pragma warning disable SA1600, SA1601, SA1604, SA1605, SA1611, SA1615, SA1649,
-
-"#,
-                    "namespace {} {{\n",
-                    "using System;\n",
-                    "using System.Runtime.InteropServices;\n",
-                    "\n",
-                    // "[StructLayout(LayoutKind.Sequential)]\n",
-                    // "public readonly struct Const<T>\n",
-                    // "{{\n",
-                    // "    public readonly T value;\n",
-                    // "}}\n",
-                    // "\n",
-                    "public unsafe partial class Ffi {{\n",
-                    "    private const string RustLib = \"{}\";\n",
-                    "}}\n",
-                    "\n",
-                ),
-                PkgName,
-                pkg_name,
+                include_str!("templates/csharp/_prelude.cs"),
+                NameSpace = PkgName,
+                RustLib = pkg_name,
             )?,
         }
         // User-provided defs!
@@ -435,24 +403,14 @@ r#"#pragma warning disable IDE0044, IDE0049, IDE0055, IDE1006,
         // Epilogue
         match lang {
             | Language::C => write!(definer.out(),
-                concat!(
-                    "\n",
-                    "#ifdef __cplusplus\n",
-                    "}} /* extern \"C\" */\n",
-                    "#endif\n",
-                    "\n",
-                    "#endif /* {} */\n",
-                ),
-                guard,
+                include_str!("templates/c/epilogue.h"),
+                guard = guard,
             )?,
 
             #[cfg(feature = "csharp-headers")]
             | Language::CSharp => write!(definer.out(),
-                concat!(
-                    "\n",
-                    "}} /* {} */\n",
-                ),
-                PkgName,
+                include_str!("templates/csharp/epilogue.cs"),
+                PkgName = PkgName,
             )?,
         }
         Ok(())
@@ -479,6 +437,7 @@ enum Language {
 }
 
 hidden_export! {
+    /// Invoke the language-specific typedef code for the given type.
     fn __define_self__<T : ReprC> (
         definer: &'_ mut dyn Definer,
         lang: Language,
@@ -577,7 +536,7 @@ hidden_export! {
                         concat!(
                             "public unsafe partial class Ffi {{\n    ",
                             "{mb_marshaler}",
-                            "[DllImport(RustLib)] public static unsafe extern\n",
+                            "[DllImport(RustLib, ExactSpelling = true)] public static unsafe extern\n",
                             "    {});\n",
                             "}}\n",
                         ),

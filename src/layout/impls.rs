@@ -103,7 +103,7 @@ const _: () = { macro_rules! impl_CTypes {
             fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
               -> fmt::Result
             {
-                // item_t_N_array
+                // item_N_array
                 write!(fmt,
                     concat!("{}_", stringify!($N), "_array"),
                     Item::c_short_name(),
@@ -256,7 +256,7 @@ const _: () = { macro_rules! impl_CTypes {
             fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
               -> fmt::Result
             {
-                // ret_t_arg1_t_arg2_t_fptr
+                // ret_arg1_arg2_fptr
                 Ret::c_short_name_fmt(fmt)?; $(
                 write!(fmt, "_{}", $An::c_short_name())?; $(
                 write!(fmt, "_{}", $Ai::c_short_name())?; )*)?
@@ -312,18 +312,13 @@ const _: () = { macro_rules! impl_CTypes {
                             //     I guess because both OSes agree on the calling convention?
                             "[UnmanagedFunctionPointer(CallingConvention.Winapi)]\n",
 
-                            "{}public unsafe /* static */ delegate\n",
+                            "{ret_marshaler}public unsafe /* static */ delegate\n",
                             "    {Ret}\n",
                             "    {me} (", $("\n",
                             "        {}{", stringify!($An), "}", $(",\n",
                             "        {}{", stringify!($Ai), "}", )*)?
                             ");\n"
-                        ),
-                        Ret::csharp_marshaler()
-                            .map(|m| format!("[return: MarshalAs({})]\n", m))
-                            .as_deref()
-                            .unwrap_or("")
-                        , $(
+                        ),$(
                         $An::csharp_marshaler()
                             .map(|m| format!("[MarshalAs({})]\n        ", m))
                             .as_deref()
@@ -335,6 +330,12 @@ const _: () = { macro_rules! impl_CTypes {
                             .unwrap_or("")
                         , )*)?
                         me = me,
+                        ret_marshaler =
+                            Ret::csharp_marshaler()
+                                .map(|m| format!("[return: MarshalAs({})]\n", m))
+                                .as_deref()
+                                .unwrap_or("")
+                        ,
                         Ret = Ret::csharp_ty(), $(
                         $An = $An::csharp_var(&_arg()), $(
                         $Ai = $Ai::csharp_var(&_arg()), )*)?
@@ -347,12 +348,6 @@ const _: () = { macro_rules! impl_CTypes {
                     // This assumes the calling convention from the above
                     // `UnmanagedFunctionPointer` attribute.
                     Some("UnmanagedType.FunctionPtr".into())
-                }
-
-                fn csharp_ty ()
-                  -> rust::String
-                {
-                    Self::c_short_name().to_string()
                 }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
@@ -886,6 +881,12 @@ unsafe
                   -> rust::String
                 {
                     "int".into()
+                }
+
+                fn csharp_marshaler ()
+                  -> Option<rust::String>
+                {
+                    Some("UnmanagedType.SysInt".into())
                 }
             }
         }

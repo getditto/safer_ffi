@@ -86,6 +86,7 @@ macro_rules! CType {(
         ),+ $(,)?
     }
 ) => (
+    // CASE: struct (CType)
     #[repr(C)]
     $(#[$($meta)*])*
     $pub
@@ -325,7 +326,11 @@ macro_rules! CType {(
 /// which will do the rewriting for you.
 #[macro_export]
 macro_rules! ReprC {
-    // struct
+    /*  =============
+     *  @DEVS: to quickly switch between the different inputs to `#[derive_ReprC]`
+     *  ctrl + F for the `CASE:` pattern
+     *  ============= */
+    // CASE: struct (ReprC)
     (
         $( @[doc = $doc:expr] )?
         $(#[doc = $prev_doc:tt])* // support doc comments _before_ `#[repr(C)]`
@@ -593,7 +598,7 @@ macro_rules! ReprC {
         }
     );
 
-    // field-less `#[repr(C)] enum`
+    // CASE: field-less `#[repr(C)] enum`
     (
         $(#[doc = $prev_doc:tt])*
         #[repr(C)]
@@ -803,7 +808,7 @@ macro_rules! ReprC {
         }
     );
 
-    // field-less `enum`
+    // CASE: field-less `enum`
     (
         $(#[doc = $prev_doc:tt])*
         #[repr($Int:ident)]
@@ -1028,7 +1033,7 @@ macro_rules! ReprC {
         }
     );
 
-    // non-field-less repr-c-only enum
+    // CASE: non-field-less repr-c-only enum
     (
         $(#[doc = $prev_doc:tt])*
         #[repr(C $(, $Int:ident)?)]
@@ -1043,7 +1048,7 @@ macro_rules! ReprC {
         }
     );
 
-    // opaque
+    // CASE: opaque type
     (
         $(#[doc = $prev_doc:tt])*
         #[
