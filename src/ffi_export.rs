@@ -17,6 +17,7 @@ macro_rules! __ffi_export__ {(
 ) => (
     $($(#[doc = $doc])+)?
     // $(#[$meta])*
+    #[allow(improper_ctypes_definitions)]
     $pub
     $(unsafe $(@$hack@)?)?
     extern "C"
@@ -34,6 +35,7 @@ macro_rules! __ffi_export__ {(
     #[allow(dead_code, nonstandard_style, unused_parens)]
     const _: () = {
         $($(#[doc = $doc])+)?
+        #[allow(improper_ctypes_definitions)]
         #[no_mangle]
         pub
         $(unsafe $(@$hack@)?)? /* Safety: function is not visible but to the linker */
