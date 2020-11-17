@@ -16,7 +16,6 @@ license = "MIT"
 proc-macro2 = { version = "1.0", optional = true }
 quote = { version = "1.0", optional = true }
 proc-macro-hack = { version = "0.5.15", optional = true }
-bat = { version = "0.16.0", optional = true }
 
 [dependencies.syn]
 version = "1.0"
@@ -29,5 +28,5 @@ optional = true
 
 [features]
 headers = []
-proc_macros = ["proc-macro2", "proc-macro-hack", "quote", "syn", "bat"]
+proc_macros = [ "proc-macro2", "proc-macro-hack", "quote", "syn", ]
 verbose-expansions = []

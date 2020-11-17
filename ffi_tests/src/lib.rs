@@ -74,14 +74,6 @@ mod foo {
     #[derive_ReprC]
     #[repr(transparent)]
     pub
-    struct with_foo_cb /* = */ (
-        for<'arg>
-        extern "C" fn(&'arg mut Foo)
-    );
-
-    #[derive_ReprC]
-    #[repr(transparent)]
-    pub
     struct with_ref_cb<Arg : 'static + ReprC> /* = */ (
         for<'arg>
         extern "C" fn(&'arg mut Arg)
@@ -90,8 +82,7 @@ mod foo {
     #[ffi_export]
     fn with_foo (cb: with_ref_cb<Foo>)
     {
-        let mut foo = Foo { hidden: 42 };
-        cb(&mut foo);
+        cb(&mut Foo { hidden: 42 });
     }
 }
 

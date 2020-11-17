@@ -1,4 +1,4 @@
-inline_mod!(fn_def);
+inline_mod!(handle_fptr);
 
 fn feed_to_macro_rules (input: TokenStream, name: Ident)
   -> TokenStream

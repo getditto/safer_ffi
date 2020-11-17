@@ -22,50 +22,14 @@ using System.Runtime.InteropServices;
 public unsafe partial class Ffi {
     private const string RustLib = "ffi_tests";
 }
-public struct foo_t {
-   #pragma warning disable 0169
-   private byte OPAQUE;
-   #pragma warning restore 0169
+public enum Bar_t : byte {
+    A,
 }
 
 public unsafe partial class Ffi {
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    Int32 read_foo (
-        foo_t /*const*/ * foo);
-}
-
-public unsafe partial class Ffi {
-    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    foo_t * new_foo ();
-}
-
-public unsafe partial class Ffi {
-    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    void free_foo (
-        foo_t * foo);
-}
-
-[UnmanagedFunctionPointer(CallingConvention.Winapi)]
-public unsafe /* static */ delegate
-    void
-    void_foo_ptr_fptr (
-        foo_t * _0);
-
-public unsafe partial class Ffi {
-    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    void with_foo (
-        [MarshalAs(UnmanagedType.FunctionPtr)]
-        void_foo_ptr_fptr cb);
-}
-
-public enum SomeReprCEnum_t {
-    SomeVariant,
-}
-
-public unsafe partial class Ffi {
-    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    void check_SomeReprCEnum (
-        SomeReprCEnum_t _baz);
+    void check_bar (
+        Bar_t _bar);
 }
 
 /** \brief
@@ -131,14 +95,50 @@ public unsafe partial class Ffi {
         slice_ref_int32_t xs);
 }
 
-public enum Bar_t : byte {
-    A,
+public enum SomeReprCEnum_t {
+    SomeVariant,
 }
 
 public unsafe partial class Ffi {
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    void check_bar (
-        Bar_t _bar);
+    void check_SomeReprCEnum (
+        SomeReprCEnum_t _baz);
+}
+
+public struct foo_t {
+   #pragma warning disable 0169
+   private byte OPAQUE;
+   #pragma warning restore 0169
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    Int32 read_foo (
+        foo_t /*const*/ * foo);
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    foo_t * new_foo ();
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    void free_foo (
+        foo_t * foo);
+}
+
+[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+public unsafe /* static */ delegate
+    void
+    void_foo_ptr_fptr (
+        foo_t * _0);
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    void with_foo (
+        [MarshalAs(UnmanagedType.FunctionPtr)]
+        void_foo_ptr_fptr cb);
 }
 
 

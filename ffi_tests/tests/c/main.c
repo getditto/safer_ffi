@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "generated.h"
@@ -90,6 +91,8 @@ int main (
     // test foo, cb version
     with_foo(foo_cb);
     assert(foo_cb_called == true);
+
+    puts("C: [ok]");
 
     return EXIT_SUCCESS;
 }

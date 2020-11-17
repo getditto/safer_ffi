@@ -86,7 +86,7 @@ impl MySplit for Generics {
     }
 }
 
-// #[cfg(any())] /* Comment to enable */
+#[cfg(any())] /* Comment to enable (requires `cargo add bat`) */
 pub(in crate)
 fn pretty_print_tokenstream (
     code: &'_ TokenStream,

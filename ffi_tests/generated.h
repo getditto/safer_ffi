@@ -12,35 +12,27 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-typedef struct foo foo_t;
-
 
 #include <stddef.h>
 #include <stdint.h>
 
-int32_t read_foo (
-    foo_t const * foo);
+/** \remark Has the same ABI as `uint8_t` **/
+#ifdef DOXYGEN
+typedef enum Bar
+#else
+typedef uint8_t Bar_t; enum
+#endif
+{
+    /** . */
+    BAR_A,
+}
+#ifdef DOXYGEN
+Bar_t
+#endif
+;
 
-foo_t * new_foo (void);
-
-void free_foo (
-    foo_t * foo);
-
-void with_foo (
-    void (*cb)(foo_t *));
-
-/** \brief
- *  This is a `#[repr(C)]` enum, which leads to a classic enum def.
- */
-typedef enum SomeReprCEnum {
-    /** \brief
-     *  This is some variant.
-     */
-    SOME_REPR_C_ENUM_SOME_VARIANT,
-} SomeReprCEnum_t;
-
-void check_SomeReprCEnum (
-    SomeReprCEnum_t _baz);
+void check_bar (
+    Bar_t _bar);
 
 /** \brief
  *  Concatenate the two input strings into a new one.
@@ -114,23 +106,31 @@ typedef struct {
 int32_t const * max (
     slice_ref_int32_t xs);
 
-/** \remark Has the same ABI as `uint8_t` **/
-#ifdef DOXYGEN
-typedef enum Bar
-#else
-typedef uint8_t Bar_t; enum
-#endif
-{
-    /** . */
-    BAR_A,
-}
-#ifdef DOXYGEN
-Bar_t
-#endif
-;
+/** \brief
+ *  This is a `#[repr(C)]` enum, which leads to a classic enum def.
+ */
+typedef enum SomeReprCEnum {
+    /** \brief
+     *  This is some variant.
+     */
+    SOME_REPR_C_ENUM_SOME_VARIANT,
+} SomeReprCEnum_t;
 
-void check_bar (
-    Bar_t _bar);
+void check_SomeReprCEnum (
+    SomeReprCEnum_t _baz);
+
+typedef struct foo foo_t;
+
+int32_t read_foo (
+    foo_t const * foo);
+
+foo_t * new_foo (void);
+
+void free_foo (
+    foo_t * foo);
+
+void with_foo (
+    void (*cb)(foo_t *));
 
 
 #ifdef __cplusplus
