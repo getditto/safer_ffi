@@ -54,21 +54,44 @@ mod foo {
     struct Foo { hidden: i32 }
 
     #[ffi_export]
-    fn new_foo () -> repr_c::Box<Foo>
-    {
-        repr_c::Box::new(Foo { hidden: 42 })
-    }
-
-    #[ffi_export]
     fn read_foo (foo: &'_ Foo) -> i32
     {
         foo.hidden
     }
 
     #[ffi_export]
+    fn new_foo () -> repr_c::Box<Foo>
+    {
+        repr_c::Box::new(Foo { hidden: 42 })
+    }
+
+    #[ffi_export]
     fn free_foo (foo: Option<repr_c::Box<Foo>>)
     {
         drop(foo)
+    }
+
+    #[derive_ReprC]
+    #[repr(transparent)]
+    pub
+    struct with_foo_cb /* = */ (
+        for<'arg>
+        extern "C" fn(&'arg mut Foo)
+    );
+
+    #[derive_ReprC]
+    #[repr(transparent)]
+    pub
+    struct with_ref_cb<Arg : 'static + ReprC> /* = */ (
+        for<'arg>
+        extern "C" fn(&'arg mut Arg)
+    );
+
+    #[ffi_export]
+    fn with_foo (cb: with_ref_cb<Foo>)
+    {
+        let mut foo = Foo { hidden: 42 };
+        cb(&mut foo);
     }
 }
 

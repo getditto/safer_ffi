@@ -512,7 +512,72 @@ macro_rules! ReprC {
         };
     );
 
-    // `#[repr(transparent)]`
+    // CASE: `#[repr(transparent)]` `fn`
+    // (to support signatures involving higher-order lifetimes)
+    (
+        $( @[doc = $doc:expr] )?
+        $(#[doc = $prev_doc:tt])*
+        #[repr(transparent)]
+        $(#[$meta:meta])*
+        $pub:vis
+        struct $StructName:ident $(
+            [$($generics:tt)*] $(
+                where { $($bounds:tt)* }
+            )?
+        )?
+        (
+            $( for<$($lt:lifetime),* $(,)?> )?
+            extern "C"
+            fn (
+                $(
+                    $arg_name:ident : $ArgTy:ty
+                ),* $(,)?
+            ) $(-> $RetTy:ty)?
+            $(,)?
+        );
+    ) => (
+        $crate::__with_doc__! {
+            #[doc = $crate::core::concat!(
+                // " - [`",
+                // $crate::core::stringify!($StructName), "_Layout",
+                // "`](#impl-ReprC)",
+            )]
+            $(#[doc = $prev_doc])*
+            #[repr(transparent)]
+            $(#[doc = $doc])?
+            $(#[$meta])*
+            /// # C Layout
+            ///
+            $pub
+            struct $StructName $(
+                <$($generics)*>
+            )?
+            (
+                $(for<$($lt),*>)?
+                extern "C"
+                fn ( $($arg_name: $ArgTy),* ) $(-> $RetTy)?
+            )
+                $($(where $($bounds)*)?)?
+            ;
+        }
+
+        $crate::paste::item! {
+            #[repr(transparent)]
+            $pub
+            struct [<$StructName _Layout>] (
+                $crate::core::option::Option<
+                    unsafe
+                    extern "C"
+                    // performing a higher-order mapping is not possible,
+                    // so we ignore the types
+                    fn ()
+                >
+            );
+        }
+
+    );
+
+    // CASE: `#[repr(transparent)]`
     (
         $( @[doc = $doc:expr] )?
         $(#[doc = $prev_doc:tt])*

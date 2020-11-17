@@ -19,6 +19,18 @@ void cb (
     assert(strcmp(s, "Hello, World!") == 0);
 }
 
+bool foo_cb_called = false;
+void foo_cb (
+    foo_t * foo)
+{
+    assert(
+        read_foo(foo)
+        ==
+        42
+    );
+    foo_cb_called = true;
+}
+
 int main (
     int argc,
     char const * const argv[])
@@ -74,6 +86,10 @@ int main (
         free_foo(foo);
         free_foo(NULL);
     }
+
+    // test foo, cb version
+    with_foo(foo_cb);
+    assert(foo_cb_called == true);
 
     return EXIT_SUCCESS;
 }
