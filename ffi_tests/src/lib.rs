@@ -75,8 +75,8 @@ mod foo {
     #[repr(transparent)]
     pub
     struct with_ref_cb<Arg : 'static + ReprC> /* = */ (
-        for<'arg>
-        extern "C" fn(&'arg mut Arg)
+        pub
+        extern "C" fn(&mut Arg)
     );
 
     #[ffi_export]

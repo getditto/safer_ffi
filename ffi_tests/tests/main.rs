@@ -35,11 +35,6 @@ fn test_c_code ()
 #[test]
 fn test_csharp_code ()
 {
-    const C_BINARY: &'static str = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        // "/target",
-        "/c_binary"
-    );
     assert!(
         ::std::process::Command::new("dotnet")
             .current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/csharp"))
@@ -47,13 +42,5 @@ fn test_csharp_code ()
             .status()
             .expect("Failed to compile the C binary")
             .success()
-    );
-    assert!(
-        ::std::process::Command::new(C_BINARY)
-            .status()
-            .expect("Failed to run the C binary")
-            .success()
-        ,
-        "The C test failed."
     );
 }

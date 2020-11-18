@@ -44,8 +44,13 @@ fn try_handle_fptr (input: &'_ DeriveInput)
             | None => error!("Missing `#[repr(…)]` annotation"), // or bail!() and let the parent handle the error
         }
         // Check that the given ty is an `fn` pointer type.
-        let cb_ty = match fields.iter().next().unwrap().ty {
-            | Type::BareFn(ref it) => it,
+        let cb_ty = match fields.iter().next().unwrap() {
+            | Field { ty: Type::BareFn(ref cb_ty), ref vis, .. } => {
+                if matches!(vis, Visibility::Public(_)).not() {
+                    error!("Missing `pub`" => cb_ty.span());
+                }
+                cb_ty
+            },
             | _ => bail!(),
         };
         if let Some(ref v) = cb_ty.variadic {
@@ -146,7 +151,7 @@ fn try_handle_fptr (input: &'_ DeriveInput)
 
 
         let mut input_Layout = input.clone();
-        let lifetimes =
+        let ref lifetimes =
             cb_ty
                 .lifetimes
                 .as_ref()
@@ -168,6 +173,14 @@ fn try_handle_fptr (input: &'_ DeriveInput)
                     | ReturnType::Type(_, ref ty) => Some(&**ty),
                 })
                 .flat_map(|ty| {
+                    let ref mut ty = ty.clone();
+                    let ref mut lifetimes =
+                        ::std::borrow::Cow::<'_, Vec<_>>::Borrowed(lifetimes)
+                    ;
+                    UnelideLifetimes {
+                        lifetime_params: lifetimes,
+                        counter: (0 ..),
+                    }.visit_type_mut(ty);
                     let is_ReprC: WherePredicate = parse_quote!(
                         for<#(#lifetimes),*>
                             #ty : #ReprC
@@ -434,6 +447,62 @@ fn try_handle_fptr (input: &'_ DeriveInput)
     }
 }
 
+/// Convert, for instance, `fn(&i32)` into `fn(&'__elided_0 i32)`, yielding
+/// `'__elided_0`
+struct UnelideLifetimes<'__, 'vec> {
+    lifetime_params: &'__ mut ::std::borrow::Cow<'vec, Vec<LifetimeDef>>,
+    counter: ::core::ops::RangeFrom<usize>,
+}
+
+const _: () = {
+    macro_rules! ELIDED_LIFETIME_TEMPLATE {() => (
+        "__elided_{}"
+    )}
+    impl VisitMut for UnelideLifetimes<'_, '_> {
+        fn visit_lifetime_mut (self: &'_ mut Self, lifetime: &'_ mut Lifetime)
+        {
+            let Self { lifetime_params, counter } = self;
+            if lifetime.ident == "_" {
+                lifetime.ident = format_ident!(
+                    ELIDED_LIFETIME_TEMPLATE!(),
+                    counter.next().unwrap(),
+                );
+                lifetime_params.to_mut().push(parse_quote!( #lifetime ));
+            }
+        }
+
+        fn visit_type_mut (self: &'_ mut Self, ty: &'_ mut Type)
+        {
+            ::syn::visit_mut::visit_type_mut(self, ty);
+            let Self { lifetime_params, counter } = self;
+            match *ty {
+                | Type::Reference(TypeReference {
+                    lifetime: ref mut implicitly_elided_lifetime @ None,
+                    ..
+                }) => {
+                    let unelided_lifetime =
+                        implicitly_elided_lifetime
+                            .get_or_insert(Lifetime::new(
+                                &format!(
+                                    concat!(
+                                        "'",
+                                        ELIDED_LIFETIME_TEMPLATE!(),
+                                    ),
+                                    counter.next().unwrap(),
+                                ),
+                                Span2::call_site(),
+                            ))
+                    ;
+                    lifetime_params.to_mut().push(parse_quote!(
+                        #unelided_lifetime
+                    ));
+                },
+                | _ => {},
+            }
+        }
+    }
+};
+
 /// Pretty self-explanatory: since we can't do `<for<'lt> Ty as Tr>::Assoc`
 /// (technically the result value could depend on `'lt`, but not in our case,
 /// since `CType` is `'static`)
@@ -447,8 +516,13 @@ struct StripLifetimeParams; impl VisitMut for StripLifetimeParams {
     {
         ::syn::visit_mut::visit_type_mut(self, ty);
         match *ty {
-            | Type::Reference(TypeReference { ref mut lifetime, .. }) => {
-                *lifetime = Some(Lifetime::new("'static", Span2::call_site()));
+            | Type::Reference(TypeReference {
+                lifetime: ref mut implicitly_elided_lifetime @ None,
+                ..
+            }) => {
+                *implicitly_elided_lifetime = Some(
+                    Lifetime::new("'static", Span2::call_site())
+                );
             },
             | _ => {},
         }
