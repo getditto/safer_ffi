@@ -150,7 +150,14 @@ fn try_handle_fptr (input: &'_ DeriveInput)
         );
 
 
-        let mut input_Layout = input.clone();
+        let mut input_Layout = DeriveInput {
+            attrs: vec![],
+            vis: vis.clone(),
+            ident: format_ident!("{}_Layout", StructName),
+            generics: generics.clone(),
+            data: input.data.clone(),
+        };
+        let ref StructName_Layout = input_Layout.ident;
         let ref lifetimes =
             cb_ty
                 .lifetimes
@@ -210,10 +217,6 @@ fn try_handle_fptr (input: &'_ DeriveInput)
             .predicates
             .extend(repr_c_clauses.iter().cloned())
         ;
-        input_Layout.ident = format_ident!(
-            "{}_Layout", StructName,
-        );
-        let ref StructName_Layout = input_Layout.ident;
         let input_Layout_data = match input_Layout.data {
             | Data::Struct(ref mut it) => it,
             | _ => unreachable!(),
