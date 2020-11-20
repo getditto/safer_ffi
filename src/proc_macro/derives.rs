@@ -1,13 +1,19 @@
+inline_mod!(handle_fptr);
+
 fn feed_to_macro_rules (input: TokenStream, name: Ident)
   -> TokenStream
 {
+    let input = parse_macro_input!(input as DeriveInput);
+    if let Some(expansion) = try_handle_fptr(&input) {
+        return expansion;
+    }
     let DeriveInput {
         attrs,
         vis,
         ident,
         generics,
         data,
-    } = parse_macro_input!(input);
+    } = input;
     let ret = TokenStream::from(match data {
         | Data::Enum(DataEnum {
             enum_token: ref enum_,

@@ -11,6 +11,7 @@ use ::{
         TokenStream as TokenStream2,
     },
     quote::{
+        format_ident,
         quote,
         quote_spanned,
         ToTokens,
@@ -22,9 +23,12 @@ use ::{
         },
         punctuated::Punctuated,
         spanned::Spanned,
+        visit_mut::VisitMut,
         Result,
     },
 };
+
+use ::core::ops::Not as _;
 
 macro_rules! inline_mod {($modname:ident) => (
     include! { concat!(stringify!($modname), ".rs") }

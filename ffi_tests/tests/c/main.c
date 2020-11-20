@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "generated.h"
@@ -17,6 +18,18 @@ void cb (
 {
     *(bool *)called = true;
     assert(strcmp(s, "Hello, World!") == 0);
+}
+
+bool foo_cb_called = false;
+void foo_cb (
+    foo_t * foo)
+{
+    assert(
+        read_foo(foo)
+        ==
+        42
+    );
+    foo_cb_called = true;
 }
 
 int main (
@@ -74,6 +87,12 @@ int main (
         free_foo(foo);
         free_foo(NULL);
     }
+
+    // test foo, cb version
+    with_foo(foo_cb);
+    assert(foo_cb_called == true);
+
+    puts("C: [ok]");
 
     return EXIT_SUCCESS;
 }

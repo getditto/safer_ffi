@@ -109,8 +109,19 @@ static class Tests
             );
             Ffi.free_foo(foo);
             Ffi.free_foo(null);
+
+            bool called = false;
+            Ffi.with_foo((foo_t * foo) => {
+                Trace.Assert(
+                    Ffi.read_foo(foo)
+                    ==
+                    42
+                );
+                called = true;
+            });
+            Trace.Assert(called);
         }
 
-        Console.WriteLine("[ok]");
+        Console.WriteLine("C#: [ok]");
     }
 }
