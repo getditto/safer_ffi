@@ -286,6 +286,12 @@ hidden_export! {
     use ::log;
 }
 
+#[cfg(feature = "node-js")]
+hidden_export! {
+    #[path = "node_js/_mod.rs"]
+    mod node_js;
+}
+
 hidden_export! {
     #[allow(missing_copy_implementations, missing_debug_implementations)]
     struct __PanicOnDrop__; impl Drop for __PanicOnDrop__ {

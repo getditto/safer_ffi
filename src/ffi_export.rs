@@ -1,5 +1,7 @@
 #[doc(hidden)] #[macro_export]
 macro_rules! __ffi_export__ {(
+    $( @[node_js($node_js_arg_count:literal)] )?
+
     $($(#[doc = $doc:expr])+)?
     // $(#[$meta:meta])*
     $pub:vis
@@ -44,11 +46,11 @@ macro_rules! __ffi_export__ {(
             $(
                 $arg_name : <$arg_ty as $crate::layout::ReprC>::CLayout,
             )*
-        ) $(-> $Ret)?
+        ) -> <($($Ret)?) as $crate::layout::ReprC>::CLayout
         where
             $( $($bounds)* )?
         {{
-            let body = /* #[inline(always)] */ || {
+            let body = /* #[inline(always)] */ || -> ($($Ret)?) {
                 $(
                     {
                         fn __return_type__<T> (_: T)
@@ -108,10 +110,49 @@ macro_rules! __ffi_export__ {(
                 }
                 $fname
             };
-            let ret = body();
+            let ret = unsafe {
+                $crate::layout::into_raw(body())
+            };
             $crate::core::mem::forget(guard);
             ret
         }}
+
+        #[cfg(any(
+            $(
+                all(),
+                __hack = $node_js_arg_count
+            )?
+        ))]
+        /// Define the N-API wrapping function.
+        const _: () = {
+            use ::safer_ffi::node_js as napi;
+
+            $( #[napi::js_function($node_js_arg_count)] )?
+            fn __node_js $(<$($lt:lifetime $(: $sup_lt:lifetime)?),* $(,)?>)? (ctx: napi::CallContext<'_>)
+              -> napi::Result<impl napi::NapiValue>
+            {
+                let mut __nodejs_arg_idx = 0;
+                $(
+                    let $arg_name: <$arg_ty as $crate::layout::ReprC>::CLayout =
+                        napi::extract_arg(&ctx, __nodejs_arg_idx)?
+                    ;
+                    let __nodejs_arg_idx = __nodejs_arg_idx + 1;
+                )*
+                let ret = unsafe {
+                    $fname($($arg_name),*)
+                };
+                napi::ToNapi::to_napi_value(ret, ctx.env)
+            }
+
+            /// Register the N-API defined function.
+            ::safer_ffi::node_js::registering::submit! {
+                #![crate = ::safer_ffi::node_js::registering]
+                ::safer_ffi::node_js::registering::NapiRegistryEntry::NamedMethod {
+                    name: stringify!($fname),
+                    method: __node_js,
+                }
+            }
+        };
     };
 
     $crate::__cfg_headers__! {

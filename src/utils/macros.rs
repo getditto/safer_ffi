@@ -232,3 +232,10 @@ macro_rules! hidden_export {
         }
     )
 }
+
+macro_rules! match_ {(
+    ( $($scrutinee:tt)* ) $rules:tt
+) => (
+    macro_rules! __recurse__ $rules
+    __recurse__! { $($scrutinee)* }
+)}

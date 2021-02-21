@@ -53,9 +53,30 @@ fn ffi_export (attrs: TokenStream, input: TokenStream)
   -> TokenStream
 {
     use ::proc_macro::{*, TokenTree as TT};
-    if let Some(unexpected_tt) = attrs.into_iter().next() {
-        return compile_error("Unexpected parameter", unexpected_tt.span());
+    #[cfg(feature = "node-js")]
+    let mut node_js = None;
+    match attrs.into_iter().next() {
+        #[cfg(feature = "node-js")]
+        | Some(TT::Ident(kw)) if kw.to_string() == "node_js" => {
+            let input = input.clone();
+            let fun: ItemFn = parse_macro_input!(input);
+            node_js = Some(::proc_macro2::Literal::usize_unsuffixed(fun.sig.inputs.len()));
+        },
+        | Some(unexpected_tt) => {
+            return compile_error("Unexpected parameter", unexpected_tt.span());
+        },
+        | None => {},
     }
+    #[cfg(feature = "node-js")]
+    let input = if let Some(arg_count) = node_js {
+        let mut ts = TokenStream::from(::quote::quote!(
+            @[node_js(#arg_count)]
+        ));
+        ts.extend(input);
+        ts
+    } else {
+        input
+    };
     // #[cfg(feature = "proc_macros")] {
     //     let input = input.clone();
     //     let _: ItemFn = parse_macro_input!(input);
