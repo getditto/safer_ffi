@@ -1,0 +1,3 @@
+libnodejs_tests.dylib
+tests/index.node
+target/**/*
