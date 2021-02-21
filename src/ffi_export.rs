@@ -128,7 +128,7 @@ macro_rules! __ffi_export__ {(
             use ::safer_ffi::node_js as napi;
 
             $( #[napi::js_function($node_js_arg_count)] )?
-            fn __node_js $(<$($lt:lifetime $(: $sup_lt:lifetime)?),* $(,)?>)? (ctx: napi::CallContext<'_>)
+            fn __node_js $(<$($lt $(: $sup_lt)?),*>)? (ctx: napi::CallContext<'_>)
               -> napi::Result<impl napi::NapiValue>
             {
                 let mut __nodejs_arg_idx = 0;
