@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["BoxDynFnMut0","`Box<dyn 'static + Send + FnMut() -> Ret>` # C Layout"],["BoxDynFnMut0_Layout",""],["BoxDynFnMut1","`Box<dyn 'static + Send + FnMut(A1) -> Ret>` # C Layout"],["BoxDynFnMut1_Layout",""]]});
+initSidebarItems({"struct":[["BoxDynFnMut0","`Box<dyn 'static + Send + FnMut() -> Ret>`"],["BoxDynFnMut0_Layout",""],["BoxDynFnMut1","`Box<dyn 'static + Send + FnMut(A1) -> Ret>`"],["BoxDynFnMut1_Layout",""]]});

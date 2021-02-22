@@ -1,4 +1,7 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/layout/macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../safer_ffi/index.html'><div class='logo-container'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/layout/macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../safer_ffi/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1230,8 +1233,8 @@
             )<span class="op">+</span>)<span class="question-mark">?</span>
             $($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">bounds</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>
         )<span class="question-mark">?</span>
-    { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__cfg_headers__</span><span class="op">!</span> {
-        <span class="kw">fn</span> <span class="ident">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
+    { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__cfg_headers__</span><span class="macro">!</span> {
+        <span class="kw">fn</span> <span class="macro-nonterminal">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
           <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span>
         {
             <span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">StructName</span>))<span class="question-mark">?</span>;
@@ -1268,14 +1271,14 @@
                     )<span class="op">*</span>
                     <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">definer</span>.<span class="ident">out</span>();
                     $(
-                        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__output_docs__</span><span class="op">!</span>(<span class="ident">out</span>, <span class="string">&quot;&quot;</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc_meta</span>)<span class="kw-2">*</span>);
+                        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__output_docs__</span><span class="macro">!</span>(<span class="macro-nonterminal">out</span>, <span class="string">&quot;&quot;</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc_meta</span>)<span class="kw-2">*</span>);
                     )<span class="question-mark">?</span>
-                    <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__output_docs__</span><span class="op">!</span>(<span class="ident">out</span>, <span class="string">&quot;&quot;</span>, $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>)<span class="kw-2">*</span>]</span>)<span class="kw-2">*</span>);
+                    <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__output_docs__</span><span class="macro">!</span>(<span class="macro-nonterminal">out</span>, <span class="string">&quot;&quot;</span>, $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>)<span class="kw-2">*</span>]</span>)<span class="kw-2">*</span>);
                     <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">out</span>, <span class="string">&quot;typedef struct {{\n&quot;</span>)<span class="question-mark">?</span>;
                     $(
                         <span class="kw">if</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_ty</span><span class="op">&gt;</span>() <span class="op">&gt;</span> <span class="number">0</span> {
                             <span class="comment">// $crate::core::writeln!(out, &quot;&quot;)?;</span>
-                            <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__output_docs__</span><span class="op">!</span>(<span class="ident">out</span>, <span class="string">&quot;    &quot;</span>,
+                            <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__output_docs__</span><span class="macro">!</span>(<span class="macro-nonterminal">out</span>, <span class="string">&quot;    &quot;</span>,
                                 $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_meta</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
                             );
                             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">out</span>, <span class="string">&quot;    {};\n&quot;</span>,
@@ -1411,8 +1414,8 @@
             ),<span class="op">+</span> $(,)<span class="question-mark">?</span>
         }
     ) <span class="op">=</span><span class="op">&gt;</span> (
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__with_doc__</span><span class="op">!</span> {
-            <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="macro">concat</span><span class="macro">!</span>(
+        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__with_doc__</span><span class="macro">!</span> {
+            <span class="attribute">#[<span class="macro-nonterminal">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="macro">concat</span><span class="macro">!</span>(
                 <span class="string">&quot;  - [`&quot;</span>,
                 <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">StructName</span>),
                 <span class="string">&quot;_Layout`]&quot;</span>
@@ -1478,7 +1481,7 @@
             {
                 <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">it</span>;
                 <span class="bool-val">true</span> $(
-                    <span class="kw-2">&amp;</span><span class="op">&amp;</span> (
+                    <span class="op">&amp;&amp;</span> (
                         <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span>
                             <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_ty</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">layout</span>::<span class="ident">ReprC</span><span class="op">&gt;</span>::<span class="ident">CLayout</span>
                         <span class="op">&gt;</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
@@ -1590,8 +1593,8 @@
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">*</span> )<span class="question-mark">?</span>
         );
     ) <span class="op">=</span><span class="op">&gt;</span> (
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__with_doc__</span><span class="op">!</span> {
-            <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="macro">concat</span><span class="macro">!</span>(
+        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__with_doc__</span><span class="macro">!</span> {
+            <span class="attribute">#[<span class="macro-nonterminal">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="macro">concat</span><span class="macro">!</span>(
                 <span class="string">&quot; - [`&quot;</span>,
                 <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_ty</span>),
                 <span class="string">&quot;`](#impl-ReprC)&quot;</span>,
@@ -1712,8 +1715,8 @@
             <span class="kw">unsafe</span>
             <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">layout</span>::<span class="ident">CType</span>
                 <span class="kw">for</span> [<span class="op">&lt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span> <span class="ident">_Layout</span> <span class="op">&gt;</span>]
-            { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__cfg_headers__</span><span class="op">!</span> {
-                <span class="kw">fn</span> <span class="ident">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
+            { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__cfg_headers__</span><span class="macro">!</span> {
+                <span class="kw">fn</span> <span class="macro-nonterminal">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
                   <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span>
                 {
                     <span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span>).<span class="ident">trim</span>())
@@ -1733,7 +1736,7 @@
                                 <span class="ident">definer</span>,
                             )<span class="question-mark">?</span>;
                             <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">definer</span>.<span class="ident">out</span>();
-                            <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__output_docs__</span><span class="op">!</span>(<span class="ident">out</span>, <span class="string">&quot;&quot;</span>,
+                            <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__output_docs__</span><span class="macro">!</span>(<span class="macro-nonterminal">out</span>, <span class="string">&quot;&quot;</span>,
                                 $(<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">prev_doc</span>]</span>)<span class="op">*</span>
                                 $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
                             );
@@ -1952,8 +1955,8 @@
             {
                 <span class="kw">type</span> <span class="ident">OPAQUE_KIND</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">layout</span>::<span class="ident">OpaqueKind</span>::<span class="ident">Opaque</span>;
 
-                <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__cfg_headers__</span><span class="op">!</span> {
-                    <span class="kw">fn</span> <span class="ident">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
+                <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__cfg_headers__</span><span class="macro">!</span> {
+                    <span class="kw">fn</span> <span class="macro-nonterminal">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
                         <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span>
                     {
                         <span class="kw">let</span> <span class="ident">_c_name</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">StructName</span>);
@@ -2088,8 +2091,8 @@
             <span class="string">&quot;{pad}/** \\brief\n{pad} * {}&quot;</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>,
             <span class="ident">pad</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pad</span>,
         )<span class="question-mark">?</span>;
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__output_docs__</span><span class="op">!</span> {
-            @<span class="ident">opened</span>
+        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__output_docs__</span><span class="macro">!</span> {
+            @<span class="macro-nonterminal">opened</span>
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pad</span>, $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
         }
     });
@@ -2099,7 +2102,7 @@
             <span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">not_doc_meta</span>:<span class="ident">meta</span>]</span>
             $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
     ) <span class="op">=</span><span class="op">&gt;</span> ({
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__output_docs__</span><span class="op">!</span> {
+        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__output_docs__</span><span class="macro">!</span> {
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pad</span>, $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
         }
     });
@@ -2128,8 +2131,8 @@
             <span class="string">&quot;{pad} * {}&quot;</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>,
             <span class="ident">pad</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pad</span>,
         )<span class="question-mark">?</span>;
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__output_docs__</span><span class="op">!</span> {
-            @<span class="ident">opened</span>
+        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__output_docs__</span><span class="macro">!</span> {
+            @<span class="macro-nonterminal">opened</span>
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pad</span>, $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
         }
     });
@@ -2139,8 +2142,8 @@
             <span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">not_doc_meta</span>:<span class="ident">meta</span>]</span>
             $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
     ) <span class="op">=</span><span class="op">&gt;</span> ({
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__output_docs__</span><span class="op">!</span> {
-            @<span class="ident">opened</span>
+        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__output_docs__</span><span class="macro">!</span> {
+            @<span class="macro-nonterminal">opened</span>
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pad</span>, $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
         }
     });
@@ -2266,4 +2269,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "safer_ffi";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

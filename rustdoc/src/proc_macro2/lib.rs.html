@@ -1,4 +1,7 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.18/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../proc_macro2/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.24/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../proc_macro2/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1227,6 +1230,11 @@
 <span id="1227">1227</span>
 <span id="1228">1228</span>
 <span id="1229">1229</span>
+<span id="1230">1230</span>
+<span id="1231">1231</span>
+<span id="1232">1232</span>
+<span id="1233">1233</span>
+<span id="1234">1234</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A wrapper around the procedural macro API of the compiler&#39;s [`proc_macro`]</span>
 <span class="doccomment">//! crate. This library serves two purposes:</span>
@@ -1308,7 +1316,7 @@
 <span class="doccomment">//! a different thread.</span>
 
 <span class="comment">// Proc-macro2 types in rustdoc of other crates get linked to here.</span>
-<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/proc-macro2/1.0.18&quot;</span>)]</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/proc-macro2/1.0.24&quot;</span>)]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">proc_macro_span</span>, <span class="ident">super_unstable</span>), <span class="ident">feature</span>(<span class="ident">proc_macro_span</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">super_unstable</span>, <span class="ident">feature</span>(<span class="ident">proc_macro_raw_ident</span>, <span class="ident">proc_macro_def_site</span>))]</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">needless_doctest_main</span>)]</span>
@@ -1316,17 +1324,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">use_proc_macro</span>)]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">proc_macro</span>;
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Display</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">hash</span>::{<span class="ident">Hash</span>, <span class="ident">Hasher</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">FromIterator</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">RangeBounds</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">procmacro2_semver_exempt</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">PathBuf</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span>;
-
+<span class="kw">mod</span> <span class="ident">marker</span>;
 <span class="kw">mod</span> <span class="ident">parse</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">wrap_proc_macro</span>)]</span>
@@ -1343,6 +1341,17 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">wrap_proc_macro</span>)]</span>
 <span class="kw">mod</span> <span class="ident">imp</span>;
 
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">marker</span>::<span class="ident">Marker</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Display</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">hash</span>::{<span class="ident">Hash</span>, <span class="ident">Hasher</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">FromIterator</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">RangeBounds</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">procmacro2_semver_exempt</span>)]</span>
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">PathBuf</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span>;
+
 <span class="doccomment">/// An abstract stream of tokens, or more concretely a sequence of token trees.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This type provides interfaces for iterating over token trees and for</span>
@@ -1353,27 +1362,27 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TokenStream</span> {
     <span class="ident">inner</span>: <span class="ident">imp</span>::<span class="ident">TokenStream</span>,
-    <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">_marker</span>: <span class="ident">Marker</span>,
 }
 
 <span class="doccomment">/// Error returned from `TokenStream::from_str`.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LexError</span> {
     <span class="ident">inner</span>: <span class="ident">imp</span>::<span class="ident">LexError</span>,
-    <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">_marker</span>: <span class="ident">Marker</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">TokenStream</span> {
     <span class="kw">fn</span> <span class="ident">_new</span>(<span class="ident">inner</span>: <span class="ident">imp</span>::<span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
         <span class="ident">TokenStream</span> {
             <span class="ident">inner</span>,
-            <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
+            <span class="ident">_marker</span>: <span class="ident">Marker</span>,
         }
     }
 
     <span class="kw">fn</span> <span class="ident">_new_stable</span>(<span class="ident">inner</span>: <span class="ident">fallback</span>::<span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
         <span class="ident">TokenStream</span> {
             <span class="ident">inner</span>: <span class="ident">inner</span>.<span class="ident">into</span>(),
-            <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
+            <span class="ident">_marker</span>: <span class="ident">Marker</span>,
         }
     }
 
@@ -1410,7 +1419,7 @@
     <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span>, <span class="ident">LexError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">LexError</span> {
             <span class="ident">inner</span>: <span class="ident">e</span>,
-            <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
+            <span class="ident">_marker</span>: <span class="ident">Marker</span>,
         })<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">TokenStream</span>::<span class="ident">_new</span>(<span class="ident">e</span>))
     }
@@ -1484,6 +1493,14 @@
     }
 }
 
+<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">LexError</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">f</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">LexError</span> {}
+
 <span class="doccomment">/// The source file of a given `Span`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This type is semver exempt and not exposed by default.</span>
@@ -1491,7 +1508,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SourceFile</span> {
     <span class="ident">inner</span>: <span class="ident">imp</span>::<span class="ident">SourceFile</span>,
-    <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">_marker</span>: <span class="ident">Marker</span>,
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">procmacro2_semver_exempt</span>)]</span>
@@ -1499,7 +1516,7 @@
     <span class="kw">fn</span> <span class="ident">_new</span>(<span class="ident">inner</span>: <span class="ident">imp</span>::<span class="ident">SourceFile</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">SourceFile</span> {
             <span class="ident">inner</span>,
-            <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
+            <span class="ident">_marker</span>: <span class="ident">Marker</span>,
         }
     }
 
@@ -1568,21 +1585,21 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Span</span> {
     <span class="ident">inner</span>: <span class="ident">imp</span>::<span class="ident">Span</span>,
-    <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">_marker</span>: <span class="ident">Marker</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Span</span> {
     <span class="kw">fn</span> <span class="ident">_new</span>(<span class="ident">inner</span>: <span class="ident">imp</span>::<span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
         <span class="ident">Span</span> {
             <span class="ident">inner</span>,
-            <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
+            <span class="ident">_marker</span>: <span class="ident">Marker</span>,
         }
     }
 
     <span class="kw">fn</span> <span class="ident">_new_stable</span>(<span class="ident">inner</span>: <span class="ident">fallback</span>::<span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
         <span class="ident">Span</span> {
             <span class="ident">inner</span>: <span class="ident">inner</span>.<span class="ident">into</span>(),
-            <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
+            <span class="ident">_marker</span>: <span class="ident">Marker</span>,
         }
     }
 
@@ -1600,7 +1617,6 @@
     <span class="doccomment">/// of the macro. This is the same hygiene behavior as `macro_rules`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This function requires Rust 1.45 or later.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">procmacro2_semver_exempt</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">hygiene</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mixed_site</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
         <span class="ident">Span</span>::<span class="ident">_new</span>(<span class="ident">imp</span>::<span class="ident">Span</span>::<span class="ident">mixed_site</span>())
@@ -1616,14 +1632,12 @@
 
     <span class="doccomment">/// Creates a new span with the same line/column information as `self` but</span>
     <span class="doccomment">/// that resolves symbols as though it were at `other`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">procmacro2_semver_exempt</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolved_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
         <span class="ident">Span</span>::<span class="ident">_new</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">resolved_at</span>(<span class="ident">other</span>.<span class="ident">inner</span>))
     }
 
     <span class="doccomment">/// Creates a new span with the same name resolution behavior as `self` but</span>
     <span class="doccomment">/// with the line/column information of `other`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">procmacro2_semver_exempt</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">located_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
         <span class="ident">Span</span>::<span class="ident">_new</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">located_at</span>(<span class="ident">other</span>.<span class="ident">inner</span>))
     }
@@ -1929,7 +1943,7 @@
 <span class="doccomment">/// `Punct` with different forms of `Spacing` returned.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Punct</span> {
-    <span class="ident">op</span>: <span class="ident">char</span>,
+    <span class="ident">ch</span>: <span class="ident">char</span>,
     <span class="ident">spacing</span>: <span class="ident">Spacing</span>,
     <span class="ident">span</span>: <span class="ident">Span</span>,
 }
@@ -1955,9 +1969,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The returned `Punct` will have the default span of `Span::call_site()`</span>
     <span class="doccomment">/// which can be further configured with the `set_span` method below.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">op</span>: <span class="ident">char</span>, <span class="ident">spacing</span>: <span class="ident">Spacing</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Punct</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ch</span>: <span class="ident">char</span>, <span class="ident">spacing</span>: <span class="ident">Spacing</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Punct</span> {
         <span class="ident">Punct</span> {
-            <span class="ident">op</span>,
+            <span class="ident">ch</span>,
             <span class="ident">spacing</span>,
             <span class="ident">span</span>: <span class="ident">Span</span>::<span class="ident">call_site</span>(),
         }
@@ -1965,7 +1979,7 @@
 
     <span class="doccomment">/// Returns the value of this punctuation character as `char`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_char</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">char</span> {
-        <span class="self">self</span>.<span class="ident">op</span>
+        <span class="self">self</span>.<span class="ident">ch</span>
     }
 
     <span class="doccomment">/// Returns the spacing of this punctuation character, indicating whether</span>
@@ -1992,14 +2006,14 @@
 <span class="doccomment">/// convertible back into the same character.</span>
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Punct</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">op</span>, <span class="ident">f</span>)
+        <span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ch</span>, <span class="ident">f</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Punct</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">debug</span> <span class="op">=</span> <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Punct&quot;</span>);
-        <span class="ident">debug</span>.<span class="ident">field</span>(<span class="string">&quot;op&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">op</span>);
+        <span class="ident">debug</span>.<span class="ident">field</span>(<span class="string">&quot;char&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ch</span>);
         <span class="ident">debug</span>.<span class="ident">field</span>(<span class="string">&quot;spacing&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">spacing</span>);
         <span class="ident">imp</span>::<span class="ident">debug_span_field_if_nontrivial</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">debug</span>, <span class="self">self</span>.<span class="ident">span</span>.<span class="ident">inner</span>);
         <span class="ident">debug</span>.<span class="ident">finish</span>()
@@ -2073,14 +2087,14 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Ident</span> {
     <span class="ident">inner</span>: <span class="ident">imp</span>::<span class="ident">Ident</span>,
-    <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">_marker</span>: <span class="ident">Marker</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Ident</span> {
     <span class="kw">fn</span> <span class="ident">_new</span>(<span class="ident">inner</span>: <span class="ident">imp</span>::<span class="ident">Ident</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ident</span> {
         <span class="ident">Ident</span> {
             <span class="ident">inner</span>,
-            <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
+            <span class="ident">_marker</span>: <span class="ident">Marker</span>,
         }
     }
 
@@ -2201,7 +2215,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Literal</span> {
     <span class="ident">inner</span>: <span class="ident">imp</span>::<span class="ident">Literal</span>,
-    <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">_marker</span>: <span class="ident">Marker</span>,
 }
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">suffixed_int_literals</span> {
@@ -2248,14 +2262,14 @@
     <span class="kw">fn</span> <span class="ident">_new</span>(<span class="ident">inner</span>: <span class="ident">imp</span>::<span class="ident">Literal</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Literal</span> {
         <span class="ident">Literal</span> {
             <span class="ident">inner</span>,
-            <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
+            <span class="ident">_marker</span>: <span class="ident">Marker</span>,
         }
     }
 
     <span class="kw">fn</span> <span class="ident">_new_stable</span>(<span class="ident">inner</span>: <span class="ident">fallback</span>::<span class="ident">Literal</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Literal</span> {
         <span class="ident">Literal</span> {
             <span class="ident">inner</span>: <span class="ident">inner</span>.<span class="ident">into</span>(),
-            <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
+            <span class="ident">_marker</span>: <span class="ident">Marker</span>,
         }
     }
 
@@ -2414,10 +2428,9 @@
 
 <span class="doccomment">/// Public implementation details for the `TokenStream` type, such as iterators.</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">token_stream</span> {
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">marker</span>::<span class="ident">Marker</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">imp</span>, <span class="ident">TokenTree</span>};
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>};
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>;
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
 
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">TokenStream</span>;
 
@@ -2428,7 +2441,7 @@
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IntoIter</span> {
         <span class="ident">inner</span>: <span class="ident">imp</span>::<span class="ident">TokenTreeIter</span>,
-        <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">_marker</span>: <span class="ident">Marker</span>,
     }
 
     <span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">IntoIter</span> {
@@ -2452,10 +2465,11 @@
         <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IntoIter</span> {
             <span class="ident">IntoIter</span> {
                 <span class="ident">inner</span>: <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">into_iter</span>(),
-                <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
+                <span class="ident">_marker</span>: <span class="ident">Marker</span>,
             }
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "proc_macro2";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="proc_macro2"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

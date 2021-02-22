@@ -1,4 +1,7 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ctor-0.1.15/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../ctor/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ctor-0.1.19/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../ctor/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -328,6 +331,66 @@
 <span id="328">328</span>
 <span id="329">329</span>
 <span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">recursion_limit</span> <span class="op">=</span> <span class="string">&quot;256&quot;</span>]</span>
 
@@ -430,6 +493,8 @@
 <span class="doccomment">/// #[used]</span>
 <span class="doccomment">/// #[cfg_attr(any(target_os = &quot;linux&quot;, target_os = &quot;android&quot;), link_section = &quot;.init_array&quot;)]</span>
 <span class="doccomment">/// #[cfg_attr(target_os = &quot;freebsd&quot;, link_section = &quot;.init_array&quot;)]</span>
+<span class="doccomment">/// #[cfg_attr(target_os = &quot;netbsd&quot;, link_section = &quot;.init_array&quot;)]</span>
+<span class="doccomment">/// #[cfg_attr(target_os = &quot;openbsd&quot;, link_section = &quot;.init_array&quot;)]</span>
 <span class="doccomment">/// #[cfg_attr(any(target_os = &quot;macos&quot;, target_os = &quot;ios&quot;), link_section = &quot;__DATA,__mod_init_func&quot;)]</span>
 <span class="doccomment">/// #[cfg_attr(target_os = &quot;windows&quot;, link_section = &quot;.CRT$XCU&quot;)]</span>
 <span class="doccomment">/// static FOO: extern fn() = {</span>
@@ -447,6 +512,7 @@
         <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">ItemFn</span> {
             <span class="ident">attrs</span>,
             <span class="ident">block</span>,
+            <span class="ident">vis</span>,
             <span class="ident">sig</span>:
                 <span class="ident">syn</span>::<span class="ident">Signature</span> {
                     <span class="ident">ident</span>,
@@ -465,21 +531,32 @@
         <span class="comment">// Why .CRT$XCU on Windows? https://www.cnblogs.com/sunkang/archive/2011/05/24/2055635.html</span>
         <span class="comment">// &#39;I&#39;=C init, &#39;C&#39;=C++ init, &#39;P&#39;=Pre-terminators and &#39;T&#39;=Terminators</span>
 
+        <span class="kw">let</span> <span class="ident">ctor_ident</span> <span class="op">=</span>
+            <span class="ident">syn</span>::<span class="ident">parse_str</span>::<span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Ident</span><span class="op">&gt;</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}___rust_ctor___ctor&quot;</span>, <span class="ident">ident</span>).<span class="ident">as_ref</span>())
+                .<span class="ident">expect</span>(<span class="string">&quot;Unable to create identifier&quot;</span>);
+
         <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="macro">quote</span><span class="macro">!</span>(
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>, <span class="ident">windows</span>)))]</span>
+            <span class="macro">compile_error</span><span class="macro">!</span>(<span class="string">&quot;#[ctor] is not supported on the current target&quot;</span>);
+
+            #(#<span class="ident">attrs</span>)<span class="op">*</span>
+            #<span class="ident">vis</span> #<span class="ident">unsafety</span> <span class="kw">extern</span> #<span class="ident">abi</span> #<span class="ident">constness</span> <span class="kw">fn</span> #<span class="ident">ident</span>() #<span class="ident">block</span>
+
             <span class="attribute">#[<span class="ident">used</span>]</span>
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_upper_case_globals</span>)]</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>), <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.init_array&quot;</span>)]</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>, <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.init_array&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>, <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.init_array&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>, <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.init_array&quot;</span>)]</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>), <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;__DATA,__mod_init_func&quot;</span>)]</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">windows</span>, <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.CRT$XCU&quot;</span>)]</span>
-            #(#<span class="ident">attrs</span>)<span class="op">*</span>
-            <span class="kw">static</span> #<span class="ident">ident</span>
+            <span class="kw">static</span> #<span class="ident">ctor_ident</span>
             :
-            #<span class="ident">unsafety</span> <span class="kw">extern</span> #<span class="ident">abi</span> #<span class="ident">constness</span> <span class="kw">fn</span>() <span class="op">=</span>
+            <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>() <span class="op">=</span>
             {
                 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>), <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.text.startup&quot;</span>)]</span>
-                #<span class="ident">unsafety</span> <span class="kw">extern</span> #<span class="ident">abi</span> #<span class="ident">constness</span> <span class="kw">fn</span> #<span class="ident">ident</span>() #<span class="ident">block</span>;
-                #<span class="ident">ident</span>
+                <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> #<span class="ident">ctor_ident</span>() { #<span class="ident">ident</span>() };
+                #<span class="ident">ctor_ident</span>
             }
             ;
         );
@@ -519,6 +596,9 @@
                 .<span class="ident">expect</span>(<span class="string">&quot;Unable to create identifier&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="macro">quote</span><span class="macro">!</span>(
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>, <span class="ident">windows</span>)))]</span>
+            <span class="macro">compile_error</span><span class="macro">!</span>(<span class="string">&quot;#[ctor] is not supported on the current target&quot;</span>);
+
             <span class="comment">// This is mutable, but only by this macro code!</span>
             <span class="kw">static</span> <span class="kw-2">mut</span> #<span class="ident">storage_ident</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>#<span class="ident">ty</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
@@ -546,13 +626,15 @@
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_upper_case_globals</span>)]</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>), <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.init_array&quot;</span>)]</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>, <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.init_array&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>, <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.init_array&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>, <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.init_array&quot;</span>)]</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>), <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;__DATA,__mod_init_func&quot;</span>)]</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">windows</span>, <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.CRT$XCU&quot;</span>)]</span>
             <span class="kw">static</span> #<span class="ident">ctor_ident</span>
             :
-            <span class="kw">unsafe</span> <span class="kw">fn</span>() <span class="op">=</span> {
+            <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>() <span class="op">=</span> {
                 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>), <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.text.startup&quot;</span>)]</span>
-                <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">initer</span>() {
+                <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">initer</span>() {
                     #<span class="ident">storage_ident</span> <span class="op">=</span> <span class="prelude-val">Some</span>(#<span class="ident">expr</span>);
                 }; <span class="ident">initer</span> }
             ;
@@ -578,6 +660,7 @@
 <span class="doccomment">/// ```rust</span>
 <span class="doccomment">/// # extern crate ctor;</span>
 <span class="doccomment">/// # use ctor::*;</span>
+<span class="doccomment">/// # fn main() {}</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// #[dtor]</span>
 <span class="doccomment">/// fn shutdown() {</span>
@@ -592,6 +675,7 @@
     <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">ItemFn</span> {
         <span class="ident">attrs</span>,
         <span class="ident">block</span>,
+        <span class="ident">vis</span>,
         <span class="ident">sig</span>:
             <span class="ident">syn</span>::<span class="ident">Signature</span> {
                 <span class="ident">ident</span>,
@@ -603,33 +687,72 @@
         ..
     } <span class="op">=</span> <span class="ident">function</span>;
 
+    <span class="kw">let</span> <span class="ident">mod_ident</span> <span class="op">=</span>
+        <span class="ident">syn</span>::<span class="ident">parse_str</span>::<span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Ident</span><span class="op">&gt;</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}___rust_dtor___mod&quot;</span>, <span class="ident">ident</span>).<span class="ident">as_ref</span>())
+            .<span class="ident">expect</span>(<span class="string">&quot;Unable to create identifier&quot;</span>);
+
+    <span class="kw">let</span> <span class="ident">dtor_ident</span> <span class="op">=</span>
+        <span class="ident">syn</span>::<span class="ident">parse_str</span>::<span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Ident</span><span class="op">&gt;</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}___rust_dtor___dtor&quot;</span>, <span class="ident">ident</span>).<span class="ident">as_ref</span>())
+            .<span class="ident">expect</span>(<span class="string">&quot;Unable to create identifier&quot;</span>);
+
     <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="macro">quote</span><span class="macro">!</span>(
-        <span class="kw">mod</span> #<span class="ident">ident</span> {
-            <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>, <span class="ident">windows</span>)))]</span>
+        <span class="macro">compile_error</span><span class="macro">!</span>(<span class="string">&quot;#[dtor] is not supported on the current target&quot;</span>);
+
+        #(#<span class="ident">attrs</span>)<span class="op">*</span>
+        #<span class="ident">vis</span> #<span class="ident">unsafety</span> <span class="kw">extern</span> #<span class="ident">abi</span> #<span class="ident">constness</span> <span class="kw">fn</span> #<span class="ident">ident</span>() #<span class="ident">block</span>
+
+        <span class="comment">// Targets that use `atexit`.</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(
+            <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>,
+            <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>,
+        )))]</span>
+        <span class="kw">mod</span> #<span class="ident">mod_ident</span> {
+            <span class="kw">use</span> <span class="kw">super</span>::#<span class="ident">ident</span>;
 
             <span class="comment">// Avoid a dep on libc by linking directly</span>
             <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-                <span class="kw">fn</span> <span class="ident">atexit</span>(<span class="ident">cb</span>: #<span class="ident">unsafety</span> <span class="kw">extern</span> <span class="kw">fn</span>());
+                <span class="kw">fn</span> <span class="ident">atexit</span>(<span class="ident">cb</span>: <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span>());
             }
 
             <span class="attribute">#[<span class="ident">used</span>]</span>
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_upper_case_globals</span>)]</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>), <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.init_array&quot;</span>)]</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>, <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.init_array&quot;</span>)]</span>
-            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>), <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;__DATA,__mod_init_func&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>, <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.init_array&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>, <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.init_array&quot;</span>)]</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">windows</span>, <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.CRT$XCU&quot;</span>)]</span>
-            #(#<span class="ident">attrs</span>)<span class="op">*</span>
             <span class="kw">static</span> <span class="ident">__dtor_export</span>
             :
-            <span class="kw">unsafe</span> <span class="kw">extern</span> #<span class="ident">abi</span> #<span class="ident">constness</span> <span class="kw">fn</span>() <span class="op">=</span>
+            <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>() <span class="op">=</span>
             {
                 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>), <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.text.exit&quot;</span>)]</span>
-                #<span class="ident">unsafety</span> <span class="kw">extern</span> #<span class="ident">abi</span> #<span class="ident">constness</span> <span class="kw">fn</span> #<span class="ident">ident</span>() #<span class="ident">block</span>;
+                <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> #<span class="ident">dtor_ident</span>() { #<span class="ident">ident</span>() };
                 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>), <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;.text.startup&quot;</span>)]</span>
                 <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">__dtor_atexit</span>() {
-                    <span class="ident">atexit</span>(#<span class="ident">ident</span>);
+                    <span class="ident">atexit</span>(#<span class="ident">dtor_ident</span>);
                 };
                 <span class="ident">__dtor_atexit</span>
+            };
+        }
+
+        <span class="comment">// Targets that don&#39;t rely on `atexit`.</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
+            <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>,
+            <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>,
+        ))]</span>
+        <span class="kw">mod</span> #<span class="ident">mod_ident</span> {
+            <span class="kw">use</span> <span class="kw">super</span>::#<span class="ident">ident</span>;
+
+            <span class="attribute">#[<span class="ident">used</span>]</span>
+            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_upper_case_globals</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>), <span class="ident">link_section</span> <span class="op">=</span> <span class="string">&quot;__DATA,__mod_term_func&quot;</span>)]</span>
+            <span class="kw">static</span> <span class="ident">__dtor_export</span>
+            :
+            <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>() <span class="op">=</span>
+            {
+                <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">__dtor</span>() { #<span class="ident">ident</span>() };
+                <span class="ident">__dtor</span>
             };
         }
     );
@@ -660,4 +783,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "ctor";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ctor"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

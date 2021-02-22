@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ArcDynFn0","`Arc<dyn 'static + Send + Sync + Fn() -> Ret>` # C Layout"],["ArcDynFn0_Layout",""],["ArcDynFn1","`Arc<dyn 'static + Send + Sync + Fn(A1) -> Ret>` # C Layout"],["ArcDynFn1_Layout",""]]});
+initSidebarItems({"struct":[["ArcDynFn0","`Arc<dyn 'static + Send + Sync + Fn() -> Ret>`"],["ArcDynFn0_Layout",""],["ArcDynFn1","`Arc<dyn 'static + Send + Sync + Fn(A1) -> Ret>`"],["ArcDynFn1_Layout",""]]});
