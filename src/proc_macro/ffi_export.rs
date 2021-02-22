@@ -56,11 +56,12 @@ fn ffi_export (attrs: TokenStream, input: TokenStream)
     #[cfg(feature = "node-js")]
     let mut node_js = None;
     match attrs.into_iter().next() {
-        #[cfg(feature = "node-js")]
         | Some(TT::Ident(kw)) if kw.to_string() == "node_js" => {
-            let input = input.clone();
-            let fun: ItemFn = parse_macro_input!(input);
-            node_js = Some(::proc_macro2::Literal::usize_unsuffixed(fun.sig.inputs.len()));
+            #[cfg(feature = "node-js")] {
+                let input = input.clone();
+                let fun: ItemFn = parse_macro_input!(input);
+                node_js = Some(::proc_macro2::Literal::usize_unsuffixed(fun.sig.inputs.len()));
+            }
         },
         | Some(unexpected_tt) => {
             return compile_error("Unexpected parameter", unexpected_tt.span());
