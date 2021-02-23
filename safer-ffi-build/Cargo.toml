@@ -1,0 +1,14 @@
+[lib]
+path = "lib.rs"
+
+[package]
+name = "safer-ffi-build"
+version = "0.1.0"
+authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+napi-build = { version = "1.0.1", optional = true }
+
+[features]
+node-js = ["napi-build"]
