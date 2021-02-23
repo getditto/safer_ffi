@@ -8,7 +8,6 @@
 
 pub use ::napi::*;
 pub use ::napi_derive::*;
-pub use ::napi_build::setup;
 
 /// Conversion from a Node.js parameter to a Rust value.
 pub
