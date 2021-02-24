@@ -13,6 +13,10 @@
 //! `#[ffi_export(node_js)]` annotation. Thanks to the magic of [`::inventory`],
 //! we can then iterate over it here and it Just Works™.
 
+#[allow(
+    missing_copy_implementations,
+    missing_debug_implementations,
+)]
 pub
 enum NapiRegistryEntry {
     NamedMethod {
@@ -50,10 +54,10 @@ fn napi_register_module_v1 (
             ::napi::sys::napi_throw_error(
                 raw_env,
                 crate::NULL!(),
-                ::std::ffi::CString::new(format!("Error initializing module: {}", err))
-                    .unwrap()
-                    .as_ptr()
-                ,
+                (
+                    ::std::ffi::CString::new(format!("Error initializing module: {}", err))
+                        .unwrap(),
+                ).0.as_ptr(),
             );
             crate::NULL!()
         },

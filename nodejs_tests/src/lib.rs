@@ -1,6 +1,7 @@
 use ::safer_ffi::prelude::*;
 
 ::safer_ffi::node_js::register_exported_functions!();
+::safer_ffi::node_js::ffi_helpers::register!();
 
 #[ffi_export(node_js)]
 fn add (x: i32, y: i32)
@@ -43,6 +44,15 @@ fn foo_free (_p: Option<repr_c::Box<Foo>>)
 fn print (s: char_p::Ref<'_>)
 {
     println!("{}", s);
+}
+
+#[ffi_export(node_js)]
+fn concat (s1: char_p::Ref<'_>, s2: char_p::Ref<'_>)
+  -> char_p::Box
+{
+    format!("{}{}", s1, s2)
+        .try_into()
+        .unwrap()
 }
 
 #[ffi_export(node_js)]

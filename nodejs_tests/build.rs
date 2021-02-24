@@ -1,4 +1,4 @@
 fn main ()
 {
-    ::safer_ffi::node_js::setup();
+    ::safer_ffi_build::setup();
 }

@@ -9,6 +9,14 @@
 pub use ::napi::*;
 pub use ::napi_derive::*;
 
+pub
+mod ffi_helpers;
+
+mod impls;
+
+pub
+mod registering;
+
 /// Conversion from a Node.js parameter to a Rust value.
 pub
 trait FromNapi : Sized {
@@ -84,10 +92,6 @@ where
 {
     T::from_napi_value(ctx.env, ctx.get::<T::NapiValue>(idx)?)
 }
-
-mod impls;
-
-pub mod registering;
 
 #[macro_export]
 macro_rules! node_js_register_exported_functions {() => (

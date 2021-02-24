@@ -8,9 +8,16 @@ authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-safer-ffi = { path = "..", features = ["node-js"] }
-
-[workspace]
+safer-ffi = { path = ".." }
 
 [build-dependencies]
-safer-ffi = { path = "..", features = ["node-js"] }
+safer-ffi-build = { path = "../safer-ffi-build" }
+
+[features]
+default = ["nodejs"]
+nodejs = [
+    "safer-ffi/node-js",
+    "safer-ffi-build/node-js",
+]
+
+[workspace]

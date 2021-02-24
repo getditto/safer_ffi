@@ -11,9 +11,40 @@ assert.equal(
     256 - 3,
 );
 
+(() => {
+    let foo = ffi.foo_new();
+
+    assert.equal(ffi.foo_read(foo), 42);
+
+    ffi.foo_free(foo);
+})();
+
 assert.equal(
-    ffi.get_hello(),
+    ffi.charPBoxedIntoString(ffi.get_hello()),
     'Hello, World!',
 );
+
+function assertCheckPointIsCalled(cb) {
+    var called = false;
+    cb(() => called = true);
+    assert.equal(called, true);
+}
+
+assertCheckPointIsCalled((checkPoint) => {
+    ffi.withFfiString("Hello, World!", (s) => {
+        ffi.print(s);
+        checkPoint();
+    });
+});
+
+assertCheckPointIsCalled((checkPoint) => {
+    ffi.withFfiString("Hello, ", (s1) => {
+        ffi.withFfiString("World!", (s2) => {
+            checkPoint();
+            let s = ffi.charPBoxedIntoString(ffi.concat(s1, s2));
+            assert.equal(s, "Hello, World!");
+        });
+    });
+});
 
 console.log('Node.js FFI tests passed successfully ✅');

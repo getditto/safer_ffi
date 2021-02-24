@@ -77,7 +77,8 @@ match_! {( const, mut ) {
                 fn to_napi_value (self: *$mut T, env: &'_ Env)
                   -> Result<JsUnknown>
                 {
-                    if  ::core::any::TypeId::of::<T>()
+                    if  false
+                    &&  ::core::any::TypeId::of::<T>()
                     ==  ::core::any::TypeId::of::<crate::c_char>()
                     {
                         // FIXME: although unlikely, this could be a `char_p::Ref`
@@ -95,7 +96,8 @@ match_! {( const, mut ) {
                 fn from_napi_value (env: &'_ Env, js_val: JsUnknown)
                   -> Result<*$mut T>
                 {
-                    if  ::core::any::TypeId::of::<T>()
+                    if  false
+                    &&  ::core::any::TypeId::of::<T>()
                     ==  ::core::any::TypeId::of::<crate::c_char>()
                     {
                         crate::prelude::char_p::Box::try_from(
@@ -142,7 +144,7 @@ impl FromNapi for crate::prelude::char_p::Box {
     type NapiValue = JsString;
 
     fn from_napi_value (
-        env: &'_ Env,
+        _: &'_ Env,
         js_val: JsString,
     ) -> Result<Self>
     {
