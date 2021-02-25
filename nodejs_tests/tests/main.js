@@ -1,14 +1,17 @@
 const ffi = require('.');
 const assert = require('assert').strict;
 
+function assertCheckPointIsCalled(cb) {
+    var called = false;
+    cb(() => called = true);
+    assert.equal(called, true);
+}
+
+// Tests:
+
 assert.equal(
     ffi.add(42, 27),
     42 + 27,
-);
-
-assert.equal(
-    ffi.sub(2, 5),
-    256 - 3,
 );
 
 (() => {
@@ -20,31 +23,41 @@ assert.equal(
 })();
 
 assert.equal(
-    ffi.charPBoxedIntoString(ffi.get_hello()),
+    ffi.boxCStringIntoString(ffi.get_hello()),
     'Hello, World!',
 );
 
-function assertCheckPointIsCalled(cb) {
-    var called = false;
-    cb(() => called = true);
-    assert.equal(called, true);
-}
-
 assertCheckPointIsCalled((checkPoint) => {
-    ffi.withFfiString("Hello, World!", (s) => {
+    ffi.withCString("Hello, World!", (s) => {
         ffi.print(s);
         checkPoint();
     });
 });
 
 assertCheckPointIsCalled((checkPoint) => {
-    ffi.withFfiString("Hello, ", (s1) => {
-        ffi.withFfiString("World!", (s2) => {
+    ffi.withCString("Hello, ", (s1) => {
+        ffi.withCString("World!", (s2) => {
             checkPoint();
-            let s = ffi.charPBoxedIntoString(ffi.concat(s1, s2));
+            let s = ffi.boxCStringIntoString(ffi.concat(s1, s2));
             assert.equal(s, "Hello, World!");
         });
     });
 });
+
+assert.equal(
+    ffi.boxCStringIntoString(ffi.concat(
+        Buffer.from('Hello, \0'),
+        Buffer.from('null termination!\0'),
+    )),
+    'Hello, null termination!',
+);
+
+assert.deepEqual(
+    ffi.boxCBytesIntoBuffer(ffi.concat_bytes(
+        Buffer.from('Hello, '),
+        Buffer.from('World!'),
+    )),
+    Buffer.from('Hello, World!'),
+);
 
 console.log('Node.js FFI tests passed successfully ✅');

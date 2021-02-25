@@ -13,6 +13,21 @@ macro_rules! __cfg_headers__ {(
     // nothing
 )}
 
+#[cfg(feature = "node-js")]
+#[macro_export] #[doc(hidden)]
+macro_rules! __cfg_node_js__ {(
+    $($item:item)*
+) => (
+    $($item)*
+)}
+#[cfg(not(feature = "node-js"))]
+#[macro_export] #[doc(hidden)]
+macro_rules! __cfg_node_js__ {(
+    $($item:item)*
+) => (
+    // nothing
+)}
+
 // #[cfg(not(feature = "headers"))]
 // #[macro_export] #[doc(hidden)]
 // macro_rules! __cfg_not_headers__ {(
@@ -68,7 +83,7 @@ macro_rules! CType {(
     $(
         @doc_meta( $($doc_meta:tt)* )
     )?
-    #[repr(C)]
+    #[repr(C $(, nodejs $(@$nodejs:tt)?)? $(,)?)]
     $(#[$($meta:tt)*])*
     $pub:vis
     struct $StructName:ident $(
@@ -98,6 +113,99 @@ macro_rules! CType {(
             $field_pub
             $field_name : $field_ty,
         )*
+    }
+
+    #[cfg(any(
+        $(all($($nodejs)?),)?
+    ))]
+    __cfg_node_js__! {
+        impl $(<$($lt ,)* $($($generics),+)?>)?
+            $crate::node_js::ReprNapi
+        for
+            $StructName $(<$($lt ,)* $($($generics),+)?>)?
+        where
+            Self : 'static,
+            $(
+                $field_ty : $crate::node_js::ReprNapi,
+            )*
+            $(
+                $($(
+                    $generics : $crate::node_js::ReprNapi,
+                )+)?
+                $($($bounds)*)?
+            )?
+        {
+            type NapiValue = $crate::node_js::JsUnknown;
+
+            fn to_napi_value (
+                self: Self,
+                env: &'_ $crate::node_js::Env,
+            ) -> $crate::node_js::Result<$crate::node_js::JsUnknown>
+            {
+                let mut _obj = env.create_object()?;
+                $(
+                    _obj.set_named_property(
+                        $crate::core::stringify!($field_name),
+                        <$field_ty as $crate::node_js::ReprNapi>::to_napi_value(
+                            self.$field_name,
+                            env,
+                        )?,
+                    )?;
+                )*
+                $crate::node_js::Result::Ok(_obj.into_unknown())
+            }
+
+            fn from_napi_value (
+                env: &'_ $crate::node_js::Env,
+                obj: $crate::node_js::JsUnknown,
+            ) -> $crate::node_js::Result<Self>
+            {
+                use $crate::core::convert::TryFrom as _;
+                let mut is_buffer = false;
+                // Poor man's specialization.
+                if  $crate::core::any::TypeId::of::<Self>()
+                    ==
+                    $crate::core::any::TypeId::of::<$crate::slice::slice_ref_Layout<'_, u8>>()
+                &&  (
+                        { is_buffer = obj.is_buffer()?; is_buffer }
+                        ||
+                        $crate::core::matches!(
+                            obj.get_type(),
+                            $crate::node_js::Result::Ok($crate::node_js::ValueType::Null)
+                        )
+                    )
+                {
+                    return if is_buffer {
+                        let xs: &'_ [u8] = &
+                            $crate::node_js::JsBuffer::try_from(obj)?
+                                .into_value()?
+                        ;
+                        $crate::node_js::Result::Ok(unsafe { $crate::core::mem::transmute_copy(&{
+                            $crate::slice::slice_raw_Layout::<u8> {
+                                ptr: xs.as_ptr() as _,
+                                len: xs.len(),
+                            }
+                        })})
+                    } else { // it's NULL
+                        $crate::node_js::Result::Ok(unsafe { $crate::core::mem::transmute_copy::<_, Self>(&{
+                            $crate::slice::slice_raw_Layout::<u8> {
+                                ptr: $crate::NULL!(),
+                                len: 0xbad000,
+                            }
+                        })})
+                    };
+                }
+                let obj = $crate::node_js::JsObject::try_from(obj)?;
+                $crate::node_js::Result::Ok(Self {
+                    $(
+                        $field_name: <$field_ty as $crate::node_js::ReprNapi>::from_napi_value(
+                            env,
+                            obj.get_named_property($crate::core::stringify!($field_name))?,
+                        )?,
+                    )*
+                })
+            }
+        }
     }
 
     unsafe // Safety: struct is `#[repr(C)]` and contains `CType` fields
@@ -334,7 +442,7 @@ macro_rules! ReprC {
     (
         $( @[doc = $doc:expr] )?
         $(#[doc = $prev_doc:tt])* // support doc comments _before_ `#[repr(C)]`
-        #[repr(C)]
+        #[repr(C $(, nodejs $(@$nodejs:tt)?)? $(,)?)]
         $(#[$($meta:tt)*])*
         $pub:vis
         struct $StructName:ident $(
@@ -442,7 +550,7 @@ macro_rules! ReprC {
                         $(#[doc = $prev_doc])*
                         $(#[$($meta)*])*
                     )
-                    #[repr(C)]
+                    #[repr(C $(, nodejs $(@$nodejs)?)?)]
                     #[allow(missing_debug_implementations)]
                     // $(#[$meta])*
                     pub
@@ -460,7 +568,7 @@ macro_rules! ReprC {
                         )?
                     } {
                         $(
-                            $(#[$($field_meta)*])*
+                            // $(#[$($field_meta)*])*
                             pub
                             $field_name :
                                 <$field_ty as $crate::layout::ReprC>::CLayout

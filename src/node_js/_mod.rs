@@ -17,69 +17,24 @@ mod impls;
 pub
 mod registering;
 
-/// Conversion from a Node.js parameter to a Rust value.
+/// Interconversion between `CType`s and js values
 pub
-trait FromNapi : Sized {
-    type NapiValue : NapiValue;
+trait ReprNapi : crate::layout::CType {
+    type NapiValue : NapiValue + ::core::convert::TryFrom<JsUnknown>;
 
+    /// Conversion from a returned Rust value to a Node.js value.
+    fn to_napi_value (
+        self: Self,
+        env: &'_ Env,
+    ) -> Result< Self::NapiValue >
+    ;
+
+    /// Conversion from a Node.js parameter to a Rust value.
     fn from_napi_value (
         env: &'_ Env,
         napi_value: Self::NapiValue,
     ) -> Result<Self>
     ;
-}
-
-/// Conversion from a returned Rust value to a Node.js value.
-pub
-trait ToNapi : Sized {
-    type NapiValue : NapiValue;
-
-    fn to_napi_value (
-        self: Self,
-        env: &'_ Env,
-    ) -> Result<Self::NapiValue>
-    ;
-}
-
-/// Convenience trait to implement both traits in one block.
-pub
-trait ReprNapi : ToNapi + FromNapi {
-    type NapiValue : NapiValue;
-
-    fn to_napi_value (
-        self: Self,
-        env: &'_ Env,
-    ) -> Result< <Self as ToNapi>::NapiValue >
-    ;
-    fn from_napi_value (
-        env: &'_ Env,
-        napi_value: <Self as FromNapi>::NapiValue,
-    ) -> Result<Self>
-    ;
-}
-
-impl<T : ReprNapi> ToNapi for T {
-    type NapiValue = <Self as ReprNapi>::NapiValue;
-
-    fn to_napi_value (
-        self: Self,
-        env: &'_ Env,
-    ) -> Result<Self::NapiValue>
-    {
-        <Self as ReprNapi>::to_napi_value(self, env)
-    }
-}
-
-impl<T : ReprNapi> FromNapi for T {
-    type NapiValue = <Self as ReprNapi>::NapiValue;
-
-    fn from_napi_value (
-        env: &'_ Env,
-        napi_value: <Self as FromNapi>::NapiValue,
-    ) -> Result<Self>
-    {
-        <Self as ReprNapi>::from_napi_value(env, napi_value)
-    }
 }
 
 pub
@@ -88,7 +43,7 @@ fn extract_arg<T> (
     idx: usize,
 ) -> Result<T>
 where
-    T : FromNapi,
+    T : ReprNapi,
 {
     T::from_napi_value(ctx.env, ctx.get::<T::NapiValue>(idx)?)
 }

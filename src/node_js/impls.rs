@@ -5,7 +5,7 @@ use ::core::convert::{TryFrom, TryInto};
 match_! {(
     (u32, create_uint32 => u8, u16, u32),
     (i32, create_int32 => i8, i16, i32),
-    (i64, create_int64 => u64, i64, isize),
+    (i64, create_int64 => u64, i64, isize, usize),
 ) {
     (
         $(
@@ -58,106 +58,150 @@ match_! {(
     )?);
 }}
 
-impl ToNapi for crate::tuple::CVoid {
-    type NapiValue = JsUndefined;
-
-    fn to_napi_value (self: Self, env: &'_ Env)
-      -> Result<JsUndefined>
-    {
-        env.get_undefined()
-    }
-}
-
 match_! {( const, mut ) {
     ( $($mut:ident),* ) => (
         $(
-            impl<T : 'static> ReprNapi for *$mut T {
+            impl<T : 'static> ReprNapi for *$mut T
+            where
+                Self : crate::layout::CType,
+            {
                 type NapiValue = JsUnknown;
 
                 fn to_napi_value (self: *$mut T, env: &'_ Env)
                   -> Result<JsUnknown>
                 {
-                    if  false
-                    &&  ::core::any::TypeId::of::<T>()
-                    ==  ::core::any::TypeId::of::<crate::c_char>()
-                    {
-                        // FIXME: although unlikely, this could be a `char_p::Ref`
-                        let s: crate::prelude::char_p::Box = unsafe {
-                            ::core::mem::transmute(self)
-                        };
-                        env .create_string(s.to_str())
-                            .map(JsString::into_unknown)
-                    } else {
-                        <isize as ReprNapi>::to_napi_value(self as isize, env)
-                            .map(JsNumber::into_unknown)
-                    }
+                    let addr: JsNumber =
+                        <isize as ReprNapi>::to_napi_value(self as isize, env)?
+                    ;
+                    let mut obj = env.create_object()?;
+                    obj.set_named_property("addr", addr)?;
+                    Ok(obj.into_unknown())
                 }
 
                 fn from_napi_value (env: &'_ Env, js_val: JsUnknown)
                   -> Result<*$mut T>
                 {
-                    if  false
-                    &&  ::core::any::TypeId::of::<T>()
-                    ==  ::core::any::TypeId::of::<crate::c_char>()
-                    {
-                        crate::prelude::char_p::Box::try_from(
-                            js_val
-                                .coerce_to_string()?
-                                .into_utf8()?
-                                .into_owned()?
-                        ).map_err(|e| Error::from_reason(format!(
-                            "\
-                                Failed to convert `{:?}` to a C string: \
-                                encountered inner null byte\
-                            ",
-                            e.0,
-                        )))
-                        .map(|it| unsafe {
-                            // FIXME: This leaks memory :/
-                            ::core::mem::transmute(it)
-                        })
-                    } else {
-                        let js_val = js_val.coerce_to_number()?;
-                        <isize as ReprNapi>::from_napi_value(env, js_val)
-                            .map(|addr| addr as _)
-                    }
+                    use ValueType as Js;
+                    use ::core::any::TypeId as Ty;
+                    let obj: JsObject = match js_val.get_type()? {
+                        | Js::Null => return Ok(0 as _),
+
+                        | _ if Ty::of::<Self>()
+                            == Ty::of::<*const crate::c_char>()
+                            && js_val.is_buffer()?
+                        => {
+                            let buf: &[u8] =
+                                &JsBuffer::try_from(js_val)?
+                                    .into_value()?
+                            ;
+                            let buf = if let Ok(it) = ::core::str::from_utf8(buf) { it } else {
+                                return Err(Error::new(
+                                    Status::InvalidArg,
+                                    format!(
+                                        "Expected valid UTF-8 bytes {:#x?} for a string",
+                                        buf,
+                                    ),
+                                ));
+                            };
+                            if buf.bytes().position(|b| b == b'\0') != Some(buf.len() - 1) {
+                                return Err(Error::new(
+                                    Status::InvalidArg,
+                                    format!(
+                                        "Invalid null terminator for {:?}",
+                                        buf,
+                                    ),
+                                ));
+                            }
+                            return Ok(buf.as_ptr() as _);
+                        },
+                        | Js::Object => unsafe { js_val.cast() },
+                        | _ => return Err(Error::new(
+                            Status::InvalidArg,
+                            "Expected a pointer (`{ addr }` object)".into(),
+                        )),
+                    };
+                    let addr: JsNumber = obj.get_named_property("addr")?;
+                    <isize as ReprNapi>::from_napi_value(env, addr)
+                        .map(|addr| addr as _)
                 }
             }
         )*
     );
 }}
 
-impl ToNapi for crate::prelude::char_p::Ref<'_> {
-    type NapiValue = JsString;
+pub trait ZstAsUndefined : crate::layout::CType {}
 
-    fn to_napi_value (
-        self: Self,
-        env: &'_ Env,
-    ) -> Result<JsString>
+impl<T : ZstAsUndefined> ReprNapi for T {
+    type NapiValue = JsUndefined;
+
+    fn to_napi_value (self, env: &'_ Env)
+      -> Result<JsUndefined>
     {
-        env.create_string(self.to_str())
+        env.get_undefined()
+    }
+
+    fn from_napi_value (_: &'_ Env, _: JsUndefined)
+      -> Result<Self>
+    {
+        unsafe {
+            assert_eq!(::core::mem::size_of::<Self>(), 0);
+            Ok(::core::mem::transmute_copy(&()))
+        }
     }
 }
-// There could be an impl for `char_p::Box` as well.
 
-impl FromNapi for crate::prelude::char_p::Box {
-    type NapiValue = JsString;
+impl<T> ZstAsUndefined for ::core::marker::PhantomData<T>
+where
+    Self : crate::layout::CType,
+{}
 
-    fn from_napi_value (
-        _: &'_ Env,
-        js_val: JsString,
-    ) -> Result<Self>
-    {
-        Self::try_from(
-            js_val
-                .into_utf8()?
-                .into_owned()?
-        ).map_err(|e| Error::from_reason(format!(
-            "\
-                Failed to convert `{:?}` to a C string: \
-                encountered inner null byte\
-            ",
-            e.0,
-        )))
-    }
-}
+impl ZstAsUndefined for crate::tuple::CVoid {}
+// impl<T> ZstAsUndefined for ::core::marker::PhantomData<T> {}
+// // Zsts
+// match_! {(
+//     for [T] ::core::marker::PhantomData<T>,
+// ) {
+//     ($(
+//         for [$($generics:tt)*] $T:ty
+//         impl<$($generics)*> ReprNapi for $T {
+//             type NapiValue = JsUndefined;
+
+
+//         }
+//     ))
+// }}
+
+// impl ToNapi for crate::prelude::char_p::Ref<'_> {
+//     type NapiValue = JsString;
+
+//     fn to_napi_value (
+//         self: Self,
+//         env: &'_ Env,
+//     ) -> Result<JsString>
+//     {
+//         env.create_string(self.to_str())
+//     }
+// }
+// // There could be an impl for `char_p::Box` as well.
+
+// impl FromNapi for crate::prelude::char_p::Box {
+//     type NapiValue = JsString;
+
+//     fn from_napi_value (
+//         _: &'_ Env,
+//         js_val: JsString,
+//     ) -> Result<Self>
+//     {
+//         Self::try_from(
+//             js_val
+//                 .into_utf8()?
+//                 .into_owned()?
+//         ).map_err(|e| Error::from_reason(format!(
+//             "\
+//                 Failed to convert `{:?}` to a C string: \
+//                 encountered inner null byte\
+//             ",
+//             e.0,
+//         )))
+//     }
+// }

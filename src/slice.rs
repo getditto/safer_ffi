@@ -19,7 +19,7 @@ type PhantomCovariantLifetime<'lt> =
 ;
 
 ReprC! {
-    #[repr(C)]
+    #[repr(C, nodejs)]
     /// Like [`slice_ref`] and [`slice_mut`], but with any lifetime attached
     /// whatsoever.
     ///
@@ -95,7 +95,7 @@ impl<T> slice_raw<T> {
 
 cfg_alloc! {
     ReprC! {
-        #[repr(C)]
+        #[repr(C, nodejs)]
         #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]
         /// [`Box`][`rust::Box`]`<[T]>` (fat pointer to a slice),
         /// but with a guaranteed `#[repr(C)]` layout.
@@ -260,7 +260,7 @@ cfg_alloc! {
 }
 
 ReprC! {
-    #[repr(C)]
+    #[repr(C, nodejs)]
     /// `&'lt [T]` but with a guaranteed `#[repr(C)]` layout.
     ///
     /// # C layout (for some given type T)

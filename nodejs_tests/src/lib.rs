@@ -1,20 +1,16 @@
 use ::safer_ffi::prelude::*;
 
-::safer_ffi::node_js::register_exported_functions!();
-::safer_ffi::node_js::ffi_helpers::register!();
+#[cfg(feature = "nodejs")]
+const _: () = {
+    ::safer_ffi::node_js::register_exported_functions!();
+    ::safer_ffi::node_js::ffi_helpers::register!();
+};
 
 #[ffi_export(node_js)]
 fn add (x: i32, y: i32)
   -> i32
 {
     i32::wrapping_add(x, y)
-}
-
-#[ffi_export(node_js)]
-fn sub (x: u8, y: u8)
-  -> u8
-{
-    u8::wrapping_sub(x, y)
 }
 
 #[derive_ReprC]
@@ -54,6 +50,18 @@ fn concat (s1: char_p::Ref<'_>, s2: char_p::Ref<'_>)
         .try_into()
         .unwrap()
 }
+
+#[ffi_export(node_js)]
+fn concat_bytes (
+    xs1: Option<c_slice::Ref<'_, u8>>,
+    xs2: Option<c_slice::Ref<'_, u8>>,
+) -> Option<c_slice::Box<u8>>
+{Some({
+    [xs1?.as_slice(), xs2?.as_slice()]
+        .concat()
+        .into_boxed_slice()
+        .into()
+})}
 
 #[ffi_export(node_js)]
 fn get_hello() -> char_p::Box

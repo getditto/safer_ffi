@@ -141,7 +141,7 @@ macro_rules! __ffi_export__ {(
                 let ret = unsafe {
                     $fname($($arg_name),*)
                 };
-                napi::ToNapi::to_napi_value(ret, ctx.env)
+                napi::ReprNapi::to_napi_value(ret, ctx.env)
             }
 
             /// Register the N-API defined function.

@@ -35,7 +35,8 @@ all: test clean
 
 test: build tests/main.js
 	cp -L $(RUST_DYNAMIC_LIB) tests/index.node
-	(cd tests && node main.js)
+	(cd tests && RUST_BACKTRACE=full node --trace-uncaught main.js)
+	cargo check --no-default-features
 
 build: # $(RUST_SOURCES)
 	cargo build $(CARGO_RELEASE)
