@@ -799,6 +799,35 @@ macro_rules! impl_ReprC_for {(
 pub
 struct Bool(u8);
 
+#[cfg(feature = "node-js")]
+const _: () = {
+    use crate::node_js::*;
+
+    impl ReprNapi for Bool {
+        type NapiValue = JsBoolean;
+
+        fn to_napi_value (
+            self: Self,
+            env: &'_ Env,
+        ) -> Result< JsBoolean >
+        {
+            env.get_boolean(match self.0 {
+                0 => false,
+                1 => true,
+                bad => unreachable!("({:#x}: Bool) != 0x0, 0x1", bad),
+            })
+        }
+
+        fn from_napi_value (
+            _env: &'_ Env,
+            napi_value: JsBoolean,
+        ) -> Result<Self>
+        {
+            napi_value.get_value().map(|b: bool| Self(b as _))
+        }
+    }
+};
+
 unsafe
     impl CType
         for Bool
