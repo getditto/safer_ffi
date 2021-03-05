@@ -63,7 +63,7 @@ match_! {( const, mut ) {
         $(
             impl<T : 'static> ReprNapi for *$mut T
             where
-                Self : crate::layout::CType,
+                T : crate::layout::CType,
             {
                 type NapiValue = JsUnknown;
 
@@ -73,9 +73,37 @@ match_! {( const, mut ) {
                     let addr: JsNumber =
                         <isize as ReprNapi>::to_napi_value(self as isize, env)?
                     ;
+                    let ty: JsString =
+                        env.create_string_from_std(format!(
+                            "*{mut} {pointee}",
+                            mut = stringify!($mut),
+                            pointee = ::core::any::type_name::<T>(),
+                        ))?
+                    ;
+
                     let mut obj = env.create_object()?;
                     obj.set_named_property("addr", addr)?;
-                    Ok(obj.into_unknown())
+                    obj.set_named_property("type", ty)?;
+                    let map = obj;
+
+                    // let Map: JsFunction = env.get_global()?.get_named_property("Map")?;
+                    // let mut map = Map.new::<JsUnknown>(&[])?;
+
+                    // map .get_named_property::<JsFunction>("set")?
+                    //     .call(Some(&map), &[
+                    //         env.create_string("addr")?.into_unknown(),
+                    //         addr.into_unknown(),
+                    //     ])?
+                    // ;
+
+                    // map .get_named_property::<JsFunction>("set")?
+                    //     .call(Some(&map), &[
+                    //         env.create_string("type")?.into_unknown(),
+                    //         ty.into_unknown(),
+                    //     ])?
+                    // ;
+
+                    Ok(map.into_unknown())
                 }
 
                 fn from_napi_value (env: &'_ Env, js_val: JsUnknown)
@@ -121,6 +149,35 @@ match_! {( const, mut ) {
                         )),
                     };
                     let addr: JsNumber = obj.get_named_property("addr")?;
+                    let ty: JsString = obj.get_named_property("type")?;
+                    let expected_ty: &str = &format!(
+                        "*{mut} {pointee}",
+                        mut = stringify!($mut),
+                        pointee = ::core::any::type_name::<T>(),
+                    );
+                    let actual_ty = ty.into_utf8()?;
+                    let mut actual_ty = actual_ty.as_str()?;
+                    let storage;
+                    if stringify!($mut) == "const" {
+                        storage = actual_ty.replace("mut", "const");
+                        actual_ty = &storage;
+                    }
+                    if actual_ty != expected_ty {
+                        return Err(Error::new(
+                            Status::InvalidArg,
+                            format!(
+                                "Got `{}`, expected a `{}`",
+                                actual_ty, expected_ty,
+                            ),
+                        ));
+                    }
+                    // let addr: JsNumber =
+                    //     obj .get_named_property::<JsFunction>("get")?
+                    //         .call(Some(&obj), &[
+                    //             env.create_string("addr")?.into_unknown(),
+                    //         ])?
+                    //         .try_into()?
+                    // ;
                     <isize as ReprNapi>::from_napi_value(env, addr)
                         .map(|addr| addr as _)
                 }
@@ -129,79 +186,36 @@ match_! {( const, mut ) {
     );
 }}
 
-pub trait ZstAsUndefined : crate::layout::CType {}
+match_! {(
+    for[T] ::core::marker::PhantomData<T>,
+    for[] crate::tuple::CVoid,
+) {
+    (
+        $(
+            for[$($generics:tt)*] $T:ty
+        ),* $(,)?
+    ) => (
+        $(
+            impl<$($generics)*> ReprNapi for $T
+            where
+                Self : crate::layout::CType,
+            {
+                type NapiValue = JsUndefined;
 
-impl<T : ZstAsUndefined> ReprNapi for T {
-    type NapiValue = JsUndefined;
+                fn to_napi_value (self, env: &'_ Env)
+                  -> Result<JsUndefined>
+                {
+                    env.get_undefined()
+                }
 
-    fn to_napi_value (self, env: &'_ Env)
-      -> Result<JsUndefined>
-    {
-        env.get_undefined()
-    }
-
-    fn from_napi_value (_: &'_ Env, _: JsUndefined)
-      -> Result<Self>
-    {
-        unsafe {
-            assert_eq!(::core::mem::size_of::<Self>(), 0);
-            Ok(::core::mem::transmute_copy(&()))
-        }
-    }
-}
-
-impl<T> ZstAsUndefined for ::core::marker::PhantomData<T>
-where
-    Self : crate::layout::CType,
-{}
-
-impl ZstAsUndefined for crate::tuple::CVoid {}
-// impl<T> ZstAsUndefined for ::core::marker::PhantomData<T> {}
-// // Zsts
-// match_! {(
-//     for [T] ::core::marker::PhantomData<T>,
-// ) {
-//     ($(
-//         for [$($generics:tt)*] $T:ty
-//         impl<$($generics)*> ReprNapi for $T {
-//             type NapiValue = JsUndefined;
-
-
-//         }
-//     ))
-// }}
-
-// impl ToNapi for crate::prelude::char_p::Ref<'_> {
-//     type NapiValue = JsString;
-
-//     fn to_napi_value (
-//         self: Self,
-//         env: &'_ Env,
-//     ) -> Result<JsString>
-//     {
-//         env.create_string(self.to_str())
-//     }
-// }
-// // There could be an impl for `char_p::Box` as well.
-
-// impl FromNapi for crate::prelude::char_p::Box {
-//     type NapiValue = JsString;
-
-//     fn from_napi_value (
-//         _: &'_ Env,
-//         js_val: JsString,
-//     ) -> Result<Self>
-//     {
-//         Self::try_from(
-//             js_val
-//                 .into_utf8()?
-//                 .into_owned()?
-//         ).map_err(|e| Error::from_reason(format!(
-//             "\
-//                 Failed to convert `{:?}` to a C string: \
-//                 encountered inner null byte\
-//             ",
-//             e.0,
-//         )))
-//     }
-// }
+                fn from_napi_value (_: &'_ Env, _: JsUndefined)
+                  -> Result<Self>
+                {
+                    unsafe {
+                        Ok(::core::mem::transmute(()))
+                    }
+                }
+            }
+        )*
+    )
+}}

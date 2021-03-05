@@ -11,7 +11,7 @@ fn with_js_string_as_utf8 (ctx: CallContext<'_>)
     let fst: JsUnknown = ctx.get(0)?;
     let cb: JsFunction = ctx.get(1)?;
     let mut bytes;
-    let ptr: *const u8 = match fst.get_type() {
+    let ptr: *const crate::c_char = match fst.get_type() {
         | Ok(Js::Null) => crate::NULL!(),
         | Ok(Js::String) => {
             let s = unsafe { fst.cast::<JsString>() };
@@ -31,7 +31,7 @@ fn with_js_string_as_utf8 (ctx: CallContext<'_>)
                     bytes.push(b'\0');
                 },
             }
-            bytes.as_ptr()
+            bytes.as_ptr().cast()
         },
         | _ => return Err(Error::new(
             Status::InvalidArg,

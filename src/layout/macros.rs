@@ -1254,9 +1254,9 @@ macro_rules! ReprC {
         )?
         { $($opaque)* }
 
-        const _: () = {
+        const _: () = $crate::paste::expr!({
             pub
-            struct __safer_ffi_Opaque__ $(
+            struct [< __opaque_ $StructName >] $(
                 <$($lt ,)* $($($generics),+)?>
                 $(
                     where $($bounds)*
@@ -1275,6 +1275,7 @@ macro_rules! ReprC {
                 )?
                 _void: $crate::core::convert::Infallible,
             }
+            use [< __opaque_ $StructName >] as __safer_ffi_Opaque__;
 
             impl $(<$($lt ,)* $($($generics),+)?>)?
                 $crate::core::marker::Copy
@@ -1409,7 +1410,7 @@ macro_rules! ReprC {
                     match it._void {}
                 }
             }
-        };
+        });
     );
 
     /* == Helpers == */
