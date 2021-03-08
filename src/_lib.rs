@@ -287,10 +287,10 @@ hidden_export! {
 }
 
 #[cfg(feature = "node-js")]
-hidden_export! {
+// hidden_export! {
     #[path = "node_js/_mod.rs"]
-    mod node_js;
-}
+    pub mod node_js;
+// }
 
 hidden_export! {
     #[allow(missing_copy_implementations, missing_debug_implementations)]
