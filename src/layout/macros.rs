@@ -1254,28 +1254,30 @@ macro_rules! ReprC {
         )?
         { $($opaque)* }
 
-        const _: () = $crate::paste::expr!({
-            pub
-            struct [< __opaque_ $StructName >] $(
-                <$($lt ,)* $($($generics),+)?>
-                $(
-                    where $($bounds)*
+        const _: () = {
+            $crate::paste::item! {
+                pub
+                struct [< __opaque_ $StructName >] $(
+                    <$($lt ,)* $($($generics),+)?>
+                    $(
+                        where $($bounds)*
+                    )?
                 )?
-            )?
-            {
-                $(
-                    _marker: $crate::core::marker::PhantomData<(
-                        $(
-                            *mut &$lt (),
-                        )*
-                        $($(
-                            *mut $generics,
-                        )+)?
-                    )>,
-                )?
-                _void: $crate::core::convert::Infallible,
+                {
+                    $(
+                        _marker: $crate::core::marker::PhantomData<(
+                            $(
+                                *mut &$lt (),
+                            )*
+                            $($(
+                                *mut $generics,
+                            )+)?
+                        )>,
+                    )?
+                    _void: $crate::core::convert::Infallible,
+                }
+                use [< __opaque_ $StructName >] as __safer_ffi_Opaque__;
             }
-            use [< __opaque_ $StructName >] as __safer_ffi_Opaque__;
 
             impl $(<$($lt ,)* $($($generics),+)?>)?
                 $crate::core::marker::Copy
@@ -1410,7 +1412,7 @@ macro_rules! ReprC {
                     match it._void {}
                 }
             }
-        });
+        };
     );
 
     /* == Helpers == */
