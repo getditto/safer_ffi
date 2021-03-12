@@ -51,7 +51,9 @@ mod foo {
     #[derive_ReprC]
     #[ReprC::opaque("foo")]
     pub
-    struct Foo { hidden: i32 }
+    struct Foo_<Generic> { hidden: Generic }
+
+    type Foo = Foo_<i32>;
 
     #[ffi_export]
     fn read_foo (foo: &'_ Foo) -> i32
