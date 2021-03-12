@@ -24,7 +24,7 @@ jobs:
         rust:
           - 1.43.0
           - stable
-          - nightly
+          # - nightly
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -88,20 +88,30 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os:
+          - ubuntu-latest
+          - macos-latest
+          # - windows-latest
+        rust:
+          - 1.43.0
+          - stable
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: default
           override: true
-          toolchain: nightly
+          toolchain: ${{ matrix.rust }}
 
       - name: Clone repo
         uses: actions/checkout@v2
 
       - name: Cargo test
         uses: actions-rs/cargo@v1
+        env:
+          RUSTC_BOOTSTRAP: 1
+          RUSTFLAGS: -Zmacro-backtrace
+          RUST_BACKTRACE: full
         with:
           command: test
           args: --all-features
