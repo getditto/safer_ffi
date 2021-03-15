@@ -141,6 +141,24 @@ fn with_out_bool (ctx: CallContext<'_>)
         .into_unknown()
 })}
 
+#[js_function(1)]
+pub
+fn with_out_u64 (ctx: CallContext<'_>)
+  -> Result<JsUnknown>
+{Ok({
+    let cb: JsFunction = ctx.get(0)?;
+    let mut u64 = 0;
+    let out_u64 = &mut u64;
+    cb.call(None, &[
+        ReprNapi::to_napi_value(
+            unsafe { crate::layout::into_raw(out_u64) },
+            ctx.env,
+        )?.into_unknown(),
+    ])?;
+    ReprNapi::to_napi_value(unsafe { crate::layout::into_raw(u64 as i64) }, ctx.env)?
+        .into_unknown()
+})}
+
 #[js_function(2)]
 pub
 fn with_out_ptr (ctx: CallContext<'_>)
@@ -166,7 +184,7 @@ fn with_out_ptr (ctx: CallContext<'_>)
     cb.call(None, &[
         wrap_ptr(<*mut _>::cast(out_p), &format!("*mut {}", ty))?
     ])?;
-    wrap_ptr(p as *mut _, ty)?
+    wrap_ptr(p, ty)?
         .into_unknown()
 })}
 
@@ -177,6 +195,7 @@ match_! {(
     "boxCBytesIntoBuffer": slice_box_uint8_t_to_js_buffer,
     "withOutPtr": with_out_ptr,
     "withOutBoolean": with_out_bool,
+    "withOutU64": with_out_u64,
 ) {[ $( $name:literal : $fun:ident ),* $(,)? ] => (
     #[macro_export]
     macro_rules! node_js_export_ffi_helpers {() => (const _: () = {
