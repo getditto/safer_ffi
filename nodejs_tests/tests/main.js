@@ -60,4 +60,14 @@ assert.deepEqual(
     Buffer.from('Hello, World!'),
 );
 
+assertCheckPointIsCalled((checkPoint) => {
+    assert.deepEqual(
+        ffi.withOutBoolean((out_b) => {
+            ffi.set_bool(out_b);
+            checkPoint();
+        }),
+        true,
+    );
+})
+
 console.log('Node.js FFI tests passed successfully ✅');

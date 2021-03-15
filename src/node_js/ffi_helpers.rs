@@ -123,11 +123,60 @@ fn slice_box_uint8_t_to_js_buffer (ctx: CallContext<'_>)
     }
 })}
 
+#[js_function(1)]
+pub
+fn with_out_bool (ctx: CallContext<'_>)
+  -> Result<JsUnknown>
+{Ok({
+    let cb: JsFunction = ctx.get(0)?;
+    let mut b = false;
+    let out_bool = &mut b;
+    cb.call(None, &[
+        ReprNapi::to_napi_value(
+            unsafe { crate::layout::into_raw(out_bool) },
+            ctx.env,
+        )?.into_unknown(),
+    ])?;
+    ReprNapi::to_napi_value(unsafe { crate::layout::into_raw(b) }, ctx.env)?
+        .into_unknown()
+})}
+
+#[js_function(2)]
+pub
+fn with_out_ptr (ctx: CallContext<'_>)
+  -> Result<JsUnknown>
+{Ok({
+    let ref ty: String = ctx.get::<JsString>(0)?.into_utf8()?.into_owned()?;
+    let ty = &format!("*mut {}", ty);
+    let wrap_ptr = |p: *mut (), ty: &str| Ok::<_, Error>({
+        let mut obj = ctx.env.create_object()?;
+        obj.set_named_property(
+            "addr",
+            ReprNapi::to_napi_value(p as isize, ctx.env)?,
+        )?;
+        obj.set_named_property(
+            "type",
+            ctx.env.create_string(ty)?,
+        )?;
+        obj.into_unknown()
+    });
+    let cb: JsFunction = ctx.get(1)?;
+    let mut p: *mut () = crate::NULL!();
+    let out_p = &mut p;
+    cb.call(None, &[
+        wrap_ptr(<*mut _>::cast(out_p), &format!("*mut {}", ty))?
+    ])?;
+    wrap_ptr(p as *mut _, ty)?
+        .into_unknown()
+})}
+
 match_! {(
     "withCString": with_js_string_as_utf8,
     "boxCStringIntoString": char_p_boxed_to_js_string,
     "withCBytes": with_js_buffer_as_slice_uint8_t_ref,
     "boxCBytesIntoBuffer": slice_box_uint8_t_to_js_buffer,
+    "withOutPtr": with_out_ptr,
+    "withOutBoolean": with_out_bool,
 ) {[ $( $name:literal : $fun:ident ),* $(,)? ] => (
     #[macro_export]
     macro_rules! node_js_export_ffi_helpers {() => (const _: () = {

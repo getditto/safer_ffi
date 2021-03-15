@@ -68,3 +68,9 @@ fn get_hello() -> char_p::Box
 {
     char_p::new("Hello, World!")
 }
+
+#[ffi_export(node_js)]
+fn set_bool (b: Out<'_, bool>)
+{
+    b.write(true);
+}
