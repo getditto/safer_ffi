@@ -34,6 +34,10 @@ macro_rules! __ffi_export__ {(
     )?
         $body
 
+    $crate::paste::item! {
+        use $fname as [< $fname __orig >];
+    }
+
     #[allow(dead_code, nonstandard_style, unused_parens)]
     const _: () = {
         $($(#[doc = $doc])+)?
@@ -50,6 +54,9 @@ macro_rules! __ffi_export__ {(
         where
             $( $($bounds)* )?
         {{
+            $crate::paste::item! {
+                use [< $fname __orig >] as $fname;
+            }
             let body = /* #[inline(always)] */ || -> ($($Ret)?) {
                 $(
                     {

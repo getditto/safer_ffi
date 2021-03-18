@@ -1,0 +1,3 @@
+[submodule "napi-fork"]
+	path = napi-fork
+	url = git@github.com:getditto/napi-rs.git

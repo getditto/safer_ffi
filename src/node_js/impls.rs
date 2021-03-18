@@ -47,7 +47,7 @@ match_! {(
                     let n: $x32 = self.try_into().map_err(|_| {
                         Error::from_reason(format!(
                             "Numeric overflow: \
-                            value `{:?}` cannot be lossly converted into Js",
+                            value `{:?}` cannot be losslessly converted into Js",
                             self,
                         ))
                     })?;

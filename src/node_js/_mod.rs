@@ -9,6 +9,9 @@
 pub use ::napi::*;
 pub use ::napi_derive::*;
 
+pub use closures::*;
+mod closures;
+
 pub
 mod ffi_helpers;
 
@@ -19,8 +22,8 @@ mod registering;
 
 /// Interconversion between `CType`s and js values
 pub
-trait ReprNapi : crate::layout::CType {
-    type NapiValue : NapiValue + ::core::convert::TryFrom<JsUnknown>;
+trait ReprNapi : Sized /* : crate::layout::CType */ {
+    type NapiValue : NapiValue + IntoUnknown;
 
     /// Conversion from a returned Rust value to a Node.js value.
     fn to_napi_value (
@@ -65,3 +68,33 @@ macro_rules! node_js_register_exported_functions {() => (
     };
 )}
 pub use node_js_register_exported_functions as register_exported_functions;
+
+pub
+trait IntoUnknown : ::core::convert::TryFrom<JsUnknown> {
+    fn into_unknown (self: Self)
+      -> JsUnknown
+    ;
+}
+
+match_! {(
+    JsFunction,
+    JsNumber,
+    JsObject,
+    JsBoolean,
+    JsUnknown,
+    JsUndefined,
+    JsNull,
+) {
+    ( $($JsTy:ident),* $(,)? ) => (
+        $(
+            impl IntoUnknown for $JsTy {
+                fn into_unknown (self: Self)
+                  -> JsUnknown
+                {
+                    #![deny(unconditional_recursion)]
+                    Self::into_unknown(self)
+                }
+            }
+        )*
+    );
+}}
