@@ -101,6 +101,33 @@ struct Closure_<Args : 'static, Ret : 'static> {
     env: Env,
 }
 
+unsafe
+    impl<Args : 'static, Ret : 'static> Send for Closure_<Args, Ret>
+   /*
+    * FIXME: these bounds seem plausible in order to make sur our API is
+    * sound, but since raw pointers aren't `Send`, in practice it will be
+    * too cumbersome. Since the current design with
+    * ReprC-to-CType-that-is-ReprNapi is not final anyways (ideally, we'd
+    * be dealing with `ReprC + ReprNapi` types), let's not worry about this
+    * yet…
+    **/
+    // where
+        // Args : Send,
+        // Ret : Send,
+    {}
+
+unsafe
+    impl<Args : 'static, Ret : 'static> Sync for Closure_<Args, Ret>
+   /*
+    * FIXME: same as above, but for the sub-bounds still being `Send`.
+    * This is intended / not a typo: Args and Ret are never shared, so this
+    * is, AFAIK, the correct bound.
+    **/
+    // where
+        // Args : Send,
+        // Ret : Send,
+    {}
+
 impls! { (_5, _4, _3, _2, _1) }
 macro_rules! impls {(
     ($( $_0:ident $(, $_k:ident)* $(,)? )?)
