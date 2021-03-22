@@ -78,16 +78,37 @@ fn call_with_42 (
     retain: unsafe extern "C" fn(data: *mut ::std::os::raw::c_void),
 ) -> u8
 {
-    retain(data);
-    ::std::thread::spawn({
-        let data = data as usize;
-        move || {
-            dbg!(cb(data as _, 42));
-            release(data as _);
-        }
-    });
+    thread_local! {
+        static CB
+            : ::core::cell::Cell<
+                Option<(
+                    *mut ::std::os::raw::c_void,
+                    unsafe extern "C" fn(data: *mut ::std::os::raw::c_void, x: i32) -> u8,
+                    unsafe extern "C" fn(data: *mut ::std::os::raw::c_void),
+                )>
+            >
+            = None.into()
+        ;
+    }
+    let ret;
+    if let Some((data, cb, release)) = CB.with(|it| it.replace(None)) {
+        ret = cb(data, 42);
+        release(data);
+    } else {
+        retain(data);
+        CB.with(|it| it.set(Some((data, cb, release))));
 
-    let ret = dbg!(cb(data, 42));
+        retain(data);
+        ::std::thread::spawn({
+            let data = data as usize;
+            move || {
+                cb(data as _, 42);
+                release(data as _);
+            }
+        });
+
+        ret = cb(data, 42);
+    }
     release(data);
     ret
 }
@@ -100,16 +121,16 @@ const _: () = {
     fn call_with_42_js (ctx: napi::CallContext<'_>)
       -> napi::Result<napi::JsNumber>
     {
-        let cb: napi::Closure<fn(i32) -> u8> =
+        let mut cb: napi::Closure<fn(i32) -> u8> =
             napi::extract_arg(&ctx, 0)?
         ;
+        cb.make_nodejs_wait_for_this_to_be_dropped(true)?;
         let raw_cb = ::std::sync::Arc::new(cb).into_raw_parts();
         let raw_ret = unsafe {
             call_with_42(raw_cb.data, raw_cb.call, raw_cb.release, raw_cb.retain)
         };
-        ctx.env
+        ctx .env
             .create_uint32(raw_ret as _)
-        // ctx.env.get_undefined()
     }
 
     napi::registering::submit! {

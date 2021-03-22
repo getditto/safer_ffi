@@ -17,12 +17,14 @@ mod safety_boundary {
 
     pub
     struct ThreadTiedJsFunction {
-        // this field is not `Send` nor `Sync` since it can't be `call`ed
-        // from another thread.
-        func: JsFunction,
+        // A simple `func` field would not be `Send` nor `Sync` since it can't
+        // be `call`ed from another thread.
         // We thus forge our own `SendWrapper` tailored for our use case.
         main_nodejs_thread: ::std::thread::ThreadId,
         env: Env,
+        // We also need to enable some ref-counting mechanisms in case the
+        // closure is called after the initial `JsFunction` is valid (_e.g._,
+        // when the N-API call that fed the JsFunction to us returns).
         raw_ref_handle: ::napi::sys::napi_ref,
     }
 
@@ -34,13 +36,13 @@ mod safety_boundary {
 
     impl ThreadTiedJsFunction {
         pub
-        fn new (func: JsFunction, env: Env)
-          -> Self
+        fn new (func: &'_ JsFunction, env: Env)
+          -> ThreadTiedJsFunction
         {
             // call N-API's `ref`-counting functions:
-            let mut raw_ref_handle = crate::NULL!();
+            let mut raw_ref_handle = NULL!();
             unsafe {
-                dbg!(::napi::sys::napi_create_reference(
+                assert_eq!(0, ::napi::sys::napi_create_reference(
                     env.raw(),
                     func.raw(),
                     1,
@@ -49,25 +51,29 @@ mod safety_boundary {
             }
 
             impl Drop for ThreadTiedJsFunction {
-                fn drop (self: &'_ mut Self)
+                fn drop (self: &'_ mut ThreadTiedJsFunction)
                 {
                     // Note: since Self is `Send`,
                     // this may be called in a non-Node.js thread.
                     // It appears the ref-counting functions are thread-safe.
                     let Self { ref env, raw_ref_handle, .. } = *self;
                     unsafe {
-                        dbg!(::napi::sys::napi_reference_unref(
-                            env.raw(), raw_ref_handle, &mut 0,
-                        ));
-                        dbg!(::napi::sys::napi_delete_reference(
-                            env.raw(), raw_ref_handle,
-                        ));
+                        /* Decrementing the ref-count before destroying it does
+                         * not seem to be necessary. */
+                        // ::napi::sys::napi_reference_unref(
+                        //     env.raw(), raw_ref_handle, &mut 0,
+                        // );
+                        let _ignored_status =
+                            ::napi::sys::napi_delete_reference(
+                                env.raw(),
+                                raw_ref_handle,
+                            )
+                        ;
                     }
                 }
             }
 
             Self {
-                func,
                 env,
                 raw_ref_handle,
                 // `JsFunction`s can only be forged from within a Node.js thread.
@@ -77,10 +83,18 @@ mod safety_boundary {
 
         pub
         fn get_thread_tied_func (self: &'_ Self)
-          -> Option<&'_ JsFunction>
+          -> Option<JsFunction>
         {
             if ::std::thread::current().id() == self.main_nodejs_thread {
-                Some(&self.func)
+                Some(unsafe {
+                    let mut raw_func = NULL!();
+                    assert_eq!(0, sys::napi_get_reference_value(
+                        self.env.raw(),
+                        self.raw_ref_handle,
+                        &mut raw_func,
+                    ));
+                    JsFunction::from_raw_unchecked(self.env.raw(), raw_func)
+                })
             } else {
                 None
             }
@@ -88,8 +102,43 @@ mod safety_boundary {
     }
 }
 
+/// A type-safe and _fully_ thread-safe wrapper around a `JsFunction`.
+///
+/// In N-API, a `JsFunction` can only be (synchronously) called from the thread
+/// whence it originated.
+///
+/// The only workaround for that is using a wrapper where the `JsFunction`'s
+/// return value is lost (run in "the background"): `ThreadsafeFunction`.
+///
+/// To solve that, the closure can be tweaked to send its return value through
+/// a channel, and then have the caller wait on the receiving end of the
+/// channel.
+///
+/// But this makes the pattern unusable from within the main `Node.js` thread,
+/// since that's the actual "background" that runs the computation, and it only
+/// does so *after* returning from an FFI call. So if the FFI call were to wait
+/// on the receiving end of the channel, it would be blocking the `Node.js`
+/// thread, which would be unable to return and actually produce the return
+/// value that needs to be sent across that very channel: a deadlock.
+///
+/// In order to avoid that, we also bundle a `ThreadTiedJsFunction` to fallback
+/// to a classic call when we detect we are within the main Node.js thread.
 pub
 struct Closure_<Args : 'static, Ret : 'static> {
+    /// A `JsFunction` that can only be called from the thread whence it
+    /// originated.
+    local_func: ThreadTiedJsFunction,
+
+    /// An N-API provided wrapper around a `JsFunction` to "make it thread-safe"
+    /// (this allows using a special API that can be called from an *external*
+    /// thread).
+    /// In order for the return value produced by the wrapped `JsFunction` not
+    /// to be lost, this wrapper bundles the `Sender` part of a `channel`,
+    /// and somehow the return value of the closure is sent through that channel
+    /// (the current implementation expects the Js side to cooperate and call
+    /// the first parameter it receives on the produced value, but this is
+    /// expected to be done by us in the FFI so as to hide that implementation
+    /// detail).
     ts_fun: ThreadsafeFunction<
         (
             ::std::sync::mpsc::SyncSender< Result<Ret> >,
@@ -97,14 +146,31 @@ struct Closure_<Args : 'static, Ret : 'static> {
         ),
         ErrorStrategy::Fatal,
     >,
-    fun: ThreadTiedJsFunction,
+
+    /// We cache an `Env` mainly to be able to keep interacting with the
+    /// ref-counting APIs.
     env: Env,
+}
+
+impl<Args : 'static, Ret : 'static> ::core::fmt::Debug
+    for Closure_<Args, Ret>
+{
+    fn fmt (
+        self: &'_ Self,
+        fmt: &'_ mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result
+    {
+        ::core::fmt::Display::fmt(
+            ::core::any::type_name::<Self>(),
+            fmt,
+        )
+    }
 }
 
 unsafe
     impl<Args : 'static, Ret : 'static> Send for Closure_<Args, Ret>
    /*
-    * FIXME: these bounds seem plausible in order to make sur our API is
+    * FIXME: these bounds seem plausible in order to make sure our API is
     * sound, but since raw pointers aren't `Send`, in practice it will be
     * too cumbersome. Since the current design with
     * ReprC-to-CType-that-is-ReprNapi is not final anyways (ideally, we'd
@@ -128,7 +194,10 @@ unsafe
         // Ret : Send,
     {}
 
-impls! { (_5, _4, _3, _2, _1) }
+// Since variadic generics to support arbitrary function arities are not
+// available yet, we use macros to generated implementations for many hard-coded
+// arities. In this instance, functions of up to 6 parameters.
+impls! { (_6, _5, _4, _3, _2, _1) }
 macro_rules! impls {(
     ($( $_0:ident $(, $_k:ident)* $(,)? )?)
 ) => (
@@ -182,10 +251,10 @@ macro_rules! impls {(
         /// Conversion from a Node.js parameter to a Rust value.
         fn from_napi_value (
             &env: &'_ Env,
-            fun: JsFunction,
+            ref func: JsFunction,
         ) -> Result<Self>
         {
-            let fun = ThreadTiedJsFunction::new(fun, env);
+            let thread_tied_func = ThreadTiedJsFunction::new(func, env);
 
             // let (ret_sender, ret_receiver) = mpsc::sync_channel::<Result<Ret>>(0);
             // // Note: when using a `ThreadsafeFunction` wrapper, we lose
@@ -259,16 +328,23 @@ macro_rules! impls {(
 
             let mut ts_fun = ThreadsafeFunction::create(
                 env.raw(),
-                fun.get_thread_tied_func().unwrap(),
+                func,
                 // max_queue_size /* use `0` for a sane default */
                 1,
                 // callback
                 Self::handle_params,
             )?;
-            // Keep the main loop spinning while this entity is alive.
-            ts_fun.refer(&env)?;
+            // By default, let's avoid keeping the main loop spinning while
+            // this entity is alive.
+            // A `.make_nodejs_wait_for_this_to_be_dropped(true)` helper is
+            // available to opt-out of that.
+            ts_fun.unref(&env)?;
 
-            Ok(Self { ts_fun, fun, env })
+            Ok(Self {
+                ts_fun,
+                local_func: thread_tied_func,
+                env,
+            })
         }
     }
 
@@ -279,6 +355,29 @@ macro_rules! impls {(
     >
         Closure_<($($_0, $($_k ,)*)?), CRet>
     {
+        /// Make Node.js's main event loop wait for the `Closure` to be
+        /// dropped before ending.
+        ///
+        /// If used incorrectly, this can make Node.js keep spinning infinitely
+        /// at the end of the program execution.
+        ///
+        /// On the other hand, if you have a `Closure` that _needs_ to be
+        /// called (or dropped), and which you know _will be **dropped**_ before
+        /// Node.js reaches the end of its main loop, then you can call this
+        /// function with `true`.
+        pub
+        fn make_nodejs_wait_for_this_to_be_dropped (
+            self: &'_ mut Self,
+            nodejs_should_wait: bool,
+        ) -> Result<()>
+        {
+            if nodejs_should_wait {
+                self.ts_fun.refer(&self.env)
+            } else {
+                self.ts_fun.unref(&self.env)
+            }
+        }
+
         pub
         fn as_raw_parts (self: &'_ Self)
           -> (
@@ -354,11 +453,11 @@ macro_rules! impls {(
                 ::std::process::abort();
             }
 
-            let     &Self {
+            let &Self {
                 ref ts_fun,
                 env: ref orig_env,
-                ref fun,
-                    } = this.cast::<Self>().as_ref().expect("Got NULL")
+                local_func: ref fun,
+                } = this.cast::<Self>().as_ref().expect("Got NULL")
             ;
             match fun.get_thread_tied_func() {
                 | None => {
@@ -408,16 +507,11 @@ macro_rules! impls {(
                         .expect("Channel closed or timeout (deadlock?)")
                 },
 
-                | Some(func) => {
+                | Some(ref func) => {
                     // Otherwise, it means we are within the main nodejs thread,
                     // so we can't "schedule the call and wait for it to be run",
                     // lest we deadlock. We thus directly perform the call.
-                    //
-                    // Note: what happens if the call is done in the same thread
-                    // but from within a different `CallContext`?
-                    // Let's hope nothing bad.
-                    func
-                    .call(
+                    func.call(
                         // this
                         None,
                         // params
@@ -429,15 +523,15 @@ macro_rules! impls {(
                                         ctx.get::<JsUnknown>(0)?
                                     }),
                                 )
-                                .unwrap()
+                                .expect("Creation of `send_ret` failed")
                                 .into_unknown()
                             ,
                         $(  ReprNapi::to_napi_value($_0, orig_env)
-                                .unwrap()
+                                .expect("Conversion from C param to closure param failed")
                                 .into_unknown()
                             , $(
                             ReprNapi::to_napi_value($_k, orig_env)
-                                .unwrap()
+                                .expect("Conversion from C param to closure param failed")
                                 .into_unknown()
                             , )*)?
                         ]
@@ -456,13 +550,12 @@ macro_rules! impls {(
                                     <CRet as ReprNapi>::NapiValue
                                 >(),
                                 ty.as_ref().map_or(
-                                    &"" as &dyn ::core::fmt::Debug,
+                                    &"Failed to query the type of the JsUnknown" as &dyn ::core::fmt::Debug,
                                     |ty| ty,
                                 ),
                             )))
                     })
                     .and_then(|r| ReprNapi::from_napi_value(orig_env, r))
-
                 },
             }
             .expect("Cannot throw a js exception within an FFI callback")
