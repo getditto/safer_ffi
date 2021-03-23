@@ -98,4 +98,40 @@ assertCheckPointIsCalled((checkPoint) => {
     );
 })
 
+assertCheckPointIsCalled((checkPoint) => {
+    ffi.call_with_str(wrap_cb_for_ffi((s) => {
+        s = ffi.refCStringToString(s);
+        assert.deepEqual(s, "Hello, World!");
+        checkPoint();
+    }));
+});
+
+assertCheckPointIsCalled((checkPoint) => {
+    let error = null;
+    let v = ffi.withOutVecOfPtrs("u8", (p) => {
+        try {
+            checkPoint();
+            ffi.takes_out_vec(p);
+        } catch(e) {
+            error = e;
+        }
+    });
+    if (error) { throw error; }
+    console.log(v);
+});
+
+assertCheckPointIsCalled((checkPoint) => {
+    let error = null;
+    let v = ffi.withOutBoxCBytes((p) => {
+        try {
+            checkPoint();
+            ffi.takes_out_slice(p);
+        } catch(e) {
+            error = e;
+        }
+    });
+    if (error) { throw error; }
+    console.log(v);
+});
+
 console.log('Node.js FFI tests passed successfully ✅');
