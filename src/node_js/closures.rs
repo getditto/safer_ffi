@@ -7,7 +7,7 @@ use ::std::{
 };
 
 /// Define `Closure<fn(A) -> B>` to be sugar for:
-/// `Closure<(<A as ReprC>::CLayout,), <B as ReprC>::CLayout>`
+/// `Closure_<(<A as ReprC>::CLayout,), <B as ReprC>::CLayout>`
 pub type Closure<fn_sig> = <fn_sig as TypeAliasHelper>::T;
 pub trait TypeAliasHelper { type T; }
 
@@ -195,7 +195,7 @@ unsafe
     {}
 
 // Since variadic generics to support arbitrary function arities are not
-// available yet, we use macros to generated implementations for many hard-coded
+// available yet, we use macros to generate implementations for many hard-coded
 // arities. In this instance, functions of up to 6 parameters.
 impls! { (_6, _5, _4, _3, _2, _1) }
 macro_rules! impls {(

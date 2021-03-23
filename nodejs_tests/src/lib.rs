@@ -141,10 +141,47 @@ const _: () = {
             method: call_with_42_js,
         }
     }
+
+    #[napi::js_function(1)]
+    fn call_with_str (ctx: napi::CallContext<'_>)
+      -> napi::Result<napi::JsUndefined>
+    {
+        let mut cb: napi::Closure<fn(char_p::Raw)> =
+            napi::extract_arg(&ctx, 0)?
+        ;
+        cb.make_nodejs_wait_for_this_to_be_dropped(true)?;
+        let (data, call) = cb.as_raw_parts();
+        unsafe {
+            call(data, c!("Hello, World!").to_str().as_ptr().cast());
+        }
+        ctx .env
+            .get_undefined()
+    }
+
+    napi::registering::submit! {
+        #![crate = napi::registering]
+
+        napi::registering::NapiRegistryEntry::NamedMethod {
+            name: "call_with_str",
+            method: call_with_str,
+        }
+    }
 };
 
 #[ffi_export(node_js)]
 fn set_bool (b: Out<'_, bool>)
 {
     b.write(true);
+}
+
+#[ffi_export(node_js)]
+fn takes_out_vec (v: &mut Option<repr_c::Vec<u8>>)
+{
+    *v = Some(vec![42, 27].into());
+}
+
+#[ffi_export(node_js)]
+fn takes_out_slice (v: &mut Option<c_slice::Box<u8>>)
+{
+    *v = Some(vec![42, 27].into_boxed_slice().into());
 }
