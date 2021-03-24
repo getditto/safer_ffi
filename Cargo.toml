@@ -46,6 +46,7 @@ headers = [
 csharp-headers = ["headers"]
 
 node-js = [
+    "headers",
     "inventory",
     "napi",
     "napi-derive",

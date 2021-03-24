@@ -12,7 +12,7 @@ fn with_js_string_as_utf8 (ctx: CallContext<'_>)
     let cb: JsFunction = ctx.get(1)?;
     let mut bytes;
     let ptr: *const crate::c_char = match fst.get_type() {
-        | Ok(Js::Null) => crate::NULL!(),
+        | Ok(Js::Null) => NULL!(),
         | Ok(Js::String) => {
             let s = unsafe { fst.cast::<JsString>() };
             bytes = s.into_utf8()?.take();
@@ -65,7 +65,7 @@ fn with_js_buffer_as_slice_uint8_t_ref (ctx: CallContext<'_>)
             cb.call(None, &[
                 ReprNapi::to_napi_value(
                     crate::slice::slice_raw_Layout::<u8> {
-                        ptr: crate::NULL!(),
+                        ptr: NULL!(),
                         len: 0xbad000,
                     },
                     ctx.env,
@@ -180,32 +180,34 @@ fn with_out_u64 (ctx: CallContext<'_>)
         .into_unknown()
 })}
 
+fn wrap_ptr (env: &'_ Env, p: *mut (), ty: &'_ str)
+  -> Result<JsUnknown>
+{
+    let mut obj = env.create_object()?;
+    obj.set_named_property(
+        "addr",
+        ReprNapi::to_napi_value(p as isize, env)?,
+    )?;
+    obj.set_named_property(
+        "type",
+        env.create_string(ty)?,
+    )?;
+    Ok(obj.into_unknown())
+}
+
 #[js_function(2)]
 pub
 fn with_out_ptr (ctx: CallContext<'_>)
   -> Result<JsUnknown>
 {Ok({
     let ref ty: String = ctx.get::<JsString>(0)?.into_utf8()?.into_owned()?;
-    let ty = &format!("*mut {}", ty);
-    let wrap_ptr = |p: *mut (), ty: &str| Ok::<_, Error>({
-        let mut obj = ctx.env.create_object()?;
-        obj.set_named_property(
-            "addr",
-            ReprNapi::to_napi_value(p as isize, ctx.env)?,
-        )?;
-        obj.set_named_property(
-            "type",
-            ctx.env.create_string(ty)?,
-        )?;
-        obj.into_unknown()
-    });
     let cb: JsFunction = ctx.get(1)?;
-    let mut p: *mut () = crate::NULL!();
+    let mut p: *mut () = NULL!();
     let out_p = &mut p;
     cb.call(None, &[
-        wrap_ptr(<*mut _>::cast(out_p), &format!("*mut {}", ty))?
+        wrap_ptr(ctx.env, <*mut _>::cast(out_p), &format!("{} *", ty))?
     ])?;
-    wrap_ptr(p, ty)?
+    wrap_ptr(ctx.env, p, ty)?
         .into_unknown()
 })}
 
@@ -214,19 +216,7 @@ pub
 fn with_out_byte_slice (ctx: CallContext<'_>)
   -> Result<JsUnknown>
 {Ok({
-    let ty = &"safer_ffi::slice::__slice_boxed_safer_ffi_mod::slice_boxed<u8>";
-    let wrap_ptr = |p: *mut (), ty: &str| Ok::<_, Error>({
-        let mut obj = ctx.env.create_object()?;
-        obj.set_named_property(
-            "addr",
-            ReprNapi::to_napi_value(p as isize, ctx.env)?,
-        )?;
-        obj.set_named_property(
-            "type",
-            ctx.env.create_string(ty)?,
-        )?;
-        obj.into_unknown()
-    });
+    let ty = &"slice_boxed_uint8_t";
     let cb: JsFunction = ctx.get(0)?;
     let mut v = crate::slice::slice_ref_Layout::<()> {
         ptr: NULL!(),
@@ -235,40 +225,26 @@ fn with_out_byte_slice (ctx: CallContext<'_>)
     };
     let out_v = &mut v;
     cb.call(None, &[
-        wrap_ptr(<*mut _>::cast(out_v), &format!("*mut {}", ty))?
+        wrap_ptr(ctx.env, <*mut _>::cast(out_v), &format!("{} *", ty))?
     ])?;
     let mut v_js = ctx.env.create_object()?;
     v_js.set_named_property(
-        "ptr",
-        wrap_ptr(v.ptr as _, ty)?,
+        "ptr", wrap_ptr(ctx.env, v.ptr as _, "uint8_t *")?,
     )?;
     v_js.set_named_property(
-        "len",
-        ReprNapi::to_napi_value(v.len as usize, ctx.env)?,
+        "len", ReprNapi::to_napi_value(v.len as usize, ctx.env)?,
     )?;
     v_js.into_unknown()
 })}
 
-#[js_function(2)]
+#[js_function(3)]
 pub
 fn with_out_vec_of_ptrs (ctx: CallContext<'_>)
   -> Result<JsUnknown>
 {Ok({
-    let ref ty: String = ctx.get::<JsString>(0)?.into_utf8()?.into_owned()?;
-    let ty = &format!("safer_ffi::vec::__Vec_safer_ffi_mod::Vec<{}>", ty);
-    let wrap_ptr = |p: *mut (), ty: &str| Ok::<_, Error>({
-        let mut obj = ctx.env.create_object()?;
-        obj.set_named_property(
-            "addr",
-            ReprNapi::to_napi_value(p as isize, ctx.env)?,
-        )?;
-        obj.set_named_property(
-            "type",
-            ctx.env.create_string(ty)?,
-        )?;
-        obj.into_unknown()
-    });
-    let cb: JsFunction = ctx.get(1)?;
+    let ref vec_ty: String = ctx.get::<JsString>(0)?.into_utf8()?.into_owned()?;
+    let ref ty: String = ctx.get::<JsString>(1)?.into_utf8()?.into_owned()?;
+    let cb: JsFunction = ctx.get(2)?;
     let mut v = crate::vec::Vec_Layout::<()> {
         ptr: NULL!(),
         len: 0,
@@ -276,22 +252,51 @@ fn with_out_vec_of_ptrs (ctx: CallContext<'_>)
     };
     let out_v = &mut v;
     cb.call(None, &[
-        wrap_ptr(<*mut _>::cast(out_v), &format!("*mut {}", ty))?
+        wrap_ptr(
+            ctx.env,
+            <*mut _>::cast(out_v),
+            &format!("{} *", vec_ty),
+        )?
     ])?;
     let mut v_js = ctx.env.create_object()?;
     v_js.set_named_property(
-        "ptr",
-        wrap_ptr(v.ptr.cast(), ty)?,
+        "ptr", wrap_ptr(ctx.env, v.ptr.cast(), &format!("{} *", ty))?,
     )?;
     v_js.set_named_property(
-        "len",
-        ReprNapi::to_napi_value(v.len as usize, ctx.env)?,
+        "len", ReprNapi::to_napi_value(v.len as usize, ctx.env)?,
     )?;
     v_js.set_named_property(
-        "cap",
-        ReprNapi::to_napi_value(v.cap as usize, ctx.env)?,
+        "cap", ReprNapi::to_napi_value(v.cap as usize, ctx.env)?,
     )?;
     v_js.into_unknown()
+})}
+
+#[js_function(1)]
+pub
+fn vec_char_ptr_to_js_string_array (ctx: CallContext<'_>)
+  -> Result<JsObject>
+{Ok({
+    use crate::prelude::*;
+    let arg = super::extract_arg::<crate::vec::Vec_Layout::<char_p::Box>>(&ctx, 0)?;
+    let v: repr_c::Vec<char_p::Box> = unsafe { crate::layout::from_raw_unchecked(arg) };
+    let v: Vec<char_p::Box> = v.into();
+    let ret = ctx.env.create_array()?;
+    let push = {
+        let ret = &ret;
+        let push_method = ret.get_property::<_, JsFunction>(&ctx.env.create_string("push")?)?;
+        move |elem| push_method.call(
+            Some(ret),
+            &[elem],
+        )
+    };
+    for p in v {
+        push(
+            ctx .env
+                .create_string(p.to_str())?
+                .into_unknown()
+        )?;
+    }
+    ret
 })}
 
 match_! {(
@@ -303,8 +308,9 @@ match_! {(
     "withOutPtr": with_out_ptr,
     "withOutBoolean": with_out_bool,
     "withOutU64": with_out_u64,
-    "withOutVecOfPtrs": with_out_vec_of_ptrs,
     "withOutBoxCBytes": with_out_byte_slice,
+    "withOutVecOfPtrs": with_out_vec_of_ptrs,
+    "cStringVecToStringArray": vec_char_ptr_to_js_string_array,
 ) {[ $( $name:literal : $fun:ident ),* $(,)? ] => (
     #[macro_export]
     macro_rules! node_js_export_ffi_helpers {() => (const _: () = {
