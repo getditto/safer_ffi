@@ -1,3 +1,4 @@
+#![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(unused_imports)]
 

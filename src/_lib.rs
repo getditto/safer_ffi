@@ -1,3 +1,4 @@
+#![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt::skip)]
 #![cfg_attr(feature = "nightly",
     feature(doc_cfg, external_doc, trivial_bounds)
