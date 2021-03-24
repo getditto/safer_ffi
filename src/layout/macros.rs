@@ -126,11 +126,13 @@ macro_rules! CType {(
         where
             Self : 'static,
             $(
-                $field_ty : $crate::node_js::ReprNapi,
+                $field_ty : $crate::layout::ReprC,
+                <$field_ty as $crate::layout::ReprC>::CLayout : $crate::node_js::ReprNapi,
             )*
             $(
                 $($(
-                    $generics : $crate::node_js::ReprNapi,
+                    $generics : $crate::layout::ReprC,
+                    <$generics as $crate::layout::ReprC>::CLayout : $crate::node_js::ReprNapi,
                 )+)?
                 $($($bounds)*)?
             )?
@@ -146,8 +148,12 @@ macro_rules! CType {(
                 $(
                     _obj.set_named_property(
                         $crate::core::stringify!($field_name),
-                        <$field_ty as $crate::node_js::ReprNapi>::to_napi_value(
-                            self.$field_name,
+                        <
+                            <$field_ty as $crate::layout::ReprC>::CLayout
+                            as
+                            $crate::node_js::ReprNapi
+                        >::to_napi_value(
+                            unsafe { $crate::layout::into_raw(self.$field_name) },
                             env,
                         )?,
                     )?;
@@ -198,10 +204,16 @@ macro_rules! CType {(
                 let obj = $crate::node_js::JsObject::try_from(obj)?;
                 $crate::node_js::Result::Ok(Self {
                     $(
-                        $field_name: <$field_ty as $crate::node_js::ReprNapi>::from_napi_value(
-                            env,
-                            obj.get_named_property($crate::core::stringify!($field_name))?,
-                        )?,
+                        $field_name: unsafe { $crate::layout::from_raw_unchecked(
+                            <
+                                <$field_ty as $crate::layout::ReprC>::CLayout
+                                as
+                                $crate::node_js::ReprNapi
+                            >::from_napi_value(
+                                env,
+                                obj.get_named_property($crate::core::stringify!($field_name))?,
+                            )?
+                        )},
                     )*
                 })
             }

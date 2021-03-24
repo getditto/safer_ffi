@@ -75,9 +75,9 @@ match_! {( const, mut ) {
                     ;
                     let ty: JsString =
                         env.create_string_from_std(format!(
-                            "*{mut} {pointee}",
-                            mut = stringify!($mut),
-                            pointee = ::core::any::type_name::<T>(),
+                            "{pointee} {mut}*",
+                            mut = if stringify!($mut) == "const" { "const " } else { "" },
+                            pointee = <T as crate::layout::CType>::c_var(""),
                         ))?
                     ;
 
@@ -151,15 +151,15 @@ match_! {( const, mut ) {
                     let addr: JsNumber = obj.get_named_property("addr")?;
                     let ty: JsString = obj.get_named_property("type")?;
                     let expected_ty: &str = &format!(
-                        "*{mut} {pointee}",
-                        mut = stringify!($mut),
-                        pointee = ::core::any::type_name::<T>(),
+                        "{pointee} {mut}*",
+                        mut = if stringify!($mut) == "const" { "const " } else { "" },
+                        pointee = <T as crate::layout::CType>::c_var(""),
                     );
                     let actual_ty = ty.into_utf8()?;
                     let mut actual_ty = actual_ty.as_str()?;
                     let storage;
                     if stringify!($mut) == "const" {
-                        storage = actual_ty.replace("mut", "const");
+                        storage = actual_ty.replace("const *", "*").replace(" *", " const *");
                         actual_ty = &storage;
                     }
                     if actual_ty != expected_ty {

@@ -108,7 +108,7 @@ assertCheckPointIsCalled((checkPoint) => {
 
 assertCheckPointIsCalled((checkPoint) => {
     let error = null;
-    let v = ffi.withOutVecOfPtrs("u8", (p) => {
+    let v = ffi.withOutVecOfPtrs("Vec_uint8_t", "uint8_t", (p) => {
         try {
             checkPoint();
             ffi.takes_out_vec(p);
