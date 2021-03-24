@@ -335,6 +335,7 @@ hidden_export! {
 }
 
 #[cfg(target_arch = "wasm32")]
+#[allow(dead_code)]
 mod libc {
     pub type c_int = i32;
     pub type size_t = u32;
