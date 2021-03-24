@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use ::std::{
     ffi::{CStr, CString},
     fmt,

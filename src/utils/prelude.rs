@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(unused_imports)]
 
 pub(in crate) use crate::{

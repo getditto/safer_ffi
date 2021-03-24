@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 #[cfg(feature = "headers")]
 #[macro_export] #[doc(hidden)]
 macro_rules! __cfg_headers__ {(

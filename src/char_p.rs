@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 //! `char *`-compatible strings (slim pointers), for easier use from within C.
 //
 //! They thus do not support inner nulls, nor string appending.

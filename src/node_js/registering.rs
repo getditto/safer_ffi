@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 //! The logic around the dynamically self-registered Node.js functions.
 //!
 //! One of the possible approaches to do this with N-API is by exporting

@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(unused_macros)]
 
 macro_rules! use_prelude { () => (

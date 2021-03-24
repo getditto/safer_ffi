@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use_prelude!();
 
 #[repr(transparent)]

@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use super::*;
 
 use ::core::convert::TryFrom;

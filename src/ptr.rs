@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 //! Wrappers around `NonNull` to better express the semantics of such pointer.
 //!
 //! Useful when manually defining custom low-level `ReprC` types.

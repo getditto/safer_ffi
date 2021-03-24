@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 //! Tuple types with a guaranteed `#[repr(C)]` layout.
 //!
 //! Simplified for lighter documentation, but the actual `struct` definitions

@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 //! Safer-ffi internals used by `#[ffi-export]` to make such
 //! annotated functions be callable from Node.js
 //!

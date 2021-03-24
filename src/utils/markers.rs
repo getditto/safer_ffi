@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(missing_debug_implementations)]
 
 #[derive(Default, Clone, Copy)]

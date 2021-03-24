@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use ::safer_ffi::prelude::*;
 
 /// Concatenate the two input strings into a new one.

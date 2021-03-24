@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 //! `Box<dyn 'static + Send + FnMut(...) -> _>` but with a `#[repr(C)]`
 //! layout (inlined virtual method table).
 

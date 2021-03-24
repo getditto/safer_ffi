@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 #![cfg_attr(feature = "nightly",
     feature(doc_cfg, external_doc, trivial_bounds)
 )]
@@ -23,6 +24,7 @@
 #![cfg_attr(not(feature = "nightly"),
     doc = "See the [user guide](https://getditto.github.io/safer_ffi)."
 )]
+#![cfg(not(rustfmt))]
 
 #[macro_use]
 #[path = "utils/_mod.rs"]

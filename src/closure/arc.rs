@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 //! `Arc<dyn 'static + Send + Sync + Fn(...) -> _>` but with a `#[repr(C)]`
 //! layout (inlined virtual method table).
 

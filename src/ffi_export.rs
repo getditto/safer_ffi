@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 #[doc(hidden)] #[macro_export]
 macro_rules! __ffi_export__ {(
     $( @[node_js($node_js_arg_count:literal)] )?

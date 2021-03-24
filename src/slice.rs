@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 //! Logic common to all fat pointers.
 
 use_prelude!();

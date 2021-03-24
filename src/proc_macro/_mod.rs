@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(nonstandard_style, unused_imports)]
 
 extern crate proc_macro;

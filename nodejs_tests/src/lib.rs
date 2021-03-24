@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use ::safer_ffi::prelude::*;
 
 #[cfg(feature = "nodejs")]
