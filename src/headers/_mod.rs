@@ -321,6 +321,7 @@ impl Builder<'_, WhereTo> {
             ::std::env::var("CARGO_PKG_NAME")
                 .expect("Missing `CARGO_PKG_NAME` env var")
         ;
+        let _ = pkg_name;
         #[cfg(feature = "csharp-headers")]
         #[allow(nonstandard_style)]
         let PkgName =

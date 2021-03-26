@@ -85,6 +85,7 @@ match_! {(
     JsUnknown,
     JsUndefined,
     JsNull,
+    JsString,
 ) {
     ( $($JsTy:ident),* $(,)? ) => (
         $(

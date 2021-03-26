@@ -134,4 +134,20 @@ assertCheckPointIsCalled((checkPoint) => {
     console.log(v);
 });
 
+assert.deepEqual(
+    [
+        ffi.boolify("True"),
+        ffi.boolify("False"),
+    ],
+    [true, false],
+);
+
+assert.deepEqual(
+    [
+        ffi.boolify2("True"),
+        ffi.boolify2("False"),
+    ],
+    [true, false],
+);
+
 console.log('Node.js FFI tests passed successfully ✅');

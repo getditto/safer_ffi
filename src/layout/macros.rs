@@ -119,7 +119,7 @@ macro_rules! CType {(
     #[cfg(any(
         $(all($($nodejs)?),)?
     ))]
-    __cfg_node_js__! {
+    $crate::__cfg_node_js__! {
         impl $(<$($lt ,)* $($($generics),+)?>)?
             $crate::node_js::ReprNapi
         for
@@ -379,6 +379,64 @@ macro_rules! CType {(
                         $($($bounds)*)?
                 )?
     }
+); (
+    @node_js_enum
+    $Enum_Layout:ident {
+        $(
+            $Variant:ident = $Discriminant:expr
+        ),* $(,)?
+    }
+) => (
+    #[allow(nonstandard_style)]
+    const _: () = {
+        impl $Enum_Layout {
+            $(
+                pub const $Variant: $Enum_Layout = $Discriminant;
+            )*
+        }
+
+        impl $crate::node_js::ReprNapi for $Enum_Layout {
+            type NapiValue = $crate::node_js::JsString;
+
+            fn to_napi_value (
+                self: Self,
+                env: &'_ $crate::node_js::Env,
+            ) -> $crate::node_js::Result< $crate::node_js::JsString >
+            {
+                env.create_string(match self {
+                $(
+                    | $Enum_Layout::$Variant => $crate::core::stringify!($Variant),
+                )*
+                    | _ => $crate::std::panic!(
+                        "ill-formed enum variant ({:?}) for type `{}`",
+                        &self.0,
+                        <$Enum_Layout as $crate::layout::CType>::c_short_name(),
+                    ),
+                })
+            }
+
+            fn from_napi_value (
+                env: &'_ $crate::node_js::Env,
+                js_string: $crate::node_js::JsString,
+            ) -> $crate::node_js::Result<Self>
+            {
+                match js_string.into_utf8()?.as_str()? {
+                $(
+                    | $crate::core::stringify!($Variant) => $crate::node_js::Result::Ok($Enum_Layout::$Variant),
+                )*
+                    | _ => $crate::node_js::Result::Err($crate::node_js::Error {
+                        status: $crate::node_js::Status::InvalidArg,
+                        reason: $crate::core::concat!(
+                            "Expected one of: "
+                            $(
+                                , "`", $crate::core::stringify!($Variant), "`",
+                            )", "*
+                        ).into(),
+                    }),
+                }
+            }
+        }
+    };
 )}
 
 /// Safely implement [`ReprC`][`trait@crate::layout::ReprC`]
@@ -787,7 +845,7 @@ macro_rules! ReprC {
     // CASE: field-less `#[repr(C)] enum`
     (
         $(#[doc = $prev_doc:tt])*
-        #[repr(C)]
+        #[repr(C $(, nodejs $(@$nodejs:tt)?)? $(,)?)]
         $(#[$($meta:tt)*])*
         $pub:vis
         enum $EnumName:ident {
@@ -953,6 +1011,22 @@ macro_rules! ReprC {
                 }
             } type OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete; }
 
+            #[cfg(any(
+                $(all($($nodejs)?),)?
+            ))]
+            $crate::__cfg_node_js__! {
+                $crate::layout::CType! {
+                    @node_js_enum
+                    [< $EnumName _Layout >] {
+                        $(
+                            $Variant = [< $EnumName _Layout >] (
+                                $crate::c_int($EnumName::$Variant as _)
+                            )
+                        ),*
+                    }
+                }
+            }
+
             $crate::layout::from_CType_impl_ReprC! {
                 [< $EnumName _Layout >]
             }
@@ -997,7 +1071,7 @@ macro_rules! ReprC {
     // CASE: field-less `enum`
     (
         $(#[doc = $prev_doc:tt])*
-        #[repr($Int:ident)]
+        #[repr($Int:ident $(, nodejs $(@$nodejs:tt)?)? $(,)?)]
         $(#[$($meta:tt)*])*
         $pub:vis
         enum $EnumName:ident {
@@ -1180,6 +1254,22 @@ macro_rules! ReprC {
 
             $crate::layout::from_CType_impl_ReprC! {
                 [< $EnumName _Layout >]
+            }
+
+            #[cfg(any(
+                $(all($($nodejs)?),)?
+            ))]
+            $crate::__cfg_node_js__! {
+                $crate::layout::CType! {
+                    @node_js_enum
+                    [< $EnumName _Layout >] {
+                        $(
+                            $Variant = [< $EnumName _Layout >](
+                                $EnumName::$Variant as _
+                            )
+                        ),*
+                    }
+                }
             }
 
             unsafe

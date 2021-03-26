@@ -885,9 +885,16 @@ unsafe
 
 #[repr(transparent)]
 #[derive(Clone, Copy, PartialEq, Eq)]
-#[allow(missing_debug_implementations)]
 pub
 struct c_int(pub crate::libc::c_int);
+
+impl ::core::fmt::Debug for c_int {
+    fn fmt (self: &'_ c_int, fmt: &'_ mut ::core::fmt::Formatter<'_>)
+      -> ::core::fmt::Result
+    {
+        ::core::fmt::Debug::fmt(&self.0, fmt)
+    }
+}
 
 unsafe
     impl CType

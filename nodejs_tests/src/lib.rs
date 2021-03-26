@@ -186,3 +186,23 @@ fn takes_out_slice (v: &mut Option<c_slice::Box<u8>>)
 {
     *v = Some(vec![42, 27].into_boxed_slice().into());
 }
+
+#[derive_ReprC]
+#[repr(C, nodejs)]
+pub enum MyBool { True, False = 1 }
+
+#[ffi_export(node_js)]
+fn boolify (b: MyBool) -> bool
+{
+    matches!(b, MyBool::True)
+}
+
+#[derive_ReprC]
+#[repr(u8, nodejs)]
+pub enum MyBool2 { True, False = 1 }
+
+#[ffi_export(node_js)]
+fn boolify2 (b: MyBool2) -> bool
+{
+    matches!(b, MyBool2::True)
+}
