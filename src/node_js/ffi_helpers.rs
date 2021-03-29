@@ -284,7 +284,7 @@ fn vec_char_ptr_to_js_string_array (ctx: CallContext<'_>)
     let ret = ctx.env.create_array()?;
     let push = {
         let ret = &ret;
-        let push_method = ret.get_property::<_, JsFunction>(&ctx.env.create_string("push")?)?;
+        let push_method = ret.get_named_property::<JsFunction>("push")?;
         move |elem| push_method.call(
             Some(ret),
             &[elem],
