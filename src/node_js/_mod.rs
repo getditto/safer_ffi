@@ -142,6 +142,7 @@ impl<ResolvesTo> JsPromise<ResolvesTo> {
         F : 'static + Send + FnOnce() -> R,
         R : 'static + Send + crate::layout::ReprC,
         <R as crate::layout::ReprC>::CLayout : ReprNapi<NapiValue = ResolvesTo>,
+        ResolvesTo : NapiValue + IntoUnknown,
     {
         struct UnsafeAssertSend<T>(T);
 
