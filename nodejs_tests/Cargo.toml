@@ -7,8 +7,13 @@ version = "0.1.0"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
 
-[dependencies]
-safer-ffi = { path = "..", features = ["proc_macros", "out-refs"] }
+[dependencies.safer-ffi]
+path = ".."
+features = [
+    # "debug_proc_macros",
+    "proc_macros",
+    "out-refs",
+]
 
 [build-dependencies]
 safer-ffi-build = { path = "../safer-ffi-build" }

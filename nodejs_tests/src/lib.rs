@@ -20,7 +20,8 @@ pub
 struct Foo { opaque: i32 }
 
 #[ffi_export(node_js)]
-fn foo_new () -> repr_c::Box<Foo>
+fn foo_new ()
+  -> repr_c::Box<Foo>
 {
     Box::new(Foo { opaque: 42 })
         .into()
@@ -65,7 +66,8 @@ fn concat_bytes (
 })}
 
 #[ffi_export(node_js)]
-fn get_hello() -> char_p::Box
+fn get_hello ()
+  -> char_p::Box
 {
     char_p::new("Hello, World!")
 }
@@ -192,7 +194,8 @@ fn takes_out_slice (v: &mut Option<c_slice::Box<u8>>)
 pub enum MyBool { True, False = 1 }
 
 #[ffi_export(node_js)]
-fn boolify (b: MyBool) -> bool
+fn boolify (b: MyBool)
+  -> bool
 {
     matches!(b, MyBool::True)
 }
@@ -202,7 +205,16 @@ fn boolify (b: MyBool) -> bool
 pub enum MyBool2 { True, False = 1 }
 
 #[ffi_export(node_js)]
-fn boolify2 (b: MyBool2) -> bool
+fn boolify2 (b: MyBool2)
+  -> bool
 {
     matches!(b, MyBool2::True)
+}
+
+#[ffi_export(node_js(async_worker))]
+fn long_running ()
+  -> i32
+{
+    ::std::thread::sleep(::std::time::Duration::from_millis(100));
+    42
 }
