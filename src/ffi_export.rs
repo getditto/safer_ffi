@@ -1,7 +1,10 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 #[doc(hidden)] #[macro_export]
 macro_rules! __ffi_export__ {(
-    $( @[node_js($node_js_arg_count:literal)] )?
+    $( @[node_js(
+        $node_js_arg_count:literal,
+        $($async_worker:literal $(,)?)?
+    )] )?
 
     $($(#[doc = $doc:expr])+)?
     // $(#[$meta:meta])*
@@ -128,7 +131,7 @@ macro_rules! __ffi_export__ {(
         #[cfg(any(
             $(
                 all(),
-                __hack = $node_js_arg_count
+                __hack = $node_js_arg_count,
             )?
         ))]
         /// Define the N-API wrapping function.
@@ -136,20 +139,37 @@ macro_rules! __ffi_export__ {(
             use ::safer_ffi::node_js as napi;
 
             $( #[napi::js_function($node_js_arg_count)] )?
-            fn __node_js $(<$($lt $(: $sup_lt)?),*>)? (ctx: napi::CallContext<'_>)
+            fn __node_js $(<$($lt $(: $sup_lt)?),*>)? (__ctx__: napi::CallContext<'_>)
               -> napi::Result<impl napi::NapiValue>
             {
                 let mut __nodejs_arg_idx = 0;
                 $(
                     let $arg_name: <$arg_ty as $crate::layout::ReprC>::CLayout =
-                        napi::extract_arg(&ctx, __nodejs_arg_idx)?
+                        napi::extract_arg(&__ctx__, __nodejs_arg_idx)?
                     ;
                     let __nodejs_arg_idx = __nodejs_arg_idx + 1;
                 )*
-                let ret = unsafe {
-                    $fname($($arg_name),*)
-                };
-                napi::ReprNapi::to_napi_value(ret, ctx.env)
+                #[cfg(any(
+                    $($(
+                        all(),
+                        __when = $async_worker,
+                    )?)?
+                ))] {
+                    return napi::JsPromise::from_task_spawned_on_worker_pool(__ctx__.env, move || unsafe {
+                        $fname($($arg_name),*)
+                    });
+                }
+                #[cfg(all(
+                    $($(
+                        any(),
+                        __when_not = $async_worker,
+                    )?)?
+                ))] {
+                    let ret = unsafe {
+                        $fname($($arg_name),*)
+                    };
+                    return napi::ReprNapi::to_napi_value(ret, __ctx__.env);
+                }
             }
 
             /// Register the N-API defined function.

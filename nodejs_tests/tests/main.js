@@ -150,4 +150,24 @@ assert.deepEqual(
     [true, false],
 );
 
+(async function() {
+    const start = performance.now();
+    const ffi_long_running = ffi.long_running();
+    const end = performance.now();
+    const duration = end - start;
+    assert(duration < 0.5); // Not more than 0.5 ms to perform the call.
+    assert.deepEqual(
+        await Promise.race(
+            [
+                ffi_long_running.then(() => "long_running"),
+                new Promise((resolve, reject) => {
+                    setTimeout(resolve, 10, "short_running");
+                }),
+            ]
+        ),
+        "short_running",
+    );
+    assert.deepEqual(await ffi_long_running, 42);
+})()
+
 console.log('Node.js FFI tests passed successfully ✅');
