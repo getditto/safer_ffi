@@ -155,8 +155,24 @@ macro_rules! __ffi_export__ {(
                         __when = $async_worker,
                     )?)?
                 ))] {
+                    fn __assert_send<__T : ::core::marker::Send> ()
+                    {}
+                    $(
+                        let $arg_name = unsafe {
+                            // The raw `CType` may not be `Send` (_e.g._, it
+                            // may be a raw pointer), but we can turn off the
+                            // lint if the `ReprC` whence it originated is
+                            // `Send`.
+                            let _ = __assert_send::<$arg_ty>;
+                            $crate::node_js::UnsafeAssertSend::new($arg_name)
+                        };
+                    )*
                     return napi::JsPromise::from_task_spawned_on_worker_pool(__ctx__.env, move || unsafe {
-                        $fname($($arg_name),*)
+                        $fname(
+                            $(
+                                $crate::node_js::UnsafeAssertSend::into_inner($arg_name)
+                            ),*
+                        )
                     });
                 }
                 #[cfg(all(

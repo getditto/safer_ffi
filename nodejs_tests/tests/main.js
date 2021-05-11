@@ -155,7 +155,7 @@ assert.deepEqual(
     const ffi_long_running = ffi.long_running();
     const end = performance.now();
     const duration = end - start;
-    assert(duration < 0.5); // Not more than 0.5 ms to perform the call.
+    assert(duration < 2.0); // Not more than 2 ms to perform the call.
     assert.deepEqual(
         await Promise.race(
             [

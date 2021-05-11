@@ -132,6 +132,101 @@ impl<ResolvesTo> NapiValue for JsPromise<ResolvesTo> {
     }
 }
 
+#[derive(Debug)]
+pub
+struct AsyncWorkerTask<Worker, ThenMainJs> {
+    pub on_worker: Option<Worker>,
+    pub then_on_main_js: ThenMainJs,
+}
+
+impl<Worker, ThenMainJs, R, Js> ::napi::Task
+    for AsyncWorkerTask<Worker, ThenMainJs>
+where
+    Worker : 'static + Send + FnOnce() -> R,
+    R : 'static + Send,
+    ThenMainJs : 'static + Send + FnOnce(Env, R) -> Result<Js>,
+    Js : ReprNapi,
+{
+    type Output = R;
+
+    type JsValue = <Js as ReprNapi>::NapiValue;
+
+    fn compute (self: &'_ mut AsyncWorkerTask<Worker, ThenMainJs>)
+      -> Result<R>
+    {
+        self.on_worker
+            .take()
+            .ok_or_else(|| Error::from_reason("\
+                Attempted to perform the background (worker pool) \
+                `::napi::Task::compute`-ation more than once!\
+            ".into()))
+            .map(|f| f())
+    }
+
+    fn resolve (
+        self: AsyncWorkerTask<Worker, ThenMainJs>,
+        env: Env,
+        output: R,
+    ) -> Result<Self::JsValue>
+    {
+        (self.then_on_main_js)(env, output)
+            .and_then(|js: Js| js.to_napi_value(&env))
+    }
+}
+
+impl<Worker, ThenMainJs, R, Js> AsyncWorkerTask<Worker, ThenMainJs>
+where
+    Worker : 'static + Send + FnOnce() -> R,
+    R : 'static + Send,
+    ThenMainJs : 'static + Send + FnOnce(Env, R) -> Result<Js>,
+    Js : ReprNapi,
+{
+    pub
+    fn spawn (
+        self: AsyncWorkerTask<Worker, ThenMainJs>,
+        env: &'_ Env,
+    ) -> Result<JsPromise<
+            <Self as ::napi::Task>::JsValue
+        >>
+    {
+        env .spawn(self)
+            .map(|async_work_promise| JsPromise(
+                async_work_promise.promise_object(),
+                Default::default(),
+            ))
+    }
+}
+
+#[allow(missing_debug_implementations)]
+#[repr(transparent)]
+pub
+struct UnsafeAssertSend<T> /* = */ (
+    T,
+);
+
+impl<T> UnsafeAssertSend<T> {
+    #[inline]
+    pub
+    unsafe
+    fn new (value: T)
+      -> UnsafeAssertSend<T>
+    {
+        UnsafeAssertSend(value)
+    }
+
+    pub
+    fn into_inner (self: UnsafeAssertSend<T>)
+      -> T
+    {
+        let UnsafeAssertSend(value) = self;
+        value
+    }
+}
+
+unsafe
+impl<T> Send for UnsafeAssertSend<T>
+{}
+
 impl<ResolvesTo> JsPromise<ResolvesTo> {
     pub
     fn from_task_spawned_on_worker_pool<R, F> (
@@ -144,62 +239,12 @@ impl<ResolvesTo> JsPromise<ResolvesTo> {
         <R as crate::layout::ReprC>::CLayout : ReprNapi<NapiValue = ResolvesTo>,
         ResolvesTo : NapiValue + IntoUnknown,
     {
-        struct UnsafeAssertSend<T>(T);
-
-        unsafe
-        impl<T> Send for UnsafeAssertSend<T>
-        {}
-
-        struct NapiTask<F> /* = */ (
-            Option<F>,
-        );
-
-        impl<R, F> ::napi::Task for NapiTask<F>
-        where
-            F : 'static + Send + FnOnce() -> R,
-            R : 'static + Send + crate::layout::ReprC,
-            <R as crate::layout::ReprC>::CLayout : ReprNapi,
-        {
-            type Output = UnsafeAssertSend<
-                <R as crate::layout::ReprC>::CLayout
-            >;
-
-            type JsValue =
-                <
-                    <R as crate::layout::ReprC>::CLayout
-                    as
-                    ReprNapi
-                >::NapiValue
-            ;
-
-            fn compute (self: &'_ mut NapiTask<F>)
-              -> Result<Self::Output>
-            {
-                self.0
-                    .take()
-                    .ok_or_else(|| Error::from_reason("\
-                        Attempted to perform the background (worker pool) \
-                        `::napi::Task::compute`-ation more than once!\
-                    ".into()))
-                    .map(|f| f())
-                    .map(|repr_c| unsafe {
-                        crate::layout::into_raw(repr_c)
-                    })
-                    .map(UnsafeAssertSend)
-            }
-
-            fn resolve (
-                self: NapiTask<F>,
-                env: Env,
-                UnsafeAssertSend(output): Self::Output,
-            ) -> Result<Self::JsValue>
-            {
-                output.to_napi_value(&env)
-            }
-        }
-
-        let async_work_promise = env.spawn(NapiTask(Some(task)))?;
-        Ok(JsPromise(async_work_promise.promise_object(), Default::default()))
+        AsyncWorkerTask {
+            on_worker: Some(move || UnsafeAssertSend(task())),
+            then_on_main_js: |_env, UnsafeAssertSend(output)| unsafe {
+                Ok(crate::layout::into_raw(output))
+            },
+        }.spawn(env)
     }
 
     pub
