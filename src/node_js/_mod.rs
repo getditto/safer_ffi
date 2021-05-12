@@ -139,17 +139,17 @@ struct AsyncWorkerTask<Worker, ThenMainJs> {
     pub then_on_main_js: ThenMainJs,
 }
 
-impl<Worker, ThenMainJs, R, Js> ::napi::Task
+impl<Worker, ThenMainJs, R, JsValue> ::napi::Task
     for AsyncWorkerTask<Worker, ThenMainJs>
 where
     Worker : 'static + Send + FnOnce() -> R,
     R : 'static + Send,
-    ThenMainJs : 'static + Send + FnOnce(Env, R) -> Result<Js>,
-    Js : ReprNapi,
+    ThenMainJs : 'static + Send + FnOnce(&'_ Env, R) -> Result<JsValue>,
+    JsValue : NapiValue,
 {
     type Output = R;
 
-    type JsValue = <Js as ReprNapi>::NapiValue;
+    type JsValue = JsValue;
 
     fn compute (self: &'_ mut AsyncWorkerTask<Worker, ThenMainJs>)
       -> Result<R>
@@ -165,29 +165,26 @@ where
 
     fn resolve (
         self: AsyncWorkerTask<Worker, ThenMainJs>,
-        env: Env,
+        ref env: Env,
         output: R,
-    ) -> Result<Self::JsValue>
+    ) -> Result<JsValue>
     {
         (self.then_on_main_js)(env, output)
-            .and_then(|js: Js| js.to_napi_value(&env))
     }
 }
 
-impl<Worker, ThenMainJs, R, Js> AsyncWorkerTask<Worker, ThenMainJs>
+impl<Worker, ThenMainJs, R, JsValue> AsyncWorkerTask<Worker, ThenMainJs>
 where
     Worker : 'static + Send + FnOnce() -> R,
     R : 'static + Send,
-    ThenMainJs : 'static + Send + FnOnce(Env, R) -> Result<Js>,
-    Js : ReprNapi,
+    ThenMainJs : 'static + Send + FnOnce(&'_ Env, R) -> Result<JsValue>,
+    JsValue : NapiValue,
 {
     pub
     fn spawn (
         self: AsyncWorkerTask<Worker, ThenMainJs>,
         env: &'_ Env,
-    ) -> Result<JsPromise<
-            <Self as ::napi::Task>::JsValue
-        >>
+    ) -> Result<JsPromise< JsValue >>
     {
         env .spawn(self)
             .map(|async_work_promise| JsPromise(
@@ -241,8 +238,9 @@ impl<ResolvesTo> JsPromise<ResolvesTo> {
     {
         AsyncWorkerTask {
             on_worker: Some(move || UnsafeAssertSend(task())),
-            then_on_main_js: |_env, UnsafeAssertSend(output)| unsafe {
-                Ok(crate::layout::into_raw(output))
+            then_on_main_js: |env: &'_ _, UnsafeAssertSend(output)| unsafe {
+                crate::layout::into_raw::<R>(output)
+                    .to_napi_value(env)
             },
         }.spawn(env)
     }
