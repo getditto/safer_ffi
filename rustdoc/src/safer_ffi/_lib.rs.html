@@ -1,7 +1,7 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/_lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>_lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/_lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>_lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../safer_ffi/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../safer_ffi/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -288,7 +288,7 @@
 <span id="285">285</span>
 <span id="286">286</span>
 <span id="287">287</span>
-</pre><div class="example-wrap"><pre class="rust ">
+</pre><pre class="rust">
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>,
     <span class="ident">feature</span>(<span class="ident">doc_cfg</span>, <span class="ident">external_doc</span>, <span class="ident">trivial_bounds</span>)
 )]</span>
@@ -330,26 +330,26 @@
 <span class="kw">use</span> <span class="ident">__utils__</span> <span class="kw">as</span> <span class="ident">utils</span>;
 
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">proc_macro</span>;
-<span class="kw">pub</span> <span class="kw">use</span> ::<span class="ident">proc_macro</span>::{<span class="ident">ffi_export</span>, <span class="ident">cfg_headers</span>};
-<span class="macro">cfg_proc_macros</span><span class="macro">!</span> {
-    <span class="attribute">#[::<span class="ident">proc_macro_hack</span>::<span class="ident">proc_macro_hack</span>]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::proc_macro</span>::{<span class="ident">ffi_export</span>, <span class="ident">cfg_headers</span>};
+<span class="macro">cfg_proc_macros!</span> {
+    <span class="attribute">#[<span class="ident">::proc_macro_hack::proc_macro_hack</span>]</span>
     <span class="doccomment">/// Creates a compile-time checked [`char_p::Ref`]`&lt;&#39;static&gt;` out of a</span>
     <span class="doccomment">/// string literal.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`char_p::Ref`]: `crate::prelude::char_p::Ref`</span>
-    <span class="kw">pub</span> <span class="kw">use</span> ::<span class="ident">proc_macro</span>::<span class="ident">c_str</span> <span class="kw">as</span> <span class="ident">c</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::proc_macro::c_str</span> <span class="kw">as</span> <span class="ident">c</span>;
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> ::<span class="ident">proc_macro</span>::<span class="ident">derive_ReprC</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::proc_macro::derive_ReprC</span>;
 }
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;layout/_mod.rs&quot;</span>]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">layout</span>;
 
-<span class="macro">__cfg_headers__</span><span class="macro">!</span> {
+<span class="macro">__cfg_headers__!</span> {
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="kw">pub</span>
-    <span class="kw">use</span> ::<span class="ident">inventory</span>;
+    <span class="kw">use</span> <span class="ident">::inventory</span>;
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>,
         <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;headers&quot;</span>)),
@@ -362,24 +362,24 @@
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="kw">pub</span>
     <span class="kw">struct</span> <span class="ident">FfiExport</span>(
         <span class="kw">pub</span>
-        <span class="kw">fn</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">headers</span>::<span class="ident">Definer</span>)
-          <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">std</span>::<span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+        <span class="kw">fn</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">headers::Definer</span>)
+          <span class="op">-</span><span class="op">&gt;</span> <span class="ident">::std::io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
         ,
     );
 
-    ::<span class="ident">inventory</span>::<span class="macro">collect</span><span class="macro">!</span>(<span class="ident">FfiExport</span>);
+    <span class="macro">::inventory::collect!</span>(<span class="ident">FfiExport</span>);
 }
 
-<span class="macro">cfg_alloc</span><span class="macro">!</span> {
+<span class="macro">cfg_alloc!</span> {
     <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
 }
 
-<span class="macro">cfg_alloc</span><span class="macro">!</span> {
+<span class="macro">cfg_alloc!</span> {
     <span class="kw">pub</span>
     <span class="kw">mod</span> <span class="ident">boxed</span>;
 }
 
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">c_char_module</span>::<span class="ident">c_char</span>;
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::c_char_module::c_char</span>;
 <span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;c_char.rs&quot;</span>]</span>
 <span class="kw">mod</span> <span class="ident">c_char_module</span>;
 
@@ -411,23 +411,23 @@
 <span class="kw">pub</span>
 <span class="kw">mod</span> <span class="ident">tuple</span>;
 
-<span class="macro">cfg_alloc</span><span class="macro">!</span> {
+<span class="macro">cfg_alloc!</span> {
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">string</span>::<span class="ident">String</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">string::String</span>;
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">vec</span>::<span class="ident">Vec</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">vec::Vec</span>;
     <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">vec</span>;
 }
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">reexport_primitive_types</span> {(
+<span class="macro">macro_rules!</span> <span class="ident">reexport_primitive_types</span> {(
     $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ident</span>)<span class="op">*</span>
 ) <span class="op">=</span><span class="op">&gt;</span> (
     $(
         <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
         <span class="kw">pub</span> <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>;
     )<span class="op">*</span>
-)} <span class="macro">reexport_primitive_types</span><span class="macro">!</span> {
+)} <span class="macro">reexport_primitive_types!</span> {
     <span class="ident">u8</span> <span class="ident">u16</span> <span class="ident">u32</span> <span class="ident">u64</span> <span class="ident">u128</span>
     <span class="ident">i8</span> <span class="ident">i16</span> <span class="ident">i32</span> <span class="ident">i64</span> <span class="ident">i128</span>
     <span class="ident">f32</span> <span class="ident">f64</span>
@@ -435,9 +435,9 @@
     <span class="ident">bool</span>
     <span class="ident">str</span>
 }
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="kw">pub</span> <span class="kw">use</span> ::<span class="ident">core</span>;
-<span class="macro">cfg_std</span><span class="macro">!</span> {
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="kw">pub</span> <span class="kw">use</span> ::<span class="ident">std</span>;
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::core</span>;
+<span class="macro">cfg_std!</span> {
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::std</span>;
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
@@ -451,18 +451,18 @@
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{
         <span class="ident">closure</span>::<span class="kw-2">*</span>,
         <span class="ident">ffi_export</span>,
-        <span class="ident">layout</span>::<span class="ident">ReprC</span>,
+        <span class="ident">layout::ReprC</span>,
     };
     <span class="kw">pub</span>
     <span class="kw">mod</span> <span class="ident">char_p</span> {
         <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">char_p</span>::{
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::char_p</span>::{
             <span class="ident">char_p_raw</span> <span class="kw">as</span> <span class="ident">Raw</span>,
             <span class="ident">char_p_ref</span> <span class="kw">as</span> <span class="ident">Ref</span>,
         };
-        <span class="macro">cfg_alloc</span><span class="macro">!</span> {
+        <span class="macro">cfg_alloc!</span> {
             <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">char_p</span>::{
+            <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::char_p</span>::{
                 <span class="ident">char_p_boxed</span> <span class="kw">as</span> <span class="ident">Box</span>,
                 <span class="ident">new</span>,
             };
@@ -471,59 +471,59 @@
     <span class="kw">pub</span>
     <span class="kw">mod</span> <span class="ident">c_slice</span> {
         <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">slice</span>::{
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::slice</span>::{
             <span class="ident">slice_mut</span> <span class="kw">as</span> <span class="ident">Mut</span>,
             <span class="ident">slice_raw</span> <span class="kw">as</span> <span class="ident">Raw</span>,
             <span class="ident">slice_ref</span> <span class="kw">as</span> <span class="ident">Ref</span>,
         };
-        <span class="macro">cfg_alloc</span><span class="macro">!</span> {
+        <span class="macro">cfg_alloc!</span> {
             <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">slice</span>::<span class="ident">slice_boxed</span> <span class="kw">as</span> <span class="ident">Box</span>;
+            <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::slice::slice_boxed</span> <span class="kw">as</span> <span class="ident">Box</span>;
         }
     }
     <span class="kw">pub</span>
     <span class="kw">mod</span> <span class="ident">repr_c</span> {
-        <span class="macro">cfg_alloc</span><span class="macro">!</span> {
+        <span class="macro">cfg_alloc!</span> {
             <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
             <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{
-                <span class="ident">boxed</span>::<span class="ident">Box</span>,
-                <span class="ident">string</span>::<span class="ident">String</span>,
-                <span class="ident">vec</span>::<span class="ident">Vec</span>,
+                <span class="ident">boxed::Box</span>,
+                <span class="ident">string::String</span>,
+                <span class="ident">vec::Vec</span>,
             };
         }
     }
     <span class="kw">pub</span>
     <span class="kw">mod</span> <span class="ident">str</span> {
         <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">string</span>::{
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::string</span>::{
             <span class="comment">// str_raw as Raw,</span>
             <span class="ident">str_ref</span> <span class="kw">as</span> <span class="ident">Ref</span>,
         };
-        <span class="macro">cfg_alloc</span><span class="macro">!</span> {
+        <span class="macro">cfg_alloc!</span> {
             <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">string</span>::<span class="ident">str_boxed</span> <span class="kw">as</span> <span class="ident">Box</span>;
+            <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::string::str_boxed</span> <span class="kw">as</span> <span class="ident">Box</span>;
         }
     }
-    <span class="macro">cfg_proc_macros</span><span class="macro">!</span> {
+    <span class="macro">cfg_proc_macros!</span> {
         <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layout</span>::<span class="ident">derive_ReprC</span>;
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::layout::derive_ReprC</span>;
         <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
         <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">c</span>;
     }
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> ::<span class="ident">core</span>::{
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::core</span>::{
         <span class="ident">convert</span>::{
             <span class="ident">TryFrom</span> <span class="kw">as</span> <span class="kw">_</span>,
             <span class="ident">TryInto</span> <span class="kw">as</span> <span class="kw">_</span>,
         },
-        <span class="ident">ops</span>::<span class="ident">Not</span> <span class="kw">as</span> <span class="kw">_</span>,
+        <span class="ident">ops::Not</span> <span class="kw">as</span> <span class="kw">_</span>,
     };
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;out-refs&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">docs</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>),
         <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;out-refs&quot;</span>))
     )]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> ::<span class="ident">uninit</span>::<span class="ident">prelude</span>::{
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::uninit::prelude</span>::{
         <span class="comment">// Out reference itself</span>
         <span class="ident">Out</span>,
         <span class="comment">// Helper trait to go from `&amp;mut T` and `&amp;mut MaybeUninit&lt;T&gt;` to `Out&lt;T&gt;`</span>
@@ -534,48 +534,48 @@
 }
 
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">NULL</span> {() <span class="op">=</span><span class="op">&gt;</span> (
-    <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>()
+<span class="macro">macro_rules!</span> <span class="ident">NULL</span> {() <span class="op">=</span><span class="op">&gt;</span> (
+    <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::core::ptr::null_mut</span>()
 )}
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;log&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> ::<span class="ident">log</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::log</span>;
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_copy_implementations</span>, <span class="ident">missing_debug_implementations</span>)]</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="doccomment">/** Not part of the public API **/</span> <span class="kw">pub</span>
 <span class="kw">struct</span> <span class="ident">__PanicOnDrop__</span>; <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">__PanicOnDrop__</span> {
     <span class="kw">fn</span> <span class="ident">drop</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="self">Self</span>)
     {
-        <span class="macro">panic</span><span class="macro">!</span>()
+        <span class="macro">panic!</span>()
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;log&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="doccomment">/** Not part of the public API **/</span> <span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">__abort_with_msg__</span> { ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ({
-    <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">log</span>::<span class="macro">error</span><span class="macro">!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="kw-2">*</span>);
-    <span class="kw">let</span> <span class="ident">_panic_on_drop</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__PanicOnDrop__</span>;
-    <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="macro">panic</span><span class="macro">!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="kw-2">*</span>);
+<span class="macro">macro_rules!</span> <span class="ident">__abort_with_msg__</span> { ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ({
+    <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::log::error!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="kw-2">*</span>);
+    <span class="kw">let</span> <span class="ident">_panic_on_drop</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::__PanicOnDrop__</span>;
+    <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::core::panic!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="kw-2">*</span>);
 })}
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
     <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;log&quot;</span>),
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>,
 ))]</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="doccomment">/** Not part of the public API **/</span> <span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">__abort_with_msg__</span> { ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ({
-    <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">std</span>::<span class="macro">eprintln</span><span class="macro">!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="kw-2">*</span>);
-    <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">std</span>::<span class="ident">process</span>::<span class="ident">abort</span>();
+<span class="macro">macro_rules!</span> <span class="ident">__abort_with_msg__</span> { ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ({
+    <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::std::eprintln!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="kw-2">*</span>);
+    <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::std::process::abort</span>();
 })}
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
     <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;log&quot;</span>),
     <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>),
 ))]</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="doccomment">/** Not part of the public API **/</span> <span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">__abort_with_msg__</span> { ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ({
-    <span class="kw">let</span> <span class="ident">_panic_on_drop</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">__PanicOnDrop__</span>;
-    <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">core</span>::<span class="macro">panic</span><span class="macro">!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="kw-2">*</span>);
+<span class="macro">macro_rules!</span> <span class="ident">__abort_with_msg__</span> { ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ({
+    <span class="kw">let</span> <span class="ident">_panic_on_drop</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::__PanicOnDrop__</span>;
+    <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::core::panic!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="kw-2">*</span>);
 })}
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>
