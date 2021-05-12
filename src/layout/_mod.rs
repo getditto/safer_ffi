@@ -259,7 +259,7 @@ unsafe trait CType
         ///
         ///   - a `var_name` may be supplied, in which case the type must
         ///     use that as its "variable name" (C being how it is, the var
-        //      name may need to be inserted in the middle of the types, such as
+        ///     name may need to be inserted in the middle of the types, such as
         ///     with arrays and function pointers).
         ///
         /// # Safety
