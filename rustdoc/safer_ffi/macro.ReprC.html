@@ -99,7 +99,7 @@
     (@<span class="ident">deny_C</span> <span class="ident">c_int</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
     (@<span class="ident">deny_C</span> <span class="ident">c_uint</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
     (@<span class="ident">deny_C</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">otherwise</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
-    (@<span class="ident">first</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fst</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ignored</span>:<span class="ident">tt</span>)<span class="question-mark">?</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    (@<span class="ident">first</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fst</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ignored</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
 }</pre></div>
 </div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Safely implement <a href="layout/trait.ReprC.html" title="crate::layout::ReprC"><code>ReprC</code></a>
 for a <code>#[repr(C)]</code> struct <strong>when all its fields are <code>ReprC</code></strong>.</p>
