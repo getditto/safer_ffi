@@ -385,7 +385,7 @@ macro_rules! ReprC {
                         )?
                     } {
                         $(
-                            $(#[$($field_meta)*])*
+                            // $(#[$($field_meta)*])*
                             pub
                             $field_name :
                                 <$field_ty as $crate::layout::ReprC>::CLayout
