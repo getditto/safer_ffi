@@ -4,7 +4,6 @@ use ::safer_ffi::prelude::*;
 #[cfg(feature = "nodejs")]
 const _: () = {
     ::safer_ffi::node_js::register_exported_functions!();
-    ::safer_ffi::node_js::ffi_helpers::register!();
 };
 
 #[ffi_export(node_js)]
@@ -72,6 +71,10 @@ fn get_hello ()
     char_p::new("Hello, World!")
 }
 
+macro_rules! _emit {( $($_:tt)* ) => ( $($_)* )}
+
+#[cfg(not(target_arch = "wasm32"))] _emit! {
+
 #[ffi_export]
 unsafe
 fn call_with_42 (
@@ -120,12 +123,14 @@ fn call_with_42 (
 const _: () = {
     use ::safer_ffi::node_js as napi;
 
-    #[napi::js_function(1)]
-    fn call_with_42_js (ctx: napi::CallContext<'_>)
-      -> napi::Result<napi::JsNumber>
+    #[napi::derive::js_export(js_name = call_with_42)]
+    fn call_with_42_js (
+        arg: <napi::Closure<fn(i32) -> u8> as napi::ReprNapi>::NapiValue,
+    ) -> napi::Result<napi::JsNumber>
     {
+        let ctx = __js_ctx;
         let mut cb: napi::Closure<fn(i32) -> u8> =
-            napi::extract_arg(&ctx, 0)?
+            napi::ReprNapi::from_napi_value(ctx.env, arg)?
         ;
         cb.make_nodejs_wait_for_this_to_be_dropped(true)?;
         let raw_cb = ::std::sync::Arc::new(cb).into_raw_parts();
@@ -136,21 +141,14 @@ const _: () = {
             .create_uint32(raw_ret as _)
     }
 
-    napi::registering::submit! {
-        #![crate = napi::registering]
-
-        napi::registering::NapiRegistryEntry::NamedMethod {
-            name: "call_with_42",
-            method: call_with_42_js,
-        }
-    }
-
-    #[napi::js_function(1)]
-    fn call_with_str (ctx: napi::CallContext<'_>)
-      -> napi::Result<napi::JsUndefined>
+    #[napi::derive::js_export]
+    fn call_with_str (
+        arg: <napi::Closure<fn(char_p::Raw)> as napi::ReprNapi>::NapiValue,
+    ) -> napi::Result<napi::JsUndefined>
     {
+        let ctx = __js_ctx;
         let mut cb: napi::Closure<fn(char_p::Raw)> =
-            napi::extract_arg(&ctx, 0)?
+            napi::ReprNapi::from_napi_value(ctx.env, arg)?
         ;
         cb.make_nodejs_wait_for_this_to_be_dropped(true)?;
         let (data, call) = cb.as_raw_parts();
@@ -159,15 +157,6 @@ const _: () = {
         }
         ctx .env
             .get_undefined()
-    }
-
-    napi::registering::submit! {
-        #![crate = napi::registering]
-
-        napi::registering::NapiRegistryEntry::NamedMethod {
-            name: "call_with_str",
-            method: call_with_str,
-        }
     }
 };
 
@@ -217,4 +206,6 @@ fn long_running ()
 {
     ::std::thread::sleep(::std::time::Duration::from_millis(100));
     42
+}
+
 }

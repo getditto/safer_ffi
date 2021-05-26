@@ -7,6 +7,12 @@ version = "0.1.0"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
 
+resolver = "2"
+
+# [dependencies]
+# wasm-bindgen-test.version = "0.3.24"
+# wasm-bindgen-test.optional = true
+
 [dependencies.safer-ffi]
 path = ".."
 features = [
@@ -24,5 +30,6 @@ nodejs = [
     "safer-ffi/node-js",
     "safer-ffi-build/node-js",
 ]
+# wasm = ["wasm-bindgen-test"]
 
 [workspace]

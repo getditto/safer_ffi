@@ -13,6 +13,7 @@ pub type Closure<fn_sig> = <fn_sig as TypeAliasHelper>::T;
 pub trait TypeAliasHelper { type T; }
 
 use safety_boundary::ThreadTiedJsFunction;
+
 mod safety_boundary {
     use super::*;
 

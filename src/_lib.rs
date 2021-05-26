@@ -42,8 +42,7 @@ hidden_export! {
     use ::paste;
 }
 
-extern crate proc_macro;
-pub use ::proc_macro::{ffi_export, cfg_headers};
+pub use ::safer_ffi_proc_macros::{ffi_export, cfg_headers};
 cfg_proc_macros! {
     #[::proc_macro_hack::proc_macro_hack]
     /// Creates a compile-time checked [`char_p::Ref`]`<'static>` out of a
@@ -81,10 +80,10 @@ cfg_proc_macros! {
     /// ```
     ///
     /// [`char_p::Ref`]: `crate::prelude::char_p::Ref`
-    pub use ::proc_macro::c_str as c;
+    pub use ::safer_ffi_proc_macros::c_str as c;
 
     #[doc(inline)]
-    pub use ::proc_macro::derive_ReprC;
+    pub use ::safer_ffi_proc_macros::derive_ReprC;
 }
 
 #[macro_use]
@@ -344,3 +343,5 @@ mod libc {
 }
 #[cfg(not(target_arch = "wasm32"))]
 use ::libc;
+
+extern crate self as safer_ffi;

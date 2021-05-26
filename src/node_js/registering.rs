@@ -40,7 +40,7 @@ fn napi_register_module_v1 (
 {
     // let env = ::napi::Env::from_raw(raw_env);
     let mut exports: ::napi::JsObject = ::napi::NapiValue::from_raw_unchecked(raw_env, raw_exports);
-    match (|| ::napi::Result::Ok({
+    match (|| ::napi::Result::<_>::Ok({
         for entry in ::inventory::iter::<NapiRegistryEntry> {
             match entry {
                 | &NapiRegistryEntry::NamedMethod { name, method } => {

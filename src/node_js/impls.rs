@@ -133,7 +133,7 @@ match_! {( const, mut ) {
                                         "Expected valid UTF-8 bytes {:#x?} for a string",
                                         buf,
                                     ),
-                                ));
+                                ).into());
                             };
                             if buf.bytes().position(|b| b == b'\0') != Some(buf.len() - 1) {
                                 return Err(Error::new(
@@ -142,7 +142,7 @@ match_! {( const, mut ) {
                                         "Invalid null terminator for {:?}",
                                         buf,
                                     ),
-                                ));
+                                ).into());
                             }
                             return Ok(buf.as_ptr() as _);
                         },
@@ -150,7 +150,7 @@ match_! {( const, mut ) {
                         | _ => return Err(Error::new(
                             Status::InvalidArg,
                             "Expected a pointer (`{ addr }` object)".into(),
-                        )),
+                        ).into()),
                     };
                     let addr: JsNumber = obj.get_named_property("addr")?;
                     let ty: JsString = obj.get_named_property("type")?;
@@ -173,7 +173,7 @@ match_! {( const, mut ) {
                                 "Got `{}`, expected a `{}`",
                                 actual_ty, expected_ty,
                             ),
-                        ));
+                        ).into());
                     }
                     // let addr: JsNumber =
                     //     obj .get_named_property::<JsFunction>("get")?

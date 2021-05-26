@@ -1,0 +1,16 @@
+[package]
+name = "napi-dispatcher-nodejs-derive"
+version = "0.1.0"
+authors = [
+    "Daniel Henry Mantilla <daniel.henry.mantilla@gmail.com>",
+]
+edition = "2018"
+
+[dependencies.napi-derive]
+version = "1.0.0"
+git = "https://github.com/getditto/napi-rs"
+branch = "ditto/closure-into-jsfunction"
+
+[dependencies.napi-dispatcher-nodejs-derive-proc_macros] # proc-macros]
+path = "src/proc_macros"
+# package = "napi-dispatcher-nodejs-derive-proc_macros"

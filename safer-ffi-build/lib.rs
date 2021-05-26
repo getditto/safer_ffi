@@ -4,6 +4,8 @@ pub
 fn setup ()
 {
     #[cfg(feature = "node-js")] {
-        ::napi_build::setup();
+        if ::std::env::var("TARGET").as_deref() != Ok("wasm32-unknown-unknown") {
+            ::napi_build::setup();
+        }
     }
 }

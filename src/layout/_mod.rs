@@ -14,7 +14,7 @@ mod macros;
 pub use crate::{from_CType_impl_ReprC, ReprC, CType};
 
 cfg_proc_macros! {
-    pub use ::proc_macro::{
+    pub use crate::{
         derive_ReprC,
     };
 }
