@@ -60,7 +60,9 @@ test-web: index.html test-setup
 	@echo
 	@echo '=== Wasm tests ==='
 	@echo
-	@echo 'These tests are not automated yet. Please run the following command:'
+	cargo build --target wasm32-unknown-unknown --release
+	@echo
+	@echo 'The API tests are not automated yet. Please run the following command:'
 	@echo
 	@echo "    (cd \"$(shell pwd)\" && wasm-pack build --target web && python3 -m http.server 13337)"
 	@echo
