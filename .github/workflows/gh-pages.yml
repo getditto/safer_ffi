@@ -93,8 +93,9 @@ jobs:
           - macos-latest
           # - windows-latest
         rust:
-          - 1.45.0
+          # - 1.45.0
           - stable
+          - nightly
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
