@@ -1,4 +1,4 @@
-export async function run_tests(ffi) {
+export async function run_tests(ffi, performance) {
     var assert;
     try {
         assert = (await import('assert')).strict;
@@ -89,10 +89,10 @@ export async function run_tests(ffi) {
     );
 
     assert.deepEqual(
-        ffi.boxCBytesIntoBuffer(ffi.concat_bytes(
+        Uint8Array.from(ffi.boxCBytesIntoBuffer(ffi.concat_bytes(
             Uint8Array.from('Hello, ', c => c.charCodeAt(0)),
             Uint8Array.from('World!', c => c.charCodeAt(0)),
-        )),
+        ))),
         Uint8Array.from('Hello, World!', c => c.charCodeAt(0)),
     );
 

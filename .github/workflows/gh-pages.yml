@@ -115,7 +115,7 @@ jobs:
           RUST_BACKTRACE: full
         with:
           command: test
-          args: --all-features
+          args: --no-default-features --features derives,std
 
       - name: FFI test (C & C#?)
         run: make -C ffi_tests

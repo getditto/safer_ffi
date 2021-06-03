@@ -13,7 +13,7 @@ else
 	endif
 endif
 
-RUST_DYNAMIC_LIB ?= libnodejs_tests.$(DYLIB)
+RUST_DYNAMIC_LIB ?= libjs_tests.$(DYLIB)
 
 TARGET_DIR = target
 
@@ -46,7 +46,14 @@ test-node: tests/node.js test-setup
 	@echo
 	@echo '=== Node.js tests ==='
 	@echo
-	(cd tests && RUST_BACKTRACE=full node --trace-uncaught node.js)
+	(cd tests && \
+	        node --version && \
+	        RUST_BACKTRACE=full \
+	        node \
+	                --trace-uncaught \
+	                --unhandled-rejections=strict \
+	        node.js \
+	)
 
 .PHONY: test-web
 test-web: index.html test-setup
