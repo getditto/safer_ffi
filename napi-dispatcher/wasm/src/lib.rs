@@ -24,17 +24,45 @@ mod utils;
 
 mod values;
 
+#[repr(C)]
 pub struct CallContext<'env> {
-    pub env: &'env mut Env,
-    _private: (),
+    env: Box<Env>,
+    _lifetime: ::core::marker::PhantomData<&'env ()>,
 }
+
+mod __mock_env_field_as_ref_hack {
+    use super::*;
+
+    #[repr(C)]
+    pub struct CallContextDerefTarget<'env> {
+        pub env: &'env mut Env,
+        _lifetime: (),
+    }
+
+    impl<'env> ::core::ops::Deref for CallContext<'env> {
+        type Target = CallContextDerefTarget<'env>;
+
+        fn deref (self: &'_ CallContext<'env>)
+          -> &'_ CallContextDerefTarget<'env>
+        {
+            unsafe {
+                // Safety: same layout, and `&'_ &'env mut Env` necesarily
+                // acts as a `&'_ Env`, usability-wise.
+                ::core::mem::transmute(self)
+            }
+        }
+    }
+}
+
+trait DropGlue {}
+impl<T> DropGlue for T {}
 
 pub
 struct Env {
-    _private: (),
+    cleanup: ::core::cell::RefCell<Vec<Box<dyn DropGlue>>>,
 }
 
-#[derive(::serde::Serialize)]
+#[derive(Debug, ::serde::Serialize)]
 pub
 struct Error {
     reason: String,
@@ -59,7 +87,7 @@ pub use ::wasm_bindgen::JsCast as NapiValue;
 
 pub type Result<T, E = JsValue> = ::core::result::Result<T, E>;
 
-#[derive(::serde::Serialize)]
+#[derive(Debug, PartialEq, Eq, ::serde::Serialize)]
 #[non_exhaustive]
 pub
 enum Status {
@@ -68,13 +96,19 @@ enum Status {
     GenericFailure,
 }
 
+#[derive(Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub
 enum ValueType {
+    BigInt,
+    Boolean,
     Function,
     Null,
+    Number,
     Object,
     String,
+    Symbol,
+    Undefined,
     Unknown,
 }
 
@@ -87,14 +121,22 @@ impl CallContext<'_> {
       -> Self
     {
         Self {
-            env: unsafe {
-                ::core::mem::transmute::<
-                    &'static mut [Env; 0],
-                    &'static mut Env,
-                >(&mut [])
-            },
-            _private: (),
+            env: Box::new(Env {
+                cleanup: vec![].into(),
+            }),
+            _lifetime: Default::default(),
         }
+    }
+}
+
+impl Env {
+    #[doc(hidden)] /** Not part of the public API */ pub
+    fn __push_drop_glue (
+        self: &'_ Env,
+        drop_glue: impl 'static + Sized,
+    )
+    {
+        self.cleanup.borrow_mut().push(Box::new(drop_glue))
     }
 }
 

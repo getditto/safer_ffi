@@ -6,7 +6,7 @@ macro_rules! new_type_wrappers {(
     )*
 ) => ($(
     #[repr(transparent)]
-    #[derive(::ref_cast::RefCast)]
+    #[derive(Debug, ::ref_cast::RefCast)]
     $pub
     struct $JsTy {
         pub __wasm: $OrigTy,

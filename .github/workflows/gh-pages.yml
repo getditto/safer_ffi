@@ -102,6 +102,7 @@ jobs:
           profile: default
           override: true
           toolchain: ${{ matrix.rust }}
+          target: wasm32-unknown-unknown
 
       - name: Clone repo
         uses: actions/checkout@v2
@@ -118,9 +119,17 @@ jobs:
 
       - name: FFI test (C & C#?)
         run: make -C ffi_tests
+        env:
+          RUSTC_BOOTSTRAP: 1
+          RUSTFLAGS: -Zmacro-backtrace
+          RUST_BACKTRACE: full
 
-      - name: FFI test (node.js)
-        run: make -C nodejs_tests
+      - name: FFI test (js)
+        run: make -C js_tests
+        env:
+          RUSTC_BOOTSTRAP: 1
+          RUSTFLAGS: -Zmacro-backtrace
+          RUST_BACKTRACE: full
 
   # Deploy to Github pages #
   deploy:

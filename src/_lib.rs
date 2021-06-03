@@ -178,9 +178,19 @@ macro_rules! reexport_primitive_types {(
     bool
     str
 }
-#[doc(hidden)] pub use ::core;
+
+hidden_export! {
+    use ::core;
+}
+
+hidden_export! {
+    use ::scopeguard;
+}
+
 cfg_std! {
-    #[doc(hidden)] pub use ::std;
+    hidden_export! {
+        use ::std;
+    }
 }
 
 #[doc(hidden)] /** Not part of the public API **/ pub

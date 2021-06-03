@@ -78,7 +78,8 @@ impl JsObject {
             self.as_ref_::<JsValue>(),
             &JsValue::from_str(name),
         )
-        .and_then(|js_value| js_value.dyn_into())
+        // FIXME
+        .and_then(|js_value| Ok(js_value.unchecked_into())) // .dyn_into())
     }
 
     pub
@@ -105,7 +106,7 @@ impl JsObject {
     }
 }
 
-pub struct Utf8String(String);
+#[derive(Debug)] pub struct Utf8String(String);
 impl JsString {
     pub
     fn into_utf8 (self: Self)
@@ -143,12 +144,27 @@ impl JsUnknown {
     fn get_type (self: &'_ JsUnknown)
       -> Result<ValueType>
     {
-        Ok(match () {
-            | _case if self.has_type::<JsFunction>() => ValueType::Function,
-            | _case if self.has_type::<JsNull>() => ValueType::Null,
-            | _case if self.has_type::<JsObject>() => ValueType::Object,
-            | _case if self.has_type::<JsString>() => ValueType::String,
-            | _default => ValueType::Unknown,
+        #[::wasm_bindgen::prelude::wasm_bindgen(inline_js = r#"
+            export function typeof_(x) {
+                return typeof x;
+            }
+        "#)]
+        extern "C" {
+            fn typeof_ (x: &JsValue)
+              -> String
+            ;
+        }
+        Ok(match typeof_(self.as_ref()).as_str() {
+            | "undefined" => ValueType::Undefined,
+            | "object" if self.__wasm.is_null() => ValueType::Null,
+            | "object" => ValueType::Object,
+            | "boolean" => ValueType::Boolean,
+            | "number" => ValueType::Number,
+            | "bigint" => ValueType::BigInt,
+            | "string" => ValueType::String,
+            | "symbol" => ValueType::Symbol,
+            | "function" => ValueType::Function,
+            | _ => ValueType::Unknown,
         })
     }
 

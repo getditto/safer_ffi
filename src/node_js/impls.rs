@@ -122,10 +122,21 @@ match_! {( const, mut ) {
                             == Ty::of::<*const crate::c_char>()
                             && js_val.is_buffer()?
                         => {
-                            let buf: &[u8] =
-                                &JsBuffer::try_from(js_val)?
-                                    .into_value()?
-                            ;
+                            let js_buffer = JsBuffer::try_from(js_val)?;
+                            let (buf, _storage): (&[u8], _);
+                            #[cfg(target_arch = "wasm32")] {
+                                _storage = ();
+                                let bytes = js_buffer.into_value()?.into_boxed_slice();
+                                let raw = Box::into_raw(bytes);
+                                env.__push_drop_glue(::scopeguard::guard(raw, |raw| unsafe {
+                                    drop(Box::from_raw(raw))
+                                }));
+                                buf = unsafe { &*raw };
+                            } /* else */
+                            #[cfg(not(target_arch = "wasm32"))] {
+                                _storage = js_buffer.into_value()?;
+                                buf = &_storage;
+                            }
                             let buf = if let Ok(it) = ::core::str::from_utf8(buf) { it } else {
                                 return Err(Error::new(
                                     Status::InvalidArg,

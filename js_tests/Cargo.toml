@@ -2,7 +2,7 @@
 crate-type = ["cdylib"]
 
 [package]
-name = "nodejs_tests"
+name = "js_tests"
 version = "0.1.0"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
@@ -20,6 +20,9 @@ features = [
     "proc_macros",
     "out-refs",
 ]
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+console_error_panic_hook = "0.1.6"
 
 [build-dependencies]
 safer-ffi-build = { path = "../safer-ffi-build" }

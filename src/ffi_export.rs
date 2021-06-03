@@ -145,7 +145,7 @@ macro_rules! __ffi_export__ {(
             // To avoid polluting the namespace with that many `$arg_name`s,
             // we will namespace those type aliases.
             mod __ty_aliases {
-                #![allow(nonstandard_style)]
+                #![allow(nonstandard_style, unused_parens)]
                 use super::*;
                 $(
                     // Incidentally, the usage of a `type` alias ensures

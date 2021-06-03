@@ -183,10 +183,22 @@ macro_rules! CType {(
                     )
                 {
                     return if is_buffer {
-                        let xs: &'_ [u8] = &
-                            $crate::node_js::JsBuffer::try_from(obj)?
-                                .into_value()?
-                        ;
+                        let js_buffer = $crate::node_js::JsBuffer::try_from(obj)?;
+                        let (buf, _storage): (&[u8], _);
+                        #[cfg(target_arch = "wasm32")] {
+                            _storage = ();
+                            let bytes = js_buffer.into_value()?.into_boxed_slice();
+                            let raw = $crate::std::boxed::Box::into_raw(bytes);
+                            env.__push_drop_glue($crate::scopeguard::guard(raw, |raw| unsafe {
+                                $crate::core::mem::drop($crate::std::boxed::Box::from_raw(raw))
+                            }));
+                            buf = unsafe { &*raw };
+                        } /* else */
+                        #[cfg(not(target_arch = "wasm32"))] {
+                            _storage = js_buffer.into_value()?;
+                            buf = &_storage;
+                        }
+                        let xs = buf;
                         $crate::node_js::Result::Ok(unsafe { $crate::core::mem::transmute_copy(&{
                             $crate::slice::slice_raw_Layout::<u8> {
                                 ptr: xs.as_ptr() as _,

@@ -25,23 +25,46 @@ CARGO_RELEASE =
 TARGET_DIR := $(TARGET_DIR)/debug
 endif
 
-RUST_SOURCES = Cargo.toml $(shell find src/ -type f -name '*.rs')
-
-.PHONY: default all test build clean
+# RUST_SOURCES = Cargo.toml $(shell find src/ -type f -name '*.rs')
 
 default: test
+.PHONY: default
 
+.PHONY: all
 all: test clean
 
-test: build tests/main.js
+.PHONY: test-setup
+test-setup: build tests/main.mjs
 	cp -L $(RUST_DYNAMIC_LIB) tests/index.node
-	(cd tests && RUST_BACKTRACE=full node --trace-uncaught main.js)
+
+.PHONY: test
+test: test-node test-web
 	cargo check --no-default-features
 
+.PHONY: test-node
+test-node: tests/node.js test-setup
+	@echo
+	@echo '=== Node.js tests ==='
+	@echo
+	(cd tests && RUST_BACKTRACE=full node --trace-uncaught node.js)
+
+.PHONY: test-web
+test-web: index.html test-setup
+	@echo
+	@echo '=== Wasm tests ==='
+	@echo
+	@echo 'These tests are not automated yet. Please run the following command:'
+	@echo
+	@echo "    (cd \"$(shell pwd)\" && wasm-pack build --target web && python3 -m http.server 13337)"
+	@echo
+	@echo "and then connect to http://localhost:13337"
+
+.PHONY: build
 build: # $(RUST_SOURCES)
 	cargo build $(CARGO_RELEASE)
 	ln -sf "$(TARGET_DIR)"/$(RUST_DYNAMIC_LIB)
 
+.PHONY: clean
 clean:
 	cargo clean
 	rm -f $(RUST_DYNAMIC_LIB)
