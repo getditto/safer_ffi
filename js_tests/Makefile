@@ -33,16 +33,20 @@ default: test
 .PHONY: all
 all: test clean
 
-.PHONY: test-setup
-test-setup: build tests/main.mjs
-	cp -L $(RUST_DYNAMIC_LIB) tests/index.node
+.PHONY: build-node
+build-node:
+	cargo build $(CARGO_RELEASE)
+	ln -sf "$(TARGET_DIR)"/$(RUST_DYNAMIC_LIB)
+
+tests/rust.node: build-node
+	cp -L "$(RUST_DYNAMIC_LIB)" $@
 
 .PHONY: test
 test: test-node test-web
 	cargo check --no-default-features
 
 .PHONY: test-node
-test-node: tests/node.js test-setup
+test-node: tests/node-entrypoint.js tests/rust.node
 	@echo
 	@echo '=== Node.js tests ==='
 	@echo
@@ -52,11 +56,15 @@ test-node: tests/node.js test-setup
 	        node \
 	                --trace-uncaught \
 	                --unhandled-rejections=strict \
-	        node.js \
+	        node-entrypoint.js \
 	)
 
+# Alias
+.PHONY: test-wasm
+test-wasm: test-web
+
 .PHONY: test-web
-test-web: index.html test-setup
+test-web: index.html tests/web-entrypoint.mjs
 	@echo
 	@echo '=== Wasm tests ==='
 	@echo
@@ -67,11 +75,6 @@ test-web: index.html test-setup
 	@echo "    (cd \"$(shell pwd)\" && wasm-pack build --target web && python3 -m http.server 13337)"
 	@echo
 	@echo "and then connect to http://localhost:13337"
-
-.PHONY: build
-build: # $(RUST_SOURCES)
-	cargo build $(CARGO_RELEASE)
-	ln -sf "$(TARGET_DIR)"/$(RUST_DYNAMIC_LIB)
 
 .PHONY: clean
 clean:

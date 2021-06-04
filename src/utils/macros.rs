@@ -78,6 +78,19 @@ mod cfg_proc_macros {
     )}
 }
 
+macro_rules! cfg_wasm {( $($item:item)* ) => (
+    $(
+        #[cfg(target_arch = "wasm32")]
+        $item
+    )*
+)}
+macro_rules! cfg_not_wasm {( $($item:item)* ) => (
+    $(
+        #[cfg(not(target_arch = "wasm32"))]
+        $item
+    )*
+)}
+
 macro_rules! const_assert {
     (
         for [$($generics:tt)*]

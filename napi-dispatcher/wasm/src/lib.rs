@@ -121,15 +121,20 @@ impl CallContext<'_> {
       -> Self
     {
         Self {
-            env: Box::new(Env {
-                cleanup: vec![].into(),
-            }),
+            env: Box::new(Env::__new()),
             _lifetime: Default::default(),
         }
     }
 }
 
 impl Env {
+    #[doc(hidden)] /** Not part of the public API */ pub
+    fn __new ()
+      -> Self
+    {
+        Env { cleanup: vec![].into() }
+    }
+
     #[doc(hidden)] /** Not part of the public API */ pub
     fn __push_drop_glue (
         self: &'_ Env,

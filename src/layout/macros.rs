@@ -436,15 +436,17 @@ macro_rules! CType {(
                 $(
                     | $crate::core::stringify!($Variant) => $crate::node_js::Result::Ok($Enum_Layout::$Variant),
                 )*
-                    | _ => $crate::node_js::Result::Err($crate::node_js::Error {
-                        status: $crate::node_js::Status::InvalidArg,
-                        reason: $crate::core::concat!(
+                    | _ => $crate::node_js::Result::Err($crate::node_js::Error::new(
+                        // status
+                        $crate::node_js::Status::InvalidArg,
+                        // reason
+                        $crate::core::concat!(
                             "Expected one of: "
                             $(
                                 , "`", $crate::core::stringify!($Variant), "`",
                             )", "*
                         ).into(),
-                    }),
+                    ).into()),
                 }
             }
         }

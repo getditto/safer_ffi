@@ -1,79 +1,9 @@
 <html>
     <head>
-        <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+        <meta content = "text/html;charset=utf-8" http-equiv = "Content-Type"/>
     </head>
     <body>
-        <pre id="logger"></pre>
+        <pre id = "logger"></pre>
     </body>
-    <script type="module">
-        import { run_tests } from './tests/main.mjs'
-        import init, * as ffi from './pkg/js_tests.js';
-
-        (function (logger) {
-            console.old = console.log;
-            console.log = function () {
-                var output = "", arg, i;
-
-                for (i = 0; i < arguments.length; i++) {
-                    arg = arguments[i];
-                    output += "<span class=\"log-" + (typeof arg) + "\">";
-
-                    if (
-                        typeof arg === "object" &&
-                        typeof JSON === "object" &&
-                        typeof JSON.stringify === "function"
-                    ) {
-                        output += JSON.stringify(arg);
-                    } else {
-                        output += arg;
-                    }
-
-                    output += "</span>&nbsp;";
-                }
-
-                logger.innerHTML += output + "<br>";
-                console.old.apply(undefined, arguments);
-            };
-            console.error = (...args) => {
-                console.log("Error:", ...args);
-            };
-        })(document.getElementById("logger"));
-
-        try {
-            async function run() {
-                // First up we need to actually load the wasm file, so we use the
-                // default export to inform it where the wasm file is located on the
-                // server, and then we wait on the returned promise to wait for the
-                // wasm to be loaded.
-                //
-                // It may look like this: `await init('./pkg/js_tests_bg.wasm');`,
-                // but there is also a handy default inside `init` function, which uses
-                // `import.meta` to locate the wasm file relatively to js file.
-                //
-                // Note that instead of a string you can also pass in any of the
-                // following things:
-                //
-                // * `WebAssembly.Module`
-                //
-                // * `ArrayBuffer`
-                //
-                // * `Response`
-                //
-                // * `Promise` which returns any of the above, e.g. `fetch("./path/to/wasm")`
-                //
-                // This gives you complete control over how the module is loaded
-                // and compiled.
-                //
-                // Also note that the promise, when resolved, yields the wasm module's
-                // exports which is the same as importing the `*_bg` module in other
-                // modes
-                await init();
-
-                run_tests(ffi);
-            }
-            run();
-        } catch (err) {
-            console.err(err);
-        }
-    </script>
+    <script type = "module" src = "./tests/web-entrypoint.mjs"></script>
 </html>

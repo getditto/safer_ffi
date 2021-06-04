@@ -455,12 +455,13 @@ macro_rules! impls {(
                 ::std::process::abort();
             }
 
-            let &Self {
+            let     &Self {
                 ref ts_fun,
                 env: ref orig_env,
                 local_func: ref fun,
-                } = this.cast::<Self>().as_ref().expect("Got NULL")
-            ;
+                    } = {
+                this.cast::<Self>().as_ref().expect("Got NULL")
+            };
             match fun.get_thread_tied_func() {
                 | None => {
                     // If we are not called from the thread whence the `Closure`
@@ -536,7 +537,7 @@ macro_rules! impls {(
                                 .expect("Conversion from C param to closure param failed")
                                 .into_unknown()
                             , )*)?
-                        ]
+                        ],
                     )
                     .and_then(|js_unknown| {
                         use ::core::convert::TryInto;
@@ -610,11 +611,4 @@ macro_rules! impls {(
     }
 )} use impls;
 
-#[derive(Debug)]
-pub
-struct ArcClosureRawParts<CallFn> {
-    pub data: *mut c_void,
-    pub call: CallFn,
-    pub release: unsafe extern "C" fn(_: *mut c_void),
-    pub retain: unsafe extern "C" fn(_: *mut c_void),
-}
+include!("common.rs");

@@ -1,49 +1,6 @@
-export async function run_tests(ffi, performance) {
-    var assert;
-    try {
-        assert = (await import('assert')).strict;
-    } catch(__) {}
-
-    if (!assert) {
-        assert = {
-            equal: function (lhs, rhs) {
-                if (lhs !== rhs) {
-                    throw new Error(`Assertion failed: '${lhs} == ${rhs}'`);
-                }
-            },
-            deepEqual: function (x, y) {
-                if (x === y) {
-                  return true;
-                }
-                else if ((typeof x == "object" && x != null) && (typeof y == "object" && y != null)) {
-                  if (Object.keys(x).length != Object.keys(y).length)
-                    return false;
-
-                  for (var prop in x) {
-                    if (y.hasOwnProperty(prop))
-                    {
-                      if (! this.deepEqual(x[prop], y[prop]))
-                        return false;
-                    }
-                    else
-                      return false;
-                  }
-
-                  return true;
-                }
-                else
-                  return false;
-            },
-        };
-    }
-
-    function assertCheckPointIsCalled(cb) {
-        var called = false;
-        cb(() => called = true);
-        assert.equal(called, true);
-    }
-
-    // Tests:
+// Tests:
+export async function run_tests({ ffi, performance, assert, is_web }) {
+    ffi.setup();
 
     assert.equal(
         ffi.add(42, 27),
@@ -62,6 +19,12 @@ export async function run_tests(ffi, performance) {
         ffi.boxCStringIntoString(ffi.get_hello()),
         'Hello, World!',
     );
+
+    function assertCheckPointIsCalled(cb) {
+        var called = false;
+        cb(() => called = true);
+        assert.equal(called, true);
+    }
 
     assertCheckPointIsCalled((checkPoint) => {
         ffi.withCString("Hello, World!", (s) => {
@@ -96,20 +59,9 @@ export async function run_tests(ffi, performance) {
         Uint8Array.from('Hello, World!', c => c.charCodeAt(0)),
     );
 
-    function wrap_cb_for_ffi(f) {
-        return (send_ret, ...args) => {
-            try {
-                return send_ret(f(...args));
-            } catch (e) {
-                console.error(e);
-            }
-        };
-    }
-
     assert.deepEqual(
         ffi.call_with_42(wrap_cb_for_ffi((n) => {
             assert.deepEqual(n, 42);
-            console.log(n); // 42
             return 27;
         })),
         27,
@@ -118,7 +70,6 @@ export async function run_tests(ffi, performance) {
     assert.deepEqual(
         ffi.call_with_42(wrap_cb_for_ffi((n) => {
             assert.deepEqual(n, 42);
-            console.log(n); // 42
             return 27;
         })),
         27,
@@ -153,7 +104,6 @@ export async function run_tests(ffi, performance) {
             }
         });
         if (error) { throw error; }
-        console.log(v);
     });
 
     assertCheckPointIsCalled((checkPoint) => {
@@ -167,7 +117,6 @@ export async function run_tests(ffi, performance) {
             }
         });
         if (error) { throw error; }
-        console.log(v);
     });
 
     assert.deepEqual(
@@ -186,17 +135,17 @@ export async function run_tests(ffi, performance) {
         [true, false],
     );
 
-    (async function() {
+    if (! is_web) {
         const start = performance.now();
         const ffi_long_running = ffi.long_running();
         const end = performance.now();
         const duration = end - start;
-        assert(duration < 2.0); // Not more than 2 ms to perform the call.
+        assert(duration < 2.0, "Not more than 2 ms to perform the call");
         assert.deepEqual(
             await Promise.race(
                 [
                     ffi_long_running.then(() => "long_running"),
-                    new Promise((resolve, reject) => {
+                    new Promise(resolve => {
                         setTimeout(resolve, 10, "short_running");
                     }),
                 ]
@@ -204,7 +153,17 @@ export async function run_tests(ffi, performance) {
             "short_running",
         );
         assert.deepEqual(await ffi_long_running, 42);
-    })()
+    }
 
     console.log('Js tests passed successfully ✅');
+}
+
+function wrap_cb_for_ffi(f) {
+    return (send_ret, ...args) => {
+        try {
+            return send_ret(f(...args));
+        } catch (e) {
+            console.error(e);
+        }
+    };
 }

@@ -7,6 +7,14 @@ const _: () = {
 };
 
 #[ffi_export(node_js)]
+fn setup ()
+{
+    #[cfg(target_arch = "wasm32")] {
+        ::console_error_panic_hook::set_once();
+    }
+}
+
+#[ffi_export(node_js)]
 fn add (x: i32, y: i32)
   -> i32
 {
@@ -71,10 +79,6 @@ fn get_hello ()
     char_p::new("Hello, World!")
 }
 
-macro_rules! _emit {( $($_:tt)* ) => ( $($_)* )}
-
-#[cfg(not(target_arch = "wasm32"))] _emit! {
-
 #[ffi_export]
 unsafe
 fn call_with_42 (
@@ -104,14 +108,16 @@ fn call_with_42 (
         retain(data);
         CB.with(|it| it.set(Some((data, cb, release))));
 
-        retain(data);
-        ::std::thread::spawn({
-            let data = data as usize;
-            move || {
-                cb(data as _, 42);
-                release(data as _);
-            }
-        });
+        if cfg!(target_arch = "wasm32").not() {
+            retain(data);
+            ::std::thread::spawn({
+                let data = data as usize;
+                move || {
+                    cb(data as _, 42);
+                    release(data as _);
+                }
+            });
+        }
 
         ret = cb(data, 42);
     }
@@ -128,7 +134,7 @@ const _: () = {
         arg: <napi::Closure<fn(i32) -> u8> as napi::ReprNapi>::NapiValue,
     ) -> napi::Result<napi::JsNumber>
     {
-        let ctx = __js_ctx;
+        let ctx = napi::derive::__js_ctx!();
         let mut cb: napi::Closure<fn(i32) -> u8> =
             napi::ReprNapi::from_napi_value(ctx.env, arg)?
         ;
@@ -146,7 +152,7 @@ const _: () = {
         arg: <napi::Closure<fn(char_p::Raw)> as napi::ReprNapi>::NapiValue,
     ) -> napi::Result<napi::JsUndefined>
     {
-        let ctx = __js_ctx;
+        let ctx = napi::derive::__js_ctx!();
         let mut cb: napi::Closure<fn(char_p::Raw)> =
             napi::ReprNapi::from_napi_value(ctx.env, arg)?
         ;
@@ -200,6 +206,8 @@ fn boolify2 (b: MyBool2)
     matches!(b, MyBool2::True)
 }
 
+macro_rules! _emit {( $($_:tt)* ) => ( $($_)* )}
+#[cfg(not(target_arch = "wasm32"))] _emit! {
 #[ffi_export(node_js(async_worker))]
 fn long_running ()
   -> i32
@@ -207,5 +215,4 @@ fn long_running ()
     ::std::thread::sleep(::std::time::Duration::from_millis(100));
     42
 }
-
 }

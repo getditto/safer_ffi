@@ -13,9 +13,11 @@ pub use ::napi::*;
 
 // pub use ::napi_derive::js_function;
 
-#[cfg(not(target_arch = "wasm32"))]
+
 pub use closures::*;
-#[cfg(not(target_arch = "wasm32"))]
+
+#[cfg_attr(target_arch = "wasm32", path = "closures/wasm.rs")]
+#[cfg_attr(not(target_arch = "wasm32"), path = "closures/node_js.rs")]
 mod closures;
 
 pub
@@ -23,9 +25,10 @@ mod ffi_helpers;
 
 mod impls;
 
-#[cfg(not(target_arch = "wasm32"))]
-pub
-mod registering;
+cfg_not_wasm! {
+    pub
+    mod registering;
+}
 
 /// Interconversion between `CType`s and js values
 pub
@@ -47,16 +50,17 @@ trait ReprNapi : Sized /* : crate::layout::CType */ {
     ;
 }
 
-#[cfg(not(target_arch = "wasm32"))]
-pub
-fn extract_arg<T> (
-    ctx: &'_ CallContext<'_>,
-    idx: usize,
-) -> Result<T>
-where
-    T : ReprNapi,
-{
-    T::from_napi_value(ctx.env, ctx.get::<T::NapiValue>(idx)?)
+cfg_not_wasm! {
+    pub
+    fn extract_arg<T> (
+        ctx: &'_ CallContext<'_>,
+        idx: usize,
+    ) -> Result<T>
+    where
+        T : ReprNapi,
+    {
+        T::from_napi_value(ctx.env, ctx.get::<T::NapiValue>(idx)?)
+    }
 }
 
 #[macro_export]
@@ -113,13 +117,7 @@ match_! {
     )*
 )}}
 
-#[cfg(not(target_arch = "wasm32"))]
-pub use promise::*;
-
-#[cfg(not(target_arch = "wasm32"))]
-mod promise {
-    use super::*;
-
+cfg_not_wasm! {
     #[allow(missing_debug_implementations)]
     pub
     struct JsPromise<ResolvesTo = JsUndefined> /* = */ (
@@ -131,7 +129,7 @@ mod promise {
     impl<ResolvesTo> NapiValue for JsPromise<ResolvesTo> {
         unsafe
         fn from_raw (env: sys::napi_env, value: sys::napi_value)
-        -> Result<Self>
+          -> Result<Self>
         {
             JsObject::from_raw(env, value)
                 .map(|obj| Self(obj, Default::default()))
@@ -139,14 +137,14 @@ mod promise {
 
         unsafe
         fn from_raw_unchecked (env: sys::napi_env, value: sys::napi_value)
-        -> Self
+          -> Self
         {
             Self(JsObject::from_raw_unchecked(env, value), Default::default())
         }
 
         unsafe
         fn raw (self: &'_ Self)
-        -> sys::napi_value
+          -> sys::napi_value
         {
             self.0.raw()
         }
@@ -172,7 +170,7 @@ mod promise {
         type JsValue = JsValue;
 
         fn compute (self: &'_ mut AsyncWorkerTask<Worker, ThenMainJs>)
-        -> Result<R>
+          -> Result<R>
         {
             self.on_worker
                 .take()
@@ -226,14 +224,14 @@ mod promise {
         pub
         unsafe
         fn new (value: T)
-        -> UnsafeAssertSend<T>
+          -> UnsafeAssertSend<T>
         {
             UnsafeAssertSend(value)
         }
 
         pub
         fn into_inner (self: UnsafeAssertSend<T>)
-        -> T
+          -> T
         {
             let UnsafeAssertSend(value) = self;
             value
@@ -267,22 +265,17 @@ mod promise {
 
         pub
         fn resolve_into_unknown (self: JsPromise<ResolvesTo>)
-        -> JsPromise<JsUnknown>
+          -> JsPromise<JsUnknown>
         {
             JsPromise(self.0, Default::default())
         }
 
         pub
         fn into_unknown (self: JsPromise<ResolvesTo>)
-        -> JsUnknown
+          -> JsUnknown
         {
             self.0
                 .into_unknown()
         }
     }
 }
-
-// #[cfg(target_arch = "wasm32")]
-// mod closures {
-
-// }
