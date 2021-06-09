@@ -7,6 +7,7 @@ match_! {(
     (u32, create_uint32 => u8, u16, u32),
     (i32, create_int32 => i8, i16, i32),
     (i64, create_int64 => u64, i64, isize, usize),
+    (f64, create_double => f32, f64),
 ) {
     (
         $(
@@ -26,18 +27,20 @@ match_! {(
                 ) -> Result<$xN>
                 {
                     let n: $x32 = napi_value.try_into()?;
-                    n   .try_into()
-                        .map_err(|_| {
-                            Error::new(
-                                Status::InvalidArg,
-                                format!(
-                                    "Numeric overflow: \
-                                    parameter `{:?}` does not fit into a `{}`",
-                                    n,
-                                    ::core::any::type_name::<$xN>(),
-                                ),
-                            )
-                        })
+                    let n_mb_smaller: $xN = n as _;
+                    if n_mb_smaller as $x32 != n {
+                        Err(Error::new(
+                            Status::InvalidArg,
+                            format!(
+                                "Numeric overflow: \
+                                parameter `{:?}` does not fit into a `{}`",
+                                n,
+                                ::core::any::type_name::<$xN>(),
+                            ),
+                        ).into())
+                    } else {
+                        Ok(n_mb_smaller)
+                    }
                 }
 
                 fn to_napi_value (
