@@ -184,7 +184,7 @@ macro_rules! __ffi_export__ {(
                 )*
                 #[cfg(any(
                     $($(
-                        all(),
+                        not(target_arch = "wasm32"),
                         __when = $async_worker,
                     )?)?
                 ))] {
@@ -208,17 +208,23 @@ macro_rules! __ffi_export__ {(
                         )
                     }).map(|it| it.into_unknown());
                 }
-                #[cfg(all(
+                #[cfg(not(any(
                     $($(
-                        any(),
-                        __when_not = $async_worker,
+                        not(target_arch = "wasm32"),
+                        __when = $async_worker,
                     )?)?
-                ))] {
+                )))] {
                     let ret = unsafe {
                         $fname($($arg_name),*)
                     };
                     return
                         napi::ReprNapi::to_napi_value(ret, __ctx__.env)
+                        $($(
+                            .map(|it| {
+                                $crate::core::stringify!($async_worker);
+                                $crate::node_js::JsPromise::__resolve(it.as_ref())
+                            })
+                        )?)?
                             .map(|it| it.into_unknown())
                     ;
                 }

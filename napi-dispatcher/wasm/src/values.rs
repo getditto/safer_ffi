@@ -67,6 +67,17 @@ crate::utils::match_! {[
     )*
 )}}
 
+impl JsPromise {
+    #[doc(hidden)] /** Not part of the public API */ pub
+    fn __resolve (value: &'_ JsValue)
+      -> Self
+    {
+        Self {
+            __wasm: ::js_sys::Promise::resolve(value),
+        }
+    }
+}
+
 impl JsObject {
     pub
     fn get_named_property<T : NapiValue> (

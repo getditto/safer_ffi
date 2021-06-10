@@ -206,13 +206,12 @@ fn boolify2 (b: MyBool2)
     matches!(b, MyBool2::True)
 }
 
-macro_rules! _emit {( $($_:tt)* ) => ( $($_)* )}
-#[cfg(not(target_arch = "wasm32"))] _emit! {
 #[ffi_export(node_js(async_worker))]
 fn long_running ()
   -> i32
 {
-    ::std::thread::sleep(::std::time::Duration::from_millis(100));
+    if cfg!(not(target_arch = "wasm32")) {
+        ::std::thread::sleep(::std::time::Duration::from_millis(100));
+    }
     42
-}
 }

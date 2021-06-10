@@ -74,6 +74,7 @@ utils::new_type_wrappers! {
     pub type JsBuffer = ::js_sys::Uint8Array;
     pub type JsFunction = ::js_sys::Function;
     pub type JsNumber = ::js_sys::Number;
+    pub type JsPromise = ::js_sys::Promise;
     pub type JsObject = ::js_sys::Object;
     pub type JsString = ::js_sys::JsString;
     pub type JsNull = ::wasm_bindgen::JsValue;

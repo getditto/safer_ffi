@@ -135,25 +135,26 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
         [true, false],
     );
 
-    if (! is_web) {
-        const start = performance.now();
-        const ffi_long_running = ffi.long_running();
-        const end = performance.now();
-        const duration = end - start;
-        assert(duration < 2.0, "Not more than 2 ms to perform the call");
-        assert.deepEqual(
-            await Promise.race(
-                [
-                    ffi_long_running.then(() => "long_running"),
-                    new Promise(resolve => {
-                        setTimeout(resolve, 10, "short_running");
-                    }),
-                ]
-            ),
-            "short_running",
-        );
-        assert.deepEqual(await ffi_long_running, 42);
-    }
+    const start = performance.now();
+    const ffi_long_running = ffi.long_running();
+    const end = performance.now();
+    const duration = end - start;
+    assert(duration < 2.0, "Not more than 2 ms to perform the call");
+    assert.deepEqual(
+        await Promise.race(
+            [
+                ffi_long_running.then(() => "long_running"),
+                new Promise(resolve => {
+                    setTimeout(resolve, 10, "short_running");
+                }),
+            ]
+        ),
+        // FIXME: currently, support for `async_worker` under Wasm waits for
+        // full completion of the function's body, so that here the "long
+        // running" function has already been resolved.
+        is_web ? "long_running" : "short_running",
+    );
+    assert.deepEqual(await ffi_long_running, 42);
 
     console.log('Js tests passed successfully ✅');
 }
