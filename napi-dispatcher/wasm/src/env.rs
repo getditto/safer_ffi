@@ -33,6 +33,13 @@ impl Env {
     }
 
     pub
+    fn create_double (self: &'_ Env, f: f64)
+      -> Result< JsNumber >
+    {
+        f.try_into_()
+    }
+
+    pub
     fn create_object (self: &'_ Env)
       -> Result< JsObject >
     {

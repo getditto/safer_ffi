@@ -38,6 +38,7 @@ impl JsFunction {
 crate::utils::match_! {[
     u8, u16, u32, usize, u64,
     i8, i16, i32, isize, i64,
+    f32, f64,
 ]
 {(
     $($xN:ident),* $(,)?
