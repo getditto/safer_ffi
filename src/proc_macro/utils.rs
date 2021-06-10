@@ -1,3 +1,5 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 fn compile_error (err_msg: &'_ str, span: Span)
   -> TokenStream
 {

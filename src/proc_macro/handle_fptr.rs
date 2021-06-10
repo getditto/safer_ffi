@@ -1,3 +1,5 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 fn try_handle_fptr (input: &'_ DeriveInput)
   -> Option<TokenStream>
 {

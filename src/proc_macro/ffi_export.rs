@@ -1,3 +1,5 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 /// Export a function to be callable by C.
 ///
 /// # Example

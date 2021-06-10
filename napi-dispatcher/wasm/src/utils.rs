@@ -1,3 +1,5 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 macro_rules! new_type_wrappers {(
     $(
         $( #[$js_unknown:ident] )?

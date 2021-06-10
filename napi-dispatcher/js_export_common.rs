@@ -1,3 +1,5 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 #[proc_macro] pub
 fn __make_all_lifetimes_static (
     input: TokenStream,
