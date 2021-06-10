@@ -46,7 +46,9 @@ macro_rules! __ffi_export__ {(
     const _: () = {
         $($(#[doc = $doc])+)?
         #[allow(improper_ctypes_definitions)]
-        #[no_mangle]
+        #[cfg_attr(not(target_arch = "wasm32"),
+            no_mangle,
+        )]
         pub
         $(unsafe $(@$hack@)?)? /* Safety: function is not visible but to the linker */
         extern "C"
@@ -128,30 +130,61 @@ macro_rules! __ffi_export__ {(
             ret
         }}
 
+        /// Define the N-API wrapping function.
         #[cfg(any(
             $(
                 all(),
                 __hack = $node_js_arg_count,
             )?
         ))]
-        /// Define the N-API wrapping function.
         const _: () = {
-            use ::safer_ffi::node_js as napi;
-
-            $( #[napi::js_function($node_js_arg_count)] )?
-            fn __node_js $(<$($lt $(: $sup_lt)?),*>)? (__ctx__: napi::CallContext<'_>)
-              -> napi::Result<impl napi::NapiValue>
+            // We want to use `type $arg_name = <$arg_ty as …>::Assoc;`
+            // (with the lifetimes appearing there having been replaced with
+            // `'static`, to soothe `#[wasm_bindgen]`).
+            //
+            // To avoid polluting the namespace with that many `$arg_name`s,
+            // we will namespace those type aliases.
+            mod __ty_aliases {
+                #![allow(nonstandard_style, unused_parens)]
+                use super::*;
+                $(
+                    // Incidentally, the usage of a `type` alias ensures
+                    // `__make_all_lifetimes_static!` is not missing hidden
+                    // lifetime parameters in paths (_e.g._, `Cow<str>`, or
+                    // more on point, `char_p::Ref`). Indeed, when one does
+                    // that inside a type alias, a very nice error message
+                    // will complain about it.
+                    pub(in super)
+                    type $arg_name =
+                        $crate::node_js::derive::__make_all_lifetimes_static!(
+                            <
+                                <$arg_ty as $crate::layout::ReprC>::CLayout
+                                as
+                                $crate::node_js::ReprNapi
+                            >::NapiValue
+                        )
+                    ;
+                )*
+            }
+            #[$crate::node_js::derive::js_export(js_name = $fname)]
+            fn __node_js $(<$($lt $(: $sup_lt)?),*>)? (
+                $(
+                    $arg_name: __ty_aliases::$arg_name,
+                )*
+            ) -> $crate::node_js::Result<$crate::node_js::JsUnknown>
             {
-                let mut __nodejs_arg_idx = 0;
+                let __ctx__ = $crate::node_js::derive::__js_ctx!();
                 $(
                     let $arg_name: <$arg_ty as $crate::layout::ReprC>::CLayout =
-                        napi::extract_arg(&__ctx__, __nodejs_arg_idx)?
+                        $crate::node_js::ReprNapi::from_napi_value(
+                            __ctx__.env,
+                            $arg_name,
+                        )?
                     ;
-                    let __nodejs_arg_idx = __nodejs_arg_idx + 1;
                 )*
                 #[cfg(any(
                     $($(
-                        all(),
+                        not(target_arch = "wasm32"),
                         __when = $async_worker,
                     )?)?
                 ))] {
@@ -173,32 +206,33 @@ macro_rules! __ffi_export__ {(
                                 $crate::node_js::UnsafeAssertSend::into_inner($arg_name)
                             ),*
                         )
-                    });
+                    }).map(|it| it.into_unknown());
                 }
-                #[cfg(all(
+                #[cfg(not(any(
                     $($(
-                        any(),
-                        __when_not = $async_worker,
+                        not(target_arch = "wasm32"),
+                        __when = $async_worker,
                     )?)?
-                ))] {
+                )))] {
                     let ret = unsafe {
                         $fname($($arg_name),*)
                     };
-                    return napi::ReprNapi::to_napi_value(ret, __ctx__.env);
-                }
-            }
-
-            /// Register the N-API defined function.
-            ::safer_ffi::node_js::registering::submit! {
-                #![crate = ::safer_ffi::node_js::registering]
-                ::safer_ffi::node_js::registering::NapiRegistryEntry::NamedMethod {
-                    name: stringify!($fname),
-                    method: __node_js,
+                    return
+                        napi::ReprNapi::to_napi_value(ret, __ctx__.env)
+                        $($(
+                            .map(|it| {
+                                $crate::core::stringify!($async_worker);
+                                $crate::node_js::JsPromise::__resolve(it.as_ref())
+                            })
+                        )?)?
+                            .map(|it| it.into_unknown())
+                    ;
                 }
             }
         };
     };
 
+    #[cfg(not(target_arch = "wasm32"))]
     $crate::__cfg_headers__! {
         $crate::inventory::submit! {
             #![crate = $crate]

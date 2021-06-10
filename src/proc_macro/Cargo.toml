@@ -3,7 +3,7 @@ path = "_mod.rs"
 proc-macro = true
 
 [package]
-name = "safer_ffi-proc_macro"
+name = "safer_ffi-proc_macros"
 # Keep in sync with `/Cargo.toml`
 version = "0.0.5"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]

@@ -4,8 +4,15 @@ use ::safer_ffi::prelude::*;
 #[cfg(feature = "nodejs")]
 const _: () = {
     ::safer_ffi::node_js::register_exported_functions!();
-    ::safer_ffi::node_js::ffi_helpers::register!();
 };
+
+#[ffi_export(node_js)]
+fn setup ()
+{
+    #[cfg(target_arch = "wasm32")] {
+        ::console_error_panic_hook::set_once();
+    }
+}
 
 #[ffi_export(node_js)]
 fn add (x: i32, y: i32)
@@ -101,14 +108,16 @@ fn call_with_42 (
         retain(data);
         CB.with(|it| it.set(Some((data, cb, release))));
 
-        retain(data);
-        ::std::thread::spawn({
-            let data = data as usize;
-            move || {
-                cb(data as _, 42);
-                release(data as _);
-            }
-        });
+        if cfg!(target_arch = "wasm32").not() {
+            retain(data);
+            ::std::thread::spawn({
+                let data = data as usize;
+                move || {
+                    cb(data as _, 42);
+                    release(data as _);
+                }
+            });
+        }
 
         ret = cb(data, 42);
     }
@@ -120,12 +129,14 @@ fn call_with_42 (
 const _: () = {
     use ::safer_ffi::node_js as napi;
 
-    #[napi::js_function(1)]
-    fn call_with_42_js (ctx: napi::CallContext<'_>)
-      -> napi::Result<napi::JsNumber>
+    #[napi::derive::js_export(js_name = call_with_42)]
+    fn call_with_42_js (
+        arg: <napi::Closure<fn(i32) -> u8> as napi::ReprNapi>::NapiValue,
+    ) -> napi::Result<napi::JsNumber>
     {
+        let ctx = napi::derive::__js_ctx!();
         let mut cb: napi::Closure<fn(i32) -> u8> =
-            napi::extract_arg(&ctx, 0)?
+            napi::ReprNapi::from_napi_value(ctx.env, arg)?
         ;
         cb.make_nodejs_wait_for_this_to_be_dropped(true)?;
         let raw_cb = ::std::sync::Arc::new(cb).into_raw_parts();
@@ -136,21 +147,14 @@ const _: () = {
             .create_uint32(raw_ret as _)
     }
 
-    napi::registering::submit! {
-        #![crate = napi::registering]
-
-        napi::registering::NapiRegistryEntry::NamedMethod {
-            name: "call_with_42",
-            method: call_with_42_js,
-        }
-    }
-
-    #[napi::js_function(1)]
-    fn call_with_str (ctx: napi::CallContext<'_>)
-      -> napi::Result<napi::JsUndefined>
+    #[napi::derive::js_export]
+    fn call_with_str (
+        arg: <napi::Closure<fn(char_p::Raw)> as napi::ReprNapi>::NapiValue,
+    ) -> napi::Result<napi::JsUndefined>
     {
+        let ctx = napi::derive::__js_ctx!();
         let mut cb: napi::Closure<fn(char_p::Raw)> =
-            napi::extract_arg(&ctx, 0)?
+            napi::ReprNapi::from_napi_value(ctx.env, arg)?
         ;
         cb.make_nodejs_wait_for_this_to_be_dropped(true)?;
         let (data, call) = cb.as_raw_parts();
@@ -159,15 +163,6 @@ const _: () = {
         }
         ctx .env
             .get_undefined()
-    }
-
-    napi::registering::submit! {
-        #![crate = napi::registering]
-
-        napi::registering::NapiRegistryEntry::NamedMethod {
-            name: "call_with_str",
-            method: call_with_str,
-        }
     }
 };
 
@@ -215,6 +210,8 @@ fn boolify2 (b: MyBool2)
 fn long_running ()
   -> i32
 {
-    ::std::thread::sleep(::std::time::Duration::from_millis(100));
+    if cfg!(not(target_arch = "wasm32")) {
+        ::std::thread::sleep(::std::time::Duration::from_millis(100));
+    }
     42
 }

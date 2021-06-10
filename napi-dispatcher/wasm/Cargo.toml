@@ -1,0 +1,20 @@
+[package]
+name = "napi-dispatcher-wasm"
+version = "0.1.0"
+authors = [
+    "Daniel Henry Mantilla <daniel.henry.mantilla@gmail.com>",
+]
+edition = "2018"
+
+[dependencies]
+js-sys.version = "0.3.51"
+
+napi-dispatcher-wasm-proc_macros.path = "src/proc_macros"
+
+ref-cast = "1.0.6"
+
+serde.version = "1.0.0"
+serde.features = ["derive"]
+
+wasm-bindgen.version = "0.2.73"
+wasm-bindgen.features = ["serde-serialize"]

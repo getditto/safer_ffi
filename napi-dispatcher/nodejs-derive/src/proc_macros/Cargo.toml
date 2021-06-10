@@ -1,0 +1,17 @@
+[package]
+name = "napi-dispatcher-nodejs-derive-proc_macros"
+version = "0.1.0"
+authors = [
+    "Daniel Henry Mantilla <daniel.henry.mantilla@gmail.com>",
+]
+edition = "2018"
+
+[lib]
+proc-macro = true
+path = "mod.rs"
+
+[dependencies]
+proc-macro2.version = "1.0.0"
+quote.version = "1.0.0"
+syn.version = "1.0.7"
+syn.features = ["full", "visit-mut"]
