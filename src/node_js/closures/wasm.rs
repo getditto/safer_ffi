@@ -18,6 +18,14 @@ struct Closure<fn_sig> {
     _phantom: ::core::marker::PhantomData<fn_sig>,
 }
 
+unsafe
+impl<fn_sig> Send for Closure<fn_sig>
+{}
+
+unsafe
+impl<fn_sig> Sync for Closure<fn_sig>
+{}
+
 impl<fn_sig> ReprNapi
     for Closure<fn_sig>
 {

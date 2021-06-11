@@ -62,7 +62,7 @@ struct Env {
     cleanup: ::core::cell::RefCell<Vec<Box<dyn DropGlue>>>,
 }
 
-#[derive(Debug, ::serde::Serialize)]
+#[derive(Debug, ::serde::Deserialize, ::serde::Serialize)]
 pub
 struct Error {
     reason: String,
@@ -88,7 +88,7 @@ pub use ::wasm_bindgen::JsCast as NapiValue;
 
 pub type Result<T, E = JsValue> = ::core::result::Result<T, E>;
 
-#[derive(Debug, PartialEq, Eq, ::serde::Serialize)]
+#[derive(Debug, PartialEq, Eq, ::serde::Deserialize, ::serde::Serialize)]
 #[non_exhaustive]
 pub
 enum Status {
@@ -174,7 +174,16 @@ impl From<Error> for JsValue {
       -> JsValue
     {
         JsValue::from_serde(&e)
-            .unwrap_or_else(|err| JsValue::from_str(&err.to_string()))
+            .unwrap_or_else(|err| JsValue::from_str(&format!("{}: {:?}", err, e)))
+    }
+}
+
+impl From<JsValue> for Error {
+    fn from (e: JsValue)
+      -> Error
+    {
+        JsValue::into_serde(&e)
+            .unwrap_or_else(|err| Error::from_reason(format!("{}: {:?}", err, e)))
     }
 }
 

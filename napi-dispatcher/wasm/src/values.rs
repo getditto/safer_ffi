@@ -118,6 +118,44 @@ impl JsObject {
         }
         Ok(())
     }
+
+    pub
+    fn get_array_length (
+        self: &'_ JsObject,
+    ) -> Result<u32>
+    {
+        use ValueType as Js;
+
+        let unk = self.get_named_property::<JsUnknown>("length")?;
+        if matches!(unk.get_type()?, Js::Number) {
+            Ok(JsNumber::try_into_(unk.unchecked_into()).unwrap())
+        } else {
+            Err(Error::new(
+                Status::InvalidArg,
+                "Expected an array with thus a numeric `.length` property.".into(),
+            ).into())
+        }
+    }
+
+    pub
+    fn get_element<T : NapiValue> (
+        self: &'_ JsObject,
+        idx: u32,
+    ) -> Result<T>
+    {
+        #[::wasm_bindgen::prelude::wasm_bindgen(inline_js = r#"
+            export function get_element(arr, idx) {
+                return arr[idx];
+            }
+        "#)]
+        extern "C" {
+            fn get_element (arr: &JsValue, idx: u32)
+              -> JsUnknown
+            ;
+        }
+
+        Ok(get_element(self.as_ref(), idx).unchecked_into())
+    }
 }
 
 #[derive(Debug)] pub struct Utf8String(String);

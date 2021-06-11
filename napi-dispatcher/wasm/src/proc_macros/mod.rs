@@ -123,16 +123,16 @@ fn replace_lifetimes (input: &'_ mut ItemFn)
 
     // // Now, if we ever _introduced_ generic lifetime parameters, remove that:
     // // it won't make any sense to be introducing the `'static` lifetime.
-    // input.sig.generics.params =
-    //     mem::take(&mut input.sig.generics.params)
-    //         .into_iter()
-    //         .filter(|generic_param| {
-    //             matches!(
-    //                 generic_param,
-    //                 GenericParam::Lifetime(_),
-    //             )
-    //             .not()
-    //         })
-    //         .collect()
-    // ;
+    input.sig.generics.params =
+        mem::take(&mut input.sig.generics.params)
+            .into_iter()
+            .filter(|generic_param| {
+                matches!(
+                    generic_param,
+                    GenericParam::Lifetime(_),
+                )
+                .not()
+            })
+            .collect()
+    ;
 }
