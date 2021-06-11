@@ -1,5 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 #[derive(Debug)]
 pub
 struct ArcClosureRawParts<CallFn> {

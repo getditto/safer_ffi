@@ -1,5 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 inline_mod!(handle_fptr);
 
 fn feed_to_macro_rules (input: TokenStream, name: Ident)

@@ -1,5 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 #[::proc_macro_hack::proc_macro_hack] pub
 fn c_str (input: TokenStream)
   -> TokenStream
