@@ -27,7 +27,8 @@ features = [
 optional = true
 
 [features]
+async-fn = ["proc_macros"]
 headers = []
-node-js = ["proc_macros"]
-proc_macros = [ "proc-macro2", "proc-macro-hack", "quote", "syn", ]
+node-js = ["async-fn", "proc_macros"]
+proc_macros = [ "proc-macro2", "proc-macro-hack", "quote", "syn" ]
 verbose-expansions = []
