@@ -43,7 +43,7 @@ tests/rust.node: build-node
 
 .PHONY: test
 test: test-node test-web
-	cargo check --no-default-features
+	cargo check --no-default-features --features async-fn
 
 .PHONY: test-node
 test-node: tests/node-entrypoint.js tests/rust.node

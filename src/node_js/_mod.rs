@@ -7,12 +7,13 @@
 //! It is expected that in the mid-to-long term, we'll be cutting this
 //! middle-man. #FIXME
 
+use ::core::future::Future;
+
 extern crate napi;
 
 pub use ::napi::*;
 
 // pub use ::napi_derive::js_function;
-
 
 pub use closures::*;
 
@@ -118,15 +119,85 @@ match_! {
     )*
 )}}
 
-cfg_not_wasm! {
-    #[allow(missing_debug_implementations)]
-    pub
-    struct JsPromise<ResolvesTo = JsUndefined> /* = */ (
-        JsObject,
-        ::core::marker::PhantomData<ResolvesTo>,
-    );
+#[allow(missing_debug_implementations)]
+pub
+struct JsPromise<ResolvesTo = JsUndefined> /* = */ (
+    JsObject,
+    ::core::marker::PhantomData<ResolvesTo>,
+);
 
-    #[cfg(not(target_arch = "wasm32"))]
+cfg_wasm! {
+    mod hidden {
+        pub trait Send {}
+    }
+    use hidden::Send;
+    impl<T> Send for T {}
+}
+
+impl<ResolvesTo> JsPromise<ResolvesTo> {
+    pub
+    fn resolve_into_unknown (self: JsPromise<ResolvesTo>)
+      -> JsPromise<JsUnknown>
+    {
+        JsPromise(self.0, Default::default())
+    }
+
+    pub
+    fn into_unknown (self: JsPromise<ResolvesTo>)
+      -> JsUnknown
+    {
+        self.0
+            .into_unknown()
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    pub
+    fn resolve (value: &'_ ::napi::__::wasm_bindgen::JsValue)
+      -> JsPromise<ResolvesTo>
+    {
+        Self(
+            ::napi::__::js_sys::Promise::resolve(value)
+                .unchecked_into()
+            ,
+            Default::default(),
+        )
+    }
+
+    pub
+    fn spawn<Fut> (
+        env: &'_ Env,
+        fut: Fut,
+    ) -> Result< JsPromise<ResolvesTo> >
+    where
+        ResolvesTo : 'static + NapiValue,
+        Fut : 'static + Send + Future,
+        <Fut as Future>::Output : Send + ReprNapi<NapiValue = ResolvesTo>,
+    {
+        #[cfg(target_arch = "wasm32")]
+        let ret = {
+            let _ = env;
+            let promise = ::napi::__::wasm_bindgen_futures::future_to_promise(
+                async move {
+                    fut .await
+                        .to_napi_value(&Env::__new())
+                        .map(|it| it.unchecked_into())
+                }
+            );
+            Ok(JsPromise(promise.unchecked_into(), Default::default()))
+        };
+        #[cfg(not(target_arch = "wasm32"))]
+        let ret =
+            env .execute_tokio_future(
+                    async { Ok(fut.await) },
+                    |env, fut_output| fut_output.to_napi_value(env),
+                )
+                .map(|promise| JsPromise(promise, Default::default()))
+        ;
+        ret
+    }
+}
+
+cfg_not_wasm! {
     impl<ResolvesTo> NapiValue for JsPromise<ResolvesTo> {
         unsafe
         fn from_raw (env: sys::napi_env, value: sys::napi_value)
@@ -262,21 +333,6 @@ cfg_not_wasm! {
                         .to_napi_value(env)
                 },
             }.spawn(env)
-        }
-
-        pub
-        fn resolve_into_unknown (self: JsPromise<ResolvesTo>)
-          -> JsPromise<JsUnknown>
-        {
-            JsPromise(self.0, Default::default())
-        }
-
-        pub
-        fn into_unknown (self: JsPromise<ResolvesTo>)
-          -> JsUnknown
-        {
-            self.0
-                .into_unknown()
         }
     }
 }

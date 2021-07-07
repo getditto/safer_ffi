@@ -29,6 +29,7 @@ safer-ffi-build = { path = "../safer-ffi-build" }
 
 [features]
 default = ["nodejs"]
+async-fn = ["safer-ffi/async-fn"]
 nodejs = [
     "safer-ffi/node-js",
     "safer-ffi-build/node-js",

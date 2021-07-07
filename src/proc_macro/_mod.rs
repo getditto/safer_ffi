@@ -44,7 +44,7 @@ inline_mod!(derives);
 #[cfg(feature = "proc_macros")]
 inline_mod!(c_str);
 
-inline_mod!(ffi_export);
+include!("ffi_export/_mod.rs");
 
 #[cfg(feature = "headers")]
 #[proc_macro_attribute] pub

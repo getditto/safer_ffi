@@ -92,6 +92,9 @@ int main (
     with_foo(foo_cb);
     assert(foo_cb_called == true);
 
+    // test async_get_ft
+    assert(async_get_ft() == 42);
+
     puts("C: [ok]");
 
     return EXIT_SUCCESS;

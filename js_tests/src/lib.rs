@@ -217,6 +217,32 @@ fn long_running ()
     42
 }
 
+#[ffi_export(node_js, executor = (|_fut| unimplemented!()))]
+async
+fn long_running_fut ()
+  -> i32
+{
+    #[cfg(target_arch = "wasm32")] {
+        use ::safer_ffi::node_js::__::*;
+
+        #[wasm_bindgen(inline_js = r#"
+            export function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        "#)]
+        extern {
+            fn sleep (ms: u32)
+              -> js_sys::Promise
+            ;
+        }
+
+        let _ = wasm_bindgen_futures::JsFuture::from(sleep(3000)).await;
+        return 42;
+    }
+    #[cfg(not(target_arch = "wasm32"))] {
+        return long_running();
+    }
+}
 
 #[ffi_export(node_js)]
 fn site_id(id: [u8;8]) -> char_p::Box {
