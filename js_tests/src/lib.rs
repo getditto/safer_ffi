@@ -212,7 +212,7 @@ fn long_running ()
   -> i32
 {
     if cfg!(not(target_arch = "wasm32")) {
-        ::std::thread::sleep(::std::time::Duration::from_millis(100));
+        ::std::thread::sleep(::std::time::Duration::from_millis(250));
     }
     42
 }
