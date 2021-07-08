@@ -139,7 +139,7 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
     const ffi_long_running = ffi.long_running();
     const end = performance.now();
     const duration = end - start;
-    assert(duration < 2.0, "Not more than 2 ms to perform the call");
+    assert(duration < 50.0, "Not more than 50 ms to perform the call");
     assert.deepEqual(
         await Promise.race(
             [
@@ -155,6 +155,8 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
         is_web ? "long_running" : "short_running",
     );
     assert.deepEqual(await ffi_long_running, 42);
+
+    assert.deepEqual(await ffi.long_running_fut(), 42);
 
     console.log('Js tests passed successfully ✅');
 }

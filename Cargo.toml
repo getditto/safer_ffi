@@ -25,6 +25,10 @@ nightly = []
 alloc = []
 std = [ "alloc" ]
 
+async-fn = [
+    "safer_ffi-proc_macros/async-fn",
+]
+
 derives = ["proc_macros"] # alias
 proc_macros = [
     "safer_ffi-proc_macros/proc_macros",
@@ -46,6 +50,7 @@ headers = [
 csharp-headers = ["headers"]
 
 node-js = [
+    "async-fn",
     "headers",
     "inventory",
     # "napi",

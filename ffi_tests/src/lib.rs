@@ -145,5 +145,45 @@ fn generate_headers ()
     }
 })}
 
+#[ffi_export(executor = futures::executor::block_on)]
+async fn async_get_ft ()
+  -> i32
+{
+    42
+}
+
 // #[ffi_export]
 // pub const FOO: i32 = 42;
+
+mod futures {
+    pub
+    mod executor {
+        use ::std::{
+            future::Future,
+            pin::Pin,
+            sync::Arc,
+            task::{Context, Poll, Wake},
+            thread::{self, Thread},
+        };
+
+        struct ThreadUnparker /* = */ (Thread);
+        impl Wake for ThreadUnparker {
+            fn wake (self: Arc<Self>) { self.0.unpark(); }
+        }
+
+        pub
+        fn block_on<T> (ref mut fut: impl Future<Output = T>)
+          -> T
+        {
+            let ref mut fut = unsafe { Pin::new_unchecked(fut) };
+            let ref waker = Arc::new(ThreadUnparker(thread::current())).into();
+            let ref mut cx = Context::from_waker(waker);
+            loop {
+                match fut.as_mut().poll(cx) {
+                    Poll::Ready(res) => break res,
+                    Poll::Pending => thread::park(),
+                }
+            }
+        }
+    }
+}
