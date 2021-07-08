@@ -27,19 +27,117 @@ fn export (
         ).into_compile_error().into();
     };
     let block_on = respan(fun.block.span(), block_on.into_token_stream());
-    let ret = if cfg!(feature = "node_js") {
-        if node_js.is_some() {
-            todo!(stringify!(
-                #[cfg(feature = "node_js")] fn ffi_export::async_fn::export()
-            ));
-        } else {
-            fun.into_token_stream().into()
+
+    let ret = if cfg!(feature = "node-js") {
+        if node_js.is_none() {
+            // Nothing to do in this branch:
+            return fun.into_token_stream().into();
         }
+        let fun_body = &fun.block;
+        let fname = &fun.sig.ident;
+        let mut fun_signature = fun.sig.clone();
+        fun_signature.asyncness = None;
+        fun_signature.ident = Ident::new(
+            "__node_js",
+            fname.span().resolved_at(Span::call_site()),
+        );
+        let RetTy @ _ =
+            match ::core::mem::replace(
+                &mut fun_signature.output,
+                parse_quote!(
+                  -> ::safer_ffi::node_js::Result<
+                        ::safer_ffi::node_js::JsUnknown
+                    >
+                ),
+            )
+            {
+                ReturnType::Type(_, ty) => *ty,
+                ReturnType::Default => parse_quote!( () ),
+            }
+        ;
+        let (each_arg_name, EachArgTy @ _) =
+            fun_signature
+            .inputs
+            .iter_mut()
+            .map(|fn_arg| match fn_arg {
+                | FnArg::Receiver(_) => unimplemented!("`self` receivers"),
+                | FnArg::Typed(PatType { pat, ty, .. }) => match **pat {
+                    | Pat::Ident(PatIdent { ref ident, .. }) => (
+                        ident.clone(),
+                        ::core::mem::replace(ty, parse_quote!(
+                            __ty_aliases::#ident
+                        )),
+                    ),
+                    | _ => unimplemented!(
+                        "Non-trivial function param patterns",
+                    ),
+                },
+            })
+            .unzip::<_, _, Vec<_>, Vec<_>>()
+        ;
+
+        quote!(
+            const _: () = {
+                // We want to use `type #arg_name = <$arg_ty as …>::Assoc;`
+                // (with the lifetimes appearing there having been replaced with
+                // `'static`, to soothe `#[wasm_bindgen]`).
+                //
+                // To avoid polluting the namespace with that many `#arg_name`s,
+                // we will namespace those type aliases.
+                mod __ty_aliases {
+                    #![allow(nonstandard_style, unused_parens)]
+                    use super::*;
+                    #(
+                        // Incidentally, the usage of a `type` alias ensures
+                        // `__make_all_lifetimes_static!` is not missing hidden
+                        // lifetime parameters in paths (_e.g._, `Cow<str>`, or
+                        // more on point, `char_p::Ref`). Indeed, when one does
+                        // that inside a type alias, a very nice error message
+                        // will complain about it.
+                        pub(in super)
+                        type #each_arg_name =
+                            ::safer_ffi::node_js::derive::__make_all_lifetimes_static!(
+                                <
+                                    <#EachArgTy as ::safer_ffi::layout::ReprC>::CLayout
+                                    as
+                                    ::safer_ffi::node_js::ReprNapi
+                                >::NapiValue
+                            )
+                        ;
+                    )*
+                }
+
+                #[::safer_ffi::node_js::derive::js_export(js_name = #fname)]
+                #fun_signature
+                {
+                    let __ctx__ = ::safer_ffi::node_js::derive::__js_ctx!();
+                    #(
+                        let #each_arg_name: <#EachArgTy as ::safer_ffi::layout::ReprC>::CLayout =
+                            ::safer_ffi::node_js::ReprNapi::from_napi_value(
+                                __ctx__.env,
+                                #each_arg_name,
+                            )?
+                        ;
+                        let #each_arg_name: #EachArgTy = unsafe {
+                            ::safer_ffi::layout::from_raw_unchecked(#each_arg_name)
+                        };
+                    )*
+                    ::safer_ffi::node_js::JsPromise::spawn(
+                        __ctx__.env,
+                        async move {
+                            if false {
+                                ::core::option::Option::None::<#RetTy>.unwrap()
+                            } else #fun_body
+                        },
+                    )
+                    .map(|it| it.into_unknown())
+                }
+            };
+        )
     } else {
         let mut fun_signature = fun.sig.clone();
         let fun_body = &fun.block;
         fun_signature.asyncness = None;
-
         quote!(
             #[::safer_ffi::ffi_export]
             #fun_signature

@@ -156,6 +156,8 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
     );
     assert.deepEqual(await ffi_long_running, 42);
 
+    assert.deepEqual(await ffi.long_running_fut(), 42);
+
     console.log('Js tests passed successfully ✅');
 }
 

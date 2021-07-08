@@ -186,7 +186,7 @@ macro_rules! __ffi_export__ {(
                 #[cfg(any(
                     $($(
                         not(target_arch = "wasm32"),
-                        __when = $async_worker,
+                        __hack = $async_worker,
                     )?)?
                 ))] {
                     fn __assert_send<__T : ::core::marker::Send> ()
@@ -209,12 +209,12 @@ macro_rules! __ffi_export__ {(
                         )
                     }).map(|it| it.into_unknown());
                 }
-                #[cfg(not(any(
+                #[cfg(all(
                     $($(
-                        not(target_arch = "wasm32"),
-                        __when = $async_worker,
+                        target_arch = "wasm32",
+                        not(__hack = $async_worker),
                     )?)?
-                )))] {
+                ))] {
                     let ret = unsafe {
                         $fname($($arg_name),*)
                     };
@@ -223,7 +223,7 @@ macro_rules! __ffi_export__ {(
                         $($(
                             .map(|it| {
                                 $crate::core::stringify!($async_worker);
-                                $crate::node_js::JsPromise::__resolve(it.as_ref())
+                                $crate::node_js::JsPromise::<napi::JsUnknown>::resolve(it.as_ref())
                             })
                         )?)?
                             .map(|it| it.into_unknown())

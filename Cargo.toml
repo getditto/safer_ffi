@@ -50,6 +50,7 @@ headers = [
 csharp-headers = ["headers"]
 
 node-js = [
+    "async-fn",
     "headers",
     "inventory",
     # "napi",
