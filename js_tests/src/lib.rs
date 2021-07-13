@@ -216,3 +216,9 @@ fn long_running ()
     }
     42
 }
+
+
+#[ffi_export(node_js)]
+fn site_id(id: [u8;8]) -> char_p::Box {
+    char_p::new(format!("{:02x?}", id))
+}
