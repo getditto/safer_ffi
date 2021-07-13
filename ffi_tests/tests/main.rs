@@ -7,17 +7,45 @@ fn test_c_code ()
         // "/target",
         "/c_binary"
     );
+    // _e.g._, `-lSystem -lresolv -lc -lm`
+    let ref native_static_libs =
+        String::from_utf8(
+            ::std::process::Command::new("/bin/bash")
+                .args(&["-c", r#"
+                    rustc \
+                        --print native-static-libs \
+                        --crate-type staticlib \
+                        -</dev/null \
+                        2>&1 \
+                        >/dev/null \
+                    | grep native-static-libs \
+                    | cut -d' ' -f3-
+                "#])
+                .output()
+                .unwrap()
+                .stdout
+        )
+        .unwrap()
+    ;
+    let mut clang_cmd = ::scopeguard::guard_on_unwind(
+        ::std::process::Command::new("clang"),
+        |clang_cmd| {
+            println!("Clang command: `{:?}`", clang_cmd);
+            println!("Command run in: `{:?}`", ::std::env::current_dir());
+        },
+    );
     assert!(
-        ::std::process::Command::new("clang")
+        clang_cmd
             .current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/c"))
             .args(&[
                 "-I", ".",
                 "-o", C_BINARY,
                 "main.c",
                 "-L", "../..", "-l", "ffi_tests",
-                "-l", "pthread", "-l", "dl", // For Linux
                 // "-Wl,rpath=$ORIGIN/", /* cdylib under Linux */
             ])
+            // Add extra necessary `-l` flags
+            .args(native_static_libs.split(' ').map(str::trim))
             .status()
             .expect("Failed to compile the C binary")
             .success()

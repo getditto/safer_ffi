@@ -18,6 +18,9 @@ impl JsBuffer {
     {
         Ok(self.__wasm.to_vec())
     }
+    pub fn into_raw(self: JsBuffer) -> JsBuffer {
+        self
+    }
 }
 
 impl JsFunction {

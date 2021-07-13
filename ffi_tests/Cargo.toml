@@ -24,3 +24,6 @@ generate-headers = ["safer-ffi/csharp-headers"]
 panic = "unwind"
 
 [workspace]
+
+[dev-dependencies]
+scopeguard = "1.1.0"

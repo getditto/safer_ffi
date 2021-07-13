@@ -91,6 +91,7 @@ trait IntoUnknown : ::core::convert::TryFrom<JsUnknown> {
 
 match_! {
     (
+        JsBuffer,
         JsFunction,
         JsNumber,
         JsObject,

@@ -212,7 +212,13 @@ fn long_running ()
   -> i32
 {
     if cfg!(not(target_arch = "wasm32")) {
-        ::std::thread::sleep(::std::time::Duration::from_millis(100));
+        ::std::thread::sleep(::std::time::Duration::from_millis(250));
     }
     42
+}
+
+
+#[ffi_export(node_js)]
+fn site_id(id: [u8;8]) -> char_p::Box {
+    char_p::new(format!("{:02x?}", id))
 }

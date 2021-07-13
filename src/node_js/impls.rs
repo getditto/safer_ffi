@@ -234,3 +234,22 @@ match_! {(
         )*
     )
 }}
+
+impl<const N: usize> ReprNapi for [u8;N] {
+
+    type NapiValue = JsBuffer;
+
+    #[inline]
+    fn to_napi_value(self, env: &'_ Env) -> Result<JsBuffer> {
+        env.create_buffer_copy(&self[..]).map(|x| {x.into_raw() })
+    }
+
+    fn from_napi_value(_env: &'_ Env, buffer: JsBuffer) -> Result<Self> {
+        let val = buffer.into_value()?;
+        if let Ok(output) = Self::try_from(&val[..]) {
+            Ok(output)
+        } else {
+            return Err(Error::new(Status::InvalidArg, format!("Length mismatch. Expected {}, Got {}", N, val.len())).into())
+        }
+    }
+}
