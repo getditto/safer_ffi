@@ -121,7 +121,7 @@ match_! {
 
 #[allow(missing_debug_implementations)]
 pub
-struct JsPromise<ResolvesTo = JsUndefined> /* = */ (
+struct JsPromise<ResolvesTo = JsUnknown> /* = */ (
     JsObject,
     ::core::marker::PhantomData<ResolvesTo>,
 );
@@ -284,36 +284,6 @@ cfg_not_wasm! {
         }
     }
 
-    #[allow(missing_debug_implementations)]
-    #[repr(transparent)]
-    pub
-    struct UnsafeAssertSend<T> /* = */ (
-        T,
-    );
-
-    impl<T> UnsafeAssertSend<T> {
-        #[inline]
-        pub
-        unsafe
-        fn new (value: T)
-          -> UnsafeAssertSend<T>
-        {
-            UnsafeAssertSend(value)
-        }
-
-        pub
-        fn into_inner (self: UnsafeAssertSend<T>)
-          -> T
-        {
-            let UnsafeAssertSend(value) = self;
-            value
-        }
-    }
-
-    unsafe
-    impl<T> Send for UnsafeAssertSend<T>
-    {}
-
     impl<ResolvesTo> JsPromise<ResolvesTo> {
         pub
         fn from_task_spawned_on_worker_pool<R, F> (
@@ -334,5 +304,61 @@ cfg_not_wasm! {
                 },
             }.spawn(env)
         }
+    }
+}
+
+#[allow(missing_debug_implementations)]
+#[repr(transparent)]
+pub
+struct UnsafeAssertSend<T> /* = */ (
+    T,
+);
+
+impl<T> UnsafeAssertSend<T> {
+    #[inline]
+    pub
+    unsafe
+    fn new (value: T)
+      -> UnsafeAssertSend<T>
+    {
+        UnsafeAssertSend(value)
+    }
+
+    pub
+    fn into_inner (self: UnsafeAssertSend<T>)
+      -> T
+    {
+        let UnsafeAssertSend(value) = self;
+        value
+    }
+}
+
+unsafe
+impl<T> ::core::marker::Send for UnsafeAssertSend<T>
+{}
+
+impl<T : ReprNapi> ReprNapi for UnsafeAssertSend<T> {
+    type NapiValue = T::NapiValue;
+
+    /// Conversion from a returned Rust value to a Node.js value.
+    #[inline]
+    fn to_napi_value (
+        self: UnsafeAssertSend<T>,
+        env: &'_ Env,
+    ) -> Result< T::NapiValue >
+    {
+        self.into_inner().to_napi_value(env)
+    }
+
+    /// Conversion from a Node.js parameter to a Rust value.
+    #[inline]
+    fn from_napi_value (
+        _: &'_ Env,
+        _: T::NapiValue,
+    ) -> Result<UnsafeAssertSend<T>>
+    {
+        unimplemented!("\
+            Cannot produce an `UnsafeAssertSend` without `unsafe` code.\
+        ");
     }
 }

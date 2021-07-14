@@ -18,9 +18,8 @@ struct Closure<fn_sig> {
     _phantom: ::core::marker::PhantomData<fn_sig>,
 }
 
-#[cfg(not(target_arch = "wasm32"))] // There is a blanket impl elsewhere for it.
 unsafe
-impl<fn_sig> Send for Closure<fn_sig>
+impl<fn_sig> ::core::marker::Send for Closure<fn_sig>
 {}
 
 unsafe
