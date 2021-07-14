@@ -75,6 +75,18 @@ fn export (
             })
             .unzip::<_, _, Vec<_>, Vec<_>>()
         ;
+        let EachArgTyStatic = EachArgTy.iter().cloned().map(|mut ty| {
+            RemapNonStaticLifetimesTo {
+                new_lt_name: "static"
+            }.visit_type_mut(&mut ty);
+            ty
+        });
+        let EachArgTyBounded = EachArgTy.iter().cloned().map(|mut ty| {
+            RemapNonStaticLifetimesTo {
+                new_lt_name: "use__eager_prelude__to_compute_owned_variants",
+            }.visit_type_mut(&mut ty);
+            ty
+        });
 
         quote!(
             const _: () = {
@@ -96,13 +108,11 @@ fn export (
                         // will complain about it.
                         pub(in super)
                         type #each_arg_name =
-                            ::safer_ffi::node_js::derive::__make_all_lifetimes_static!(
-                                <
-                                    <#EachArgTy as ::safer_ffi::layout::ReprC>::CLayout
-                                    as
-                                    ::safer_ffi::node_js::ReprNapi
-                                >::NapiValue
-                            )
+                            <
+                                <#EachArgTyStatic as ::safer_ffi::layout::ReprC>::CLayout
+                                as
+                                ::safer_ffi::node_js::ReprNapi
+                            >::NapiValue
                         ;
                     )*
                 }
@@ -110,25 +120,57 @@ fn export (
                 #[::safer_ffi::node_js::derive::js_export(js_name = #fname)]
                 #fun_signature
                 {
+                    #[inline(never)]
+                    fn #fname<'use__eager_prelude__to_compute_owned_variants> (
+                        __env__: &'_ ::safer_ffi::node_js::Env,
+                        #(
+                            #each_arg_name: #EachArgTyBounded
+                        ),*
+                    ) -> ::safer_ffi::node_js::Result<::safer_ffi::node_js::JsPromise>
+                    {
+                        #prelude
+                        ::safer_ffi::node_js::JsPromise::spawn(
+                            __env__,
+                            async move {
+                                ::core::concat!(
+                                    "Use a `PhantomData` to make sure a",
+                                    " `", ::core::stringify!(#RetTy), "` ",
+                                    "is captured by the future, rendering it ",
+                                    "non-`Send`",
+                                );
+                                let ret: #RetTy =
+                                    match ::core::marker::PhantomData::<#RetTy> { _ => {
+                                        async #fun_body.await
+                                    }}
+                                ;
+                                unsafe {
+                                    "Safety: \
+                                    since the corresponding `ReprC` type is \
+                                    already captured by the future, the `CType` \
+                                    wrapper can be assumed to be `Send`.";
+                                    ::safer_ffi::node_js::UnsafeAssertSend::new(
+                                        ::safer_ffi::layout::into_raw(ret)
+                                    )
+                                }
+                            },
+                        )
+                        .map(|it| it.resolve_into_unknown())
+                    }
+
                     let __ctx__ = ::safer_ffi::node_js::derive::__js_ctx!();
-                    #(
-                        let #each_arg_name: <#EachArgTy as ::safer_ffi::layout::ReprC>::CLayout =
-                            ::safer_ffi::node_js::ReprNapi::from_napi_value(
-                                __ctx__.env,
-                                #each_arg_name,
-                            )?
-                        ;
-                        let #each_arg_name: #EachArgTy = unsafe {
-                            ::safer_ffi::layout::from_raw_unchecked(#each_arg_name)
-                        };
-                    )*
-                    ::safer_ffi::node_js::JsPromise::spawn(
+                    #fname(
                         __ctx__.env,
-                        async move {
-                            if false {
-                                ::core::option::Option::None::<#RetTy>.unwrap()
-                            } else #fun_body
-                        },
+                        #({
+                            let #each_arg_name: <#EachArgTy as ::safer_ffi::layout::ReprC>::CLayout =
+                                ::safer_ffi::node_js::ReprNapi::from_napi_value(
+                                    __ctx__.env,
+                                    #each_arg_name,
+                                )?
+                            ;
+                            unsafe {
+                                ::safer_ffi::layout::from_raw_unchecked(#each_arg_name)
+                            }
+                        },)*
                     )
                     .map(|it| it.into_unknown())
                 }
@@ -136,11 +178,12 @@ fn export (
         )
     } else {
         let mut fun_signature = fun.sig.clone();
+        let pub_ = &fun.vis;
         let fun_body = &fun.block;
         fun_signature.asyncness = None;
         quote!(
             #[::safer_ffi::ffi_export]
-            #fun_signature
+            #pub_ #fun_signature
             {
                 #prelude
                 #block_on(async move #fun_body)
@@ -162,7 +205,7 @@ struct Attrs {
 
 mod kw {
     ::syn::custom_keyword!(node_js);
-    ::syn::custom_keyword!(prelude);
+    ::syn::custom_keyword!(eager_prelude);
     ::syn::custom_keyword!(executor);
 }
 
@@ -188,10 +231,10 @@ impl Parse for Attrs {
                         *it = Some(input.parse().unwrap());
                     },
                 },
-                | _case if snoopy.peek(kw::prelude) => match ret.prelude {
+                | _case if snoopy.peek(kw::eager_prelude) => match ret.prelude {
                     | Some(_) => return Err(input.error("duplicate attribute")),
                     | ref mut it @ None => {
-                        let _: kw::prelude = input.parse().unwrap();
+                        let _: kw::eager_prelude = input.parse().unwrap();
                         let _: Token![ = ] = input.parse()?;
                         *it = Some(input.parse::<Block>()?.stmts);
                     },
@@ -217,4 +260,48 @@ fn respan (span: Span, tokens: TokenStream2)
           tt
       },
   }).collect()
+}
+
+struct RemapNonStaticLifetimesTo {
+    new_lt_name: &'static str,
+}
+use visit_mut::VisitMut;
+impl VisitMut for RemapNonStaticLifetimesTo {
+    fn visit_lifetime_mut (
+        self: &'_ mut Self,
+        lifetime: &'_ mut Lifetime,
+    )
+    {
+        if lifetime.ident != "static" {
+            lifetime.ident = Ident::new(
+                self.new_lt_name,
+                lifetime.ident.span(),
+            );
+        }
+    }
+
+    fn visit_type_reference_mut (
+        self: &'_ mut Self,
+        ty_ref: &'_ mut TypeReference,
+    )
+    {
+        // 1 – sub-recurse
+        visit_mut::visit_type_reference_mut(self, ty_ref);
+        // 2 – handle the implicitly elided case.
+        if ty_ref.lifetime.is_none() {
+            ty_ref.lifetime = Some(Lifetime::new(
+                &["'", self.new_lt_name].concat(),
+                ty_ref.and_token.span,
+            ));
+        }
+    }
+
+    fn visit_parenthesized_generic_arguments_mut (
+        self: &'_ mut Self,
+        _: &'_ mut ParenthesizedGenericArguments,
+    )
+    {
+        // Elided lifetimes in `fn(…)` or `Fn…(…)` are higher order:
+        /* do not subrecurse */
+    }
 }
