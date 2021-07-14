@@ -65,6 +65,26 @@ impl fmt::Display
     }
 }
 
+unsafe // Safety: proof delegated to `where` bound.
+impl Send for char_p_ref<'_>
+where
+    for<'lt> &'lt [u8] : Send,
+{}
+
+unsafe // Safety: proof delegated to `where` bound.
+impl Sync for char_p_ref<'_>
+where
+    for<'lt> &'lt [u8] : Sync,
+{}
+
+unsafe // Safety: no non-`unsafe` API.
+impl Send for char_p_raw
+{}
+
+unsafe // Safety: no non-`unsafe` API.
+impl Sync for char_p_raw
+{}
+
 #[derive(Debug)]
 pub
 struct InvalidNulTerminator<Payload> (
