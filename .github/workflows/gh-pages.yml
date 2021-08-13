@@ -22,7 +22,7 @@ jobs:
           - macos-latest
           - windows-latest
         rust:
-          - 1.45.0
+          - 1.52.0
           - stable
           # - nightly
     steps:
@@ -62,7 +62,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.45.0
+          toolchain: 1.52.0
           override: true
 
       - name: Clone repo
@@ -93,7 +93,7 @@ jobs:
           - macos-latest
           # - windows-latest
         rust:
-          # - 1.45.0
+          # - 1.52.0
           - stable
           - nightly
     steps:
