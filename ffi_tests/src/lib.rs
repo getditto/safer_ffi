@@ -145,11 +145,11 @@ fn generate_headers ()
     }
 })}
 
-#[ffi_export(executor = futures::executor::block_on)]
-async fn async_get_ft ()
+#[ffi_export(async_executor = futures::executor::block_on)]
+fn async_get_ft ()
   -> i32
 {
-    42
+    ffi_await!(async { 42 })
 }
 
 // #[ffi_export]

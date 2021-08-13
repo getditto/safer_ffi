@@ -61,7 +61,7 @@ fn export (
         {
             return Error::new(err_span, "\
                 `#[ffi_export(…, async_executor = …)]` expects the last \
-                statement to be an expression of the form: \
+                expression/statement to be an expression of the form: \
                 `ffi_await!(<some future>)` such as:\n    \
                 ffi_await!(async move {{\n        …\n    }}))\n\
             ").into_compile_error().into();
