@@ -18,3 +18,5 @@ serde.features = ["derive"]
 
 wasm-bindgen.version = "0.2.73"
 wasm-bindgen.features = ["serde-serialize"]
+
+wasm-bindgen-futures = "0.4.24"

@@ -7,12 +7,13 @@
 //! It is expected that in the mid-to-long term, we'll be cutting this
 //! middle-man. #FIXME
 
+use ::core::future::Future;
+
 extern crate napi;
 
 pub use ::napi::*;
 
 // pub use ::napi_derive::js_function;
-
 
 pub use closures::*;
 
@@ -118,15 +119,85 @@ match_! {
     )*
 )}}
 
-cfg_not_wasm! {
-    #[allow(missing_debug_implementations)]
-    pub
-    struct JsPromise<ResolvesTo = JsUndefined> /* = */ (
-        JsObject,
-        ::core::marker::PhantomData<ResolvesTo>,
-    );
+#[allow(missing_debug_implementations)]
+pub
+struct JsPromise<ResolvesTo = JsUnknown> /* = */ (
+    JsObject,
+    ::core::marker::PhantomData<ResolvesTo>,
+);
 
-    #[cfg(not(target_arch = "wasm32"))]
+cfg_wasm! {
+    mod hidden {
+        pub trait Send {}
+    }
+    use hidden::Send;
+    impl<T> Send for T {}
+}
+
+impl<ResolvesTo> JsPromise<ResolvesTo> {
+    pub
+    fn resolve_into_unknown (self: JsPromise<ResolvesTo>)
+      -> JsPromise<JsUnknown>
+    {
+        JsPromise(self.0, Default::default())
+    }
+
+    pub
+    fn into_unknown (self: JsPromise<ResolvesTo>)
+      -> JsUnknown
+    {
+        self.0
+            .into_unknown()
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    pub
+    fn resolve (value: &'_ ::napi::__::wasm_bindgen::JsValue)
+      -> JsPromise<ResolvesTo>
+    {
+        Self(
+            ::napi::__::js_sys::Promise::resolve(value)
+                .unchecked_into()
+            ,
+            Default::default(),
+        )
+    }
+
+    pub
+    fn spawn<Fut> (
+        env: &'_ Env,
+        fut: Fut,
+    ) -> Result< JsPromise<ResolvesTo> >
+    where
+        ResolvesTo : 'static + NapiValue,
+        Fut : 'static + Send + Future,
+        <Fut as Future>::Output : Send + ReprNapi<NapiValue = ResolvesTo>,
+    {
+        #[cfg(target_arch = "wasm32")]
+        let ret = {
+            let _ = env;
+            let promise = ::napi::__::wasm_bindgen_futures::future_to_promise(
+                async move {
+                    fut .await
+                        .to_napi_value(&Env::__new())
+                        .map(|it| it.unchecked_into())
+                }
+            );
+            Ok(JsPromise(promise.unchecked_into(), Default::default()))
+        };
+        #[cfg(not(target_arch = "wasm32"))]
+        let ret =
+            env .execute_tokio_future(
+                    async { Ok(fut.await) },
+                    |env, fut_output| fut_output.to_napi_value(env),
+                )
+                .map(|promise| JsPromise(promise, Default::default()))
+        ;
+        ret
+    }
+}
+
+cfg_not_wasm! {
     impl<ResolvesTo> NapiValue for JsPromise<ResolvesTo> {
         unsafe
         fn from_raw (env: sys::napi_env, value: sys::napi_value)
@@ -213,36 +284,6 @@ cfg_not_wasm! {
         }
     }
 
-    #[allow(missing_debug_implementations)]
-    #[repr(transparent)]
-    pub
-    struct UnsafeAssertSend<T> /* = */ (
-        T,
-    );
-
-    impl<T> UnsafeAssertSend<T> {
-        #[inline]
-        pub
-        unsafe
-        fn new (value: T)
-          -> UnsafeAssertSend<T>
-        {
-            UnsafeAssertSend(value)
-        }
-
-        pub
-        fn into_inner (self: UnsafeAssertSend<T>)
-          -> T
-        {
-            let UnsafeAssertSend(value) = self;
-            value
-        }
-    }
-
-    unsafe
-    impl<T> Send for UnsafeAssertSend<T>
-    {}
-
     impl<ResolvesTo> JsPromise<ResolvesTo> {
         pub
         fn from_task_spawned_on_worker_pool<R, F> (
@@ -263,20 +304,61 @@ cfg_not_wasm! {
                 },
             }.spawn(env)
         }
+    }
+}
 
-        pub
-        fn resolve_into_unknown (self: JsPromise<ResolvesTo>)
-          -> JsPromise<JsUnknown>
-        {
-            JsPromise(self.0, Default::default())
-        }
+#[allow(missing_debug_implementations)]
+#[repr(transparent)]
+pub
+struct UnsafeAssertSend<T> /* = */ (
+    T,
+);
 
-        pub
-        fn into_unknown (self: JsPromise<ResolvesTo>)
-          -> JsUnknown
-        {
-            self.0
-                .into_unknown()
-        }
+impl<T> UnsafeAssertSend<T> {
+    #[inline]
+    pub
+    unsafe
+    fn new (value: T)
+      -> UnsafeAssertSend<T>
+    {
+        UnsafeAssertSend(value)
+    }
+
+    pub
+    fn into_inner (self: UnsafeAssertSend<T>)
+      -> T
+    {
+        let UnsafeAssertSend(value) = self;
+        value
+    }
+}
+
+unsafe
+impl<T> ::core::marker::Send for UnsafeAssertSend<T>
+{}
+
+impl<T : ReprNapi> ReprNapi for UnsafeAssertSend<T> {
+    type NapiValue = T::NapiValue;
+
+    /// Conversion from a returned Rust value to a Node.js value.
+    #[inline]
+    fn to_napi_value (
+        self: UnsafeAssertSend<T>,
+        env: &'_ Env,
+    ) -> Result< T::NapiValue >
+    {
+        self.into_inner().to_napi_value(env)
+    }
+
+    /// Conversion from a Node.js parameter to a Rust value.
+    #[inline]
+    fn from_napi_value (
+        _: &'_ Env,
+        _: T::NapiValue,
+    ) -> Result<UnsafeAssertSend<T>>
+    {
+        unimplemented!("\
+            Cannot produce an `UnsafeAssertSend` without `unsafe` code.\
+        ");
     }
 }

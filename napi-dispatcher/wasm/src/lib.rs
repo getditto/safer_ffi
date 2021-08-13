@@ -189,7 +189,9 @@ impl From<JsValue> for Error {
 
 #[doc(hidden)] /** Not part of the public API */ pub
 mod __ {
+    pub use ::js_sys;
     pub use ::wasm_bindgen::{self,
         prelude::wasm_bindgen,
     };
+    pub use ::wasm_bindgen_futures;
 }

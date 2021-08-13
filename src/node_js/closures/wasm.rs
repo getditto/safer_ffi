@@ -19,7 +19,7 @@ struct Closure<fn_sig> {
 }
 
 unsafe
-impl<fn_sig> Send for Closure<fn_sig>
+impl<fn_sig> ::core::marker::Send for Closure<fn_sig>
 {}
 
 unsafe

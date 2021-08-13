@@ -155,13 +155,15 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
         is_web ? "long_running" : "short_running",
     );
     assert.deepEqual(await ffi_long_running, 42);
-	
+
 	// Test conversion of bytes
 	const site_id =  Uint8Array.from([0x00, 0x00,0x00, 0x00, 0x00, 0x00, 0x00, 0x05]);
     assert.equal(
 		ffi.boxCStringIntoString(ffi.site_id(site_id)), // convert char_p::Box into JsString
 		'[00, 00, 00, 00, 00, 00, 00, 05]'
     );
+
+    assert.deepEqual(await ffi.long_running_fut(Uint8Array.of(27)), 42 + 27);
 
     console.log('Js tests passed successfully ✅');
 }

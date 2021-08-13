@@ -217,8 +217,61 @@ fn long_running ()
     42
 }
 
+#[ffi_export(node_js, async_executor = ::futures::executor::block_on)]
+fn long_running_fut (bytes: c_slice::Ref<'_, u8>)
+  -> u8
+{
+    let wait_time = 300;
+    #[cfg(target_arch = "wasm32")]
+    let wait_time = 10 * wait_time;
+    let arg = bytes[0];
+    ffi_await!(async move {
+        let _ = sleep(wait_time).await;
+        42 + arg
+    })
+}
 
 #[ffi_export(node_js)]
-fn site_id(id: [u8;8]) -> char_p::Box {
+fn site_id (id: [u8;8])
+  -> char_p::Box
+{
     char_p::new(format!("{:02x?}", id))
+}
+
+// ---
+
+async
+fn sleep (ms: u32)
+{
+    #[cfg(not(target_arch = "wasm32"))] {
+        enum DropMsg {}
+        let (tx, rx) = ::futures::channel::oneshot::channel::<DropMsg>();
+        ::std::thread::spawn(move || {
+            ::std::thread::sleep(
+                ::std::time::Duration::from_millis(ms.into())
+            );
+            drop(tx);
+        });
+        match rx.await {
+            | Ok(unreachable) => match unreachable {},
+            | Err(_) => {},
+        }
+    }
+
+    #[cfg(target_arch = "wasm32")] {
+        use ::safer_ffi::node_js::__::*;
+
+        #[wasm_bindgen(inline_js = r#"
+            export function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        "#)]
+        extern {
+            fn sleep (ms: u32)
+              -> js_sys::Promise
+            ;
+        }
+
+        let _ = wasm_bindgen_futures::JsFuture::from(sleep(ms)).await;
+    }
 }

@@ -53,6 +53,27 @@ fn ffi_export (attrs: TokenStream, input: TokenStream)
   -> TokenStream
 {
     use ::proc_macro::{*, TokenTree as TT};
+    #[cfg(feature = "async-fn")]
+    let fun: ItemFn = {
+        let input = input.clone();
+        parse_macro_input!(input)
+    };
+    #[cfg(feature = "async-fn")] {
+        if let Some(asyncness) = fun.sig.asyncness {
+            return Error::new_spanned(asyncness, "\
+                `#[ffi_export(…)]` does not support `async fn`: \
+                add an `async_executor = …` parameter and then use \
+                `ffi_await!(…)` as the last expression of the function's body.\
+            ").into_compile_error().into();
+        }
+        let attrs = attrs.clone();
+        match parse::<async_fn::Attrs>(attrs) {
+            | Ok(attrs) if attrs.block_on.is_some() => {
+                return async_fn::export(attrs, &fun);
+            },
+            | _ => {},
+        }
+    }
     let ref mut attr_tokens = attrs.into_iter().peekable();
     #[cfg(feature = "node-js")]
     let mut node_js = None;
@@ -88,8 +109,6 @@ fn ffi_export (attrs: TokenStream, input: TokenStream)
                 }
                 let _ = is_async_worker;
                 #[cfg(feature = "node-js")] {
-                    let input = input.clone();
-                    let fun: ItemFn = parse_macro_input!(input);
                     let prev = node_js.replace((
                         ::proc_macro2::Literal::usize_unsuffixed(fun.sig.inputs.len()),
                         is_async_worker,
@@ -128,10 +147,6 @@ fn ffi_export (attrs: TokenStream, input: TokenStream)
     } else {
         input
     };
-    // #[cfg(feature = "proc_macros")] {
-    //     let input = input.clone();
-    //     let _: ItemFn = parse_macro_input!(input);
-    // }
     let span = Span::call_site();
     <TokenStream as ::std::iter::FromIterator<_>>::from_iter(vec![
         TT::Punct(Punct::new(':', Spacing::Joint)),
@@ -152,3 +167,6 @@ fn ffi_export (attrs: TokenStream, input: TokenStream)
         )),
     ])
 }
+
+#[cfg(feature = "async-fn")]
+mod async_fn;

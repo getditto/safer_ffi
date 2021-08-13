@@ -12,7 +12,10 @@ authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-safer-ffi = { path = "..", features = ["proc_macros"] }
+
+[dependencies.safer-ffi]
+path = ".."
+features = ["async-fn", "proc_macros"]
 
 [features]
 generate-headers = ["safer-ffi/csharp-headers"]
