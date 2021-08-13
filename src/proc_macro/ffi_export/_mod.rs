@@ -59,8 +59,12 @@ fn ffi_export (attrs: TokenStream, input: TokenStream)
         parse_macro_input!(input)
     };
     #[cfg(feature = "async-fn")] {
-        if fun.sig.asyncness.is_some() {
-            return async_fn::export(attrs, &fun);
+        let attrs = attrs.clone();
+        match parse::<async_fn::Attrs>(attrs) {
+            | Ok(attrs) if attrs.block_on.is_some() => {
+                return async_fn::export(attrs, &fun);
+            },
+            | _ => {},
         }
     }
     let ref mut attr_tokens = attrs.into_iter().peekable();

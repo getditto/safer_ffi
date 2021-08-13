@@ -4,28 +4,71 @@ use ::proc_macro2::{Span, TokenStream as TokenStream2};
 
 pub(in crate)
 fn export (
-    attrs: TokenStream,
+    Attrs { block_on, node_js }: Attrs,
     fun: &'_ ItemFn,
 ) -> TokenStream
 {
-    assert!(fun.sig.asyncness.is_some());
-    let asyncness = fun.sig.asyncness.as_ref().unwrap();
-    let Attrs { block_on, node_js, prelude } = parse_macro_input!(attrs);
-    let prelude = prelude.map_or_else(TokenStream2::new, |stmts| {
-        respan(fun.block.span(), quote!( #(#stmts)* ))
-    });
-    let block_on = if let Some(it) = block_on { it } else {
-        return Error::new_spanned(
-            asyncness,
-            "\
-                `#[ffi_export(…)]` on an `async fn` needs a \
-                `executor = …` attribute, such as:\n \
-                 - #[ffi_export(executor = ::futures::executor::block_on)]\n\
-                or:\n \
-                 - #[ffi_export(executor = arg1.runtime_handle.block_on)]\n\
-            ",
-        ).into_compile_error().into();
+    let block_on = block_on.expect("to have been checked by the caller");
+    // The body of the function is expected to be of the form:
+    // ```rust
+    // #[ffi_export(node_js, async_executor = …)]
+    // fn ffi_func (args…)
+    //   -> Ret
+    // {
+    //     <stmts>
+    //     ffi_await!(<a future>)
+    // }
+    // ```
+    // where the `<stmts>` make up a prelude that allow to make `<a future>` be
+    // `'static`.
+    let (ref prelude, ref async_body): (Vec<Stmt>, Expr) = {
+        let mut stmts = fun.block.stmts.clone();
+        let mut async_body = None;
+        if let Some(err_span) = (|| match stmts.pop() {
+            | Some(Stmt::Local(Local { semi_token, .. }))
+            | Some(Stmt::Semi(_, semi_token))
+            | Some(Stmt::Item(
+                Item::Macro(ItemMacro { semi_token: Some(semi_token), .. })
+            )) => {
+                Some(semi_token.span())
+            },
+            | Some(Stmt::Item(ref item)) => {
+                Some(item.span())
+            },
+            | None => Some(Span::call_site()),
+
+            | Some(Stmt::Expr(expr)) => {
+                let span = expr.span();
+                match expr {
+                    | Expr::Macro(ExprMacro {
+                        attrs: _,
+                        mac: Macro {
+                            path,
+                            tokens,
+                            ..
+                        },
+                    }) => if path.is_ident("ffi_await") {
+                        if let Ok(expr) = parse2(tokens) {
+                            async_body = Some(expr);
+                            return None;
+                        }
+                    },
+                    | _ => {},
+                }
+                Some(span)
+            },
+        })()
+        {
+            return Error::new(err_span, "\
+                `#[ffi_export(…, async_executor = …)]` expects the last \
+                statement to be an expression of the form: \
+                `ffi_await!(<some future>)` such as:\n    \
+                ffi_await!(async move {{\n        …\n    }}))\n\
+            ").into_compile_error().into();
+        }
+        (stmts, async_body.unwrap())
     };
+
     let block_on = respan(fun.block.span(), block_on.into_token_stream());
 
     let ret = if cfg!(feature = "node-js") {
@@ -33,7 +76,6 @@ fn export (
             // Nothing to do in this branch:
             return fun.into_token_stream().into();
         }
-        let fun_body = &fun.block;
         let fname = &fun.sig.ident;
         let mut fun_signature = fun.sig.clone();
         fun_signature.asyncness = None;
@@ -83,7 +125,7 @@ fn export (
         });
         let EachArgTyBounded = EachArgTy.iter().cloned().map(|mut ty| {
             RemapNonStaticLifetimesTo {
-                new_lt_name: "use__eager_prelude__to_compute_owned_variants",
+                new_lt_name: "use_stmts_before_ffi_await_to_compute_owned_variants",
             }.visit_type_mut(&mut ty);
             ty
         });
@@ -121,14 +163,14 @@ fn export (
                 #fun_signature
                 {
                     #[inline(never)]
-                    fn #fname<'use__eager_prelude__to_compute_owned_variants> (
+                    fn #fname<'use_stmts_before_ffi_await_to_compute_owned_variants> (
                         __env__: &'_ ::safer_ffi::node_js::Env,
                         #(
                             #each_arg_name: #EachArgTyBounded
                         ),*
                     ) -> ::safer_ffi::node_js::Result<::safer_ffi::node_js::JsPromise>
                     {
-                        #prelude
+                        #(#prelude)*
                         ::safer_ffi::node_js::JsPromise::spawn(
                             __env__,
                             async move {
@@ -140,7 +182,7 @@ fn export (
                                 );
                                 let ret: #RetTy =
                                     match ::core::marker::PhantomData::<#RetTy> { _ => {
-                                        async #fun_body.await
+                                        { #async_body }.await
                                     }}
                                 ;
                                 unsafe {
@@ -179,14 +221,13 @@ fn export (
     } else {
         let mut fun_signature = fun.sig.clone();
         let pub_ = &fun.vis;
-        let fun_body = &fun.block;
         fun_signature.asyncness = None;
         quote!(
             #[::safer_ffi::ffi_export]
             #pub_ #fun_signature
             {
-                #prelude
-                #block_on(async move #fun_body)
+                #(#prelude)*
+                #block_on(#async_body)
             }
         )
     };
@@ -197,16 +238,15 @@ fn export (
 use ::syn::parse::{Parse, ParseStream};
 
 #[derive(Default)]
+pub(in super)
 struct Attrs {
-    node_js: Option<kw::node_js>,
-    prelude: Option<Vec<Stmt>>,
-    block_on: Option<Expr>,
+    pub(in super) node_js: Option<kw::node_js>,
+    pub(in super) block_on: Option<Expr>,
 }
 
 mod kw {
     ::syn::custom_keyword!(node_js);
-    ::syn::custom_keyword!(eager_prelude);
-    ::syn::custom_keyword!(executor);
+    ::syn::custom_keyword!(async_executor);
 }
 
 impl Parse for Attrs {
@@ -217,10 +257,10 @@ impl Parse for Attrs {
         while input.is_empty().not() {
             let snoopy = input.lookahead1();
             match () {
-                | _case if snoopy.peek(kw::executor) => match ret.block_on {
+                | _case if snoopy.peek(kw::async_executor) => match ret.block_on {
                     | Some(_) => return Err(input.error("duplicate attribute")),
                     | ref mut it @ None => {
-                        let _: kw::executor = input.parse().unwrap();
+                        let _: kw::async_executor = input.parse().unwrap();
                         let _: Token![ = ] = input.parse()?;
                         *it = Some(input.parse()?);
                     },
@@ -229,14 +269,6 @@ impl Parse for Attrs {
                     | Some(_) => return Err(input.error("duplicate attribute")),
                     | ref mut it @ None => {
                         *it = Some(input.parse().unwrap());
-                    },
-                },
-                | _case if snoopy.peek(kw::eager_prelude) => match ret.prelude {
-                    | Some(_) => return Err(input.error("duplicate attribute")),
-                    | ref mut it @ None => {
-                        let _: kw::eager_prelude = input.parse().unwrap();
-                        let _: Token![ = ] = input.parse()?;
-                        *it = Some(input.parse::<Block>()?.stmts);
                     },
                 },
                 | _default => return Err(snoopy.error()),
