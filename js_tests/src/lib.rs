@@ -217,8 +217,8 @@ fn long_running ()
     42
 }
 
-#[ffi_export(node_js, async_executor = ::futures::executor::block_on)]
-fn long_running_fut (bytes: c_slice::Ref<'_, u8>)
+#[ffi_export(node_js, executor = ::futures::executor::block_on)]
+async fn long_running_fut (bytes: c_slice::Ref<'_, u8>)
   -> u8
 {
     let wait_time = 300;

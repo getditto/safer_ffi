@@ -8,11 +8,27 @@ fn export (
     fun: &'_ ItemFn,
 ) -> TokenStream
 {
-    let block_on = block_on.expect("to have been checked by the caller");
+    let block_on = match (block_on, fun.sig.asyncness) {
+        | (Some(block_on), Some(_asyncness)) => block_on,
+        | (Some(block_on), None) => {
+            return Error::new_spanned(block_on, "\
+                `#[ffi_export(…)]`'s `executor` attribute \
+                can only be applied to an `async fn`. \
+            ").into_compile_error().into();
+        },
+        | (None, Some(asyncness)) => {
+            return Error::new_spanned(asyncness, "\
+                In order for `#[ffi_export(…)]` to support `async fn`, you \
+                need to feed it an `executor = …` parameter and then use \
+                `ffi_await!(…)` as the last expression of the function's body.\
+            ").into_compile_error().into();
+        },
+        | (None, None) => unreachable!(),
+    };
     // The body of the function is expected to be of the form:
     // ```rust
-    // #[ffi_export(node_js, async_executor = …)]
-    // fn ffi_func (args…)
+    // #[ffi_export(node_js, executor = …)]
+    // async fn ffi_func (args…)
     //   -> Ret
     // {
     //     <stmts>
@@ -21,7 +37,7 @@ fn export (
     // ```
     // where the `<stmts>` make up a prelude that allow to make `<a future>` be
     // `'static`.
-    let (ref prelude, ref async_body): (Vec<Stmt>, Expr) = {
+    let (ref prelude, (ffi_await, ref async_body)): (Vec<Stmt>, (_, Expr)) = {
         let mut stmts = fun.block.stmts.clone();
         let mut async_body = None;
         if let Some(err_span) = (|| match stmts.pop() {
@@ -43,13 +59,13 @@ fn export (
                     | Expr::Macro(ExprMacro {
                         attrs: _,
                         mac: Macro {
-                            path,
+                            path: ffi_await,
                             tokens,
                             ..
                         },
-                    }) => if path.is_ident("ffi_await") {
+                    }) => if ffi_await.is_ident("ffi_await") {
                         if let Ok(expr) = parse2(tokens) {
-                            async_body = Some(expr);
+                            async_body = Some((ffi_await.span(), expr));
                             return None;
                         }
                     },
@@ -60,10 +76,10 @@ fn export (
         })()
         {
             return Error::new(err_span, "\
-                `#[ffi_export(…, async_executor = …)]` expects the last \
+                `#[ffi_export(…, executor = …)]` expects the last \
                 expression/statement to be an expression of the form: \
                 `ffi_await!(<some future>)` such as:\n    \
-                ffi_await!(async move {{\n        …\n    }}))\n\
+                ffi_await!(async move {\n        …\n    })\n\
             ").into_compile_error().into();
         }
         (stmts, async_body.unwrap())
@@ -118,18 +134,66 @@ fn export (
             .unzip::<_, _, Vec<_>, Vec<_>>()
         ;
         let EachArgTyStatic = EachArgTy.iter().cloned().map(|mut ty| {
-            RemapNonStaticLifetimesTo {
-                new_lt_name: "static"
-            }.visit_type_mut(&mut ty);
+            RemapNonStaticLifetimesTo { new_lt_name: "static" }
+                .visit_type_mut(&mut ty)
+            ;
             ty
         });
-        let EachArgTyBounded = EachArgTy.iter().cloned().map(|mut ty| {
-            RemapNonStaticLifetimesTo {
-                new_lt_name: "use_stmts_before_ffi_await_to_compute_owned_variants",
-            }.visit_type_mut(&mut ty);
-            ty
-        });
+        let (each_lifetime, EachArgTyBounded): (Vec<_>, Vec<_>) =
+            EachArgTy
+            .iter()
+            .cloned()
+            .enumerate()
+            .map(|(i, mut ty)| {
+                let new_lt_name = &format!(
+                    "use_stmts_before_ffi_await_to_compute_owned_captures_{}",
+                    i,
+                );
+                RemapNonStaticLifetimesTo { new_lt_name }
+                    .visit_type_mut(&mut ty)
+                ;
+                (
+                    Lifetime {
+                        apostrophe: ty.span(),
+                        ident: Ident::new(new_lt_name, ty.span()),
+                    },
+                    ty,
+                )
+            })
+            .unzip()
+        ;
 
+        let safer_ffi_js_promise_spawn = quote_spanned!(ffi_await=>
+            ::safer_ffi::node_js::JsPromise::spawn
+        );
+        let async_move = quote_spanned!(ffi_await=>
+            async move
+        );
+        let mut js_future: ExprAsync = parse_quote!(
+            #async_move {
+                ::core::concat!(
+                    "Use a `PhantomData` to make sure a",
+                    " `", ::core::stringify!(#RetTy), "` ",
+                    "is captured by the future, rendering it ",
+                    "non-`Send`",
+                );
+                let ret: #RetTy =
+                    match ::core::marker::PhantomData::<#RetTy> { _ => {
+                        { #async_body }.await
+                    }}
+                ;
+                unsafe {
+                    "Safety: \
+                    since the corresponding `ReprC` type is \
+                    already captured by the future, the `CType` \
+                    wrapper can be assumed to be `Send`.";
+                    ::safer_ffi::node_js::UnsafeAssertSend::new(
+                        ::safer_ffi::layout::into_raw(ret)
+                    )
+                }
+            }
+        );
+        js_future.block.brace_token.span = ffi_await;
         quote!(
             const _: () = {
                 // We want to use `type #arg_name = <$arg_ty as …>::Assoc;`
@@ -163,7 +227,7 @@ fn export (
                 #fun_signature
                 {
                     #[inline(never)]
-                    fn #fname<'use_stmts_before_ffi_await_to_compute_owned_variants> (
+                    fn #fname< #(#each_lifetime,)* > (
                         __env__: &'_ ::safer_ffi::node_js::Env,
                         #(
                             #each_arg_name: #EachArgTyBounded
@@ -171,30 +235,8 @@ fn export (
                     ) -> ::safer_ffi::node_js::Result<::safer_ffi::node_js::JsPromise>
                     {
                         #(#prelude)*
-                        ::safer_ffi::node_js::JsPromise::spawn(
-                            __env__,
-                            async move {
-                                ::core::concat!(
-                                    "Use a `PhantomData` to make sure a",
-                                    " `", ::core::stringify!(#RetTy), "` ",
-                                    "is captured by the future, rendering it ",
-                                    "non-`Send`",
-                                );
-                                let ret: #RetTy =
-                                    match ::core::marker::PhantomData::<#RetTy> { _ => {
-                                        { #async_body }.await
-                                    }}
-                                ;
-                                unsafe {
-                                    "Safety: \
-                                    since the corresponding `ReprC` type is \
-                                    already captured by the future, the `CType` \
-                                    wrapper can be assumed to be `Send`.";
-                                    ::safer_ffi::node_js::UnsafeAssertSend::new(
-                                        ::safer_ffi::layout::into_raw(ret)
-                                    )
-                                }
-                            },
+                        #safer_ffi_js_promise_spawn(
+                            __env__, #js_future,
                         )
                         .map(|it| it.resolve_into_unknown())
                     }
@@ -231,7 +273,6 @@ fn export (
             }
         )
     };
-    // println!("{}", ret);
     ret.into()
 }
 
@@ -246,7 +287,7 @@ struct Attrs {
 
 mod kw {
     ::syn::custom_keyword!(node_js);
-    ::syn::custom_keyword!(async_executor);
+    ::syn::custom_keyword!(executor);
 }
 
 impl Parse for Attrs {
@@ -257,10 +298,10 @@ impl Parse for Attrs {
         while input.is_empty().not() {
             let snoopy = input.lookahead1();
             match () {
-                | _case if snoopy.peek(kw::async_executor) => match ret.block_on {
+                | _case if snoopy.peek(kw::executor) => match ret.block_on {
                     | Some(_) => return Err(input.error("duplicate attribute")),
                     | ref mut it @ None => {
-                        let _: kw::async_executor = input.parse().unwrap();
+                        let _: kw::executor = input.parse().unwrap();
                         let _: Token![ = ] = input.parse()?;
                         *it = Some(input.parse()?);
                     },
@@ -294,11 +335,11 @@ fn respan (span: Span, tokens: TokenStream2)
   }).collect()
 }
 
-struct RemapNonStaticLifetimesTo {
-    new_lt_name: &'static str,
+struct RemapNonStaticLifetimesTo<'__> {
+    new_lt_name: &'__ str,
 }
 use visit_mut::VisitMut;
-impl VisitMut for RemapNonStaticLifetimesTo {
+impl VisitMut for RemapNonStaticLifetimesTo<'_> {
     fn visit_lifetime_mut (
         self: &'_ mut Self,
         lifetime: &'_ mut Lifetime,
