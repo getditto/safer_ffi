@@ -59,16 +59,12 @@ fn ffi_export (attrs: TokenStream, input: TokenStream)
         parse_macro_input!(input)
     };
     #[cfg(feature = "async-fn")] {
-        if let Some(asyncness) = fun.sig.asyncness {
-            return Error::new_spanned(asyncness, "\
-                `#[ffi_export(…)]` does not support `async fn`: \
-                add an `async_executor = …` parameter and then use \
-                `ffi_await!(…)` as the last expression of the function's body.\
-            ").into_compile_error().into();
-        }
         let attrs = attrs.clone();
         match parse::<async_fn::Attrs>(attrs) {
-            | Ok(attrs) if attrs.block_on.is_some() => {
+            | Ok(attrs)
+                if attrs.block_on.is_some()
+                || fun.sig.asyncness.is_some()
+            => {
                 return async_fn::export(attrs, &fun);
             },
             | _ => {},
