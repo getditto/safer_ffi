@@ -2,6 +2,98 @@
 
 use super::*;
 
+use ::core::convert::TryInto;
+
+// Currently, `wasm_bindgen` does not handle well integers that are
+// `> MAX_SAFE_INTEGER`, and cannot handle `BigInt`s either! Let's
+// thus use a stringified "ABI" when needed to polyfill this.
+#[::wasm_bindgen::prelude::wasm_bindgen(inline_js = r#"
+    export function to_string(value) {
+        return value.toString();
+    }
+    export function is_number(value) {
+        return typeof value === 'number';
+    }
+    export function try_downsize(value) {
+        switch (typeof value) {
+            case 'bigint':
+                if (-Number.MAX_SAFE_INTEGER <= value
+                    && value <= Number.MAX_SAFE_INTEGER)
+                {
+                    return Number(value);
+                }
+            case 'number':
+                return value;
+            default:
+                throw new Error(`number or bigint expected, got \`${value}\``);
+        }
+    }
+    export function from_string(repr) {
+        return BigInt(repr);
+    }
+"#)]
+extern {
+    fn try_downsize(_: JsValue) -> JsValue;
+    fn is_number(_: &JsValue) -> bool;
+    fn to_string(_: &JsValue) -> String;
+    fn from_string(_: &str) -> JsValue;
+}
+
+impl JsBigint {
+    pub
+    fn get_i64 (self: JsBigint)
+      -> Result<(i64, bool)>
+    {
+        let value = try_downsize(self.__wasm);
+        let i64 = if is_number(&value) {
+            value.unchecked_into::<JsNumber>().try_into().unwrap()
+        } else {
+            let stringified = to_string(&value);
+            stringified.parse().map_err(|_| {
+                Error::new(
+                    Status::InvalidArg,
+                    format!(
+                        "Numeric overflow: \
+                        parameter `{}` does not fit into a i64",
+                        stringified,
+                    ),
+                )
+            })?
+        };
+        Ok((i64, true))
+    }
+
+    pub
+    fn get_u64 (self: JsBigint)
+      -> Result<(u64, bool)>
+    {
+        let value = try_downsize(self.__wasm);
+        let u64 = if is_number(&value) {
+            value.unchecked_into::<JsNumber>().try_into().unwrap()
+        } else {
+            let stringified = to_string(&value);
+            stringified.parse().map_err(|_| {
+                Error::new(
+                    Status::InvalidArg,
+                    format!(
+                        "Numeric overflow: \
+                        parameter `{}` does not fit into a u64",
+                        stringified,
+                    ),
+                )
+            })?
+        };
+        Ok((u64, true))
+    }
+
+    pub
+    fn from_str_base_10 (s: &str)
+      -> JsBigint
+    {
+        Self { __wasm: from_string(s) }
+    }
+}
+
 impl JsBoolean {
     pub
     fn get_value (self: &'_ JsBoolean)
@@ -215,7 +307,7 @@ impl JsUnknown {
             | "object" => ValueType::Object,
             | "boolean" => ValueType::Boolean,
             | "number" => ValueType::Number,
-            | "bigint" => ValueType::BigInt,
+            | "bigint" => ValueType::Bigint,
             | "string" => ValueType::String,
             | "symbol" => ValueType::Symbol,
             | "function" => ValueType::Function,

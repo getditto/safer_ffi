@@ -70,6 +70,7 @@ struct Error {
 }
 
 utils::new_type_wrappers! {
+    pub type JsBigint = ::wasm_bindgen::JsValue; // ;__;
     pub type JsBoolean = ::js_sys::Boolean;
     pub type JsBuffer = ::js_sys::Uint8Array;
     pub type JsFunction = ::js_sys::Function;
@@ -101,7 +102,7 @@ enum Status {
 #[non_exhaustive]
 pub
 enum ValueType {
-    BigInt,
+    Bigint,
     Boolean,
     Function,
     Null,

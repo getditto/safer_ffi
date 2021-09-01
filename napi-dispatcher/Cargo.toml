@@ -11,7 +11,7 @@ edition = "2018"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 napi.version = "1.1.3"
-napi.features = ["napi5", "tokio_rt"]
+napi.features = ["napi6", "tokio_rt"]
 # We need some napi enhancements featured in our fork, while waiting for those
 # to be merged upstream (we did get the `Result`-less `ThreadsafeFunction`
 # (c.f. 7108cc0f762d8cea3b2923b3bc529e4361557b30) to be merged but not released,

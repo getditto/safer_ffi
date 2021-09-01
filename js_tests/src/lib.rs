@@ -232,10 +232,30 @@ async fn long_running_fut (bytes: c_slice::Ref<'_, u8>)
 }
 
 #[ffi_export(node_js)]
-fn site_id (id: [u8;8])
+fn site_id (id: [u8; 8])
   -> char_p::Box
 {
     char_p::new(format!("{:02x?}", id))
+}
+
+#[ffi_export(node_js)]
+fn check_big_int_unsigned (
+    value: u64,
+    expected: char_p::Ref<'_>,
+) -> u64
+{
+    assert_eq!(value.to_string(), expected.to_str());
+    value
+}
+
+#[ffi_export(node_js)]
+fn check_big_int_signed (
+    value: i64,
+    expected: char_p::Ref<'_>,
+) -> i64
+{
+    assert_eq!(value.to_string(), expected.to_str());
+    value
 }
 
 // ---

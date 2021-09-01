@@ -33,6 +33,76 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
         });
     });
 
+    // Unsigned
+    for(const bigint of [
+        0, 0n,
+        1, 1n,
+        2 ** 53 - 2, 2n ** 53n - 2n,
+        2 ** 53 - 1, 2n ** 53n - 1n,
+        2n ** 53n - 0n,
+        2n ** 53n + 1n,
+        2n ** 53n + 2n,
+        2n ** 64n - 2n,
+        2n ** 64n - 1n,
+    ]) {
+        var bigint2;
+        assertCheckPointIsCalled((checkPoint) => {
+            // console.log(bigint.toString(), typeof bigint);
+            var errored;
+            ffi.withCString(bigint.toString(), (s) => {
+                try {
+                    checkPoint();
+                    bigint2 = ffi.check_big_int_unsigned(
+                        bigint,
+                        s,
+                    );
+                    assert(bigint == bigint2);
+                } catch(e) {
+                    errored = e;
+                }
+            });
+            if (errored) {
+                throw(errored);
+            }
+        });
+        assert(bigint == bigint2);
+    }
+    // Signed
+    for(const bigint of [
+        -(2n ** 63n),
+        -(2n ** 63n - 1n),
+        -(2n ** 53n + 1n),
+        -(2n ** 53n - 0n),
+        -(2n ** 53n - 1n), -(2 ** 53 - 1),
+        -1, -1n,
+        0, 0n,
+        1, 1n,
+        2n ** 53n - 1n, 2 ** 53 - 1,
+        2n ** 53n - 0n,
+        2n ** 53n + 1n,
+        2n ** 63n - 1n,
+    ]) {
+        var bigint2;
+        assertCheckPointIsCalled((checkPoint) => {
+            var errored;
+            ffi.withCString(bigint.toString(), (s) => {
+                try {
+                    checkPoint();
+                    bigint2 = ffi.check_big_int_signed(
+                        bigint,
+                        s,
+                    );
+                } catch(e) {
+                    errored = e;
+                }
+            });
+            if (errored) {
+                throw(errored);
+            }
+        });
+        assert(bigint == bigint2);
+    }
+
     assertCheckPointIsCalled((checkPoint) => {
         ffi.withCString("Hello, ", (s1) => {
             ffi.withCString("World!", (s2) => {

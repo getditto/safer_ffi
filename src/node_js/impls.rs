@@ -6,18 +6,25 @@ use ::core::convert::{TryFrom, TryInto};
 match_! {(
     (u32, create_uint32 => u8, u16, u32),
     (i32, create_int32 => i8, i16, i32),
-    (i64, create_int64 => u64, i64, isize, usize),
+
+    #[cfg(target_arch = "wasm32")]
+    (u32, create_uint32 => usize),
+
+    #[cfg(target_arch = "wasm32")]
+    (i32, create_int32 => isize),
+
     (f64, create_double => f32, f64),
 ) {
     (
         $(
+            $( #[$cfg:meta] )?
             ($x32:ident, $create_x32:ident => $($xN:ident),* $(,)?)
             $(, $($rest:tt)*)?
         )?
     ) => ($(
         __recurse__! { $($($rest)*)? }
-
-        $(
+        $(#[$cfg])?
+        const _: () = {$(
             impl ReprNapi for $xN {
                 type NapiValue = JsNumber;
 
@@ -58,8 +65,144 @@ match_! {(
                     env.$create_x32(n)
                 }
             }
-        )*
+        )*};
     )?);
+}}
+
+match_! {(
+    usize => u64 get_u64,
+    isize => i64 get_i64,
+) {
+    (
+        $( $xsize:tt => $x64:tt $get_x64:tt, )*
+    ) => (
+        $(
+            impl ReprNapi for $x64 {
+                type NapiValue = JsUnknown;
+
+                fn from_napi_value (
+                    _: &'_ Env,
+                    napi_value: JsUnknown
+                ) -> Result<Self>
+                {
+                    match napi_value.get_type()? {
+                        | ValueType::Bigint => {
+                            let big_int: JsBigint = unsafe {
+                                napi_value.cast()
+                            };
+                            let (value, was_lossless) = big_int.$get_x64()?;
+                            if was_lossless {
+                                Ok(value)
+                            } else {
+                                Err(Error::new(
+                                    Status::InvalidArg,
+                                    format!(
+                                        "Numeric overflow: \
+                                        parameter does not fit into a `{}`",
+                                        ::core::any::type_name::<$x64>(),
+                                    ),
+                                ).into())
+                            }
+                        },
+                        | ValueType::Number => {
+                            let num: JsNumber = unsafe { napi_value.cast() };
+                            let i: i64 = num.try_into()?;
+                            i.try_into().map_err(|_| Error::new(
+                                Status::InvalidArg,
+                                format!(
+                                    "Numeric overflow: \
+                                    parameter {} does not fit into a `{}`",
+                                    i,
+                                    ::core::any::type_name::<$x64>(),
+                                ),
+                            ).into())
+                        },
+                        | _ => {
+                            Err(Error::new(
+                                Status::InvalidArg,
+                                format!("`BigInt` or `number` expected"),
+                            ).into())
+                        },
+                    }
+                }
+
+                fn to_napi_value (
+                    self: Self,
+                    env: &'_ Env,
+                ) -> Result<JsUnknown>
+                {
+                    const MIN: i128 = 0 - ((1 << 53) - 1);
+                    const MAX: i128 = 0 + ((1 << 53) - 1);
+                    match self as i128 {
+                        | MIN ..= MAX => {
+                            env .create_int64(
+                                    self.try_into()
+                                        .expect("Unreachable")
+                                )
+                                .map(|it| it.into_unknown())
+                        },
+                        #[cfg(not(target_arch = "wasm32"))]
+                        | i128 => {
+                            let is_negative = i128 < 0;
+                            let le_words = {
+                                let u128: u128 = if is_negative {
+                                    (-i128) as _
+                                } else {
+                                    i128 as _
+                                };
+                                vec![
+                                    u128 as u64,
+                                    (u128 >> 64) as u64,
+                                ]
+                            };
+                            env .create_bigint_from_words(
+                                    is_negative,
+                                    le_words,
+                                )?
+                                .into_unknown()
+                        },
+                        #[cfg(target_arch = "wasm32")]
+                        | i128 => Ok(
+                            JsBigint::from_str_base_10(&i128.to_string())
+                                .into_unknown()
+                        ),
+                    }
+                }
+            }
+
+            #[cfg(not(target_arch = "wasm32"))]
+            impl ReprNapi for $xsize {
+                type NapiValue = <$x64 as ReprNapi>::NapiValue;
+
+                fn from_napi_value (
+                    env: &'_ Env,
+                    napi_value: JsUnknown
+                ) -> Result<Self>
+                {
+                    $x64::from_napi_value(env, napi_value)?
+                        .try_into()
+                        .map_err(|_| {
+                            Error::new(
+                                Status::InvalidArg,
+                                format!(
+                                    "Numeric overflow: \
+                                    parameter does not fit into a `{}`",
+                                    ::core::any::type_name::<$xsize>(),
+                                ),
+                            ).into()
+                        })
+                }
+
+                fn to_napi_value (
+                    self: Self,
+                    env: &'_ Env,
+                ) -> Result<Self::NapiValue>
+                {
+                    (self as $x64).to_napi_value(env)
+                }
+            }
+        )*
+    )
 }}
 
 match_! {( const, mut ) {
@@ -74,9 +217,7 @@ match_! {( const, mut ) {
                 fn to_napi_value (self: *$mut T, env: &'_ Env)
                   -> Result<JsUnknown>
                 {
-                    let addr: JsNumber =
-                        <isize as ReprNapi>::to_napi_value(self as isize, env)?
-                    ;
+                    let addr = (self as usize).to_napi_value(env)?;
                     let ty: JsString =
                         env.create_string_from_std(format!(
                             "{pointee} {mut}*",
@@ -163,7 +304,7 @@ match_! {( const, mut ) {
                             "Expected a pointer (`{ addr }` object)".into(),
                         ).into()),
                     };
-                    let addr: JsNumber = obj.get_named_property("addr")?;
+                    let addr = obj.get_named_property("addr")?;
                     let ty: JsString = obj.get_named_property("type")?;
                     let expected_ty: &str = &format!(
                         "{pointee} {mut}*",
@@ -193,7 +334,7 @@ match_! {( const, mut ) {
                     //         ])?
                     //         .try_into()?
                     // ;
-                    <isize as ReprNapi>::from_napi_value(env, addr)
+                    <usize as ReprNapi>::from_napi_value(env, addr)
                         .map(|addr| addr as _)
                 }
             }
