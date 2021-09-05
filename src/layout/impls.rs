@@ -882,6 +882,7 @@ unsafe
 
         type OPAQUE_KIND = OpaqueKind::Concrete;
     }
+from_CType_impl_ReprC! { Bool }
 
 #[repr(transparent)]
 #[derive(Clone, Copy, PartialEq, Eq)]
