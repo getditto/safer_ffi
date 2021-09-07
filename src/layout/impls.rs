@@ -69,7 +69,7 @@ const _: () = { macro_rules! impl_CTypes {
             i32 => "int32" "Int32",
 
             unsafe // Safety: trivial integer equivalence.
-            i64 => "int64" "Int32",
+            i64 => "int64" "Int64",
 
             // unsafe i128 => "int128",
 
