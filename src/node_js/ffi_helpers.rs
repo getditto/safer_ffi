@@ -218,7 +218,7 @@ fn wrap_ptr (env: &'_ Env, p: *mut (), ty: &'_ str)
     let mut obj = env.create_object()?;
     obj.set_named_property(
         "addr",
-        ReprNapi::to_napi_value(p as isize, env)?,
+        ReprNapi::to_napi_value(p as usize, env)?,
     )?;
     obj.set_named_property(
         "type",
