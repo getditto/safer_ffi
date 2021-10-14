@@ -110,7 +110,7 @@ use ::std::{
 };
 
 use_prelude!();
-use rust::{String, Vec};
+use rust::{String};
 
 pub use definer::{Definer, HashSetDefiner};
 mod definer;
@@ -306,6 +306,12 @@ with_optional_fields! {
     ///
     /// It defaults to [`Language::C`].
     language: Language,
+
+    /// Whether to yield a stable header or not (order of defined items guaranteed
+    /// not to change provided the source code doesn't change either).
+    ///
+    /// It defaults to `true`.
+    stable_header: bool,
 }
 
 impl Builder<'_, WhereTo> {
@@ -393,15 +399,34 @@ impl Builder<'_, WhereTo> {
                 RustLib = pkg_name,
             )?,
         }
-        // User-provided defs!
-        crate::inventory::iter
-            .into_iter()
-            // Iterate in reverse fashion to more closely match
-            // the Rust definition order.
-            .collect::<Vec<_>>().into_iter().rev()
-            .try_for_each(|crate::FfiExport(define)| define(&mut definer, lang))
-            ?
-        ;
+        /* User-provided defs! */
+        let stable_header = config.stable_header.unwrap_or(true);
+        let (mut storage0, mut storage1) = (None, None);
+        let gen_defs: &mut dyn Iterator<Item = _> = if stable_header {
+            // Sort the definitions for a reliable header generation.
+            let sorted_definitions =
+                crate::inventory::iter
+                    .into_iter()
+                    .map(|crate::FfiExport { name, gen_def }| (name, gen_def))
+                    .collect::<::std::collections::BTreeMap<_, _>>()
+            ;
+            storage0.get_or_insert(
+                sorted_definitions
+                    .into_iter()
+                    .map(|(_, gen_def)| gen_def)
+            )
+        } else {
+            storage1.get_or_insert(
+                crate::inventory::iter
+                    .into_iter()
+                    // Iterate in reverse fashion to more closely match
+                    // the Rust definition order.
+                    .collect::<rust::Vec<_>>().into_iter().rev()
+                    .map(|crate::FfiExport { gen_def, .. }| gen_def)
+            )
+        };
+        (&mut { gen_defs }).try_for_each(|gen_def| gen_def(&mut definer, lang))?;
+
         // Epilogue
         match lang {
             | Language::C => write!(definer.out(),

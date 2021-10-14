@@ -22,40 +22,29 @@ using System.Runtime.InteropServices;
 public unsafe partial class Ffi {
     private const string RustLib = "ffi_tests";
 }
-public struct foo_t {
-   #pragma warning disable 0169
-   private byte OPAQUE;
-   #pragma warning restore 0169
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    Int32 async_get_ft ();
+}
+
+public enum SomeReprCEnum_t {
+    SomeVariant,
 }
 
 public unsafe partial class Ffi {
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    Int32 read_foo (
-        foo_t /*const*/ * foo);
+    void check_SomeReprCEnum (
+        SomeReprCEnum_t _baz);
+}
+
+public enum Bar_t : byte {
+    A,
 }
 
 public unsafe partial class Ffi {
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    foo_t * new_foo ();
-}
-
-public unsafe partial class Ffi {
-    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    void free_foo (
-        foo_t * foo);
-}
-
-[UnmanagedFunctionPointer(CallingConvention.Winapi)]
-public unsafe /* static */ delegate
-    void
-    void_foo_ptr_fptr (
-        foo_t * _0);
-
-public unsafe partial class Ffi {
-    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    void with_foo (
-        [MarshalAs(UnmanagedType.FunctionPtr)]
-        void_foo_ptr_fptr cb);
+    void check_bar (
+        Bar_t _bar);
 }
 
 /** \brief
@@ -77,6 +66,45 @@ public unsafe partial class Ffi {
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     void free_char_p (
         byte * _string);
+}
+
+public struct foo_t {
+   #pragma warning disable 0169
+   private byte OPAQUE;
+   #pragma warning restore 0169
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    void free_foo (
+        foo_t * foo);
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 16)]
+public unsafe struct slice_ref_int32_t {
+    public Int32 /*const*/ * ptr;
+    public UIntPtr len;
+}
+
+/** \brief
+ *  Returns a pointer to the maximum integer of the input slice, or `NULL` if
+ *  it is empty.
+ */
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    Int32 /*const*/ * max (
+        slice_ref_int32_t xs);
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    foo_t * new_foo ();
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    Int32 read_foo (
+        foo_t /*const*/ * foo);
 }
 
 [UnmanagedFunctionPointer(CallingConvention.Winapi)]
@@ -105,45 +133,17 @@ public unsafe partial class Ffi {
         RefDynFnMut1_void_char_const_ptr_t cb);
 }
 
-[StructLayout(LayoutKind.Sequential, Size = 16)]
-public unsafe struct slice_ref_int32_t {
-    public Int32 /*const*/ * ptr;
-    public UIntPtr len;
-}
-
-/** \brief
- *  Returns a pointer to the maximum integer of the input slice, or `NULL` if
- *  it is empty.
- */
-public unsafe partial class Ffi {
-    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    Int32 /*const*/ * max (
-        slice_ref_int32_t xs);
-}
+[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+public unsafe /* static */ delegate
+    void
+    void_foo_ptr_fptr (
+        foo_t * _0);
 
 public unsafe partial class Ffi {
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    Int32 async_get_ft ();
-}
-
-public enum SomeReprCEnum_t {
-    SomeVariant,
-}
-
-public unsafe partial class Ffi {
-    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    void check_SomeReprCEnum (
-        SomeReprCEnum_t _baz);
-}
-
-public enum Bar_t : byte {
-    A,
-}
-
-public unsafe partial class Ffi {
-    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    void check_bar (
-        Bar_t _bar);
+    void with_foo (
+        [MarshalAs(UnmanagedType.FunctionPtr)]
+        void_foo_ptr_fptr cb);
 }
 
 
