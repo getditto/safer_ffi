@@ -103,12 +103,13 @@ __cfg_headers__! {
 
     #[allow(missing_copy_implementations, missing_debug_implementations)]
     #[doc(hidden)] pub
-    struct FfiExport(
-        pub
-        fn (&'_ mut dyn headers::Definer, headers::Language)
-          -> ::std::io::Result<()>
+    struct FfiExport {
+        pub name: &'static str,
+        pub gen_def:
+            fn (&'_ mut dyn headers::Definer, headers::Language)
+              -> ::std::io::Result<()>
         ,
-    );
+    }
 
     ::inventory::collect!(FfiExport);
 }

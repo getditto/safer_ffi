@@ -189,7 +189,7 @@ macro_rules! __ffi_export__ {(
                         __hack = $async_worker,
                     )?)?
                 ))] {
-                    fn __assert_send<__T : ::core::marker::Send> ()
+                    fn __assert_send<__T : $crate::core::marker::Send> ()
                     {}
                     $(
                         let $arg_name = unsafe {
@@ -237,7 +237,7 @@ macro_rules! __ffi_export__ {(
     $crate::__cfg_headers__! {
         $crate::inventory::submit! {
             #![crate = $crate]
-            $crate::FfiExport({
+            $crate::FfiExport { name: $crate::core::stringify!($fname), gen_def: {
                 #[allow(unused_parens)]
                 fn typedef $(<$($lt $(: $sup_lt)?),*>)? (
                     definer: &'_ mut dyn $crate::headers::Definer,
@@ -300,7 +300,7 @@ macro_rules! __ffi_export__ {(
                     )?;
                 })};
                 typedef
-            })
+            }}
         }
     }
 );
@@ -315,24 +315,27 @@ macro_rules! __ffi_export__ {(
     $crate::__cfg_headers__! {
         $crate::inventory::submit! {
             #![crate = $crate]
-            $crate::FfiExport(|definer: &mut dyn $crate::headers::Definer| {
-                write!(
-                    definer.out(),
-                    concat!(
-                        "\n#define ",
-                        stringify!($VAR),
-                        " (({ty_cast}) ({expr}))\n\n",
-                    ),
-                    ty_cast =
-                        <
-                            <$T as $crate::layout::ReprC>::CLayout
-                            as
-                            $crate::layout::CType
-                        >::c_var("")
-                    ,
-                    expr = stringify!($value),
-                )
-            })
+            $crate::FfiExport {
+                name: $crate::core::stringify!($VAR),
+                gen_def: |definer: &mut dyn $crate::headers::Definer| {
+                    $crate::std::write!(
+                        definer.out(),
+                        $crate::core::concat!(
+                            "\n#define ",
+                            $crate::core::stringify!($VAR),
+                            " (({ty_cast}) ({expr}))\n\n",
+                        ),
+                        ty_cast =
+                            <
+                                <$T as $crate::layout::ReprC>::CLayout
+                                as
+                                $crate::layout::CType
+                            >::c_var("")
+                        ,
+                        expr = $crate::core::stringify!($value),
+                    )
+                },
+            }
         }
     }
 )}
