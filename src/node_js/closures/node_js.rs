@@ -8,10 +8,57 @@ use ::std::{
     sync::Arc,
 };
 
+type_level_enum! {
+    /// When calling a cb from js, if done from within a non-main-js-thread,
+    /// we have to enqueue the call for that thread to eventually pick it up,
+    /// and in the meantime we wait / block on the receiving end of a channel,
+    /// for the return value to be obtained.
+    ///
+    /// This is needed even when the return value is `()`/`undefined`, since
+    /// this is needed to get causality as one would expect:
+    ///
+    /// ```js
+    /// var x = 0;
+    /// register_cb(() => { x += 1; });
+    /// trigger_cb();
+    /// // we expect `x` to be `1` here!
+    /// ```
+    ///
+    /// But in some cases, such as logging, there is no *big* need for
+    /// synchronicity between issuing a log statement and having the log
+    /// statement be issued there and then, blocking the progress of the caller
+    /// thread until it's completed.
+    ///
+    /// This means that if logging were to have a custom js callback, we'd like
+    /// to opt out of this synchronous default, to call the callback in a
+    /// detached or "asynchronous" (in the English ≠ `async` sense) manner.
+    ///
+    /// So we need to express, somehow, our intent to have a callback be
+    /// callable in a detached manner.
+    ///
+    /// We thus encode this with a type-level "const" parameter: a
+    /// `type_level_enum!`
+    pub
+    enum SyncKind {
+        WaitForCompletion,
+        Detached,
+    }
+}
+
 /// Define `Closure<fn(A) -> B>` to be sugar for:
 /// `Closure_<(<A as ReprC>::CLayout,), <B as ReprC>::CLayout>`
-pub type Closure<fn_sig> = <fn_sig as TypeAliasHelper>::T;
-pub trait TypeAliasHelper { type T; }
+pub
+type Closure<
+        fn_sig,
+        Synchronicity = SyncKind::WaitForCompletion,
+    >
+= (
+    <
+        fn_sig as TypeAliasHelper<Synchronicity>
+    >::T
+);
+
+pub trait TypeAliasHelper<Synchronicity : SyncKind::T> { type T; }
 
 use safety_boundary::ThreadTiedJsFunction;
 
@@ -127,7 +174,7 @@ mod safety_boundary {
 /// In order to avoid that, we also bundle a `ThreadTiedJsFunction` to fallback
 /// to a classic call when we detect we are within the main Node.js thread.
 pub
-struct Closure_<Args : 'static, Ret : 'static> {
+struct Closure_<Args : 'static, Ret : 'static, Synchronicity : SyncKind::T> {
     /// A `JsFunction` that can only be called from the thread whence it
     /// originated.
     local_func: ThreadTiedJsFunction,
@@ -144,7 +191,7 @@ struct Closure_<Args : 'static, Ret : 'static> {
     /// detail).
     ts_fun: ThreadsafeFunction<
         (
-            ::std::sync::mpsc::SyncSender< Result<Ret> >,
+            Option<::std::sync::mpsc::SyncSender< Result<Ret> >>,
             Args,
         ),
         ErrorStrategy::Fatal,
@@ -153,10 +200,18 @@ struct Closure_<Args : 'static, Ret : 'static> {
     /// We cache an `Env` mainly to be able to keep interacting with the
     /// ref-counting APIs.
     env: Env,
+
+    _sync_kind: ::core::marker::PhantomData<Synchronicity>,
 }
 
-impl<Args : 'static, Ret : 'static> ::core::fmt::Debug
-    for Closure_<Args, Ret>
+impl<
+    Args : 'static,
+    Ret : 'static,
+    Synchronicity : SyncKind::T,
+>
+    ::core::fmt::Debug
+for
+    Closure_<Args, Ret, Synchronicity>
 {
     fn fmt (
         self: &'_ Self,
@@ -171,7 +226,10 @@ impl<Args : 'static, Ret : 'static> ::core::fmt::Debug
 }
 
 unsafe
-    impl<Args : 'static, Ret : 'static> Send for Closure_<Args, Ret>
+    impl<Args : 'static, Ret : 'static, Synchronicity : SyncKind::T>
+        Send
+    for
+        Closure_<Args, Ret, Synchronicity>
    /*
     * FIXME: these bounds seem plausible in order to make sure our API is
     * sound, but since raw pointers aren't `Send`, in practice it will be
@@ -186,7 +244,10 @@ unsafe
     {}
 
 unsafe
-    impl<Args : 'static, Ret : 'static> Sync for Closure_<Args, Ret>
+    impl<Args : 'static, Ret : 'static, Synchronicity : SyncKind::T>
+        Sync
+    for
+        Closure_<Args, Ret, Synchronicity>
    /*
     * FIXME: same as above, but for the sub-bounds still being `Send`.
     * This is intended / not a typo: Args and Ret are never shared, so this
@@ -210,12 +271,13 @@ macro_rules! impls {(
         }
     )?
 
+    // SyncKind::WaitForCompletion
     impl<
     $(  $_0 : 'static + crate::layout::ReprC, $(
         $_k : 'static + crate::layout::ReprC, )*)?
         Ret : 'static + crate::layout::ReprC,
     >
-        TypeAliasHelper
+        TypeAliasHelper<SyncKind::WaitForCompletion>
     for
         fn($($_0, $($_k ,)*)?) -> Ret
     {
@@ -225,6 +287,27 @@ macro_rules! impls {(
                 <$_k as crate::layout::ReprC>::CLayout, )*)?
             ),
             <Ret as crate::layout::ReprC>::CLayout,
+            SyncKind::WaitForCompletion,
+        >;
+    }
+
+    // SyncKind::Detached
+    impl<
+    $(  $_0 : 'static + crate::layout::ReprC, $(
+        $_k : 'static + crate::layout::ReprC, )*)?
+        // Ret : 'static + crate::layout::ReprC,
+    >
+        TypeAliasHelper<SyncKind::Detached>
+    for
+        fn($($_0, $($_k ,)*)?) -> ()
+    {
+        type T = Closure_<
+            ($(
+                <$_0 as crate::layout::ReprC>::CLayout, $(
+                <$_k as crate::layout::ReprC>::CLayout, )*)?
+            ),
+            <() as crate::layout::ReprC>::CLayout,
+            SyncKind::Detached,
         >;
     }
 
@@ -232,10 +315,11 @@ macro_rules! impls {(
     $(  $_0 : 'static + ReprNapi, $(
         $_k : 'static + ReprNapi, )*)?
         Ret : 'static + ReprNapi + Send,
+        Synchronicity : SyncKind::T,
     >
         ReprNapi
     for
-        Closure_<($($_0, $($_k ,)*)?), Ret>
+        Closure_<($($_0, $($_k ,)*)?), Ret, Synchronicity>
     {
         type NapiValue = JsFunction;
 
@@ -329,13 +413,32 @@ macro_rules! impls {(
             //     (wrapped_func, ret_receiver)
             // };
 
+            let queue_size_bound: Option<::core::num::NonZeroUsize> = {
+                match Synchronicity::VALUE {
+                    SyncKind::WaitForCompletion::VALUE => {
+                        // it should be able to handle all of the non-main and
+                        // *active* threads trying to enqueue a call
+                        // simultaneously: thus do not bound it.
+                        None
+                    },
+                    SyncKind::Detached::VALUE => {
+                        // In a detached manner, there is a risk to be producing
+                        // more tasks than the main js thread can handle, so
+                        // let's put a limit on the producers to avoid memory
+                        // starvation.
+                        ::core::num::NonZeroUsize::new(1024)
+                    },
+                }
+            };
+
             let mut ts_fun = ThreadsafeFunction::create(
                 env.raw(),
                 func,
-                // max_queue_size /* use `0` for a sane default */
-                1,
+                // max_queue_size: 0 is a sentinel value for unbounded.
+                // https://nodejs.org/api/n-api.html#napi_create_threadsafe_function
+                queue_size_bound.map_or(0, Into::into),
                 // callback
-                Self::handle_params,
+                Self::convert_params,
             )?;
             // By default, let's avoid keeping the main loop spinning while
             // this entity is alive.
@@ -347,6 +450,7 @@ macro_rules! impls {(
                 ts_fun,
                 local_func: thread_tied_func,
                 env,
+                _sync_kind: ::core::marker::PhantomData,
             })
         }
     }
@@ -355,8 +459,9 @@ macro_rules! impls {(
     $(  $_0 : 'static + ReprNapi, $(
         $_k : 'static + ReprNapi, )*)?
         CRet : 'static + ReprNapi,
+        Synchronicity : SyncKind::T,
     >
-        Closure_<($($_0, $($_k ,)*)?), CRet>
+        Closure_<($($_0, $($_k ,)*)?), CRet, Synchronicity>
     {
         /// Make Node.js's main event loop wait for the `Closure` to be
         /// dropped before ending.
@@ -456,13 +561,75 @@ macro_rules! impls {(
                 ::std::process::abort();
             }
 
-            let     &Self {
+            let &Self {
                 ref ts_fun,
                 env: ref orig_env,
                 local_func: ref fun,
-                    } = {
+                _sync_kind: _,
+            } = {
                 this.cast::<Self>().as_ref().expect("Got NULL")
             };
+            match Synchronicity::VALUE {
+                | SyncKind::Detached::VALUE => {
+                    // Detached case. The signature of this function is expected
+                    // to return a `CRet`, except we will just be returning
+                    // nothing / `()`, since we are just to enqueue the call and
+                    // return early / not wait for its completion.
+                    // This leads to a type-level conundrum: we have a generic
+                    // `CRet` although in practice it is expected to be
+                    // `()::CType`.
+                    //
+                    // We circumvent this conundrum asserting, at runtime, such
+                    // type equality:
+                    let c_ret = *{
+                        // Note: this whole block is a bunch of no-ops in practice.
+                        let unit = ();
+                        let c_unit = crate::layout::into_raw(unit);
+                        let boxed_any: Box::<dyn ::core::any::Any> = {
+                            Box::new(c_unit)
+                        };
+                        boxed_any
+                            .downcast::<CRet>()
+                            // If using the `Closure<fn(…) -> _, Detached>`
+                            // type alias, this ought to be unreachable.
+                            .unwrap_or_else(|_| panic!("\
+                                `SyncKind::Detached` requires a `-> ()` closure\
+                            "))
+                    };
+
+                    // Do enqueue the call.
+                    let status = ts_fun.call(
+                        // Note: these params are handled by `fn convert_params`
+                        (
+                            None,
+                            ($( $_0, $($_k, )*)?),
+                        ),
+                        ThreadsafeFunctionCallMode::NonBlocking,
+                    );
+
+                    if status != Status::Ok {
+                        // This is a very bad situation: we've exhausted the
+                        // main-js-thread cb queue; probably because these
+                        // detached callbacks are being called more quickly
+                        // than the main js thread can process; given the
+                        // "forever detached" semantics of this branch, to be
+                        // used with unimportant callbacks such as logs, we
+                        // decide to just skip performing this call altogether;
+                        // while sneaky, it would avoid a panic altogether, or
+                        // to suddenly block were we never intended to, which
+                        // would be even worse than a panic.
+                        return c_ret;
+                    }
+                    // Nothing more to do:
+                    return c_ret;
+                },
+                | SyncKind::WaitForCompletion::VALUE => {
+                    // Handled below, with no rightward drift.
+                },
+            }
+            // From now on, we only deal with calls expected to have synchronous
+            // semantics.
+            assert_eq!(Synchronicity::VALUE, SyncKind::WaitForCompletion::VALUE);
             match fun.get_thread_tied_func() {
                 | None => {
                     // If we are not called from the thread whence the `Closure`
@@ -476,11 +643,11 @@ macro_rules! impls {(
                     //
                     // The key idea, implementation-wise, is to rely (FIXME) on
                     // some co-operation from the JsFunction: such a function
-                    // shall instead of returning a value, call its first
+                    // shall, instead of returning a value, call its first
                     // received parameter on it.
                     //
                     // That is, the JsFunction is expected to have been wrapped
-                    // in a `wrap_cb_for_ffi` call, where:
+                    // in a `wrap_cb_for_ffi` call:
                     //
                     // ```js
                     // function wrap_cb_for_ffi(f) {
@@ -493,15 +660,29 @@ macro_rules! impls {(
                     //     };
                     // }
                     // ```
-                    let (ret_sender, ret_receiver) =
-                        ::std::sync::mpsc::sync_channel(0)
-                    ;
+                    let (ret_sender, ret_receiver) = {
+                        // Use a bounded (`sync_`) channel with a bound of `1`
+                        // (and since we're gonna be using `.try_send()`, there
+                        // will never truly be a synchronization / wait on the
+                        // sender side; that is, this is a poor man's `oneshot`
+                        // channel).
+                        //
+                        // And given the "schedule a 'call-once' cb" and wait
+                        // to get back its return value on completion" pattern,
+                        // using a oneshot channel is warranted.
+                        ::std::sync::mpsc::sync_channel(1)
+                    };
                     let status = ts_fun.call(
-                        // Note: this params are handled by `fn convert_params`
+                        // Note: these params are handled by `fn convert_params`
                         (
-                            ret_sender,
+                            Some(ret_sender),
                             ( $( $_0, $($_k, )*)? ),
                         ),
+                        // Given the unbounded size of the queue, whether we
+                        // block here or not does not seem to matter. If it did,
+                        // blocking would still be the best default, since we'll
+                        // be blocking anyways at the very next step, while
+                        // waiting for the cb completion.
                         ThreadsafeFunctionCallMode::Blocking,
                     );
                     debug_assert_eq!(status, Status::Ok);
@@ -520,14 +701,8 @@ macro_rules! impls {(
                         None,
                         // params
                         &[
-                            orig_env
-                                .create_function_from_closure(
-                                    "send_ret",
-                                    move |ctx: CallContext<'_>| Ok({
-                                        ctx.get::<JsUnknown>(0)?
-                                    }),
-                                )
-                                .expect("Creation of `send_ret` failed")
+                            dummy_ret_sender(orig_env)
+                                .expect("Creation of the dummy ret sender failed")
                                 .into_unknown()
                             ,
                         $(  ReprNapi::to_napi_value($_0, orig_env)
@@ -565,16 +740,16 @@ macro_rules! impls {(
             .expect("Cannot throw a js exception within an FFI callback")
         }
 
-        fn handle_params(
+        fn convert_params(
             ThreadSafeCallContext {
-                env,
+                ref env,
                 // FFI args
                 value: (
-                    sender,
+                    mb_sender,
                     ( $( $_0, $($_k ,)* )? ),
                 ),
             }: ThreadSafeCallContext<(
-                ::std::sync::mpsc::SyncSender< Result<CRet> >,
+                Option<::std::sync::mpsc::SyncSender< Result<CRet> >>,
                 ( $( $_0, $( $_k, )* )? ),
             )>,
         ) -> Result<Vec<JsUnknown>> // Node.js args
@@ -582,34 +757,62 @@ macro_rules! impls {(
             CRet : Send,
         {
             // `let sender = js_closure!(move |value| sender.send(value));`
-            let sender = env.create_function_from_closure(
-                "ret sender",
-                move |ctx: CallContext<'_>| Ok({
-                    let arg: Result<CRet> = if ctx.length == 0 {
-                        unreachable!(
-                            "JsFunction was incorrectly wrapped"
-                        );
-                    } else {
-                        super::extract_arg::<CRet>(&ctx, 0)
-                    };
-                    let _ = sender.send(arg);
-                    ctx.env.get_undefined()?
-                })
-            )?;
+            let js_sender = match mb_sender {
+                | None => dummy_ret_sender(env)?,
+                | Some(sender) => env.create_function_from_closure(
+                    "ret sender",
+                    move |ctx: CallContext<'_>| Ok({
+                        let arg: Result<CRet> = if ctx.length == 0 {
+                            unreachable!(
+                                "JsFunction was incorrectly wrapped"
+                            );
+                        } else {
+                            super::extract_arg::<CRet>(&ctx, 0)
+                        };
+                        let _ =
+                            sender
+                                .try_send(arg)
+                                .expect("\
+                                    ret sender channel closed \
+                                    or used more than once\
+                                ")
+                        ;
+                        ctx.env.get_undefined()?
+                    })
+                )?,
+            };
 
         $(  let $_0 = ReprNapi::to_napi_value($_0, &env)?; $(
             let $_k = ReprNapi::to_napi_value($_k, &env)?; )*)?
-            let mut args = Vec::<JsUnknown>::with_capacity(
-                1
-            $(  + { let _ = $_0; 1 } $(
-                + { let _ = $_k; 1 } )*)?
-            );
-            args.push(sender.into_unknown());
-        $(  args.push($_0.into_unknown()); $(
-            args.push($_k.into_unknown()); )*)?
+            let args = vec![
+                js_sender.into_unknown(),
+            $(
+                $_0.into_unknown(), $(
+                $_k.into_unknown(), )*)?
+            ];
             Ok(args)
         }
     }
 )} use impls;
+
+/// Given the expected `wrap_cb_for_ffi` being applied to js cbs —whereby
+/// these cbs return their value as `return ret_sender(ret_value)`—, when there
+/// is no meaningful `ret_sender`, we provide a dummy polyfill which acts as the
+/// identity / no-op-forwarding function, so as to yield the semantics of
+/// `return ret_value`.
+fn dummy_ret_sender (env: &'_ Env)
+  -> Result<JsFunction>
+{
+    env .create_function_from_closure(
+            "dummy ret sender",
+            // ```js
+            // (arg) => arg
+            // ```
+            move |ctx: CallContext<'_>| Ok({
+                let arg = ctx.get::<JsUnknown>(0)?;
+                arg
+            }),
+        )
+}
 
 include!("common.rs");

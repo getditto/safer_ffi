@@ -8,7 +8,7 @@
     no_std,
 )]
 
-#![allow(nonstandard_style, trivial_bounds)]
+#![allow(nonstandard_style, trivial_bounds, unused_parens)]
 #![warn(
     missing_copy_implementations,
     missing_debug_implementations,
