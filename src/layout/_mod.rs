@@ -81,7 +81,7 @@ unsafe trait CType
     Sized +
     Copy +
 {
-    type OPAQUE_KIND : OpaqueKind::__;
+    type OPAQUE_KIND : OpaqueKind::T;
     __cfg_headers__! {
         /// A short-name description of the type, mainly used to fill
         /// "placeholders" such as when monomorphising generics structs or

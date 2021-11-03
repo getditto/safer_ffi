@@ -120,34 +120,94 @@ macro_rules! const_assert {
         } as usize];
     );
 }
-
 macro_rules! type_level_enum {(
-    $(#[$meta:meta])*
+    $( #[doc = $doc:tt] )*
     $pub:vis
     enum $EnumName:ident {
         $(
-            $(#[$variant_meta:meta])*
+            $( #[doc = $doc_variant:tt] )*
             $Variant:ident
-        ),+ $(,)?
+        ),* $(,)?
     }
-) => (
-    #[allow(
-        bad_style,
-        missing_copy_implementations,
-        missing_debug_implementations,
-    )]
-    $(#[$meta])*
-    $pub
-    mod $EnumName {
-        use private::Sealed; mod private { pub trait Sealed {} }
-        pub trait __ : Sealed {}
+) => (type_level_enum! { // This requires the macro to be in scope when called.
+    with_docs! {
+        $( #[doc = $doc] )*
+        ///
+        /// ### Type-level `enum`
+        ///
+        /// Until `const_generics` can handle custom `enum`s, this pattern must be
+        /// implemented at the type level.
+        ///
+        /// We thus end up with:
+        ///
+        /// ```rust,ignore
+        /// #[type_level_enum]
+        #[doc = ::core::concat!(
+            " enum ", ::core::stringify!($EnumName), " {",
+        )]
         $(
-            $(#[$variant_meta])*
-            pub
-            enum $Variant {}
-                impl __ for $Variant {} impl Sealed for $Variant {}
-        )+
+            #[doc = ::core::concat!(
+                "         ", ::core::stringify!($Variant), ",",
+            )]
+        )*
+        #[doc = " }"]
+        /// ```
+        ///
+        #[doc = ::core::concat!(
+            "With [`", ::core::stringify!($EnumName), "::T`](#reexports) \
+            being the type-level \"enum type\":",
+        )]
+        ///
+        /// ```rust,ignore
+        #[doc = ::core::concat!(
+            "<Param: ", ::core::stringify!($EnumName), "::T>"
+        )]
+        /// ```
     }
+    #[allow(warnings)]
+    $pub mod $EnumName {
+        #[doc(no_inline)]
+        pub use $EnumName as T;
+
+        type_level_enum! {
+            with_docs! {
+                #[doc = ::core::concat!(
+                    "See [`", ::core::stringify!($EnumName), "`]\
+                    [super::", ::core::stringify!($EnumName), "]"
+                )]
+            }
+            pub trait $EnumName : __sealed::$EnumName + ::core::marker::Sized + 'static {
+                const VALUE: __value::$EnumName;
+            }
+        }
+
+        mod __sealed { pub trait $EnumName {} }
+
+        mod __value {
+            #[derive(Debug, PartialEq, Eq)]
+            pub enum $EnumName { $( $Variant ),* }
+        }
+
+        $(
+            $( #[doc = $doc_variant] )*
+            pub enum $Variant {}
+            impl __sealed::$EnumName for $Variant {}
+            impl $EnumName for $Variant {
+                const VALUE: __value::$EnumName = __value::$EnumName::$Variant;
+            }
+            impl $Variant {
+                pub const VALUE: __value::$EnumName = __value::$EnumName::$Variant;
+            }
+        )*
+    }
+});(
+    with_docs! {
+        $( #[doc = $doc:expr] )*
+    }
+    $item:item
+) => (
+    $( #[doc = $doc] )*
+    $item
 )}
 
 macro_rules! with_doc {(

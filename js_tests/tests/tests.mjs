@@ -233,6 +233,23 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
 		'[00, 00, 00, 00, 00, 00, 00, 05]'
     );
 
+    // Test detached callback
+    if (! is_web) {
+        ffi.spinlock_aquire();
+        let ret; ffi.call_detached(wrap_cb_for_ffi(() => {
+            ffi.spinlock_aquire();
+            ffi.spinlock_release();
+            ret = 42;
+        }));
+        ffi.spinlock_release();
+        while (typeof ret === 'undefined') {
+            await new Promise((resolve, _) => {
+                setTimeout(resolve, 0);
+            });
+        }
+        assert.equal(ret, 42);
+    }
+
     assert.deepEqual(await ffi.long_running_fut(Uint8Array.of(27)), 42 + 27);
 
     console.log('Js tests passed successfully ✅');

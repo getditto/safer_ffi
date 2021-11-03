@@ -1,4 +1,5 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
+#![allow(unused_parens)]
 
 use ::safer_ffi::prelude::*;
 
@@ -129,6 +130,43 @@ fn call_with_42 (
 #[cfg(feature = "nodejs")]
 const _: () = {
     use ::safer_ffi::node_js as napi;
+
+    #[cfg(not(target_arch = "wasm32"))]
+    const _: () = {
+        static LOCKED: ::std::sync::atomic::AtomicBool = {
+            ::std::sync::atomic::AtomicBool::new(false)
+        };
+
+        #[ffi_export(node_js)]
+        fn spinlock_aquire ()
+        {
+            while LOCKED.swap(true, ::std::sync::atomic::Ordering::Acquire) {}
+        }
+
+        #[ffi_export(node_js)]
+        fn spinlock_release ()
+        {
+            LOCKED.store(false, ::std::sync::atomic::Ordering::Release);
+        }
+
+        #[napi::derive::js_export]
+        fn call_detached (
+            arg: (
+                <
+                    napi::Closure<fn(), napi::SyncKind::Detached> as napi::ReprNapi
+                >::NapiValue
+            ),
+        ) -> napi::Result<napi::JsNumber>
+        {
+            let ctx = napi::derive::__js_ctx!();
+            let cb: napi::Closure<fn(), napi::SyncKind::Detached> =
+                napi::ReprNapi::from_napi_value(ctx.env, arg)?
+            ;
+            let (data_ptr, enqueue_call_fn) = cb.as_raw_parts();
+            unsafe { enqueue_call_fn(data_ptr); }
+            ctx.env.get_undefined()
+        }
+    };
 
     #[napi::derive::js_export(js_name = call_with_42)]
     fn call_with_42_js (
