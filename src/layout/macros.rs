@@ -137,7 +137,7 @@ macro_rules! CType {(
                         $crate::__output_docs__!(out, "", $($doc_meta)*);
                     )?
                     $crate::__output_docs__!(out, "", $(#[$($meta)*])*);
-                    $crate::core::writeln!(out, "typedef struct {{\n")?;
+                    $crate::core::writeln!(out, "typedef struct {} {{\n", me)?;
                     $(
                         if $crate::core::mem::size_of::<$field_ty>() > 0 {
                             // $crate::core::writeln!(out, "")?;
