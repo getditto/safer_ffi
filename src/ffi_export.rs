@@ -31,7 +31,7 @@ macro_rules! __ffi_export__ {(
     )?
         $body
 
-    #[allow(dead_code, nonstandard_style, unused_parens)]
+    #[allow(dead_code, nonstandard_style, unused_parens, clippy::all)]
     const _: () = {
         $($(#[doc = $doc])+)?
         #[no_mangle]
@@ -116,7 +116,7 @@ macro_rules! __ffi_export__ {(
         $crate::inventory::submit! {
             #![crate = $crate]
             $crate::FfiExport({
-                #[allow(unused_parens)]
+                #[allow(unused_parens, clippy::all)]
                 fn typedef $(<$($lt $(: $sup_lt)?),*>)? (
                     definer: &'_ mut dyn $crate::headers::Definer,
                 ) -> $crate::std::io::Result<()>
