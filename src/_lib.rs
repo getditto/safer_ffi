@@ -98,10 +98,8 @@ mod char_p;
 pub
 mod closure;
 
-const _: () = {
-    #[path = "ffi_export.rs"]
-    mod ffi_export;
-};
+#[path = "ffi_export.rs"]
+mod __ffi_export;
 
 pub
 mod ptr;
