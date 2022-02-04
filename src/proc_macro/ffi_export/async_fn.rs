@@ -263,9 +263,11 @@ fn export (
     } else {
         let mut fun_signature = fun.sig.clone();
         let pub_ = &fun.vis;
+        let each_attr = &fun.attrs;
         fun_signature.asyncness = None;
         quote!(
             #[::safer_ffi::ffi_export]
+            #(#each_attr)*
             #pub_ #fun_signature
             {
                 #(#prelude)*
