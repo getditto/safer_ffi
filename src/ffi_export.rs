@@ -271,7 +271,7 @@ macro_rules! __ffi_export__ {(
                         )?;
                         $(
                             $crate::core::write!(out,
-                                " * {}\n", $doc,
+                                " *{sep}{}\n", $doc, sep = if $doc.is_empty() { "" } else { " " },
                             )?;
                         )+
                         $crate::std::io::Write::write_all(out,
