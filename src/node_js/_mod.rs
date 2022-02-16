@@ -51,6 +51,61 @@ trait ReprNapi : Sized /* : crate::layout::CType */ {
     ;
 }
 
+pub use adhoc::AdhocToReprNapi;
+mod adhoc {
+    use super::*;
+
+    pub
+    trait ToReprNapiFnOnce
+    where
+        Self : FnOnce(&'_ Env) -> Result< Self::NapiValue >,
+    {
+        type NapiValue : NapiValue + IntoUnknown;
+    }
+
+    impl<F, NapiValue>
+        ToReprNapiFnOnce
+    for
+        F
+    where
+        Self : FnOnce(&'_ Env) -> Result< NapiValue >,
+        NapiValue : super::NapiValue + IntoUnknown,
+    {
+        type NapiValue = NapiValue;
+    }
+
+    #[allow(missing_debug_implementations)]
+    pub
+    struct AdhocToReprNapi<F : ToReprNapiFnOnce>(
+        pub F,
+    )
+    where
+        F : FnOnce(&Env) -> Result< F::NapiValue >,
+    ;
+
+    impl<F : ToReprNapiFnOnce> ReprNapi for AdhocToReprNapi<F> {
+        type NapiValue = F::NapiValue;
+
+        /// Conversion from a returned Rust value to a Node.js value.
+        fn to_napi_value (
+            self: Self,
+            env: &'_ Env,
+        ) -> Result< F::NapiValue >
+        {
+            (self.0)(env)
+        }
+
+        /// Conversion from a Node.js parameter to a Rust value.
+        fn from_napi_value (
+            _: &'_ Env,
+            _: Self::NapiValue,
+        ) -> Result<Self>
+        {
+            unimplemented!("ToReprNapiFnOnce")
+        }
+    }
+}
+
 cfg_not_wasm! {
     pub
     fn extract_arg<T> (
