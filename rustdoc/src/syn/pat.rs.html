@@ -1,7 +1,9 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/syn-1.0.72/src/pat.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pat.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
-<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../syn/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button">?</button>
-                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/syn-1.0.86/src/pat.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../syn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../syn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../syn/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -931,11 +933,8 @@
 <span id="928">928</span>
 <span id="929">929</span>
 <span id="930">930</span>
-<span id="931">931</span>
-<span id="932">932</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::punctuated::Punctuated</span>;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::punctuated::Punctuated</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span>;
 
 <span class="macro">ast_enum_of_structs!</span> {
@@ -1032,7 +1031,7 @@
         <span class="comment">// reimplemented as a non_exhaustive enum.</span>
         <span class="comment">// https://github.com/rust-lang/rust/issues/44109#issuecomment-521781237</span>
         <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-        <span class="ident">__TestExhaustive</span>(<span class="kw">crate</span><span class="ident">::private</span>),
+        <span class="ident">__TestExhaustive</span>(<span class="ident"><span class="kw">crate</span>::private</span>),
     }
 }
 
@@ -1250,13 +1249,13 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">parsing</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ext::IdentExt</span>;
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseBuffer</span>, <span class="ident">ParseStream</span>, <span class="prelude-ty">Result</span>};
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::path</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ext::IdentExt</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseBuffer</span>, <span class="ident">ParseStream</span>, <span class="prelude-ty">Result</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::path</span>;
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">Pat</span> {
-        <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">begin</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">fork</span>();
             <span class="kw">let</span> <span class="ident">lookahead</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">lookahead1</span>();
             <span class="kw">if</span> {
@@ -1308,28 +1307,16 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">pat_path_or_macro_or_struct_or_range</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pat_path_or_macro_or_struct_or_range</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">begin</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">fork</span>();
         <span class="kw">let</span> (<span class="ident">qself</span>, <span class="ident">path</span>) <span class="op">=</span> <span class="ident">path::parsing::qpath</span>(<span class="ident">input</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[..]) {
-            <span class="kw">return</span> <span class="ident">pat_range</span>(<span class="ident">input</span>, <span class="ident">begin</span>, <span class="ident">qself</span>, <span class="ident">path</span>);
-        }
-
-        <span class="kw">if</span> <span class="ident">qself</span>.<span class="ident">is_some</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Pat::Path</span>(<span class="ident">PatPath</span> {
-                <span class="ident">attrs</span>: <span class="ident">Vec::new</span>(),
-                <span class="ident">qself</span>,
-                <span class="ident">path</span>,
-            }));
-        }
-
-        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="op">!</span>]) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="op">!</span><span class="op">=</span>]) {
+        <span class="kw">if</span> <span class="ident">qself</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="op">!</span>]) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="op">!</span><span class="op">=</span>]) {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">contains_arguments</span> <span class="op">=</span> <span class="bool-val">false</span>;
             <span class="kw">for</span> <span class="ident">segment</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">path</span>.<span class="ident">segments</span> {
                 <span class="kw">match</span> <span class="ident">segment</span>.<span class="ident">arguments</span> {
-                    <span class="ident">PathArguments::None</span> <span class="op">=</span><span class="op">&gt;</span> {}
-                    <span class="ident">PathArguments::AngleBracketed</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">PathArguments::Parenthesized</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">PathArguments::None</span> =&gt; {}
+                    <span class="ident">PathArguments::AngleBracketed</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">PathArguments::Parenthesized</span>(<span class="kw">_</span>) =&gt; {
                         <span class="ident">contains_arguments</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     }
                 }
@@ -1351,9 +1338,19 @@
         }
 
         <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="ident">token::Brace</span>) {
-            <span class="ident">pat_struct</span>(<span class="ident">input</span>, <span class="ident">path</span>).<span class="ident">map</span>(<span class="ident">Pat::Struct</span>)
+            <span class="kw">let</span> <span class="ident">pat</span> <span class="op">=</span> <span class="ident">pat_struct</span>(<span class="ident">input</span>, <span class="ident">path</span>)<span class="question-mark">?</span>;
+            <span class="kw">if</span> <span class="ident">qself</span>.<span class="ident">is_some</span>() {
+                <span class="prelude-val">Ok</span>(<span class="ident">Pat::Verbatim</span>(<span class="ident">verbatim::between</span>(<span class="ident">begin</span>, <span class="ident">input</span>)))
+            } <span class="kw">else</span> {
+                <span class="prelude-val">Ok</span>(<span class="ident">Pat::Struct</span>(<span class="ident">pat</span>))
+            }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="ident">token::Paren</span>) {
-            <span class="ident">pat_tuple_struct</span>(<span class="ident">input</span>, <span class="ident">path</span>).<span class="ident">map</span>(<span class="ident">Pat::TupleStruct</span>)
+            <span class="kw">let</span> <span class="ident">pat</span> <span class="op">=</span> <span class="ident">pat_tuple_struct</span>(<span class="ident">input</span>, <span class="ident">path</span>)<span class="question-mark">?</span>;
+            <span class="kw">if</span> <span class="ident">qself</span>.<span class="ident">is_some</span>() {
+                <span class="prelude-val">Ok</span>(<span class="ident">Pat::Verbatim</span>(<span class="ident">verbatim::between</span>(<span class="ident">begin</span>, <span class="ident">input</span>)))
+            } <span class="kw">else</span> {
+                <span class="prelude-val">Ok</span>(<span class="ident">Pat::TupleStruct</span>(<span class="ident">pat</span>))
+            }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[..]) {
             <span class="ident">pat_range</span>(<span class="ident">input</span>, <span class="ident">begin</span>, <span class="ident">qself</span>, <span class="ident">path</span>)
         } <span class="kw">else</span> {
@@ -1365,14 +1362,14 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">pat_wild</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatWild</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pat_wild</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatWild</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">PatWild</span> {
             <span class="ident">attrs</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">underscore_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">pat_box</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatBox</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pat_box</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatBox</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">PatBox</span> {
             <span class="ident">attrs</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">box_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
@@ -1380,7 +1377,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">pat_ident</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatIdent</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pat_ident</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatIdent</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">PatIdent</span> {
             <span class="ident">attrs</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">by_ref</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
@@ -1398,7 +1395,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">pat_tuple_struct</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>, <span class="ident">path</span>: <span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatTupleStruct</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pat_tuple_struct</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>, <span class="ident">path</span>: <span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatTupleStruct</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">PatTupleStruct</span> {
             <span class="ident">attrs</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">path</span>,
@@ -1406,7 +1403,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">pat_struct</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>, <span class="ident">path</span>: <span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatStruct</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pat_struct</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>, <span class="ident">path</span>: <span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatStruct</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">content</span>;
         <span class="kw">let</span> <span class="ident">brace_token</span> <span class="op">=</span> <span class="macro">braced!</span>(<span class="ident">content</span> <span class="kw">in</span> <span class="ident">input</span>);
 
@@ -1437,15 +1434,15 @@
     }
 
     <span class="kw">impl</span> <span class="ident">Member</span> {
-        <span class="kw">fn</span> <span class="ident">is_unnamed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">fn</span> <span class="ident">is_unnamed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
             <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">Member::Named</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-                <span class="ident">Member::Unnamed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                <span class="ident">Member::Named</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
+                <span class="ident">Member::Unnamed</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">field_pat</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">FieldPat</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">field_pat</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">FieldPat</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">call</span>(<span class="ident">Attribute::parse_outer</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">boxed</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro">Token!</span>[<span class="kw">box</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">by_ref</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro">Token!</span>[<span class="kw-2">ref</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
@@ -1464,8 +1461,8 @@
         }
 
         <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">member</span> {
-            <span class="ident">Member::Named</span>(<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ident</span>,
-            <span class="ident">Member::Unnamed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">Member::Named</span>(<span class="ident">ident</span>) =&gt; <span class="ident">ident</span>,
+            <span class="ident">Member::Unnamed</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         };
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pat</span> <span class="op">=</span> <span class="ident">Pat::Ident</span>(<span class="ident">PatIdent</span> {
@@ -1497,7 +1494,7 @@
         <span class="ident">begin</span>: <span class="ident">ParseBuffer</span>,
         <span class="ident">qself</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">QSelf</span><span class="op">&gt;</span>,
         <span class="ident">path</span>: <span class="ident">Path</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">limits</span>: <span class="ident">RangeLimits</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">hi</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">call</span>(<span class="ident">pat_lit_expr</span>)<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">hi</span>) <span class="op">=</span> <span class="ident">hi</span> {
@@ -1516,23 +1513,23 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">pat_range_half_open</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>, <span class="ident">begin</span>: <span class="ident">ParseBuffer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pat_range_half_open</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>, <span class="ident">begin</span>: <span class="ident">ParseBuffer</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">limits</span>: <span class="ident">RangeLimits</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">hi</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">call</span>(<span class="ident">pat_lit_expr</span>)<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="ident">hi</span>.<span class="ident">is_some</span>() {
             <span class="prelude-val">Ok</span>(<span class="ident">Pat::Verbatim</span>(<span class="ident">verbatim::between</span>(<span class="ident">begin</span>, <span class="ident">input</span>)))
         } <span class="kw">else</span> {
             <span class="kw">match</span> <span class="ident">limits</span> {
-                <span class="ident">RangeLimits::HalfOpen</span>(<span class="ident">dot2_token</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Pat::Rest</span>(<span class="ident">PatRest</span> {
+                <span class="ident">RangeLimits::HalfOpen</span>(<span class="ident">dot2_token</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Pat::Rest</span>(<span class="ident">PatRest</span> {
                     <span class="ident">attrs</span>: <span class="ident">Vec::new</span>(),
                     <span class="ident">dot2_token</span>,
                 })),
-                <span class="ident">RangeLimits::Closed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">input</span>.<span class="ident">error</span>(<span class="string">&quot;expected range upper bound&quot;</span>)),
+                <span class="ident">RangeLimits::Closed</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">input</span>.<span class="ident">error</span>(<span class="string">&quot;expected range upper bound&quot;</span>)),
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">pat_tuple</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatTuple</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pat_tuple</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatTuple</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">content</span>;
         <span class="kw">let</span> <span class="ident">paren_token</span> <span class="op">=</span> <span class="macro">parenthesized!</span>(<span class="ident">content</span> <span class="kw">in</span> <span class="ident">input</span>);
 
@@ -1554,7 +1551,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">pat_reference</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatReference</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pat_reference</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatReference</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">PatReference</span> {
             <span class="ident">attrs</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">and_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
@@ -1563,7 +1560,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">pat_lit_or_range</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pat_lit_or_range</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">begin</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">fork</span>();
         <span class="kw">let</span> <span class="ident">lo</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">call</span>(<span class="ident">pat_lit_expr</span>)<span class="question-mark">?</span>.<span class="ident">unwrap</span>();
         <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[..]) {
@@ -1589,10 +1586,10 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">pat_lit_expr</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pat_lit_expr</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">is_empty</span>()
             <span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="op">|</span>])
-            <span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="op">=</span><span class="op">&gt;</span>])
+            <span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[=&gt;])
             <span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[:]) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[::])
             <span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[,])
             <span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[;])
@@ -1631,7 +1628,7 @@
         })))
     }
 
-    <span class="kw">fn</span> <span class="ident">pat_slice</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatSlice</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pat_slice</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PatSlice</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">content</span>;
         <span class="kw">let</span> <span class="ident">bracket_token</span> <span class="op">=</span> <span class="macro">bracketed!</span>(<span class="ident">content</span> <span class="kw">in</span> <span class="ident">input</span>);
 
@@ -1653,7 +1650,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">pat_const</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pat_const</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">begin</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">fork</span>();
         <span class="ident">input</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="macro">Token!</span>[<span class="kw">const</span>]<span class="op">&gt;</span>()<span class="question-mark">?</span>;
 
@@ -1665,16 +1662,16 @@
         <span class="prelude-val">Ok</span>(<span class="ident">verbatim::between</span>(<span class="ident">begin</span>, <span class="ident">input</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multi_pat</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multi_pat</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
         <span class="ident">multi_pat_impl</span>(<span class="ident">input</span>, <span class="prelude-val">None</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multi_pat_with_leading_vert</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multi_pat_with_leading_vert</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">leading_vert</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro">Token!</span>[<span class="op">|</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
         <span class="ident">multi_pat_impl</span>(<span class="ident">input</span>, <span class="ident">leading_vert</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">multi_pat_impl</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>, <span class="ident">leading_vert</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro">Token!</span>[<span class="op">|</span>]<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">multi_pat_impl</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>, <span class="ident">leading_vert</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro">Token!</span>[<span class="op">|</span>]<span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pat</span>: <span class="ident">Pat</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="ident">leading_vert</span>.<span class="ident">is_some</span>()
             <span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="op">|</span>]) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="op">|</span><span class="op">|</span>]) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="op">|</span><span class="op">=</span>])
@@ -1700,13 +1697,13 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)]</span>
 <span class="kw">mod</span> <span class="ident">printing</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::attr::FilterAttrs</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::attr::FilterAttrs</span>;
     <span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span>;
     <span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">ToTokens</span>, <span class="ident">TokenStreamExt</span>};
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatWild</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="self">self</span>.<span class="ident">underscore_token</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
         }
@@ -1714,7 +1711,7 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatIdent</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="self">self</span>.<span class="ident">by_ref</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
             <span class="self">self</span>.<span class="ident">mutability</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
@@ -1728,7 +1725,7 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatStruct</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
             <span class="self">self</span>.<span class="ident">brace_token</span>.<span class="ident">surround</span>(<span class="ident">tokens</span>, <span class="op">|</span><span class="ident">tokens</span><span class="op">|</span> {
@@ -1744,7 +1741,7 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatTupleStruct</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
             <span class="self">self</span>.<span class="ident">pat</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
@@ -1753,7 +1750,7 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatType</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="self">self</span>.<span class="ident">pat</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
             <span class="self">self</span>.<span class="ident">colon_token</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
@@ -1763,7 +1760,7 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatPath</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="ident">private::print_path</span>(<span class="ident">tokens</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">qself</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">path</span>);
         }
@@ -1771,7 +1768,7 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatTuple</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="self">self</span>.<span class="ident">paren_token</span>.<span class="ident">surround</span>(<span class="ident">tokens</span>, <span class="op">|</span><span class="ident">tokens</span><span class="op">|</span> {
                 <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
@@ -1781,7 +1778,7 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatBox</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="self">self</span>.<span class="ident">box_token</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
             <span class="self">self</span>.<span class="ident">pat</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
@@ -1790,7 +1787,7 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatReference</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="self">self</span>.<span class="ident">and_token</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
             <span class="self">self</span>.<span class="ident">mutability</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
@@ -1800,7 +1797,7 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatRest</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="self">self</span>.<span class="ident">dot2_token</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
         }
@@ -1808,7 +1805,7 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatLit</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="self">self</span>.<span class="ident">expr</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
         }
@@ -1816,12 +1813,12 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatRange</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="self">self</span>.<span class="ident">lo</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
             <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">limits</span> {
-                <span class="ident">RangeLimits::HalfOpen</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">t</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
-                <span class="ident">RangeLimits::Closed</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">t</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
+                <span class="ident">RangeLimits::HalfOpen</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
+                <span class="ident">RangeLimits::Closed</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
             }
             <span class="self">self</span>.<span class="ident">hi</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
         }
@@ -1829,7 +1826,7 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatSlice</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="self">self</span>.<span class="ident">bracket_token</span>.<span class="ident">surround</span>(<span class="ident">tokens</span>, <span class="op">|</span><span class="ident">tokens</span><span class="op">|</span> {
                 <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
@@ -1839,7 +1836,7 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatMacro</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="self">self</span>.<span class="ident">mac</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
         }
@@ -1847,7 +1844,7 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PatOr</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="self">self</span>.<span class="ident">leading_vert</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
             <span class="self">self</span>.<span class="ident">cases</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
@@ -1856,7 +1853,7 @@
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)))]</span>
     <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">FieldPat</span> {
-        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
             <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">outer</span>());
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">colon_token</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">colon_token</span> {
                 <span class="self">self</span>.<span class="ident">member</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
@@ -1866,6 +1863,6 @@
         }
     }
 }
-</pre></div>
-</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="syn" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>
+</code></pre></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="syn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (f0c4da499 2022-03-01)" ></div>
+</body></html>

@@ -1,7 +1,9 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/layout/impls.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>impls.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
-<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../safer_ffi/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button">?</button>
-                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/layout/impls.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>impls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../safer_ffi/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../../safer_ffi/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../safer_ffi/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -717,39 +719,38 @@
 <span id="714">714</span>
 <span id="715">715</span>
 <span id="716">716</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
 <span class="macro">const_assert!</span> {
     <span class="ident">::core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">::libc::uintptr_t</span><span class="op">&gt;</span>()
-    <span class="op">=</span><span class="op">=</span>
+    <span class="op">==</span>
     <span class="ident">::core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">::libc::size_t</span><span class="op">&gt;</span>()
 }
 
 <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> { <span class="macro">macro_rules!</span> <span class="ident">impl_CTypes</span> {
-    () <span class="op">=</span><span class="op">&gt;</span> (
+    () =&gt; (
         <span class="macro">impl_CTypes!</span> { @<span class="ident">pointers</span> }
         <span class="macro">impl_CTypes!</span> { @<span class="ident">zsts</span> }
         <span class="macro">impl_CTypes!</span> { @<span class="ident">floats</span>
             <span class="kw">unsafe</span>
-            <span class="ident">f32</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;float&quot;</span>,
+            <span class="ident">f32</span> =&gt; <span class="string">&quot;float&quot;</span>,
 
             <span class="kw">unsafe</span>
-            <span class="ident">f64</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;double&quot;</span>,
+            <span class="ident">f64</span> =&gt; <span class="string">&quot;double&quot;</span>,
         }
         <span class="macro">impl_CTypes!</span> { @<span class="ident">integers</span>
 
             <span class="kw">unsafe</span> <span class="comment">// Safety: trivial integer equivalence.</span>
-            <span class="ident">u8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;uint8&quot;</span>,
+            <span class="ident">u8</span> =&gt; <span class="string">&quot;uint8&quot;</span>,
 
             <span class="kw">unsafe</span> <span class="comment">// Safety: trivial integer equivalence.</span>
-            <span class="ident">u16</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;uint16&quot;</span>,
+            <span class="ident">u16</span> =&gt; <span class="string">&quot;uint16&quot;</span>,
 
             <span class="kw">unsafe</span> <span class="comment">// Safety: trivial integer equivalence.</span>
-            <span class="ident">u32</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;uint32&quot;</span>,
+            <span class="ident">u32</span> =&gt; <span class="string">&quot;uint32&quot;</span>,
 
             <span class="kw">unsafe</span> <span class="comment">// Safety: trivial integer equivalence.</span>
-            <span class="ident">u64</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;uint64&quot;</span>,
+            <span class="ident">u64</span> =&gt; <span class="string">&quot;uint64&quot;</span>,
 
             <span class="comment">// unsafe u128 =&gt; &quot;uint128&quot;,</span>
 
@@ -774,25 +775,25 @@
                    <span class="comment">// platform, a compile-time assertion is added, that</span>
                    <span class="comment">// ensure the crate will not compile on such platforms.</span>
                    <span class="comment">// (search for `size_of` in this file).</span>
-            <span class="ident">usize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;size&quot;</span>,
+            <span class="ident">usize</span> =&gt; <span class="string">&quot;size&quot;</span>,
 
 
             <span class="kw">unsafe</span> <span class="comment">// Safety: trivial integer equivalence.</span>
-            <span class="ident">i8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;int8&quot;</span>,
+            <span class="ident">i8</span> =&gt; <span class="string">&quot;int8&quot;</span>,
 
             <span class="kw">unsafe</span> <span class="comment">// Safety: trivial integer equivalence.</span>
-            <span class="ident">i16</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;int16&quot;</span>,
+            <span class="ident">i16</span> =&gt; <span class="string">&quot;int16&quot;</span>,
 
             <span class="kw">unsafe</span> <span class="comment">// Safety: trivial integer equivalence.</span>
-            <span class="ident">i32</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;int32&quot;</span>,
+            <span class="ident">i32</span> =&gt; <span class="string">&quot;int32&quot;</span>,
 
             <span class="kw">unsafe</span> <span class="comment">// Safety: trivial integer equivalence.</span>
-            <span class="ident">i64</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;int64&quot;</span>,
+            <span class="ident">i64</span> =&gt; <span class="string">&quot;int64&quot;</span>,
 
             <span class="comment">// unsafe i128 =&gt; &quot;int128&quot;,</span>
 
             <span class="kw">unsafe</span> <span class="comment">// Safety: See `usize`&#39;s</span>
-            <span class="ident">isize</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;ssize&quot;</span>,
+            <span class="ident">isize</span> =&gt; <span class="string">&quot;ssize&quot;</span>,
         }
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">docs</span>)]</span> <span class="macro">impl_CTypes!</span> { @<span class="ident">fns</span> (<span class="ident">A1</span>) } <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">docs</span>))]</span>
         <span class="macro">impl_CTypes!</span> { @<span class="ident">fns</span>
@@ -810,7 +811,7 @@
     (
         @<span class="ident">arrays</span>
         $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> ($(
+    ) =&gt; ($(
         <span class="comment">// CType</span>
         <span class="doccomment">/// Simplified for lighter documentation, but the actual impls</span>
         <span class="doccomment">/// range **from `1` up to `32`, plus a bunch of significant</span>
@@ -820,7 +821,7 @@
             <span class="kw">for</span> [<span class="ident">Item</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>]
         { <span class="macro">__cfg_headers__!</span> {
             <span class="kw">fn</span> <span class="ident">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
+              -&gt; <span class="ident">fmt::Result</span>
             {
                 <span class="comment">// item_t_N_array</span>
                 <span class="macro">write!</span>(<span class="ident">fmt</span>,
@@ -830,12 +831,12 @@
             }
 
             <span class="kw">fn</span> <span class="ident">c_define_self</span> (<span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+              -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
             {
-                <span class="kw">let</span> <span class="ident">short_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::c_short_name</span>().<span class="ident">to_string</span>();
+                <span class="kw">let</span> <span class="ident">short_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::c_short_name</span>().<span class="ident">to_string</span>();
                 <span class="ident">definer</span>.<span class="ident">define_once</span>(
                     <span class="ident">short_name</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">|</span><span class="ident">definer</span><span class="op">|</span> {
+                    <span class="kw-2">&amp;mut</span> <span class="op">|</span><span class="ident">definer</span><span class="op">|</span> {
                         <span class="ident">Item::c_define_self</span>(<span class="ident">definer</span>)<span class="question-mark">?</span>;
                         <span class="macro">write!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
                             <span class="string">&quot;typedef struct {{ {}; }} {}_t;\n\n&quot;</span>,
@@ -851,12 +852,12 @@
             <span class="kw">fn</span> <span class="ident">c_var_fmt</span> (
                 <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
                 <span class="ident">var_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
-            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
+            ) -&gt; <span class="ident">fmt::Result</span>
             {
                 <span class="comment">// _e.g._, item_N_array_t</span>
                 <span class="macro">write!</span>(<span class="ident">fmt</span>,
                     <span class="string">&quot;{}_t{sep}{}&quot;</span>,
-                    <span class="self">Self</span><span class="ident">::c_short_name</span>(),
+                    <span class="ident"><span class="self">Self</span>::c_short_name</span>(),
                     <span class="ident">var_name</span>,
                     <span class="ident">sep</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">var_name</span>.<span class="ident">is_empty</span>() { <span class="string">&quot;&quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> },
                 )
@@ -874,8 +875,8 @@
             <span class="kw">type</span> <span class="ident">CLayout</span> <span class="op">=</span> [<span class="ident">Item::CLayout</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>];
 
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="ident">it</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">Self</span><span class="ident">::CLayout</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+            <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="ident">it</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident"><span class="self">Self</span>::CLayout</span>)
+              -&gt; <span class="ident">bool</span>
             {
                 <span class="ident">it</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="ident">Item::is_valid</span>)
             }
@@ -889,7 +890,7 @@
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span>:<span class="ident">ident</span>)<span class="op">*</span> $(,)<span class="question-mark">?</span>
             )<span class="question-mark">?</span>
         )
-    ) <span class="op">=</span><span class="op">&gt;</span> (
+    ) =&gt; (
         <span class="comment">// recurse</span>
         $(
             <span class="macro">impl_CTypes!</span> {
@@ -909,10 +910,10 @@
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span> : <span class="ident">CType</span>, $(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> : <span class="ident">CType</span>,
         )<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span> <span class="ident">CType</span>
-            <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ret</span><span class="op">&gt;</span>
+            <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; <span class="ident">Ret</span><span class="op">&gt;</span>
         { <span class="macro">__cfg_headers__!</span> {
             <span class="kw">fn</span> <span class="ident">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
+              -&gt; <span class="ident">fmt::Result</span>
             {
                 <span class="comment">// ret_t_arg1_t_arg2_t_fptr</span>
                 <span class="ident">Ret::c_short_name_fmt</span>(<span class="ident">fmt</span>)<span class="question-mark">?</span>; $(
@@ -922,7 +923,7 @@
             }
 
             <span class="kw">fn</span> <span class="ident">c_define_self</span> (<span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+              -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
             {
                 <span class="ident">Ret::c_define_self</span>(<span class="ident">definer</span>)<span class="question-mark">?</span>; $(
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">An::c_define_self</span>(<span class="ident">definer</span>)<span class="question-mark">?</span>; $(
@@ -933,7 +934,7 @@
             <span class="kw">fn</span> <span class="ident">c_var_fmt</span> (
                 <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
                 <span class="ident">var_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
-            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
+            ) -&gt; <span class="ident">fmt::Result</span>
             {
                 <span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">Ret::c_var</span>(<span class="string">&quot;&quot;</span>))<span class="question-mark">?</span>;
                 <span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;(*{})(&quot;</span>, <span class="ident">var_name</span>)<span class="question-mark">?</span>;
@@ -957,16 +958,16 @@
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span> : <span class="ident">ReprC</span>, $(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> : <span class="ident">ReprC</span>,
         )<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span> <span class="ident">ReprC</span>
-            <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ret</span><span class="op">&gt;</span>
+            <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; <span class="ident">Ret</span><span class="op">&gt;</span>
         {
             <span class="kw">type</span> <span class="ident">CLayout</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>
                 <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span>
-                <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An::CLayout</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai::CLayout</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ret::CLayout</span>
+                <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An::CLayout</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai::CLayout</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; <span class="ident">Ret::CLayout</span>
             <span class="op">&gt;</span>;
 
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">Self</span><span class="ident">::CLayout</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+            <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident"><span class="self">Self</span>::CLayout</span>)
+              -&gt; <span class="ident">bool</span>
             {
                 <span class="bool-val">true</span>
             }
@@ -981,16 +982,16 @@
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span> : <span class="ident">ReprC</span>, $(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> : <span class="ident">ReprC</span>,
         )<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span> <span class="ident">ReprC</span>
-            <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="comment">/*unsafe*/</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ret</span><span class="op">&gt;</span>
+            <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="comment">/*unsafe*/</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; <span class="ident">Ret</span><span class="op">&gt;</span>
         {
             <span class="kw">type</span> <span class="ident">CLayout</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>
                 <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span>
-                <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An::CLayout</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai::CLayout</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ret::CLayout</span>
+                <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An::CLayout</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai::CLayout</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; <span class="ident">Ret::CLayout</span>
             <span class="op">&gt;</span>;
 
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">Self</span><span class="ident">::CLayout</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+            <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident"><span class="self">Self</span>::CLayout</span>)
+              -&gt; <span class="ident">bool</span>
             {
                 <span class="bool-val">true</span>
             }
@@ -1007,16 +1008,16 @@
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span> : <span class="ident">ReprC</span>, $(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> : <span class="ident">ReprC</span>,
         )<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span> <span class="ident">ReprC</span>
-            <span class="kw">for</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ret</span>
+            <span class="kw">for</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; <span class="ident">Ret</span>
         {
             <span class="kw">type</span> <span class="ident">CLayout</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>
                 <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span>
-                <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An::CLayout</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai::CLayout</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ret::CLayout</span>
+                <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An::CLayout</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai::CLayout</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; <span class="ident">Ret::CLayout</span>
             <span class="op">&gt;</span>;
 
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="ident">c_layout</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">Self</span><span class="ident">::CLayout</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+            <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="ident">c_layout</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident"><span class="self">Self</span>::CLayout</span>)
+              -&gt; <span class="ident">bool</span>
             {
                 <span class="ident">c_layout</span>.<span class="ident">is_some</span>()
             }
@@ -1031,16 +1032,16 @@
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span> : <span class="ident">ReprC</span>, $(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> : <span class="ident">ReprC</span>,
         )<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span> <span class="ident">ReprC</span>
-            <span class="kw">for</span> <span class="comment">/*unsafe*/</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ret</span>
+            <span class="kw">for</span> <span class="comment">/*unsafe*/</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; <span class="ident">Ret</span>
         {
             <span class="kw">type</span> <span class="ident">CLayout</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>
                 <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span>
-                <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An::CLayout</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai::CLayout</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ret::CLayout</span>
+                <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An::CLayout</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai::CLayout</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; <span class="ident">Ret::CLayout</span>
             <span class="op">&gt;</span>;
 
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="ident">c_layout</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">Self</span><span class="ident">::CLayout</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+            <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="ident">c_layout</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident"><span class="self">Self</span>::CLayout</span>)
+              -&gt; <span class="ident">bool</span>
             {
                 <span class="ident">c_layout</span>.<span class="ident">is_some</span>()
             }
@@ -1054,14 +1055,14 @@
             <span class="ident">Ret</span> : <span class="ident">ReprC</span>, $(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span> : <span class="ident">ReprC</span>, $(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> : <span class="ident">ReprC</span>,
-        )<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::layout::__HasNiche__</span>
-            <span class="kw">for</span> <span class="comment">/*unsafe*/</span> <span class="comment">/*extern &quot;C&quot;*/</span> <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ret</span>
+        )<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::layout::__HasNiche__</span>
+            <span class="kw">for</span> <span class="comment">/*unsafe*/</span> <span class="comment">/*extern &quot;C&quot;*/</span> <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; <span class="ident">Ret</span>
         <span class="kw">where</span>
             <span class="self">Self</span> : <span class="ident">ReprC</span>, <span class="comment">// bound not met</span>
         {
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">is_niche</span> (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">Self</span><span class="ident">::CLayout</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+            <span class="kw">fn</span> <span class="ident">is_niche</span> (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident"><span class="self">Self</span>::CLayout</span>)
+              -&gt; <span class="ident">bool</span>
             {
                 <span class="macro">unreachable!</span>()
             }
@@ -1071,14 +1072,14 @@
             <span class="ident">Ret</span> : <span class="ident">ReprC</span>, $(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span> : <span class="ident">ReprC</span>, $(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> : <span class="ident">ReprC</span>,
-        )<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::layout::__HasNiche__</span>
-            <span class="kw">for</span> <span class="kw">unsafe</span> <span class="comment">/*extern &quot;C&quot;*/</span> <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ret</span>
+        )<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::layout::__HasNiche__</span>
+            <span class="kw">for</span> <span class="kw">unsafe</span> <span class="comment">/*extern &quot;C&quot;*/</span> <span class="kw">fn</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">An</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ai</span> ,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; <span class="ident">Ret</span>
         <span class="kw">where</span>
             <span class="self">Self</span> : <span class="ident">ReprC</span>, <span class="comment">// bound not met</span>
         {
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">is_niche</span> (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">Self</span><span class="ident">::CLayout</span>)
-            <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+            <span class="kw">fn</span> <span class="ident">is_niche</span> (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident"><span class="self">Self</span>::CLayout</span>)
+            -&gt; <span class="ident">bool</span>
             {
                 <span class="macro">unreachable!</span>()
             }
@@ -1088,25 +1089,25 @@
     (@<span class="ident">integers</span>
         $(
             <span class="macro-nonterminal">$</span><span class="kw">unsafe</span>:<span class="macro-nonterminal">tt</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">RustInt</span>:<span class="ident">ident</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">CInt</span>:<span class="ident">literal</span>,
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">RustInt</span>:<span class="ident">ident</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">CInt</span>:<span class="ident">literal</span>,
         )<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> ($(
+    ) =&gt; ($(
         <span class="macro-nonterminal">$</span><span class="kw">unsafe</span> <span class="comment">// Safety: guaranteed by the caller of the macro</span>
         <span class="kw">impl</span> <span class="macro-nonterminal">CType</span>
             <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">RustInt</span>
         { <span class="macro">__cfg_headers__!</span> {
             <span class="kw">fn</span> <span class="ident">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
+              -&gt; <span class="ident">fmt::Result</span>
             {
                 <span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">CInt</span>)
             }
 
             <span class="kw">fn</span> <span class="ident">c_define_self</span> (<span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+              -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
             {
                 <span class="ident">definer</span>.<span class="ident">define_once</span>(
                     <span class="string">&quot;__int_headers__&quot;</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">|</span><span class="ident">definer</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
+                    <span class="kw-2">&amp;mut</span> <span class="op">|</span><span class="ident">definer</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
                         <span class="macro">concat!</span>(
                             <span class="string">&quot;\n&quot;</span>,
                             <span class="string">&quot;#include &lt;stddef.h&gt;\n&quot;</span>,
@@ -1120,7 +1121,7 @@
             <span class="kw">fn</span> <span class="ident">c_var_fmt</span> (
                 <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
                 <span class="ident">var_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
-            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
+            ) -&gt; <span class="ident">fmt::Result</span>
             {
                 <span class="macro">write!</span>(<span class="ident">fmt</span>,
                     <span class="macro">concat!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">CInt</span>, <span class="string">&quot;_t{sep}{}&quot;</span>),
@@ -1135,15 +1136,15 @@
     (@<span class="ident">floats</span>
         $(
             <span class="macro-nonterminal">$</span><span class="kw">unsafe</span>:<span class="macro-nonterminal">tt</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fN</span>:<span class="ident">ident</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Cty</span>:<span class="ident">literal</span>,
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fN</span>:<span class="ident">ident</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Cty</span>:<span class="ident">literal</span>,
         )<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> ($(
+    ) =&gt; ($(
         <span class="macro-nonterminal">$</span><span class="kw">unsafe</span> <span class="comment">// Safety: guaranteed by the caller of the macro</span>
         <span class="kw">impl</span> <span class="macro-nonterminal">CType</span>
             <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fN</span>
         { <span class="macro">__cfg_headers__!</span> {
             <span class="kw">fn</span> <span class="ident">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
+              -&gt; <span class="ident">fmt::Result</span>
             {
                 <span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Cty</span>)
             }
@@ -1151,7 +1152,7 @@
             <span class="kw">fn</span> <span class="ident">c_var_fmt</span> (
                 <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
                 <span class="ident">var_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
-            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
+            ) -&gt; <span class="ident">fmt::Result</span>
             {
                 <span class="macro">write!</span>(<span class="ident">fmt</span>,
                     <span class="macro">concat!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Cty</span>, <span class="string">&quot;{sep}{}&quot;</span>),
@@ -1165,19 +1166,19 @@
 
     (
         @<span class="ident">pointers</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> (
+    ) =&gt; (
         <span class="kw">unsafe</span>
         <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="ident">CType</span><span class="op">&gt;</span> <span class="ident">CType</span>
-            <span class="kw">for</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T</span>
+            <span class="kw">for</span> <span class="kw-2">*const</span> <span class="ident">T</span>
         { <span class="macro">__cfg_headers__!</span> {
             <span class="kw">fn</span> <span class="ident">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
+              -&gt; <span class="ident">fmt::Result</span>
             {
                 <span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{}_const_ptr&quot;</span>, <span class="ident">T::c_short_name</span>())
             }
 
             <span class="kw">fn</span> <span class="ident">c_define_self</span> (<span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+              -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
             {
                 <span class="ident">T::c_define_self</span>(<span class="ident">definer</span>)
             }
@@ -1185,7 +1186,7 @@
             <span class="kw">fn</span> <span class="ident">c_var_fmt</span> (
                 <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
                 <span class="ident">var_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
-            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
+            ) -&gt; <span class="ident">fmt::Result</span>
             {
                 <span class="macro">write!</span>(<span class="ident">fmt</span>,
                     <span class="string">&quot;{} const *{sep}{}&quot;</span>,
@@ -1197,13 +1198,13 @@
         } <span class="kw">type</span> <span class="ident">OPAQUE_KIND</span> <span class="op">=</span> <span class="ident">OpaqueKind::Concrete</span>; }
         <span class="kw">unsafe</span>
         <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="ident">ReprC</span><span class="op">&gt;</span> <span class="ident">ReprC</span>
-        <span class="kw">for</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T</span>
+        <span class="kw">for</span> <span class="kw-2">*const</span> <span class="ident">T</span>
         {
-            <span class="kw">type</span> <span class="ident">CLayout</span> <span class="op">=</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T::CLayout</span>;
+            <span class="kw">type</span> <span class="ident">CLayout</span> <span class="op">=</span> <span class="kw-2">*const</span> <span class="ident">T::CLayout</span>;
 
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">Self</span><span class="ident">::CLayout</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+            <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident"><span class="self">Self</span>::CLayout</span>)
+              -&gt; <span class="ident">bool</span>
             {
                 <span class="bool-val">true</span>
             }
@@ -1211,16 +1212,16 @@
 
         <span class="kw">unsafe</span>
         <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="ident">CType</span><span class="op">&gt;</span> <span class="ident">CType</span>
-            <span class="kw">for</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T</span>
+            <span class="kw">for</span> <span class="kw-2">*mut</span> <span class="ident">T</span>
         { <span class="macro">__cfg_headers__!</span> {
             <span class="kw">fn</span> <span class="ident">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
+              -&gt; <span class="ident">fmt::Result</span>
             {
                 <span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{}_ptr&quot;</span>, <span class="ident">T::c_short_name</span>())
             }
 
             <span class="kw">fn</span> <span class="ident">c_define_self</span> (<span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+              -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
             {
                 <span class="ident">T::c_define_self</span>(<span class="ident">definer</span>)
             }
@@ -1228,7 +1229,7 @@
             <span class="kw">fn</span> <span class="ident">c_var_fmt</span> (
                 <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
                 <span class="ident">var_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
-            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
+            ) -&gt; <span class="ident">fmt::Result</span>
             {
                 <span class="macro">write!</span>(<span class="ident">fmt</span>,
                     <span class="string">&quot;{} *{sep}{}&quot;</span>,
@@ -1240,13 +1241,13 @@
         } <span class="kw">type</span> <span class="ident">OPAQUE_KIND</span> <span class="op">=</span> <span class="ident">OpaqueKind::Concrete</span>; }
         <span class="kw">unsafe</span>
         <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="ident">ReprC</span><span class="op">&gt;</span> <span class="ident">ReprC</span>
-            <span class="kw">for</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T</span>
+            <span class="kw">for</span> <span class="kw-2">*mut</span> <span class="ident">T</span>
         {
-            <span class="kw">type</span> <span class="ident">CLayout</span> <span class="op">=</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T::CLayout</span>;
+            <span class="kw">type</span> <span class="ident">CLayout</span> <span class="op">=</span> <span class="kw-2">*mut</span> <span class="ident">T::CLayout</span>;
 
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">Self</span><span class="ident">::CLayout</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+            <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident"><span class="self">Self</span>::CLayout</span>)
+              -&gt; <span class="ident">bool</span>
             {
                 <span class="bool-val">true</span>
             }
@@ -1255,7 +1256,7 @@
 
     (
         @<span class="ident">zsts</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> (
+    ) =&gt; (
         <span class="comment">// needed for compatibility with functions returning `()`</span>
         <span class="comment">// FIXME: Use special impls in `@fns` for `-&gt; ()` instead.</span>
         <span class="kw">unsafe</span>
@@ -1266,7 +1267,7 @@
 
             <span class="attribute">#[<span class="ident">inline</span>]</span>
             <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">CVoid</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+              -&gt; <span class="ident">bool</span>
             {
                 <span class="macro">panic!</span>(<span class="string">&quot;It is a logic error to try and get a ZST from C&quot;</span>);
             }
@@ -1280,7 +1281,7 @@
 
             <span class="attribute">#[<span class="ident">inline</span>]</span>
             <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">CVoid</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+              -&gt; <span class="ident">bool</span>
             {
                 <span class="macro">panic!</span>(<span class="string">&quot;It is a logic error to try and get a ZST from C&quot;</span>);
             }
@@ -1292,10 +1293,10 @@
     <span class="macro-nonterminal">$</span><span class="kw">unsafe</span>:<span class="macro-nonterminal">tt</span> {
         $(
             $(@<span class="kw">for</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">tt</span>)<span class="op">+</span>])<span class="question-mark">?</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ty</span>
-                <span class="op">=</span><span class="op">&gt;</span> <span class="op">|</span><span class="kw-2">ref</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">it</span>:<span class="ident">tt</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Layout</span>:<span class="ident">ty</span><span class="op">|</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>:<span class="ident">expr</span>
+                =&gt; <span class="op">|</span><span class="kw-2">ref</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">it</span>:<span class="ident">tt</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Layout</span>:<span class="ident">ty</span><span class="op">|</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>:<span class="ident">expr</span>
         ),<span class="op">*</span> $(,)<span class="question-mark">?</span>
     }
-) <span class="op">=</span><span class="op">&gt;</span> (
+) =&gt; (
     $(
         <span class="macro-nonterminal">$</span><span class="kw">unsafe</span>
         <span class="kw">impl</span> $(<span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>)<span class="op">+</span><span class="op">&gt;</span>)<span class="question-mark">?</span> <span class="ident">ReprC</span>
@@ -1305,7 +1306,7 @@
 
             <span class="attribute">#[<span class="ident">inline</span>]</span>
             <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="ident">it</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Layout</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+              -&gt; <span class="ident">bool</span>
             {
                 <span class="kw">let</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">it</span> <span class="op">=</span> <span class="ident">it</span>;
                 <span class="kw">if</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span> {
@@ -1316,7 +1317,7 @@
                         <span class="string">&quot;{:#x?} is not a _valid_ bit pattern for the type `{}`&quot;</span>,
                         <span class="kw">unsafe</span> {
                             <span class="ident">::core::slice::from_raw_parts</span>(
-                                <span class="op">&lt;</span><span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span><span class="op">&gt;</span><span class="ident">::cast</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>(<span class="ident">it</span>),
+                                <span class="op">&lt;</span><span class="kw-2">*const</span> <span class="kw">_</span><span class="op">&gt;</span><span class="ident">::cast</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>(<span class="ident">it</span>),
                                 <span class="ident">::core::mem::size_of_val</span>(<span class="ident">it</span>),
                             )
                         },
@@ -1341,17 +1342,17 @@
     {
         <span class="macro">__cfg_headers__!</span> {
             <span class="kw">fn</span> <span class="ident">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
+              -&gt; <span class="ident">fmt::Result</span>
             {
                 <span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="string">&quot;bool&quot;</span>)
             }
 
             <span class="kw">fn</span> <span class="ident">c_define_self</span> (<span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
-              <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+              -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
             {
                 <span class="ident">definer</span>.<span class="ident">define_once</span>(
                     <span class="string">&quot;bool&quot;</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">|</span><span class="ident">definer</span><span class="op">|</span> {
+                    <span class="kw-2">&amp;mut</span> <span class="op">|</span><span class="ident">definer</span><span class="op">|</span> {
                         <span class="ident">definer</span>.<span class="ident">out</span>().<span class="ident">write_all</span>(
                             <span class="string">b&quot;\n#include &lt;stdbool.h&gt;\n\n&quot;</span>
                         )
@@ -1362,7 +1363,7 @@
             <span class="kw">fn</span> <span class="ident">c_var_fmt</span> (
                 <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
                 <span class="ident">var_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
-            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
+            ) -&gt; <span class="ident">fmt::Result</span>
             {
                 <span class="macro">write!</span>(<span class="ident">fmt</span>,
                     <span class="string">&quot;bool{sep}{}&quot;</span>,
@@ -1377,49 +1378,49 @@
 
 <span class="macro">impl_ReprC_for!</span> { <span class="kw">unsafe</span> {
     <span class="ident">bool</span>
-        <span class="op">=</span><span class="op">&gt;</span> <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">byte</span>: <span class="ident">Bool</span><span class="op">|</span> (<span class="ident">byte</span>.<span class="number">0</span> <span class="op">&amp;</span> <span class="op">!</span><span class="number">0b1</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+        =&gt; <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">byte</span>: <span class="ident">Bool</span><span class="op">|</span> (<span class="ident">byte</span>.<span class="number">0</span> <span class="op">&amp;</span> <span class="op">!</span><span class="number">0b1</span>) <span class="op">==</span> <span class="number">0</span>
     ,
 
     @<span class="kw">for</span>[<span class="ident">T</span> : <span class="ident">ReprC</span>]
     <span class="ident">ptr::NonNull</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-        <span class="op">=</span><span class="op">&gt;</span> <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">it</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T::CLayout</span><span class="op">|</span> {
+        =&gt; <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">it</span>: <span class="kw-2">*mut</span> <span class="ident">T::CLayout</span><span class="op">|</span> {
             <span class="ident">it</span>.<span class="ident">is_null</span>().<span class="ident">not</span>() <span class="op">&amp;&amp;</span>
-            (<span class="kw-2">*</span><span class="ident">it</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">::core::mem::align_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+            (<span class="kw-2">*</span><span class="ident">it</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">::core::mem::align_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">0</span>
         }
     ,
     @<span class="kw">for</span>[<span class="ident">T</span> : <span class="ident">ReprC</span>]
     <span class="ident">ptr::NonNullRef</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-        <span class="op">=</span><span class="op">&gt;</span> <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">it</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T::CLayout</span><span class="op">|</span> {
+        =&gt; <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">it</span>: <span class="kw-2">*const</span> <span class="ident">T::CLayout</span><span class="op">|</span> {
             <span class="ident">it</span>.<span class="ident">is_null</span>().<span class="ident">not</span>() <span class="op">&amp;&amp;</span>
-            (<span class="kw-2">*</span><span class="ident">it</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">::core::mem::align_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+            (<span class="kw-2">*</span><span class="ident">it</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">::core::mem::align_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">0</span>
         }
     ,
     @<span class="kw">for</span>[<span class="ident">T</span> : <span class="ident">ReprC</span>]
     <span class="ident">ptr::NonNullMut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-        <span class="op">=</span><span class="op">&gt;</span> <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">it</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T::CLayout</span><span class="op">|</span> {
+        =&gt; <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">it</span>: <span class="kw-2">*mut</span> <span class="ident">T::CLayout</span><span class="op">|</span> {
             <span class="ident">it</span>.<span class="ident">is_null</span>().<span class="ident">not</span>() <span class="op">&amp;&amp;</span>
-            (<span class="kw-2">*</span><span class="ident">it</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">::core::mem::align_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+            (<span class="kw-2">*</span><span class="ident">it</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">::core::mem::align_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">0</span>
         }
     ,
     @<span class="kw">for</span>[<span class="ident">T</span> : <span class="ident">ReprC</span>]
     <span class="ident">ptr::NonNullOwned</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-        <span class="op">=</span><span class="op">&gt;</span> <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">it</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T::CLayout</span><span class="op">|</span> {
+        =&gt; <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">it</span>: <span class="kw-2">*mut</span> <span class="ident">T::CLayout</span><span class="op">|</span> {
             <span class="ident">it</span>.<span class="ident">is_null</span>().<span class="ident">not</span>() <span class="op">&amp;&amp;</span>
-            (<span class="kw-2">*</span><span class="ident">it</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">::core::mem::align_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+            (<span class="kw-2">*</span><span class="ident">it</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">::core::mem::align_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">0</span>
         }
     ,
     @<span class="kw">for</span>[<span class="lifetime">&#39;a</span>, <span class="ident">T</span> : <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">ReprC</span>]
     <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>
-        <span class="op">=</span><span class="op">&gt;</span> <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">it</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T::CLayout</span><span class="op">|</span> {
+        =&gt; <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">it</span>: <span class="kw-2">*const</span> <span class="ident">T::CLayout</span><span class="op">|</span> {
             <span class="ident">it</span>.<span class="ident">is_null</span>().<span class="ident">not</span>() <span class="op">&amp;&amp;</span>
-            (<span class="kw-2">*</span><span class="ident">it</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">::core::mem::align_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+            (<span class="kw-2">*</span><span class="ident">it</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">::core::mem::align_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">0</span>
         }
     ,
     @<span class="kw">for</span>[<span class="lifetime">&#39;a</span>, <span class="ident">T</span> : <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">ReprC</span>]
     <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span>
-        <span class="op">=</span><span class="op">&gt;</span> <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">it</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T::CLayout</span><span class="op">|</span> {
+        =&gt; <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">it</span>: <span class="kw-2">*mut</span> <span class="ident">T::CLayout</span><span class="op">|</span> {
             <span class="ident">it</span>.<span class="ident">is_null</span>().<span class="ident">not</span>() <span class="op">&amp;&amp;</span>
-            (<span class="kw-2">*</span><span class="ident">it</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">::core::mem::align_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+            (<span class="kw-2">*</span><span class="ident">it</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">::core::mem::align_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">0</span>
         }
     ,
 }}
@@ -1430,10 +1431,10 @@
 <span class="macro">impl_ReprC_for!</span> { <span class="kw">unsafe</span> {
     @<span class="kw">for</span>[<span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span> <span class="op">+</span> <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">ReprC</span>]
     <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>
-        <span class="op">=</span><span class="op">&gt;</span> <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">it</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T::CLayout</span><span class="op">|</span> {
-            (<span class="kw-2">*</span><span class="ident">it</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">::core::mem::align_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+        =&gt; <span class="op">|</span><span class="kw-2">ref</span> <span class="ident">it</span>: <span class="kw-2">*mut</span> <span class="ident">T::CLayout</span><span class="op">|</span> {
+            (<span class="kw-2">*</span><span class="ident">it</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">::core::mem::align_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">0</span>
         },
 }}
-</pre></div>
-</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>
+</code></pre></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (f0c4da499 2022-03-01)" ></div>
+</body></html>
