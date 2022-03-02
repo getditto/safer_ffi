@@ -1,5 +1,5 @@
 #![cfg_attr(feature = "nightly",
-    feature(doc_cfg, external_doc, trivial_bounds)
+    feature(doc_cfg, trivial_bounds)
 )]
 #![cfg_attr(not(feature = "std"),
     no_std,
@@ -18,7 +18,7 @@
 )]
 
 #![cfg_attr(feature = "nightly",
-    doc(include = "../README.md")
+    cfg_attr(all(), doc = include_str!("../README.md")),
 )]
 #![cfg_attr(not(feature = "nightly"),
     doc = "See the [user guide](https://getditto.github.io/safer_ffi)."
