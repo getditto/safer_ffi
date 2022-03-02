@@ -7,7 +7,7 @@ name = "safer_ffi-proc_macros"
 # Keep in sync with `/Cargo.toml`
 version = "0.0.7"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 description = "Procedural macro internals of `::safer_ffi`"
 license = "MIT"
@@ -15,7 +15,6 @@ license = "MIT"
 [dependencies]
 proc-macro2 = { version = "1.0", optional = true }
 quote = { version = "1.0", optional = true }
-proc-macro-hack = { version = "0.5.15", optional = true }
 
 [dependencies.syn]
 version = "1.0"
@@ -30,5 +29,5 @@ optional = true
 async-fn = ["proc_macros"]
 headers = []
 node-js = ["async-fn", "proc_macros"]
-proc_macros = [ "proc-macro2", "proc-macro-hack", "quote", "syn" ]
+proc_macros = [ "proc-macro2", "quote", "syn" ]
 verbose-expansions = []

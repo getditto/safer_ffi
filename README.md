@@ -19,15 +19,15 @@ https://github.com/getditto/safer_ffi)
 
 # What is `safer_ffi`?
 
-`safer_ffi` is a framework that helps you write foreign function interfaces (FFI) without polluting your Rust code with `unsafe { ... }` code blocks while making functions far easier to read and maintain.
+`safer_ffi` is a framework that helps you write foreign function interfaces (FFI) without polluting your Rust code with `unsafe { … }` code blocks, while making functions far easier to read and maintain.
 
-# [📚 Read The User Guide 📚][user guide]
+  - <big>**📚 [Read The User Guide][user guide]📚**</big>
 
 [user guide]: https://getditto.github.io/safer_ffi
 
 ## Prerequisites
 
-Minimum Supported Rust Version: `1.52.0`
+Minimum Supported Rust Version: `1.57.0`
 
 ## Quickstart
 
@@ -39,20 +39,27 @@ Edit your `Cargo.toml` like so:
 [package]
 name = "crate_name"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 
 [lib]
-crate-type = ["staticlib"]
+crate-type = [ "staticlib" ]
 
 [dependencies]
-safer-ffi = { version = "*", features = ["proc_macros"] }
+safer-ffi.version = "x.y.z"
+## safer-ffi.features = […]
 
 [features]
 c-headers = ["safer-ffi/headers"]
 ```
 
-  - Where `"*"` ought to be replaced by the last released version, which you
+  - Where `"x.y.z"` stands for latest released version, which you
     can find by running `cargo search safer-ffi`.
+
+      - Or, directly:
+
+        ```bash
+        cargo add safer-ffi # --features "…"
+        ```
 
 ### `src/lib.rs`
 

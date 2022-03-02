@@ -360,7 +360,7 @@ macro_rules! CType {(
                     me = me, $(
                     $field_name = {
                         if $crate::core::mem::size_of::<$field_ty>() > 0 {
-                            format!(
+                            $crate::std::format!(
                                 "    public {};\n",
                                 <$field_ty as $crate::layout::CType>::csharp_var(
                                     $crate::core::stringify!($field_name),

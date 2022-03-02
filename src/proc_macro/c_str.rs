@@ -1,4 +1,4 @@
-#[::proc_macro_hack::proc_macro_hack] pub
+#[proc_macro] pub
 fn c_str (input: TokenStream)
   -> TokenStream
 {

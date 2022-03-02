@@ -363,7 +363,7 @@ impl Builder<'_, WhereTo> {
         let config = self;
         let guard: &'_ str =
             if let Some(it) = config.guard { it } else {
-                s = format!("__RUST_{}__",
+                s = ::std::format!("__RUST_{}__",
                     env::var("CARGO_PKG_NAME")
                         .unwrap()
                         .replace("-", "_")
@@ -531,7 +531,7 @@ hidden_export! {
                     "\n        {marshaler}{}", Arg::CLayout::csharp_var(arg_name),
                     marshaler =
                         Arg::CLayout::csharp_marshaler()
-                            .map(|m| format!("[MarshalAs({})]\n        ", m))
+                            .map(|m| ::std::format!("[MarshalAs({})]\n        ", m))
                             .as_deref()
                             .unwrap_or("")
                     ,
@@ -571,7 +571,7 @@ hidden_export! {
                         Ret::CLayout::csharp_var(&fname_and_args),
                         mb_marshaler =
                             Ret::CLayout::csharp_marshaler()
-                                .map(|m| format!("[return: MarshalAs({})]\n    ", m))
+                                .map(|m| ::std::format!("[return: MarshalAs({})]\n    ", m))
                                 .as_deref()
                                 .unwrap_or("")
                         ,

@@ -25,9 +25,9 @@ fn with_js_string_as_utf8 (
                 | Some(n) if n == bytes.len() - 1 => {},
                 | Some(inner_nul_idx) => return Err(Error::new(
                     Status::InvalidArg,
-                    format!(
+                    ::alloc::format!(
                         "String `{:?}` contains an inner nul byte at byte-index {}",
-                        String::from_utf8_lossy(&bytes),
+                        ::alloc::string::String::from_utf8_lossy(&bytes),
                         inner_nul_idx,
                     ),
                 ).into()),

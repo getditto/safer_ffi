@@ -1,4 +1,5 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
+#![warn(unsafe_op_in_unsafe_fn)]
 //! Trait abstractions describing the semantics of "being `#[repr(C)]`"
 
 use_prelude!();
@@ -391,7 +392,7 @@ unsafe trait CType
             fn csharp_var (var_name: &'_ str)
               -> rust::String
             {
-                format!(
+                ::std::format!(
                     "{}{sep}{}",
                     Self::csharp_ty(), var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
@@ -739,7 +740,7 @@ unsafe
 fn from_raw_unchecked<T : ReprC> (c_layout: T::CLayout)
   -> T
 {
-    if let Some(it) = from_raw::<T>(c_layout) { it } else {
+    if let Some(it) = unsafe { from_raw::<T>(c_layout) } { it } else {
         if cfg!(debug_assertions) || cfg!(test) {
             panic!(
                 "Error: not a valid bit-pattern for the type `{}`",
@@ -747,17 +748,13 @@ fn from_raw_unchecked<T : ReprC> (c_layout: T::CLayout)
                 ::core::any::type_name::<T>(),
             );
         } else {
-            ::core::hint::unreachable_unchecked()
+            unsafe {
+                ::core::hint::unreachable_unchecked()
+            }
         }
     }
 }
 
-#[cfg_attr(all(feature = "proc_macros", not(docs)),
-    require_unsafe_in_body,
-)]
-#[cfg_attr(not(feature = "proc_macros"),
-    allow(unused_unsafe),
-)]
 #[inline]
 pub
 unsafe
@@ -777,12 +774,6 @@ fn from_raw<T : ReprC> (c_layout: T::CLayout)
     }
 }
 
-#[cfg_attr(all(feature = "proc_macros", not(docs)),
-    require_unsafe_in_body,
-)]
-#[cfg_attr(not(feature = "proc_macros"),
-    allow(unused_unsafe),
-)]
 #[inline]
 pub
 unsafe // May not be sound when input has uninit bytes that the output does not

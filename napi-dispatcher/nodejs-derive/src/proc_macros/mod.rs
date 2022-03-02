@@ -94,6 +94,7 @@ fn js_export (
     let stmts = &fun.block.stmts;
     let ret = quote!(
         const _: () = {
+            use ::std::{format, prelude::v1::*};
             #napi_import
 
             #[::safer_ffi::node_js::derive::js_function(#inputs_count)]

@@ -164,7 +164,7 @@ const _: () = { macro_rules! impl_CTypes {
                                     "float", "double",
                                 ].contains(&::core::any::type_name::<Item>())
                             {
-                                format!(
+                                ::std::format!(
                                     "    public fixed {ItemTy} arr[{N}];\n",
                                     ItemTy = Item::csharp_ty(),
                                     N = $N,
@@ -174,7 +174,7 @@ const _: () = { macro_rules! impl_CTypes {
                                 // Sadly for the general case fixed arrays are
                                 // not supported.
                                 (0 .. $N)
-                                    .map(|i| format!(
+                                    .map(|i| ::std::format!(
                                         "    \
                                         {marshaler}\
                                         public {ItemTy} _{i};\n",
@@ -182,7 +182,7 @@ const _: () = { macro_rules! impl_CTypes {
                                         i = i,
                                         marshaler =
                                             Item::csharp_marshaler()
-                                                .map(|m| format!("[MarshalAs({})]\n    ", m))
+                                                .map(|m| ::std::format!("[MarshalAs({})]\n    ", m))
                                                 .as_deref()
                                                 .unwrap_or("")
                                         ,
@@ -299,7 +299,7 @@ const _: () = { macro_rules! impl_CTypes {
                     $Ai::csharp_define_self(definer)?; )*)?
                     let ref me = Self::csharp_ty();
                     let ref mut _arg = {
-                        let mut iter = (0 ..).map(|c| format!("_{}", c));
+                        let mut iter = (0 ..).map(|c| ::std::format!("_{}", c));
                         move || iter.next().unwrap()
                     };
                     definer.define_once(me, &mut |definer| writeln!(definer.out(),
@@ -321,19 +321,19 @@ const _: () = { macro_rules! impl_CTypes {
                             ");\n"
                         ),$(
                         $An::csharp_marshaler()
-                            .map(|m| format!("[MarshalAs({})]\n        ", m))
+                            .map(|m| ::std::format!("[MarshalAs({})]\n        ", m))
                             .as_deref()
                             .unwrap_or("")
                         , $(
                         $Ai::csharp_marshaler()
-                            .map(|m| format!("[MarshalAs({})]\n        ", m))
+                            .map(|m| ::std::format!("[MarshalAs({})]\n        ", m))
                             .as_deref()
                             .unwrap_or("")
                         , )*)?
                         me = me,
                         ret_marshaler =
                             Ret::csharp_marshaler()
-                                .map(|m| format!("[return: MarshalAs({})]\n", m))
+                                .map(|m| ::std::format!("[return: MarshalAs({})]\n", m))
                                 .as_deref()
                                 .unwrap_or("")
                         ,
@@ -641,7 +641,7 @@ const _: () = { macro_rules! impl_CTypes {
                 fn csharp_ty ()
                   -> rust::String
                 {
-                    format!("{} /*const*/ *", T::csharp_ty())
+                    ::std::format!("{} /*const*/ *", T::csharp_ty())
                 }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
@@ -699,7 +699,7 @@ const _: () = { macro_rules! impl_CTypes {
                 fn csharp_ty ()
                   -> rust::String
                 {
-                    format!("{} *", T::csharp_ty())
+                    ::std::format!("{} *", T::csharp_ty())
                 }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }

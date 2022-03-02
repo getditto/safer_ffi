@@ -56,7 +56,7 @@ fn napi_register_module_v1 (
                 raw_env,
                 crate::NULL!(),
                 (
-                    ::std::ffi::CString::new(format!("Error initializing module: {}", err))
+                    ::std::ffi::CString::new(::std::format!("Error initializing module: {}", err))
                         .unwrap(),
                 ).0.as_ptr(),
             );

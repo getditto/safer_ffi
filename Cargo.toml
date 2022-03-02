@@ -6,7 +6,7 @@ name = "safer-ffi"
 # Keep in sync with `[dependencies.proc_macro]` and `src/proc_macro/Cargo.toml`
 version = "0.0.7"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 description = "Write safer FFI code in Rust without polluting it with unsafe code"
 keywords = ["ffi", "no_std", "framework", "safety", "bindings"]
@@ -34,8 +34,6 @@ async-fn = [
 derives = ["proc_macros"] # alias
 proc_macros = [
     "safer_ffi-proc_macros/proc_macros",
-    "require_unsafe_in_body",
-    "proc-macro-hack",
 ]
 debug_proc_macros = [
     "proc_macros",
@@ -49,8 +47,13 @@ headers = [
     "safer_ffi-proc_macros/headers",
     "std",
 ]
-csharp-headers = ["headers"]
 
+## EXPERIMENTAL FEATURES: may break semver, may be buggy ##
+experimental = [
+    "csharp-headers",
+    "node-js",
+]
+csharp-headers = ["headers"]
 node-js = [
     "async-fn",
     "headers",
@@ -69,13 +72,16 @@ macro_rules_attribute = "0.0.1"
 libc = { version = "0.2.66", default-features = false }
 
 [dependencies]
-paste = { package = "mini_paste", version = "0.1.*" }
-log = { version = "0.4.8", optional = true }
-require_unsafe_in_body = { version = "0.2.1", optional = true }
-inventory = { version = "0.1.6", optional = true }
-proc-macro-hack = { version = "0.5.15", optional = true }
-unwind_safe = "0.0.1"
-scopeguard = "1.1.0"
+inventory.version = "0.1.6"
+log.version = "0.4.8"
+paste.version = "0.1.0"
+scopeguard.version = "1.1.0"
+unwind_safe.version = "0.1.0"
+
+inventory.optional = true
+log.optional = true
+
+paste.package = "mini_paste"
 
 [dependencies.napi]
 package = "napi-dispatcher"
@@ -113,5 +119,10 @@ members = [
 ]
 
 [package.metadata.docs.rs]
-all-features = true
+features = [
+    "csharp-headers",
+    "headers",
+    "out-refs",
+    "proc_macros",
+]
 rustdoc-args = ["--cfg", "docs"]

@@ -2,6 +2,7 @@
 //! `char *`-compatible strings (slim pointers), for easier use from within C.
 //
 //! They thus do not support inner nulls, nor string appending.
+#![warn(unsafe_op_in_unsafe_fn)]
 
 use_prelude!();
 use ::core::slice;
@@ -275,12 +276,6 @@ ReprC! {
     );
 }
 
-#[cfg_attr(feature = "proc_macros",
-    require_unsafe_in_bodies,
-)]
-#[cfg_attr(not(feature = "proc_macros"),
-    allow(unused_unsafe),
-)]
 impl char_p_raw {
     /// # Safety
     ///

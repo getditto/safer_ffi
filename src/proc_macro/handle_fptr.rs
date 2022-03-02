@@ -280,7 +280,7 @@ fn try_handle_fptr (input: &'_ DeriveInput)
         let (intro, fwd, where_) = input_Layout.generics.split_for_impl();
         ret.extend(quote!(
             unsafe
-            impl#intro
+            impl #intro
                 #ReprC
             for
                 #StructName #fwd
@@ -298,7 +298,7 @@ fn try_handle_fptr (input: &'_ DeriveInput)
             #[allow(nonstandard_style)]
             #input_Layout
 
-            impl#intro
+            impl #intro
                 #core::clone::Clone
             for
                 #StructName_Layout #fwd
@@ -307,7 +307,7 @@ fn try_handle_fptr (input: &'_ DeriveInput)
                 fn clone (self: &'_ Self)
                   -> Self
                 {
-                    impl#intro
+                    impl #intro
                         #core::marker::Copy
                     for
                         #StructName_Layout #fwd
@@ -318,7 +318,7 @@ fn try_handle_fptr (input: &'_ DeriveInput)
             }
 
             unsafe
-            impl#intro
+            impl #intro
                 #CType
             for
                 #StructName_Layout #fwd
@@ -428,7 +428,7 @@ fn try_handle_fptr (input: &'_ DeriveInput)
             } type OPAQUE_KIND = #Concrete; }
 
             unsafe
-            impl#intro
+            impl #intro
                 #__HasNiche__
             for
                 #StructName #fwd

@@ -2,11 +2,9 @@
 #![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt::skip)]
 #![cfg_attr(feature = "nightly",
-    feature(doc_cfg, trivial_bounds)
+    feature(doc_cfg)
 )]
-#![cfg_attr(not(feature = "std"),
-    no_std,
-)]
+#![no_std]
 
 #![allow(nonstandard_style, trivial_bounds, unused_parens)]
 #![warn(
@@ -20,12 +18,7 @@
     unused_must_use,
 )]
 
-#![cfg_attr(feature = "nightly",
-    cfg_attr(all(), doc = include_str!("../README.md")),
-)]
-#![cfg_attr(not(feature = "nightly"),
-    doc = "See the [user guide](https://getditto.github.io/safer_ffi)."
-)]
+#![doc = include_str!("../README.md")]
 #![cfg(not(rustfmt))]
 
 #[macro_use]
@@ -34,17 +27,12 @@
 mod __utils__;
 use __utils__ as utils;
 
-#[cfg(feature = "proc_macros")]
-#[macro_use]
-extern crate require_unsafe_in_body;
-
 hidden_export! {
     use ::paste;
 }
 
 pub use ::safer_ffi_proc_macros::{ffi_export, cfg_headers};
 cfg_proc_macros! {
-    #[::proc_macro_hack::proc_macro_hack]
     /// Creates a compile-time checked [`char_p::Ref`]`<'static>` out of a
     /// string literal.
     ///
@@ -117,6 +105,10 @@ __cfg_headers__! {
 cfg_alloc! {
     extern crate alloc;
 }
+cfg_std! {
+    #[doc(hidden)] /** Not part of the public API */ pub
+    extern crate std;
+}
 
 cfg_alloc! {
     pub
@@ -184,12 +176,6 @@ hidden_export! {
 
 hidden_export! {
     use ::scopeguard;
-}
-
-cfg_std! {
-    hidden_export! {
-        use ::std;
-    }
 }
 
 #[doc(hidden)] /** Not part of the public API **/ pub
@@ -263,7 +249,7 @@ mod prelude {
         #[doc(no_inline)]
         pub use crate::layout::derive_ReprC;
         #[doc(no_inline)]
-        pub use c;
+        pub use crate::c;
     }
     #[doc(no_inline)]
     pub use ::core::{

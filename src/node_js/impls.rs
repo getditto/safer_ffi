@@ -38,7 +38,7 @@ match_! {(
                     if n_mb_smaller as $x32 != n {
                         Err(Error::new(
                             Status::InvalidArg,
-                            format!(
+                            $crate::std::format!(
                                 "Numeric overflow: \
                                 parameter `{:?}` does not fit into a `{}`",
                                 n,
@@ -56,7 +56,7 @@ match_! {(
                 ) -> Result<JsNumber>
                 {
                     let n: $x32 = self.try_into().map_err(|_| {
-                        Error::from_reason(format!(
+                        Error::from_reason($crate::std::format!(
                             "Numeric overflow: \
                             value `{:?}` cannot be losslessly converted into Js",
                             self,
@@ -96,7 +96,7 @@ match_! {(
                             } else {
                                 Err(Error::new(
                                     Status::InvalidArg,
-                                    format!(
+                                    ::std::format!(
                                         "Numeric overflow: \
                                         parameter does not fit into a `{}`",
                                         ::core::any::type_name::<$x64>(),
@@ -109,7 +109,7 @@ match_! {(
                             let i: i64 = num.try_into()?;
                             i.try_into().map_err(|_| Error::new(
                                 Status::InvalidArg,
-                                format!(
+                                ::std::format!(
                                     "Numeric overflow: \
                                     parameter {} does not fit into a `{}`",
                                     i,
@@ -120,7 +120,7 @@ match_! {(
                         | _ => {
                             Err(Error::new(
                                 Status::InvalidArg,
-                                format!("`BigInt` or `number` expected"),
+                                ::std::format!("`BigInt` or `number` expected"),
                             ).into())
                         },
                     }
@@ -150,7 +150,7 @@ match_! {(
                                 } else {
                                     i128 as _
                                 };
-                                vec![
+                                ::alloc::vec![
                                     u128 as u64,
                                     (u128 >> 64) as u64,
                                 ]
@@ -184,7 +184,7 @@ match_! {(
                         .map_err(|_| {
                             Error::new(
                                 Status::InvalidArg,
-                                format!(
+                                ::std::format!(
                                     "Numeric overflow: \
                                     parameter does not fit into a `{}`",
                                     ::core::any::type_name::<$xsize>(),
@@ -219,7 +219,7 @@ match_! {( const, mut ) {
                 {
                     let addr = (self as usize).to_napi_value(env)?;
                     let ty: JsString =
-                        env.create_string_from_std(format!(
+                        env.create_string_from_std(::std::format!(
                             "{pointee} {mut}*",
                             mut = if stringify!($mut) == "const" { "const " } else { "" },
                             pointee = <T as crate::layout::CType>::c_var(""),
@@ -281,7 +281,7 @@ match_! {( const, mut ) {
                             let buf = if let Ok(it) = ::core::str::from_utf8(buf) { it } else {
                                 return Err(Error::new(
                                     Status::InvalidArg,
-                                    format!(
+                                    ::std::format!(
                                         "Expected valid UTF-8 bytes {:#x?} for a string",
                                         buf,
                                     ),
@@ -290,7 +290,7 @@ match_! {( const, mut ) {
                             if buf.bytes().position(|b| b == b'\0') != Some(buf.len() - 1) {
                                 return Err(Error::new(
                                     Status::InvalidArg,
-                                    format!(
+                                    ::std::format!(
                                         "Invalid null terminator for {:?}",
                                         buf,
                                     ),
@@ -306,7 +306,7 @@ match_! {( const, mut ) {
                     };
                     let addr = obj.get_named_property("addr")?;
                     let ty: JsString = obj.get_named_property("type")?;
-                    let expected_ty: &str = &format!(
+                    let expected_ty: &str = &::std::format!(
                         "{pointee} {mut}*",
                         mut = if stringify!($mut) == "const" { "const " } else { "" },
                         pointee = <T as crate::layout::CType>::c_var(""),
@@ -321,7 +321,7 @@ match_! {( const, mut ) {
                     if actual_ty != expected_ty {
                         return Err(Error::new(
                             Status::InvalidArg,
-                            format!(
+                            ::std::format!(
                                 "Got `{}`, expected a `{}`",
                                 actual_ty, expected_ty,
                             ),
@@ -390,7 +390,7 @@ impl<const N: usize> ReprNapi for [u8;N] {
         if let Ok(output) = Self::try_from(&val[..]) {
             Ok(output)
         } else {
-            return Err(Error::new(Status::InvalidArg, format!("Length mismatch. Expected {}, Got {}", N, val.len())).into())
+            return Err(Error::new(Status::InvalidArg, ::std::format!("Length mismatch. Expected {}, Got {}", N, val.len())).into())
         }
     }
 }

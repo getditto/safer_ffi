@@ -24,7 +24,7 @@ default: test
 all: test clean
 
 test: $(HEADERS) build tests/main.rs tests/c/main.c tests/csharp/Tests.cs
-	cargo test $(CARGO_RELEASE)
+	cargo test $(CARGO_RELEASE) -- --test-threads=1
 
 build: $(RUST_SOURCES)
 	cargo build $(CARGO_RELEASE)

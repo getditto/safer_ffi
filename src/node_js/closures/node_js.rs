@@ -553,12 +553,12 @@ macro_rules! impls {(
         ) -> CRet
         {
             ::scopeguard::defer_on_unwind! {
-                eprintln!("\
+                $crate::std::eprintln!("\
                     Attempted to panic through an `extern \"C\"` boundary, \
                     which is undefined behavior. \
                     Aborting for soundness.\
                 ");
-                ::std::process::abort();
+                $crate::std::process::abort();
             }
 
             let &Self {
@@ -585,8 +585,8 @@ macro_rules! impls {(
                         // Note: this whole block is a bunch of no-ops in practice.
                         let unit = ();
                         let c_unit = crate::layout::into_raw(unit);
-                        let boxed_any: Box::<dyn ::core::any::Any> = {
-                            Box::new(c_unit)
+                        let boxed_any: $crate::std::boxed::Box::<dyn ::core::any::Any> = {
+                            $crate::std::boxed::Box::new(c_unit)
                         };
                         boxed_any
                             .downcast::<CRet>()
@@ -720,7 +720,7 @@ macro_rules! impls {(
                         let ty = js_unknown.get_type();
                         js_unknown
                             .try_into()
-                            .map_err(|_| Error::from_reason(format!(
+                            .map_err(|_| Error::from_reason(::alloc::format!(
                                 "\
                                     Expected the js callback to return a {}, \
                                     got `{:?}` instead.\
@@ -752,7 +752,7 @@ macro_rules! impls {(
                 Option<::std::sync::mpsc::SyncSender< Result<CRet> >>,
                 ( $( $_0, $( $_k, )* )? ),
             )>,
-        ) -> Result<Vec<JsUnknown>> // Node.js args
+        ) -> Result<$crate::std::vec::Vec<JsUnknown>> // Node.js args
         where
             CRet : Send,
         {
@@ -784,7 +784,7 @@ macro_rules! impls {(
 
         $(  let $_0 = ReprNapi::to_napi_value($_0, &env)?; $(
             let $_k = ReprNapi::to_napi_value($_k, &env)?; )*)?
-            let args = vec![
+            let args = $crate::std::vec![
                 js_sender.into_unknown(),
             $(
                 $_0.into_unknown(), $(
