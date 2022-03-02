@@ -288,6 +288,8 @@
 <span id="283">283</span>
 <span id="284">284</span>
 <span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>,
     <span class="ident">feature</span>(<span class="ident">doc_cfg</span>, <span class="ident">trivial_bounds</span>)
 )]</span>
@@ -388,8 +390,10 @@
 <span class="kw">pub</span>
 <span class="kw">mod</span> <span class="ident">closure</span>;
 
-<span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;ffi_export.rs&quot;</span>]</span>
-<span class="kw">mod</span> <span class="ident">__ffi_export</span>;
+<span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+    <span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;ffi_export.rs&quot;</span>]</span>
+    <span class="kw">mod</span> <span class="ident">ffi_export</span>;
+};
 
 <span class="kw">pub</span>
 <span class="kw">mod</span> <span class="ident">ptr</span>;
