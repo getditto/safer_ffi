@@ -374,6 +374,7 @@
 <span id="369">369</span>
 <span id="370">370</span>
 <span id="371">371</span>
+<span id="372">372</span>
 </pre><pre class="rust"><code><span class="doccomment">//! C headers generation.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This module is only enabled when the `&quot;headers&quot;` feature of `::safer_ffi` is</span>
@@ -645,7 +646,7 @@
     <span class="doccomment">/// It defaults to:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust,ignore</span>
-    <span class="doccomment">/// format!(&quot;__RUST_{}__&quot;, env::var(&quot;CARGO_PKG_NAME&quot;)?.to_ascii_uppercase())</span>
+    <span class="doccomment">/// format!(&quot;__RUST_{}__&quot;, env::var(&quot;CARGO_PKG_NAME&quot;)?.replace(&quot;-&quot;, &quot;_&quot;).to_ascii_uppercase())</span>
     <span class="doccomment">/// ```</span>
     <span class="ident">guard</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;__</span> <span class="ident">str</span>,
 
@@ -694,6 +695,7 @@
                 <span class="ident">s</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;__RUST_{}__&quot;</span>,
                     <span class="ident">env::var</span>(<span class="string">&quot;CARGO_PKG_NAME&quot;</span>)
                         .<span class="ident">unwrap</span>()
+                        .<span class="ident">replace</span>(<span class="string">&quot;-&quot;</span>, <span class="string">&quot;_&quot;</span>)
                         .<span class="ident">to_ascii_uppercase</span>()
                 );
                 <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">s</span>
