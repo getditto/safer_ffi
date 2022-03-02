@@ -63,7 +63,7 @@ fn concat (s1: char_p::Ref<'_>, s2: char_p::Ref<'_>)
 }
 
 #[ffi_export(node_js)]
-fn concat_bytes (
+fn concat_byte_slices (
     xs1: Option<c_slice::Ref<'_, u8>>,
     xs2: Option<c_slice::Ref<'_, u8>>,
 ) -> Option<c_slice::Box<u8>>
