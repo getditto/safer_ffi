@@ -269,7 +269,7 @@ with_optional_fields! {
     /// It defaults to:
     ///
     /// ```rust,ignore
-    /// format!("__RUST_{}__", env::var("CARGO_PKG_NAME")?.to_ascii_uppercase())
+    /// format!("__RUST_{}__", env::var("CARGO_PKG_NAME")?.replace("-", "_").to_ascii_uppercase())
     /// ```
     guard: &'__ str,
 
@@ -318,6 +318,7 @@ impl Builder<'_, WhereTo> {
                 s = format!("__RUST_{}__",
                     env::var("CARGO_PKG_NAME")
                         .unwrap()
+                        .replace("-", "_")
                         .to_ascii_uppercase()
                 );
                 &*s
