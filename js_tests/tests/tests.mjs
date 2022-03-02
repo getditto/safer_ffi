@@ -122,7 +122,7 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
     );
 
     assert.deepEqual(
-        Uint8Array.from(ffi.boxCBytesIntoBuffer(ffi.concat_bytes(
+        Uint8Array.from(ffi.boxCBytesIntoBuffer(ffi.concat_byte_slices(
             Uint8Array.from('Hello, ', c => c.charCodeAt(0)),
             Uint8Array.from('World!', c => c.charCodeAt(0)),
         ))),
