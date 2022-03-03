@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(unused_imports)]
 
 pub(in crate) use crate::{
@@ -29,7 +30,7 @@ pub(in crate) use ::core::{
 pub(in crate) use ::libc::size_t;
 
 #[cfg(target_arch = "wasm32")]
-#[allow(bad_style)]
+#[allow(bad_style, dead_code)]
 pub(in crate) type size_t = u32;
 
 cfg_alloc! {

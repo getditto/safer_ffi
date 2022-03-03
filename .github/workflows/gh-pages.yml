@@ -22,9 +22,9 @@ jobs:
           - macos-latest
           - windows-latest
         rust:
-          - 1.43.0
+          - 1.52.0
           - stable
-          - nightly
+          # - nightly
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -56,12 +56,13 @@ jobs:
         feature--alloc: ['', '--features alloc']
         feature--log: ['', '--features log']
         feature--out-refs: ['', '--features out-refs']
+        feature--node-js: ['', '--features node-js']
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.43.0
+          toolchain: 1.52.0
           override: true
 
       - name: Clone repo
@@ -77,6 +78,7 @@ jobs:
             ${{ matrix.feature--alloc }}
             ${{ matrix.feature--log }}
             ${{ matrix.feature--out-refs }}
+            ${{ matrix.feature--node-js }}
 
   # == BUILD & TEST == #
   build-and-test:
@@ -86,26 +88,49 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os:
+          - ubuntu-latest
+          - macos-latest
+          # - windows-latest
+        rust:
+          # - 1.52.0
+          - stable
+          - nightly
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: default
           override: true
-          toolchain: nightly
+          toolchain: ${{ matrix.rust }}
+          target: wasm32-unknown-unknown
 
       - name: Clone repo
         uses: actions/checkout@v2
 
       - name: Cargo test
         uses: actions-rs/cargo@v1
+        env:
+          RUSTC_BOOTSTRAP: 1
+          RUSTFLAGS: -Zmacro-backtrace
+          RUST_BACKTRACE: full
         with:
           command: test
-          args: --all-features
+          args: --no-default-features --features derives,std
 
-      - name: FFI test
+      - name: FFI test (C & C#?)
         run: make -C ffi_tests
+        env:
+          RUSTC_BOOTSTRAP: 1
+          RUSTFLAGS: -Zmacro-backtrace
+          RUST_BACKTRACE: full
+
+      - name: FFI test (js)
+        run: make -C js_tests
+        env:
+          RUSTC_BOOTSTRAP: 1
+          RUSTFLAGS: -Zmacro-backtrace
+          RUST_BACKTRACE: full
 
   # Deploy to Github pages #
   deploy:

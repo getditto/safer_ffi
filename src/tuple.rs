@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 //! Tuple types with a guaranteed `#[repr(C)]` layout.
 //!
 //! Simplified for lighter documentation, but the actual `struct` definitions
@@ -36,6 +37,14 @@ impl CType
             var_name,
             sep = if var_name.is_empty() { "" } else { " " },
         )
+    }
+
+    __cfg_csharp__! {
+        fn csharp_ty ()
+          -> rust::String
+        {
+            "void".into()
+        }
     }
 } type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete; }
 from_CType_impl_ReprC! { CVoid }

@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 //! Trait abstractions describing the semantics of "being `#[repr(C)]`"
 
 use_prelude!();
@@ -13,7 +14,7 @@ mod macros;
 pub use crate::{from_CType_impl_ReprC, ReprC, CType};
 
 cfg_proc_macros! {
-    pub use ::proc_macro::{
+    pub use crate::{
         derive_ReprC,
     };
 }
@@ -80,7 +81,7 @@ unsafe trait CType
     Sized +
     Copy +
 {
-    type OPAQUE_KIND : OpaqueKind::__;
+    type OPAQUE_KIND : OpaqueKind::T;
     __cfg_headers__! {
         /// A short-name description of the type, mainly used to fill
         /// "placeholders" such as when monomorphising generics structs or
@@ -358,6 +359,43 @@ unsafe trait CType
             var_impl_display::ImplDisplay {
                 var_name,
                 _phantom: Default::default(),
+            }
+        }
+
+        __cfg_csharp__! {
+            /// Extra typedef code (_e.g._ `[LayoutKind.Sequential] struct ...`)
+            fn csharp_define_self (definer: &'_ mut dyn Definer)
+              -> io::Result<()>
+            {
+                let _ = definer;
+                Ok(())
+            }
+
+            /// Optional marshaler attached to the type (_e.g._,
+            /// `[MarshalAs(UnmanagedType.FunctionPtr)]`)
+            fn csharp_marshaler ()
+              -> Option<rust::String>
+            {
+                None
+            }
+
+            // TODO: Optimize out those unnecessary heap-allocations
+            /// Type name (_e.g._, `int`, `string`, `IntPtr`)
+            fn csharp_ty ()
+              -> rust::String
+            {
+                Self::c_var("").to_string()
+            }
+
+            /// Convenience function for formatting `{ty} {var}` in CSharp.
+            fn csharp_var (var_name: &'_ str)
+              -> rust::String
+            {
+                format!(
+                    "{}{sep}{}",
+                    Self::csharp_ty(), var_name,
+                    sep = if var_name.is_empty() { "" } else { " " },
+                )
             }
         }
     }
@@ -759,6 +797,7 @@ fn into_raw<T : ReprC> (it: T)
     }
 }
 
+pub(in crate)
 mod impls;
 
 mod niche;

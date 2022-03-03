@@ -27,23 +27,39 @@ nightly = []
 alloc = []
 std = [ "alloc" ]
 
+async-fn = [
+    "safer_ffi-proc_macros/async-fn",
+]
+
 derives = ["proc_macros"] # alias
 proc_macros = [
-    "proc_macro/proc_macros",
+    "safer_ffi-proc_macros/proc_macros",
     "require_unsafe_in_body",
     "proc-macro-hack",
 ]
 debug_proc_macros = [
     "proc_macros",
-    "proc_macro/verbose-expansions",
+    "safer_ffi-proc_macros/verbose-expansions",
 ]
 
 out-refs = ["uninit"]
 
 headers = [
     "inventory",
-    "proc_macro/headers",
+    "safer_ffi-proc_macros/headers",
     "std",
+]
+csharp-headers = ["headers"]
+
+node-js = [
+    "async-fn",
+    "headers",
+    "inventory",
+    # "napi",
+    # "napi-derive",
+    "safer_ffi-proc_macros/node-js",
+    # For convenience
+    "proc_macros", "std",
 ]
 
 [dev-dependencies]
@@ -58,9 +74,23 @@ log = { version = "0.4.8", optional = true }
 require_unsafe_in_body = { version = "0.2.1", optional = true }
 inventory = { version = "0.1.6", optional = true }
 proc-macro-hack = { version = "0.5.15", optional = true }
+unwind_safe = "0.0.1"
+scopeguard = "1.1.0"
 
-[dependencies.proc_macro]
-package = "safer_ffi-proc_macro"
+[dependencies.napi]
+package = "napi-dispatcher"
+path = "napi-dispatcher"
+# optional = true
+
+# [dependencies.napi-derive]
+# path = "napi-dispatcher/napi-nodejs-derive"
+# optional = true
+# version = "1.0.0"
+# git = "https://github.com/getditto/napi-rs"
+# branch = "ditto/closure-into-jsfunction"
+
+[dependencies.safer_ffi-proc_macros]
+# package = "safer_ffi-proc_macros"
 path = "src/proc_macro"
 version = "0.0.7"
 
@@ -72,7 +102,15 @@ version = "=0.3.0"
 default-features = false
 
 [workspace]
-members = ["src/proc_macro"]
+members = [
+    "src/proc_macro",
+    "napi-dispatcher",
+    "napi-dispatcher/nodejs-derive",
+    "napi-dispatcher/nodejs-derive/src/proc_macros",
+    "napi-dispatcher/wasm",
+    "napi-dispatcher/wasm/src/proc_macros",
+    "safer-ffi-build",
+]
 
 [package.metadata.docs.rs]
 all-features = true

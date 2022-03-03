@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use ::safer_ffi::prelude::*;
 
 /// Concatenate the two input strings into a new one.
@@ -9,13 +10,13 @@ fn concat (
     snd: char_p::Ref<'_>,
 ) -> char_p::Box
 {
-    format!("{}{}\0", fst.to_str(), snd.to_str())
+    format!("{}{}", fst.to_str(), snd.to_str())
         .try_into()
         .unwrap()
 }
 
 /// Frees a string created by `concat`.
-#[ffi_export]
+#[ffi_export(node_js)]
 fn free_char_p (_string: Option<char_p::Box>)
 {}
 
@@ -29,8 +30,8 @@ fn with_concat (
 )
 {
     let mut cb = cb;
-    let concat = concat(fst, snd);
-    cb.call(concat.as_ref().into());
+    let s = concat(fst, snd);
+    cb.call(s.as_ref().into());
 }
 
 /// Returns a pointer to the maximum integer of the input slice, or `NULL` if
@@ -51,13 +52,9 @@ mod foo {
     #[derive_ReprC]
     #[ReprC::opaque("foo")]
     pub
-    struct Foo { hidden: i32 }
+    struct Foo_<Generic> { hidden: Generic }
 
-    #[ffi_export]
-    fn new_foo () -> repr_c::Box<Foo>
-    {
-        repr_c::Box::new(Foo { hidden: 42 })
-    }
+    type Foo = Foo_<i32>;
 
     #[ffi_export]
     fn read_foo (foo: &'_ Foo) -> i32
@@ -66,9 +63,29 @@ mod foo {
     }
 
     #[ffi_export]
+    fn new_foo () -> repr_c::Box<Foo>
+    {
+        repr_c::Box::new(Foo { hidden: 42 })
+    }
+
+    #[ffi_export]
     fn free_foo (foo: Option<repr_c::Box<Foo>>)
     {
         drop(foo)
+    }
+
+    #[derive_ReprC]
+    #[repr(transparent)]
+    pub
+    struct with_ref_cb<Arg : 'static + ReprC> /* = */ (
+        pub
+        extern "C" fn(&mut Arg)
+    );
+
+    #[ffi_export]
+    fn with_foo (cb: with_ref_cb<Foo>)
+    {
+        cb(&mut Foo { hidden: 42 });
     }
 }
 
@@ -84,19 +101,89 @@ mod bar {
     {}
 }
 
+#[allow(nonstandard_style)]
+mod baz {
+    use super::*;
+
+    /// This is a `#[repr(C)]` enum, which leads to a classic enum def.
+    #[derive_ReprC]
+    #[repr(C)]
+    pub
+    enum SomeReprCEnum {
+        /// This is some variant.
+        SomeVariant,
+    }
+
+    #[ffi_export]
+    fn check_SomeReprCEnum (_baz: SomeReprCEnum)
+    {}
+}
+
 #[safer_ffi::cfg_headers]
 #[test]
 fn generate_headers ()
   -> ::std::io::Result<()>
+{Ok({
+    use ::safer_ffi::headers::Language::*;
+    for &(language, ext) in &[(C, "h"), (CSharp, "cs")] {
+        let builder =
+            ::safer_ffi::headers::builder()
+                .with_language(language)
+        ;
+        if  ::std::env::var("HEADERS_TO_STDOUT")
+                .ok()
+                .map_or(false, |it| it == "1")
+        {
+            builder
+                .to_writer(::std::io::stdout())
+                .generate()?
+        } else {
+            builder
+                .to_file(&format!("generated.{}", ext))?
+                .generate()?
+        }
+    }
+})}
+
+#[ffi_export(executor = futures::executor::block_on)]
+async fn async_get_ft ()
+  -> i32
 {
-    let builder = ::safer_ffi::headers::builder();
-    if ::std::env::var("HEADERS_TO_STDOUT").ok().map_or(false, |it| it == "1") {
-        builder
-            .to_writer(::std::io::stdout())
-            .generate()
-    } else {
-        builder
-            .to_file(&"generated.h".to_string())?
-            .generate()
+    ffi_await!(async { 42 })
+}
+
+// #[ffi_export]
+// pub const FOO: i32 = 42;
+
+mod futures {
+    pub
+    mod executor {
+        use ::std::{
+            future::Future,
+            pin::Pin,
+            sync::Arc,
+            task::{Context, Poll, Wake},
+            thread::{self, Thread},
+        };
+
+        struct ThreadUnparker /* = */ (Thread);
+        impl Wake for ThreadUnparker {
+            fn wake (self: Arc<Self>) { self.0.unpark(); }
+        }
+
+        pub
+        fn block_on<T> (ref mut fut: impl Future<Output = T>)
+          -> T
+        {
+            let ref mut fut = unsafe { Pin::new_unchecked(fut) };
+            let ref waker = Arc::new(ThreadUnparker(thread::current())).into();
+            let ref mut cx = Context::from_waker(waker);
+            loop {
+                match fut.as_mut().poll(cx) {
+                    Poll::Ready(res) => break res,
+                    Poll::Pending => thread::park(),
+                }
+            }
+        }
     }
 }

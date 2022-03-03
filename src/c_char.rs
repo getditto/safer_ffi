@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use_prelude!();
 
 #[repr(transparent)]
@@ -56,6 +57,14 @@ impl CType
             var_name,
             sep = if var_name.is_empty() { "" } else { " " },
         )
+    }
+
+    __cfg_csharp__! {
+        fn csharp_ty ()
+          -> rust::String
+        {
+            "byte".into()
+        }
     }
 } type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete; }
 

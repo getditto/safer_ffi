@@ -1,0 +1,42 @@
+[lib]
+crate-type = ["cdylib"]
+
+[package]
+name = "js_tests"
+version = "0.1.0"
+authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
+edition = "2018"
+
+resolver = "2"
+
+[dependencies]
+futures = "0.3.15"
+
+# [dependencies]
+# wasm-bindgen-test.version = "0.3.24"
+# wasm-bindgen-test.optional = true
+
+[dependencies.safer-ffi]
+path = ".."
+features = [
+    # "debug_proc_macros",
+    "proc_macros",
+    "out-refs",
+]
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+console_error_panic_hook = "0.1.6"
+
+[build-dependencies]
+safer-ffi-build = { path = "../safer-ffi-build" }
+
+[features]
+default = ["nodejs"]
+async-fn = ["safer-ffi/async-fn"]
+nodejs = [
+    "safer-ffi/node-js",
+    "safer-ffi-build/node-js",
+]
+# wasm = ["wasm-bindgen-test"]
+
+[workspace]

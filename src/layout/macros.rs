@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 #[cfg(feature = "headers")]
 #[macro_export] #[doc(hidden)]
 macro_rules! __cfg_headers__ {(
@@ -13,19 +14,50 @@ macro_rules! __cfg_headers__ {(
     // nothing
 )}
 
-#[cfg(not(feature = "headers"))]
+#[cfg(feature = "node-js")]
 #[macro_export] #[doc(hidden)]
-macro_rules! __cfg_not_headers__ {(
+macro_rules! __cfg_node_js__ {(
     $($item:item)*
 ) => (
     $($item)*
 )}
-#[cfg(feature = "headers")]
+#[cfg(not(feature = "node-js"))]
 #[macro_export] #[doc(hidden)]
-macro_rules! __cfg_not_headers__ {(
+macro_rules! __cfg_node_js__ {(
     $($item:item)*
 ) => (
     // nothing
+)}
+
+// #[cfg(not(feature = "headers"))]
+// #[macro_export] #[doc(hidden)]
+// macro_rules! __cfg_not_headers__ {(
+//     $($item:item)*
+// ) => (
+//     $($item)*
+// )}
+// #[cfg(feature = "headers")]
+// #[macro_export] #[doc(hidden)]
+// macro_rules! __cfg_not_headers__ {(
+//     $($item:item)*
+// ) => (
+//     // nothing
+// )}
+
+#[cfg(feature = "csharp-headers")]
+#[macro_export] #[doc(hidden)]
+macro_rules! __cfg_csharp__ {(
+    $($item:item)*
+) => (
+    $($item)*
+)}
+
+#[cfg(not(feature = "csharp-headers"))]
+#[macro_export] #[doc(hidden)]
+macro_rules! __cfg_csharp__ {(
+    $($item:item)*
+) => (
+    // Nothing
 )}
 
 #[macro_export] #[doc(hidden)]
@@ -52,7 +84,7 @@ macro_rules! CType {(
     $(
         @doc_meta( $($doc_meta:tt)* )
     )?
-    #[repr(C)]
+    #[repr(C $(, nodejs $(@$nodejs:tt)?)? $(,)?)]
     $(#[$($meta:tt)*])*
     $pub:vis
     struct $StructName:ident $(
@@ -70,6 +102,7 @@ macro_rules! CType {(
         ),+ $(,)?
     }
 ) => (
+    // CASE: struct (CType)
     #[repr(C)]
     $(#[$($meta)*])*
     $pub
@@ -81,6 +114,123 @@ macro_rules! CType {(
             $field_pub
             $field_name : $field_ty,
         )*
+    }
+
+    #[cfg(any(
+        $(all($($nodejs)?),)?
+    ))]
+    $crate::__cfg_node_js__! {
+        impl $(<$($lt ,)* $($($generics),+)?>)?
+            $crate::node_js::ReprNapi
+        for
+            $StructName $(<$($lt ,)* $($($generics),+)?>)?
+        where
+            Self : 'static,
+            $(
+                $field_ty : $crate::layout::ReprC,
+                <$field_ty as $crate::layout::ReprC>::CLayout : $crate::node_js::ReprNapi,
+            )*
+            $(
+                $($(
+                    $generics : $crate::layout::ReprC,
+                    <$generics as $crate::layout::ReprC>::CLayout : $crate::node_js::ReprNapi,
+                )+)?
+                $($($bounds)*)?
+            )?
+        {
+            type NapiValue = $crate::node_js::JsUnknown;
+
+            fn to_napi_value (
+                self: Self,
+                env: &'_ $crate::node_js::Env,
+            ) -> $crate::node_js::Result<$crate::node_js::JsUnknown>
+            {
+                let mut _obj = env.create_object()?;
+                $(
+                    _obj.set_named_property(
+                        $crate::core::stringify!($field_name),
+                        <
+                            <$field_ty as $crate::layout::ReprC>::CLayout
+                            as
+                            $crate::node_js::ReprNapi
+                        >::to_napi_value(
+                            unsafe { $crate::layout::into_raw(self.$field_name) },
+                            env,
+                        )?,
+                    )?;
+                )*
+                $crate::node_js::Result::Ok(_obj.into_unknown())
+            }
+
+            fn from_napi_value (
+                env: &'_ $crate::node_js::Env,
+                obj: $crate::node_js::JsUnknown,
+            ) -> $crate::node_js::Result<Self>
+            {
+                use $crate::core::convert::TryFrom as _;
+                let mut is_buffer = false;
+                // Poor man's specialization.
+                if  $crate::core::any::TypeId::of::<Self>()
+                    ==
+                    $crate::core::any::TypeId::of::<$crate::slice::slice_ref_Layout<'_, u8>>()
+                &&  (
+                        { is_buffer = obj.is_buffer()?; is_buffer }
+                        ||
+                        $crate::core::matches!(
+                            obj.get_type(),
+                            $crate::node_js::Result::Ok($crate::node_js::ValueType::Null)
+                        )
+                    )
+                {
+                    return if is_buffer {
+                        let js_buffer = $crate::node_js::JsBuffer::try_from(obj)?;
+                        let (buf, _storage): (&[u8], _);
+                        #[cfg(target_arch = "wasm32")] {
+                            _storage = ();
+                            let bytes = js_buffer.into_value()?.into_boxed_slice();
+                            let raw = $crate::std::boxed::Box::into_raw(bytes);
+                            env.__push_drop_glue($crate::scopeguard::guard(raw, |raw| unsafe {
+                                $crate::core::mem::drop($crate::std::boxed::Box::from_raw(raw))
+                            }));
+                            buf = unsafe { &*raw };
+                        } /* else */
+                        #[cfg(not(target_arch = "wasm32"))] {
+                            _storage = js_buffer.into_value()?;
+                            buf = &_storage;
+                        }
+                        let xs = buf;
+                        $crate::node_js::Result::Ok(unsafe { $crate::core::mem::transmute_copy(&{
+                            $crate::slice::slice_raw_Layout::<u8> {
+                                ptr: xs.as_ptr() as _,
+                                len: xs.len(),
+                            }
+                        })})
+                    } else { // it's NULL
+                        $crate::node_js::Result::Ok(unsafe { $crate::core::mem::transmute_copy::<_, Self>(&{
+                            $crate::slice::slice_raw_Layout::<u8> {
+                                ptr: $crate::NULL!(),
+                                len: 0xbad000,
+                            }
+                        })})
+                    };
+                }
+                let obj = $crate::node_js::JsObject::try_from(obj)?;
+                $crate::node_js::Result::Ok(Self {
+                    $(
+                        $field_name: unsafe { $crate::layout::from_raw_unchecked(
+                            <
+                                <$field_ty as $crate::layout::ReprC>::CLayout
+                                as
+                                $crate::node_js::ReprNapi
+                            >::from_napi_value(
+                                env,
+                                obj.get_named_property($crate::core::stringify!($field_name))?,
+                            )?
+                        )},
+                    )*
+                })
+            }
+        }
     }
 
     unsafe // Safety: struct is `#[repr(C)]` and contains `CType` fields
@@ -123,8 +273,8 @@ macro_rules! CType {(
                 "C does not support zero-sized structs!",
             );
             let ref me =
-                <Self as $crate::layout::CType>
-                    ::c_short_name().to_string()
+                <Self as $crate::layout::CType>::c_var("")
+                    .to_string()
             ;
             definer.define_once(
                 me,
@@ -160,7 +310,7 @@ macro_rules! CType {(
                             );
                         }
                     )+
-                    $crate::core::writeln!(out, "}} {}_t;\n", me)
+                    $crate::core::writeln!(out, "}} {};\n", me)
                 },
             )
         }
@@ -177,6 +327,60 @@ macro_rules! CType {(
                 sep = if var_name.is_empty() { "" } else { " " },
             )
         }
+
+        $crate::__cfg_csharp__! {
+            fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
+              -> $crate::std::io::Result<()>
+            {
+                assert_ne!(
+                    $crate::core::mem::size_of::<Self>(), 0,
+                    "C# does not support zero-sized structs!",
+                );
+                let ref me = <Self as $crate::layout::CType>::csharp_ty();
+                $(
+                    <$field_ty as $crate::layout::CType>::csharp_define_self(definer)?;
+                )*
+                definer.define_once(me, &mut |definer| $crate::core::writeln!(definer.out(),
+                    $crate::core::concat!(
+                        "[StructLayout(LayoutKind.Sequential, Size = {size})]\n",
+                        "public unsafe struct {me} {{\n",
+                        $(
+                            "{}{", stringify!($field_name), "}",
+                        )*
+                        "}}\n",
+                    ),
+                    $(
+                        <$field_ty as $crate::layout::CType>::csharp_marshaler()
+                            .map(|m| $crate::std::format!("    [MarshalAs({})]\n", m))
+                            .as_deref()
+                            .unwrap_or("")
+                        ,
+                    )*
+                    size = $crate::core::mem::size_of::<Self>(),
+                    me = me, $(
+                    $field_name = {
+                        if $crate::core::mem::size_of::<$field_ty>() > 0 {
+                            format!(
+                                "    public {};\n",
+                                <$field_ty as $crate::layout::CType>::csharp_var(
+                                    $crate::core::stringify!($field_name),
+                                ),
+                            )
+                        } else {
+                            assert_eq!(
+                                $crate::core::mem::align_of::<$field_ty>(),
+                                1,
+                                $crate::core::concat!(
+                                    "Zero-sized fields must have an ",
+                                    "alignment of `1`."
+                                ),
+                            );
+                            "".into() // FIXME: remove heap allocation
+                        }
+                    }, )*
+                ))
+            }
+        }
     } type OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete; }
 
     $crate::layout::from_CType_impl_ReprC! {
@@ -187,6 +391,66 @@ macro_rules! CType {(
                         $($($bounds)*)?
                 )?
     }
+); (
+    @node_js_enum
+    $Enum_Layout:ident {
+        $(
+            $Variant:ident = $Discriminant:expr
+        ),* $(,)?
+    }
+) => (
+    #[allow(nonstandard_style)]
+    const _: () = {
+        impl $Enum_Layout {
+            $(
+                pub const $Variant: $Enum_Layout = $Discriminant;
+            )*
+        }
+
+        impl $crate::node_js::ReprNapi for $Enum_Layout {
+            type NapiValue = $crate::node_js::JsString;
+
+            fn to_napi_value (
+                self: Self,
+                env: &'_ $crate::node_js::Env,
+            ) -> $crate::node_js::Result< $crate::node_js::JsString >
+            {
+                env.create_string(match self {
+                $(
+                    | $Enum_Layout::$Variant => $crate::core::stringify!($Variant),
+                )*
+                    | _ => $crate::std::panic!(
+                        "ill-formed enum variant ({:?}) for type `{}`",
+                        &self.0,
+                        <$Enum_Layout as $crate::layout::CType>::c_short_name(),
+                    ),
+                })
+            }
+
+            fn from_napi_value (
+                env: &'_ $crate::node_js::Env,
+                js_string: $crate::node_js::JsString,
+            ) -> $crate::node_js::Result<Self>
+            {
+                match js_string.into_utf8()?.as_str()? {
+                $(
+                    | $crate::core::stringify!($Variant) => $crate::node_js::Result::Ok($Enum_Layout::$Variant),
+                )*
+                    | _ => $crate::node_js::Result::Err($crate::node_js::Error::new(
+                        // status
+                        $crate::node_js::Status::InvalidArg,
+                        // reason
+                        $crate::core::concat!(
+                            "Expected one of: "
+                            $(
+                                , "`", $crate::core::stringify!($Variant), "`",
+                            )", "*
+                        ).into(),
+                    ).into()),
+                }
+            }
+        }
+    };
 )}
 
 /// Safely implement [`ReprC`][`trait@crate::layout::ReprC`]
@@ -255,11 +519,15 @@ macro_rules! CType {(
 /// which will do the rewriting for you.
 #[macro_export]
 macro_rules! ReprC {
-    // struct
+    /*  =============
+     *  @DEVS: to quickly switch between the different inputs to `#[derive_ReprC]`
+     *  ctrl + F for the `CASE:` pattern
+     *  ============= */
+    // CASE: struct (ReprC)
     (
         $( @[doc = $doc:expr] )?
         $(#[doc = $prev_doc:tt])* // support doc comments _before_ `#[repr(C)]`
-        #[repr(C)]
+        #[repr(C $(, nodejs $(@$nodejs:tt)?)? $(,)?)]
         $(#[$($meta:tt)*])*
         $pub:vis
         struct $StructName:ident $(
@@ -367,7 +635,7 @@ macro_rules! ReprC {
                         $(#[doc = $prev_doc])*
                         $(#[$($meta)*])*
                     )
-                    #[repr(C)]
+                    #[repr(C $(, nodejs $(@$nodejs)?)?)]
                     #[allow(missing_debug_implementations)]
                     // $(#[$meta])*
                     pub
@@ -437,7 +705,72 @@ macro_rules! ReprC {
         };
     );
 
-    // `#[repr(transparent)]`
+    // CASE: `#[repr(transparent)]` `fn`
+    // (to support signatures involving higher-order lifetimes)
+    (
+        $( @[doc = $doc:expr] )?
+        $(#[doc = $prev_doc:tt])*
+        #[repr(transparent)]
+        $(#[$meta:meta])*
+        $pub:vis
+        struct $StructName:ident $(
+            [$($generics:tt)*] $(
+                where { $($bounds:tt)* }
+            )?
+        )?
+        (
+            $( for<$($lt:lifetime),* $(,)?> )?
+            extern "C"
+            fn (
+                $(
+                    $arg_name:ident : $ArgTy:ty
+                ),* $(,)?
+            ) $(-> $RetTy:ty)?
+            $(,)?
+        );
+    ) => (
+        $crate::__with_doc__! {
+            #[doc = $crate::core::concat!(
+                // " - [`",
+                // $crate::core::stringify!($StructName), "_Layout",
+                // "`](#impl-ReprC)",
+            )]
+            $(#[doc = $prev_doc])*
+            #[repr(transparent)]
+            $(#[doc = $doc])?
+            $(#[$meta])*
+            /// # C Layout
+            ///
+            $pub
+            struct $StructName $(
+                <$($generics)*>
+            )?
+            (
+                $(for<$($lt),*>)?
+                extern "C"
+                fn ( $($arg_name: $ArgTy),* ) $(-> $RetTy)?
+            )
+                $($(where $($bounds)*)?)?
+            ;
+        }
+
+        $crate::paste::item! {
+            #[repr(transparent)]
+            $pub
+            struct [<$StructName _Layout>] (
+                $crate::core::option::Option<
+                    unsafe
+                    extern "C"
+                    // performing a higher-order mapping is not possible,
+                    // so we ignore the types
+                    fn ()
+                >
+            );
+        }
+
+    );
+
+    // CASE: `#[repr(transparent)]`
     (
         $( @[doc = $doc:expr] )?
         $(#[doc = $prev_doc:tt])*
@@ -523,10 +856,236 @@ macro_rules! ReprC {
         }
     );
 
-    // field-less `enum`
+    // CASE: field-less `#[repr(C)] enum`
     (
         $(#[doc = $prev_doc:tt])*
-        #[repr($Int:ident)]
+        #[repr(C $(, nodejs $(@$nodejs:tt)?)? $(,)?)]
+        $(#[$($meta:tt)*])*
+        $pub:vis
+        enum $EnumName:ident {
+            $(
+                $($(#[doc = $variant_doc:expr])+)?
+                // $(#[$variant_meta:meta])*
+                $Variant:ident $(= $discriminant:expr)?
+            ),+ $(,)?
+        }
+    ) => (
+        const _: () = { mod repr { mod C {
+            #[deprecated(note =
+                "`#[repr(C)]` enums are not well-defined in C; \
+                it is thus ill-advised to use them \
+                in a multi-compiler scenario such as FFI"
+            )]
+            fn Enum () {}
+            const _: () = { let _ = || Enum(); };
+        }}};
+
+        $(#[doc = $prev_doc])*
+        #[repr(C)]
+        $(#[$($meta)*])*
+        $pub
+        enum $EnumName {
+            $(
+                $($(#[doc = $variant_doc])+)?
+                // $(#[$variant_meta])*
+                $Variant $(= $discriminant)? ,
+            )+
+        }
+
+        $crate::paste::item! {
+            #[repr(transparent)]
+            #[derive(Clone, Copy, PartialEq, Eq)]
+            pub
+            struct [< $EnumName _Layout >] /* = */ (
+                $crate::c_int,
+            );
+
+            impl $crate::core::convert::From<$crate::c_int>
+                for [< $EnumName _Layout >]
+            {
+                #[inline]
+                fn from (it: $crate::c_int)
+                  -> Self
+                {
+                    Self(it)
+                }
+            }
+
+            unsafe
+            impl $crate::layout::CType
+                for [< $EnumName _Layout >]
+            { $crate::__cfg_headers__! {
+                fn c_short_name_fmt (fmt: &'_ mut $crate::core::fmt::Formatter<'_>)
+                  -> $crate::core::fmt::Result
+                {
+                    fmt.write_str($crate::core::stringify!($EnumName).trim())
+                }
+
+                fn c_define_self (definer: &'_ mut dyn $crate::headers::Definer)
+                  -> $crate::std::io::Result<()>
+                {
+                    let ref me =
+                        <Self as $crate::layout::CType>::c_var("")
+                            .to_string()
+                    ;
+                    definer.define_once(
+                        me,
+                        &mut |definer| {
+                            let me_t = me;
+                            let ref me =
+                                <Self as $crate::layout::CType>::c_short_name()
+                                    .to_string()
+                            ;
+                            let out = definer.out();
+                            $crate::__output_docs__!(out, "",
+                                $(#[doc = $prev_doc])*
+                                $(#[$($meta)*])*
+                            );
+                            $crate::core::writeln!(out,
+                                $crate::core::concat!(
+                                    "typedef enum {me} {{\n",
+                                    $(
+                                        $crate::layout::ReprC! { @first
+                                            $((concat!(
+                                                "    /** \\brief\n",
+                                                $(
+                                                    "     * ", $variant_doc, "\n",
+                                                )*
+                                                "     */\n",
+                                            )))?
+                                            (
+                                                "    /** . */\n"
+                                            )
+                                        },
+                                        "    {}",
+                                        $( $crate::layout::ReprC! {
+                                            @first(
+                                                " = {}"
+                                            ) $discriminant
+                                        },)?
+                                        ",\n",
+                                    )*
+                                    "}} {me_t};\n",
+                                ),
+                                $(
+                                    $crate::__utils__::screaming_case(
+                                        me,
+                                        $crate::core::stringify!($Variant).trim(),
+                                    ),
+                                    $($discriminant,)?
+                                )*
+                                me = me,
+                                me_t = me_t,
+                            )
+                        },
+                    )
+                }
+
+                fn c_var_fmt (
+                    fmt: &'_ mut $crate::core::fmt::Formatter<'_>,
+                    var_name: &'_ str,
+                ) -> $crate::core::fmt::Result
+                {
+                    $crate::core::write!(fmt,
+                        "{}_t{sep}{}",
+                        <Self as $crate::layout::CType>::c_short_name(),
+                        var_name,
+                        sep = if var_name.is_empty() { "" } else { " " },
+                    )
+                }
+
+                $crate::__cfg_csharp__! {
+                    fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
+                      -> $crate::std::io::Result<()>
+                    {
+                        let ref me = <Self as $crate::layout::CType>::csharp_ty();
+                        definer.define_once(me, &mut |definer| $crate::core::writeln!(definer.out(),
+                            $crate::core::concat!(
+                                "public enum {me} {{\n",
+                                $(
+                                    "    {}",
+                                    $( $crate::layout::ReprC! {
+                                        @first(
+                                            " = {}"
+                                        ) $discriminant
+                                    },)?
+                                    ",\n",
+                                )*
+                                "}}\n",
+                            ),
+                            $(
+                                $crate::core::stringify!($Variant).trim(),
+                                $(
+                                    $discriminant,
+                                )?
+                            )*
+                            me = me,
+                        ))
+                    }
+                }
+            } type OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete; }
+
+            #[cfg(any(
+                $(all($($nodejs)?),)?
+            ))]
+            $crate::__cfg_node_js__! {
+                $crate::layout::CType! {
+                    @node_js_enum
+                    [< $EnumName _Layout >] {
+                        $(
+                            $Variant = [< $EnumName _Layout >] (
+                                $crate::c_int($EnumName::$Variant as _)
+                            )
+                        ),*
+                    }
+                }
+            }
+
+            $crate::layout::from_CType_impl_ReprC! {
+                [< $EnumName _Layout >]
+            }
+
+            unsafe
+            impl $crate::layout::ReprC
+                for $EnumName
+            {
+                type CLayout = [< $EnumName _Layout >];
+
+                #[inline]
+                fn is_valid (&discriminant: &'_ Self::CLayout)
+                  -> bool
+                {
+                    #![allow(nonstandard_style)]
+                    $(
+                        const $Variant: $crate::c_int = $crate::c_int($EnumName::$Variant as _);
+                    )+
+                    match discriminant.0 {
+                        $( | $Variant )+ => true,
+                        | _ => false,
+                    }
+                }
+            }
+
+            unsafe
+            impl $crate::layout::__HasNiche__
+                for $EnumName
+            {
+                #[inline]
+                fn is_niche (it: &'_ <Self as $crate::layout::ReprC>::CLayout)
+                  -> bool
+                {
+                    *it == unsafe { $crate::core::mem::transmute(
+                        $crate::core::option::Option::None::<Self>
+                    ) }
+                }
+            }
+        }
+    );
+
+    // CASE: field-less `enum`
+    (
+        $(#[doc = $prev_doc:tt])*
+        #[repr($Int:ident $(, nodejs $(@$nodejs:tt)?)? $(,)?)]
         $(#[$($meta:tt)*])*
         $pub:vis
         enum $EnumName:ident {
@@ -589,12 +1148,17 @@ macro_rules! ReprC {
                   -> $crate::std::io::Result<()>
                 {
                     let ref me =
-                        <Self as $crate::layout::CType>
-                            ::c_short_name().to_string()
+                        <Self as $crate::layout::CType>::c_var("")
+                            .to_string()
                     ;
                     definer.define_once(
                         me,
                         &mut |definer| {
+                            let me_t = me;
+                            let ref me =
+                                <Self as $crate::layout::CType>::c_short_name()
+                                    .to_string()
+                            ;
                             <$crate::$Int as $crate::layout::CType>::c_define_self(
                                 definer,
                             )?;
@@ -609,7 +1173,7 @@ macro_rules! ReprC {
                                     "#ifdef DOXYGEN\n",
                                     "typedef enum {me}\n",
                                     "#else\n",
-                                    "typedef {int__me}_t; enum\n",
+                                    "typedef {int__me_t}; enum\n",
                                     "#endif\n",
                                     "{{\n",
                                     $(
@@ -635,7 +1199,7 @@ macro_rules! ReprC {
                                     )*
                                     "}}\n",
                                     "#ifdef DOXYGEN\n",
-                                    "{me}_t\n",
+                                    "{me_t}\n",
                                     "#endif\n",
                                     ";\n",
                                 ),
@@ -647,9 +1211,10 @@ macro_rules! ReprC {
                                     $($discriminant,)?
                                 )*
                                 me = me,
+                                me_t = me_t,
                                 int = <$crate::$Int as $crate::layout::CType>::c_var(""),
-                                int__me = <$crate::$Int as $crate::layout::CType>::c_var(
-                                    me,
+                                int__me_t = <$crate::$Int as $crate::layout::CType>::c_var(
+                                    me_t,
                                 ),
                             )
                         },
@@ -668,10 +1233,57 @@ macro_rules! ReprC {
                         sep = if var_name.is_empty() { "" } else { " " },
                     )
                 }
+
+                $crate::__cfg_csharp__! {
+                    fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
+                      -> $crate::std::io::Result<()>
+                    {
+                        let ref me = <Self as $crate::layout::CType>::csharp_ty();
+                        definer.define_once(me, &mut |definer| $crate::core::writeln!(definer.out(),
+                            $crate::core::concat!(
+                                "public enum {me} : {int} {{\n",
+                                $(
+                                    "    {}",
+                                    $( $crate::layout::ReprC! {
+                                        @first(
+                                            " = {}"
+                                        ) $discriminant
+                                    },)?
+                                    ",\n",
+                                )*
+                                "}}\n",
+                            ),
+                            $(
+                                $crate::core::stringify!($Variant).trim(),
+                                $(
+                                    $discriminant,
+                                )?
+                            )*
+                            me = me,
+                            int = <$crate::$Int as $crate::layout::CType>::csharp_ty(),
+                        ))
+                    }
+                }
             } type OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete; }
 
             $crate::layout::from_CType_impl_ReprC! {
                 [< $EnumName _Layout >]
+            }
+
+            #[cfg(any(
+                $(all($($nodejs)?),)?
+            ))]
+            $crate::__cfg_node_js__! {
+                $crate::layout::CType! {
+                    @node_js_enum
+                    [< $EnumName _Layout >] {
+                        $(
+                            $Variant = [< $EnumName _Layout >](
+                                $EnumName::$Variant as _
+                            )
+                        ),*
+                    }
+                }
             }
 
             unsafe
@@ -711,7 +1323,7 @@ macro_rules! ReprC {
         }
     );
 
-    // non-field-less repr-c-only enum
+    // CASE: non-field-less repr-c-only enum
     (
         $(#[doc = $prev_doc:tt])*
         #[repr(C $(, $Int:ident)?)]
@@ -726,7 +1338,7 @@ macro_rules! ReprC {
         }
     );
 
-    // opaque
+    // CASE: opaque type
     (
         $(#[doc = $prev_doc:tt])*
         #[
@@ -760,25 +1372,28 @@ macro_rules! ReprC {
         { $($opaque)* }
 
         const _: () = {
-            pub
-            struct __safer_ffi_Opaque__ $(
-                <$($lt ,)* $($($generics),+)?>
-                $(
-                    where $($bounds)*
+            $crate::paste::item! {
+                pub
+                struct [< __opaque_ $StructName >] $(
+                    <$($lt ,)* $($($generics),+)?>
+                    $(
+                        where $($bounds)*
+                    )?
                 )?
-            )?
-            {
-                $(
-                    _marker: $crate::core::marker::PhantomData<(
-                        $(
-                            *mut &$lt (),
-                        )*
-                        $($(
-                            *mut $generics,
-                        )+)?
-                    )>,
-                )?
-                _void: $crate::core::convert::Infallible,
+                {
+                    $(
+                        _marker: $crate::core::marker::PhantomData<(
+                            $(
+                                *mut &$lt (),
+                            )*
+                            $($(
+                                *mut $generics,
+                            )+)?
+                        )>,
+                    )?
+                    _void: $crate::core::convert::Infallible,
+                }
+                use [< __opaque_ $StructName >] as __safer_ffi_Opaque__;
             }
 
             impl $(<$($lt ,)* $($($generics),+)?>)?
@@ -829,42 +1444,59 @@ macro_rules! ReprC {
                         )?)?
                         fmt.write_str(_c_name)
                     }
-                    fn c_define_self (definer: &'_ mut (dyn $crate::headers::Definer))
+
+                    fn c_define_self (definer: &'_ mut dyn $crate::headers::Definer)
                         -> $crate::std::io::Result<()>
                     {
-                        let _c_name = $crate::core::stringify!($StructName);
-                        $($(
-                            let it = $c_name;
-                            let _c_name = it.as_ref();
-                        )?)?
-                        definer.define_once(_c_name, &mut |definer| {
-                            assert!(_c_name.chars().all(|c| $crate::core::matches!(c,
+                        let ref me =
+                            <Self as $crate::layout::CType>::c_var("")
+                                .to_string()
+                        ;
+                        definer.define_once(me, &mut |definer| {
+                            assert!(me.chars().all(|c| $crate::core::matches!(c,
                                 'a' ..= 'z' |
                                 'A' ..= 'Z' |
                                 '0' ..= '9' | '_'
                             )));
                             $crate::core::write!(definer.out(),
-                                "typedef struct {0} {0}_t;\n\n",
-                                _c_name,
+                                "typedef struct {} {};\n\n",
+                                <Self as $crate::layout::CType>::c_short_name(),
+                                me,
                             )
                         })
                     }
+
                     fn c_var_fmt (
                         fmt: &'_ mut $crate::core::fmt::Formatter<'_>,
                         var_name: &'_ $crate::str,
                     ) -> $crate::core::fmt::Result
                     {
-                        let _c_name = $crate::core::stringify!($StructName);
-                        $($(
-                            let it = $c_name;
-                            let _c_name: &'_ $crate::str = it.as_ref();
-                        )?)?
                         $crate::core::write!(fmt,
                             "{}_t{sep}{}",
-                            _c_name,
+                            <Self as $crate::layout::CType>::c_short_name(),
                             var_name,
                             sep = if var_name.is_empty() { "" } else { " " },
                         )
+                    }
+
+                    $crate::__cfg_csharp__! {
+                        fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
+                          -> $crate::std::io::Result<()>
+                        {
+                            let ref me = <Self as $crate::layout::CType>::csharp_ty();
+                            definer.define_once(me, &mut |definer| {
+                                $crate::std::writeln!(definer.out(),
+                                    concat!(
+                                        "public struct {} {{\n",
+                                        "   #pragma warning disable 0169\n",
+                                        "   private byte OPAQUE;\n",
+                                        "   #pragma warning restore 0169\n",
+                                        "}}\n",
+                                    ),
+                                    me,
+                                )
+                            })
+                        }
                     }
                 }
             }

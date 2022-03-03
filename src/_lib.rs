@@ -1,3 +1,6 @@
+#![warn(warnings)] // Prevent `-Dwarnings` from causing breakage.
+#![allow(clippy::all)]
+#![cfg_attr(rustfmt, rustfmt::skip)]
 #![cfg_attr(feature = "nightly",
     feature(doc_cfg, trivial_bounds)
 )]
@@ -5,7 +8,7 @@
     no_std,
 )]
 
-#![allow(nonstandard_style, trivial_bounds)]
+#![allow(nonstandard_style, trivial_bounds, unused_parens)]
 #![warn(
     missing_copy_implementations,
     missing_debug_implementations,
@@ -23,14 +26,7 @@
 #![cfg_attr(not(feature = "nightly"),
     doc = "See the [user guide](https://getditto.github.io/safer_ffi)."
 )]
-
-
-#[cfg(feature = "proc_macros")]
-#[macro_use]
-extern crate require_unsafe_in_body;
-
-#[doc(hidden)] pub
-extern crate paste;
+#![cfg(not(rustfmt))]
 
 #[macro_use]
 #[path = "utils/_mod.rs"]
@@ -38,18 +34,56 @@ extern crate paste;
 mod __utils__;
 use __utils__ as utils;
 
-extern crate proc_macro;
-pub use ::proc_macro::{ffi_export, cfg_headers};
+#[cfg(feature = "proc_macros")]
+#[macro_use]
+extern crate require_unsafe_in_body;
+
+hidden_export! {
+    use ::paste;
+}
+
+pub use ::safer_ffi_proc_macros::{ffi_export, cfg_headers};
 cfg_proc_macros! {
     #[::proc_macro_hack::proc_macro_hack]
     /// Creates a compile-time checked [`char_p::Ref`]`<'static>` out of a
     /// string literal.
     ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use ::safer_ffi::prelude::*;
+    ///
+    /// #[ffi_export]
+    /// fn concat (s1: char_p::Ref<'_>, s2: char_p::Ref<'_>)
+    ///   -> char_p::Box
+    /// {
+    ///     format!("{}{}", s1.to_str(), s2.to_str())
+    ///         .try_into()
+    ///         .unwrap() // No inner nulls in our format string
+    /// }
+    ///
+    /// fn main ()
+    /// {
+    ///     assert_eq!(
+    ///         concat(c!("Hello, "), c!("World!")).as_ref(),
+    ///         c!("Hello, World!"),
+    ///     );
+    /// }
+    /// ```
+    ///
+    /// If the string literal contains an inner null byte, then the macro
+    /// will detect it at compile time and thus cause a compile-time error
+    /// (allowing to skip the then unnecessary runtime check!):
+    ///
+    /// ```rust,compile_fail
+    /// let _ = ::safer_ffi::c!("Hell\0, World!"); // <- Compile error
+    /// ```
+    ///
     /// [`char_p::Ref`]: `crate::prelude::char_p::Ref`
-    pub use ::proc_macro::c_str as c;
+    pub use ::safer_ffi_proc_macros::c_str as c;
 
     #[doc(inline)]
-    pub use ::proc_macro::derive_ReprC;
+    pub use ::safer_ffi_proc_macros::derive_ReprC;
 }
 
 #[macro_use]
@@ -69,12 +103,13 @@ __cfg_headers__! {
 
     #[allow(missing_copy_implementations, missing_debug_implementations)]
     #[doc(hidden)] pub
-    struct FfiExport(
-        pub
-        fn (&'_ mut dyn headers::Definer)
-          -> ::std::io::Result<()>
+    struct FfiExport {
+        pub name: &'static str,
+        pub gen_def:
+            fn (&'_ mut dyn headers::Definer, headers::Language)
+              -> ::std::io::Result<()>
         ,
-    );
+    }
 
     ::inventory::collect!(FfiExport);
 }
@@ -142,10 +177,23 @@ macro_rules! reexport_primitive_types {(
     bool
     str
 }
-#[doc(hidden)] pub use ::core;
-cfg_std! {
-    #[doc(hidden)] pub use ::std;
+
+hidden_export! {
+    use ::core;
 }
+
+hidden_export! {
+    use ::scopeguard;
+}
+
+cfg_std! {
+    hidden_export! {
+        use ::std;
+    }
+}
+
+#[doc(hidden)] /** Not part of the public API **/ pub
+use layout::impls::c_int;
 
 #[derive(Clone, Copy)]
 #[allow(missing_debug_implementations)]
@@ -246,40 +294,63 @@ macro_rules! NULL {() => (
 )}
 
 #[cfg(feature = "log")]
-#[doc(hidden)]
-pub use ::log;
+hidden_export! {
+    use ::log;
+}
 
-#[allow(missing_copy_implementations, missing_debug_implementations)]
-#[doc(hidden)] /** Not part of the public API **/ pub
-struct __PanicOnDrop__; impl Drop for __PanicOnDrop__ {
-    fn drop (self: &'_ mut Self)
-    {
-        panic!()
+#[cfg(feature = "node-js")]
+// hidden_export! {
+    #[path = "node_js/_mod.rs"]
+    pub mod node_js;
+// }
+
+hidden_export! {
+    #[allow(missing_copy_implementations, missing_debug_implementations)]
+    struct __PanicOnDrop__; impl Drop for __PanicOnDrop__ {
+        fn drop (self: &'_ mut Self)
+        {
+            panic!()
+        }
     }
 }
 
 #[cfg(feature = "log")]
-#[doc(hidden)] /** Not part of the public API **/ #[macro_export]
-macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
-    $crate::log::error!($($tt)*);
-    let _panic_on_drop = $crate::__PanicOnDrop__;
-    $crate::core::panic!($($tt)*);
-})}
+hidden_export! {
+    macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
+        $crate::log::error!($($tt)*);
+        let _panic_on_drop = $crate::__PanicOnDrop__;
+        $crate::core::panic!($($tt)*);
+    })}
+}
 #[cfg(all(
     not(feature = "log"),
     feature = "std",
 ))]
-#[doc(hidden)] /** Not part of the public API **/ #[macro_export]
-macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
-    $crate::std::eprintln!($($tt)*);
-    $crate::std::process::abort();
-})}
+hidden_export! {
+    macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
+        $crate::std::eprintln!($($tt)*);
+        $crate::std::process::abort();
+    })}
+}
 #[cfg(all(
     not(feature = "log"),
     not(feature = "std"),
 ))]
-#[doc(hidden)] /** Not part of the public API **/ #[macro_export]
-macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
-    let _panic_on_drop = $crate::__PanicOnDrop__;
-    $crate::core::panic!($($tt)*);
-})}
+hidden_export! {
+    macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
+        let _panic_on_drop = $crate::__PanicOnDrop__;
+        $crate::core::panic!($($tt)*);
+    })}
+}
+
+#[cfg(target_arch = "wasm32")]
+#[allow(dead_code)]
+mod libc {
+    pub type c_int = i32;
+    pub type size_t = u32;
+    pub type uintptr_t = u32;
+}
+#[cfg(not(target_arch = "wasm32"))]
+use ::libc;
+
+extern crate self as safer_ffi;

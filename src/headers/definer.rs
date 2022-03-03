@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use super::*;
 
 /// Helper for the generation of C headers.

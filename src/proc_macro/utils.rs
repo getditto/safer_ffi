@@ -85,3 +85,56 @@ impl MySplit for Generics {
         )
     }
 }
+
+#[cfg(any())] /* Comment to enable (requires `cargo add bat`) */
+pub(in crate)
+fn pretty_print_tokenstream (
+    code: &'_ TokenStream,
+    fname: &'_ str,
+)
+{
+    fn try_format (input: &'_ str)
+      -> Option<String>
+    {Some({
+        let mut child =
+            ::std::process::Command::new("rustfmt")
+                .stdin(::std::process::Stdio::piped())
+                .stdout(::std::process::Stdio::piped())
+                .stderr(::std::process::Stdio::piped())
+                .spawn()
+                .ok()?
+        ;
+        match child.stdin.take().unwrap() { ref mut stdin => {
+            ::std::io::Write::write_all(stdin, input.as_bytes()).ok()?;
+        }}
+        let mut stdout = String::new();
+        ::std::io::Read::read_to_string(
+            &mut child.stdout.take().unwrap(),
+            &mut stdout,
+        ).ok()?;
+        if child.wait().ok()?.success().not() { return None; }
+        stdout
+    })}
+
+    if  ::std::env::var("SAFER_FFI_DEBUG_FILTER")
+            .ok()
+            .map_or(true, |ref filter| fname.contains(filter))
+    {
+        if let Some(ref formatted) = try_format(&code.to_string()) {
+            // It's formatted, now let's try to also colorize it:
+            if  ::bat::PrettyPrinter::new()
+                    .input_from_bytes(formatted.as_ref())
+                    .language("rust")
+                    .true_color(false)
+                    .print()
+                    .is_err()
+            {
+                // Fallback to non-colorized-but-formatted output.
+                println!("{}", formatted);
+            }
+        } else {
+            // Fallback to raw output.
+            println!("{}", code);
+        }
+    }
+}

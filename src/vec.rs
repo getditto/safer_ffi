@@ -1,9 +1,11 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 use_prelude!();
 use ::core::slice;
 use crate::slice::*;
 
 ReprC! {
-    #[repr(C)]
+    #[repr(C, nodejs)]
     #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]
     /// Same as [`Vec<T>`][`rust::Vec`], but with guaranteed `#[repr(C)]` layout
     pub
@@ -153,32 +155,17 @@ impl<T> Vec<T> {
 
     pub
     fn with_rust_mut<R> (
-        self: &'_ mut Self,
+        self: &'_ mut repr_c::Vec<T>,
         f: impl FnOnce(&'_ mut rust::Vec<T>) -> R,
     ) -> R
     {
-        use mem::ManuallyDrop as MD;
-        let this: &'_ mut MD<Self> = unsafe {
-            mem::transmute(self)
-        };
-        let rust_vec: rust::Vec<T> =
-            unsafe { MD::take(this) }
-                .into()
-        ;
-        // f(&mut *::scopeguard::guard(rust_vec, |it| this.write(it.into())))
-        return f(&mut Guard(MD::new(rust_vec), this).0);
-        // where
-        struct Guard<'__, T> (
-            MD<rust::Vec<T>>,
-            &'__ mut MD<Vec<T>>,
-        );
-        impl<T> Drop for Guard<'_, T> {
-            fn drop (self: &'_ mut Self)
-            {
-                unsafe {
-                    *self.1 = MD::new(MD::take(&mut self.0).into())
-                }
-            }
+        let at_c_vec: *mut repr_c::Vec<T> = self;
+        unsafe {
+            ::unwind_safe::with_state::<rust::Vec<T>>(at_c_vec.read().into())
+                .try_eval(f)
+                .finally(|rust_vec| {
+                    at_c_vec.write(rust_vec.into());
+                })
         }
     }
 }

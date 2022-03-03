@@ -9,24 +9,45 @@
 
 #ifndef __RUST_FFI_TESTS__
 #define __RUST_FFI_TESTS__
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct foo foo_t;
-
-foo_t * new_foo (void);
-
-
 #include <stddef.h>
 #include <stdint.h>
 
-int32_t read_foo (
-    foo_t const * foo);
+int32_t async_get_ft (void);
 
-void free_foo (
-    foo_t * foo);
+/** \brief
+ *  This is a `#[repr(C)]` enum, which leads to a classic enum def.
+ */
+typedef enum SomeReprCEnum {
+    /** \brief
+     *  This is some variant.
+     */
+    SOME_REPR_C_ENUM_SOME_VARIANT,
+} SomeReprCEnum_t;
+
+void check_SomeReprCEnum (
+    SomeReprCEnum_t _baz);
+
+/** \remark Has the same ABI as `uint8_t` **/
+#ifdef DOXYGEN
+typedef enum Bar
+#else
+typedef uint8_t Bar_t; enum
+#endif
+{
+    /** . */
+    BAR_A,
+}
+#ifdef DOXYGEN
+Bar_t
+#endif
+;
+
+void check_bar (
+    Bar_t _bar);
 
 /** \brief
  *  Concatenate the two input strings into a new one.
@@ -43,22 +64,10 @@ char * concat (
 void free_char_p (
     char * _string);
 
-typedef struct {
+typedef struct foo foo_t;
 
-    void * env_ptr;
-
-    void (*call)(void *, char const *);
-
-} RefDynFnMut1_void_char_const_ptr_t;
-
-/** \brief
- *  Same as `concat`, but with a callback-based API to auto-free the created
- *  string.
- */
-void with_concat (
-    char const * fst,
-    char const * snd,
-    RefDynFnMut1_void_char_const_ptr_t cb);
+void free_foo (
+    foo_t * foo);
 
 /** \brief
  *  `&'lt [T]` but with a guaranteed `#[repr(C)]` layout.
@@ -81,14 +90,8 @@ void with_concat (
  */
 typedef struct {
 
-    /** \brief
-     *  Pointer to the first element (if any).
-     */
     int32_t const * ptr;
 
-    /** \brief
-     *  Element count
-     */
     size_t len;
 
 } slice_ref_int32_t;
@@ -100,27 +103,34 @@ typedef struct {
 int32_t const * max (
     slice_ref_int32_t xs);
 
-/** \remark Has the same ABI as `uint8_t` **/
-#ifdef DOXYGEN
-typedef enum Bar
-#else
-typedef uint8_t Bar_t; enum
-#endif
-{
-    /** . */
-    BAR_A,
-}
-#ifdef DOXYGEN
-Bar_t
-#endif
-;
+foo_t * new_foo (void);
 
-void check_bar (
-    Bar_t _bar);
+int32_t read_foo (
+    foo_t const * foo);
+
+typedef struct {
+
+    void * env_ptr;
+
+    void (*call)(void *, char const *);
+
+} RefDynFnMut1_void_char_const_ptr_t;
+
+/** \brief
+ *  Same as `concat`, but with a callback-based API to auto-free the created
+ *  string.
+ */
+void with_concat (
+    char const * fst,
+    char const * snd,
+    RefDynFnMut1_void_char_const_ptr_t cb);
+
+void with_foo (
+    void (*cb)(foo_t *));
 
 
 #ifdef __cplusplus
-} /* extern "C" */
+} /* extern \"C\" */
 #endif
 
 #endif /* __RUST_FFI_TESTS__ */

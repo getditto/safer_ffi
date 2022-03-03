@@ -1,9 +1,9 @@
 [lib]
-path = "mod.rs"
+path = "_mod.rs"
 proc-macro = true
 
 [package]
-name = "safer_ffi-proc_macro"
+name = "safer_ffi-proc_macros"
 # Keep in sync with `/Cargo.toml`
 version = "0.0.7"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
@@ -15,10 +15,20 @@ license = "MIT"
 [dependencies]
 proc-macro2 = { version = "1.0", optional = true }
 quote = { version = "1.0", optional = true }
-syn = { version = "1.0", features = ["full"], optional = true }
 proc-macro-hack = { version = "0.5.15", optional = true }
 
+[dependencies.syn]
+version = "1.0"
+features = [
+    # "extra-traits",
+    "full",
+    "visit-mut",
+]
+optional = true
+
 [features]
+async-fn = ["proc_macros"]
 headers = []
-proc_macros = ["proc-macro2", "proc-macro-hack", "quote", "syn"]
+node-js = ["async-fn", "proc_macros"]
+proc_macros = [ "proc-macro2", "proc-macro-hack", "quote", "syn" ]
 verbose-expansions = []

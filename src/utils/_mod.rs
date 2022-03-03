@@ -1,3 +1,6 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 #[macro_use]
 mod macros;
 

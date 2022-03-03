@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 //! `char *`-compatible strings (slim pointers), for easier use from within C.
 //
 //! They thus do not support inner nulls, nor string appending.
@@ -63,6 +64,26 @@ impl fmt::Display
         fmt::Display::fmt(self.to_str(), fmt)
     }
 }
+
+unsafe // Safety: proof delegated to `where` bound.
+impl Send for char_p_ref<'_>
+where
+    for<'lt> &'lt [u8] : Send,
+{}
+
+unsafe // Safety: proof delegated to `where` bound.
+impl Sync for char_p_ref<'_>
+where
+    for<'lt> &'lt [u8] : Sync,
+{}
+
+unsafe // Safety: no non-`unsafe` API.
+impl Send for char_p_raw
+{}
+
+unsafe // Safety: no non-`unsafe` API.
+impl Sync for char_p_raw
+{}
 
 #[derive(Debug)]
 pub
