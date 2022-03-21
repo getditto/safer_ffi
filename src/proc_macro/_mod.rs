@@ -36,7 +36,8 @@ macro_rules! inline_mod {($modname:ident) => (
     include! { concat!(stringify!($modname), ".rs") }
 )}
 
-inline_mod!(utils);
+use utils::*;
+mod utils;
 
 #[cfg(feature = "proc_macros")]
 inline_mod!(derives);

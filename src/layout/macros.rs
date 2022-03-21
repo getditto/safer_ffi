@@ -842,7 +842,7 @@ macro_rules! ReprC {
         impl $(<$($generics)*>)? $crate::layout::__HasNiche__
             for $StructName $(<$($generics)*>)?
         where
-            $field_ty : $crate::layout::__HasNiche__,
+            for<'hack> $crate::__TrivialBound<'hack, $field_ty> : $crate::layout::__HasNiche__,
             $($(
                 $($bounds)*
             )?)?

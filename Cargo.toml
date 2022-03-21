@@ -18,6 +18,8 @@ readme = "README.md"
 [features]
 default = [
     "std",
+    # FIXME: REMOVE!
+    "dyn-traits"
 ]
 
 nightly = []
@@ -38,6 +40,11 @@ proc_macros = [
 debug_proc_macros = [
     "proc_macros",
     "safer_ffi-proc_macros/verbose-expansions",
+]
+
+dyn-traits = [
+    "proc_macros",
+    "safer_ffi-proc_macros/dyn-traits",
 ]
 
 out-refs = ["uninit"]
