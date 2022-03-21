@@ -115,6 +115,8 @@ __cfg_headers__! {
 }
 
 cfg_alloc! {
+    #[doc(hidden)] pub
+    extern crate alloc as __alloc;
     extern crate alloc;
 }
 
@@ -132,6 +134,11 @@ mod char_p;
 
 pub
 mod closure;
+
+#[cfg(feature = "dyn-traits")]
+#[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "dyn-traits")))]
+pub
+mod dyn_traits;
 
 const _: () = {
     #[path = "ffi_export.rs"]
@@ -192,6 +199,18 @@ cfg_std! {
     hidden_export! {
         use ::std;
     }
+}
+
+hidden_export! {
+    /// Hack needed to `feature(trivial_bounds)` in stable Rust:
+    ///
+    /// Instead of `where Ty : Bounds…`, it suffices to write:
+    /// `where for<'hrtb> TrivialBound<'hrtb, Ty> : Bounds…`.
+    type __TrivialBound<'hrtb, T> = <T as __private::Ignoring<'hrtb>>::ItSelf;
+}
+mod __private {
+    pub trait Ignoring<'__> { type ItSelf : ?Sized; }
+    impl<T : ?Sized> Ignoring<'_> for T { type ItSelf = Self; }
 }
 
 #[doc(hidden)] /** Not part of the public API **/ pub
@@ -288,6 +307,12 @@ mod prelude {
         // Helper trait to have `AsOut` when `T : !Copy`
         ManuallyDropMut,
     };
+
+    #[cfg(feature = "dyn-traits")]
+    #[cfg_attr(all(docs, feature = "nightly"),
+        doc(cfg(feature = "dyn-traits"))
+    )]
+    pub use crate::dyn_traits::VirtualPtr;
 }
 
 #[macro_export]

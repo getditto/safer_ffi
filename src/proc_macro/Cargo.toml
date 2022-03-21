@@ -17,6 +17,9 @@ proc-macro2 = { version = "1.0", optional = true }
 quote = { version = "1.0", optional = true }
 proc-macro-hack = { version = "0.5.15", optional = true }
 
+# prettyplease.optional = true
+prettyplease.version = "0.1.7"
+
 [dependencies.syn]
 version = "1.0"
 features = [
@@ -28,7 +31,10 @@ optional = true
 
 [features]
 async-fn = ["proc_macros"]
+dyn-traits = []
 headers = []
 node-js = ["async-fn", "proc_macros"]
 proc_macros = [ "proc-macro2", "proc-macro-hack", "quote", "syn" ]
-verbose-expansions = []
+verbose-expansions = [
+    # "prettyplease",
+]

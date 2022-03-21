@@ -1,3 +1,7 @@
+#[cfg(feature = "dyn-traits")]
+#[path = "dyn_trait/_mod.rs"]
+mod dyn_trait;
+
 inline_mod!(handle_fptr);
 
 fn feed_to_macro_rules (input: TokenStream, name: Ident)
@@ -39,11 +43,11 @@ fn feed_to_macro_rules (input: TokenStream, name: Ident)
                     #(#attrs)*
                     #vis
                     #struct_ #ident
-                                [#params]
-                            where {
-                                #(#bounds ,)*
-                            }
-                        #fields
+                        [#params]
+                    where {
+                        #(#bounds ,)*
+                    }
+                    #fields
                     #maybe_semi_colon
                 }
             }
@@ -154,9 +158,31 @@ fn feed_to_macro_rules (input: TokenStream, name: Ident)
 ///     ```
 #[cfg(feature = "proc_macros")]
 #[proc_macro_attribute] pub
-fn derive_ReprC (attrs: TokenStream, input: TokenStream)
+fn derive_ReprC (mut attrs: TokenStream, mut input: TokenStream)
   -> TokenStream
 {
+    #![cfg_attr(not(feature = "dyn-traits"), allow(unused_mut))]
+    #[cfg(feature = "dyn-traits")]
+    match dyn_trait::try_handle_trait(&mut attrs, &mut input) {
+        | Ok(Some(output)) => return utils::mb_file_expanded(output).into(),
+        | Err(mut err) => {
+            // Prefix error messages with `derive_ReprC`.
+            {
+                let mut errors =
+                    err .into_iter()
+                        .map(|err| Error::new_spanned(
+                            err.to_compile_error(),
+                            format_args!("`#[safer_ffi::derive_ReprC]`: {}", err),
+                        ))
+                ;
+                err = errors.next().unwrap();
+                errors.for_each(|cur| err.combine(cur));
+            }
+            input.extend(TokenStream::from(err.to_compile_error()));
+            return input;
+        },
+        | Ok(None) => {},
+    }
     if let Some(tt) = TokenStream2::from(attrs).into_iter().next() {
         return Error::new_spanned(tt,
             "Unexpected parameter",

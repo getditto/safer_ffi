@@ -804,3 +804,18 @@ mod niche;
 
 #[doc(hidden)] /* Not part of the public API */ pub
 use niche::HasNiche as __HasNiche__;
+
+pub
+trait ConcreteReprC
+where
+    Self : ReprC<CLayout = Self::ConcreteCLayout>,
+{
+    type ConcreteCLayout : CType<OPAQUE_KIND = OpaqueKind::Concrete>;
+}
+impl<T : ?Sized, CLayout> ConcreteReprC for T
+where
+    Self : ReprC<CLayout = CLayout>,
+    CLayout : CType<OPAQUE_KIND = OpaqueKind::Concrete>,
+{
+    type ConcreteCLayout = CLayout;
+}
