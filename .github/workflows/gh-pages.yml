@@ -51,10 +51,10 @@ jobs:
     needs: check
     strategy:
       matrix:
-        feature--proc_macros: ['', '--features proc_macros']
         feature--std: ['', '--features std']
         feature--alloc: ['', '--features alloc']
-        feature--log: ['', '--features log']
+        feature--async-fn: ['', '--features async-fn']
+        # feature--log: ['', '--features log']
         feature--out-refs: ['', '--features out-refs']
         feature--node-js: ['', '--features node-js']
     steps:
@@ -73,10 +73,9 @@ jobs:
           command: check
           args: |
             --no-default-features
-            ${{ matrix.feature--proc_macros }}
             ${{ matrix.feature--std }}
             ${{ matrix.feature--alloc }}
-            ${{ matrix.feature--log }}
+            ${{ matrix.feature--async-fn }}
             ${{ matrix.feature--out-refs }}
             ${{ matrix.feature--node-js }}
 
@@ -116,7 +115,7 @@ jobs:
           RUST_BACKTRACE: full
         with:
           command: test
-          args: --no-default-features --features derives,std
+          args: --no-default-features --features std
 
       - name: FFI test (C & C#?)
         run: make -C ffi_tests
@@ -158,7 +157,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: doc
-          args: --all-features
+          args: --features docs
 
       - name: Build guide and documentation
         run: |
