@@ -23,9 +23,8 @@ macro_rules! bail {
 
 macro_rules! unwrap {( $proc_macro_result:expr $(,)? ) => (
     $proc_macro_result
-    //  .map(|ret| { println!("{}", ret); ret })
-        .unwrap_or_else(|err| {
-            let mut errors =
+        .unwrap_or_else(|mut err| {
+            let mut iter_errors =
                 err .into_iter()
                     .map(|err| Error::new_spanned(
                         err.to_compile_error(),
@@ -36,8 +35,8 @@ macro_rules! unwrap {( $proc_macro_result:expr $(,)? ) => (
                         ),
                     ))
             ;
-            let mut err = errors.next().unwrap();
-            errors.for_each(|cur| err.combine(cur));
+            err = iter_errors.next().unwrap();
+            iter_errors.for_each(|cur| err.combine(cur));
             err.to_compile_error()
         })
         .into()
@@ -52,8 +51,8 @@ fn type_name_of_val<T> (_: T)
 
 macro_rules! function_name {() => ({
     let mut name = $crate::utils::type_name_of_val({ fn f () {} f });
-    name = &name[.. name.len() - 3].trim_end_matches("::{{closure}}");
-    if let Some(i) = name.rfind(':') {
+    name = &name[.. name.len() - "::f".len()].trim_end_matches("::{{closure}}");
+    if let ::core::option::Option::Some(i) = name.rfind(':') {
         name = &name[i + 1..];
     }
     name
