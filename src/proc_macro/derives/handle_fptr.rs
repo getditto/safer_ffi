@@ -1,7 +1,16 @@
-fn try_handle_fptr (input: &'_ DeriveInput)
-  -> Option<TokenStream>
+use {
+    ::syn::{
+        visit_mut::VisitMut,
+    },
+    super::*,
+};
+
+pub(in super)
+fn try_handle_fptr (
+    input: &'_ DeriveInput,
+) -> Option<TokenStream2>
 {
-    let span = Span2::call_site();
+    let span = Span::call_site();
 
     macro_rules! error {(
         $msg:expr $(=> $span:expr)? $(,)?
@@ -280,7 +289,7 @@ fn try_handle_fptr (input: &'_ DeriveInput)
         let (intro, fwd, where_) = input_Layout.generics.split_for_impl();
         ret.extend(quote!(
             unsafe
-            impl#intro
+            impl #intro
                 #ReprC
             for
                 #StructName #fwd
@@ -298,7 +307,7 @@ fn try_handle_fptr (input: &'_ DeriveInput)
             #[allow(nonstandard_style)]
             #input_Layout
 
-            impl#intro
+            impl #intro
                 #core::clone::Clone
             for
                 #StructName_Layout #fwd
@@ -307,7 +316,7 @@ fn try_handle_fptr (input: &'_ DeriveInput)
                 fn clone (self: &'_ Self)
                   -> Self
                 {
-                    impl#intro
+                    impl #intro
                         #core::marker::Copy
                     for
                         #StructName_Layout #fwd
@@ -318,7 +327,7 @@ fn try_handle_fptr (input: &'_ DeriveInput)
             }
 
             unsafe
-            impl#intro
+            impl #intro
                 #CType
             for
                 #StructName_Layout #fwd
@@ -428,7 +437,7 @@ fn try_handle_fptr (input: &'_ DeriveInput)
             } type OPAQUE_KIND = #Concrete; }
 
             unsafe
-            impl#intro
+            impl #intro
                 #__HasNiche__
             for
                 #StructName #fwd
@@ -461,8 +470,11 @@ const _: () = {
     macro_rules! ELIDED_LIFETIME_TEMPLATE {() => (
         "__elided_{}"
     )}
-    impl VisitMut for UnelideLifetimes<'_, '_> {
-        fn visit_lifetime_mut (self: &'_ mut Self, lifetime: &'_ mut Lifetime)
+    impl ::syn::visit_mut::VisitMut for UnelideLifetimes<'_, '_> {
+        fn visit_lifetime_mut (
+            self: &'_ mut Self,
+            lifetime: &'_ mut Lifetime,
+        )
         {
             let Self { lifetime_params, counter } = self;
             if lifetime.ident == "_" {
@@ -474,7 +486,10 @@ const _: () = {
             }
         }
 
-        fn visit_type_mut (self: &'_ mut Self, ty: &'_ mut Type)
+        fn visit_type_mut (
+            self: &'_ mut Self,
+            ty: &'_ mut Type,
+        )
         {
             ::syn::visit_mut::visit_type_mut(self, ty);
             let Self { lifetime_params, counter } = self;
@@ -493,7 +508,7 @@ const _: () = {
                                     ),
                                     counter.next().unwrap(),
                                 ),
-                                Span2::call_site(),
+                                Span::call_site(),
                             ))
                     ;
                     lifetime_params.to_mut().push(parse_quote!(
@@ -509,13 +524,21 @@ const _: () = {
 /// Pretty self-explanatory: since we can't do `<for<'lt> Ty as Tr>::Assoc`
 /// (technically the result value could depend on `'lt`, but not in our case,
 /// since `CType` is `'static`)
-struct StripLifetimeParams; impl VisitMut for StripLifetimeParams {
-    fn visit_lifetime_mut (self: &'_ mut Self, lifetime: &'_ mut Lifetime)
+struct StripLifetimeParams;
+
+impl VisitMut for StripLifetimeParams {
+    fn visit_lifetime_mut (
+        self: &'_ mut Self,
+        lifetime: &'_ mut Lifetime,
+    )
     {
-        *lifetime = Lifetime::new("'static", Span2::call_site());
+        *lifetime = Lifetime::new("'static", Span::call_site());
     }
 
-    fn visit_type_mut (self: &'_ mut Self, ty: &'_ mut Type)
+    fn visit_type_mut (
+        self: &'_ mut Self,
+        ty: &'_ mut Type,
+    )
     {
         ::syn::visit_mut::visit_type_mut(self, ty);
         match *ty {
@@ -524,7 +547,7 @@ struct StripLifetimeParams; impl VisitMut for StripLifetimeParams {
                 ..
             }) => {
                 *implicitly_elided_lifetime = Some(
-                    Lifetime::new("'static", Span2::call_site())
+                    Lifetime::new("'static", Span::call_site())
                 );
             },
             | _ => {},
