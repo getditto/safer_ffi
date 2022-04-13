@@ -13,11 +13,9 @@ mod macros;
 #[doc(inline)]
 pub use crate::{from_CType_impl_ReprC, ReprC, CType};
 
-cfg_proc_macros! {
-    pub use crate::{
-        derive_ReprC,
-    };
-}
+pub use crate::{
+    derive_ReprC,
+};
 
 type_level_enum! {
     pub
@@ -752,12 +750,7 @@ fn from_raw_unchecked<T : ReprC> (c_layout: T::CLayout)
     }
 }
 
-#[cfg_attr(all(feature = "proc_macros", not(docs)),
-    require_unsafe_in_body,
-)]
-#[cfg_attr(not(feature = "proc_macros"),
-    allow(unused_unsafe),
-)]
+#[deny(unsafe_op_in_unsafe_fn)]
 #[inline]
 pub
 unsafe
@@ -777,12 +770,7 @@ fn from_raw<T : ReprC> (c_layout: T::CLayout)
     }
 }
 
-#[cfg_attr(all(feature = "proc_macros", not(docs)),
-    require_unsafe_in_body,
-)]
-#[cfg_attr(not(feature = "proc_macros"),
-    allow(unused_unsafe),
-)]
+#[deny(unsafe_op_in_unsafe_fn)]
 #[inline]
 pub
 unsafe // May not be sound when input has uninit bytes that the output does not

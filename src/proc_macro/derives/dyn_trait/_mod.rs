@@ -1,19 +1,6 @@
 use {
-    ::{
-        core::{
-            mem, slice,
-        },
-        proc_macro2::{
-            Span,
-        },
-        syn::{
-            parse::*,
-        },
-    },
-    crate::{
-        utils::{
-            extension_traits::*,
-        },
+    ::core::{
+        mem, slice,
     },
     super::*,
     self::{
@@ -21,7 +8,7 @@ use {
             VTableEntry,
             vtable_entries,
         },
-    },
+    }
 };
 
 enum Input {
@@ -47,11 +34,10 @@ impl Parse for Input {
 
 pub(in super)
 fn try_handle_trait (
-    attrs: &TokenStream,
-    input: &mut TokenStream,
-) -> Result<Option<TokenStream2>>
+    attrs: &'_ TokenStream2,
+    input: &'_ mut TokenStream2,
+) -> Result< Option<TokenStream2> >
 {
-
     let ErasedTy @ _ = quote!(
         ::safer_ffi::dyn_traits::ErasedTy
     );
@@ -59,7 +45,7 @@ fn try_handle_trait (
         ::safer_ffi::__alloc::boxed::Box
     );
 
-    let ref mut trait_ = match parse(mem::take(input)).unwrap() {
+    let ref mut trait_ = match parse2(mem::take(input)).unwrap() {
         | Input::TokenStream(ts) => {
             *input = ts.into();
             return Ok(None);
@@ -351,7 +337,7 @@ fn try_handle_trait (
             }
         ));
     }
-    let _: parse::Nothing = parse(attrs.clone())?;
+    let _: parse::Nothing = parse2(attrs.clone())?;
     drop(each_vtable_entry_value_f);
     ret = quote!(
         #trait_
@@ -365,10 +351,11 @@ fn CType (ty: &'_ Type)
   -> TokenStream2
 {
     /* replace lifetimes inside `T` with … `'static`?? */
-    let ref mut T = ty.clone();
-    RemapNonStaticLifetimesTo { new_lt_name: "static" }
-        .visit_type_mut(T)
-    ;
+    let mut T = ty.clone();
+    ::syn::visit_mut::VisitMut::visit_type_mut(
+        &mut RemapNonStaticLifetimesTo { new_lt_name: "static" },
+        &mut T,
+    );
     quote!(
         <
             #T

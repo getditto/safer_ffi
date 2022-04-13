@@ -2,7 +2,7 @@
 #![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt::skip)]
 #![cfg_attr(feature = "nightly",
-    feature(doc_cfg, external_doc, trivial_bounds)
+    feature(doc_cfg, trivial_bounds)
 )]
 #![cfg_attr(not(feature = "std"),
     no_std,
@@ -19,13 +19,7 @@
     unconditional_recursion,
     unused_must_use,
 )]
-
-#![cfg_attr(feature = "nightly",
-    doc(include = "../README.md")
-)]
-#![cfg_attr(not(feature = "nightly"),
-    doc = "See the [user guide](https://getditto.github.io/safer_ffi)."
-)]
+#![doc = include_str!("../README.md")]
 #![cfg(not(rustfmt))]
 
 #[macro_use]
@@ -34,57 +28,193 @@
 mod __utils__;
 use __utils__ as utils;
 
-#[cfg(feature = "proc_macros")]
-#[macro_use]
-extern crate require_unsafe_in_body;
-
 hidden_export! {
     use ::paste;
 }
 
-pub use ::safer_ffi_proc_macros::{ffi_export, cfg_headers};
-cfg_proc_macros! {
-    #[::proc_macro_hack::proc_macro_hack]
-    /// Creates a compile-time checked [`char_p::Ref`]`<'static>` out of a
-    /// string literal.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use ::safer_ffi::prelude::*;
-    ///
-    /// #[ffi_export]
-    /// fn concat (s1: char_p::Ref<'_>, s2: char_p::Ref<'_>)
-    ///   -> char_p::Box
-    /// {
-    ///     format!("{}{}", s1.to_str(), s2.to_str())
-    ///         .try_into()
-    ///         .unwrap() // No inner nulls in our format string
-    /// }
-    ///
-    /// fn main ()
-    /// {
-    ///     assert_eq!(
-    ///         concat(c!("Hello, "), c!("World!")).as_ref(),
-    ///         c!("Hello, World!"),
-    ///     );
-    /// }
-    /// ```
-    ///
-    /// If the string literal contains an inner null byte, then the macro
-    /// will detect it at compile time and thus cause a compile-time error
-    /// (allowing to skip the then unnecessary runtime check!):
-    ///
-    /// ```rust,compile_fail
-    /// let _ = ::safer_ffi::c!("Hell\0, World!"); // <- Compile error
-    /// ```
-    ///
-    /// [`char_p::Ref`]: `crate::prelude::char_p::Ref`
-    pub use ::safer_ffi_proc_macros::c_str as c;
 
-    #[doc(inline)]
-    pub use ::safer_ffi_proc_macros::derive_ReprC;
-}
+
+/// Export a function to be callable by C.
+///
+/// # Example
+///
+/// ```rust
+/// use ::safer_ffi::prelude::ffi_export;
+///
+/// #[ffi_export]
+/// /// Add two integers together.
+/// fn add (x: i32, y: i32) -> i32
+/// {
+///     x + y
+/// }
+/// ```
+///
+///   - ensures that [the generated headers](/safer_ffi/headers/) will include the
+///     following definition:
+///
+///     ```C
+///     #include <stdint.h>
+///
+///     /* \brief
+///      * Add two integers together.
+///      */
+///     int32_t add (int32_t x, int32_t y);
+///     ```
+///
+///   - exports an `add` symbol pointing to the C-ABI compatible
+///     `int32_t (*)(int32_t x, int32_t y)` function.
+///
+///     (The crate type needs to be `cdylib` or `staticlib` for this to work,
+///     and, of course, the C compiler invocation needs to include
+///     `-L path/to/the/compiled/library -l name_of_your_crate`)
+///
+///       - when in doubt, use `staticlib`.
+///
+/// # `ReprC`
+///
+/// You can use any Rust types in the singature of an `#[ffi_export]`-
+/// function, provided each of the types involved in the signature is [`ReprC`].
+///
+/// Otherwise the layout of the involved types in the C world is **undefined**,
+/// which `#[ffi_export]` will detect, leading to a compilation error.
+///
+/// To have custom structs implement [`ReprC`], it suffices to annotate the
+/// `struct` definitions with the <code>#\[[derive_ReprC]\]</code>
+/// (on top of the obviously required `#[repr(C)]`).
+pub use ::safer_ffi_proc_macros::ffi_export;
+
+pub use ::safer_ffi_proc_macros::cfg_headers;
+
+/// Creates a compile-time checked [`char_p::Ref`]`<'static>` out of a
+/// string literal.
+///
+/// # Example
+///
+/// ```rust
+/// use ::safer_ffi::prelude::*;
+///
+/// #[ffi_export]
+/// fn concat (s1: char_p::Ref<'_>, s2: char_p::Ref<'_>)
+///   -> char_p::Box
+/// {
+///     format!("{}{}", s1.to_str(), s2.to_str())
+///         .try_into()
+///         .unwrap() // No inner nulls in our format string
+/// }
+///
+/// fn main ()
+/// {
+///     assert_eq!(
+///         concat(c!("Hello, "), c!("World!")).as_ref(),
+///         c!("Hello, World!"),
+///     );
+/// }
+/// ```
+///
+/// If the string literal contains an inner null byte, then the macro
+/// will detect it at compile time and thus cause a compile-time error
+/// (allowing to skip the then unnecessary runtime check!):
+///
+/// ```rust,compile_fail
+/// let _ = ::safer_ffi::c!("Hell\0, World!"); // <- Compile error
+/// ```
+///
+/// [`char_p::Ref`]: `crate::prelude::char_p::Ref`
+pub use ::safer_ffi_proc_macros::c_str as c;
+
+/// Safely implement [`ReprC`]
+/// for a `#[repr(C)]` struct **when all its fields are [`ReprC`]**.
+///
+/// # Examples
+///
+/// ### Simple `struct`
+///
+/// ```rust
+/// use ::safer_ffi::prelude::*;
+///
+/// #[derive_ReprC]
+/// #[repr(C)]
+/// struct Instant {
+///     seconds: u64,
+///     nanos: u32,
+/// }
+/// ```
+///
+///   - corresponding to the following C definition:
+///
+///     ```C
+///     typedef struct {
+///         uint64_t seconds;
+///         uint32_t nanos;
+///     } Instant_t;
+///     ```
+///
+/// ### Field-less `enum`
+///
+/// ```rust
+/// use ::safer_ffi::prelude::*;
+///
+/// #[derive_ReprC]
+/// #[repr(u8)]
+/// enum Status {
+///     Ok = 0,
+///     Busy,
+///     NotInTheMood,
+///     OnStrike,
+///     OhNo,
+/// }
+/// ```
+///
+///   - corresponding to the following C definition:
+///
+///     ```C
+///     typedef uint8_t Status_t; enum {
+///         STATUS_OK = 0,
+///         STATUS_BUSY,
+///         STATUS_NOT_IN_THE_MOOD,
+///         STATUS_ON_STRIKE,
+///         STATUS_OH_NO,
+///     }
+///     ```
+///
+/// ### Generic `struct`
+///
+/// In that case, it is required that the struct's generic types carry a
+/// `: ReprC` bound each:
+///
+/// ```rust
+/// use ::safer_ffi::prelude::*;
+///
+/// #[derive_ReprC]
+/// #[repr(C)]
+/// struct Point<Coordinate : ReprC> {
+///     x: Coordinate,
+///     y: Coordinate,
+/// }
+/// #
+/// # fn main() {}
+/// ```
+///
+/// Each monomorphization leads to its own C definition:
+///
+///   - **`Point<i32>`**
+///
+///     ```C
+///     typedef struct {
+///         int32_t x;
+///         int32_t y;
+///     } Point_int32_t;
+///     ```
+///
+///   - **`Point<f64>`**
+///
+///     ```C
+///     typedef struct {
+///         double x;
+///         double y;
+///     } Point_double_t;
+///     ```
+pub use ::safer_ffi_proc_macros::derive_ReprC;
 
 #[macro_use]
 #[path = "layout/_mod.rs"]
@@ -280,12 +410,12 @@ mod prelude {
             pub use crate::string::str_boxed as Box;
         }
     }
-    cfg_proc_macros! {
-        #[doc(no_inline)]
-        pub use crate::layout::derive_ReprC;
-        #[doc(no_inline)]
-        pub use c;
-    }
+
+    #[doc(no_inline)]
+    pub use crate::layout::derive_ReprC;
+    #[doc(no_inline)]
+    pub use crate::c;
+
     #[doc(no_inline)]
     pub use ::core::{
         convert::{

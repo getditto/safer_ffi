@@ -2,70 +2,92 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(nonstandard_style, unused_imports)]
 
-extern crate proc_macro;
-
-use ::proc_macro::{Span, TokenStream};
-
-#[cfg(feature = "proc_macros")]
-use ::{
-    proc_macro2::{
-        Span as Span2,
-        TokenStream as TokenStream2,
+use {
+    ::core::{
+        ops::Not as _,
     },
-    quote::{
+    ::proc_macro::{
+        TokenStream,
+    },
+    ::proc_macro2::{
+        Span,
+        TokenStream as TokenStream2,
+        TokenTree as TT,
+    },
+    ::quote::{
         format_ident,
         quote,
         quote_spanned,
         ToTokens,
     },
-    syn::{*,
+    ::syn::{*,
         parse::{
             Parse,
             Parser,
+            ParseStream,
         },
         punctuated::Punctuated,
         spanned::Spanned,
-        visit_mut::VisitMut,
         Result,
+    },
+    crate::utils::{
+        *,
     },
 };
 
-use ::core::ops::Not as _;
+mod c_str;
 
-macro_rules! inline_mod {($modname:ident) => (
-    include! { concat!(stringify!($modname), ".rs") }
-)}
+#[path = "derives/_mod.rs"]
+mod derives;
 
-use utils::*;
+#[path = "ffi_export/_mod.rs"]
+mod ffi_export;
+
+#[path = "utils/_mod.rs"]
 mod utils;
 
-#[cfg(feature = "proc_macros")]
-inline_mod!(derives);
-
-#[cfg(feature = "proc_macros")]
-inline_mod!(c_str);
-
-include!("ffi_export/_mod.rs");
-
-#[cfg(feature = "headers")]
 #[proc_macro_attribute] pub
-fn cfg_headers (attrs: TokenStream, input: TokenStream)
-  -> TokenStream
+fn cfg_headers (
+    attrs: TokenStream,
+    input: TokenStream,
+) -> TokenStream
 {
-    if let Some(unexpected_tt) = attrs.into_iter().next() {
-        return compile_error("Unexpected parameter", unexpected_tt.span());
+    parse_macro_input!(attrs as parse::Nothing);
+    if cfg!(feature = "headers") {
+        input
+    } else {
+        <_>::default()
     }
-    input
 }
 
-#[cfg(not(feature = "headers"))]
-#[proc_macro_attribute] pub
-fn cfg_headers (attrs: TokenStream, input: TokenStream)
+#[proc_macro] pub
+fn c_str (input: TokenStream)
   -> TokenStream
 {
-    if let Some(unexpected_tt) = attrs.into_iter().next() {
-        return compile_error("Unexpected parameter", unexpected_tt.span());
-    }
-    let _ = input;
-    TokenStream::new()
+    unwrap!(c_str::c_str(input.into()))
+}
+
+#[proc_macro_attribute] pub
+fn ffi_export (attrs: TokenStream, input: TokenStream)
+  -> TokenStream
+{
+    unwrap!(ffi_export::ffi_export(attrs.into(), input.into()))
+}
+
+#[proc_macro_attribute] pub
+fn derive_ReprC (
+    attrs: TokenStream,
+    input: TokenStream,
+) -> TokenStream
+{
+    unwrap!(derives::derive_ReprC(attrs.into(), input.into()))
+}
+
+#[proc_macro_attribute] pub
+fn derive_CType (
+    attrs: TokenStream,
+    input: TokenStream,
+) -> TokenStream
+{
+    unwrap!(derives::derive_CType(attrs.into(), input.into()))
 }

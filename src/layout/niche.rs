@@ -27,7 +27,7 @@ impl<T : ReprC + HasNiche> ReprC
 macro_rules! unsafe_impls {(
     $(
         $(@for[$($generics:tt)*])?
-        $T:ty => |$it:pat| $expr:expr
+        $T:ty => |$it:pat_param| $expr:expr
     ),* $(,)?
 ) => (
     $(
