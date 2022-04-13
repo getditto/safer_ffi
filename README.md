@@ -27,7 +27,7 @@ https://github.com/getditto/safer_ffi)
 
 ## Prerequisites
 
-Minimum Supported Rust Version: `1.52.0`
+Minimum Supported Rust Version: `1.57.0`
 
 ## Quickstart
 
