@@ -117,7 +117,7 @@ impl<'trait_> VTableEntry<'trait_> {
                 OutputTy,
                 src: _,
             } => {
-                let span = Span2::mixed_site().located_at(name.span());
+                let span = Span::mixed_site().located_at(name.span());
                 let EachArgTy @ _ = EachArgTy.iter().copied().map(CType).collect::<Vec<_>>();
                 let OutputTy @ _ = CType(OutputTy.get(0).unwrap_or(&parse_quote!( () )));
                 let type_ = quote_spanned!(span=>

@@ -1,34 +1,17 @@
+#![allow(unused)]
+#![warn(unused_must_use)]
+
 use super::*;
 
-pub(in crate)
+pub(in crate) use extension_traits::*;
 mod extension_traits;
 
-pub(in crate) use mb_file_expanded::mb_file_expanded;
+pub(in crate) use macros::*;
+mod macros;
+
+pub(in crate) use mb_file_expanded::*;
 mod mb_file_expanded;
 
-pub(in crate)
-fn compile_error (err_msg: &'_ str, span: Span)
-  -> TokenStream
-{
-    use ::proc_macro::{*, TokenTree as TT};
-    macro_rules! spanned {($expr:expr) => ({
-        let mut it = $expr;
-        it.set_span(span);
-        it
-    })}
-    <TokenStream as ::std::iter::FromIterator<_>>::from_iter(vec![
-        TT::Ident(Ident::new("compile_error", span)),
-        TT::Punct(spanned!(Punct::new('!', Spacing::Alone))),
-        TT::Group(spanned!(Group::new(
-            Delimiter::Brace,
-            ::core::iter::once(TT::Literal(
-                spanned!(Literal::string(err_msg))
-            )).collect(),
-        ))),
-    ])
-}
-
-#[cfg(feature = "proc_macros")]
 pub(in crate)
 trait MySplit {
     type Ret;
@@ -37,7 +20,6 @@ trait MySplit {
     ;
 }
 
-#[cfg(feature = "proc_macros")]
 impl MySplit for Generics {
     type Ret = (TokenStream2, Vec<WherePredicate>);
 
@@ -149,55 +131,53 @@ fn pretty_print_tokenstream (
     }
 }
 
-macro_rules! emit {( $($tt:tt)* ) => ( $($tt)* )}
+// macro_rules! emit {( $($tt:tt)* ) => ( $($tt)* )}
 
-#[cfg(feature = "proc_macros")] emit! {
+pub(in crate)
+struct RemapNonStaticLifetimesTo<'__> {
     pub(in crate)
-    struct RemapNonStaticLifetimesTo<'__> {
-        pub(in crate)
-        new_lt_name: &'__ str,
+    new_lt_name: &'__ str,
+}
+
+impl ::syn::visit_mut::VisitMut
+    for RemapNonStaticLifetimesTo<'_>
+{
+    fn visit_lifetime_mut (
+        self: &'_ mut Self,
+        lifetime: &'_ mut Lifetime,
+    )
+    {
+        if lifetime.ident != "static" {
+            lifetime.ident = Ident::new(
+                self.new_lt_name,
+                lifetime.ident.span(),
+            );
+        }
     }
 
-    impl ::syn::visit_mut::VisitMut
-        for RemapNonStaticLifetimesTo<'_>
+    fn visit_type_reference_mut (
+        self: &'_ mut Self,
+        ty_ref: &'_ mut TypeReference,
+    )
     {
-        fn visit_lifetime_mut (
-            self: &'_ mut Self,
-            lifetime: &'_ mut Lifetime,
-        )
-        {
-            if lifetime.ident != "static" {
-                lifetime.ident = Ident::new(
-                    self.new_lt_name,
-                    lifetime.ident.span(),
-                );
-            }
+        // 1 – sub-recurse
+        visit_mut::visit_type_reference_mut(self, ty_ref);
+        // 2 – handle the implicitly elided case.
+        if ty_ref.lifetime.is_none() {
+            ty_ref.lifetime = Some(Lifetime::new(
+                &["'", self.new_lt_name].concat(),
+                ty_ref.and_token.span,
+            ));
         }
+    }
 
-        fn visit_type_reference_mut (
-            self: &'_ mut Self,
-            ty_ref: &'_ mut TypeReference,
-        )
-        {
-            // 1 – sub-recurse
-            visit_mut::visit_type_reference_mut(self, ty_ref);
-            // 2 – handle the implicitly elided case.
-            if ty_ref.lifetime.is_none() {
-                ty_ref.lifetime = Some(Lifetime::new(
-                    &["'", self.new_lt_name].concat(),
-                    ty_ref.and_token.span,
-                ));
-            }
-        }
-
-        fn visit_parenthesized_generic_arguments_mut (
-            self: &'_ mut Self,
-            _: &'_ mut ParenthesizedGenericArguments,
-        )
-        {
-            // Elided lifetimes in `fn(…)` or `Fn…(…)` are higher order:
-            /* do not subrecurse */
-        }
+    fn visit_parenthesized_generic_arguments_mut (
+        self: &'_ mut Self,
+        _: &'_ mut ParenthesizedGenericArguments,
+    )
+    {
+        // Elided lifetimes in `fn(…)` or `Fn…(…)` are higher order:
+        /* do not subrecurse */
     }
 }
 
