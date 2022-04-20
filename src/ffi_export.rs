@@ -159,11 +159,12 @@ macro_rules! __ffi_export__ {
             ret
         }}
 
+        $crate::paste::item! {
         /// Define the N-API wrapping function.
         #[cfg(any(
             $(
                 all(),
-                __hack = $node_js_arg_count,
+                [< __hack_ $node_js_arg_count >] = "",
             )?
         ))]
         const _: () = {
@@ -259,6 +260,7 @@ macro_rules! __ffi_export__ {
                 }
             }
         };
+        }
     };
 
     #[cfg(not(target_arch = "wasm32"))]
