@@ -78,6 +78,15 @@ fn mid_point(a: &Point, b: &Point) -> Point {
     }
 }
 
+/* Export a Rust enum to C */
+#[ffi_export]
+#[derive_ReprC]
+#[repr(u8)]
+pub enum Figure {
+	Circle,
+	Square
+}
+
 /// Pretty-prints a point using Rust's formatting logic.
 #[ffi_export]
 fn print_point(point: &Point) {
@@ -140,6 +149,13 @@ typedef struct {
 Point_t mid_point (
     Point_t const * a,
     Point_t const * b);
+
+typedef enum Figure 
+{
+	FIGURE_CIRCLE,
+	FIGURE_SQUARE
+} Figure_t;
+
 
 /** \brief
  *  Pretty-prints a point using Rust's formatting logic.
