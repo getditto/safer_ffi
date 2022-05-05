@@ -16,6 +16,42 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
+/** \remark Has the same ABI as `uint8_t` **/
+#ifdef DOXYGEN
+typedef enum Triforce
+#else
+typedef uint8_t Triforce_t; enum
+#endif
+{
+    /** . */
+    TRIFORCE_DIN = 3,
+    /** . */
+    TRIFORCE_FARORE = 1,
+    /** . */
+    TRIFORCE_NARYU,
+}
+#ifdef DOXYGEN
+Triforce_t
+#endif
+;
+
+/** \remark Has the same ABI as `uint8_t` **/
+#ifdef DOXYGEN
+typedef enum Wow
+#else
+typedef uint8_t Wow_t; enum
+#endif
+{
+    /** . */
+    WOW_LEROY,
+    /** . */
+    WOW_JENKINS,
+}
+#ifdef DOXYGEN
+Wow_t
+#endif
+;
+
 int32_t async_get_ft (void);
 
 /** \brief
@@ -51,7 +87,7 @@ void check_bar (
 
 /** \brief
  *  Concatenate the two input strings into a new one.
- * 
+ *
  *  The returned string must be freed using `free_char_p`.
  */
 char * concat (

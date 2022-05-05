@@ -53,6 +53,15 @@ fn ffi_export (attrs: TokenStream, input: TokenStream)
   -> TokenStream
 {
     use ::proc_macro::{*, TokenTree as TT};
+    #[cfg(feature = "proc_macros")]
+    if let Ok(input) = parse::<DeriveInput>(input.clone()) {
+        parse_macro_input!(attrs as parse::Nothing);
+        return ::quote::quote!(
+            ::safer_ffi::__ffi_export__! {
+                #input
+            }
+        ).into();
+    }
     #[cfg(feature = "async-fn")]
     let fun: ItemFn = {
         let input = input.clone();

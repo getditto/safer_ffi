@@ -1,7 +1,30 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 
 #[doc(hidden)] #[macro_export]
-macro_rules! __ffi_export__ {(
+macro_rules! __ffi_export__ {
+(
+    $(#[$($meta:tt)*])*
+    $pub:vis enum $name:ident
+    {
+        $($tt:tt)*
+    }
+) => (
+    $(#[$($meta)*])*
+    $pub enum $name {
+        $($tt)*
+    }
+    $crate::__cfg_headers__! {
+        $crate::inventory::submit! {
+            #![crate = $crate]
+            $crate::FfiExport {
+                name: $crate::core::stringify!($name),
+                gen_def: $crate::headers::__define_self__::<$name>,
+            }
+        }
+    }
+);
+
+(
     $( @[node_js(
         $node_js_arg_count:literal,
         $($async_worker:literal $(,)?)?

@@ -22,6 +22,17 @@ using System.Runtime.InteropServices;
 public unsafe partial class Ffi {
     private const string RustLib = "ffi_tests";
 }
+public enum Triforce_t : byte {
+    Din = 3,
+    Farore = 1,
+    Naryu,
+}
+
+public enum Wow_t : byte {
+    Leroy,
+    Jenkins,
+}
+
 public unsafe partial class Ffi {
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     Int32 async_get_ft ();
@@ -49,7 +60,7 @@ public unsafe partial class Ffi {
 
 /** \brief
  *  Concatenate the two input strings into a new one.
- * 
+ *
  *  The returned string must be freed using `free_char_p`.
  */
 public unsafe partial class Ffi {
