@@ -84,6 +84,23 @@ mod bar {
     {}
 }
 
+#[ffi_export]
+#[derive_ReprC]
+#[repr(u8)]
+pub enum Wow {
+    Leroy,
+    Jenkins,
+}
+
+#[ffi_export]
+#[derive_ReprC]
+#[repr(u8)]
+pub enum Triforce {
+    Din = 3,
+    Farore = 1,
+    Naryu,
+}
+
 #[safer_ffi::cfg_headers]
 #[test]
 fn generate_headers ()
