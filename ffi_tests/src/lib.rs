@@ -136,6 +136,13 @@ pub enum Triforce {
     Naryu,
 }
 
+#[ffi_export]
+#[derive_ReprC]
+#[repr(C)]
+pub struct AnUnusedStruct {
+    are_you_still_there: Option<Wow>,
+}
+
 #[safer_ffi::cfg_headers]
 #[test]
 fn generate_headers ()

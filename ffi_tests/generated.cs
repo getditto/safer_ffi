@@ -22,15 +22,20 @@ using System.Runtime.InteropServices;
 public unsafe partial class Ffi {
     private const string RustLib = "ffi_tests";
 }
+public enum Wow_t : byte {
+    Leroy,
+    Jenkins,
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 1)]
+public unsafe struct AnUnusedStruct_t {
+    public Wow_t are_you_still_there;
+}
+
 public enum Triforce_t : byte {
     Din = 3,
     Farore = 1,
     Naryu,
-}
-
-public enum Wow_t : byte {
-    Leroy,
-    Jenkins,
 }
 
 public unsafe partial class Ffi {

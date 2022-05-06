@@ -18,6 +18,29 @@ extern "C" {
 
 /** \remark Has the same ABI as `uint8_t` **/
 #ifdef DOXYGEN
+typedef enum Wow
+#else
+typedef uint8_t Wow_t; enum
+#endif
+{
+    /** . */
+    WOW_LEROY,
+    /** . */
+    WOW_JENKINS,
+}
+#ifdef DOXYGEN
+Wow_t
+#endif
+;
+
+typedef struct {
+
+    Wow_t are_you_still_there;
+
+} AnUnusedStruct_t;
+
+/** \remark Has the same ABI as `uint8_t` **/
+#ifdef DOXYGEN
 typedef enum Triforce
 #else
 typedef uint8_t Triforce_t; enum
@@ -32,23 +55,6 @@ typedef uint8_t Triforce_t; enum
 }
 #ifdef DOXYGEN
 Triforce_t
-#endif
-;
-
-/** \remark Has the same ABI as `uint8_t` **/
-#ifdef DOXYGEN
-typedef enum Wow
-#else
-typedef uint8_t Wow_t; enum
-#endif
-{
-    /** . */
-    WOW_LEROY,
-    /** . */
-    WOW_JENKINS,
-}
-#ifdef DOXYGEN
-Wow_t
 #endif
 ;
 

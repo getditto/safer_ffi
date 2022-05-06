@@ -4,13 +4,18 @@
 macro_rules! __ffi_export__ {
 (
     $(#[$($meta:tt)*])*
-    $pub:vis enum $name:ident
+    $pub:vis
+    $enum_or_struct:ident
+    $name:ident
     {
         $($tt:tt)*
     }
 ) => (
     $(#[$($meta)*])*
-    $pub enum $name {
+    $pub
+    $enum_or_struct
+    $name
+    {
         $($tt)*
     }
     $crate::__cfg_headers__! {
