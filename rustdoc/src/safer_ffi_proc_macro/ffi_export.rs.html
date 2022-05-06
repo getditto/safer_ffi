@@ -81,10 +81,6 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
 </pre><pre class="rust"><code><span class="doccomment">/// Export a function to be callable by C.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
@@ -143,10 +139,6 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">unexpected_tt</span>) <span class="op">=</span> <span class="ident">attrs</span>.<span class="ident">into_iter</span>().<span class="ident">next</span>() {
         <span class="kw">return</span> <span class="ident">compile_error</span>(<span class="string">&quot;Unexpected parameter&quot;</span>, <span class="ident">unexpected_tt</span>.<span class="ident">span</span>());
     }
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;proc_macros&quot;</span>)]</span> {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="kw">_</span>: <span class="ident">ItemFn</span> <span class="op">=</span> <span class="macro">parse_macro_input!</span>(<span class="ident">input</span>);
-    }
     <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">Span::call_site</span>();
     <span class="op">&lt;</span><span class="ident">TokenStream</span> <span class="kw">as</span> <span class="ident">::std::iter::FromIterator</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from_iter</span>(<span class="macro">vec!</span>[
         <span class="ident">TT::Punct</span>(<span class="ident">Punct::new</span>(<span class="string">&#39;:&#39;</span>, <span class="ident">Spacing::Joint</span>)),
@@ -168,5 +160,5 @@
     ])
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi_proc_macro" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (4ca19e09d 2022-04-19)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi_proc_macro" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (30f386087 2022-05-05)" ></div>
 </body></html>

@@ -57,6 +57,16 @@ can find by running <code>cargo search safer-ffi</code>.</li>
     }
 }
 
+<span class="comment">/* Export a Rust enum to C */</span>
+<span class="attribute">#[<span class="ident">ffi_export</span>]</span> <span class="comment">// directly exporting a type is only needed</span>
+              <span class="comment">// if no exported function mentions it</span>
+<span class="attribute">#[<span class="ident">derive_ReprC</span>]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u8</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Figure</span> {
+	<span class="ident">Circle</span>,
+	<span class="ident">Square</span>
+}
+
 <span class="doccomment">/// Pretty-prints a point using Rust&#39;s formatting logic.</span>
 <span class="attribute">#[<span class="ident">ffi_export</span>]</span>
 <span class="kw">fn</span> <span class="ident">print_point</span>(<span class="ident">point</span>: <span class="kw-2">&amp;</span><span class="ident">Point</span>) {
@@ -107,6 +117,13 @@ typedef struct {
 Point_t mid_point (
     Point_t const * a,
     Point_t const * b);
+
+typedef enum Figure 
+{
+	FIGURE_CIRCLE,
+	FIGURE_SQUARE
+} Figure_t;
+
 
 /** \brief
  *  Pretty-prints a point using Rust&#39;s formatting logic.
@@ -165,5 +182,5 @@ string literal.</p>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="attr" href="attr.cfg_headers.html" title="safer_ffi::cfg_headers attr">cfg_headers</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="attr" href="attr.derive_ReprC.html" title="safer_ffi::derive_ReprC attr">derive_ReprC</a><span class="stab portability" title="Available on crate feature `proc_macros` only"><code>proc_macros</code></span></div><div class="item-right docblock-short"><p>Safely implement <a href="/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a>
 for a <code>#[repr(C)]</code> struct <strong>when all its fields are <a href="/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a></strong>.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="attr" href="attr.ffi_export.html" title="safer_ffi::ffi_export attr">ffi_export</a></div><div class="item-right docblock-short"><p>Export a function to be callable by C.</p>
-</div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (4ca19e09d 2022-04-19)" ></div>
+</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (30f386087 2022-05-05)" ></div>
 </body></html>
