@@ -84,7 +84,6 @@ mod bar {
     {}
 }
 
-#[ffi_export]
 #[derive_ReprC]
 #[repr(u8)]
 pub enum Wow {
@@ -99,6 +98,13 @@ pub enum Triforce {
     Din = 3,
     Farore = 1,
     Naryu,
+}
+
+#[ffi_export]
+#[derive_ReprC]
+#[repr(C)]
+pub struct AnUnusedStruct {
+    are_you_still_there: Option<Wow>,
 }
 
 #[safer_ffi::cfg_headers]

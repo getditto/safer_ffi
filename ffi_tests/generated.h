@@ -14,31 +14,23 @@
 extern "C" {
 #endif
 
+typedef struct foo foo_t;
+
+foo_t * new_foo (void);
+
 
 #include <stddef.h>
 #include <stdint.h>
 
-/** \remark Has the same ABI as `uint8_t` **/
-#ifdef DOXYGEN
-typedef enum Bar
-#else
-typedef uint8_t Bar_t; enum
-#endif
-{
-    /** . */
-    BAR_A,
-}
-#ifdef DOXYGEN
-Bar_t
-#endif
-;
+int32_t read_foo (
+    foo_t const * foo);
 
-void check_bar (
-    Bar_t _bar);
+void free_foo (
+    foo_t * foo);
 
 /** \brief
  *  Concatenate the two input strings into a new one.
- * 
+ *
  *  The returned string must be freed using `free_char_p`.
  */
 char * concat (
@@ -70,9 +62,9 @@ void with_concat (
 
 /** \brief
  *  `&'lt [T]` but with a guaranteed `#[repr(C)]` layout.
- * 
+ *
  *  # C layout (for some given type T)
- * 
+ *
  *  ```c
  *  typedef struct {
  *      // Cannot be NULL
@@ -80,9 +72,9 @@ void with_concat (
  *      size_t len;
  *  } slice_T;
  *  ```
- * 
+ *
  *  # Nullable pointer?
- * 
+ *
  *  If you want to support the above typedef, but where the `ptr` field is
  *  allowed to be `NULL` (with the contents of `len` then being undefined)
  *  use the `Option< slice_ptr<_> >` type.
@@ -104,23 +96,6 @@ int32_t const * max (
 
 /** \remark Has the same ABI as `uint8_t` **/
 #ifdef DOXYGEN
-typedef enum Wow
-#else
-typedef uint8_t Wow_t; enum
-#endif
-{
-    /** . */
-    WOW_LEROY,
-    /** . */
-    WOW_JENKINS,
-}
-#ifdef DOXYGEN
-Wow_t
-#endif
-;
-
-/** \remark Has the same ABI as `uint8_t` **/
-#ifdef DOXYGEN
 typedef enum Triforce
 #else
 typedef uint8_t Triforce_t; enum
@@ -138,15 +113,46 @@ Triforce_t
 #endif
 ;
 
-typedef struct foo foo_t;
+/** \remark Has the same ABI as `uint8_t` **/
+#ifdef DOXYGEN
+typedef enum Wow
+#else
+typedef uint8_t Wow_t; enum
+#endif
+{
+    /** . */
+    WOW_LEROY,
+    /** . */
+    WOW_JENKINS,
+}
+#ifdef DOXYGEN
+Wow_t
+#endif
+;
 
-foo_t * new_foo (void);
+typedef struct AnUnusedStruct {
 
-int32_t read_foo (
-    foo_t const * foo);
+    Wow_t are_you_still_there;
 
-void free_foo (
-    foo_t * foo);
+} AnUnusedStruct_t;
+
+/** \remark Has the same ABI as `uint8_t` **/
+#ifdef DOXYGEN
+typedef enum Bar
+#else
+typedef uint8_t Bar_t; enum
+#endif
+{
+    /** . */
+    BAR_A,
+}
+#ifdef DOXYGEN
+Bar_t
+#endif
+;
+
+void check_bar (
+    Bar_t _bar);
 
 
 #ifdef __cplusplus
