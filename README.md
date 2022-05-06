@@ -79,7 +79,8 @@ fn mid_point(a: &Point, b: &Point) -> Point {
 }
 
 /* Export a Rust enum to C */
-#[ffi_export]
+#[ffi_export] // directly exporting a type is only needed
+              // if no exported function mentions it
 #[derive_ReprC]
 #[repr(u8)]
 pub enum Figure {
