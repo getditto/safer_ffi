@@ -1,6 +1,37 @@
 #[doc(hidden)] #[macro_export]
-macro_rules! __ffi_export__ {(
-    $($(#[doc = $doc:expr])+)?
+macro_rules! __ffi_export__ {
+    (
+        $(#[$($meta:tt)*])*
+        $pub:vis enum $name:ident
+        {
+            $($tt:tt)*
+        }
+    ) => (
+        $(#[$($meta)*])*
+        $pub enum $name {
+            $($tt)*
+        }
+        $crate::__cfg_headers__! {
+            $crate::inventory::submit! {
+                #![crate = $crate]
+                $crate::FfiExport({
+                    #[allow(unused_parens, clippy::all)]
+                    fn typedef (
+                        definer: &'_ mut dyn $crate::headers::Definer,
+                    ) -> $crate::std::io::Result<()>
+                    {
+                        <
+                            <$name as $crate::layout::ReprC>::CLayout
+                            as
+                            $crate::layout::CType
+                        >::c_define_self(definer)
+                    }
+                    typedef
+                })
+            }
+        }
+    );
+    ($($(#[doc = $doc:expr])+)?
     // $(#[$meta:meta])*
     $pub:vis
     $(unsafe $(@$hack:ident@)?)?
@@ -194,10 +225,10 @@ macro_rules! __ffi_export__ {(
                         )?;
                         has_args |= true;
                     )*
-                    if has_args.not() {
+                    if ! has_args {
                         out.write_all(b"void")?;
                     }
-                    drop(has_args);
+                    $crate::core::mem::drop(has_args);
                     $crate::std::io::Write::write_all(out,
                         ");\n\n"
                             .as_bytes()

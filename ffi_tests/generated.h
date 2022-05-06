@@ -14,19 +14,27 @@
 extern "C" {
 #endif
 
-typedef struct foo foo_t;
-
-foo_t * new_foo (void);
-
 
 #include <stddef.h>
 #include <stdint.h>
 
-int32_t read_foo (
-    foo_t const * foo);
+/** \remark Has the same ABI as `uint8_t` **/
+#ifdef DOXYGEN
+typedef enum Bar
+#else
+typedef uint8_t Bar_t; enum
+#endif
+{
+    /** . */
+    BAR_A,
+}
+#ifdef DOXYGEN
+Bar_t
+#endif
+;
 
-void free_foo (
-    foo_t * foo);
+void check_bar (
+    Bar_t _bar);
 
 /** \brief
  *  Concatenate the two input strings into a new one.
@@ -43,7 +51,7 @@ char * concat (
 void free_char_p (
     char * _string);
 
-typedef struct {
+typedef struct RefDynFnMut1_void_char_const_ptr {
 
     void * env_ptr;
 
@@ -79,16 +87,10 @@ void with_concat (
  *  allowed to be `NULL` (with the contents of `len` then being undefined)
  *  use the `Option< slice_ptr<_> >` type.
  */
-typedef struct {
+typedef struct slice_ref_int32 {
 
-    /** \brief
-     *  Pointer to the first element (if any).
-     */
     int32_t const * ptr;
 
-    /** \brief
-     *  Element count
-     */
     size_t len;
 
 } slice_ref_int32_t;
@@ -102,21 +104,49 @@ int32_t const * max (
 
 /** \remark Has the same ABI as `uint8_t` **/
 #ifdef DOXYGEN
-typedef enum Bar
+typedef enum Wow
 #else
-typedef uint8_t Bar_t; enum
+typedef uint8_t Wow_t; enum
 #endif
 {
     /** . */
-    BAR_A,
+    WOW_LEROY,
+    /** . */
+    WOW_JENKINS,
 }
 #ifdef DOXYGEN
-Bar_t
+Wow_t
 #endif
 ;
 
-void check_bar (
-    Bar_t _bar);
+/** \remark Has the same ABI as `uint8_t` **/
+#ifdef DOXYGEN
+typedef enum Triforce
+#else
+typedef uint8_t Triforce_t; enum
+#endif
+{
+    /** . */
+    TRIFORCE_DIN = 3,
+    /** . */
+    TRIFORCE_FARORE = 1,
+    /** . */
+    TRIFORCE_NARYU,
+}
+#ifdef DOXYGEN
+Triforce_t
+#endif
+;
+
+typedef struct foo foo_t;
+
+foo_t * new_foo (void);
+
+int32_t read_foo (
+    foo_t const * foo);
+
+void free_foo (
+    foo_t * foo);
 
 
 #ifdef __cplusplus
