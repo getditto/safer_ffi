@@ -269,19 +269,31 @@
 <span id="264">264</span>
 <span id="265">265</span>
 <span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">__ffi_export__</span> {
     (
         $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-        <span class="macro-nonterminal">$</span><span class="kw">pub</span>:<span class="macro-nonterminal">vis</span> <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>
+        <span class="macro-nonterminal">$</span><span class="kw">pub</span>:<span class="macro-nonterminal">vis</span>
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">enum_or_struct</span>:<span class="ident">ident</span>
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>
         {
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span>
         }
     ) =&gt; (
         $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-        <span class="macro-nonterminal">$</span><span class="kw">pub</span> <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+        <span class="macro-nonterminal">$</span><span class="kw">pub</span>
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">enum_or_struct</span>
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>
+        {
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
         }
+
         <span class="macro-nonterminal">$</span><span class="macro">crate::__cfg_headers__!</span> {
             <span class="macro-nonterminal">$</span><span class="macro">crate::inventory::submit!</span> {
                 <span class="attribute">#![<span class="kw">crate</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>]</span>
