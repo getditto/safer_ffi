@@ -17,9 +17,8 @@ fn ffi_export (
         ).into();
     }
 
-    #[cfg(feature = "node-js")]
-    let fun: ItemFn = parse2(input.clone())?;
-    #[cfg(feature = "async-fn")] {
+    #[cfg(feature = "async_fn")] emit! {
+        let fun: ItemFn = parse2(input.clone())?;
         match parse2::<async_fn::Attrs>(attrs.clone()) {
             | Ok(attrs)
                 if attrs.block_on.is_some()

@@ -313,3 +313,7 @@ macro_rules! match_ {(
     macro_rules! __recurse__ $rules
     __recurse__! { $($scrutinee)* }
 )}
+
+macro_rules! emit {( $($tt:tt)* ) => (
+    $($tt)*
+)}
