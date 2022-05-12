@@ -18,6 +18,8 @@ macro_rules! __ffi_export__ {
     {
         $($tt)*
     }
+    
+    #[cfg(not(target_arch = "wasm32"))]
     $crate::__cfg_headers__! {
         $crate::inventory::submit! {
             #![crate = $crate]
