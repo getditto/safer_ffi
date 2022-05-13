@@ -23,6 +23,12 @@
 #![cfg(not(rustfmt))]
 
 #[macro_use]
+extern crate fstrings;
+
+#[macro_use]
+extern crate with_builtin_macros;
+
+#[macro_use]
 #[path = "utils/_mod.rs"]
 #[doc(hidden)] /** Not part of the public API **/ pub
 mod __utils__;
@@ -31,8 +37,6 @@ use __utils__ as utils;
 hidden_export! {
     use ::paste;
 }
-
-
 
 /// Export a function to be callable by C.
 ///
@@ -413,6 +417,10 @@ mod prelude {
 
     #[doc(no_inline)]
     pub use crate::layout::derive_ReprC;
+
+    #[doc(no_inline)]
+    pub use ::safer_ffi_proc_macros::derive_ReprC2;
+
     #[doc(no_inline)]
     pub use crate::c;
 
@@ -511,3 +519,28 @@ mod libc {
 use ::libc;
 
 extern crate self as safer_ffi;
+
+
+pub use __ as ඞ;
+
+hidden_export! {
+    mod __ {
+        pub use {
+            ::core::{
+                self,
+                primitive::{
+                    u8, u16, u32, usize, u64, u128,
+                    i8, i16, i32, isize, i64, i128,
+                    bool,
+                    char,
+                    str,
+                },
+            },
+            ::std::{
+                self,
+                *,
+                prelude::rust_2021::*,
+            },
+        };
+    }
+}

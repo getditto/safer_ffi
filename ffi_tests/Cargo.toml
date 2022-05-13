@@ -18,7 +18,7 @@ path = ".."
 features = ["async-fn"]
 
 [features]
-generate-headers = ["safer-ffi/csharp-headers"]
+generate-headers = ["safer-ffi/headers"]
 
 # [dev-dependencies]
 # cc = "1.0.50"

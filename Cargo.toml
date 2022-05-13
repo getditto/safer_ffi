@@ -18,7 +18,7 @@ readme = "README.md"
 default = [
     "std",
     # FIXME: REMOVE!
-    "dyn-traits",
+    "dyn-traits", "headers",
 ]
 
 # Document under the following features: all but for debug or experimental.
@@ -88,6 +88,9 @@ inventory.version = "0.1.6"
 inventory.optional = true
 scopeguard.version = "1.1.0"
 unwind_safe.version = "0.1.0"
+fstrings = "0.2.3"
+with_builtin_macros.version = "0.0.3"
+# with_builtin_macros.path = "/Users/dhm/git/dhm/with_builtin_macros.rs"
 
 [dependencies.napi]
 package = "napi-dispatcher"

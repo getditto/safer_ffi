@@ -112,6 +112,9 @@ use ::std::{
 use_prelude!();
 use rust::{String};
 
+pub // (in crate)
+mod languages;
+
 pub use definer::{Definer, HashSetDefiner};
 mod definer;
 

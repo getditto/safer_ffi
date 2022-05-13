@@ -57,3 +57,135 @@ macro_rules! function_name {() => ({
     }
     name
 })} pub(in crate) use function_name;
+
+macro_rules! let_quote {(
+    use $($contents:tt)*
+) => (
+    __let_quote! {
+        [
+            []
+            []
+        ]
+        $($contents)*
+    }
+)} pub(in crate) use let_quote;
+
+macro_rules! __let_quote {
+    (
+        [
+            $fst:tt
+            $snd:tt
+            $($deeper:tt)*
+        ]
+        {
+            $($inner:tt)*
+        } $(,
+            $($rest:tt)*
+        )? $(;)?
+    ) => (
+        __let_quote! {
+            [
+                $fst // duplicate fst
+                $fst
+                $snd
+                $($deeper)*
+            ]
+            $($inner)*
+        }
+        __let_quote! {
+            [
+                $snd // replace fst with duplicate of snd
+                $snd
+                $($deeper)*
+            ]
+            $($($rest)*)?
+        }
+    );
+
+    (
+        [
+            [$($path:tt)*] // fst
+            $snd:tt
+            $($deeper:tt)*
+        ]
+        $last_segment:ident $(as $rename:ident)? $(,
+        $($rest:tt)* )? $(;)?
+    ) => (
+        let quoted = ::quote::quote!(
+            $($path)* $last_segment
+        );
+        #[allow(nonstandard_style)]
+        #[cfg(all(
+            $($rename = "__if_provided",
+                any(),
+            )?
+        ))]
+        let $last_segment @ _ = quoted;
+    $(
+        #[allow(nonstandard_style)]
+        let $rename @ _ = quoted;
+    )?
+        __let_quote! {
+            [
+                $snd // replace fst with duplicate of snd
+                $snd
+                $($deeper)*
+            ]
+            $($($rest)*)?
+        }
+    );
+
+    (
+        [
+            [$($path:tt)*]
+            $($deeper:tt)*
+        ]
+        $mid_segment:tt
+        $($rest:tt)*
+    ) => (
+        __let_quote! {
+            [
+                [$($path)* $mid_segment]
+                $($deeper)*
+            ]
+            $($rest)*
+        }
+    );
+
+    (
+        $path:tt
+        /* nothing left */
+    ) => ();
+} pub(in crate) use __let_quote;
+
+macro_rules! match_ {(
+    ( $($input:tt)* ) $rules:tt
+) => (
+    macro_rules! __recurse__ $rules
+    __recurse__! { $($input)* }
+)} pub(in crate) use match_;
+
+macro_rules! dbg_parse_quote {(
+    $($code:tt)*
+) => (
+    (|| {
+        fn type_of_some<T> (_: Option<T>)
+          -> &'static str
+        {
+            ::core::any::type_name::<T>()
+        }
+
+        let target_ty = None; if false { return target_ty.unwrap(); }
+        let code = ::quote::quote!( $($code)* );
+        eprintln!(
+            "[{}:{}:{}:parse_quote!]\n  - ty: `{ty}`\n  - code: `{code}`",
+            file!(), line!(), column!(),
+            ty = type_of_some(target_ty),
+        );
+        ::syn::parse2(code).unwrap()
+    })()
+)} pub(in crate) use dbg_parse_quote;
+
+macro_rules! Quote {( $T:ty $(,)? ) => (
+    ::proc_macro2::TokenStream
+)} pub(in crate) use Quote;

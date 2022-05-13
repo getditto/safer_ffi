@@ -31,6 +31,9 @@ fn __assert_concrete__<T>() where
     <T as ReprC>::CLayout : CType<OPAQUE_KIND = OpaqueKind::Concrete>,
 {}
 
+pub
+type CLayoutOf<ImplReprC> = <ImplReprC as ReprC>::CLayout;
+
 /// One of the two core traits of this crate (with [`ReprC`][`trait@ReprC`]).
 ///
 /// `CType` is an `unsafe` trait that binds a Rust type to a C typedef.
@@ -73,6 +76,8 @@ fn __assert_concrete__<T>() where
 /// bit-patterns for the `uint8_t` type that do not make _valid_ `bool`s.
 ///
 /// For such types, see the [`ReprC`][`trait@ReprC`] trait.
+#[rustc_must_implement_one_of(c_define_self, define_self)]
+#[rustc_must_implement_one_of(c_short_name_fmt, short_name_fmt)]
 pub
 unsafe trait CType
 :
@@ -129,8 +134,21 @@ unsafe trait CType
         /// `short_name`.
         fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
           -> fmt::Result
-        ;
+        {
+            Self::short_name_fmt(&crate::headers::languages::C, fmt)
+        }
 
+        fn short_name_fmt (
+            language: &'_ dyn HeaderLanguage,
+            fmt: &'_ mut fmt::Formatter<'_>,
+        ) -> fmt::Result
+        {
+            match () {
+                | _case if language.is::<C>() => Self::c_short_name_fmt(fmt),
+                // | _case if language.is::<CSharp>() => Self::csharp_short_name_fmt(fmt),
+                | _ => unimplemented!(),
+            }
+        }
 
         /// Convenience function for _callers_ / users of types implementing
         /// [`CType`][`trait@CType`].
@@ -241,7 +259,16 @@ unsafe trait CType
         fn c_define_self (definer: &'_ mut dyn Definer)
           -> io::Result<()>
         {
-            let _ = definer;
+            Self::define_self(&crate::headers::languages::C, definer)
+        }
+
+        #[inline]
+        fn define_self (
+            language: &'_ dyn crate::headers::languages::HeaderLanguage,
+            definer: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        {
+            let _ = (language, definer);
             Ok(())
         }
 
@@ -365,8 +392,10 @@ unsafe trait CType
             fn csharp_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
-                let _ = definer;
-                Ok(())
+                Self::define_self(
+                    &crate::headers::languages::CSharp,
+                    definer,
+                )
             }
 
             /// Optional marshaler attached to the type (_e.g._,

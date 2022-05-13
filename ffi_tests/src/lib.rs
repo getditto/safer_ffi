@@ -128,11 +128,11 @@ pub enum Wow {
 }
 
 #[ffi_export]
-#[derive_ReprC]
+#[derive_ReprC2]
 #[repr(u8)]
 pub enum Triforce {
     Din = 3,
-    Farore = 1,
+    Farore = Triforce::Din as u8 - 2,
     Naryu,
 }
 
@@ -149,7 +149,7 @@ fn generate_headers ()
   -> ::std::io::Result<()>
 {Ok({
     use ::safer_ffi::headers::Language::*;
-    for &(language, ext) in &[(C, "h"), (CSharp, "cs")] {
+    for &(language, ext) in &[(C, "h"), /* (CSharp, "cs") */ ] {
         let builder =
             ::safer_ffi::headers::builder()
                 .with_language(language)

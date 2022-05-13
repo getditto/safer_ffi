@@ -12,6 +12,9 @@ mod macros;
 pub(in crate) use mb_file_expanded::*;
 mod mb_file_expanded;
 
+pub(in crate) use trait_impl_shenanigans::*;
+mod trait_impl_shenanigans;
+
 pub(in crate)
 trait MySplit {
     type Ret;
@@ -131,8 +134,6 @@ fn pretty_print_tokenstream (
     }
 }
 
-// macro_rules! emit {( $($tt:tt)* ) => ( $($tt)* )}
-
 pub(in crate)
 struct RemapNonStaticLifetimesTo<'__> {
     pub(in crate)
@@ -181,23 +182,25 @@ impl ::syn::visit_mut::VisitMut
     }
 }
 
-macro_rules! dbg_parse_quote {(
-    $($code:tt)*
-) => (
-    (|| {
-        fn type_of_some<T> (_: Option<T>)
-          -> &'static str
-        {
-            ::core::any::type_name::<T>()
-        }
-
-        let target_ty = None; if false { return target_ty.unwrap(); }
-        eprintln!(
-            "[{}:{}:{}:parse_quote!]\n  - ty: `{ty}`\n  - code: `{code}`",
-            file!(), line!(), column!(),
-            code = ::quote::quote!( $($code)* ),
-            ty = type_of_some(target_ty),
-        );
-        ::syn::parse_quote!( $($code)* )
-    })()
-)} pub(in crate) use dbg_parse_quote;
+pub(in crate)
+fn compile_warning (
+    span: &dyn ToTokens,
+    message: &str,
+) -> TokenStream2
+{
+    let mut spans = span.to_token_stream().into_iter().map(|tt| tt.span());
+    let fst = spans.next().unwrap_or_else(|| Span::call_site());
+    let lst = spans.fold(fst, |cur, _| cur);
+    let safer_ffi_ = Ident::new("safer_ffi_", fst);
+    let warning = Ident::new("warning", fst);
+    let ref message = ["\n", message].concat();
+    quote!(
+        const _: () = {
+            mod safer_ffi_ {
+                #[deprecated(note = #message)]
+                pub fn warning() {}
+            }
+            let _ = #safer_ffi_::#warning;
+        };
+    )
+}

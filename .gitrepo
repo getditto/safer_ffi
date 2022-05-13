@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:getditto/safer_ffi.git
+	branch = ditto-node-js
+	commit = e18b6d9e87d8daa9ee87f641ba43bffc62b0a294
+	parent = be98d47142d78a11fe2cae612e2ce8c2880308d5
+	method = merge
+	cmdver = 0.4.3
