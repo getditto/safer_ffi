@@ -9,22 +9,17 @@ fn derive (
     fields: &'_ Fields,
 ) -> Result<TokenStream2>
 {
-    /* FIXME: should we deny zero-sized types?? */
-
-    mod kw { ::syn::custom_keyword!(transparent); }
-    if attrs.iter().any(|attr| {
-        attr.path.is_ident("repr")
-        &&
-        attr.parse_args::<kw::transparent>().is_ok()
-    })
+    if fields.is_empty() {
+        bail!("C requires that structs have at least one field");
+    }
+    if  attrs.iter().any(|attr| {
+            mod kw { ::syn::custom_keyword!(transparent); }
+            attr.path.is_ident("repr")
+            &&
+            attr.parse_args::<kw::transparent>().is_ok()
+        })
     {
-        return derive_transparent(
-            attrs,
-            vis,
-            StructName,
-            generics,
-            fields,
-        );
+        return derive_transparent(attrs, vis, StructName, generics, fields);
     }
 
     let docs =
@@ -44,7 +39,9 @@ fn derive (
             ///
         ),
         {
-            let line = format!("{}  - [`{StructName}_Layout`](#impl-ReprC)", " ");
+            let line = format!(
+                "{}  - [`{StructName}_Layout`](#impl-ReprC)", " ",
+            );
             parse_quote!(#[doc = #line])
         },
     ]);
@@ -69,8 +66,9 @@ fn derive (
 
     let ref StructName_Layout @ _ = format_ident!("{}_Layout", StructName);
 
-    let ref ctype_generics = utils::ctype_generics(generics, &mut EachFieldTy());
-
+    let ref ctype_generics =
+        utils::ctype_generics(generics, &mut EachFieldTy())
+    ;
     // define the CType
     ret.extend({
         let c_type_def = ItemStruct {
@@ -83,9 +81,11 @@ fn derive (
             generics: ctype_generics.clone(),
             fields: Fields::Named({
                 let EachFieldTy = EachFieldTy();
-                let each_field_name = (0_u8..).zip(fields).map(|(i, f)| match f.ident {
-                    | Some(ref ident) => ident.clone(),
-                    | None => format_ident!("_{}", i),
+                let each_field_name = (0_u8..).zip(fields).map(|(i, f)| {
+                    match f.ident {
+                        | Some(ref ident) => ident.clone(),
+                        | None => format_ident!("_{}", i),
+                    }
                 });
                 let each_docs = fields.iter().map(|f| {
                     f   .attrs
