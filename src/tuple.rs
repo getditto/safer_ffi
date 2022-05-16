@@ -18,7 +18,7 @@ mod void {
 pub(in crate) use void::CVoid;
 
 unsafe
-impl CType
+impl LegacyCType
     for CVoid
 { __cfg_headers__! {
     fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
@@ -39,7 +39,21 @@ impl CType
         )
     }
 
+    fn c_define_self (
+        _: &'_ mut dyn crate::headers::Definer,
+    ) -> io::Result<()>
+    {
+        Ok(())
+    }
+
     __cfg_csharp__! {
+        fn csharp_define_self (
+            _: &'_ mut dyn crate::headers::Definer,
+        ) -> io::Result<()>
+        {
+            Ok(())
+        }
+
         fn csharp_ty ()
           -> rust::String
         {

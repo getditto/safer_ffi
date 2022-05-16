@@ -1,4 +1,6 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
+#![allow(unused)]
+
 use ::safer_ffi::prelude::*;
 
 /// Concatenate the two input strings into a new one.
@@ -49,10 +51,12 @@ fn max<'a> (
 mod foo {
     use super::*;
 
-    #[derive_ReprC]
-    #[ReprC::opaque("foo")]
+    #[derive_ReprC(rename = "foo")]
+    #[repr(opaque)]
     pub
-    struct Foo_<Generic> { hidden: Generic }
+    struct Foo_<Generic> {
+        hidden: Generic,
+    }
 
     type Foo = Foo_<i32>;
 
@@ -83,18 +87,23 @@ mod foo {
     );
 
     #[ffi_export]
-    fn with_foo (cb: with_ref_cb<Foo>)
+    fn with_foo (cb: with_ref_cb<Foo>) -> bool
     {
         cb(&mut Foo { hidden: 42 });
+        true
     }
 }
 
 mod bar {
     use super::*;
+
     #[derive_ReprC]
-    #[repr(u8)]
+    #[repr(i8)]
     pub
-    enum Bar { A }
+    enum Bar {
+        A = 43,
+        B = (Bar::A as i8 - 1),
+    }
 
     #[ffi_export]
     fn check_bar (_bar: Bar)
@@ -127,27 +136,49 @@ pub enum Wow {
     Jenkins,
 }
 
+/// Hello, `World`!
 #[ffi_export]
-#[derive_ReprC]
+#[derive_ReprC(rename = "triforce")]
 #[repr(u8)]
 pub enum Triforce {
     Din = 3,
-    Farore = 1,
+    Farore = Triforce::Din as u8 - 2,
     Naryu,
+}
+
+#[derive_ReprC]
+#[repr(transparent)]
+pub struct MyPtr {
+    foo: ::core::ptr::NonNull<()>,
+    bar: (),
+}
+
+macro_rules! docs {() => (
+    "Hello, `World`!"
+)}
+
+#[ffi_export]
+#[doc = docs!()]
+#[derive_ReprC(rename = "next_generation")]
+pub struct Next {
+    /// I test some `gen`-eration.
+    gen: bar::Bar,
+    /// with function pointers and everything!
+    cb: extern "C" fn(bool) -> Option<MyPtr>,
 }
 
 #[ffi_export]
 #[derive_ReprC]
 #[repr(C)]
 pub struct AnUnusedStruct {
-    are_you_still_there: Option<Wow>,
+    are_you_still_there: Wow,
 }
 
 #[safer_ffi::cfg_headers]
 #[test]
 fn generate_headers ()
   -> ::std::io::Result<()>
-{Ok({
+{
     use ::safer_ffi::headers::Language::*;
     for &(language, ext) in &[(C, "h"), (CSharp, "cs")] {
         let builder =
@@ -167,7 +198,8 @@ fn generate_headers ()
                 .generate()?
         }
     }
-})}
+    Ok(())
+}
 
 #[ffi_export(executor = futures::executor::block_on)]
 async fn async_get_ft ()
@@ -176,8 +208,8 @@ async fn async_get_ft ()
     ffi_await!(async { 42 })
 }
 
-// #[ffi_export]
-// pub const FOO: i32 = 42;
+#[ffi_export]
+pub const FOO: i32 = 42;
 
 mod futures {
     pub

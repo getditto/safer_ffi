@@ -1,6 +1,8 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use super::*;
 
+// use crate::layout::CTypeFmt;
+
 const_assert! {
     ::core::mem::size_of::<crate::libc::uintptr_t>()
     ==
@@ -93,12 +95,12 @@ const _: () = { macro_rules! impl_CTypes {
         @arrays
         $($N:tt)*
     ) => ($(
-        // CType
+        // LegacyCType
         /// Simplified for lighter documentation, but the actual impls
         /// range **from `1` up to `32`, plus a bunch of significant
         /// lengths up to `1024`**.
         unsafe // Safety: Rust arrays _are_ `#[repr(C)]`
-        impl<Item : CType> CType
+        impl<Item : CType> LegacyCType
             for [Item; $N]
         { __cfg_headers__! {
             fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
@@ -107,7 +109,7 @@ const _: () = { macro_rules! impl_CTypes {
                 // item_N_array
                 write!(fmt,
                     concat!("{}_", stringify!($N), "_array"),
-                    Item::c_short_name(),
+                    Item::short_name(),
                 )
             }
 
@@ -118,14 +120,14 @@ const _: () = { macro_rules! impl_CTypes {
                 definer.define_once(
                     me,
                     &mut |definer| {
-                        Item::c_define_self(definer)?;
+                        Item::define_self(&crate::headers::languages::C, definer)?;
                         writeln!(definer.out(),
                             concat!(
                                 "typedef struct {{\n",
                                 "    {inline_array};\n",
                                 "}} {me};\n",
                             ),
-                            inline_array = Item::c_var(concat!(
+                            inline_array = Item::name_wrapping_var(&crate::headers::languages::C, concat!(
                                 "idx[", stringify!($N), "]",
                             )),
                             me = me,
@@ -153,7 +155,7 @@ const _: () = { macro_rules! impl_CTypes {
                   -> io::Result<()>
                 {
                     let ref me = Self::csharp_ty();
-                    Item::csharp_define_self(definer)?;
+                    Item::define_self(&crate::headers::languages::CSharp, definer)?;
                     definer.define_once(me, &mut |definer| {
                         let array_items = {
                             // Poor man's specialization to use `fixed` arrays.
@@ -166,7 +168,7 @@ const _: () = { macro_rules! impl_CTypes {
                             {
                                 format!(
                                     "    public fixed {ItemTy} arr[{N}];\n",
-                                    ItemTy = Item::csharp_ty(),
+                                    ItemTy = Item::name(&crate::headers::languages::CSharp),
                                     N = $N,
                                     // no need for a marshaler here
                                 )
@@ -178,7 +180,7 @@ const _: () = { macro_rules! impl_CTypes {
                                         "    \
                                         {marshaler}\
                                         public {ItemTy} _{i};\n",
-                                        ItemTy = Item::csharp_ty(),
+                                        ItemTy = Item::name(&crate::headers::languages::CSharp),
                                         i = i,
                                         marshaler =
                                             Item::csharp_marshaler()
@@ -241,7 +243,7 @@ const _: () = { macro_rules! impl_CTypes {
             }
         )?
 
-        // CType
+        // LegacyCType
         /// Simplified for lighter documentation, but the actual impls include
         /// **up to 9 function parameters**.
         unsafe // Safety: this is the "blessed" type recommended across Rust
@@ -251,25 +253,25 @@ const _: () = { macro_rules! impl_CTypes {
             Ret : CType, $(
             $An : CType, $(
             $Ai : CType,
-        )*)?> CType
+        )*)?> LegacyCType
             for Option<unsafe extern "C" fn ($($An, $($Ai ,)*)?) -> Ret>
         { __cfg_headers__! {
             fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
               -> fmt::Result
             {
                 // ret_arg1_arg2_fptr
-                Ret::c_short_name_fmt(fmt)?; $(
-                write!(fmt, "_{}", $An::c_short_name())?; $(
-                write!(fmt, "_{}", $Ai::c_short_name())?; )*)?
+                fmt.write_str(&Ret::short_name())?; $(
+                write!(fmt, "_{}", $An::short_name())?; $(
+                write!(fmt, "_{}", $Ai::short_name())?; )*)?
                 fmt.write_str("_fptr")
             }
 
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
-                Ret::c_define_self(definer)?; $(
-                $An::c_define_self(definer)?; $(
-                $Ai::c_define_self(definer)?; )*)?
+                Ret::define_self(&crate::headers::languages::C, definer)?; $(
+                $An::define_self(&crate::headers::languages::C, definer)?; $(
+                $Ai::define_self(&crate::headers::languages::C, definer)?; )*)?
                 Ok(())
             }
 
@@ -278,12 +280,12 @@ const _: () = { macro_rules! impl_CTypes {
                 var_name: &'_ str,
             ) -> fmt::Result
             {
-                write!(fmt, "{} ", Ret::c_var(""))?;
+                write!(fmt, "{} ", Ret::name(&crate::headers::languages::C))?;
                 write!(fmt, "(*{})(", var_name)?;
                 let _empty = true; $(
                 let _empty = false;
-                write!(fmt, "{}", $An::c_var(""))?; $(
-                write!(fmt, ", {}", $Ai::c_var(""))?; )*)?
+                write!(fmt, "{}", $An::name(&crate::headers::languages::C))?; $(
+                write!(fmt, ", {}", $Ai::name(&crate::headers::languages::C))?; )*)?
                 if _empty {
                     fmt.write_str("void")?;
                 }
@@ -294,10 +296,10 @@ const _: () = { macro_rules! impl_CTypes {
                 fn csharp_define_self (definer: &'_ mut dyn Definer)
                   -> io::Result<()>
                 {
-                    Ret::csharp_define_self(definer)?; $(
-                    $An::csharp_define_self(definer)?; $(
-                    $Ai::csharp_define_self(definer)?; )*)?
-                    let ref me = Self::csharp_ty();
+                    Ret::define_self(&crate::headers::languages::CSharp, definer)?; $(
+                    $An::define_self(&crate::headers::languages::CSharp, definer)?; $(
+                    $Ai::define_self(&crate::headers::languages::CSharp, definer)?; )*)?
+                    let ref me = Self::name(&crate::headers::languages::CSharp).to_string();
                     let ref mut _arg = {
                         let mut iter = (0 ..).map(|c| format!("_{}", c));
                         move || iter.next().unwrap()
@@ -337,9 +339,9 @@ const _: () = { macro_rules! impl_CTypes {
                                 .as_deref()
                                 .unwrap_or("")
                         ,
-                        Ret = Ret::csharp_ty(), $(
-                        $An = $An::csharp_var(&_arg()), $(
-                        $Ai = $Ai::csharp_var(&_arg()), )*)?
+                        Ret = Ret::name(&crate::headers::languages::CSharp), $(
+                        $An = $An::name_wrapping_var(&crate::headers::languages::CSharp, &_arg()), $(
+                        $Ai = $Ai::name_wrapping_var(&crate::headers::languages::CSharp, &_arg()), )*)?
                     ))
                 }
 
@@ -349,7 +351,7 @@ const _: () = { macro_rules! impl_CTypes {
                     Self::c_short_name().to_string()
                 }
 
-                fn csharp_marshaler ()
+                fn legacy_csharp_marshaler ()
                   -> Option<rust::String>
                 {
                     // This assumes the calling convention from the above
@@ -503,7 +505,7 @@ const _: () = { macro_rules! impl_CTypes {
         )*
     ) => ($(
         $unsafe // Safety: guaranteed by the caller of the macro
-        impl CType
+        impl LegacyCType
             for $RustInt
         { __cfg_headers__! {
             fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
@@ -541,6 +543,13 @@ const _: () = { macro_rules! impl_CTypes {
             }
 
             __cfg_csharp__! {
+                fn csharp_define_self (
+                    _: &'_ mut dyn crate::headers::Definer,
+                ) -> io::Result<()>
+                {
+                    Ok(())
+                }
+
                 fn csharp_ty ()
                   -> rust::String
                 {
@@ -558,7 +567,7 @@ const _: () = { macro_rules! impl_CTypes {
         )*
     ) => ($(
         $unsafe // Safety: guaranteed by the caller of the macro
-        impl CType
+        impl LegacyCType
             for $fN
         { __cfg_headers__! {
             fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
@@ -579,7 +588,21 @@ const _: () = { macro_rules! impl_CTypes {
                 )
             }
 
+            fn c_define_self (
+                _: &'_ mut dyn crate::headers::Definer,
+            ) -> io::Result<()>
+            {
+                Ok(())
+            }
+
             __cfg_csharp__! {
+                fn csharp_define_self (
+                    _: &'_ mut dyn crate::headers::Definer,
+                ) -> io::Result<()>
+                {
+                    Ok(())
+                }
+
                 fn csharp_ty ()
                   -> rust::String
                 {
@@ -594,19 +617,19 @@ const _: () = { macro_rules! impl_CTypes {
         @pointers
     ) => (
         unsafe
-        impl<T : CType> CType
+        impl<T : CType> LegacyCType
             for *const T
         { __cfg_headers__! {
             fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
               -> fmt::Result
             {
-                write!(fmt, "{}_const_ptr", T::c_short_name())
+                write!(fmt, "{}_const_ptr", T::short_name())
             }
 
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
-                T::c_define_self(definer)
+                T::define_self(&crate::headers::languages::C, definer)
             }
 
             fn c_var_fmt (
@@ -616,7 +639,7 @@ const _: () = { macro_rules! impl_CTypes {
             {
                 write!(fmt,
                     "{} const *{sep}{}",
-                    T::c_var(""),
+                    T::name(&crate::headers::languages::C),
                     var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
@@ -624,9 +647,9 @@ const _: () = { macro_rules! impl_CTypes {
 
             __cfg_csharp__! {
                 fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
-                  -> $crate::std::io::Result<()>
+                  -> $crate::ඞ::io::Result<()>
                 {
-                    T::csharp_define_self(definer)?;
+                    T::define_self(&crate::headers::languages::CSharp, definer)?;
                     // definer.define_once("Const", &mut |definer| {
                     //     definer.out().write_all(concat!(
                     //         "[StructLayout(LayoutKind.Sequential)]\n",
@@ -641,7 +664,7 @@ const _: () = { macro_rules! impl_CTypes {
                 fn csharp_ty ()
                   -> rust::String
                 {
-                    format!("{} /*const*/ *", T::csharp_ty())
+                    format!("{} /*const*/ *", T::name(&crate::headers::languages::CSharp))
                 }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
@@ -661,19 +684,19 @@ const _: () = { macro_rules! impl_CTypes {
         }
 
         unsafe
-        impl<T : CType> CType
+        impl<T : CType> LegacyCType
             for *mut T
         { __cfg_headers__! {
             fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
               -> fmt::Result
             {
-                write!(fmt, "{}_ptr", T::c_short_name())
+                write!(fmt, "{}_ptr", T::short_name())
             }
 
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
-                T::c_define_self(definer)
+                T::define_self(&crate::headers::languages::C, definer)
             }
 
             fn c_var_fmt (
@@ -683,7 +706,7 @@ const _: () = { macro_rules! impl_CTypes {
             {
                 write!(fmt,
                     "{} *{sep}{}",
-                    T::c_var(""),
+                    T::name(&crate::headers::languages::C),
                     var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
@@ -691,15 +714,15 @@ const _: () = { macro_rules! impl_CTypes {
 
             __cfg_csharp__! {
                 fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
-                  -> $crate::std::io::Result<()>
+                  -> $crate::ඞ::io::Result<()>
                 {
-                    T::csharp_define_self(definer)
+                    T::define_self(&crate::headers::languages::CSharp, definer)
                 }
 
                 fn csharp_ty ()
                   -> rust::String
                 {
-                    format!("{} *", T::csharp_ty())
+                    format!("{} *", T::name(&crate::headers::languages::CSharp))
                 }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
@@ -830,7 +853,7 @@ const _: () = {
 };
 
 unsafe
-    impl CType
+    impl LegacyCType
         for Bool
     {
         __cfg_headers__! {
@@ -866,7 +889,14 @@ unsafe
             }
 
             __cfg_csharp__! {
-                fn csharp_marshaler ()
+                fn csharp_define_self (
+                    _: &'_ mut dyn crate::headers::Definer,
+                ) -> io::Result<()>
+                {
+                    Ok(())
+                }
+
+                fn legacy_csharp_marshaler ()
                   -> Option<rust::String>
                 {
                     Some("UnmanagedType.U1".into())
@@ -898,7 +928,7 @@ impl ::core::fmt::Debug for c_int {
 }
 
 unsafe
-    impl CType
+    impl LegacyCType
         for c_int
     {
         __cfg_headers__! {
@@ -920,14 +950,28 @@ unsafe
                 )
             }
 
+            fn c_define_self (
+                _: &'_ mut dyn crate::headers::Definer,
+            ) -> io::Result<()>
+            {
+                Ok(())
+            }
+
             __cfg_csharp__! {
+                fn csharp_define_self (
+                    _: &'_ mut dyn crate::headers::Definer,
+                ) -> io::Result<()>
+                {
+                    Ok(())
+                }
+
                 fn csharp_ty ()
                   -> rust::String
                 {
                     "int".into()
                 }
 
-                fn csharp_marshaler ()
+                fn legacy_csharp_marshaler ()
                   -> Option<rust::String>
                 {
                     Some("UnmanagedType.SysInt".into())

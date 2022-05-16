@@ -22,17 +22,25 @@
 #![doc = include_str!("../README.md")]
 #![cfg(not(rustfmt))]
 
+#![feature(rustc_attrs)] #![allow(warnings)]
+
+#[macro_use]
+extern crate fstrings;
+
+#[macro_use]
+extern crate macro_rules_attribute;
+
+#[macro_use]
+extern crate with_builtin_macros;
+
 #[macro_use]
 #[path = "utils/_mod.rs"]
 #[doc(hidden)] /** Not part of the public API **/ pub
 mod __utils__;
 use __utils__ as utils;
 
-hidden_export! {
-    use ::paste;
-}
-
-
+#[apply(hidden_export)]
+use ::paste;
 
 /// Export a function to be callable by C.
 ///
@@ -83,6 +91,8 @@ hidden_export! {
 /// (on top of the obviously required `#[repr(C)]`).
 pub use ::safer_ffi_proc_macros::ffi_export;
 
+/// Identity macro when `feature = "headers"` is enabled, otherwise
+/// this macro outputs nothing.
 pub use ::safer_ffi_proc_macros::cfg_headers;
 
 /// Creates a compile-time checked [`char_p::Ref`]`<'static>` out of a
@@ -245,8 +255,6 @@ __cfg_headers__! {
 }
 
 cfg_alloc! {
-    #[doc(hidden)] pub
-    extern crate alloc as __alloc;
     extern crate alloc;
 }
 
@@ -301,55 +309,8 @@ cfg_alloc! {
     pub mod vec;
 }
 
-macro_rules! reexport_primitive_types {(
-    $($ty:ident)*
-) => (
-    $(
-        #[doc(hidden)]
-        pub use $ty;
-    )*
-)} reexport_primitive_types! {
-    u8 u16 u32 u64 u128
-    i8 i16 i32 i64 i128
-    f32 f64
-    char
-    bool
-    str
-}
-
-hidden_export! {
-    use ::core;
-}
-
-hidden_export! {
-    use ::scopeguard;
-}
-
-cfg_std! {
-    hidden_export! {
-        use ::std;
-    }
-}
-
-hidden_export! {
-    /// Hack needed to `feature(trivial_bounds)` in stable Rust:
-    ///
-    /// Instead of `where Ty : Bounds…`, it suffices to write:
-    /// `where for<'hrtb> TrivialBound<'hrtb, Ty> : Bounds…`.
-    type __TrivialBound<'hrtb, T> = <T as __private::Ignoring<'hrtb>>::ItSelf;
-}
-mod __private {
-    pub trait Ignoring<'__> { type ItSelf : ?Sized; }
-    impl<T : ?Sized> Ignoring<'_> for T { type ItSelf = Self; }
-}
-
-#[doc(hidden)] /** Not part of the public API **/ pub
+#[apply(hidden_export)]
 use layout::impls::c_int;
-
-#[derive(Clone, Copy)]
-#[allow(missing_debug_implementations)]
-#[doc(hidden)] pub
-struct NotZeroSized;
 
 pub
 mod prelude {
@@ -412,17 +373,17 @@ mod prelude {
     }
 
     #[doc(no_inline)]
-    pub use crate::layout::derive_ReprC;
-    #[doc(no_inline)]
-    pub use crate::c;
-
-    #[doc(no_inline)]
-    pub use ::core::{
-        convert::{
-            TryFrom as _,
-            TryInto as _,
+    pub use {
+        crate::layout::derive_ReprC,
+        ::safer_ffi_proc_macros::derive_ReprC2,
+        crate::c,
+        ::core::{
+            convert::{
+                TryFrom as _,
+                TryInto as _,
+            },
+            ops::Not as _,
         },
-        ops::Not as _,
     };
 
     #[cfg(feature = "out-refs")]
@@ -447,58 +408,54 @@ mod prelude {
 
 #[macro_export]
 macro_rules! NULL {() => (
-    $crate::core::ptr::null_mut()
+    $crate::ඞ::ptr::null_mut()
 )}
 
 #[cfg(feature = "log")]
-hidden_export! {
-    use ::log;
-}
+#[apply(hidden_export)]
+use ::log;
 
 #[cfg(feature = "node-js")]
-// hidden_export! {
-    #[path = "node_js/_mod.rs"]
-    pub mod node_js;
-// }
+// #[apply(hidden_export)]
+#[path = "node_js/_mod.rs"]
+pub mod node_js;
 
-hidden_export! {
-    #[allow(missing_copy_implementations, missing_debug_implementations)]
-    struct __PanicOnDrop__; impl Drop for __PanicOnDrop__ {
-        fn drop (self: &'_ mut Self)
-        {
-            panic!()
-        }
+#[apply(hidden_export)]
+#[allow(missing_copy_implementations, missing_debug_implementations)]
+struct __PanicOnDrop__; impl Drop for __PanicOnDrop__ {
+    fn drop (self: &'_ mut Self)
+    {
+        panic!()
     }
 }
 
 #[cfg(feature = "log")]
-hidden_export! {
-    macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
-        $crate::log::error!($($tt)*);
-        let _panic_on_drop = $crate::__PanicOnDrop__;
-        $crate::core::panic!($($tt)*);
-    })}
-}
+#[apply(hidden_export)]
+macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
+    $crate::log::error!($($tt)*);
+    let _panic_on_drop = $crate::__PanicOnDrop__;
+    $crate::ඞ::panic!($($tt)*);
+})}
+
 #[cfg(all(
     not(feature = "log"),
     feature = "std",
 ))]
-hidden_export! {
-    macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
-        $crate::std::eprintln!($($tt)*);
-        $crate::std::process::abort();
-    })}
-}
+#[apply(hidden_export)]
+macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
+    $crate::ඞ::eprintln!($($tt)*);
+    $crate::ඞ::process::abort();
+})}
+
 #[cfg(all(
     not(feature = "log"),
     not(feature = "std"),
 ))]
-hidden_export! {
-    macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
-        let _panic_on_drop = $crate::__PanicOnDrop__;
-        $crate::core::panic!($($tt)*);
-    })}
-}
+#[apply(hidden_export)]
+macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
+    let _panic_on_drop = $crate::__PanicOnDrop__;
+    $crate::ඞ::panic!($($tt)*);
+})}
 
 #[cfg(target_arch = "wasm32")]
 #[allow(dead_code)]
@@ -511,3 +468,92 @@ mod libc {
 use ::libc;
 
 extern crate self as safer_ffi;
+
+#[apply(hidden_export)]
+use __ as ඞ;
+
+#[apply(hidden_export)]
+mod __ {
+    pub use {
+        ::core::{
+            self,
+            marker::PhantomData,
+            primitive::{
+                u8, u16, u32, usize, u64, u128,
+                i8, i16, i32, isize, i64, i128,
+                bool,
+                char,
+                str,
+            },
+        },
+        ::scopeguard::{
+            self,
+        },
+        ::std::{
+            self,
+            *,
+            prelude::rust_2021::*,
+        },
+        crate::{
+            headers::{
+                Definer,
+                languages::{
+                    self,
+                    EnumVariant,
+                    FunctionArg,
+                    HeaderLanguage,
+                    StructField,
+                },
+            },
+            layout::{
+                CLayoutOf,
+                ConcreteReprC,
+                CType,
+                OpaqueKind,
+                ReprC,
+                __HasNiche__,
+            },
+        }
+    };
+
+    /// Hack needed to `feature(trivial_bounds)` in stable Rust:
+    ///
+    /// Instead of `where Ty : Bounds…`, it suffices to write:
+    /// `where for<'trivial> Identity<'trivial, Ty> : Bounds…`.
+    pub
+    type Identity<'hrtb, T> =
+        <T as IdentityIgnoring<'hrtb>>::ItSelf
+    ;
+    // where
+    pub
+    trait IdentityIgnoring<'__> {
+        type ItSelf : ?Sized;
+    }
+    impl<T : ?Sized> IdentityIgnoring<'_> for T {
+        type ItSelf = Self;
+    }
+
+    // TODO: correctly handle more type (currently only supports a subset of
+    // transitive type paths).
+    pub
+    fn append_unqualified_name (
+        out: &'_ mut String,
+        full_type_name: &'_ str,
+    )
+    {
+        let (before_generic, generics) = {
+            let mut i = full_type_name.trim().splitn(2, "<");
+            (i.next().unwrap(), i.next())
+        };
+        let unqualified = before_generic.rsplitn(2, ":").next().unwrap();
+        out.push('_');
+        out.push_str(unqualified.trim());
+        if let Some(generics) = generics {
+            // "pop" the `>`.
+            let generics = &generics[.. generics.len() - 1];
+            generics.split(',').for_each(|generic| {
+                append_unqualified_name(out, generic);
+            });
+        }
+    }
+}

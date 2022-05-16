@@ -6,76 +6,60 @@ macro_rules! use_prelude { () => (
     use crate::utils::prelude::*;
 )}
 
-#[macro_use]
-mod cfg_alloc {
-    #[cfg(
-        feature = "alloc",
-    )]
-    macro_rules! cfg_alloc {(
-        $($item:item)*
+/// I really don't get the complexity of `cfg_if!`…
+macro_rules! cfg_match {
+    ( _ => { $($expansion:tt)* } $(,)? ) => ( $($expansion)* );
+    (
+        $cfg:meta => $expansion:tt $(,
+        $($rest:tt)* )?
     ) => (
-        $(
-            #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]
-            $item
-        )*
-    )}
-
-    #[cfg(not(
-        feature = "alloc",
-    ))]
-    macro_rules! cfg_alloc {(
-        $($item:item)*
-    ) => (
-        // Nothing
-    )}
+        #[cfg($cfg)]
+        cfg_match! { _ => $expansion } $(
+        #[cfg(not($cfg))]
+        cfg_match! { $($rest)* } )?
+    );
+    // Bonus: expression-friendly syntax: `cfg_match!({ … })`
+    ({ $($input:tt)* }) => ({ cfg_match! { $($input)* } })
 }
 
-#[macro_use]
-mod cfg_std {
-    #[cfg(
-        feature = "std",
-    )]
-    macro_rules! cfg_std {(
-        $($item:item)*
-    ) => (
-        $(
-            #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "std")))]
-            $item
-        )*
-    )}
-
-    #[cfg(not(
-        feature = "std",
-    ))]
-    macro_rules! cfg_std {(
-        $($item:item)*
-    ) => (
-        // Nothing
-    )}
+cfg_match! {
+    feature = "alloc" => {
+        macro_rules! cfg_alloc {(
+            $($item:item)*
+        ) => (
+            $(
+                #[cfg_attr(all(docs), doc(cfg(feature = "alloc")))]
+                $item
+            )*
+        )}
+    },
+    _ => {
+        macro_rules! cfg_alloc {(
+            $($item:item)*
+        ) => (
+            // Nothing
+        )}
+    },
 }
 
-#[macro_use]
-mod cfg_proc_macros {
-    #[cfg(
-        feature = "proc_macros",
-    )]
-    macro_rules! cfg_proc_macros {(
-        $($item:item)*
-    ) => (
-        $(
-            #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "proc_macros")))]
-            $item
-        )*
-    )}
-
-    #[cfg(not(
-        feature = "proc_macros",
-    ))]
-    macro_rules! cfg_proc_macros {(
-        $($item:item)*
-    ) => (
-        // Nothing
-    )}
+cfg_match! {
+    feature = "std" => {
+        macro_rules! cfg_std {(
+            $($item:item)*
+        ) => (
+            $(
+                #[cfg_attr(all(docs), doc(cfg(feature = "std")))]
+                $item
+            )*
+        )}
+    },
+    _ => {
+        macro_rules! cfg_std {(
+            $($item:item)*
+        ) => (
+            // Nothing
+        )}
+    },
 }
 
 macro_rules! cfg_wasm {( $($item:item)* ) => (
@@ -120,6 +104,7 @@ macro_rules! const_assert {
         } as usize];
     );
 }
+
 macro_rules! type_level_enum {(
     $( #[doc = $doc:tt] )*
     $pub:vis
@@ -129,56 +114,56 @@ macro_rules! type_level_enum {(
             $Variant:ident
         ),* $(,)?
     }
-) => (type_level_enum! { // This requires the macro to be in scope when called.
-    with_docs! {
-        $( #[doc = $doc] )*
-        ///
-        /// ### Type-level `enum`
-        ///
-        /// Until `const_generics` can handle custom `enum`s, this pattern must be
-        /// implemented at the type level.
-        ///
-        /// We thus end up with:
-        ///
-        /// ```rust,ignore
-        /// #[type_level_enum]
+) => (
+    $( #[doc = $doc] )*
+    ///
+    /// ### Type-level `enum`
+    ///
+    /// Until `const_generics` can handle custom `enum`s, this pattern must be
+    /// implemented at the type level.
+    ///
+    /// We thus end up with:
+    ///
+    /// ```rust,ignore
+    /// #[type_level_enum]
+    #[doc = ::core::concat!(
+        " enum ", ::core::stringify!($EnumName), " {",
+    )]
+    $(
         #[doc = ::core::concat!(
-            " enum ", ::core::stringify!($EnumName), " {",
+            "         ", ::core::stringify!($Variant), ",",
         )]
-        $(
-            #[doc = ::core::concat!(
-                "         ", ::core::stringify!($Variant), ",",
-            )]
-        )*
-        #[doc = " }"]
-        /// ```
-        ///
-        #[doc = ::core::concat!(
-            "With [`", ::core::stringify!($EnumName), "::T`](#reexports) \
-            being the type-level \"enum type\":",
-        )]
-        ///
-        /// ```rust,ignore
-        #[doc = ::core::concat!(
-            "<Param: ", ::core::stringify!($EnumName), "::T>"
-        )]
-        /// ```
-    }
+    )*
+    #[doc = " }"]
+    /// ```
+    ///
+    #[doc = ::core::concat!(
+        "With [`", ::core::stringify!($EnumName), "::T`](#reexports) \
+        being the type-level \"enum type\":",
+    )]
+    ///
+    /// ```rust,ignore
+    #[doc = ::core::concat!(
+        "<Param : ", ::core::stringify!($EnumName), "::T>"
+    )]
+    /// ```
     #[allow(warnings)]
     $pub mod $EnumName {
         #[doc(no_inline)]
         pub use $EnumName as T;
 
-        type_level_enum! {
-            with_docs! {
-                #[doc = ::core::concat!(
-                    "See [`", ::core::stringify!($EnumName), "`]\
-                    [super::", ::core::stringify!($EnumName), "]"
-                )]
-            }
-            pub trait $EnumName : __sealed::$EnumName + ::core::marker::Sized + 'static {
-                const VALUE: __value::$EnumName;
-            }
+        #[doc = ::core::concat!(
+            "See [`", ::core::stringify!($EnumName), "`]",
+            "[super::", ::core::stringify!($EnumName), "]"
+        )]
+        pub
+        trait $EnumName
+        :
+            __sealed::$EnumName +
+            ::core::marker::Sized +
+            'static +
+        {
+            const VALUE: __value::$EnumName;
         }
 
         mod __sealed { pub trait $EnumName {} }
@@ -193,29 +178,17 @@ macro_rules! type_level_enum {(
             pub enum $Variant {}
             impl __sealed::$EnumName for $Variant {}
             impl $EnumName for $Variant {
-                const VALUE: __value::$EnumName = __value::$EnumName::$Variant;
+                const VALUE: __value::$EnumName =
+                    __value::$EnumName::$Variant
+                ;
             }
             impl $Variant {
-                pub const VALUE: __value::$EnumName = __value::$EnumName::$Variant;
+                pub const VALUE: __value::$EnumName =
+                    __value::$EnumName::$Variant
+                ;
             }
         )*
     }
-});(
-    with_docs! {
-        $( #[doc = $doc:expr] )*
-    }
-    $item:item
-) => (
-    $( #[doc = $doc] )*
-    $item
-)}
-
-macro_rules! with_doc {(
-    #[doc = $doc:expr]
-    $($rest:tt)*
-) => (
-    #[doc = $doc]
-    $($rest)*
 )}
 
 macro_rules! doc_test {
@@ -223,42 +196,40 @@ macro_rules! doc_test {
         #![$attr:ident]
         $($code:tt)*
     ) => (
-        with_doc! {
+        const _: () = {
             #[doc = concat!(
                 "```rust,", stringify!($attr), "\n",
-                stringify!($($code)*),
-                "\n```\n",
+                stringify!($($code)*), "\n",
             )]
+            /// ```
             pub mod $name {}
-        }
+        };
     );
 
     ($name:ident :
         $($code:tt)*
     ) => (
-        with_doc! {
+        const _: () = {
             #[doc = concat!(
                 "```rust\n",
-                stringify!($($code)*),
-                "\n```\n",
+                stringify!($($code)*), "\n",
             )]
+            /// ```
             pub mod $name {}
-        }
+        };
     );
 }
 
-cfg_proc_macros! {
-    doc_test! { c_str:
-        use ::safer_ffi::prelude::*;
+doc_test! { c_str:
+    use ::safer_ffi::prelude::*;
 
-        let _ = c!("Hello, World!");
-    }
-    doc_test! { c_str_inner_nul_byte:
-        #![compile_fail]
-        use ::safer_ffi::prelude::*;
+    let _ = c!("Hello, World!");
+}
+doc_test! { c_str_inner_nul_byte:
+    #![compile_fail]
+    use ::safer_ffi::prelude::*;
 
-        let _ = c!("Hell\0, World!");
-    }
+    let _ = c!("Hell\0, World!");
 }
 
 /// Items exported through this macro are internal implementation details
@@ -312,8 +283,4 @@ macro_rules! match_ {(
 ) => (
     macro_rules! __recurse__ $rules
     __recurse__! { $($scrutinee)* }
-)}
-
-macro_rules! emit {( $($tt:tt)* ) => (
-    $($tt)*
 )}

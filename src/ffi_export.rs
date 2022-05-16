@@ -18,13 +18,13 @@ macro_rules! __ffi_export__ {
     {
         $($tt)*
     }
-    
+
     #[cfg(not(target_arch = "wasm32"))]
     $crate::__cfg_headers__! {
         $crate::inventory::submit! {
             #![crate = $crate]
             $crate::FfiExport {
-                name: $crate::core::stringify!($name),
+                name: $crate::ඞ::stringify!($name),
                 gen_def: $crate::headers::__define_self__::<$name>,
             }
         }
@@ -99,16 +99,10 @@ macro_rules! __ffi_export__ {
                     {
                         fn __return_type__<T> (_: T)
                         where
-                            T : $crate::layout::ReprC,
-                            <T as $crate::layout::ReprC>::CLayout
-                            :
-                            $crate::layout::CType<
-                                OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete,
-                            >,
+                            T : $crate::layout::ConcreteReprC,
                         {}
                         let _ = __return_type__::<$Ret>;
                     }
-                    let _: <$Ret as $crate::layout::ReprC>::CLayout;
                 )?
                 $(
                     {
@@ -116,12 +110,7 @@ macro_rules! __ffi_export__ {
                             pub(in super)
                             fn $arg_name<T> (_: T)
                             where
-                                T : $crate::layout::ReprC,
-                                <T as $crate::layout::ReprC>::CLayout
-                                :
-                                $crate::layout::CType<
-                                    OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete,
-                                >,
+                                T : $crate::layout::ConcreteReprC,
                             {}
                         }
                         let _ = __parameter__::$arg_name::<$arg_ty>;
@@ -137,15 +126,17 @@ macro_rules! __ffi_export__ {
             };
             let guard = {
                 struct $fname;
-                impl $crate::core::ops::Drop
-                    for $fname
+                impl
+                    $crate::ඞ::ops::Drop
+                for
+                    $fname
                 {
                     fn drop (self: &'_ mut Self)
                     {
-                        $crate::__abort_with_msg__!($crate::core::concat!(
+                        $crate::__abort_with_msg__!($crate::ඞ::concat!(
                             "Error, attempted to panic across the FFI ",
                             "boundary of `",
-                            $crate::core::stringify!($fname),
+                            $crate::ඞ::stringify!($fname),
                             "()`, ",
                             "which is Undefined Behavior.\n",
                             "Aborting for soundness.",
@@ -157,7 +148,7 @@ macro_rules! __ffi_export__ {
             let ret = unsafe {
                 $crate::layout::into_raw(body())
             };
-            $crate::core::mem::forget(guard);
+            $crate::ඞ::mem::forget(guard);
             ret
         }}
 
@@ -220,7 +211,7 @@ macro_rules! __ffi_export__ {
                         __hack = $async_worker,
                     )?)?
                 ))] {
-                    fn __assert_send<__T : $crate::core::marker::Send> ()
+                    fn __assert_send<__T : $crate::ඞ::marker::Send> ()
                     {}
                     $(
                         let $arg_name = unsafe {
@@ -253,7 +244,7 @@ macro_rules! __ffi_export__ {
                         napi::ReprNapi::to_napi_value(ret, __ctx__.env)
                         $($(
                             .map(|it| {
-                                $crate::core::stringify!($async_worker);
+                                $crate::ඞ::stringify!($async_worker);
                                 $crate::node_js::JsPromise::<napi::JsUnknown>::resolve(it.as_ref())
                             })
                         )?)?
@@ -269,22 +260,22 @@ macro_rules! __ffi_export__ {
     $crate::__cfg_headers__! {
         $crate::inventory::submit! {
             #![crate = $crate]
-            $crate::FfiExport { name: $crate::core::stringify!($fname), gen_def: {
+            $crate::FfiExport { name: $crate::ඞ::stringify!($fname), gen_def: {
                 #[allow(unused_parens)]
                 fn typedef $(<$($lt $(: $sup_lt)?),*>)? (
-                    definer: &'_ mut dyn $crate::headers::Definer,
+                    definer: &'_ mut dyn $crate::ඞ::Definer,
                     lang: $crate::headers::Language,
-                ) -> $crate::std::io::Result<()>
+                ) -> $crate::ඞ::io::Result<()>
                 {Ok({
                     // FIXME: this merges the value namespace with the type
                     // namespace...
-                    if ! definer.insert($crate::core::stringify!($fname)) {
-                        return $crate::core::result::Result::Err(
-                            $crate::std::io::Error::new(
-                                $crate::std::io::ErrorKind::AlreadyExists,
-                                $crate::core::concat!(
+                    if ! definer.insert($crate::ඞ::stringify!($fname)) {
+                        return $crate::ඞ::result::Result::Err(
+                            $crate::ඞ::io::Error::new(
+                                $crate::ඞ::io::ErrorKind::AlreadyExists,
+                                $crate::ඞ::concat!(
                                     "Error, attempted to declare `",
-                                    $crate::core::stringify!($fname),
+                                    $crate::ඞ::stringify!($fname),
                                     "` while another declaration already exists",
                                 ),
                             )
@@ -296,39 +287,26 @@ macro_rules! __ffi_export__ {
                     $(
                         $crate::headers::__define_self__::<$Ret>(definer, lang)?;
                     )?
-                    let out = definer.out();
-                    $(
-                        $crate::std::io::Write::write_all(out,
-                            b"/** \\brief\n",
-                        )?;
-                        $(
-                            $crate::core::write!(out,
-                                " *{sep}{}\n", $doc, sep = if $doc.is_empty() { "" } else { " " },
-                            )?;
-                        )+
-                        $crate::std::io::Write::write_all(out,
-                            b" */\n",
-                        )?;
-                    )?
-                    drop(out); // of school?
-
-                    let mut fname_and_args = String::new();
-                    $crate::headers::__define_fn__::name(
-                        &mut fname_and_args,
-                        $crate::core::stringify!($fname),
-                        lang,
-                    );
-                    $(
-                        $crate::headers::__define_fn__::arg::<$arg_ty>(
-                            &mut fname_and_args,
-                            $crate::core::stringify!($arg_name),
-                            lang,
-                        );
-                    )*
-                    $crate::headers::__define_fn__::ret::<($($Ret)?)>(
+                    $crate::headers::__define_fn__(
                         definer,
                         lang,
-                        fname_and_args,
+                        &[
+                            $($($doc),*)?
+                        ],
+                        $crate::ඞ::stringify!($fname),
+                        &[
+                            $(
+                                $crate::ඞ::FunctionArg {
+                                    name: $crate::ඞ::stringify!($arg_name),
+                                    ty: &$crate::ඞ::PhantomData::<
+                                        $crate::ඞ::CLayoutOf<$arg_ty>,
+                                    >,
+                                }
+                            ),*
+                        ],
+                        &$crate::ඞ::PhantomData::<
+                            $crate::ඞ::CLayoutOf< ($($Ret)?) >,
+                        >,
                     )?;
                 })};
                 typedef
@@ -344,54 +322,44 @@ macro_rules! __ffi_export__ {
     $(#[doc = $doc])*
     $pub const $VAR : $T = $value;
 
+    #[cfg(not(target_arch = "wasm32"))]
     $crate::__cfg_headers__! {
         $crate::inventory::submit! {
             #![crate = $crate]
             $crate::FfiExport {
-                name: $crate::core::stringify!($VAR),
-                gen_def: |definer: &mut dyn $crate::headers::Definer| {
-                    $crate::std::write!(
-                        definer.out(),
-                        $crate::core::concat!(
-                            "\n#define ",
-                            $crate::core::stringify!($VAR),
-                            " (({ty_cast}) ({expr}))\n\n",
-                        ),
-                        ty_cast =
-                            <
-                                <$T as $crate::layout::ReprC>::CLayout
-                                as
-                                $crate::layout::CType
-                            >::c_var("")
-                        ,
-                        expr = $crate::core::stringify!($value),
-                    )
+                name: $crate::ඞ::stringify!($VAR),
+                gen_def: {
+                    |
+                        definer: &'_ mut dyn $crate::ඞ::Definer,
+                        lang: $crate::headers::Language,
+                    |
+                    {
+                        {
+                            use $crate::headers::{
+                                Language,
+                                languages::{self, HeaderLanguage},
+                            };
+                            let header_builder: &'static dyn HeaderLanguage =
+                                match lang {
+                                    | Language::C => &languages::C,
+                                    | Language::CSharp => &languages::CSharp,
+                                }
+                            ;
+                            header_builder
+                        }.emit_constant(
+                            definer,
+                            &[
+                                $($($doc),*)?
+                            ],
+                            $crate::ඞ::stringify!($VAR),
+                            &$crate::ඞ::PhantomData::<
+                                $crate::ඞ::CLayoutOf< $T >,
+                            >,
+                            &$VAR,
+                        )
+                    }
                 },
             }
         }
     }
 )}
-
-// __ffi_export__! {
-//     /// Concatenate two strings
-//     fn concat (
-//         fst: crate::char_p::char_p_ref<'_>,
-//         snd: crate::char_p::char_p_ref<'_>,
-//     ) -> crate::char_p::char_p_boxed
-//     {
-//         use ::core::convert::TryInto;
-//         format!("{}{}\0", fst.to_str(), snd.to_str())
-//             .try_into()
-//             .unwrap()
-//     }
-// }
-
-// __ffi_export__! {
-//     /// Some docstring
-//     fn max<'a, 'b : 'a> (
-//         ints: crate::slice::slice_ref<'a, i32>
-//     ) -> Option<&'a i32>
-//     {
-//         ints.as_slice().iter().max()
-//     }
-// }

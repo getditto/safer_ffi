@@ -182,5 +182,5 @@ impl<T : fmt::Debug + ReprC> fmt::Debug
 
 #[macro_export]
 macro_rules! c_vec { [$($input:tt)*] => (
-    $crate::Vec::from($crate::std::vec![ $($input)* ])
+    $crate::prelude::repr_c::Vec::from($crate::ඞ::vec![ $($input)* ])
 )}

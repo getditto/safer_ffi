@@ -31,3 +31,39 @@ impl<I : ?Sized> VMap for I
 where
     Self : Sized + IntoIterator,
 {}
+
+pub(in crate)
+trait Extend_ {
+    fn extend_<A, I> (
+        &mut self,
+        iterable: I,
+    )
+    where
+        Self : Extend<A>,
+        I : IntoIterator<Item = A>,
+    {
+        impl<T> Extend_ for T {}
+        self.extend(iterable)
+    }
+
+    fn extend_one_<A> (
+        &mut self,
+        item: A,
+    )
+    where
+        Self : Extend<A>,
+    {
+        self.extend([item])
+    }
+}
+
+pub
+trait Also : Sized {
+    fn also (mut self, tweak: impl FnOnce(&mut Self))
+      -> Self
+    {
+        impl<T> Also for T {}
+        tweak(&mut self);
+        self
+    }
+}
