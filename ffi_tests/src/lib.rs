@@ -1,4 +1,5 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
+
 use ::safer_ffi::prelude::*;
 
 /// Concatenate the two input strings into a new one.
@@ -127,12 +128,13 @@ pub enum Wow {
     Jenkins,
 }
 
+/// Hello, `World`!
 #[ffi_export]
-#[derive_ReprC]
+#[derive_ReprC2]
 #[repr(u8)]
 pub enum Triforce {
     Din = 3,
-    Farore = 1,
+    Farore = Triforce::Din as u8 - 2,
     Naryu,
 }
 
@@ -148,8 +150,8 @@ pub struct AnUnusedStruct {
 fn generate_headers ()
   -> ::std::io::Result<()>
 {Ok({
-    use ::safer_ffi::headers::Language::*;
-    for &(language, ext) in &[(C, "h"), (CSharp, "cs")] {
+    use ::safer_ffi::headers::Language::{self, *};
+    for &(language, ext) in &[(C, "h"), (Language::CSharp, "cs")] {
         let builder =
             ::safer_ffi::headers::builder()
                 .with_language(language)

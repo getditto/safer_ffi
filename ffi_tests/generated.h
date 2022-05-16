@@ -39,6 +39,9 @@ typedef struct {
 
 } AnUnusedStruct_t;
 
+/** \brief
+ *  Hello, `World`!
+ */
 /** \remark Has the same ABI as `uint8_t` **/
 #ifdef DOXYGEN
 typedef enum Triforce
@@ -46,11 +49,11 @@ typedef enum Triforce
 typedef uint8_t Triforce_t; enum
 #endif
 {
-    /** . */
+    /** <No documentation available> */
     TRIFORCE_DIN = 3,
-    /** . */
+    /** <No documentation available> */
     TRIFORCE_FARORE = 1,
-    /** . */
+    /** <No documentation available> */
     TRIFORCE_NARYU,
 }
 #ifdef DOXYGEN

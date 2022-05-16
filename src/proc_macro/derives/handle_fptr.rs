@@ -88,25 +88,32 @@ fn try_handle_fptr (
         }
 
         /* == VALIDATION PASSED, TIME TO EXPAND == */
-        quote_use! {
-            // Fully-qualified paths to be robust to an weird/antagonistic
-            // namespace (except for `::safer_ffi`; that's our path-resolution
-            // keystone.
-            use ::safer_ffi::layout::ReprC;
-            use ::safer_ffi::layout::CType;
-            use ::safer_ffi::layout::__HasNiche__;
-            use ::safer_ffi::headers::Definer;
-            use ::safer_ffi::layout::OpaqueKind::Concrete;
-            use ::safer_ffi::__cfg_headers__;
-            use ::safer_ffi::__cfg_csharp__;
-            use ::safer_ffi::bool;
-            use ::safer_ffi::str;
-            use ::safer_ffi::std;
-            use ::safer_ffi::core;
-            use ::safer_ffi::core::fmt;
-            use ::safer_ffi::core::write;
-            use ::safer_ffi::core::option::Option;
-        }
+        // Fully-qualified paths to be robust to an weird/antagonistic
+        // namespace (except for `::safer_ffi`; that's our path-resolution
+        // keystone.
+        #[apply(let_quote!)]
+        use ::safer_ffi::{
+            layout::{
+                CType,
+                CType,
+                LegacyCType,
+                OpaqueKind,
+                ReprC,
+                __HasNiche__,
+            },
+            headers::Definer,
+            __cfg_headers__,
+            __cfg_csharp__,
+            ඞ::{
+                bool,
+                core,
+                fmt,
+                Option,
+                std,
+                str,
+                write,
+            },
+        };
 
         let (intro, fwd, where_) = input.generics.split_for_impl();
         let mut ret = quote!(
@@ -211,7 +218,7 @@ fn try_handle_fptr (
                     //     // for<#(#lifetimes),*> < #ty
                     //     <#ty_no_lt as #ReprC>::CLayout
                     //     :
-                    //     #CType<OPAQUE_KIND = #Concrete>
+                    //     #LegacyCType<OPAQUE_KIND = #OpaqueKind::Concrete>
                     // );
                     // Iterator::chain(
                         ::core::iter::once(is_ReprC)
@@ -244,7 +251,7 @@ fn try_handle_fptr (
             ).unwrap()
         };
         // Add a PhantomData field to account for unused lifetime params.
-        // (given that we've had to strip them to become `CType`)
+        // (given that we've had to strip them to become `LegacyCType`)
         if generics.lifetimes().next().is_some() { // non-empty.
             let fields_mut = match input_Layout_data.fields {
                 | Fields::Unnamed(FieldsUnnamed {
@@ -328,7 +335,7 @@ fn try_handle_fptr (
 
             unsafe
             impl #intro
-                #CType
+                #LegacyCType
             for
                 #StructName_Layout #fwd
             #where_
@@ -338,16 +345,16 @@ fn try_handle_fptr (
                 {
                     // fmt.write_str(stringify!(#StructName))
                     // ret_arg1_arg2_fptr
-                    <#RetCType as #CType>::c_short_name_fmt(fmt)?; #(
-                    #write!(fmt, "_{}", <#EachArgCType as #CType>::c_short_name())?; )*
+                    fmt.write_str(&<#RetCType as #CType>::short_name())?; #(
+                    #write!(fmt, "_{}", <#EachArgCType as #CType>::short_name())?; )*
                     fmt.write_str("_fptr")
                 }
 
                 fn c_define_self (definer: &'_ mut dyn #Definer)
                   -> #std::io::Result<()>
                 {
-                    <#RetCType as #CType>::c_define_self(definer)?; #(
-                    <#EachArgCType as #CType>::c_define_self(definer)?; )*
+                    <#RetCType as #CType>::define_self(&::safer_ffi::headers::languages::C, definer)?; #(
+                    <#EachArgCType as #CType>::define_self(&::safer_ffi::headers::languages::C, definer)?; )*
                     Ok(())
                 }
 
@@ -356,13 +363,13 @@ fn try_handle_fptr (
                     var_name: &'_ #str,
                 ) -> #fmt::Result
                 {
-                    #write!(fmt, "{} ", <#RetCType as #CType>::c_var(""))?;
+                    #write!(fmt, "{} ", <#RetCType as #CType>::name_wrapping_var(&::safer_ffi::headers::languages::C, ""))?;
                     #write!(fmt, "(*{})(", var_name)?;
                     let _empty = true;
                     #(
                         #write!(fmt,
                             "{comma}{arg}",
-                            arg = <#EachArgCType as #CType>::c_var(""),
+                            arg = <#EachArgCType as #CType>::name_wrapping_var(&::safer_ffi::headers::languages::C, ""),
                             comma = if _empty { "" } else { ", " },
                         )?;
                         let _empty = false;
@@ -377,9 +384,9 @@ fn try_handle_fptr (
                     fn csharp_define_self (definer: &'_ mut dyn #Definer)
                       -> #std::io::Result<()>
                     {
-                        <#RetCType as #CType>::csharp_define_self(definer)?; #(
-                        <#EachArgCType as #CType>::csharp_define_self(definer)?; )*
-                        let ref me = Self::csharp_ty();
+                        <#RetCType as #CType>::define_self(&::safer_ffi::headers::languages::CSharp, definer)?; #(
+                        <#EachArgCType as #CType>::define_self(&::safer_ffi::headers::languages::CSharp, definer)?; )*
+                        let ref me = <Self as #CType>::name(&::safer_ffi::headers::languages::CSharp).to_string();
                         let ref mut _forge_arg_name = {
                             let mut iter = (0 ..).map(|c| #std::format!("_{}", c));
                             move || iter.next().unwrap()
@@ -407,7 +414,7 @@ fn try_handle_fptr (
                                     .as_deref()
                                     .unwrap_or("")
                                 ,
-                                <#EachArgCType as #CType>::csharp_var(&_forge_arg_name()),
+                                <#EachArgCType as #CType>::name_wrapping_var(&::safer_ffi::headers::languages::CSharp, &_forge_arg_name()),
                             )*
                             me = me,
                             ret_marshaler =
@@ -416,7 +423,7 @@ fn try_handle_fptr (
                                     .as_deref()
                                     .unwrap_or("")
                             ,
-                            Ret = <#RetCType as #CType>::csharp_ty(),
+                            Ret = <#RetCType as #CType>::name(&::safer_ffi::headers::languages::CSharp),
                         ))
                     }
 
@@ -426,7 +433,7 @@ fn try_handle_fptr (
                         Self::c_short_name().to_string()
                     }
 
-                    fn csharp_marshaler ()
+                    fn legacy_csharp_marshaler ()
                       -> #Option<#std::string::String>
                     {
                         // This assumes the calling convention from the above
@@ -434,7 +441,7 @@ fn try_handle_fptr (
                         #Option::Some("UnmanagedType.FunctionPtr".into())
                     }
                 }
-            } type OPAQUE_KIND = #Concrete; }
+            } type OPAQUE_KIND = #OpaqueKind::Concrete; }
 
             unsafe
             impl #intro
@@ -523,7 +530,7 @@ const _: () = {
 
 /// Pretty self-explanatory: since we can't do `<for<'lt> Ty as Tr>::Assoc`
 /// (technically the result value could depend on `'lt`, but not in our case,
-/// since `CType` is `'static`)
+/// since `LegacyCType` is `'static`)
 struct StripLifetimeParams;
 
 impl VisitMut for StripLifetimeParams {

@@ -17,6 +17,7 @@ quote.version = "1.0"
 
 # prettyplease.optional = true
 prettyplease.version = "0.1.7"
+macro_rules_attribute = "0.1.0"
 
 [dependencies.syn]
 version = "1.0"
@@ -30,9 +31,10 @@ features = [
 async-fn = []
 dyn-traits = []
 headers = []
-node-js = [
+js = [
     "async-fn",
 ]
+node-js = ["js"]  # legacy alias.
 verbose-expansions = [
     # "prettyplease",
 ]

@@ -1,5 +1,7 @@
 use super::*;
 
+macro_rules! emit {( $($tt:tt)* ) => ( $($tt)* )}
+
 pub(in super)
 fn ffi_export (
     attrs: TokenStream2,
@@ -8,16 +10,16 @@ fn ffi_export (
 {
     use ::proc_macro2::*;
 
-    if let Ok(input) = parse::<DeriveInput>(input.clone()) {
-        parse_macro_input!(attrs as parse::Nothing);
-        return ::quote::quote!(
+    if let Ok(input) = parse2::<DeriveInput>(input.clone()) {
+        let _: parse::Nothing = parse2(attrs)?;
+        return Ok(::quote::quote!(
             ::safer_ffi::__ffi_export__! {
                 #input
             }
-        ).into();
+        ));
     }
 
-    #[cfg(feature = "async_fn")] emit! {
+    #[cfg(feature = "async-fn")] emit! {
         let fun: ItemFn = parse2(input.clone())?;
         match parse2::<async_fn::Attrs>(attrs.clone()) {
             | Ok(attrs)

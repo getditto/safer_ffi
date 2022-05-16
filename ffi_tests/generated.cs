@@ -32,6 +32,9 @@ public unsafe struct AnUnusedStruct_t {
     public Wow_t are_you_still_there;
 }
 
+/// <summary>
+/// Hello, <c>World</c>!
+/// </summary>
 public enum Triforce_t : byte {
     Din = 3,
     Farore = 1,

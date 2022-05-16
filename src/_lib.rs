@@ -22,17 +22,25 @@
 #![doc = include_str!("../README.md")]
 #![cfg(not(rustfmt))]
 
+#![feature(rustc_attrs)] #![allow(warnings)]
+
+#[macro_use]
+extern crate fstrings;
+
+#[macro_use]
+extern crate macro_rules_attribute;
+
+#[macro_use]
+extern crate with_builtin_macros;
+
 #[macro_use]
 #[path = "utils/_mod.rs"]
 #[doc(hidden)] /** Not part of the public API **/ pub
 mod __utils__;
 use __utils__ as utils;
 
-hidden_export! {
-    use ::paste;
-}
-
-
+#[apply(hidden_export)]
+use ::paste;
 
 /// Export a function to be callable by C.
 ///
@@ -301,49 +309,45 @@ cfg_alloc! {
     pub mod vec;
 }
 
-macro_rules! reexport_primitive_types {(
-    $($ty:ident)*
-) => (
-    $(
-        #[doc(hidden)]
-        pub use $ty;
-    )*
-)} reexport_primitive_types! {
+match_! {(
     u8 u16 u32 u64 u128
     i8 i16 i32 i64 i128
     f32 f64
     char
     bool
     str
-}
+) {(
+    $($ty:ident)*
+) => (
+    $(
+        #[doc(hidden)]
+        pub use $ty;
+    )*
+)}}
 
-hidden_export! {
-    use ::core;
-}
+#[apply(hidden_export)]
+use ::core;
 
-hidden_export! {
-    use ::scopeguard;
-}
+#[apply(hidden_export)]
+use ::scopeguard;
 
-cfg_std! {
-    hidden_export! {
-        use ::std;
-    }
-}
+#[apply(cfg_std!)]
+#[apply(hidden_export)]
+use ::std;
 
-hidden_export! {
-    /// Hack needed to `feature(trivial_bounds)` in stable Rust:
-    ///
-    /// Instead of `where Ty : Bounds…`, it suffices to write:
-    /// `where for<'hrtb> TrivialBound<'hrtb, Ty> : Bounds…`.
-    type __TrivialBound<'hrtb, T> = <T as __private::Ignoring<'hrtb>>::ItSelf;
-}
+#[apply(hidden_export)]
+/// Hack needed to `feature(trivial_bounds)` in stable Rust:
+///
+/// Instead of `where Ty : Bounds…`, it suffices to write:
+/// `where for<'hrtb> TrivialBound<'hrtb, Ty> : Bounds…`.
+type __TrivialBound<'hrtb, T> = <T as __private::Ignoring<'hrtb>>::ItSelf;
+
 mod __private {
     pub trait Ignoring<'__> { type ItSelf : ?Sized; }
     impl<T : ?Sized> Ignoring<'_> for T { type ItSelf = Self; }
 }
 
-#[doc(hidden)] /** Not part of the public API **/ pub
+#[apply(hidden_export)]
 use layout::impls::c_int;
 
 #[derive(Clone, Copy)]
@@ -412,17 +416,17 @@ mod prelude {
     }
 
     #[doc(no_inline)]
-    pub use crate::layout::derive_ReprC;
-    #[doc(no_inline)]
-    pub use crate::c;
-
-    #[doc(no_inline)]
-    pub use ::core::{
-        convert::{
-            TryFrom as _,
-            TryInto as _,
+    pub use {
+        crate::layout::derive_ReprC,
+        ::safer_ffi_proc_macros::derive_ReprC2,
+        crate::c,
+        ::core::{
+            convert::{
+                TryFrom as _,
+                TryInto as _,
+            },
+            ops::Not as _,
         },
-        ops::Not as _,
     };
 
     #[cfg(feature = "out-refs")]
@@ -451,54 +455,50 @@ macro_rules! NULL {() => (
 )}
 
 #[cfg(feature = "log")]
-hidden_export! {
-    use ::log;
-}
+#[apply(hidden_export)]
+use ::log;
 
 #[cfg(feature = "node-js")]
-// hidden_export! {
-    #[path = "node_js/_mod.rs"]
-    pub mod node_js;
-// }
+// #[apply(hidden_export)]
+#[path = "node_js/_mod.rs"]
+pub mod node_js;
 
-hidden_export! {
-    #[allow(missing_copy_implementations, missing_debug_implementations)]
-    struct __PanicOnDrop__; impl Drop for __PanicOnDrop__ {
-        fn drop (self: &'_ mut Self)
-        {
-            panic!()
-        }
+#[apply(hidden_export)]
+#[allow(missing_copy_implementations, missing_debug_implementations)]
+struct __PanicOnDrop__; impl Drop for __PanicOnDrop__ {
+    fn drop (self: &'_ mut Self)
+    {
+        panic!()
     }
 }
 
 #[cfg(feature = "log")]
-hidden_export! {
-    macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
-        $crate::log::error!($($tt)*);
-        let _panic_on_drop = $crate::__PanicOnDrop__;
-        $crate::core::panic!($($tt)*);
-    })}
-}
+#[apply(hidden_export)]
+macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
+    $crate::log::error!($($tt)*);
+    let _panic_on_drop = $crate::__PanicOnDrop__;
+    $crate::core::panic!($($tt)*);
+})}
+
 #[cfg(all(
     not(feature = "log"),
     feature = "std",
 ))]
-hidden_export! {
-    macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
-        $crate::std::eprintln!($($tt)*);
-        $crate::std::process::abort();
-    })}
-}
+#[apply(hidden_export)]
+macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
+    $crate::std::eprintln!($($tt)*);
+    $crate::std::process::abort();
+})}
+
 #[cfg(all(
     not(feature = "log"),
     not(feature = "std"),
 ))]
-hidden_export! {
-    macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
-        let _panic_on_drop = $crate::__PanicOnDrop__;
-        $crate::core::panic!($($tt)*);
-    })}
-}
+#[apply(hidden_export)]
+macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
+    let _panic_on_drop = $crate::__PanicOnDrop__;
+    $crate::core::panic!($($tt)*);
+})}
 
 #[cfg(target_arch = "wasm32")]
 #[allow(dead_code)]
@@ -511,3 +511,27 @@ mod libc {
 use ::libc;
 
 extern crate self as safer_ffi;
+
+#[apply(hidden_export)]
+use __ as ඞ;
+
+#[apply(hidden_export)]
+mod __ {
+    pub use {
+        ::core::{
+            self,
+            primitive::{
+                u8, u16, u32, usize, u64, u128,
+                i8, i16, i32, isize, i64, i128,
+                bool,
+                char,
+                str,
+            },
+        },
+        ::std::{
+            self,
+            *,
+            prelude::rust_2021::*,
+        },
+    };
+}

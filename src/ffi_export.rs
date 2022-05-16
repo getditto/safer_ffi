@@ -18,6 +18,7 @@ macro_rules! __ffi_export__ {
     {
         $($tt)*
     }
+
     $crate::__cfg_headers__! {
         $crate::inventory::submit! {
             #![crate = $crate]
@@ -97,12 +98,7 @@ macro_rules! __ffi_export__ {
                     {
                         fn __return_type__<T> (_: T)
                         where
-                            T : $crate::layout::ReprC,
-                            <T as $crate::layout::ReprC>::CLayout
-                            :
-                            $crate::layout::CType<
-                                OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete,
-                            >,
+                            T : $crate::layout::ConcreteReprC,
                         {}
                         let _ = __return_type__::<$Ret>;
                     }
@@ -114,12 +110,7 @@ macro_rules! __ffi_export__ {
                             pub(in super)
                             fn $arg_name<T> (_: T)
                             where
-                                T : $crate::layout::ReprC,
-                                <T as $crate::layout::ReprC>::CLayout
-                                :
-                                $crate::layout::CType<
-                                    OPAQUE_KIND = $crate::layout::OpaqueKind::Concrete,
-                                >,
+                                T : $crate::layout::ConcreteReprC,
                             {}
                         }
                         let _ = __parameter__::$arg_name::<$arg_ty>;

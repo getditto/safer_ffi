@@ -112,6 +112,9 @@ use ::std::{
 use_prelude!();
 use rust::{String};
 
+pub // (in crate)
+mod languages;
+
 pub use definer::{Definer, HashSetDefiner};
 mod definer;
 
@@ -472,11 +475,11 @@ hidden_export! {
     {
         match lang {
             | Language::C => {
-                <T::CLayout as CType>::c_define_self(definer)
+                <T::CLayout as CType>::define_self(&crate::headers::languages::C, definer)
             },
             #[cfg(feature = "csharp-headers")]
             | Language::CSharp => {
-                <T::CLayout as CType>::csharp_define_self(definer)
+                <T::CLayout as CType>::define_self(&crate::headers::languages::CSharp, definer)
             },
         }
     }
@@ -522,12 +525,12 @@ hidden_export! {
             }
             match lang {
                 | Language::C => write!(out,
-                    "\n    {}", Arg::CLayout::c_var(arg_name),
+                    "\n    {}", Arg::CLayout::name_wrapping_var(&crate::headers::languages::C, arg_name),
                 ),
 
                 #[cfg(feature = "csharp-headers")]
                 | Language::CSharp => write!(out,
-                    "\n        {marshaler}{}", Arg::CLayout::csharp_var(arg_name),
+                    "\n        {marshaler}{}", Arg::CLayout::name_wrapping_var(&crate::headers::languages::CSharp, arg_name),
                     marshaler =
                         Arg::CLayout::csharp_marshaler()
                             .map(|m| format!("[MarshalAs({})]\n        ", m))
@@ -553,7 +556,7 @@ hidden_export! {
                     }
                     writeln!(out,
                         "{});\n",
-                        Ret::CLayout::c_var(&fname_and_args),
+                        Ret::CLayout::name_wrapping_var(&crate::headers::languages::C, &fname_and_args),
                     )
                 },
 
@@ -567,7 +570,7 @@ hidden_export! {
                             "    {});\n",
                             "}}\n",
                         ),
-                        Ret::CLayout::csharp_var(&fname_and_args),
+                        Ret::CLayout::name_wrapping_var(&crate::headers::languages::CSharp, &fname_and_args),
                         mb_marshaler =
                             Ret::CLayout::csharp_marshaler()
                                 .map(|m| format!("[return: MarshalAs({})]\n    ", m))

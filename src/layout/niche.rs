@@ -81,14 +81,14 @@ unsafe_impls! {
 cfg_alloc! {
     unsafe_impls! {
         // @for[T : ReprC]
-        // Box<T> => |it| it.is_null(),
+        // repr_c::Box<T> => |it| it.is_null(),
         @for[T : ReprC]
         c_slice::Box<T> => |it| it.ptr.is_null(),
         @for[T : ReprC]
-        Vec<T> => |it| it.ptr.is_null(),
+        repr_c::Vec<T> => |it| it.ptr.is_null(),
 
         // str::Box => |it| it.ptr.is_null(),
-        // String => |it| it.ptr.is_null(),
+        // repr_c::String => |it| it.ptr.is_null(),
 
         // char_p::Box => |it| it.is_null(),
     }

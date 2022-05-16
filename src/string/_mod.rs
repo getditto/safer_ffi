@@ -3,8 +3,9 @@
 //! compatible (_fat_ pointers).
 
 use_prelude!();
+use repr_c::Vec;
 
-pub use self::slice::*;
+pub use slice::*;
 mod slice;
 
 cfg_alloc! {
