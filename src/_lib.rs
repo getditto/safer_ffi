@@ -38,18 +38,18 @@ extern crate paste;
 mod __utils__;
 use __utils__ as utils;
 
-extern crate proc_macro;
-pub use ::proc_macro::{ffi_export, cfg_headers};
+extern crate safer_ffi_proc_macro;
+pub use ::safer_ffi_proc_macro::{ffi_export, cfg_headers};
 cfg_proc_macros! {
     #[::proc_macro_hack::proc_macro_hack]
     /// Creates a compile-time checked [`char_p::Ref`]`<'static>` out of a
     /// string literal.
     ///
     /// [`char_p::Ref`]: `crate::prelude::char_p::Ref`
-    pub use ::proc_macro::c_str as c;
+    pub use ::safer_ffi_proc_macro::c_str as c;
 
     #[doc(inline)]
-    pub use ::proc_macro::derive_ReprC;
+    pub use ::safer_ffi_proc_macro::derive_ReprC;
 }
 
 #[macro_use]
