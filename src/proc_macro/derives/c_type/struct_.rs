@@ -2,6 +2,7 @@ use super::*;
 
 pub(in crate)
 fn derive (
+    args: Args,
     attrs: &'_ [Attribute],
     vis: &'_ Visibility,
     StructName @ _: &'_ Ident,
@@ -111,23 +112,23 @@ fn derive (
             fn short_name ()
               -> #ඞ::String
             {
-                let mut ret: #ඞ::String = StructName_str.into();
+                let mut _ret: #ඞ::String = #StructName_str.into();
                 #(
                     #ඞ::fmt::Write::write_fmt(
-                        &mut ret,
+                        &mut _ret,
                         #ඞ::format_args!(
                             "_{}",
-                            <#CLayoutOf<#EachGenericTy> as #CType>::c_short_name(),
+                            <#CLayoutOf<#EachGenericTy> as #CType>::short_name(),
                         ),
                     ).unwrap();
                 )*
-                ret
+                _ret
             }
         ));
 
         let each_field =
             fields.try_vmap(|f| Result::Ok({
-                let ref docs = utils::extract_docs(attrs)?;
+                let ref docs = utils::extract_docs(&f.attrs)?;
                 let ref name = f.ident.as_ref().expect("BRACED STRUCT").to_string();
                 let FieldTy = &f.ty;
                 let emit_unindented = quote!(
@@ -143,72 +144,37 @@ fn derive (
                     )
                 );
                 quote!(
-                    #ඞ::FunctionArg {
+                    #ඞ::StructField {
                         docs: &[#(#docs),*],
                         name: #name,
                         emit_unindented: #emit_unindented,
+                        layout: #ඞ::std::alloc::Layout::new::<Self>(),
                     }
                 )
             }))?
         ;
 
         let ref docs = utils::extract_docs(attrs)?;
+
+        let me = args.rename.as_ref().unwrap_or(StructName).to_string();
         impl_body.extend(quote!(
             fn define_self (
-                language: &'_ dyn #headers::HeaderLanguage,
+                language: &'_ dyn #headers::languages::HeaderLanguage,
                 definer: &'_ mut dyn #headers::Definer,
             ) -> #ඞ::io::Result<()>
             {
-                let ref me =
-                    <Self as #CType>::short_name()
-                        .to_string()
-                ;
-                definer.define_once(me, &mut |definer| {
+                definer.define_once(#me, &mut |definer| {
+                #(
+                    < #EachFieldTy as #CType >::define_self(language, definer)?;
+                )*
                     language.emit_struct(
                         definer,
-                        me,
                         &[#(#docs),*],
+                        #me,
                         #ඞ::mem::size_of::<Self>(),
                         &[#(#each_field),*],
                     )
                 })
-
-                //     #(
-                //         < #EachFieldTy as #CType >::c_define_self(definer)?;
-                //     )*
-                //     // /* FIXME: handle docs */
-                //     // // let out = definer.out();
-                //     // // $(
-                //     // //     $crate::__output_docs__!(out, "", $($doc_meta)*);
-                //     // // )?
-                //     // // $crate::__output_docs__!(out, "", $(#[$($meta)*])*);
-                //     // #core::writeln!(out, "typedef struct {{\n")?;
-                //     #(
-                //         if #ඞ::mem::size_of::< #EachFieldTy >() > 0 {
-                //             // $crate::core::writeln!(out, "")?;
-                //             /* FIXME: docs */
-                //             // $crate::__output_docs__!(out, "    ",
-                //             //     $(#[$($field_meta)*])*
-                //             // );
-                //             #ඞ::writeln!(out,
-                //                 "    {};\n",
-                //                 < #EachFieldTy as #CType >::c_var(
-                //                     #each_field_name_str,
-                //                 ),
-                //             )?;
-                //         } else {
-                //             #ඞ::assert_eq!(
-                //                 #ඞ::mem::align_of::< #EachFieldTy >(),
-                //                 1,
-                //                 "\
-                //                     Zero-sized fields must have an \
-                //                     alignment of `1`.\
-                //                 ",
-                //             );
-                //         }
-                //     )*
-                //     #ඞ::writeln!(out, "}} {};\n", me)
-                // })
             }
         ));
 
@@ -222,28 +188,49 @@ fn derive (
 
         quote!(
             impl #intro_generics
+                #ඞ::Clone
+            for
+                #StructName #fwd_generics
+            #where_clauses
+            {
+                #[inline]
+                fn clone (self: &'_ Self)
+                  -> Self
+                {
+                    *self
+                }
+            }
+
+            impl #intro_generics
+                #ඞ::Copy
+            for
+                #StructName #fwd_generics
+            #where_clauses
+            {}
+
+            unsafe
+            impl #intro_generics
                 #CType
             for
                 #StructName #fwd_generics
-            where
-                #where_clauses
+            #where_clauses
             {
                 #impl_body
             }
 
             // If it is CType, it trivially is ReprC.
+            unsafe
             impl #intro_generics
                 #ReprC
             for
                 #StructName #fwd_generics
-            where
-                #where_clauses
+            #where_clauses
             {
                 type CLayout = Self;
 
                 #[inline]
                 fn is_valid (
-                    self: &'_ Self::CLayout,
+                    _: &'_ Self::CLayout,
                 ) -> #ඞ::bool
                 {
                     true

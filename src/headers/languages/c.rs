@@ -103,10 +103,35 @@ impl HeaderLanguage for C {
         fields: &'_ [StructField<'_>]
     ) -> io::Result<()>
     {
-        if size == 0 || fields.is_empty() {
+        let ref indent = Indentation::new(4 /* ctx.indent_width() */);
+        mk_out!(indent, "{indent}", ctx.out());
+
+        if size == 0 {
             panic!("C does not support zero-sized structs!")
         }
-        todo!()
+
+        self.emit_docs(ctx, docs, indent)?;
+
+        out!(("typedef struct {name} {{"));
+        if let _ = indent.scope() {
+            let ref mut first = true;
+            for f in fields {
+                if f.layout.size() == 0 && f.layout.align() > 1 {
+                    panic!("Zero-sized fields must have an alignment of `1`");
+                }
+                if mem::take(first).not() {
+                    out!("\n");
+                }
+                self.emit_docs(ctx, f.docs, indent)?;
+                out!("{indent}");
+                (f.emit_unindented)(self, ctx)?;
+                out!(";\n");
+            }
+        }
+        out!(("}} {name}_t;"));
+
+        out!("\n");
+        Ok(())
     }
 
     fn emit_function (

@@ -92,7 +92,7 @@ mod foo {
 
 mod bar {
     use super::*;
-    #[derive_ReprC]
+    #[derive_ReprC2]
     #[repr(u8)]
     pub
     enum Bar { A }
@@ -138,6 +138,16 @@ pub enum Triforce {
     Naryu,
 }
 
+/// Hello, `World`!
+// #[ffi_export]
+#[derive_ReprC2]
+pub struct Next {
+    /// I test some `gen`-eration.
+    gen: bar::Bar,
+    /// with function pointers and everything!
+    cb: extern "C" fn(u8) -> i8,
+}
+
 #[ffi_export]
 #[derive_ReprC]
 #[repr(C)]
@@ -151,7 +161,7 @@ fn generate_headers ()
   -> ::std::io::Result<()>
 {Ok({
     use ::safer_ffi::headers::Language::{self, *};
-    for &(language, ext) in &[(C, "h"), (Language::CSharp, "cs")] {
+    for &(language, ext) in &[(C, "h"), (Language::CSharp, "cs")][..1] {
         let builder =
             ::safer_ffi::headers::builder()
                 .with_language(language)

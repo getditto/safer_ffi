@@ -76,6 +76,7 @@ typedef enum SomeReprCEnum {
 void check_SomeReprCEnum (
     SomeReprCEnum_t _baz);
 
+/** <No documentation available> */
 /** \remark Has the same ABI as `uint8_t` **/
 #ifdef DOXYGEN
 typedef enum Bar
@@ -83,7 +84,7 @@ typedef enum Bar
 typedef uint8_t Bar_t; enum
 #endif
 {
-    /** . */
+    /** <No documentation available> */
     BAR_A,
 }
 #ifdef DOXYGEN

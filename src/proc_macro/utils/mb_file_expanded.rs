@@ -35,9 +35,12 @@ fn mb_file_expanded (output: TokenStream2)
                 non-UTF-8 paths are not supported\
             ")
     };
+
     ::std::fs::write(
         file_name,
-        ::prettyplease::unparse(&parse_quote!(#output)),
+        ::std::panic::catch_unwind(|| ::prettyplease::unparse(&parse_quote!(#output)))
+            .unwrap_or_else(|_| quote!(#output).to_string())
+        ,
     )
         .unwrap_or_else(|err| panic!(
             "`DEBUG_MACROS_LOCATION`-error: failed to write to `{}`: {}",

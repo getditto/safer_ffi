@@ -139,6 +139,9 @@ struct StructField<'lt> {
     emit_unindented: &'lt dyn
         Fn(&'_ dyn HeaderLanguage, &'_ mut dyn Definer) -> io::Result<()>
     ,
+
+    pub
+    layout: ::std::alloc::Layout,
 }
 
 pub

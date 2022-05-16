@@ -27,6 +27,14 @@ fn derive (
         );
     }
 
+    let docs =
+        attrs
+            .iter()
+            .filter(|a| a.path.is_ident("doc"))
+            .cloned()
+            .vec()
+    ;
+
     // Add docs about C layout.
     attrs.extend_::<Attribute, _>([
         parse_quote!(
@@ -36,7 +44,7 @@ fn derive (
             ///
         ),
         {
-            let line = format!("{}  - [`{StructName}`_Layout](#impl-ReprC)", " ");
+            let line = format!("{}  - [`{StructName}_Layout`](#impl-ReprC)", " ");
             parse_quote!(#[doc = #line])
         },
     ]);
@@ -64,25 +72,43 @@ fn derive (
     let ref ctype_generics = utils::ctype_generics(generics, &mut EachFieldTy());
 
     // define the CType
-    ret.extend(crate::derives::c_type::struct_::derive(
-        &[],
-        &dbg_parse_quote!(pub),
-        StructName_Layout,
-        ctype_generics,
-        &Fields::Named({
-            let EachFieldTy = EachFieldTy();
-            let each_field_name = (0_u8..).zip(fields).map(|(i, f)| match f.ident {
-                | Some(ref ident) => ident.clone(),
-                | None => format_ident!("_{}", i),
-            });
-            dbg_parse_quote!({
-                #(
-                    pub
-                    #each_field_name: #CLayoutOf<#EachFieldTy>
-                ),*
-            })
-        }),
-    )?);
+    ret.extend({
+        let c_type_def = ItemStruct {
+            attrs: docs.also(|v| v.push(parse_quote!(
+                #[allow(nonstandard_style)]
+            ))),
+            vis: parse_quote!(pub),
+            struct_token: parse_quote!(struct),
+            ident: StructName_Layout.clone(),
+            generics: ctype_generics.clone(),
+            fields: Fields::Named({
+                let EachFieldTy = EachFieldTy();
+                let each_field_name = (0_u8..).zip(fields).map(|(i, f)| match f.ident {
+                    | Some(ref ident) => ident.clone(),
+                    | None => format_ident!("_{}", i),
+                });
+                let each_docs = fields.iter().map(|f| {
+                    f   .attrs
+                        .iter()
+                        .filter(|attr| attr.path.is_ident("doc"))
+                        .vec()
+                });
+                parse_quote!({
+                    #(
+                        #(#each_docs)*
+                        pub
+                        #each_field_name: #CLayoutOf<#EachFieldTy>
+                    ),*
+                })
+            }),
+            semi_token: None,
+        };
+
+        crate::derives::c_type::derive(
+            quote!(rename = #StructName),
+            c_type_def.into_token_stream(),
+        )?
+    });
 
     // Impl ReprC to point to the just defined type
     ret.extend({
@@ -98,8 +124,7 @@ fn derive (
                 #ReprC
             for
                 #StructName #fwd_generics
-            where
-                #where_clauses
+            #where_clauses
             {
                 type CLayout = #StructName_Layout #fwd_generics;
 
@@ -107,7 +132,7 @@ fn derive (
                 fn is_valid (it: &'_ Self::CLayout)
                   -> #ඞ::bool
                 {
-                    let _: it;
+                    let _ = it;
                     true #(&& (
                         #ඞ::mem::size_of::<#EachFieldTy>() == 0
                         ||

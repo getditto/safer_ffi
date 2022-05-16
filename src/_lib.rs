@@ -533,5 +533,25 @@ mod __ {
             *,
             prelude::rust_2021::*,
         },
+        crate::{
+            headers::{
+                Definer,
+                languages::{
+                    self,
+                    EnumVariant,
+                    FunctionArg,
+                    HeaderLanguage,
+                    StructField,
+                },
+            },
+            layout::{
+                CLayoutOf,
+                ConcreteReprC,
+                CType,
+                OpaqueKind,
+                ReprC,
+                __HasNiche__,
+            },
+        }
     };
 }

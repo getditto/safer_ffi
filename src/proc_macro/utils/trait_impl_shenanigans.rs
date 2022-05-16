@@ -14,7 +14,7 @@ fn allowing_trivial_bound (
         lifetimes
             .get_or_insert_with(|| parse_quote!(for<>))
             .lifetimes
-            .extend_one_::<LifetimeDef>(parse_quote!('__trivial_bound_hack))
+            .push(parse_quote!('__trivial_bound_hack))
         ;
         *bounded_ty = parse_quote!(
             ::safer_ffi::__::Identity<'__trivial_bound_hack, #bounded_ty>
@@ -32,11 +32,12 @@ fn ctype_generics (
 ) -> Generics
 {
     #[apply(let_quote!)]
-    use ::safer_ffi::{
-        layout::{
-            ConcreteReprC,
-            ReprC,
-        },
+    use ::safer_ffi::ඞ::{
+        ConcreteReprC,
+        CLayoutOf,
+        CType,
+        OpaqueKind,
+        ReprC,
     };
     generics.clone().also(|it| {
         it

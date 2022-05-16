@@ -2,7 +2,6 @@
 //! Trait abstractions describing the semantics of "being `#[repr(C)]`"
 
 use_prelude!();
-use rust::String;
 
 __cfg_headers__! {
     use crate::headers::{
@@ -172,7 +171,7 @@ type CLayoutOf<ImplReprC> = <ImplReprC as ReprC>::CLayout;
 ///
 ///       - This crates provides as many of these implementations as possible.
 ///
-///   - an recursively, a non-zero-sized `#[repr(C)]` struct of `CType` fields.
+///   - and recursively, a non-zero-sized `#[repr(C)]` struct of `CType` fields.
 ///
 ///       - the [`CType!`] macro can be used to wrap a `#[repr(C)]` struct
 ///         definition to _safely_ and automagically implement the trait
@@ -183,8 +182,6 @@ type CLayoutOf<ImplReprC> = <ImplReprC as ReprC>::CLayout;
 /// bit-patterns for the `uint8_t` type that do not make _valid_ `bool`s.
 ///
 /// For such types, see the [`ReprC`][`trait@ReprC`] trait.
-// #[rustc_must_implement_one_of(c_define_self, define_self)]
-// #[rustc_must_implement_one_of(c_short_name_fmt, short_name_fmt)]
 pub
 unsafe trait LegacyCType
 :
@@ -930,25 +927,35 @@ mod impls;
 
 mod niche;
 
-#[doc(hidden)] /* Not part of the public API */ pub
+#[apply(hidden_export)]
 use niche::HasNiche as __HasNiche__;
 
+#[apply(hidden_export)]
+trait Is { type EqTo : ?Sized; }
+impl<T : ?Sized> Is for T { type EqTo = Self; }
+
+/// Alias for `ReprC where Self::CLayout::OPAQUE_KIND = OpaqueKind::Concrete`
 pub
 trait ConcreteReprC
 where
-    Self : ReprC<CLayout = Self::ConcreteCLayout>,
+    Self : ReprC,
 {
-    type ConcreteCLayout : CType<OPAQUE_KIND = OpaqueKind::Concrete>;
+    type ConcreteCLayout
+    :
+        Is<EqTo = CLayoutOf<Self>> +
+        CType<OPAQUE_KIND = OpaqueKind::Concrete> +
+    ;
 }
-impl<T : ?Sized, CLayout> ConcreteReprC for T
+impl<T : ?Sized> ConcreteReprC for T
 where
-    Self : ReprC<CLayout = CLayout>,
-    CLayout : CType<OPAQUE_KIND = OpaqueKind::Concrete>,
+    Self : ReprC,
+    CLayoutOf<Self> : CType<OPAQUE_KIND = OpaqueKind::Concrete>,
 {
-    type ConcreteCLayout = CLayout;
+    type ConcreteCLayout = CLayoutOf<Self>;
 }
 
-pub
-fn __assert_concrete__<T>() where
+#[apply(hidden_export)]
+fn __assert_concrete__<T> ()
+where
     T : ConcreteReprC,
 {}
