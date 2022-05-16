@@ -442,7 +442,7 @@ cfg_alloc! {
         @for['lt] &'lt str => rust::String,
         // @for['lt] str::Ref<'lt> => rust::String,
         rust::String => rust::String,
-        String => rust::String,
+        repr_c::String => rust::String,
     }
     cfg_std! {
         derive_MyFrom_from! {

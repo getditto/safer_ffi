@@ -50,7 +50,7 @@ mod define_once_seal {
             self: &'_ mut Self,
             name: &'_ str,
             write_typedef: &'_ mut dyn
-                FnMut (&'_ mut dyn Definer) -> io::Result<()>
+                FnMut(&'_ mut dyn Definer) -> io::Result<()>
             ,
         ) -> io::Result<()>
         ;
@@ -63,7 +63,7 @@ mod define_once_seal {
             self: &'_ mut Self,
             name: &'_ str,
             write_typedef: &'_ mut dyn
-                FnMut (&'_ mut dyn Definer) -> io::Result<()>
+                FnMut(&'_ mut dyn Definer) -> io::Result<()>
             ,
         ) -> io::Result<()>
         {

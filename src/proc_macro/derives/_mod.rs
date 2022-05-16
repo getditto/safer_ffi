@@ -1,5 +1,12 @@
 use super::*;
 
+#[path = "c_type/_mod.rs"]
+mod c_type;
+
+#[path = "repr_c/_mod.rs"]
+pub(in crate)
+mod repr_c;
+
 #[cfg(feature = "dyn-traits")]
 #[path = "dyn_trait/_mod.rs"]
 mod dyn_trait;
@@ -12,8 +19,8 @@ fn feed_to_macro_rules (
 ) -> Result<TokenStream2>
 {
     let input = parse2::<DeriveInput>(input)?;
-    if let Some(expansion) = handle_fptr::try_handle_fptr(&input) {
-        return Ok(expansion);
+    if let Some(result) = handle_fptr::try_handle_fptr(&input) {
+        return result;
     }
     let DeriveInput {
         attrs,
@@ -79,28 +86,33 @@ fn derive_ReprC (
     if let Some(output) = dyn_trait::try_handle_trait(&mut attrs, &mut input)? {
         return Ok(utils::mb_file_expanded(output));
     }
-    //     | Err(mut err) => {
-    //         // Prefix error messages with `derive_ReprC`.
-    //         {
-    //             let mut errors =
-    //                 err .into_iter()
-    //                     .map(|err| Error::new_spanned(
-    //                         err.to_compile_error(),
-    //                         format_args!("`#[safer_ffi::derive_ReprC]`: {}", err),
-    //                     ))
-    //             ;
-    //             err = errors.next().unwrap();
-    //             errors.for_each(|cur| err.combine(cur));
-    //         }
-    //         input.extend(TokenStream::from(err.to_compile_error()));
-    //         return input;
-    //     },
-    //     | Ok(None) => {},
-    // }
     if let Some(tt) = TokenStream2::from(attrs).into_iter().next() {
         return Err(Error::new_spanned(tt, "Unexpected parameter"));
     }
-    feed_to_macro_rules(input, parse_quote!(ReprC))
+    return feed_to_macro_rules(input, parse_quote!(ReprC)); // .map(utils::mb_file_expanded);
+    repr_c::derive(attrs, input)
+    // //     | Err(mut err) => {
+    // //         // Prefix error messages with `derive_ReprC`.
+    // //         {
+    // //             let mut errors =
+    // //                 err .into_iter()
+    // //                     .map(|err| Error::new_spanned(
+    // //                         err.to_compile_error(),
+    // //                         format_args!("`#[safer_ffi::derive_ReprC]`: {}", err),
+    // //                     ))
+    // //             ;
+    // //             err = errors.next().unwrap();
+    // //             errors.for_each(|cur| err.combine(cur));
+    // //         }
+    // //         input.extend(TokenStream::from(err.to_compile_error()));
+    // //         return input;
+    // //     },
+    // //     | Ok(None) => {},
+    // // }
+    // if let Some(tt) = TokenStream2::from(attrs).into_iter().next() {
+    //     return Err(Error::new_spanned(tt, "Unexpected parameter"));
+    // }
+    // feed_to_macro_rules(input, parse_quote!(ReprC))
 }
 
 pub(in crate)
@@ -109,8 +121,9 @@ fn derive_CType (
     input: TokenStream2,
 ) -> Result<TokenStream2>
 {
-    if let Some(unexpected_tt) = attrs.into_iter().next() {
-        return Err(Error::new_spanned(unexpected_tt, "Unexpected parameter"));
+    if let Some(tt) = TokenStream2::from(attrs).into_iter().next() {
+        return Err(Error::new_spanned(tt, "Unexpected parameter"));
     }
-    feed_to_macro_rules(input, parse_quote!(CType))
+    return feed_to_macro_rules(input, parse_quote!(CType));
+    c_type::derive(attrs, input)
 }

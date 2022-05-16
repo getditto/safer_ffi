@@ -122,6 +122,11 @@ static class Tests
             Trace.Assert(called);
         }
 
+        // test constant
+        unsafe {
+            Trace.Assert(Ffi.FOO == 42);
+        }
+
         Console.WriteLine("C#: [ok]");
     }
 }
