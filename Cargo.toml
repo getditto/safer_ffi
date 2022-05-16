@@ -3,7 +3,7 @@ path = "src/_lib.rs"
 
 [package]
 name = "safer-ffi"
-# Keep in sync with `[dependencies.proc_macro]` and `src/proc_macro/Cargo.toml`
+# Keep in sync with `[dependencies.safer_ffi-proc_macro]` and `src/proc_macro/Cargo.toml`
 version = "0.0.9"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
@@ -29,20 +29,20 @@ std = [ "alloc" ]
 
 derives = ["proc_macros"] # alias
 proc_macros = [
-    "proc_macro/proc_macros",
+    "safer_ffi-proc_macro/proc_macros",
     "require_unsafe_in_body",
     "proc-macro-hack",
 ]
 debug_proc_macros = [
     "proc_macros",
-    "proc_macro/verbose-expansions",
+    "safer_ffi-proc_macro/verbose-expansions",
 ]
 
 out-refs = ["uninit"]
 
 headers = [
     "inventory",
-    "proc_macro/headers",
+    "safer_ffi-proc_macro/headers",
     "std",
 ]
 
