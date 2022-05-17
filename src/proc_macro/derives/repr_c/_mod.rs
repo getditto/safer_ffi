@@ -1,5 +1,8 @@
 use super::*;
 
+use args::Args;
+mod args;
+
 pub(in crate)
 mod enum_;
 
@@ -16,7 +19,7 @@ fn derive (
     input: TokenStream2
 ) -> Result<TokenStream2>
 {
-    let _: parse::Nothing = parse2(attrs)?;
+    let args: Args = parse2(attrs)?;
 
     let mut input: DeriveInput = parse2(input)?;
     let DeriveInput {
@@ -28,6 +31,7 @@ fn derive (
     } = input;
     let mut ret = match *data {
         | Data::Struct(DataStruct { ref fields, .. }) => struct_::derive(
+            args,
             attrs,
             vis,
             ident,
@@ -35,6 +39,7 @@ fn derive (
             fields,
         ),
         | Data::Enum(DataEnum { ref variants, .. }) => enum_::derive(
+            args,
             attrs,
             vis,
             ident,

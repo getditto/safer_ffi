@@ -11,10 +11,10 @@ impl HeaderLanguage for CSharp {
         indent: &'_ Indentation,
     ) -> io::Result<()>
     {
-        mk_out!(indent, "{indent}", ctx.out());
+        mk_out!(indent, ctx.out());
 
         if docs.is_empty() {
-            // out!(("/// <summary> No documentation available> </summary>"));
+            // out!(("/// <summary> No documentation available </summary>"));
             return Ok(());
         }
 
@@ -42,30 +42,24 @@ impl HeaderLanguage for CSharp {
         self: &'_ CSharp,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
-        enum_name: &'_ str,
-        size: Option<(bool, u8)>,
+        self_ty: &'_ dyn PhantomCType,
+        backing_integer: Option<&dyn PhantomCType>,
         variants: &'_ [EnumVariant<'_>],
     ) -> io::Result<()>
     {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
-        mk_out!(indent, "{indent}", ctx.out());
+        mk_out!(indent, ctx.out());
 
         let ref IntN =
-            size.map(|(signed, bitwidth)| if bitwidth != 8 {
-                format!(
-                    "{}Int{bitwidth}", if signed { "" } else { "U" },
-                )
-            } else {
-                format!(
-                    "{}byte", if signed { "s" } else { "" },
-                )
-            })
+            backing_integer.map(|it| it.name(self))
         ;
+
+        let ref full_ty_name = self_ty.name(self);
 
         self.emit_docs(ctx, docs, indent)?;
 
         out!(
-            ("public enum {enum_name}_t {super} {{"),
+            ("public enum {full_ty_name} {super} {{"),
             super = if let Some(IntN) = IntN {
                 format!(": {IntN}")
             } else {
@@ -99,12 +93,50 @@ impl HeaderLanguage for CSharp {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
-        name: &'_ str,
-        size: usize,
+        self_ty: &'_ dyn PhantomCType,
         fields: &'_ [StructField<'_>]
     ) -> io::Result<()>
     {
-        todo!()
+        let ref indent = Indentation::new(4 /* ctx.indent_width() */);
+        mk_out!(indent, ctx.out());
+
+        let size = self_ty.size();
+        if size == 0 {
+            panic!("C# does not support zero-sized structs!")
+        }
+
+        let ref name = self_ty.name(self);
+
+        self.emit_docs(ctx, docs, indent)?;
+        out!((
+            "[StructLayout(LayoutKind.Sequential, Size = {size})]"
+            "public unsafe struct {name} {{"
+        ));
+        if let _ = indent.scope() {
+            let ref mut first = true;
+            for &StructField { docs, name, ty } in fields {
+                if ty.size() == 0 && ty.align() > 1 {
+                    panic!("Zero-sized fields must have an alignment of `1`");
+                }
+                if mem::take(first).not() {
+                    out!("\n");
+                }
+                self.emit_docs(ctx, docs, indent)?;
+                if let Some(csharp_marshaler) = ty.csharp_marshaler() {
+                    out!((
+                        "[MarshalAs({csharp_marshaler})]"
+                    ));
+                }
+                out!(
+                    ("public {} {name};"),
+                    ty.name(self), // _wrapping_var(self, name)
+                );
+            }
+        }
+        out!(("}}"));
+
+        out!("\n");
+        Ok(())
     }
 
     fn emit_function (
@@ -113,7 +145,7 @@ impl HeaderLanguage for CSharp {
         docs: Docs<'_>,
         fname: &'_ str,
         arg_names: &'_ [FunctionArg<'_>],
-        ret_ty: &'_ str,
+        ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>
     {
         todo!()

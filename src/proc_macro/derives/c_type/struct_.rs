@@ -46,66 +46,9 @@ fn derive (
         let ref each_field_name_str =
             each_field_name.iter().vmap(ToString::to_string)
         ;
-        let ref StructName_str = StructName.to_string();
-
-        #[cfg(feature = "csharp")]
-        let impl_body = quote!(
-            fn csharp_define_self (
-                definer: &'_ mut dyn #headers::Definer,
-            ) -> #io::Result<()>
-            {
-                use #io::Write as _;
-                #core::assert_ne!(
-                    #mem::size_of::<Self>(), 0,
-                    "C# does not support zero-sized structs!",
-                );
-                let ref me = <Self as #CType>::csharp_ty();
-            #(
-                <#EachFieldTy as #CType>::csharp_define_self(definer)?;
-            )*
-                definer.define_once(me, &mut |definer| #writeln!(definer.out(),
-                    #concat!(
-                        "[StructLayout(LayoutKind.Sequential, Size = {size})]\n",
-                        "public unsafe struct {me} {{\n",
-                        #(
-                            "{}{", #each_field_name_str, "}",
-                        )*
-                        "}}\n",
-                    ),
-                #(
-                    <#EachFieldTy as #CType>::csharp_marshaler()
-                        .map(|m| #format!("    [MarshalAs({})]\n", m))
-                        .as_deref()
-                        .unwrap_or("")
-                    ,
-                )*
-                    size = #mem::size_of::<Self>(),
-                #(
-                    #each_field_name = {
-                        if #mem::size_of::<#EachFieldTy>() > 0 {
-                            #format!(
-                                "    public {};\n",
-                                <#EachFieldTy as #CType>::csharp_var(
-                                    #each_field_name_str,
-                                ),
-                            )
-                        } else {
-                            #assert_eq!(
-                                #mem::align_of::<#EachFieldTy>(),
-                                1,
-                                "\
-                                    Zero-sized fields must have an \
-                                    alignment of `1`.\
-                                ",
-                            );
-                            String::new()
-                        }
-                    },
-                )*
-                    me = me,
-                ))
-            }
-        );
+        let ref StructName_str =
+            args.rename.as_ref().unwrap_or(StructName).to_string()
+        ;
 
         let mut impl_body = impl_body;
         impl_body.extend(quote!(
@@ -126,55 +69,41 @@ fn derive (
             }
         ));
 
-        let each_field =
-            fields.try_vmap(|f| Result::Ok({
-                let ref docs = utils::extract_docs(&f.attrs)?;
-                let ref name = f.ident.as_ref().expect("BRACED STRUCT").to_string();
-                let FieldTy = &f.ty;
-                let emit_unindented = quote!(
-                    &|language, definer| #ඞ::io::Write::write_fmt(
-                        definer.out(),
-                        #ඞ::format_args!(
-                            "{}",
-                            <#FieldTy as #CType>::name_wrapping_var(
-                                language,
-                                #name,
-                            ),
-                        ),
-                    )
+        let ref struct_docs = utils::extract_docs(attrs)?;
+
+        let ref each_field: Vec<Quote![ StructField ]> =
+            (0..).zip(fields).try_vmap(|(i, f)| Result::Ok({
+                let ref field_docs = utils::extract_docs(&f.attrs)?;
+                let ref field_name_str = f.ident.as_ref().map_or_else(
+                    || format!("_{i}"),
+                    Ident::to_string,
                 );
+                let FieldTy = &f.ty;
                 quote!(
                     #ඞ::StructField {
-                        docs: &[#(#docs),*],
-                        name: #name,
-                        emit_unindented: #emit_unindented,
-                        layout: #ඞ::std::alloc::Layout::new::<Self>(),
+                        docs: &[#(#field_docs),*],
+                        name: #field_name_str,
+                        ty: &#ඞ::marker::PhantomData::<#FieldTy>,
                     }
                 )
             }))?
         ;
 
-        let ref docs = utils::extract_docs(attrs)?;
-
-        let me = args.rename.as_ref().unwrap_or(StructName).to_string();
         impl_body.extend(quote!(
-            fn define_self (
+            fn define_self__impl (
                 language: &'_ dyn #headers::languages::HeaderLanguage,
                 definer: &'_ mut dyn #headers::Definer,
             ) -> #ඞ::io::Result<()>
             {
-                definer.define_once(#me, &mut |definer| {
-                #(
-                    < #EachFieldTy as #CType >::define_self(language, definer)?;
-                )*
-                    language.emit_struct(
-                        definer,
-                        &[#(#docs),*],
-                        #me,
-                        #ඞ::mem::size_of::<Self>(),
-                        &[#(#each_field),*],
-                    )
-                })
+            #(
+                < #EachFieldTy as #CType >::define_self(language, definer)?;
+            )*
+                language.emit_struct(
+                    definer,
+                    &[#(#struct_docs),*],
+                    &#ඞ::marker::PhantomData::<Self>,
+                    &[#(#each_field),*],
+                )
             }
         ));
 

@@ -92,10 +92,14 @@ mod foo {
 
 mod bar {
     use super::*;
+
     #[derive_ReprC2]
-    #[repr(u8)]
+    #[repr(i8)]
     pub
-    enum Bar { A }
+    enum Bar {
+        A = 43,
+        B = (Bar::A as i8 - 1),
+    }
 
     #[ffi_export]
     fn check_bar (_bar: Bar)
@@ -130,7 +134,7 @@ pub enum Wow {
 
 /// Hello, `World`!
 #[ffi_export]
-#[derive_ReprC2]
+#[derive_ReprC2(rename = triforce)]
 #[repr(u8)]
 pub enum Triforce {
     Din = 3,
@@ -138,14 +142,18 @@ pub enum Triforce {
     Naryu,
 }
 
-/// Hello, `World`!
-// #[ffi_export]
-#[derive_ReprC2]
+macro_rules! docs {() => (
+    "Hello, `World`!"
+)}
+
+#[ffi_export]
+#[doc = docs!()]
+#[derive_ReprC2(rename = next_generation)]
 pub struct Next {
     /// I test some `gen`-eration.
     gen: bar::Bar,
     /// with function pointers and everything!
-    cb: extern "C" fn(u8) -> i8,
+    cb: extern "C" fn(bool) -> bool,
 }
 
 #[ffi_export]
@@ -161,7 +169,7 @@ fn generate_headers ()
   -> ::std::io::Result<()>
 {Ok({
     use ::safer_ffi::headers::Language::{self, *};
-    for &(language, ext) in &[(C, "h"), (Language::CSharp, "cs")][..1] {
+    for &(language, ext) in &[(C, "h"), (Language::CSharp, "cs")] {
         let builder =
             ::safer_ffi::headers::builder()
                 .with_language(language)

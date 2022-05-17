@@ -42,12 +42,23 @@ trait CType
           -> String
         ;
 
-        #[inline]
-        fn define_self (
+        #[allow(nonstandard_style)]
+        fn define_self__impl (
             language: &'_ dyn HeaderLanguage,
             definer: &'_ mut dyn Definer,
         ) -> io::Result<()>
         ;
+
+        fn define_self (
+            language: &'_ dyn HeaderLanguage,
+            definer: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        {
+            definer.define_once(
+                &Self::name(language),
+                &mut |definer| Self::define_self__impl(language, definer),
+            )
+        }
 
         fn name (
             _language: &'_ dyn HeaderLanguage,
@@ -87,6 +98,14 @@ impl<T : LegacyCType> CType for T {
     }
 
     #[inline]
+    fn define_self__impl (
+        language: &'_ dyn HeaderLanguage,
+        definer: &'_ mut dyn Definer,
+    ) -> io::Result<()>
+    {
+        unimplemented!()
+    }
+
     fn define_self (
         language: &'_ dyn HeaderLanguage,
         definer: &'_ mut dyn Definer,
@@ -370,7 +389,7 @@ unsafe trait LegacyCType
         // }
 
         // #[inline]
-        // fn define_self (
+        // fn define_self__impl (
         //     language: &'_ dyn HeaderLanguage,
         //     definer: &'_ mut dyn Definer,
         // ) -> io::Result<()>

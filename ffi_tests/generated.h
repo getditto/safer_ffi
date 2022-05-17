@@ -39,16 +39,48 @@ typedef struct {
 
 } AnUnusedStruct_t;
 
+/** <No documentation available> */
+/** \remark Has the same ABI as `int8_t` **/
+#ifdef DOXYGEN
+typedef
+#endif
+enum Bar {
+    /** <No documentation available> */
+    BAR_A = 43,
+    /** <No documentation available> */
+    BAR_B = 42,
+}
+#ifndef DOXYGEN
+; typedef int8_t
+#endif
+Bar_t;
+
+
+#include <stdbool.h>
+
+/** \brief
+ *  Hello, `World`!
+ */
+typedef struct next_generation {
+    /** \brief
+     *  I test some `gen`-eration.
+     */
+    Bar_t gen;
+
+    /** \brief
+     *  with function pointers and everything!
+     */
+    bool (*cb)(bool);
+} next_generation_t;
+
 /** \brief
  *  Hello, `World`!
  */
 /** \remark Has the same ABI as `uint8_t` **/
 #ifdef DOXYGEN
-typedef enum Triforce
-#else
-typedef uint8_t Triforce_t; enum
+typedef
 #endif
-{
+enum triforce {
     /** <No documentation available> */
     TRIFORCE_DIN = 3,
     /** <No documentation available> */
@@ -56,10 +88,10 @@ typedef uint8_t Triforce_t; enum
     /** <No documentation available> */
     TRIFORCE_NARYU,
 }
-#ifdef DOXYGEN
-Triforce_t
+#ifndef DOXYGEN
+; typedef uint8_t
 #endif
-;
+triforce_t;
 
 int32_t async_get_ft (void);
 
@@ -75,22 +107,6 @@ typedef enum SomeReprCEnum {
 
 void check_SomeReprCEnum (
     SomeReprCEnum_t _baz);
-
-/** <No documentation available> */
-/** \remark Has the same ABI as `uint8_t` **/
-#ifdef DOXYGEN
-typedef enum Bar
-#else
-typedef uint8_t Bar_t; enum
-#endif
-{
-    /** <No documentation available> */
-    BAR_A,
-}
-#ifdef DOXYGEN
-Bar_t
-#endif
-;
 
 void check_bar (
     Bar_t _bar);

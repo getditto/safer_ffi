@@ -208,7 +208,7 @@ fn compile_warning (
 pub(in crate)
 fn extract_docs (
     attrs: &'_ [Attribute]
-) -> Result<Vec<LitStr>>
+) -> Result<Vec<Expr>>
 {
     attrs.iter().filter_map(|attr| {
         attr.path
@@ -216,7 +216,7 @@ fn extract_docs (
             .then(|| Parser::parse2(
                 |input: ParseStream<'_>| Result::Ok(
                     if input.parse::<Option<Token![=]>>()?.is_some() {
-                        Some(input.parse::<LitStr>()?)
+                        Some(input.parse::<Expr>()?)
                     } else {
                         None
                     }

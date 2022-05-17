@@ -53,24 +53,11 @@ impl ::core::fmt::Display for Indentation {
     }
 }
 
-#[derive(
-    Debug,
-    Copy, Clone,
-    Eq, PartialEq, Ord, PartialOrd,
-    Hash,
-)]
-pub
-enum EnumSize {
-    Default,
-    Unsigned { bitwidth: u8 },
-    Signed { bitwidth: u8 },
-}
-
 #[::safer_ffi_proc_macros::derive_ReprC2]
 #[repr(u8)]
 enum Foo { A, B = 12, C }
 
-pub
+// pub
 type Docs<'lt> = &'lt [&'lt str];
 
 pub
@@ -87,9 +74,8 @@ trait HeaderLanguage : UpcastAny {
         self: &'_ Self,
         out: &'_ mut dyn Definer,
         docs: Docs<'_>,
-        name: &'_ str,
-        // `(is_signed, bitwidth)`
-        size: Option<(bool, u8)>,
+        self_ty: &'_ dyn PhantomCType,
+        backing_integer: Option<&'_ dyn PhantomCType>,
         variants: &'_ [EnumVariant<'_>],
     ) -> io::Result<()>
     ;
@@ -98,8 +84,7 @@ trait HeaderLanguage : UpcastAny {
         self: &'_ Self,
         out: &'_ mut dyn Definer,
         docs: Docs<'_>,
-        name: &'_ str,
-        size: usize,
+        self_ty: &'_ dyn PhantomCType,
         fields: &'_ [StructField<'_>]
     ) -> io::Result<()>
     ;
@@ -110,7 +95,7 @@ trait HeaderLanguage : UpcastAny {
         docs: Docs<'_>,
         fname: &'_ str,
         arg_names: &'_ [FunctionArg<'_>],
-        ret_ty: &'_ str,
+        ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>
     ;
 }
@@ -136,12 +121,7 @@ struct StructField<'lt> {
     name: &'lt str,
 
     pub
-    emit_unindented: &'lt dyn
-        Fn(&'_ dyn HeaderLanguage, &'_ mut dyn Definer) -> io::Result<()>
-    ,
-
-    pub
-    layout: ::std::alloc::Layout,
+    ty: &'lt dyn PhantomCType,
 }
 
 pub
@@ -153,9 +133,105 @@ struct FunctionArg<'lt> {
     name: &'lt str,
 
     pub
-    emit_unindented: &'lt dyn
-        Fn(&'_ dyn HeaderLanguage, &'_ mut dyn Definer) -> io::Result<()>
-    ,
+    ty: &'lt dyn PhantomCType,
+}
+
+/// `T::assoc_func()` -> `PhantomData::<T>.method()` conversion
+/// so as to become `dyn`-friendly (you can't pass a heterogeneous array of
+/// *distinct* `T : Trait`s *types* to a function, but you can pass a slice of
+/// `PhantomData`-materialized `dyn Trait`s).
+///
+/// In other words, we are projecting a compile-time type-level knowledge
+/// of an array / struct / "table" of a type's associated functions
+/// into a _runtime_ table of such, thence allowing runtime / `dyn`amic
+/// unification within a heterogeneous collection.
+pub
+trait PhantomCType {
+    fn short_name (
+        self: &'_ Self,
+    ) -> String
+    ;
+
+    fn name_wrapping_var (
+        self: &'_ Self,
+        language: &'_ dyn HeaderLanguage,
+        var_name: &'_ str,
+    ) -> String
+    ;
+
+    fn name (
+        self: &'_ Self,
+        language: &'_ dyn HeaderLanguage,
+    ) -> String
+    ;
+
+    fn csharp_marshaler (
+        self: &'_ Self,
+    ) -> Option<String>
+    ;
+
+    fn size (
+        self: &'_ Self,
+    ) -> usize
+    ;
+
+    fn align (
+        self: &'_ Self,
+    ) -> usize
+    ;
+}
+
+impl<T : ?Sized>
+    PhantomCType
+for
+    ::core::marker::PhantomData<T>
+where
+    T : CType,
+{
+    fn short_name (
+        self: &'_ Self,
+    ) -> String
+    {
+        T::short_name()
+    }
+
+    fn name_wrapping_var (
+        self: &'_ Self,
+        language: &'_ dyn HeaderLanguage,
+        var_name: &'_ str,
+    ) -> String
+    {
+        T::name_wrapping_var(language, var_name)
+    }
+
+    fn name (
+        self: &'_ Self,
+        language: &'_ dyn HeaderLanguage,
+    ) -> String
+    {
+        T::name(language)
+    }
+
+    fn csharp_marshaler (
+        self: &'_ Self,
+    ) -> Option<String>
+    {
+        T::csharp_marshaler()
+    }
+
+    fn size (
+        self: &'_ Self,
+    ) -> usize
+    {
+        ::core::mem::size_of::<T>()
+    }
+
+    fn align (
+        self: &'_ Self,
+    ) -> usize
+    {
+        ::core::mem::align_of::<T>()
+    }
 }
 
 /// Generates an `out!` macro.
@@ -177,14 +253,14 @@ concat!(
 macro_rules! mk_out {
     (
         $indent_name:ident,
-        $indent:tt,
+        // $indent:tt,
         $out:expr $(,)?
     ) => (
-        mk_out! { $indent_name $indent $out $ }
+        mk_out! { $indent_name /* $indent */ $out $ }
     );
 
     (
-        $indent_name:tt $indent:tt $out:tt $_:tt
+        $indent_name:tt /* $indent:tt */ $out:tt $_:tt
     ) => (
         macro_rules! out {
             (
@@ -192,25 +268,31 @@ macro_rules! mk_out {
                     $line:tt
                 )*) $_($rest:tt)*
             ) => (
+                // we have to use eager expansion of `concat!` coupled with
+                // span manipulation for the implicit format args to work…
                 with_builtin! {
                     let $concat = concat!($_(
-                        $indent,
+                        "{", stringify!($indent_name), "}",
                         $line,
                         "\n",
                     )*) in {
                         ::safer_ffi_proc_macros::__respan! {
-                            ( $_($line)* )
-                            (
+                            // take the (first) span of the format string
+                            // literals provided by the caller…
+                            ( $_($line)* ) (
+                                // …and replace, with it, the spans of the whole
+                                //  `write!(` invocation.
                                 write!(
                                     $out,
                                     $concat
-                                    // , $indent_name = $indent_name
                                     $_($rest)*
                                 )?
                             )
                         }
                     }
                 }
+                /* for reference, here is the "simple usecase" I'd have expected
+                 * to Just Work™: */
                 // write!(
                 //     $out,
                 //     concat!($_(
@@ -219,7 +301,7 @@ macro_rules! mk_out {
                 //         $line,
                 //         "\n",
                 //     )*)
-                //     , $indent_name = $indent_name
+                //     // , $indent_name = $indent_name
                 //     $_($rest)*
                 // )
             );

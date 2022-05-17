@@ -2,6 +2,7 @@ use super::*;
 
 pub(in crate)
 fn derive (
+    args: Args,
     attrs: &'_ mut Vec<Attribute>,
     vis: &'_ Visibility,
     StructName @ _: &'_ Ident,
@@ -19,7 +20,7 @@ fn derive (
             attr.parse_args::<kw::transparent>().is_ok()
         })
     {
-        return derive_transparent(attrs, vis, StructName, generics, fields);
+        return derive_transparent(args, attrs, vis, StructName, generics, fields);
     }
 
     let docs =
@@ -104,8 +105,10 @@ fn derive (
             semi_token: None,
         };
 
+        let rename = args.rename.as_ref().unwrap_or(&StructName);
+
         crate::derives::c_type::derive(
-            quote!(rename = #StructName),
+            quote!(rename = #rename),
             c_type_def.into_token_stream(),
         )?
     });
@@ -150,6 +153,7 @@ fn derive (
 
 pub(in crate)
 fn derive_transparent (
+    args: Args,
     attrs: &'_ mut Vec<Attribute>,
     vis: &'_ Visibility,
     StructName @ _: &'_ Ident,

@@ -32,10 +32,40 @@ public unsafe struct AnUnusedStruct_t {
     public Wow_t are_you_still_there;
 }
 
+public enum Bar_t : sbyte {
+    A = 43,
+    B = 42,
+}
+
+[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+[return: MarshalAs(UnmanagedType.U1)]
+public unsafe /* static */ delegate
+    bool
+    bool_bool_fptr (
+        [MarshalAs(UnmanagedType.U1)]
+        bool _0);
+
 /// <summary>
 /// Hello, <c>World</c>!
 /// </summary>
-public enum Triforce_t : byte {
+[StructLayout(LayoutKind.Sequential, Size = 16)]
+public unsafe struct next_generation_t {
+    /// <summary>
+    /// I test some <c>gen</c>-eration.
+    /// </summary>
+    public Bar_t gen;
+
+    /// <summary>
+    /// with function pointers and everything!
+    /// </summary>
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public bool_bool_fptr cb;
+}
+
+/// <summary>
+/// Hello, <c>World</c>!
+/// </summary>
+public enum triforce_t : byte {
     Din = 3,
     Farore = 1,
     Naryu,
@@ -54,10 +84,6 @@ public unsafe partial class Ffi {
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     void check_SomeReprCEnum (
         SomeReprCEnum_t _baz);
-}
-
-public enum Bar_t : byte {
-    A,
 }
 
 public unsafe partial class Ffi {

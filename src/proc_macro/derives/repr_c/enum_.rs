@@ -2,6 +2,7 @@ use super::*;
 
 pub(in crate)
 fn derive (
+    args: Args,
     attrs: &'_ mut Vec<Attribute>,
     pub_: &'_ Visibility,
     EnumName @ _: &'_ Ident,
@@ -24,7 +25,7 @@ fn derive (
         }
     }
 
-    let (Int @ _, repr) = parse_discriminant_type(attrs, &mut ret)?;
+    let (mb_phantom_int, Int @ _) = parse_discriminant_type(attrs, &mut ret)?;
 
     let EnumName_Layout @ _ = format_ident!("{}_Layout", EnumName);
 
@@ -92,8 +93,9 @@ fn derive (
 
         let mut impl_body = impl_body;
 
-        let ref EnumName_str = EnumName.to_string();
-        let enum_size = repr.to_enum_size();
+        let ref EnumName_str =
+            args.rename.as_ref().unwrap_or(EnumName).to_string()
+        ;
         let each_enum_variant =
             variants.iter().map(|v| {
                 let ref VariantName_str = v.ident.to_string();
@@ -116,7 +118,6 @@ fn derive (
             })
         ;
 
-        let ref EnumName_t_str = format!("{EnumName}_t");
         impl_body.extend(quote!(
             fn short_name ()
               -> #ඞ::String
@@ -124,23 +125,18 @@ fn derive (
                 #EnumName_str.into()
             }
 
-            fn define_self (
+            fn define_self__impl (
                 language: &'_ dyn #HeaderLanguage,
                 definer: &'_ mut dyn #Definer,
             ) -> #ඞ::io::Result<()>
             {
-                definer.define_once(
-                    #EnumName_t_str,
-                    &mut |definer| {
-                        <#Int as #CType>::define_self(language, definer)?;
-                        language.emit_simple_enum(
-                            definer,
-                            &[#(#each_doc),*],
-                            #EnumName_str,
-                            #enum_size,
-                            &[#(#each_enum_variant),*],
-                        )
-                    },
+                <#Int as #CType>::define_self(language, definer)?;
+                language.emit_simple_enum(
+                    definer,
+                    &[#(#each_doc),*],
+                    &#ඞ::marker::PhantomData::<Self>,
+                    #mb_phantom_int,
+                    &[#(#each_enum_variant),*],
                 )
             }
         ));
@@ -192,7 +188,7 @@ fn derive (
                 &#EnumName_Layout { discriminant }: &'_ #CLayoutOf<Self>,
             ) -> #ඞ::bool
             {
-                /// Safety: this is either well-defined, or fails to compile.
+                /// Safety: should this ever become ill-defined, it would fail to compile.
                 const DISCRIMINANT_OF_NONE: #Int = unsafe {
                     #ඞ::mem::transmute::<_, #Int>(
                         #ඞ::None::<#EnumName>
@@ -210,7 +206,10 @@ fn derive (
 fn parse_discriminant_type (
     attrs: &'_ [Attribute],
     out_warnings: &mut TokenStream2,
-) -> Result<(TokenStream2, Repr)>
+) -> Result<(
+        Quote![Option<&impl PhantomCType>],
+        TokenStream2,
+    )>
 {
     let repr_attr =
         attrs
@@ -232,11 +231,16 @@ fn parse_discriminant_type (
                 .find(|(parsed, ident)| matches!(parsed, Repr::C).not())
         {
             | Some((repr, ident)) => {
+                let IntTy = quote!(
+                    ::safer_ffi::ඞ::#ident
+                );
                 (
                     quote!(
-                        ::safer_ffi::ඞ::#ident
+                        ::safer_ffi::ඞ::Some(
+                            &::safer_ffi::ඞ::marker::PhantomData::<#IntTy>
+                        )
                     ),
-                    repr,
+                    IntTy,
                 )
             },
             | None if reprs.iter().any(|repr| repr == "C") => {
@@ -248,11 +252,14 @@ fn parse_discriminant_type (
                         in a multi-compiler scenario such as FFI\
                     ",
                 ));
+                let IntTy = quote!(
+                    ::safer_ffi::c_int
+                );
                 (
                     quote!(
-                        ::safer_ffi::c_int
+                        ::safer_ffi::ඞ::None
                     ),
-                    Repr::C,
+                    IntTy,
                 )
             },
             | None => bail! {
@@ -287,55 +294,6 @@ match_! {(
                     "unsupported `repr` annotation" => ident,
                 },
             }
-        }
-
-        fn to_enum_size (&self)
-          -> Quote![Option<(bool, u8)>]
-        {
-            use {
-                ::{
-                    core::primitive as builtin,
-                },
-                self::{
-                    Repr::*,
-                },
-            };
-            let mb_signed_bitwidth: Option<(bool, builtin::u8)> = match *self {
-                | C => None,
-                | u8 | u16 | u32 | u64 | u128 => Some((
-                    false,
-                    match *self {
-                        | u8 => 8,
-                        | u16 => 16,
-                        | u32 => 32,
-                        | u64 => 64,
-                        | u128 => 128,
-                        | _ => unreachable!(),
-                    },
-                )),
-                | i8 | i16 | i32 | i64 | i128 => Some((
-                    true,
-                    match *self {
-                        | i8 => 8,
-                        | i16 => 16,
-                        | i32 => 32,
-                        | i64 => 64,
-                        | i128 => 128,
-                        | _ => unreachable!(),
-                    },
-                )),
-            };
-            let ret: Quote![Option<(bool, builtin::u8)>] = {
-                match mb_signed_bitwidth {
-                    | None => quote!(
-                        ::safer_ffi::ඞ::None
-                    ),
-                    | Some((signed, bitwidth)) => quote!(
-                        ::safer_ffi::ඞ::Some((#signed, #bitwidth))
-                    ),
-                }
-            };
-            ret
         }
     }
 )}}
