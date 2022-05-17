@@ -223,6 +223,7 @@ pub use ::safer_ffi_proc_macros::c_str as c;
 ///     } Point_double_t;
 ///     ```
 pub use ::safer_ffi_proc_macros::derive_ReprC;
+pub type GenerationFunction = fn(&mut dyn headers::Definer, headers::Language) -> std::io::Result<()>;
 
 #[macro_use]
 #[path = "layout/_mod.rs"]
@@ -243,10 +244,7 @@ __cfg_headers__! {
     #[doc(hidden)] pub
     struct FfiExport {
         pub name: &'static str,
-        pub gen_def:
-            fn (&'_ mut dyn headers::Definer, headers::Language)
-              -> ::std::io::Result<()>
-        ,
+        pub gen_def: GenerationFunction,
     }
 
     ::inventory::collect!(FfiExport);
