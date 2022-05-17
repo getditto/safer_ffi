@@ -93,22 +93,26 @@ fn try_handle_fptr (
         // keystone.
         #[apply(let_quote!)]
         use ::safer_ffi::{
-            layout::{
-                CType,
-                CType,
-                LegacyCType,
-                OpaqueKind,
-                ReprC,
-                __HasNiche__,
-            },
-            headers::Definer,
             __cfg_headers__,
             __cfg_csharp__,
+            ඞ,
             ඞ::{
+                __HasNiche__,
+                CLayoutOf,
+                ConcreteReprC,
+                CType,
+                Definer,
+                LegacyCType,
+                None,
+                OpaqueKind,
+                Option,
+                PhantomData,
+                ReprC,
+                Some,
+
                 bool,
                 core,
                 fmt,
-                Option,
                 std,
                 str,
                 write,
@@ -123,7 +127,7 @@ fn try_handle_fptr (
             /// Convenience deref impl, so as to have the wrapper type
             /// behave as if it were a function pointer directly :)
             impl #intro
-                #core::ops::Deref
+                #ඞ::ops::Deref
             for
                 #StructName #fwd
             #where_
@@ -147,7 +151,7 @@ fn try_handle_fptr (
                     let mut ty = arg.ty.clone();
                     StripLifetimeParams.visit_type_mut(&mut ty);
                     ty = parse_quote!(
-                        <#ty as #ReprC>::CLayout
+                        #CLayoutOf<#ty>
                     );
                     ty
                 })
@@ -162,7 +166,7 @@ fn try_handle_fptr (
             },
         };
         *RetCType = parse_quote!(
-            <#RetCType as #ReprC>::CLayout
+            #CLayoutOf<#RetCType>
         );
 
 
@@ -242,10 +246,11 @@ fn try_handle_fptr (
                 Field::parse_unnamed,
                 quote!(
                     pub
-                    #core::option::Option<
+                    #Option<
                         unsafe
                         extern "C"
-                        fn (#(#EachArgCType),*) -> #RetCType
+                        fn (#(#EachArgCType),*)
+                          -> #RetCType
                     >
                 ),
             ).unwrap()
@@ -260,7 +265,7 @@ fn try_handle_fptr (
                 }) => it,
                 | _ => unreachable!(),
             };
-            fields_mut.extend(Some({
+            fields_mut.push({
                 let phantom_tys = // Iterator::chain(
                     generics
                         .lifetimes()
@@ -281,10 +286,10 @@ fn try_handle_fptr (
                     quote!(
                         /// Conservatively invariant.
                         #[allow(unused_parens)]
-                        #core::marker::PhantomData<(#(#phantom_tys),*)>
+                        #PhantomData<(#(#phantom_tys),*)>
                     ),
                 ).unwrap()
-            }));
+            });
         }
         let ref mut c_sharp_format_args =
             EachArgCType
@@ -315,7 +320,7 @@ fn try_handle_fptr (
             #input_Layout
 
             impl #intro
-                #core::clone::Clone
+                #ඞ::clone::Clone
             for
                 #StructName_Layout #fwd
             #where_
@@ -324,7 +329,7 @@ fn try_handle_fptr (
                   -> Self
                 {
                     impl #intro
-                        #core::marker::Copy
+                        #ඞ::marker::Copy
                     for
                         #StructName_Layout #fwd
                     {}
@@ -335,26 +340,45 @@ fn try_handle_fptr (
 
             unsafe
             impl #intro
-                #LegacyCType
+                #CType
             for
                 #StructName_Layout #fwd
             #where_
             { #__cfg_headers__! {
-                fn c_short_name_fmt (fmt: &'_ mut #fmt::Formatter<'_>)
-                  -> #fmt::Result
+                fn short_name ()
+                  -> String
                 {
-                    // fmt.write_str(stringify!(#StructName))
+                    use #fmt::Write as _;
                     // ret_arg1_arg2_fptr
-                    fmt.write_str(&<#RetCType as #CType>::short_name())?; #(
-                    #write!(fmt, "_{}", <#EachArgCType as #CType>::short_name())?; )*
-                    fmt.write_str("_fptr")
+                    let mut ret = <#RetCType as #CType>::short_name(); #(
+                    #fmt::Write::write_fmt(&mut ret, "_{}", <#EachArgCType as #CType>::short_name()).unwrap(); )*
+                    ret.push_str("_fptr");
+                    ret
                 }
 
-                fn c_define_self (definer: &'_ mut dyn #Definer)
-                  -> #std::io::Result<()>
+                fn define_self (
+                    language: &'_ dyn #ඞ::HeaderLanguage,
+                    definer: &'_ mut dyn #ඞ::Definer,
+                ) -> #std::io::Result<()>
                 {
-                    <#RetCType as #CType>::define_self(&::safer_ffi::headers::languages::C, definer)?; #(
-                    <#EachArgCType as #CType>::define_self(&::safer_ffi::headers::languages::C, definer)?; )*
+                    <#RetCType as #CType>::define_self(language, definer)?; #(
+                    <#EachArgCType as #CType>::define_self(language, definer)?; )*
+
+                    match () {
+                        | _case if language.is::<#ඞ::languages::C>() => {},
+                        | _case if language.is::<#ඞ::languages::CSharp>() => {
+                            #ඞ::languages::CSharp
+                                .emit_delegate_fptr(
+                                    &ඞ::PhantomData::<#RetCType>,
+                                    &[
+                                        #(
+                                            &ඞ::PhantomData::<#EachArgCType>,
+                                        )*
+                                    ],
+                                )?
+                        },
+                        | _ => unimplemented!(),
+                    }
                     Ok(())
                 }
 
