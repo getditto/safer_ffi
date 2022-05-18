@@ -7,6 +7,7 @@ __cfg_headers__! {
     use crate::headers::{
         Definer,
         languages::*,
+        NamingConvention,
     };
 }
 
@@ -46,6 +47,7 @@ trait CType
         fn define_self (
             language: &'_ dyn HeaderLanguage,
             definer: &'_ mut dyn Definer,
+            naming_convention: &'_ NamingConvention,
         ) -> io::Result<()>
         ;
 
@@ -90,6 +92,7 @@ impl<T : LegacyCType> CType for T {
     fn define_self (
         language: &'_ dyn HeaderLanguage,
         definer: &'_ mut dyn Definer,
+        naming_convention: &NamingConvention,
     ) -> io::Result<()>
     {
         match () {

@@ -120,7 +120,7 @@ const _: () = { macro_rules! impl_CTypes {
                 definer.define_once(
                     me,
                     &mut |definer| {
-                        Item::define_self(&crate::headers::languages::C, definer)?;
+                        Item::define_self(&crate::headers::languages::C, definer, &NamingConvention::Default)?;
                         writeln!(definer.out(),
                             concat!(
                                 "typedef struct {{\n",
@@ -155,7 +155,7 @@ const _: () = { macro_rules! impl_CTypes {
                   -> io::Result<()>
                 {
                     let ref me = Self::csharp_ty();
-                    Item::define_self(&crate::headers::languages::CSharp, definer)?;
+                    Item::define_self(&crate::headers::languages::CSharp, definer, &NamingConvention::Default)?;
                     definer.define_once(me, &mut |definer| {
                         let array_items = {
                             // Poor man's specialization to use `fixed` arrays.
@@ -269,9 +269,9 @@ const _: () = { macro_rules! impl_CTypes {
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
-                Ret::define_self(&crate::headers::languages::C, definer)?; $(
-                $An::define_self(&crate::headers::languages::C, definer)?; $(
-                $Ai::define_self(&crate::headers::languages::C, definer)?; )*)?
+                Ret::define_self(&crate::headers::languages::C, definer, &NamingConvention::Default)?; $(
+                $An::define_self(&crate::headers::languages::C, definer, &NamingConvention::Default)?; $(
+                $Ai::define_self(&crate::headers::languages::C, definer, &NamingConvention::Default)?; )*)?
                 Ok(())
             }
 
@@ -296,9 +296,9 @@ const _: () = { macro_rules! impl_CTypes {
                 fn csharp_define_self (definer: &'_ mut dyn Definer)
                   -> io::Result<()>
                 {
-                    Ret::define_self(&crate::headers::languages::CSharp, definer)?; $(
-                    $An::define_self(&crate::headers::languages::CSharp, definer)?; $(
-                    $Ai::define_self(&crate::headers::languages::CSharp, definer)?; )*)?
+                    Ret::define_self(&crate::headers::languages::CSharp, definer, &NamingConvention::Default)?; $(
+                    $An::define_self(&crate::headers::languages::CSharp, definer, &NamingConvention::Default)?; $(
+                    $Ai::define_self(&crate::headers::languages::CSharp, definer, &NamingConvention::Default)?; )*)?
                     let ref me = Self::name(&crate::headers::languages::CSharp).to_string();
                     let ref mut _arg = {
                         let mut iter = (0 ..).map(|c| format!("_{}", c));
@@ -629,7 +629,7 @@ const _: () = { macro_rules! impl_CTypes {
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
-                T::define_self(&crate::headers::languages::C, definer)
+                T::define_self(&crate::headers::languages::C, definer, &crate::headers::NamingConvention::Default)
             }
 
             fn c_var_fmt (
@@ -649,7 +649,7 @@ const _: () = { macro_rules! impl_CTypes {
                 fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
                   -> $crate::std::io::Result<()>
                 {
-                    T::define_self(&crate::headers::languages::CSharp, definer)?;
+                    T::define_self(&crate::headers::languages::CSharp, definer, &crate::headers::NamingConvention::Default)?;
                     // definer.define_once("Const", &mut |definer| {
                     //     definer.out().write_all(concat!(
                     //         "[StructLayout(LayoutKind.Sequential)]\n",
@@ -696,7 +696,7 @@ const _: () = { macro_rules! impl_CTypes {
             fn c_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
-                T::define_self(&crate::headers::languages::C, definer)
+                T::define_self(&crate::headers::languages::C, definer, &crate::headers::NamingConvention::Default)
             }
 
             fn c_var_fmt (
@@ -716,7 +716,7 @@ const _: () = { macro_rules! impl_CTypes {
                 fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
                   -> $crate::std::io::Result<()>
                 {
-                    T::define_self(&crate::headers::languages::CSharp, definer)
+                    T::define_self(&crate::headers::languages::CSharp, definer, &crate::headers::NamingConvention::Default)
                 }
 
                 fn csharp_ty ()

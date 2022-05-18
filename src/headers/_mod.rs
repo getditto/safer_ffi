@@ -111,7 +111,7 @@ use ::std::{
 
 use_prelude!();
 use rust::{String};
-
+use crate::FfiExport;
 pub // (in crate)
 mod languages;
 
@@ -334,7 +334,7 @@ impl Builder<'_, WhereTo> {
         config.write_banner(&mut definer)?;
         // Prelude
         config.write_prelude(&mut definer)?;
-        /* User-provided defs! */
+        // User-provided defs!
         config.write_body(&mut definer)?;
         // Epilogue
         config.write_epilogue(&mut definer)?;
@@ -382,35 +382,28 @@ impl Builder<'_, WhereTo> {
 
     /// Heart of safer ffi : write the items in the header
     fn write_body(&self, definer: &mut dyn Definer) -> io::Result<()>{
-        let stable_header = self.stable_header.unwrap_or(true);
         let lang = self.language.unwrap_or(Language::C);
-        let _naming_convention = self.naming_convention.as_ref().unwrap_or(&NamingConvention::Default);
+        let naming_convention = self.naming_convention.as_ref().unwrap_or(&NamingConvention::Default);
 
-        let (mut storage0, mut storage1) = (None, None);
-        let gen_defs: &mut dyn Iterator<Item = _> = if stable_header {
-            // Sort the definitions for a reliable header generation.
-            let sorted_definitions =
-                crate::inventory::iter
-                    .into_iter()
-                    .map(|crate::FfiExport { name, gen_def }| (name, gen_def))
-                    .collect::<::std::collections::BTreeMap<_, _>>()
-            ;
-            storage0.get_or_insert(
-                sorted_definitions
-                    .into_iter()
-                    .map(|(_, gen_def)| gen_def)
-            )
-        } else {
-            storage1.get_or_insert(
-                crate::inventory::iter
-                    .into_iter()
-                    // Iterate in reverse fashion to more closely match
-                    // the Rust definition order.
-                    .collect::<rust::Vec<_>>().into_iter().rev()
-                    .map(|crate::FfiExport { gen_def, .. }| gen_def)
-            )
-        };
-        (&mut { gen_defs }).try_for_each(|gen_def| gen_def(definer, lang))
+        for ffi_export in self.ffi_export_iterator() {
+            ffi_export.generate(definer, lang, naming_convention)?;
+        }
+
+        Ok(())
+    }
+
+    /// Return an iterator over the items to be exported
+    fn ffi_export_iterator(&self) -> Vec<FfiExport> {
+        let stable_header = self.stable_header.unwrap_or(true);
+        let mut exports  : Vec<FfiExport> = crate::inventory::iter.into_iter()
+            .map(|FfiExport{name, gen_def}| FfiExport{name, gen_def:*gen_def})
+            .collect();
+        if stable_header {
+            exports.sort_by(|FfiExport{name: name_a, ..}, FfiExport{name:name_b, ..}|
+                name_a.partial_cmp(name_b).unwrap()
+            );
+        }
+        exports
     }
 
     fn write_epilogue(&self, definer: &mut dyn Definer) -> io::Result<()>{
@@ -511,15 +504,16 @@ hidden_export! {
     fn __define_self__<T : ReprC> (
         definer: &'_ mut dyn Definer,
         lang: Language,
+        naming_convention: &NamingConvention,
     ) -> ::std::io::Result<()>
     {
         match lang {
             | Language::C => {
-                <T::CLayout as CType>::define_self(&crate::headers::languages::C, definer)
+                <T::CLayout as CType>::define_self(&crate::headers::languages::C, definer, naming_convention)
             },
             #[cfg(feature = "csharp-headers")]
             | Language::CSharp => {
-                <T::CLayout as CType>::define_self(&crate::headers::languages::CSharp, definer)
+                <T::CLayout as CType>::define_self(&crate::headers::languages::CSharp, definer, naming_convention)
             },
         }
     }

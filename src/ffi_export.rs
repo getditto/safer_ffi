@@ -263,6 +263,7 @@ macro_rules! __ffi_export__ {
                 fn typedef $(<$($lt $(: $sup_lt)?),*>)? (
                     definer: &'_ mut dyn $crate::headers::Definer,
                     lang: $crate::headers::Language,
+                    naming_convention: &'_ $crate::headers::NamingConvention,
                 ) -> $crate::std::io::Result<()>
                 {Ok({
                     // FIXME: this merges the value namespace with the type
@@ -280,10 +281,10 @@ macro_rules! __ffi_export__ {
                         );
                     }
                     $(
-                        $crate::headers::__define_self__::<$arg_ty>(definer, lang)?;
+                        $crate::headers::__define_self__::<$arg_ty>(definer, lang, naming_convention)?;
                     )*
                     $(
-                        $crate::headers::__define_self__::<$Ret>(definer, lang)?;
+                        $crate::headers::__define_self__::<$Ret>(definer, lang, naming_convention)?;
                     )?
                     let out = definer.out();
                     $(

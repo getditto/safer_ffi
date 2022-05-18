@@ -127,12 +127,13 @@ fn derive (
             fn define_self (
                 language: &'_ dyn #HeaderLanguage,
                 definer: &'_ mut dyn #Definer,
+                naming_convention: &'_ ::safer_ffi::headers::NamingConvention,
             ) -> #ඞ::io::Result<()>
             {
                 definer.define_once(
                     #EnumName_t_str,
                     &mut |definer| {
-                        <#Int as #CType>::define_self(language, definer)?;
+                        <#Int as #CType>::define_self(language, definer, naming_convention)?;
                         language.emit_simple_enum(
                             definer,
                             &[#(#each_doc),*],

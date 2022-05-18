@@ -353,8 +353,8 @@ fn try_handle_fptr (
                 fn c_define_self (definer: &'_ mut dyn #Definer)
                   -> #std::io::Result<()>
                 {
-                    <#RetCType as #CType>::define_self(&::safer_ffi::headers::languages::C, definer)?; #(
-                    <#EachArgCType as #CType>::define_self(&::safer_ffi::headers::languages::C, definer)?; )*
+                    <#RetCType as #CType>::define_self(&::safer_ffi::headers::languages::C, definer, &::safer_ffi::headers::NamingConvention::Default)?; #(
+                    <#EachArgCType as #CType>::define_self(&::safer_ffi::headers::languages::C, definer, &::safer_ffi::headers::NamingConvention::Default)?; )*
                     Ok(())
                 }
 
@@ -384,8 +384,8 @@ fn try_handle_fptr (
                     fn csharp_define_self (definer: &'_ mut dyn #Definer)
                       -> #std::io::Result<()>
                     {
-                        <#RetCType as #CType>::define_self(&::safer_ffi::headers::languages::CSharp, definer)?; #(
-                        <#EachArgCType as #CType>::define_self(&::safer_ffi::headers::languages::CSharp, definer)?; )*
+                        <#RetCType as #CType>::define_self(&::safer_ffi::headers::languages::CSharp, definer, &::safer_ffi::headers::NamingConvention::Default)?; #(
+                        <#EachArgCType as #CType>::define_self(&::safer_ffi::headers::languages::CSharp, definer, &::safer_ffi::headers::NamingConvention::Default)?; )*
                         let ref me = <Self as #CType>::name(&::safer_ffi::headers::languages::CSharp).to_string();
                         let ref mut _forge_arg_name = {
                             let mut iter = (0 ..).map(|c| #std::format!("_{}", c));

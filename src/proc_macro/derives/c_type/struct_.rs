@@ -161,11 +161,12 @@ fn derive (
             fn define_self (
                 language: &'_ dyn #headers::languages::HeaderLanguage,
                 definer: &'_ mut dyn #headers::Definer,
+                naming_convention: &'_ #headers::NamingConvention,
             ) -> #ඞ::io::Result<()>
             {
                 definer.define_once(#me, &mut |definer| {
                 #(
-                    < #EachFieldTy as #CType >::define_self(language, definer)?;
+                    < #EachFieldTy as #CType >::define_self(language, definer, naming_convention)?;
                 )*
                     language.emit_struct(
                         definer,

@@ -279,8 +279,9 @@ macro_rules! CType {(
             definer.define_once(
                 me,
                 &mut |definer| {
+                    // CHECKME : write naming convention ?
                     $(
-                        <$field_ty as $crate::layout::CType>::define_self(&$crate::headers::languages::C, definer)?;
+                        <$field_ty as $crate::layout::CType>::define_self(&$crate::headers::languages::C, definer, &$crate::headers::NamingConvention::Default)?;
                     )*
                     let out = definer.out();
                     $(
@@ -339,7 +340,7 @@ macro_rules! CType {(
                 );
                 let ref me = <Self as $crate::layout::CType>::name(&$crate::headers::languages::CSharp).to_string();
                 $(
-                    <$field_ty as $crate::layout::CType>::define_self(&$crate::headers::languages::CSharp, definer)?;
+                    <$field_ty as $crate::layout::CType>::define_self(&$crate::headers::languages::CSharp, definer, &$crate::headers::NamingConvention::Default)?;
                 )*
                 definer.define_once(me, &mut |definer| $crate::core::writeln!(definer.out(),
                     $crate::core::concat!(
@@ -1163,6 +1164,7 @@ macro_rules! ReprC {
                             ;
                             <$crate::$Int as $crate::layout::CType>::define_self(&$crate::headers::languages::C,
                                 definer,
+                                &$crate::headers::NamingConvention::Default,
                             )?;
                             let out = definer.out();
                             $crate::__output_docs__!(out, "",
