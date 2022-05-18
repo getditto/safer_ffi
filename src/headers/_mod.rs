@@ -433,12 +433,12 @@ impl Builder<'_, WhereTo> {
     }
 
     fn guard(&self) -> String {
-        self.guard.unwrap_or(
-            &format!("__RUST_{}__",
+        self.guard.map_or_else( ||
+            format!("__RUST_{}__",
                     env::var("CARGO_PKG_NAME")
                         .unwrap()
                         .to_ascii_uppercase()
-        )).to_string()
+        ), str::to_string)
     }
 
     /// Return the package name
@@ -498,10 +498,12 @@ enum Language {
     CSharp,
 }
 
+/// Allow user to specify
 pub enum NamingConvention {
     Default,
     Suffix(String),
     Prefix(String),
+    Custom(fn(&str)-> String),
 }
 
 hidden_export! {
