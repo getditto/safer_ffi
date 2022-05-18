@@ -91,6 +91,8 @@ use ::paste;
 /// (on top of the obviously required `#[repr(C)]`).
 pub use ::safer_ffi_proc_macros::ffi_export;
 
+/// Identity macro when `feature = "headers"` is enabled, otherwise
+/// this macro outputs nothing.
 pub use ::safer_ffi_proc_macros::cfg_headers;
 
 /// Creates a compile-time checked [`char_p::Ref`]`<'static>` out of a
@@ -251,8 +253,6 @@ __cfg_headers__! {
 }
 
 cfg_alloc! {
-    #[doc(hidden)] pub
-    extern crate alloc as __alloc;
     extern crate alloc;
 }
 
@@ -307,51 +307,8 @@ cfg_alloc! {
     pub mod vec;
 }
 
-match_! {(
-    u8 u16 u32 u64 u128
-    i8 i16 i32 i64 i128
-    f32 f64
-    char
-    bool
-    str
-) {(
-    $($ty:ident)*
-) => (
-    $(
-        #[doc(hidden)]
-        pub use $ty;
-    )*
-)}}
-
-#[apply(hidden_export)]
-use ::core;
-
-#[apply(hidden_export)]
-use ::scopeguard;
-
-#[apply(cfg_std!)]
-#[apply(hidden_export)]
-use ::std;
-
-#[apply(hidden_export)]
-/// Hack needed to `feature(trivial_bounds)` in stable Rust:
-///
-/// Instead of `where Ty : Bounds…`, it suffices to write:
-/// `where for<'hrtb> TrivialBound<'hrtb, Ty> : Bounds…`.
-type __TrivialBound<'hrtb, T> = <T as __private::Ignoring<'hrtb>>::ItSelf;
-
-mod __private {
-    pub trait Ignoring<'__> { type ItSelf : ?Sized; }
-    impl<T : ?Sized> Ignoring<'_> for T { type ItSelf = Self; }
-}
-
 #[apply(hidden_export)]
 use layout::impls::c_int;
-
-#[derive(Clone, Copy)]
-#[allow(missing_debug_implementations)]
-#[doc(hidden)] pub
-struct NotZeroSized;
 
 pub
 mod prelude {
@@ -449,7 +406,7 @@ mod prelude {
 
 #[macro_export]
 macro_rules! NULL {() => (
-    $crate::core::ptr::null_mut()
+    $crate::ඞ::ptr::null_mut()
 )}
 
 #[cfg(feature = "log")]
@@ -475,7 +432,7 @@ struct __PanicOnDrop__; impl Drop for __PanicOnDrop__ {
 macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
     $crate::log::error!($($tt)*);
     let _panic_on_drop = $crate::__PanicOnDrop__;
-    $crate::core::panic!($($tt)*);
+    $crate::ඞ::panic!($($tt)*);
 })}
 
 #[cfg(all(
@@ -484,8 +441,8 @@ macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
 ))]
 #[apply(hidden_export)]
 macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
-    $crate::std::eprintln!($($tt)*);
-    $crate::std::process::abort();
+    $crate::ඞ::eprintln!($($tt)*);
+    $crate::ඞ::process::abort();
 })}
 
 #[cfg(all(
@@ -495,7 +452,7 @@ macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
 #[apply(hidden_export)]
 macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
     let _panic_on_drop = $crate::__PanicOnDrop__;
-    $crate::core::panic!($($tt)*);
+    $crate::ඞ::panic!($($tt)*);
 })}
 
 #[cfg(target_arch = "wasm32")]
@@ -518,6 +475,7 @@ mod __ {
     pub use {
         ::core::{
             self,
+            marker::PhantomData,
             primitive::{
                 u8, u16, u32, usize, u64, u128,
                 i8, i16, i32, isize, i64, i128,
@@ -525,6 +483,9 @@ mod __ {
                 char,
                 str,
             },
+        },
+        ::scopeguard::{
+            self,
         },
         ::std::{
             self,
@@ -552,4 +513,45 @@ mod __ {
             },
         }
     };
+
+    /// Hack needed to `feature(trivial_bounds)` in stable Rust:
+    ///
+    /// Instead of `where Ty : Bounds…`, it suffices to write:
+    /// `where for<'trivial> Identity<'trivial, Ty> : Bounds…`.
+    pub
+    type Identity<'hrtb, T> =
+        <T as IdentityIgnoring<'hrtb>>::ItSelf
+    ;
+    // where
+    pub
+    trait IdentityIgnoring<'__> {
+        type ItSelf : ?Sized;
+    }
+    impl<T : ?Sized> IdentityIgnoring<'_> for T {
+        type ItSelf = Self;
+    }
+
+    // TODO: correctly handle more type (currently only supports a subset of
+    // transitive type paths).
+    pub
+    fn append_unqualified_name (
+        out: &'_ mut String,
+        full_type_name: &'_ str,
+    )
+    {
+        let (before_generic, generics) = {
+            let mut i = full_type_name.trim().splitn(2, "<");
+            (i.next().unwrap(), i.next())
+        };
+        let unqualified = before_generic.rsplitn(2, ":").next().unwrap();
+        out.push('_');
+        out.push_str(unqualified.trim());
+        if let Some(generics) = generics {
+            // "pop" the `>`.
+            let generics = &generics[.. generics.len() - 1];
+            generics.split(',').for_each(|generic| {
+                append_unqualified_name(out, generic);
+            });
+        }
+    }
 }

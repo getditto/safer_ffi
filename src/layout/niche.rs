@@ -73,9 +73,9 @@ unsafe_impls! {
     // char_p::Ref<'_> => |it| it.is_null(),
     // char_p::Raw => |it| it.is_null(),
 
-    bool => |&it| {
-        it == unsafe { mem::transmute(None::<bool>) }
-    },
+    // bool => |&it| {
+    //     it == unsafe { mem::transmute(None::<bool>) }
+    // },
 }
 
 cfg_alloc! {

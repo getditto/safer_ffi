@@ -22,6 +22,9 @@ fn derive (
     let args: Args = parse2(attrs)?;
 
     let mut input: DeriveInput = parse2(input)?;
+    if let Some(ret) = super::handle_fptr::try_handle_fptr(&input) {
+        return ret;
+    }
     let DeriveInput {
         ref mut attrs,
         ref vis,

@@ -19,8 +19,8 @@ fn feed_to_macro_rules (
 ) -> Result<TokenStream2>
 {
     let input = parse2::<DeriveInput>(input)?;
-    if let Some(expansion) = handle_fptr::try_handle_fptr(&input) {
-        return Ok(expansion);
+    if let Some(result) = handle_fptr::try_handle_fptr(&input) {
+        return result;
     }
     let DeriveInput {
         attrs,

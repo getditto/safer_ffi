@@ -47,7 +47,10 @@ fn derive (
             each_field_name.iter().vmap(ToString::to_string)
         ;
         let ref StructName_str =
-            args.rename.as_ref().unwrap_or(StructName).to_string()
+            args.rename.map_or_else(
+                || StructName.to_string().into_token_stream(),
+                ToTokens::into_token_stream,
+            )
         ;
 
         let mut impl_body = impl_body;
@@ -55,7 +58,9 @@ fn derive (
             fn short_name ()
               -> #ඞ::String
             {
-                let mut _ret: #ඞ::String = #StructName_str.into();
+                let mut _ret =
+                    <#ඞ::String as #ඞ::From<_>>::from(#StructName_str)
+                ;
                 #(
                     #ඞ::fmt::Write::write_fmt(
                         &mut _ret,

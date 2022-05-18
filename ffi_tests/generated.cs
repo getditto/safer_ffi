@@ -32,16 +32,19 @@ public unsafe struct AnUnusedStruct_t {
     public Wow_t are_you_still_there;
 }
 
+public unsafe partial class Ffi {
+    public const Int32 FOO = 42;
+}
+
 public enum Bar_t : sbyte {
     A = 43,
     B = 42,
 }
 
 [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-[return: MarshalAs(UnmanagedType.U1)]
 public unsafe /* static */ delegate
-    bool
-    bool_bool_fptr (
+    void *
+    void_ptr_bool_fptr (
         [MarshalAs(UnmanagedType.U1)]
         bool _0);
 
@@ -59,7 +62,7 @@ public unsafe struct next_generation_t {
     /// with function pointers and everything!
     /// </summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    public bool_bool_fptr cb;
+    public void_ptr_bool_fptr cb;
 }
 
 /// <summary>
@@ -76,7 +79,13 @@ public unsafe partial class Ffi {
     Int32 async_get_ft ();
 }
 
-public enum SomeReprCEnum_t {
+/// <summary>
+/// This is a <c>#[repr(C)]</c> enum, which leads to a classic enum def.
+/// </summary>
+public enum SomeReprCEnum_t  {
+    /// <summary>
+    /// This is some variant.
+    /// </summary>
     SomeVariant,
 }
 
@@ -92,31 +101,31 @@ public unsafe partial class Ffi {
         Bar_t _bar);
 }
 
-/** \brief
- *  Concatenate the two input strings into a new one.
- *
- *  The returned string must be freed using `free_char_p`.
- */
 public unsafe partial class Ffi {
+    /// <summary>
+    /// Concatenate the two input strings into a new one.
+    ///
+    /// The returned string must be freed using <c>free_char_p</c>.
+    /// </summary>
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     byte * concat (
         byte /*const*/ * fst,
         byte /*const*/ * snd);
 }
 
-/** \brief
- *  Frees a string created by `concat`.
- */
 public unsafe partial class Ffi {
+    /// <summary>
+    /// Frees a string created by <c>concat</c>.
+    /// </summary>
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     void free_char_p (
         byte * _string);
 }
 
 public struct foo_t {
-   #pragma warning disable 0169
-   private byte OPAQUE;
-   #pragma warning restore 0169
+    #pragma warning disable 0169
+    private byte OPAQUE;
+    #pragma warning restore 0169
 }
 
 public unsafe partial class Ffi {
@@ -131,11 +140,11 @@ public unsafe struct slice_ref_int32_t {
     public UIntPtr len;
 }
 
-/** \brief
- *  Returns a pointer to the maximum integer of the input slice, or `NULL` if
- *  it is empty.
- */
 public unsafe partial class Ffi {
+    /// <summary>
+    /// Returns a pointer to the maximum integer of the input slice, or <c>NULL</c> if
+    /// it is empty.
+    /// </summary>
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     Int32 /*const*/ * max (
         slice_ref_int32_t xs);
@@ -166,11 +175,11 @@ public unsafe struct RefDynFnMut1_void_char_const_ptr_t {
     public void_void_ptr_char_const_ptr_fptr call;
 }
 
-/** \brief
- *  Same as `concat`, but with a callback-based API to auto-free the created
- *  string.
- */
 public unsafe partial class Ffi {
+    /// <summary>
+    /// Same as <c>concat</c>, but with a callback-based API to auto-free the created
+    /// string.
+    /// </summary>
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     void with_concat (
         byte /*const*/ * fst,
@@ -185,8 +194,9 @@ public unsafe /* static */ delegate
         foo_t * _0);
 
 public unsafe partial class Ffi {
+    [return: MarshalAs(UnmanagedType.U1)]
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    void with_foo (
+    bool with_foo (
         [MarshalAs(UnmanagedType.FunctionPtr)]
         void_foo_ptr_fptr cb);
 }

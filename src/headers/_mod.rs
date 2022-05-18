@@ -525,6 +525,34 @@ hidden_export! {
     }
 }
 
+use self::languages::{
+    FunctionArg,
+    HeaderLanguage,
+    PhantomCType,
+};
+#[apply(hidden_export)]
+fn __define_fn__ (
+    definer: &'_ mut dyn Definer,
+    lang: Language,
+    docs: &'_ [&'_ str],
+    fname: &'_ str,
+    args: &'_ [FunctionArg<'_>],
+    ret_ty: &'_ dyn PhantomCType,
+) -> io::Result<()>
+{
+    let dyn_lang: &dyn HeaderLanguage = match lang {
+        | Language::C => &languages::C,
+        | Language::CSharp => &languages::CSharp,
+    };
+    dyn_lang.emit_function(
+        definer,
+        docs,
+        fname,
+        args,
+        ret_ty,
+    )
+}
+
 hidden_export! {
     /// Helpers for the generation of FFI-imported function declarations.
     mod __define_fn__ {

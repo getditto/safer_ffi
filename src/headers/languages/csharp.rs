@@ -139,15 +139,111 @@ impl HeaderLanguage for CSharp {
         Ok(())
     }
 
+    fn emit_opaque_type (
+        self: &'_ Self,
+        ctx: &'_ mut dyn Definer,
+        docs: Docs<'_>,
+        self_ty: &'_ dyn PhantomCType,
+    ) -> io::Result<()>
+    {
+        let ref indent = Indentation::new(4 /* ctx.indent_width() */);
+        mk_out!(indent, ctx.out());
+
+        let full_ty_name = self_ty.name(self);
+
+        self.emit_docs(ctx, docs, indent)?;
+        out!(("public struct {full_ty_name} {{"));
+        if let _ = indent.scope() {
+            out!((
+                "#pragma warning disable 0169"
+                "private byte OPAQUE;"
+                "#pragma warning restore 0169"
+            ))
+        }
+        out!(("}}"));
+
+        out!("\n");
+        Ok(())
+    }
+
     fn emit_function (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         fname: &'_ str,
-        arg_names: &'_ [FunctionArg<'_>],
+        args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>
     {
-        todo!()
+        let ref indent = Indentation::new(4 /* ctx.indent_width() */);
+        mk_out!(indent, ctx.out());
+
+        out!((
+            "public unsafe partial class Ffi {{"
+        ));
+
+        if let _ = indent.scope() {
+            self.emit_docs(ctx, docs, indent)?;
+
+            if let Some(marshaler) = ret_ty.csharp_marshaler() {
+                out!((
+                    "[return: MarshalAs({marshaler})]"
+                ));
+            }
+
+            out!((
+                "[DllImport(RustLib, ExactSpelling = true)] public static unsafe extern"
+            ));
+
+            let ret_ty = ret_ty.name(self);
+            out!("{}{ret_ty} {fname} (", indent);
+            let mut first = true;
+            if let _ = indent.scope() {
+                for FunctionArg { name: arg_name, ty } in args {
+                    if mem::take(&mut first).not() {
+                        out!(",");
+                    }
+                    out!("\n");
+                    if let Some(marshaler) = ty.csharp_marshaler() {
+                        out!((
+                            "[MarshalAs({marshaler})]"
+                        ));
+                    }
+                    let arg_ty = ty.name(self);
+                    out!("{}{arg_ty} {arg_name}", indent)
+                }
+            }
+            out!(");\n");
+        }
+        out!(("}}"));
+
+        out!("\n");
+        Ok(())
+    }
+
+    fn emit_constant (
+        self: &'_ Self,
+        ctx: &'_ mut dyn Definer,
+        docs: Docs<'_>,
+        name: &'_ str,
+        ty: &'_ dyn PhantomCType,
+        value: &'_ dyn ::core::fmt::Debug,
+    ) -> io::Result<()>
+    {
+        let ref indent = Indentation::new(4 /* ctx.indent_width() */);
+        mk_out!(indent, ctx.out());
+
+        out!(("public unsafe partial class Ffi {{"));
+        if let _ = indent.scope() {
+            self.emit_docs(ctx, docs, indent)?;
+            let ty = ty.name(self);
+            out!((
+                "public const {ty} {name} = {value:?};"
+            ));
+        }
+        out!(("}}"));
+
+        out!("\n");
+        Ok(())
     }
 }

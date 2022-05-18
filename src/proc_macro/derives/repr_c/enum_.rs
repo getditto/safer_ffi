@@ -21,7 +21,13 @@ fn derive (
             ).not())
     {
         bail! {
-            "Non field-less `enum`s are not supported yet." => payload,
+            "Non field-less `enum`s are not supported yet." => payload.fields,
+        }
+    }
+
+    if variants.is_empty() {
+        bail! {
+            "C does not support empty enums!"
         }
     }
 
@@ -36,7 +42,7 @@ fn derive (
             mem,
         },
         layout::{
-            __HasNiche__,
+            // __HasNiche__,
             CLayoutOf,
             CType as CType,
             OpaqueKind,
@@ -94,10 +100,13 @@ fn derive (
         let mut impl_body = impl_body;
 
         let ref EnumName_str =
-            args.rename.as_ref().unwrap_or(EnumName).to_string()
+            args.rename.map_or_else(
+                || EnumName.to_string().into_token_stream(),
+                ToTokens::into_token_stream,
+            )
         ;
-        let each_enum_variant =
-            variants.iter().map(|v| {
+        let ref each_enum_variant =
+            variants.try_vmap(|v| Result::Ok({
                 let ref VariantName_str = v.ident.to_string();
                 let discriminant = if let Some((_eq, disc)) = &v.discriminant {
                     quote!(
@@ -108,14 +117,15 @@ fn derive (
                         #ඞ::None
                     )
                 };
+                let docs = utils::extract_docs(&v.attrs)?;
                 quote!(
                     #EnumVariant {
-                        docs: &[], // FIXME TODO
+                        docs: &[#(#docs),*],
                         name: #VariantName_str,
                         discriminant: #discriminant,
                     }
                 )
-            })
+            }))?
         ;
 
         impl_body.extend(quote!(
@@ -177,28 +187,28 @@ fn derive (
         )
     });
 
-    ret.extend(quote!(
-        unsafe
-        impl #__HasNiche__
-        for
-            #EnumName
-        {
-            #[inline]
-            fn is_niche (
-                &#EnumName_Layout { discriminant }: &'_ #CLayoutOf<Self>,
-            ) -> #ඞ::bool
-            {
-                /// Safety: should this ever become ill-defined, it would fail to compile.
-                const DISCRIMINANT_OF_NONE: #Int = unsafe {
-                    #ඞ::mem::transmute::<_, #Int>(
-                        #ඞ::None::<#EnumName>
-                    )
-                };
+    // ret.extend(quote!(
+    //     unsafe
+    //     impl #__HasNiche__
+    //     for
+    //         #EnumName
+    //     {
+    //         #[inline]
+    //         fn is_niche (
+    //             &#EnumName_Layout { discriminant }: &'_ #CLayoutOf<Self>,
+    //         ) -> #ඞ::bool
+    //         {
+    //             /// Safety: should this ever become ill-defined, it would fail to compile.
+    //             const DISCRIMINANT_OF_NONE: #Int = unsafe {
+    //                 #ඞ::mem::transmute::<_, #Int>(
+    //                     #ඞ::None::<#EnumName>
+    //                 )
+    //             };
 
-                #ඞ::matches!(discriminant, DISCRIMINANT_OF_NONE)
-            }
-        }
-    ));
+    //             #ඞ::matches!(discriminant, DISCRIMINANT_OF_NONE)
+    //         }
+    //     }
+    // ));
 
     Ok(ret)
 }
@@ -253,7 +263,7 @@ fn parse_discriminant_type (
                     ",
                 ));
                 let IntTy = quote!(
-                    ::safer_ffi::c_int
+                    ::safer_ffi::ඞ::os::raw::c_int
                 );
                 (
                     quote!(

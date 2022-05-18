@@ -19,6 +19,15 @@ fn ffi_export (
         ));
     }
 
+    if let Ok(input) = parse2::<ItemConst>(input.clone()) {
+        let _: parse::Nothing = parse2(attrs)?;
+        return Ok(::quote::quote!(
+            ::safer_ffi::__ffi_export__! {
+                #input
+            }
+        ));
+    }
+
     #[cfg(feature = "async-fn")] emit! {
         let fun: ItemFn = parse2(input.clone())?;
         match parse2::<async_fn::Attrs>(attrs.clone()) {

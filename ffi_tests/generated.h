@@ -16,28 +16,30 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
+/** <No documentation available> */
 /** \remark Has the same ABI as `uint8_t` **/
 #ifdef DOXYGEN
-typedef enum Wow
-#else
-typedef uint8_t Wow_t; enum
+typedef
 #endif
-{
-    /** . */
+enum Wow {
+    /** <No documentation available> */
     WOW_LEROY,
-    /** . */
+    /** <No documentation available> */
     WOW_JENKINS,
 }
-#ifdef DOXYGEN
-Wow_t
+#ifndef DOXYGEN
+; typedef uint8_t
 #endif
-;
+Wow_t;
 
-typedef struct {
-
+/** <No documentation available> */
+typedef struct AnUnusedStruct {
+    /** <No documentation available> */
     Wow_t are_you_still_there;
-
 } AnUnusedStruct_t;
+
+/** <No documentation available> */
+#define FOO ((int32_t) 42)
 
 /** <No documentation available> */
 /** \remark Has the same ABI as `int8_t` **/
@@ -70,7 +72,7 @@ typedef struct next_generation {
     /** \brief
      *  with function pointers and everything!
      */
-    bool (*cb)(bool);
+    void * (*cb)(bool);
 } next_generation_t;
 
 /** \brief
@@ -93,8 +95,8 @@ enum triforce {
 #endif
 triforce_t;
 
+/** <No documentation available> */
 int32_t async_get_ft (void);
-
 /** \brief
  *  This is a `#[repr(C)]` enum, which leads to a classic enum def.
  */
@@ -105,32 +107,26 @@ typedef enum SomeReprCEnum {
     SOME_REPR_C_ENUM_SOME_VARIANT,
 } SomeReprCEnum_t;
 
-void check_SomeReprCEnum (
-    SomeReprCEnum_t _baz);
-
-void check_bar (
-    Bar_t _bar);
-
+/** <No documentation available> */
+void check_SomeReprCEnum (SomeReprCEnum_t _baz);
+/** <No documentation available> */
+void check_bar (Bar_t _bar);
 /** \brief
  *  Concatenate the two input strings into a new one.
  *
  *  The returned string must be freed using `free_char_p`.
  */
-char * concat (
-    char const * fst,
+char * concat (char const * fst,
     char const * snd);
-
 /** \brief
  *  Frees a string created by `concat`.
  */
-void free_char_p (
-    char * _string);
-
+void free_char_p (char * _string);
+/** <No documentation available> */
 typedef struct foo foo_t;
 
-void free_foo (
-    foo_t * foo);
-
+/** <No documentation available> */
+void free_foo (foo_t * foo);
 /** \brief
  *  `&'lt [T]` but with a guaranteed `#[repr(C)]` layout.
  * 
@@ -162,14 +158,11 @@ typedef struct {
  *  Returns a pointer to the maximum integer of the input slice, or `NULL` if
  *  it is empty.
  */
-int32_t const * max (
-    slice_ref_int32_t xs);
-
+int32_t const * max (slice_ref_int32_t xs);
+/** <No documentation available> */
 foo_t * new_foo (void);
-
-int32_t read_foo (
-    foo_t const * foo);
-
+/** <No documentation available> */
+int32_t read_foo (foo_t const * foo);
 typedef struct {
 
     void * env_ptr;
@@ -182,14 +175,11 @@ typedef struct {
  *  Same as `concat`, but with a callback-based API to auto-free the created
  *  string.
  */
-void with_concat (
-    char const * fst,
+void with_concat (char const * fst,
     char const * snd,
     RefDynFnMut1_void_char_const_ptr_t cb);
-
-void with_foo (
-    void (*cb)(foo_t *));
-
+/** <No documentation available> */
+bool with_foo (void (*cb)(foo_t *));
 
 #ifdef __cplusplus
 } /* extern \"C\" */

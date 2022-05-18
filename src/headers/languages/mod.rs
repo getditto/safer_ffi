@@ -57,22 +57,13 @@ impl ::core::fmt::Display for Indentation {
 #[repr(u8)]
 enum Foo { A, B = 12, C }
 
-// pub
 type Docs<'lt> = &'lt [&'lt str];
 
 pub
 trait HeaderLanguage : UpcastAny {
-    fn emit_docs (
-        self: &'_ Self,
-        out: &'_ mut dyn Definer,
-        docs: Docs<'_>,
-        indentation: &'_ Indentation,
-    ) -> io::Result<()>
-    ;
-
     fn emit_simple_enum (
         self: &'_ Self,
-        out: &'_ mut dyn Definer,
+        ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         backing_integer: Option<&'_ dyn PhantomCType>,
@@ -82,22 +73,52 @@ trait HeaderLanguage : UpcastAny {
 
     fn emit_struct (
         self: &'_ Self,
-        out: &'_ mut dyn Definer,
+        ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         fields: &'_ [StructField<'_>]
     ) -> io::Result<()>
     ;
 
+    fn emit_opaque_type (
+        self: &'_ Self,
+        ctx: &'_ mut dyn Definer,
+        docs: Docs<'_>,
+        self_ty: &'_ dyn PhantomCType,
+    ) -> io::Result<()>
+    ;
+
     fn emit_function (
         self: &'_ Self,
-        out: &'_ mut dyn Definer,
+        ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         fname: &'_ str,
-        arg_names: &'_ [FunctionArg<'_>],
+        args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>
     ;
+
+    fn emit_constant (
+        self: &'_ Self,
+        ctx: &'_ mut dyn Definer,
+        docs: Docs<'_>,
+        name: &'_ str,
+        ty: &'_ dyn PhantomCType,
+        value: &'_ dyn ::core::fmt::Debug,
+    ) -> io::Result<()>
+    ;
+
+    fn emit_docs (
+        self: &'_ Self,
+        ctx: &'_ mut dyn Definer,
+        docs: Docs<'_>,
+        indentation: &'_ Indentation,
+    ) -> io::Result<()>
+    {
+        // This function is just offered as a convenience helper;
+        // it is not directly called by the framework.
+        Ok(())
+    }
 }
 
 pub
@@ -125,9 +146,19 @@ struct StructField<'lt> {
 }
 
 pub
+struct TypeMethods {
+    short_name: fn() -> String,
+
+    name_wrapping_var: fn(
+        language: &'_ dyn HeaderLanguage,
+        var_name: &'_ str,
+    ) -> String,
+}
+
+pub
 struct FunctionArg<'lt> {
-    pub
-    docs: Docs<'lt>,
+    // pub
+    // docs: Docs<'lt>,
 
     pub
     name: &'lt str,
@@ -192,7 +223,7 @@ where
         self: &'_ Self,
     ) -> String
     {
-        T::short_name()
+        <T as CType>::short_name()
     }
 
     fn name_wrapping_var (
@@ -316,12 +347,12 @@ macro_rules! mk_out {
 pub
 trait UpcastAny : 'static {
     fn upcast_any (self: &'_ Self)
-      -> &dyn ::core::any::Any
+      -> &'_ dyn ::core::any::Any
     ;
 }
 impl<T : 'static> UpcastAny for T {
     fn upcast_any (self: &'_ Self)
-      -> &dyn ::core::any::Any
+      -> &'_ dyn ::core::any::Any
     {
         self
     }

@@ -15,7 +15,7 @@ macro_rules! bail {
         $err_msg:expr => $spanned:expr $(,)?
     ) => (
         return ::syn::Result::Err(::syn::Error::new_spanned(
-            $spanned,
+            &$spanned,
             $err_msg,
         ))
     );
@@ -189,3 +189,7 @@ macro_rules! dbg_parse_quote {(
 macro_rules! Quote {( $T:ty $(,)? ) => (
     ::proc_macro2::TokenStream
 )} pub(in crate) use Quote;
+
+macro_rules! Expr {( $T:ty $(,)? ) => (
+    ::syn::Expr
+)} pub(in crate) use Expr;

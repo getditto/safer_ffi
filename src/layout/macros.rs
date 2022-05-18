@@ -29,21 +29,6 @@ macro_rules! __cfg_node_js__ {(
     // nothing
 )}
 
-// #[cfg(not(feature = "headers"))]
-// #[macro_export] #[doc(hidden)]
-// macro_rules! __cfg_not_headers__ {(
-//     $($item:item)*
-// ) => (
-//     $($item)*
-// )}
-// #[cfg(feature = "headers")]
-// #[macro_export] #[doc(hidden)]
-// macro_rules! __cfg_not_headers__ {(
-//     $($item:item)*
-// ) => (
-//     // nothing
-// )}
-
 #[cfg(feature = "csharp-headers")]
 #[macro_export] #[doc(hidden)]
 macro_rules! __cfg_csharp__ {(
@@ -148,7 +133,7 @@ macro_rules! CType {(
                 let mut _obj = env.create_object()?;
                 $(
                     _obj.set_named_property(
-                        $crate::core::stringify!($field_name),
+                        $crate::ඞ::stringify!($field_name),
                         <
                             <$field_ty as $crate::layout::ReprC>::CLayout
                             as
@@ -167,16 +152,16 @@ macro_rules! CType {(
                 obj: $crate::node_js::JsUnknown,
             ) -> $crate::node_js::Result<Self>
             {
-                use $crate::core::convert::TryFrom as _;
+                use $crate::ඞ::convert::TryFrom as _;
                 let mut is_buffer = false;
                 // Poor man's specialization.
-                if  $crate::core::any::TypeId::of::<Self>()
+                if  $crate::ඞ::any::TypeId::of::<Self>()
                     ==
-                    $crate::core::any::TypeId::of::<$crate::slice::slice_ref_Layout<'_, u8>>()
+                    $crate::ඞ::any::TypeId::of::<$crate::slice::slice_ref_Layout<'_, u8>>()
                 &&  (
                         { is_buffer = obj.is_buffer()?; is_buffer }
                         ||
-                        $crate::core::matches!(
+                        $crate::ඞ::matches!(
                             obj.get_type(),
                             $crate::node_js::Result::Ok($crate::node_js::ValueType::Null)
                         )
@@ -188,9 +173,9 @@ macro_rules! CType {(
                         #[cfg(target_arch = "wasm32")] {
                             _storage = ();
                             let bytes = js_buffer.into_value()?.into_boxed_slice();
-                            let raw = $crate::std::boxed::Box::into_raw(bytes);
-                            env.__push_drop_glue($crate::scopeguard::guard(raw, |raw| unsafe {
-                                $crate::core::mem::drop($crate::std::boxed::Box::from_raw(raw))
+                            let raw = $crate::ඞ::boxed::Box::into_raw(bytes);
+                            env.__push_drop_glue($crate::ඞ::scopeguard::guard(raw, |raw| unsafe {
+                                $crate::ඞ::mem::drop($crate::ඞ::boxed::Box::from_raw(raw))
                             }));
                             buf = unsafe { &*raw };
                         } /* else */
@@ -199,14 +184,14 @@ macro_rules! CType {(
                             buf = &_storage;
                         }
                         let xs = buf;
-                        $crate::node_js::Result::Ok(unsafe { $crate::core::mem::transmute_copy(&{
+                        $crate::node_js::Result::Ok(unsafe { $crate::ඞ::mem::transmute_copy(&{
                             $crate::slice::slice_raw_Layout::<u8> {
                                 ptr: xs.as_ptr() as _,
                                 len: xs.len(),
                             }
                         })})
                     } else { // it's NULL
-                        $crate::node_js::Result::Ok(unsafe { $crate::core::mem::transmute_copy::<_, Self>(&{
+                        $crate::node_js::Result::Ok(unsafe { $crate::ඞ::mem::transmute_copy::<_, Self>(&{
                             $crate::slice::slice_raw_Layout::<u8> {
                                 ptr: $crate::NULL!(),
                                 len: 0xbad000,
@@ -224,7 +209,7 @@ macro_rules! CType {(
                                 $crate::node_js::ReprNapi
                             >::from_napi_value(
                                 env,
-                                obj.get_named_property($crate::core::stringify!($field_name))?,
+                                obj.get_named_property($crate::ඞ::stringify!($field_name))?,
                             )?
                         )},
                     )*
@@ -247,13 +232,13 @@ macro_rules! CType {(
             $($($bounds)*)?
         )?
     { $crate::__cfg_headers__! {
-        fn c_short_name_fmt (fmt: &'_ mut $crate::core::fmt::Formatter<'_>)
-          -> $crate::core::fmt::Result
+        fn c_short_name_fmt (fmt: &'_ mut $crate::ඞ::fmt::Formatter<'_>)
+          -> $crate::ඞ::fmt::Result
         {
-            fmt.write_str($crate::core::stringify!($StructName))?;
+            fmt.write_str($crate::ඞ::stringify!($StructName))?;
             $($(
                 $(
-                    $crate::core::write!(fmt, "_{}",
+                    $crate::ඞ::write!(fmt, "_{}",
                         <
                             <$generics as $crate::layout::ReprC>::CLayout
                             as
@@ -266,10 +251,10 @@ macro_rules! CType {(
         }
 
         fn c_define_self (definer: &'_ mut dyn $crate::headers::Definer)
-          -> $crate::std::io::Result<()>
+          -> $crate::ඞ::io::Result<()>
         {
             assert_ne!(
-                $crate::core::mem::size_of::<Self>(), 0,
+                $crate::ඞ::mem::size_of::<Self>(), 0,
                 "C does not support zero-sized structs!",
             );
             let ref me =
@@ -287,41 +272,41 @@ macro_rules! CType {(
                         $crate::__output_docs__!(out, "", $($doc_meta)*);
                     )?
                     $crate::__output_docs__!(out, "", $(#[$($meta)*])*);
-                    $crate::core::writeln!(out, "typedef struct {{\n")?;
+                    $crate::ඞ::writeln!(out, "typedef struct {{\n")?;
                     $(
-                        if $crate::core::mem::size_of::<$field_ty>() > 0 {
-                            // $crate::core::writeln!(out, "")?;
+                        if $crate::ඞ::mem::size_of::<$field_ty>() > 0 {
+                            // $crate::ඞ::writeln!(out, "")?;
                             $crate::__output_docs__!(out, "    ",
                                 $(#[$($field_meta)*])*
                             );
-                            $crate::core::writeln!(out, "    {};\n",
+                            $crate::ඞ::writeln!(out, "    {};\n",
                                 <$field_ty as $crate::layout::CType>::name_wrapping_var(
                                     &$crate::headers::languages::C,
-                                    $crate::core::stringify!($field_name),
+                                    $crate::ඞ::stringify!($field_name),
                                 ),
                             )?;
                         } else {
                             assert_eq!(
-                                $crate::core::mem::align_of::<$field_ty>(),
+                                $crate::ඞ::mem::align_of::<$field_ty>(),
                                 1,
-                                $crate::core::concat!(
+                                $crate::ඞ::concat!(
                                     "Zero-sized fields must have an ",
                                     "alignment of `1`."
                                 ),
                             );
                         }
                     )+
-                    $crate::core::writeln!(out, "}} {};\n", me)
+                    $crate::ඞ::writeln!(out, "}} {};\n", me)
                 },
             )
         }
 
         fn c_var_fmt (
-            fmt: &'_ mut $crate::core::fmt::Formatter<'_>,
+            fmt: &'_ mut $crate::ඞ::fmt::Formatter<'_>,
             var_name: &'_ str,
-        ) -> $crate::core::fmt::Result
+        ) -> $crate::ඞ::fmt::Result
         {
-            $crate::core::write!(fmt,
+            $crate::ඞ::write!(fmt,
                 "{}_t{sep}{}",
                 <Self as $crate::layout::CType>::short_name(),
                 var_name,
@@ -331,18 +316,18 @@ macro_rules! CType {(
 
         $crate::__cfg_csharp__! {
             fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
-              -> $crate::std::io::Result<()>
+              -> $crate::ඞ::io::Result<()>
             {
                 assert_ne!(
-                    $crate::core::mem::size_of::<Self>(), 0,
+                    $crate::ඞ::mem::size_of::<Self>(), 0,
                     "C# does not support zero-sized structs!",
                 );
                 let ref me = <Self as $crate::layout::CType>::name(&$crate::headers::languages::CSharp).to_string();
                 $(
                     <$field_ty as $crate::layout::CType>::define_self(&$crate::headers::languages::CSharp, definer)?;
                 )*
-                definer.define_once(me, &mut |definer| $crate::core::writeln!(definer.out(),
-                    $crate::core::concat!(
+                definer.define_once(me, &mut |definer| $crate::ඞ::writeln!(definer.out(),
+                    $crate::ඞ::concat!(
                         "[StructLayout(LayoutKind.Sequential, Size = {size})]\n",
                         "public unsafe struct {me} {{\n",
                         $(
@@ -352,27 +337,27 @@ macro_rules! CType {(
                     ),
                     $(
                         <$field_ty as $crate::layout::CType>::csharp_marshaler()
-                            .map(|m| $crate::std::format!("    [MarshalAs({})]\n", m))
+                            .map(|m| $crate::ඞ::format!("    [MarshalAs({})]\n", m))
                             .as_deref()
                             .unwrap_or("")
                         ,
                     )*
-                    size = $crate::core::mem::size_of::<Self>(),
+                    size = $crate::ඞ::mem::size_of::<Self>(),
                     me = me, $(
                     $field_name = {
-                        if $crate::core::mem::size_of::<$field_ty>() > 0 {
+                        if $crate::ඞ::mem::size_of::<$field_ty>() > 0 {
                             format!(
                                 "    public {};\n",
                                 <$field_ty as $crate::layout::CType>::name_wrapping_var(
                                     &$crate::headers::languages::CSharp,
-                                    $crate::core::stringify!($field_name),
+                                    $crate::ඞ::stringify!($field_name),
                                 ),
                             )
                         } else {
                             assert_eq!(
-                                $crate::core::mem::align_of::<$field_ty>(),
+                                $crate::ඞ::mem::align_of::<$field_ty>(),
                                 1,
-                                $crate::core::concat!(
+                                $crate::ඞ::concat!(
                                     "Zero-sized fields must have an ",
                                     "alignment of `1`."
                                 ),
@@ -419,9 +404,9 @@ macro_rules! CType {(
             {
                 env.create_string(match self {
                 $(
-                    | $Enum_Layout::$Variant => $crate::core::stringify!($Variant),
+                    | $Enum_Layout::$Variant => $crate::ඞ::stringify!($Variant),
                 )*
-                    | _ => $crate::std::panic!(
+                    | _ => $crate::ඞ::panic!(
                         "ill-formed enum variant ({:?}) for type `{}`",
                         &self.0,
                         <$Enum_Layout as $crate::layout::CType>::short_name(),
@@ -436,16 +421,16 @@ macro_rules! CType {(
             {
                 match js_string.into_utf8()?.as_str()? {
                 $(
-                    | $crate::core::stringify!($Variant) => $crate::node_js::Result::Ok($Enum_Layout::$Variant),
+                    | $crate::ඞ::stringify!($Variant) => $crate::node_js::Result::Ok($Enum_Layout::$Variant),
                 )*
                     | _ => $crate::node_js::Result::Err($crate::node_js::Error::new(
                         // status
                         $crate::node_js::Status::InvalidArg,
                         // reason
-                        $crate::core::concat!(
+                        $crate::ඞ::concat!(
                             "Expected one of: "
                             $(
-                                , "`", $crate::core::stringify!($Variant), "`",
+                                , "`", $crate::ඞ::stringify!($Variant), "`",
                             )", "*
                         ).into(),
                     ).into()),
@@ -548,9 +533,9 @@ macro_rules! ReprC {
         }
     ) => (
         $crate::__with_doc__! {
-            #[doc = $crate::core::concat!(
+            #[doc = $crate::ඞ::concat!(
                 "  - [`",
-                $crate::core::stringify!($StructName),
+                $crate::ඞ::stringify!($StructName),
                 "_Layout`]"
             )]
             $(#[doc = $prev_doc])*
@@ -615,7 +600,7 @@ macro_rules! ReprC {
                 let _ = it;
                 true $(
                     && (
-                        $crate::core::mem::size_of::<
+                        $crate::ඞ::mem::size_of::<
                             <$field_ty as $crate::layout::ReprC>::CLayout
                         >() == 0
                         ||
@@ -670,7 +655,7 @@ macro_rules! ReprC {
                 use [< __ $StructName _safer_ffi_mod >]::*;
             }
 
-            impl $(<$($lt ,)* $($($generics),+)?>)? $crate::core::marker::Copy
+            impl $(<$($lt ,)* $($($generics),+)?>)? $crate::ඞ::marker::Copy
                 for $StructName $(<$($lt ,)* $($($generics),+)?>)?
             where
                 $(
@@ -684,7 +669,7 @@ macro_rules! ReprC {
                 )?
             {}
 
-            impl $(<$($lt ,)* $($($generics),+)?>)? $crate::core::clone::Clone
+            impl $(<$($lt ,)* $($($generics),+)?>)? $crate::ඞ::clone::Clone
                 for $StructName $(<$($lt ,)* $($($generics),+)?>)?
             where
                 $(
@@ -732,9 +717,9 @@ macro_rules! ReprC {
         );
     ) => (
         $crate::__with_doc__! {
-            #[doc = $crate::core::concat!(
+            #[doc = $crate::ඞ::concat!(
                 // " - [`",
-                // $crate::core::stringify!($StructName), "_Layout",
+                // $crate::ඞ::stringify!($StructName), "_Layout",
                 // "`](#impl-ReprC)",
             )]
             $(#[doc = $prev_doc])*
@@ -760,7 +745,7 @@ macro_rules! ReprC {
             #[repr(transparent)]
             $pub
             struct [<$StructName _Layout>] (
-                $crate::core::option::Option<
+                $crate::ඞ::option::Option<
                     unsafe
                     extern "C"
                     // performing a higher-order mapping is not possible,
@@ -792,9 +777,9 @@ macro_rules! ReprC {
         );
     ) => (
         $crate::__with_doc__! {
-            #[doc = $crate::core::concat!(
+            #[doc = $crate::ඞ::concat!(
                 " - [`",
-                $crate::core::stringify!($field_ty),
+                $crate::ඞ::stringify!($field_ty),
                 "`](#impl-ReprC)",
             )]
             $(#[doc = $prev_doc])*
@@ -844,7 +829,7 @@ macro_rules! ReprC {
         impl $(<$($generics)*>)? $crate::layout::__HasNiche__
             for $StructName $(<$($generics)*>)?
         where
-            for<'hack> $crate::__TrivialBound<'hack, $field_ty> : $crate::layout::__HasNiche__,
+            for<'trivial> $crate::ඞ::Identity<'trivial, $field_ty> : $crate::layout::__HasNiche__,
             $($(
                 $($bounds)*
             )?)?
@@ -902,7 +887,7 @@ macro_rules! ReprC {
                 $crate::c_int,
             );
 
-            impl $crate::core::convert::From<$crate::c_int>
+            impl $crate::ඞ::From<$crate::c_int>
                 for [< $EnumName _Layout >]
             {
                 #[inline]
@@ -917,14 +902,14 @@ macro_rules! ReprC {
             impl $crate::layout::LegacyCType
                 for [< $EnumName _Layout >]
             { $crate::__cfg_headers__! {
-                fn c_short_name_fmt (fmt: &'_ mut $crate::core::fmt::Formatter<'_>)
-                  -> $crate::core::fmt::Result
+                fn c_short_name_fmt (fmt: &'_ mut $crate::ඞ::fmt::Formatter<'_>)
+                  -> $crate::ඞ::fmt::Result
                 {
-                    fmt.write_str($crate::core::stringify!($EnumName).trim())
+                    fmt.write_str($crate::ඞ::stringify!($EnumName).trim())
                 }
 
                 fn c_define_self (definer: &'_ mut dyn $crate::headers::Definer)
-                  -> $crate::std::io::Result<()>
+                  -> $crate::ඞ::io::Result<()>
                 {
                     let ref me =
                         <Self as $crate::layout::CType>::name(&$crate::headers::languages::C)
@@ -943,8 +928,8 @@ macro_rules! ReprC {
                                 $(#[doc = $prev_doc])*
                                 $(#[$($meta)*])*
                             );
-                            $crate::core::writeln!(out,
-                                $crate::core::concat!(
+                            $crate::ඞ::writeln!(out,
+                                $crate::ඞ::concat!(
                                     "typedef enum {me} {{\n",
                                     $(
                                         $crate::layout::ReprC! { @first
@@ -972,7 +957,7 @@ macro_rules! ReprC {
                                 $(
                                     $crate::__utils__::screaming_case(
                                         me,
-                                        $crate::core::stringify!($Variant).trim(),
+                                        $crate::ඞ::stringify!($Variant).trim(),
                                     ),
                                     $($discriminant,)?
                                 )*
@@ -984,11 +969,11 @@ macro_rules! ReprC {
                 }
 
                 fn c_var_fmt (
-                    fmt: &'_ mut $crate::core::fmt::Formatter<'_>,
+                    fmt: &'_ mut $crate::ඞ::fmt::Formatter<'_>,
                     var_name: &'_ str,
-                ) -> $crate::core::fmt::Result
+                ) -> $crate::ඞ::fmt::Result
                 {
-                    $crate::core::write!(fmt,
+                    $crate::ඞ::write!(fmt,
                         "{}_t{sep}{}",
                         <Self as $crate::layout::CType>::short_name(),
                         var_name,
@@ -998,11 +983,11 @@ macro_rules! ReprC {
 
                 $crate::__cfg_csharp__! {
                     fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
-                      -> $crate::std::io::Result<()>
+                      -> $crate::ඞ::io::Result<()>
                     {
                         let ref me = <Self as $crate::layout::CType>::name(&$crate::headers::languages::CSharp).to_string();
-                        definer.define_once(me, &mut |definer| $crate::core::writeln!(definer.out(),
-                            $crate::core::concat!(
+                        definer.define_once(me, &mut |definer| $crate::ඞ::writeln!(definer.out(),
+                            $crate::ඞ::concat!(
                                 "public enum {me} {{\n",
                                 $(
                                     "    {}",
@@ -1016,7 +1001,7 @@ macro_rules! ReprC {
                                 "}}\n",
                             ),
                             $(
-                                $crate::core::stringify!($Variant).trim(),
+                                $crate::ඞ::stringify!($Variant).trim(),
                                 $(
                                     $discriminant,
                                 )?
@@ -1076,8 +1061,8 @@ macro_rules! ReprC {
                 fn is_niche (it: &'_ <Self as $crate::layout::ReprC>::CLayout)
                   -> bool
                 {
-                    *it == unsafe { $crate::core::mem::transmute(
-                        $crate::core::option::Option::None::<Self>
+                    *it == unsafe { $crate::ඞ::mem::transmute(
+                        $crate::ඞ::option::Option::None::<Self>
                     ) }
                 }
             }
@@ -1122,14 +1107,14 @@ macro_rules! ReprC {
             #[derive(Clone, Copy, PartialEq, Eq)]
             pub
             struct [< $EnumName _Layout >] /* = */ (
-                $crate::$Int,
+                $crate::ඞ::$Int,
             );
 
-            impl $crate::core::convert::From<$crate::$Int>
+            impl $crate::ඞ::From<$crate::ඞ::$Int>
                 for [< $EnumName _Layout >]
             {
                 #[inline]
-                fn from (it: $crate::$Int)
+                fn from (it: $crate::ඞ::$Int)
                   -> Self
                 {
                     Self(it)
@@ -1140,14 +1125,14 @@ macro_rules! ReprC {
             impl $crate::layout::LegacyCType
                 for [< $EnumName _Layout >]
             { $crate::__cfg_headers__! {
-                fn c_short_name_fmt (fmt: &'_ mut $crate::core::fmt::Formatter<'_>)
-                  -> $crate::core::fmt::Result
+                fn c_short_name_fmt (fmt: &'_ mut $crate::ඞ::fmt::Formatter<'_>)
+                  -> $crate::ඞ::fmt::Result
                 {
-                    fmt.write_str($crate::core::stringify!($EnumName).trim())
+                    fmt.write_str($crate::ඞ::stringify!($EnumName).trim())
                 }
 
                 fn c_define_self (definer: &'_ mut dyn $crate::headers::Definer)
-                  -> $crate::std::io::Result<()>
+                  -> $crate::ඞ::io::Result<()>
                 {
                     let ref me =
                         <Self as $crate::layout::CType>::name(&$crate::headers::languages::C)
@@ -1161,7 +1146,7 @@ macro_rules! ReprC {
                                 <Self as $crate::layout::CType>::short_name()
                                     .to_string()
                             ;
-                            <$crate::$Int as $crate::layout::CType>::define_self(&$crate::headers::languages::C,
+                            <$crate::ඞ::$Int as $crate::layout::CType>::define_self(&$crate::headers::languages::C,
                                 definer,
                             )?;
                             let out = definer.out();
@@ -1169,8 +1154,8 @@ macro_rules! ReprC {
                                 $(#[doc = $prev_doc])*
                                 $(#[$($meta)*])*
                             );
-                            $crate::core::writeln!(out,
-                                $crate::core::concat!(
+                            $crate::ඞ::writeln!(out,
+                                $crate::ඞ::concat!(
                                     "/** \\remark Has the same ABI as `{int}` **/\n",
                                     "#ifdef DOXYGEN\n",
                                     "typedef enum {me}\n",
@@ -1208,14 +1193,14 @@ macro_rules! ReprC {
                                 $(
                                     $crate::__utils__::screaming_case(
                                         me,
-                                        $crate::core::stringify!($Variant).trim(),
+                                        $crate::ඞ::stringify!($Variant).trim(),
                                     ),
                                     $($discriminant,)?
                                 )*
                                 me = me,
                                 me_t = me_t,
-                                int = <$crate::$Int as $crate::layout::CType>::name(&$crate::headers::languages::C),
-                                int__me_t = <$crate::$Int as $crate::layout::CType>::name_wrapping_var(
+                                int = <$crate::ඞ::$Int as $crate::layout::CType>::name(&$crate::headers::languages::C),
+                                int__me_t = <$crate::ඞ::$Int as $crate::layout::CType>::name_wrapping_var(
                                     &$crate::headers::languages::C,
                                     me_t,
                                 ),
@@ -1225,11 +1210,11 @@ macro_rules! ReprC {
                 }
 
                 fn c_var_fmt (
-                    fmt: &'_ mut $crate::core::fmt::Formatter<'_>,
+                    fmt: &'_ mut $crate::ඞ::fmt::Formatter<'_>,
                     var_name: &'_ str,
-                ) -> $crate::core::fmt::Result
+                ) -> $crate::ඞ::fmt::Result
                 {
-                    $crate::core::write!(fmt,
+                    $crate::ඞ::write!(fmt,
                         "{}_t{sep}{}",
                         <Self as $crate::layout::CType>::short_name(),
                         var_name,
@@ -1239,11 +1224,11 @@ macro_rules! ReprC {
 
                 $crate::__cfg_csharp__! {
                     fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
-                      -> $crate::std::io::Result<()>
+                      -> $crate::ඞ::io::Result<()>
                     {
                         let ref me = <Self as $crate::layout::CType>::name(&$crate::headers::languages::CSharp).to_string();
-                        definer.define_once(me, &mut |definer| $crate::core::writeln!(definer.out(),
-                            $crate::core::concat!(
+                        definer.define_once(me, &mut |definer| $crate::ඞ::writeln!(definer.out(),
+                            $crate::ඞ::concat!(
                                 "public enum {me} : {int} {{\n",
                                 $(
                                     "    {}",
@@ -1257,13 +1242,13 @@ macro_rules! ReprC {
                                 "}}\n",
                             ),
                             $(
-                                $crate::core::stringify!($Variant).trim(),
+                                $crate::ඞ::stringify!($Variant).trim(),
                                 $(
                                     $discriminant,
                                 )?
                             )*
                             me = me,
-                            int = <$crate::$Int as $crate::layout::CType>::name(&$crate::headers::languages::CSharp),
+                            int = <$crate::ඞ::$Int as $crate::layout::CType>::name(&$crate::headers::languages::CSharp),
                         ))
                     }
                 }
@@ -1301,7 +1286,7 @@ macro_rules! ReprC {
                 {
                     #![allow(nonstandard_style)]
                     $(
-                        const $Variant: $crate::$Int = $EnumName::$Variant as _;
+                        const $Variant: $crate::ඞ::$Int = $EnumName::$Variant as _;
                     )+
                     match discriminant.0 {
                         $( | $Variant )+ => true,
@@ -1318,8 +1303,8 @@ macro_rules! ReprC {
                 fn is_niche (it: &'_ <Self as $crate::layout::ReprC>::CLayout)
                   -> bool
                 {
-                    *it == unsafe { $crate::core::mem::transmute(
-                        $crate::core::option::Option::None::<Self>
+                    *it == unsafe { $crate::ඞ::mem::transmute(
+                        $crate::ඞ::option::Option::None::<Self>
                     ) }
                 }
             }
@@ -1336,7 +1321,7 @@ macro_rules! ReprC {
             $($variants:tt)*
         }
     ) => (
-        $crate::core::compile_error! {
+        $crate::ඞ::compile_error! {
             "Non field-less `enum`s are not supported yet."
         }
     );
@@ -1385,7 +1370,7 @@ macro_rules! ReprC {
                 )?
                 {
                     $(
-                        _marker: $crate::core::marker::PhantomData<(
+                        _marker: $crate::ඞ::marker::PhantomData<(
                             $(
                                 *mut &$lt (),
                             )*
@@ -1394,13 +1379,13 @@ macro_rules! ReprC {
                             )+)?
                         )>,
                     )?
-                    _void: $crate::core::convert::Infallible,
+                    _void: $crate::ඞ::convert::Infallible,
                 }
                 use [< __opaque_ $StructName >] as __safer_ffi_Opaque__;
             }
 
             impl $(<$($lt ,)* $($($generics),+)?>)?
-                $crate::core::marker::Copy
+                $crate::ඞ::marker::Copy
             for
                 __safer_ffi_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
             $(
@@ -1410,7 +1395,7 @@ macro_rules! ReprC {
             {}
 
             impl $(<$($lt ,)* $($($generics),+)?>)?
-                $crate::core::clone::Clone
+                $crate::ඞ::clone::Clone
             for
                 __safer_ffi_Opaque__ $(<$($lt ,)* $($($generics),+)?>)?
             $(
@@ -1437,10 +1422,10 @@ macro_rules! ReprC {
                 type OPAQUE_KIND = $crate::layout::OpaqueKind::Opaque;
 
                 $crate::__cfg_headers__! {
-                    fn c_short_name_fmt (fmt: &'_ mut $crate::core::fmt::Formatter<'_>)
-                        -> $crate::core::fmt::Result
+                    fn c_short_name_fmt (fmt: &'_ mut $crate::ඞ::fmt::Formatter<'_>)
+                        -> $crate::ඞ::fmt::Result
                     {
-                        let _c_name = $crate::core::stringify!($StructName);
+                        let _c_name = $crate::ඞ::stringify!($StructName);
                         $($(
                             let it = $c_name;
                             let _c_name = it.as_ref();
@@ -1449,19 +1434,19 @@ macro_rules! ReprC {
                     }
 
                     fn c_define_self (definer: &'_ mut dyn $crate::headers::Definer)
-                        -> $crate::std::io::Result<()>
+                        -> $crate::ඞ::io::Result<()>
                     {
                         let ref me =
                             <Self as $crate::layout::CType>::name(&$crate::headers::languages::C)
                                 .to_string()
                         ;
                         definer.define_once(me, &mut |definer| {
-                            assert!(me.chars().all(|c| $crate::core::matches!(c,
+                            assert!(me.chars().all(|c| $crate::ඞ::matches!(c,
                                 'a' ..= 'z' |
                                 'A' ..= 'Z' |
                                 '0' ..= '9' | '_'
                             )));
-                            $crate::core::write!(definer.out(),
+                            $crate::ඞ::write!(definer.out(),
                                 "typedef struct {} {};\n\n",
                                 <Self as $crate::layout::CType>::short_name(),
                                 me,
@@ -1470,11 +1455,11 @@ macro_rules! ReprC {
                     }
 
                     fn c_var_fmt (
-                        fmt: &'_ mut $crate::core::fmt::Formatter<'_>,
-                        var_name: &'_ $crate::str,
-                    ) -> $crate::core::fmt::Result
+                        fmt: &'_ mut $crate::ඞ::fmt::Formatter<'_>,
+                        var_name: &'_ $crate::ඞ::str,
+                    ) -> $crate::ඞ::fmt::Result
                     {
-                        $crate::core::write!(fmt,
+                        $crate::ඞ::write!(fmt,
                             "{}_t{sep}{}",
                             <Self as $crate::layout::CType>::short_name(),
                             var_name,
@@ -1484,11 +1469,11 @@ macro_rules! ReprC {
 
                     $crate::__cfg_csharp__! {
                         fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
-                          -> $crate::std::io::Result<()>
+                          -> $crate::ඞ::io::Result<()>
                         {
                             let ref me = <Self as $crate::layout::CType>::name(&$crate::headers::languages::CSharp).to_string();
                             definer.define_once(me, &mut |definer| {
-                                $crate::std::writeln!(definer.out(),
+                                $crate::ඞ::writeln!(definer.out(),
                                     concat!(
                                         "public struct {} {{\n",
                                         "   #pragma warning disable 0169\n",
@@ -1549,19 +1534,19 @@ macro_rules! ReprC {
     (@validate_int_repr i128) => ();
 
     (@deny_C C) => (
-        $crate::core::compile_error!($crate::core::concat!(
+        $crate::ඞ::compile_error!($crate::ඞ::concat!(
             "A `#[repr(C)]` field-less `enum` is not supported,",
             " since the integer type of the discriminant is then",
             " platform dependent",
         ));
     );
     (@deny_C c_int) => (
-        $crate::core::compile_error!($crate::core::concat!(
+        $crate::ඞ::compile_error!($crate::ඞ::concat!(
             "Type aliases in a `#[repr(...)]` are not supported by Rust.",
         ));
     );
     (@deny_C c_uint) => (
-        $crate::core::compile_error!($crate::core::concat!(
+        $crate::ඞ::compile_error!($crate::ඞ::concat!(
             "Type aliases in a `#[repr(...)]` are not supported by Rust.",
         ));
     );
@@ -1585,7 +1570,7 @@ macro_rules! __output_docs__ {
             #[doc = $doc:expr]
             $(#[$($meta:tt)*])*
     ) => ({
-        $crate::core::writeln!($out,
+        $crate::ඞ::writeln!($out,
             "{pad}/** \\brief\n{pad} * {}", $doc,
             pad = $pad,
         )?;
@@ -1609,12 +1594,12 @@ macro_rules! __output_docs__ {
         $out:expr, $pad:expr, $(#[doc = $doc:expr])*
     ) => ({
         $(
-            $crate::core::writeln!($out,
+            $crate::ඞ::writeln!($out,
                 "{pad} * {}", $doc,
                 pad = $pad,
             )?;
         )*
-        $crate::core::writeln!($out,
+        $crate::ඞ::writeln!($out,
             "{pad} */",
             pad = $pad,
         )?;
@@ -1625,7 +1610,7 @@ macro_rules! __output_docs__ {
             #[doc = $doc:expr]
             $(#[$($meta:tt)*])*
     ) => ({
-        $crate::core::writeln!($out,
+        $crate::ඞ::writeln!($out,
             "{pad} * {}", $doc,
             pad = $pad,
         )?;

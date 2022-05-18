@@ -647,7 +647,7 @@ const _: () = { macro_rules! impl_CTypes {
 
             __cfg_csharp__! {
                 fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
-                  -> $crate::std::io::Result<()>
+                  -> $crate::ඞ::io::Result<()>
                 {
                     T::define_self(&crate::headers::languages::CSharp, definer)?;
                     // definer.define_once("Const", &mut |definer| {
@@ -714,7 +714,7 @@ const _: () = { macro_rules! impl_CTypes {
 
             __cfg_csharp__! {
                 fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
-                  -> $crate::std::io::Result<()>
+                  -> $crate::ඞ::io::Result<()>
                 {
                     T::define_self(&crate::headers::languages::CSharp, definer)
                 }

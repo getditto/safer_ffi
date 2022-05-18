@@ -103,12 +103,12 @@ impl HeaderLanguage for C {
     {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
+        let short_name = self_ty.short_name();
+        let full_ty_name = self_ty.name(self);
 
         if self_ty.size() == 0 {
             panic!("C does not support zero-sized structs!")
         }
-        let short_name = self_ty.short_name();
-        let full_ty_name = self_ty.name(self);
 
         self.emit_docs(ctx, docs, indent)?;
         out!(("typedef struct {short_name} {{"));
@@ -134,15 +134,85 @@ impl HeaderLanguage for C {
         Ok(())
     }
 
+    fn emit_opaque_type (
+        self: &'_ Self,
+        ctx: &'_ mut dyn Definer,
+        docs: Docs<'_>,
+        self_ty: &'_ dyn PhantomCType,
+    ) -> io::Result<()>
+    {
+        let ref indent = Indentation::new(4 /* ctx.indent_width() */);
+        mk_out!(indent, ctx.out());
+        let short_name = self_ty.short_name();
+        let full_ty_name = self_ty.name(self);
+
+        self.emit_docs(ctx, docs, indent)?;
+        out!(("typedef struct {short_name} {full_ty_name};"));
+
+        out!("\n");
+        Ok(())
+    }
+
     fn emit_function (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         fname: &'_ str,
-        arg_names: &'_ [FunctionArg<'_>],
+        args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>
     {
-        todo!()
+        let ref indent = Indentation::new(4 /* ctx.indent_width() */);
+
+        self.emit_docs(ctx, docs, indent)?;
+
+        let ref fn_sig_but_for_ret_type: String = {
+            let mut buf = Vec::<u8>::new();
+            mk_out!(indent, buf);
+
+            out!("{fname} (");
+            let mut first = true;
+            if let _ = indent.scope() {
+                for arg in args {
+                    if mem::take(&mut first).not() {
+                        out!(",\n{indent}");
+                    }
+                    out!("{}", arg.ty.name_wrapping_var(self, arg.name))
+                }
+            }
+            if first {
+                out!("void");
+            }
+            out!(")");
+            String::from_utf8(buf).unwrap()
+        };
+
+        mk_out!(indent, ctx.out());
+        out!(
+            ("{};"), ret_ty.name_wrapping_var(self, fn_sig_but_for_ret_type)
+        );
+        Ok(())
+    }
+
+    fn emit_constant (
+        self: &'_ Self,
+        ctx: &'_ mut dyn Definer,
+        docs: Docs<'_>,
+        name: &'_ str,
+        ty: &'_ dyn PhantomCType,
+        value: &'_ dyn ::core::fmt::Debug,
+    ) -> io::Result<()>
+    {
+        let ref indent = Indentation::new(4 /* ctx.indent_width() */);
+        mk_out!(indent, ctx.out());
+
+        self.emit_docs(ctx, docs, indent)?;
+        let ty = ty.name(self);
+        out!((
+            "#define {name} (({ty}) {value:?})"
+        ));
+
+        out!("\n");
+        Ok(())
     }
 }

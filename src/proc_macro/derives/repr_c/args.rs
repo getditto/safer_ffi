@@ -3,7 +3,7 @@ use super::*;
 pub(in crate)
 struct Args {
     pub(in crate)
-    rename: Option<Ident>,
+    rename: Option<Expr![String]>,
 }
 
 impl Parse for Args {
