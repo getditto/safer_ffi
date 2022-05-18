@@ -310,6 +310,9 @@ with_optional_fields! {
     /// It defaults to [`Language::C`].
     language: Language,
 
+    /// Sets prefix for generated functions, structs & enums
+    naming_convention : NamingConvention,
+
     /// Whether to yield a stable header or not (order of defined items guaranteed
     /// not to change provided the source code doesn't change either).
     ///
@@ -326,55 +329,20 @@ impl Builder<'_, WhereTo> {
     fn generate_with_definer (self, mut definer: impl Definer)
       -> io::Result<()>
     {
-        let pkg_name =
-            ::std::env::var("CARGO_PKG_NAME")
-                .expect("Missing `CARGO_PKG_NAME` env var")
-        ;
-        let _ = pkg_name;
-        #[cfg(feature = "csharp-headers")]
-        #[allow(nonstandard_style)]
-        let PkgName =
-            pkg_name
-                .chars()
-                .filter_map({
-                    let mut underscore = true;
-                    move |c| Some(match c {
-                        | _
-                            if underscore
-                        => {
-                            underscore = false;
-                            c.to_ascii_uppercase()
-                        },
-
-                        | '_'
-                        | '-'
-                        => {
-                            underscore = true;
-                            return None; // continue
-                        },
-
-                        | _
-                        => {
-                            c
-                        },
-                    })
-                })
-                .collect::<String>()
-        ;
-
-        let s;
         let config = self;
-        let guard: &'_ str =
-            if let Some(it) = config.guard { it } else {
-                s = format!("__RUST_{}__",
-                    env::var("CARGO_PKG_NAME")
-                        .unwrap()
-                        .to_ascii_uppercase()
-                );
-                &*s
-            }
-        ;
-        let banner: &'_ str = config.banner.unwrap_or(concat!(
+        // Banner
+        config.write_banner(&mut definer)?;
+        // Prelude
+        config.write_prelude(&mut definer)?;
+        /* User-provided defs! */
+        config.write_body(&mut definer)?;
+        // Epilogue
+        config.write_epilogue(&mut definer)?;
+        Ok(())
+    }
+
+    fn write_banner(&self, definer: &mut dyn Definer) -> io::Result<()> {
+        let banner: &'_ str = self.banner.unwrap_or(concat!(
             "/*! \\file */\n",
             "/*******************************************\n",
             " *                                         *\n",
@@ -384,26 +352,40 @@ impl Builder<'_, WhereTo> {
             " *                                         *\n",
             " *******************************************/\n",
         ));
-        let lang = config.language.unwrap_or(Language::C);
+        writeln!(definer.out(), "{}", banner)
+    }
 
-        // Banner
-        writeln!(definer.out(), "{}", banner)?;
-        // Prelude
+    fn write_prelude(&self, definer: &mut dyn Definer) -> io::Result<()> {
+        let lang = self.language.unwrap_or(Language::C);
+
+        let guard = self.guard();
+
+        let package_name = Self::package_name();
+
         match lang {
             | Language::C => write!(definer.out(),
                 include_str!("templates/c/_prelude.h"),
                 guard = guard,
-            )?,
+            ),
 
             #[cfg(feature = "csharp-headers")]
-            | Language::CSharp => write!(definer.out(),
+            | Language::CSharp => {
+                let namespace = Self::camel_cased_package_name();
+                write!(definer.out(),
                 include_str!("templates/csharp/_prelude.cs"),
-                NameSpace = PkgName,
-                RustLib = pkg_name,
-            )?,
+                NameSpace = namespace,
+                RustLib = package_name,
+            )
+        },
         }
-        /* User-provided defs! */
-        let stable_header = config.stable_header.unwrap_or(true);
+    }
+
+    /// Heart of safer ffi : write the items in the header
+    fn write_body(&self, definer: &mut dyn Definer) -> io::Result<()>{
+        let stable_header = self.stable_header.unwrap_or(true);
+        let lang = self.language.unwrap_or(Language::C);
+        let _naming_convention = self.naming_convention.as_ref().unwrap_or(&NamingConvention::Default);
+
         let (mut storage0, mut storage1) = (None, None);
         let gen_defs: &mut dyn Iterator<Item = _> = if stable_header {
             // Sort the definitions for a reliable header generation.
@@ -428,24 +410,74 @@ impl Builder<'_, WhereTo> {
                     .map(|crate::FfiExport { gen_def, .. }| gen_def)
             )
         };
-        (&mut { gen_defs }).try_for_each(|gen_def| gen_def(&mut definer, lang))?;
+        (&mut { gen_defs }).try_for_each(|gen_def| gen_def(definer, lang))
+    }
 
-        // Epilogue
+    fn write_epilogue(&self, definer: &mut dyn Definer) -> io::Result<()>{
+        let lang = self.language.unwrap_or(Language::C);
         match lang {
             | Language::C => write!(definer.out(),
                 include_str!("templates/c/epilogue.h"),
-                guard = guard,
-            )?,
+                guard = self.guard(),
+            ),
 
             #[cfg(feature = "csharp-headers")]
-            | Language::CSharp => write!(definer.out(),
+            | Language::CSharp => {
+                let pkg_name = Self::camel_cased_package_name();
+                    write!(definer.out(),
                 include_str!("templates/csharp/epilogue.cs"),
-                PkgName = PkgName,
-            )?,
+                PkgName = pkg_name,
+            )
+            },
         }
-        Ok(())
+    }
+
+    fn guard(&self) -> String {
+        self.guard.map_or_else( ||
+            format!("__RUST_{}__",
+                    env::var("CARGO_PKG_NAME")
+                        .unwrap()
+                        .to_ascii_uppercase()
+        ), str::to_string)
+    }
+
+    /// Return the package name
+    fn package_name() -> String {
+        ::std::env::var("CARGO_PKG_NAME")
+                .expect("Missing `CARGO_PKG_NAME` env var")
+    }
+
+    /// Return a Camel Cased version of the package name
+    #[cfg(feature = "csharp-headers")]
+    fn camel_cased_package_name() -> String {
+        let pkg_name = Self::package_name();
+        pkg_name.chars()
+            .filter_map({
+                let mut underscore = true;
+                move |c| Some(match c {
+                    | _
+                        if underscore
+                    => {
+                        underscore = false;
+                        c.to_ascii_uppercase()
+                    },
+
+                    | '_'
+                    | '-'
+                    => {
+                        underscore = true;
+                        return None; // continue
+                    },
+
+                    | _
+                    => {
+                        c
+                    },
+                })
+            }).collect::<String>()
     }
 }
+
 
 /// Language of the generated headers.
 #[derive(
@@ -464,6 +496,14 @@ enum Language {
         doc(cfg(feature = "csharp-headers"))
     )]
     CSharp,
+}
+
+/// Allow user to specify
+pub enum NamingConvention {
+    Default,
+    Suffix(String),
+    Prefix(String),
+    Custom(fn(&str)-> String),
 }
 
 hidden_export! {
