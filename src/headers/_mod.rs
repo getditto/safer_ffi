@@ -491,12 +491,31 @@ enum Language {
     CSharp,
 }
 
+pub type FormatFunction = fn(&str) -> String;
 /// Allow user to specify
 pub enum NamingConvention {
     Default,
     Suffix(String),
     Prefix(String),
-    Custom(fn(&str)-> String),
+    Custom(FormatFunction),
+}
+
+impl NamingConvention {
+    pub(crate) fn generate_name(&self, name: &str) -> String {
+        // Since some closures are using context - such as suffix or prefix-,
+        // they can be coerced into functions.
+        // Furthermore, two closures even identical do not have the same type.
+        // So we need this hack with Box<dyn Trait>
+        let format_function : Box<dyn Fn(&str)->String> = match self {
+            // Fix me with _t, etc.
+            // May depend of langage ?
+            NamingConvention::Default => Box::new(|s| s.to_string()),
+            NamingConvention::Suffix(suffix) => Box::new(|s| format!("{}_{}", s, suffix.clone())),
+            NamingConvention::Prefix(prefix) => Box::new(|s| format!("{}_{}", prefix.clone(), s)),
+            NamingConvention::Custom(ff) => Box::new(|s| ff(s)),
+        };
+        format_function(name)
+    }
 }
 
 hidden_export! {
