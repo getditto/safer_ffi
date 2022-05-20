@@ -277,6 +277,28 @@
 <span id="270">270</span>
 <span id="271">271</span>
 <span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">__ffi_export__</span> {
     (
@@ -323,7 +345,7 @@
     $(<span class="kw">extern</span> $(<span class="string">&quot;C&quot;</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>
     <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fname</span>:<span class="ident">ident</span> $(<span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lt</span>:<span class="ident">lifetime</span> $(: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">sup_lt</span>:<span class="ident">lifetime</span>)<span class="question-mark">?</span>),<span class="op">*</span> $(,)<span class="question-mark">?</span><span class="op">&gt;</span>)<span class="question-mark">?</span> (
         $(
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span>:<span class="ident">ident</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_ty</span>:<span class="ident">ty</span>
+            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span>:<span class="ident">ident</span>)<span class="op">+</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_ty</span>:<span class="ident">ty</span>
         ),<span class="op">*</span> $(,)<span class="question-mark">?</span>
     ) $(-&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ret</span>:<span class="ident">ty</span>)<span class="question-mark">?</span>
     $( <span class="kw">where</span> {
@@ -338,7 +360,7 @@
     <span class="kw">extern</span> <span class="string">&quot;C&quot;</span>
     <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fname</span> $(<span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lt</span> $(: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">sup_lt</span>)<span class="question-mark">?</span>),<span class="kw-2">*</span><span class="op">&gt;</span>)<span class="question-mark">?</span> (
         $(
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_ty</span>,
+            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span>)<span class="op">+</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_ty</span>,
         )<span class="op">*</span>
     ) $(-&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ret</span>)<span class="question-mark">?</span>
     $(
@@ -356,7 +378,7 @@
         <span class="kw">extern</span> <span class="string">&quot;C&quot;</span>
         <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fname</span> $(<span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lt</span> $(: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">sup_lt</span>)<span class="question-mark">?</span>),<span class="kw-2">*</span><span class="op">&gt;</span>)<span class="question-mark">?</span> (
             $(
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span> : <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_ty</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::ReprC</span><span class="op">&gt;</span><span class="ident">::CLayout</span>,
+                $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span>)<span class="op">+</span> : <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_ty</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::ReprC</span><span class="op">&gt;</span><span class="ident">::CLayout</span>,
             )<span class="op">*</span>
         ) $(-&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ret</span>)<span class="question-mark">?</span>
         <span class="kw">where</span>
@@ -379,8 +401,8 @@
                     <span class="kw">let</span> <span class="kw">_</span>: <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ret</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::ReprC</span><span class="op">&gt;</span><span class="ident">::CLayout</span>;
                 )<span class="question-mark">?</span>
                 $(
-                    {
-                        <span class="kw">mod</span> <span class="ident">__parameter__</span> {
+                    <span class="macro-nonterminal">$</span><span class="macro">crate::__last__!</span> { $(({
+                        <span class="kw">mod</span> <span class="macro-nonterminal">__parameter__</span> {
                             <span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">super</span>)
                             <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> (<span class="kw">_</span>: <span class="ident">T</span>)
                             <span class="kw">where</span>
@@ -393,11 +415,11 @@
                             {}
                         }
                         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">__parameter__</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_ty</span><span class="op">&gt;</span>;
-                    }
+                    }))<span class="op">+</span> }
                     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_unsafe</span>)]</span>
-                    <span class="kw">let</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_ty</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+                    <span class="kw">let</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span>)<span class="op">+</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_ty</span> <span class="op">=</span> <span class="kw">unsafe</span> {
                         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::from_raw_unchecked</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_ty</span><span class="op">&gt;</span>(
-                            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span>,
+                            <span class="macro-nonterminal">$</span><span class="macro">crate::__last__!</span> { $(( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span> ))<span class="op">+</span> },
                         )
                     };
                 )<span class="op">*</span>
@@ -502,9 +524,10 @@
                                     <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_ty</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::ReprC</span><span class="op">&gt;</span><span class="ident">::CLayout</span>
                                     <span class="kw">as</span>
                                     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::CType</span>
-                                <span class="op">&gt;</span><span class="ident">::c_var</span>({
-                                    <span class="kw">let</span> <span class="ident">it</span> <span class="op">=</span> <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span>);
-                                    <span class="kw">if</span> <span class="ident">it</span> <span class="op">==</span> <span class="string">&quot;_&quot;</span> { <span class="string">&quot;&quot;</span> } <span class="kw">else</span> { <span class="ident">it</span> }
+                                <span class="op">&gt;</span><span class="ident">::c_var</span>(<span class="macro-nonterminal">$</span><span class="macro">crate::__last__!</span> {
+                                    $((
+                                        <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_name</span>)
+                                    ))<span class="op">+</span>
                                 })
                             ,
                         )<span class="question-mark">?</span>;
@@ -549,6 +572,27 @@
 <span class="comment">//         ints.as_slice().iter().max()</span>
 <span class="comment">//     }</span>
 <span class="comment">// }</span>
+
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules!</span> <span class="ident">__last__</span> {
+    (
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">not_last</span>:<span class="ident">tt</span>
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">+</span>
+    ) =&gt; (
+        <span class="macro-nonterminal">$</span><span class="macro">crate::__last__!</span> {
+            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="op">*</span>
+        }
+    );
+
+    (
+        <span class="comment">// last</span>
+        (
+            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">contents</span>:<span class="ident">tt</span>)<span class="op">*</span>
+        )
+    ) =&gt; (
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">contents</span>)<span class="op">*</span>
+    );
+}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (42e1761c7 2022-05-15)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c06728704 2022-05-19)" ></div>
 </body></html>

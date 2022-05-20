@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["cfg_if","ctor","ghost","inventory","inventory_impl","libc","log","mini_paste","mini_paste_proc_macro","proc_macro2","proc_macro_hack","quote","require_unsafe_in_body","safer_ffi","safer_ffi_proc_macro","syn","unicode_xid","uninit"];
+window.ALL_CRATES = ["cfg_if","ctor","ghost","inventory","inventory_impl","libc","log","mini_paste","mini_paste_proc_macro","proc_macro2","proc_macro_hack","quote","require_unsafe_in_body","safer_ffi","safer_ffi_proc_macro","syn","unicode_ident","uninit"];
