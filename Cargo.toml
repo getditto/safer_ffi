@@ -48,6 +48,8 @@ headers = [
 
 [dev-dependencies]
 macro_rules_attribute = "0.0.1"
+safer-ffi.path = "."
+safer-ffi.features = ["proc_macros", "headers"]
 
 [target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
 libc = { version = "0.2.66", default-features = false }
@@ -76,3 +78,7 @@ members = ["src/proc_macro"]
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docs"]
+
+[[test]]
+name = "ffi-tests"
+path = "ffi_tests/src/lib.rs"
