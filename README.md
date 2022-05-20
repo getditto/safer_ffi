@@ -27,7 +27,7 @@ https://github.com/getditto/safer_ffi)
 
 ## Prerequisites
 
-Minimum Supported Rust Version: `1.43.0`
+Minimum Supported Rust Version: `1.56.0`
 
 ## Quickstart
 
@@ -151,7 +151,7 @@ Point_t mid_point (
     Point_t const * a,
     Point_t const * b);
 
-typedef enum Figure 
+typedef enum Figure
 {
 	FIGURE_CIRCLE,
 	FIGURE_SQUARE

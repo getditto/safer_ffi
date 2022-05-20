@@ -25,10 +25,9 @@ fn free_char_p (_string: Option<char_p::Box>)
 fn with_concat (
     fst: char_p::Ref<'_>,
     snd: char_p::Ref<'_>,
-    /*mut*/ cb: RefDynFnMut1<'_, (), char_p::Raw>,
+    mut cb: RefDynFnMut1<'_, (), char_p::Raw>,
 )
 {
-    let mut cb = cb;
     let concat = concat(fst, snd);
     cb.call(concat.as_ref().into());
 }
