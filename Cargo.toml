@@ -4,7 +4,7 @@ path = "src/_lib.rs"
 [package]
 name = "safer-ffi"
 # Keep in sync with `[dependencies.safer_ffi-proc_macro]` and `src/proc_macro/Cargo.toml`
-version = "0.0.9"
+version = "0.0.10"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
 
@@ -48,6 +48,8 @@ headers = [
 
 [dev-dependencies]
 macro_rules_attribute = "0.0.1"
+safer-ffi.path = "."
+safer-ffi.features = ["proc_macros", "headers"]
 
 [target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
 libc = { version = "0.2.66", default-features = false }
@@ -61,7 +63,7 @@ proc-macro-hack = { version = "0.5.15", optional = true }
 
 [dependencies.safer_ffi-proc_macro]
 path = "src/proc_macro"
-version = "0.0.9"
+version = "0.0.10"
 
 [dependencies.uninit]
 optional = true
@@ -76,3 +78,7 @@ members = ["src/proc_macro"]
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docs"]
+
+[[test]]
+name = "ffi-tests"
+path = "ffi_tests/src/lib.rs"

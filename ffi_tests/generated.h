@@ -28,9 +28,27 @@ int32_t read_foo (
 void free_foo (
     foo_t * foo);
 
+/** \remark Has the same ABI as `uint8_t` **/
+#ifdef DOXYGEN
+typedef enum Bar
+#else
+typedef uint8_t Bar_t; enum
+#endif
+{
+    /** . */
+    BAR_A,
+}
+#ifdef DOXYGEN
+Bar_t
+#endif
+;
+
+void check_bar (
+    Bar_t _bar);
+
 /** \brief
  *  Concatenate the two input strings into a new one.
- *
+ * 
  *  The returned string must be freed using `free_char_p`.
  */
 char * concat (
@@ -62,9 +80,9 @@ void with_concat (
 
 /** \brief
  *  `&'lt [T]` but with a guaranteed `#[repr(C)]` layout.
- *
+ * 
  *  # C layout (for some given type T)
- *
+ * 
  *  ```c
  *  typedef struct {
  *      // Cannot be NULL
@@ -72,9 +90,9 @@ void with_concat (
  *      size_t len;
  *  } slice_T;
  *  ```
- *
+ * 
  *  # Nullable pointer?
- *
+ * 
  *  If you want to support the above typedef, but where the `ptr` field is
  *  allowed to be `NULL` (with the contents of `len` then being undefined)
  *  use the `Option< slice_ptr<_> >` type.
@@ -135,24 +153,6 @@ typedef struct AnUnusedStruct {
     Wow_t are_you_still_there;
 
 } AnUnusedStruct_t;
-
-/** \remark Has the same ABI as `uint8_t` **/
-#ifdef DOXYGEN
-typedef enum Bar
-#else
-typedef uint8_t Bar_t; enum
-#endif
-{
-    /** . */
-    BAR_A,
-}
-#ifdef DOXYGEN
-Bar_t
-#endif
-;
-
-void check_bar (
-    Bar_t _bar);
 
 
 #ifdef __cplusplus

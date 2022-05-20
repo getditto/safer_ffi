@@ -44,7 +44,7 @@ macro_rules! __ffi_export__ {
     $(extern $("C")?)?
     fn $fname:ident $(<$($lt:lifetime $(: $sup_lt:lifetime)?),* $(,)?>)? (
         $(
-            $arg_name:ident : $arg_ty:ty
+            $($arg_name:ident)+ : $arg_ty:ty
         ),* $(,)?
     ) $(-> $Ret:ty)?
     $( where {
@@ -59,7 +59,7 @@ macro_rules! __ffi_export__ {
     extern "C"
     fn $fname $(<$($lt $(: $sup_lt)?),*>)? (
         $(
-            $arg_name : $arg_ty,
+            $($arg_name)+ : $arg_ty,
         )*
     ) $(-> $Ret)?
     $(
@@ -77,7 +77,7 @@ macro_rules! __ffi_export__ {
         extern "C"
         fn $fname $(<$($lt $(: $sup_lt)?),*>)? (
             $(
-                $arg_name : <$arg_ty as $crate::layout::ReprC>::CLayout,
+                $($arg_name)+ : <$arg_ty as $crate::layout::ReprC>::CLayout,
             )*
         ) $(-> $Ret)?
         where
@@ -100,7 +100,7 @@ macro_rules! __ffi_export__ {
                     let _: <$Ret as $crate::layout::ReprC>::CLayout;
                 )?
                 $(
-                    {
+                    $crate::__last__! { $(({
                         mod __parameter__ {
                             pub(in super)
                             fn $arg_name<T> (_: T)
@@ -114,11 +114,11 @@ macro_rules! __ffi_export__ {
                             {}
                         }
                         let _ = __parameter__::$arg_name::<$arg_ty>;
-                    }
+                    }))+ }
                     #[allow(unused_unsafe)]
-                    let $arg_name: $arg_ty = unsafe {
+                    let $($arg_name)+: $arg_ty = unsafe {
                         $crate::layout::from_raw_unchecked::<$arg_ty>(
-                            $arg_name,
+                            $crate::__last__! { $(( $arg_name ))+ },
                         )
                     };
                 )*
@@ -223,9 +223,10 @@ macro_rules! __ffi_export__ {
                                     <$arg_ty as $crate::layout::ReprC>::CLayout
                                     as
                                     $crate::layout::CType
-                                >::c_var({
-                                    let it = stringify!($arg_name);
-                                    if it == "_" { "" } else { it }
+                                >::c_var($crate::__last__! {
+                                    $((
+                                        stringify!($arg_name)
+                                    ))+
                                 })
                             ,
                         )?;
@@ -270,3 +271,24 @@ macro_rules! __ffi_export__ {
 //         ints.as_slice().iter().max()
 //     }
 // }
+
+#[doc(hidden)] #[macro_export]
+macro_rules! __last__ {
+    (
+        $not_last:tt
+        $($rest:tt)+
+    ) => (
+        $crate::__last__! {
+            $($rest)*
+        }
+    );
+
+    (
+        // last
+        (
+            $($contents:tt)*
+        )
+    ) => (
+        $($contents)*
+    );
+}
