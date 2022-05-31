@@ -314,7 +314,6 @@ pub
 mod prelude {
     #[doc(no_inline)]
     pub use crate::{
-        closure::*,
         ffi_export,
         layout::ReprC,
     };
@@ -472,6 +471,9 @@ use __ as ඞ;
 
 #[apply(hidden_export)]
 mod __ {
+    #[cfg(feature = "alloc")]
+    pub extern crate alloc;
+
     pub use {
         ::core::{
             self,
@@ -486,11 +488,6 @@ mod __ {
         },
         ::scopeguard::{
             self,
-        },
-        ::std::{
-            self,
-            *,
-            prelude::rust_2021::*,
         },
         crate::{
             headers::{
@@ -511,8 +508,35 @@ mod __ {
                 ReprC,
                 __HasNiche__,
             },
-        }
+            prelude::*,
+        },
     };
+
+    cfg_match! {
+        feature = "std" => {
+            pub use ::std::{*,
+                self,
+                prelude::rust_2021::*,
+            };
+        },
+        feature = "alloc" => {
+            pub use {
+                ::core::{
+                    prelude::rust_2021::*,
+                },
+                ::alloc::{*,
+                    boxed::Box,
+                    string::String,
+                    vec::Vec,
+                },
+            };
+        },
+        _ => {
+            pub use ::core::{*,
+                prelude::rust_2021::*,
+            };
+        }
+    }
 
     /// Hack needed to `feature(trivial_bounds)` in stable Rust:
     ///
@@ -531,27 +555,71 @@ mod __ {
         type ItSelf = Self;
     }
 
-    // TODO: correctly handle more type (currently only supports a subset of
-    // transitive type paths).
+    #[cfg(feature = "alloc")]
     pub
     fn append_unqualified_name (
         out: &'_ mut String,
-        full_type_name: &'_ str,
+        ty_name: &'_ str,
     )
     {
-        let (before_generic, generics) = {
-            let mut i = full_type_name.trim().splitn(2, "<");
-            (i.next().unwrap(), i.next())
-        };
-        let unqualified = before_generic.rsplitn(2, ":").next().unwrap();
-        out.push('_');
-        out.push_str(unqualified.trim());
-        if let Some(generics) = generics {
-            // "pop" the `>`.
-            let generics = &generics[.. generics.len() - 1];
-            generics.split(',').for_each(|generic| {
-                append_unqualified_name(out, generic);
-            });
+        #[inline(never)]
+        fn mb_split_with<'r> (
+            orig: &'r str,
+            splitter: fn(&'r str) -> Option<(&'r str, &'r str)>,
+        ) -> (&'r str, Option<&'r str>)
+        {
+            splitter(orig).map_or((orig, None), |(l, r)| (l, Some(r)))
+        }
+
+        let ty_name = ty_name.trim();
+        if let Some(tuple_innards) = ty_name.strip_prefix('(') {
+            // Tuple
+            tuple_innards
+                .strip_suffix(')').unwrap()
+                .split(',')
+                .for_each(|generic| {
+                    append_unqualified_name(out, generic);
+                })
+            ;
+        } else if let Some(bracketed_innards) = ty_name.strip_prefix('[') {
+            // Array or Slice
+            let (elem_ty, mb_len) = mb_split_with(
+                bracketed_innards.strip_suffix(']').unwrap(),
+                |s| s.rsplit_once(';'),
+            );
+            append_unqualified_name(out, elem_ty);
+            if let Some(len) = mb_len {
+                append_unqualified_name(out, len);
+            }
+        } else {
+            // Canonical Type Path
+            out.push('_');
+            let (mut path, mb_generics) = mb_split_with(
+                ty_name,
+                |s| s.split_once('<'),
+            );
+            let is_valid_for_ident = |c: char| {
+                c.is_alphanumeric() || matches!(c, '_')
+            };
+            if let Some(trait_path) = path.strip_prefix("dyn ") {
+                out.push_str("dyn_");
+                path = trait_path;
+            }
+            if path.chars().all(|c| is_valid_for_ident(c) || c == ':') {
+                let unqualified = path.rsplitn(2, ':').next().unwrap().trim();
+                out.push_str(unqualified);
+            } else {
+                // Weird type, fall back to replacing non_alphanumerics:
+                path.chars().for_each(|c| {
+                    out.push(if is_valid_for_ident(c) { c } else { '_' });
+                });
+            }
+            if let Some(generics) = mb_generics {
+                let generics = generics.strip_suffix('>').unwrap();
+                generics.split(',').for_each(|generic| {
+                    append_unqualified_name(out, generic);
+                });
+            }
         }
     }
 }

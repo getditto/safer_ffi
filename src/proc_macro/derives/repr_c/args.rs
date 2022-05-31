@@ -1,9 +1,17 @@
 use super::*;
 
+mod kw {
+    ::syn::custom_keyword!(js);
+    ::syn::custom_keyword!(rename);
+}
+
 pub(in crate)
 struct Args {
     pub(in crate)
     rename: Option<Expr![String]>,
+
+    pub(in crate)
+    js: Option<kw::js>,
 }
 
 impl Parse for Args {
@@ -11,14 +19,12 @@ impl Parse for Args {
       -> Result<Args>
     {
         let mut ret = Args {
+            js: None,
             rename: None,
         };
 
-        let snoopy = input.lookahead1();
         while input.is_empty().not() {
-            mod kw {
-                ::syn::custom_keyword!(rename);
-            }
+            let snoopy = input.lookahead1();
             match () {
                 | _case if snoopy.peek(kw::rename) => {
                     let _: kw::rename = input.parse().unwrap();
@@ -27,10 +33,16 @@ impl Parse for Args {
                         return Err(input.error("duplicate attribute"));
                     }
                 },
+                | _case if snoopy.peek(kw::js) => {
+                    if ret.js.replace(input.parse().unwrap()).is_some() {
+                        return Err(input.error("duplicate attribute"));
+                    }
+                },
                 | _default => return Err(snoopy.error()),
             }
             let _: Option<Token![,]> = input.parse()?;
         }
+
         Ok(ret)
     }
 }

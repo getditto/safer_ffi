@@ -36,6 +36,8 @@ fn mb_file_expanded (output: TokenStream2)
             ")
     };
 
+    let macro_name = Ident::new(&format!("_{hopefully_unique:016x}"), Span::call_site());
+
     ::std::fs::write(
         file_name,
         ::std::panic::catch_unwind(|| ::prettyplease::unparse(&parse_quote!(#output)))

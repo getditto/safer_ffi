@@ -38,12 +38,12 @@ fn try_handle_trait (
     input: &'_ mut TokenStream2,
 ) -> Result< Option<TokenStream2> >
 {
-    let ErasedTy @ _ = quote!(
-        ::safer_ffi::dyn_traits::ErasedTy
-    );
-    let Box @ _ = quote!(
-        ::safer_ffi::__alloc::boxed::Box
-    );
+    #[apply(let_quote!)]
+    use ::safer_ffi::{
+        ඞ,
+        ඞ::Box,
+        dyn_traits::ErasedTy,
+    };
 
     let ref mut trait_ = match parse2(mem::take(input)).unwrap() {
         | Input::TokenStream(ts) => {
@@ -59,7 +59,7 @@ fn try_handle_trait (
     let ItemTrait {
         attrs: _,
         vis: ref pub_,
-        ref unsafety, // FIXME
+        unsafety: _, // FIXME
         auto_token: _,
         trait_token: _,
         ident: ref TraitName @ _,
@@ -113,8 +113,8 @@ fn try_handle_trait (
 
     // Emit the vtable type definition
     ret.extend(quote!(
-        #[cfg_eval]
-        #[::safer_ffi::prelude::derive_ReprC]
+        // #[cfg_eval]
+        #[#ඞ::derive_ReprC]
         #[repr(C)]
         #pub_
         struct #VTableName #intro_trait_generics_and_lt
@@ -140,7 +140,7 @@ fn try_handle_trait (
         )*
             // __type_name__debug: ::core::option::Option<
             //     extern "C"
-            //     fn() -> ::safer_ffi::string::str_ref<'static>
+            //     fn() -> #ඞ::string::str_ref<'static>
             // >,
             _invariant:
                 ::core::marker::PhantomData<
@@ -221,7 +221,7 @@ fn try_handle_trait (
                             // __type_name__debug: Some({
                             //     extern "C"
                             //     fn __type_name__debug<#impl_Trait> ()
-                            //       -> ::safer_ffi::string::str_ref<'static>
+                            //       -> #ඞ::string::str_ref<'static>
                             //     {
                             //         let s: &'static ::core::primitive::str =
                             //             ::core::any::type_name::<#impl_Trait>()
@@ -230,8 +230,8 @@ fn try_handle_trait (
                             //         let len = s.len();
                             //         unsafe {
                             //             ::core::mem::transmute::<
-                            //                 ::safer_ffi::slice::slice_raw_Layout<u8>,
-                            //                 ::safer_ffi::string::str_ref<'static>,
+                            //                 #ඞ::slice::slice_raw_Layout<u8>,
+                            //                 #ඞ::string::str_ref<'static>,
                             //             >(
                             //                 safer_ffi::slice::slice_raw_Layout {
                             //                     ptr,
@@ -341,6 +341,7 @@ fn try_handle_trait (
     drop(each_vtable_entry_value_f);
     ret = quote!(
         #trait_
+
         #[allow(warnings, clippy::all)]
         const _: () = { #ret };
     );
@@ -357,10 +358,6 @@ fn CType (ty: &'_ Type)
         &mut T,
     );
     quote!(
-        <
-            #T
-            as
-            ::safer_ffi::layout::ReprC
-        >::CLayout
+        ::safer_ffi::ඞ::CLayoutOf<#T>
     )
 }

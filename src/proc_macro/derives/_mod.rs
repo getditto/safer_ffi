@@ -75,55 +75,61 @@ fn feed_to_macro_rules (
     Ok(ret)
 }
 
+#[allow(unused_mut)]
 pub(in crate)
 fn derive_ReprC (
-    mut attrs: TokenStream2,
+    mut args: TokenStream2,
     mut input: TokenStream2,
 ) -> Result<TokenStream2>
 {
-    #![cfg_attr(not(feature = "dyn-traits"), allow(unused_mut))]
     #[cfg(feature = "dyn-traits")]
-    if let Some(output) = dyn_trait::try_handle_trait(&mut attrs, &mut input)? {
+    if let Some(output) = dyn_trait::try_handle_trait(&mut args, &mut input)? {
         return Ok(utils::mb_file_expanded(output));
     }
-    if let Some(tt) = TokenStream2::from(attrs).into_iter().next() {
-        return Err(Error::new_spanned(tt, "Unexpected parameter"));
-    }
-    return feed_to_macro_rules(input, parse_quote!(ReprC)); // .map(utils::mb_file_expanded);
-    repr_c::derive(attrs, input)
-    // //     | Err(mut err) => {
-    // //         // Prefix error messages with `derive_ReprC`.
-    // //         {
-    // //             let mut errors =
-    // //                 err .into_iter()
-    // //                     .map(|err| Error::new_spanned(
-    // //                         err.to_compile_error(),
-    // //                         format_args!("`#[safer_ffi::derive_ReprC]`: {}", err),
-    // //                     ))
-    // //             ;
-    // //             err = errors.next().unwrap();
-    // //             errors.for_each(|cur| err.combine(cur));
-    // //         }
-    // //         input.extend(TokenStream::from(err.to_compile_error()));
-    // //         return input;
-    // //     },
-    // //     | Ok(None) => {},
-    // // }
-    // if let Some(tt) = TokenStream2::from(attrs).into_iter().next() {
-    //     return Err(Error::new_spanned(tt, "Unexpected parameter"));
-    // }
-    // feed_to_macro_rules(input, parse_quote!(ReprC))
-}
 
-pub(in crate)
-fn derive_CType (
-    attrs: TokenStream2,
-    input: TokenStream2,
-) -> Result<TokenStream2>
-{
-    if let Some(tt) = TokenStream2::from(attrs).into_iter().next() {
-        return Err(Error::new_spanned(tt, "Unexpected parameter"));
+    // Compatibility with legacy mode (`nodejs` annotations):
+    let (mut attrs, rest) = Parser::parse2(
+        |input: ParseStream<'_>| Result::<_>::Ok(
+            (
+                Attribute::parse_outer(input)?,
+                input.parse::<TokenStream2>().unwrap(),
+            )
+        ),
+        input,
+    )?;
+    if let Some(attr) = attrs.iter_mut().find(|a| a.path.is_ident("repr")) {
+        let mut idents =
+            attr.parse_args_with(
+                    Punctuated::<Ident, Token![,]>::parse_terminated,
+                )
+                .unwrap()
+                .vec()
+        ;
+        if let Some(i) =
+            idents
+                .iter()
+                .position(|repr| repr == "nodejs" || repr == "js")
+        {
+            // `repr(C, nodejs)` case.
+            // Are we targetting js *right now*?
+            if cfg!(feature = "js") {
+                // Legacy mode.
+                if let Some(tt) = TokenStream2::from(args).into_iter().next() {
+                    return Err(Error::new_spanned(tt, "Unexpected parameter"));
+                }
+
+                input = quote!(#(#attrs)* #rest);
+                return feed_to_macro_rules(input, parse_quote!(ReprC)); // .map(utils::mb_file_expanded);
+            } else {
+                // Otherwise, we might as well not have been covering js to begin with.
+                drop(idents.swap_remove(i));
+            }
+        }
+        *attr = parse_quote!(
+            #[repr(#(#idents),*)]
+        );
     }
-    return feed_to_macro_rules(input, parse_quote!(CType));
-    c_type::derive(attrs, input)
+    input = quote!(#(#attrs)* #rest);
+
+    derives::repr_c::derive(args, input)
 }

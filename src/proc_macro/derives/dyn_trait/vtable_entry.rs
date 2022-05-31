@@ -389,7 +389,7 @@ fn vtable_entries<'trait_> (
                         }))
                         .collect()
                 ,
-                ErasedSelf: if let Some(lt) = self_lt {
+                ErasedSelf: if let Some(_) = self_lt {
                     parse_quote!(
                         // ::safer_ffi::dyn_traits::ErasedRef<#lt>
                         ::safer_ffi::ptr::NonNull<

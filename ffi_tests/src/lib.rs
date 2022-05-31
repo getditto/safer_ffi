@@ -22,13 +22,27 @@ fn concat (
 fn free_char_p (_string: Option<char_p::Box>)
 {}
 
+#[ffi_export]
+fn returns_a_fn_ptr ()
+  -> extern "C" fn(u8) -> u16
+{
+    extern "C"
+    fn f (n: u8)
+      -> u16
+    {
+        (n as u16) << 8
+    }
+
+    f
+}
+
 /// Same as `concat`, but with a callback-based API to auto-free the created
 /// string.
 #[ffi_export]
 fn with_concat (
     fst: char_p::Ref<'_>,
     snd: char_p::Ref<'_>,
-    /*mut*/ cb: RefDynFnMut1<'_, (), char_p::Raw>,
+    /*mut*/ cb: ::safer_ffi::closure::RefDynFnMut1<'_, (), char_p::Raw>,
 )
 {
     let mut cb = cb;
@@ -160,6 +174,7 @@ macro_rules! docs {() => (
 #[ffi_export]
 #[doc = docs!()]
 #[derive_ReprC(rename = "next_generation")]
+#[repr(C)]
 pub struct Next {
     /// I test some `gen`-eration.
     gen: bar::Bar,

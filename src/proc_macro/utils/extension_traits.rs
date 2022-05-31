@@ -1,10 +1,10 @@
 pub(in crate)
-trait CollectVec : Sized + Iterator {
+trait CollectVec : Sized + IntoIterator {
     fn vec (self: Self)
       -> Vec<Self::Item>
     {
-        impl<I : Iterator> CollectVec for I {}
-        self.collect()
+        impl<I : IntoIterator> CollectVec for I {}
+        self.into_iter().collect()
     }
 }
 

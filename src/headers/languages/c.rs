@@ -115,8 +115,13 @@ impl HeaderLanguage for C {
         if let _ = indent.scope() {
             let ref mut first = true;
             for &StructField { docs, name, ty } in fields {
-                if ty.size() == 0 && ty.align() > 1 {
-                    panic!("Zero-sized fields must have an alignment of `1`");
+                // Skip ZSTs
+                if ty.size() == 0 {
+                    if ty.align() > 1 {
+                        panic!("Zero-sized fields must have an alignment of `1`");
+                    } else {
+                        continue;
+                    }
                 }
                 if mem::take(first).not() {
                     out!("\n");
@@ -170,18 +175,25 @@ impl HeaderLanguage for C {
             let mut buf = Vec::<u8>::new();
             mk_out!(indent, buf);
 
-            out!("{fname} (");
+            out!(
+                "\n{indent}{fn}{fname} (",
+                fn = if cfg!(feature = "c-headers-with-fn-style") {
+                    "/* fn */ "
+                } else {
+                    ""
+                },
+            );
             let mut first = true;
             if let _ = indent.scope() {
                 for arg in args {
                     if mem::take(&mut first).not() {
-                        out!(",\n{indent}");
+                        out!(",");
                     }
-                    out!("{}", arg.ty.name_wrapping_var(self, arg.name))
+                    out!("\n{indent}{}", arg.ty.name_wrapping_var(self, arg.name))
                 }
-            }
-            if first {
-                out!("void");
+                if first {
+                    out!("void");
+                }
             }
             out!(")");
             String::from_utf8(buf).unwrap()
@@ -191,6 +203,8 @@ impl HeaderLanguage for C {
         out!(
             ("{};"), ret_ty.name_wrapping_var(self, fn_sig_but_for_ret_type)
         );
+
+        out!("\n");
         Ok(())
     }
 

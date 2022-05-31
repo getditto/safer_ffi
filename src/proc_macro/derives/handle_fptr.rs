@@ -26,17 +26,21 @@ fn try_handle_fptr (
         // Check that it is a unit struct with one field
         data: Data::Struct(DataStruct {
             ref struct_token,
-            fields: Fields::Unnamed(FieldsUnnamed {
-                unnamed: ref fields, ..
-            }),
+            fields:
+                | Fields::Unnamed(FieldsUnnamed {
+                    unnamed: ref fields,
+                    ..
+                })
+                | Fields::Named(FieldsNamed {
+                    named: ref fields,
+                    ..
+                })
+            ,
             ..
         }),
     } = input
     {
         if fields.len() != 1 { fallback!(); }
-        if matches!(vis, Visibility::Public(_)).not() {
-            bail!("Missing `pub`" => struct_token);
-        }
         mod kw {
             ::syn::custom_keyword!(transparent);
         }
@@ -46,6 +50,9 @@ fn try_handle_fptr (
                 | Err(_) => fallback!(),
             },
             | None => bail!("Missing `#[repr(…)]` annotation"), // or fallback!() and let the parent handle the error
+        }
+        if matches!(vis, Visibility::Public(_)).not() {
+            bail!("Missing `pub`" => struct_token);
         }
         // Check that the given ty is an `fn` pointer type.
         let cb_ty = match fields.iter().next().unwrap() {
@@ -83,9 +90,9 @@ fn try_handle_fptr (
         }
 
         /* == VALIDATION PASSED, TIME TO EXPAND == */
-        // Fully-qualified paths to be robust to an weird/antagonistic
+        // Fully-qualified paths to be robust to a weird/antagonistic
         // namespace (except for `::safer_ffi`; that's our path-resolution
-        // keystone.
+        // keystone).
         #[apply(let_quote!)]
         use ::safer_ffi::{
             __cfg_headers__,
@@ -94,7 +101,7 @@ fn try_handle_fptr (
             ඞ::{
                 __HasNiche__,
                 CLayoutOf,
-                ConcreteReprC,
+                // ConcreteReprC,
                 CType,
                 Definer,
                 LegacyCType,
@@ -170,7 +177,7 @@ fn try_handle_fptr (
             generics: generics.clone(),
             data: input.data.clone(),
         };
-        let ref StructName_Layout = input_Layout.ident;
+        // let ref StructName_Layout = input_Layout.ident;
         let ref lifetimes =
             cb_ty
                 .lifetimes
@@ -317,162 +324,6 @@ fn try_handle_fptr (
                 }
             }
 
-            // #[allow(nonstandard_style)]
-            // #input_Layout
-
-            // impl #intro
-            //     #ඞ::clone::Clone
-            // for
-            //     #StructName_Layout #fwd
-            // #where_
-            // {
-            //     fn clone (self: &'_ Self)
-            //       -> Self
-            //     {
-            //         impl #intro
-            //             #ඞ::marker::Copy
-            //         for
-            //             #StructName_Layout #fwd
-            //         {}
-
-            //         *self
-            //     }
-            // }
-
-            // unsafe
-            // impl #intro
-            //     #CType
-            // for
-            //     #StructName_Layout #fwd
-            // #where_
-            // { #__cfg_headers__! {
-            //     fn short_name ()
-            //       -> String
-            //     {
-            //         use #fmt::Write as _;
-            //         // ret_arg1_arg2_fptr
-            //         let mut ret = <#RetCType as #CType>::short_name(); #(
-            //         #fmt::Write::write_fmt(&mut ret, "_{}", <#EachArgCType as #CType>::short_name()).unwrap(); )*
-            //         ret.push_str("_fptr");
-            //         ret
-            //     }
-
-            //     fn define_self (
-            //         language: &'_ dyn #ඞ::HeaderLanguage,
-            //         definer: &'_ mut dyn #ඞ::Definer,
-            //     ) -> #std::io::Result<()>
-            //     {
-            //         #CTypeOf<
-            //             unsafe
-            //             extern "C"
-            //             fn (#(#EachArgCType),*) -> #RetCType
-            //         >
-            //         <#RetCType as #CType>::define_self(language, definer)?; #(
-            //         <#EachArgCType as #CType>::define_self(language, definer)?; )*
-
-            //         match () {
-            //             | _case if language.is::<#ඞ::languages::C>() => {},
-            //             | _case if language.is::<#ඞ::languages::CSharp>() => {
-            //                 #ඞ::languages::CSharp::emit_delegate_fptr(
-            //                         definer: &'_ mut dyn #ඞ::Definer,
-            //                         &ඞ::PhantomData::<#RetCType>,
-            //                         &[
-            //                             #(
-            //                                 &ඞ::PhantomData::<#EachArgCType>,
-            //                             )*
-            //                         ],
-            //                     )?
-            //             },
-            //             | _ => unimplemented!(),
-            //         }
-            //         Ok(())
-            //     }
-
-            //     fn c_var_fmt (
-            //         fmt: &'_ mut #fmt::Formatter<'_>,
-            //         var_name: &'_ #str,
-            //     ) -> #fmt::Result
-            //     {
-            //         #write!(fmt, "{} ", <#RetCType as #CType>::name_wrapping_var(&::safer_ffi::headers::languages::C, ""))?;
-            //         #write!(fmt, "(*{})(", var_name)?;
-            //         let _empty = true;
-            //         #(
-            //             #write!(fmt,
-            //                 "{comma}{arg}",
-            //                 arg = <#EachArgCType as #CType>::name_wrapping_var(&::safer_ffi::headers::languages::C, ""),
-            //                 comma = if _empty { "" } else { ", " },
-            //             )?;
-            //             let _empty = false;
-            //         )*
-            //         if _empty {
-            //             fmt.write_str("void")?;
-            //         }
-            //         fmt.write_str(")")
-            //     }
-
-            //     #__cfg_csharp__! {
-            //         fn csharp_define_self (definer: &'_ mut dyn #Definer)
-            //           -> #std::io::Result<()>
-            //         {
-            //             <#RetCType as #CType>::define_self(&::safer_ffi::headers::languages::CSharp, definer)?; #(
-            //             <#EachArgCType as #CType>::define_self(&::safer_ffi::headers::languages::CSharp, definer)?; )*
-            //             let ref me = <Self as #CType>::name(&::safer_ffi::headers::languages::CSharp).to_string();
-            //             let ref mut _forge_arg_name = {
-            //                 let mut iter = (0 ..).map(|c| #std::format!("_{}", c));
-            //                 move || iter.next().unwrap()
-            //             };
-            //             definer.define_once(me, &mut |definer| #core::writeln!(definer.out(),
-            //                 concat!(
-            //                     // IIUC,
-            //                     //   - For 32-bits / x86,
-            //                     //     Rust's extern "C" is the same as C#'s (default) Winapi:
-            //                     //     "cdecl" for Linux, and "stdcall" for Windows.
-            //                     //
-            //                     //   - For everything else, this is param is ignored.
-            //                     //     I guess because both OSes agree on the calling convention?
-            //                     "[UnmanagedFunctionPointer(CallingConvention.Winapi)]\n",
-
-            //                     "{ret_marshaler}public unsafe /* static */ delegate\n",
-            //                     "    {Ret}\n",
-            //                     "    {me} (",
-            //                         #c_sharp_format_args,
-            //                     ");\n",
-            //                 ),
-            //                 #(
-            //                     <#EachArgCType as #CType>::csharp_marshaler()
-            //                         .map(|m| format!("[MarshalAs({})]\n        ", m))
-            //                         .as_deref()
-            //                         .unwrap_or("")
-            //                     ,
-            //                     <#EachArgCType as #CType>::name_wrapping_var(&::safer_ffi::headers::languages::CSharp, &_forge_arg_name()),
-            //                 )*
-            //                 me = me,
-            //                 ret_marshaler =
-            //                     <#RetCType as #CType>::csharp_marshaler()
-            //                         .map(|m| format!("[return: MarshalAs({})]\n", m))
-            //                         .as_deref()
-            //                         .unwrap_or("")
-            //                 ,
-            //                 Ret = <#RetCType as #CType>::name(&::safer_ffi::headers::languages::CSharp),
-            //             ))
-            //         }
-
-            //         fn csharp_ty ()
-            //           -> #std::string::String
-            //         {
-            //             Self::c_short_name().to_string()
-            //         }
-
-            //         fn legacy_csharp_marshaler ()
-            //           -> #Option<#std::string::String>
-            //         {
-            //             // This assumes the calling convention from the above
-            //             // `UnmanagedFunctionPointer` attribute.
-            //             #Option::Some("UnmanagedType.FunctionPtr".into())
-            //         }
-            //     }
-            // } type OPAQUE_KIND = #OpaqueKind::Concrete; }
-
             unsafe
             impl #intro
                 #__HasNiche__
@@ -488,7 +339,6 @@ fn try_handle_fptr (
                 }
             }
         ));
-        // pretty_print_tokenstream(&ret, "");
         Some(Ok(ret))
     } else {
         None

@@ -25,6 +25,17 @@ fn derive (
         }
     }
 
+    if let Some(param) = generics.params.first() {
+        bail! {
+            "generic `enum`s are not supported yet." => param,
+        }
+    }
+    if let Some(where_clause) = &generics.where_clause {
+        bail! {
+            "not supported" => where_clause.where_token,
+        }
+    }
+
     if variants.is_empty() {
         bail! {
             "C does not support empty enums!"
@@ -44,7 +55,7 @@ fn derive (
         layout::{
             // __HasNiche__,
             CLayoutOf,
-            CType as CType,
+            CType,
             OpaqueKind,
             ReprC,
         },
@@ -55,7 +66,8 @@ fn derive (
         #[repr(transparent)]
         #[#ඞ::derive(
             #ඞ::Clone, #ඞ::Copy,
-            // #ඞ::PartialEq, #ඞ::Eq,
+            // FIXME: try to skip these for faster compilation.
+            #ඞ::PartialEq, #ඞ::Eq,
         )]
         #pub_
         struct #EnumName_Layout {
@@ -163,7 +175,41 @@ fn derive (
         {
             #impl_body
         }
+
+        unsafe
+        impl
+            #ReprC
+        for
+            #EnumName_Layout
+        {
+            type CLayout = Self;
+
+            fn is_valid (
+                _: &'_ #EnumName_Layout,
+            ) -> #ඞ::bool
+            {
+                true
+            }
+        }
     ));
+
+    if cfg!(feature = "js") && args.js.is_some() {
+        let EachVariant @ _ =
+            variants.iter().map(|v| &v.ident)
+        ;
+        ret.extend(quote!(
+            ::safer_ffi::layout::CType! {
+                @node_js_enum
+                #EnumName_Layout {
+                    #(
+                        #EachVariant = #EnumName_Layout {
+                            discriminant: #EnumName::#EachVariant as _,
+                        },
+                    )*
+                }
+            }
+        ))
+    }
 
     ret.extend({
         let ref EachVariant @ _ = variants.iter().vmap(|it| &it.ident);
@@ -238,9 +284,9 @@ fn parse_discriminant_type (
     let (c_type, repr) =
         match
             ::core::iter::zip(parsed_reprs, reprs)
-                .find(|(parsed, ident)| matches!(parsed, Repr::C).not())
+                .find(|(parsed, _ident)| matches!(parsed, Repr::C).not())
         {
-            | Some((repr, ident)) => {
+            | Some((_repr, ident)) => {
                 let IntTy = quote!(
                     ::safer_ffi::ඞ::#ident
                 );
@@ -255,7 +301,7 @@ fn parse_discriminant_type (
             },
             | None if reprs.iter().any(|repr| repr == "C") => {
                 out_warnings.extend(utils::compile_warning(
-                    &repr_attr,
+                    reprs,
                     "\
                         `#[repr(C)]` enums are not well-defined in C; \
                         it is thus ill-advised to use them \

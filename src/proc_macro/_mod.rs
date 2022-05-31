@@ -1,7 +1,7 @@
 #![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(nonstandard_style, unused_imports)]
-#![allow(warnings)] // #![feature(proc_macro_span)]
+// #![allow(warnings)] // #![feature(proc_macro_span)]
 
 use {
     ::core::{
@@ -36,6 +36,7 @@ use {
     },
 };
 
+#[allow(unused_macros)]
 macro_rules! todo {(
     $( $fmt:expr $(, $($rest:tt)* )? )?
 ) => (
@@ -96,39 +97,10 @@ fn derive_ReprC (
     input: TokenStream,
 ) -> TokenStream
 {
-    // Compatibility with legacy mode.
-    if cfg!(feature = "js")
-    && {
-        fn parse_attrs (input: ParseStream<'_>)
-          -> Result<Vec<Attribute>>
-        {
-            Ok((
-                Attribute::parse_outer(input)?,
-                input.parse::<TokenStream2>()
-            ).0)
-        }
-
-        let attrs = {
-            let input = input.clone();
-            parse_macro_input!(input with parse_attrs)
-        };
-        attrs.iter().any(|attr| {
-            attr.path.is_ident("repr")
-            &&
-            attr.parse_args_with(Punctuated::<Ident, Token![,]>::parse_terminated)
-                .unwrap()
-                .iter()
-                .any(|repr| repr == "nodejs")
-        })
-    }
-    {
-        return unwrap!(derives::derive_ReprC(attrs.into(), input.into()));
-    }
     unwrap!(
-        derives::repr_c::derive(attrs.into(), input.into())
+        derives::derive_ReprC(attrs.into(), input.into())
             .map(utils::mb_file_expanded)
     )
-
 }
 
 // #[proc_macro_attribute] pub
@@ -157,7 +129,6 @@ fn __respan (
     input: TokenStream,
 ) -> TokenStream
 {
-    // use ::proc_macro::*;
     use ::proc_macro2::{*, TokenStream as TokenStream2};
     let parser = |input: ParseStream<'_>| Result::Ok({
         let mut contents;
