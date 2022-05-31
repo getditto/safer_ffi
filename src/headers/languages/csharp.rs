@@ -24,10 +24,20 @@ impl HeaderLanguage for CSharp {
             if line.contains('`') {
                 let s = storage.get_or_insert_with(rust::String::new);
                 let mut parity = 0..;
-                line.chars().for_each(|c| match c {
-                    | '`' => s.push_str(["<c>", "</c>"][parity.next().unwrap() % 2]),
-                    | _ => s.push(c),
-                });
+                let mut iter = line.chars().peekable();
+                while let Some(c) = iter.next() {
+                    match (c, iter.peek()) {
+                        | ('`', Some('`')) => {
+                            s.push(c);
+                            s.push(iter.next().unwrap());
+                            iter.next().map(|c| s.push(c));
+                        },
+                        | ('`', _) => {
+                            s.push_str(["<c>", "</c>"][parity.next().unwrap() % 2]);
+                        },
+                        | _ => s.push(c),
+                    }
+                }
                 line = s;
             }
             let sep = if line.is_empty() { "" } else { " " };
@@ -115,8 +125,13 @@ impl HeaderLanguage for CSharp {
         if let _ = indent.scope() {
             let ref mut first = true;
             for &StructField { docs, name, ty } in fields {
-                if ty.size() == 0 && ty.align() > 1 {
-                    panic!("Zero-sized fields must have an alignment of `1`");
+                // Skip ZSTs
+                if ty.size() == 0 {
+                    if ty.align() > 1 {
+                        panic!("Zero-sized fields must have an alignment of `1`");
+                    } else {
+                        continue;
+                    }
                 }
                 if mem::take(first).not() {
                     out!("\n");

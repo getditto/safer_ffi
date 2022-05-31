@@ -18,12 +18,7 @@ fn derive (
     fields: &'_ Fields,
 ) -> Result<TokenStream2>
 {
-    if fields.is_empty() {
-        bail!("C requires that structs have at least one field");
-    }
-
     if let Some(repr) = attrs.iter().find_map(|attr| {
-        mod kw { ::syn::custom_keyword!(transparent); }
         bool::then(
             attr.path.is_ident("repr"),
             || attr.parse_args::<Ident>().ok()
@@ -49,8 +44,20 @@ fn derive (
                 fields,
             ),
 
-            | _ => {},
+            | "C" => {},
+
+            | _unsupported => bail! {
+                "unsupported `repr`" => repr,
+            },
         }
+    } else {
+        bail! {
+            "missing explicit `#[repr(C)]` annotation"
+        }
+    }
+
+    if fields.is_empty() {
+        bail!("C requires that structs have at least one field");
     }
 
     let mut ret = quote!();
@@ -80,9 +87,14 @@ fn derive (
     ret.extend({
         let c_type_def = ItemStruct {
             attrs: docs_of(attrs).cloned()
-                    .chain([parse_quote!(
-                        #[allow(nonstandard_style)]
-                    )])
+                    .chain([
+                        parse_quote!(
+                            #[allow(nonstandard_style)]
+                        ),
+                        parse_quote!(
+                            #[repr(C)]
+                        ),
+                    ])
                     .collect()
             ,
             vis: parse_quote!(pub),
@@ -119,8 +131,14 @@ fn derive (
             parse_quote!(#s)
         });
 
+        // allow using `#()*` as `#()?`.
+        let js = args.js.as_ref().map_or(&[][..], ::core::slice::from_ref);
+
         crate::derives::c_type::derive(
-            quote!(rename = #rename),
+            quote!(
+                #(#js ,)*
+                rename = #rename,
+            ),
             c_type_def.into_token_stream(),
         )?
     });
@@ -144,17 +162,36 @@ fn derive (
                 type CLayout = #StructName_Layout #fwd_generics;
 
                 #[inline]
-                fn is_valid (it: &'_ Self::CLayout)
+                fn is_valid (_it: &'_ Self::CLayout)
                   -> #ඞ::bool
                 {
-                    let _ = it;
-                    true #(&& (
-                        #ඞ::mem::size_of::<#EachFieldTy>() == 0
-                        ||
-                        <#EachFieldTy as #ReprC>::is_valid(
-                            &it.#each_field_name
-                        )
-                    ))*
+                    let mut _ret = true;
+                    #(
+                        if #ඞ::mem::size_of::<#EachFieldTy>() != 0
+                        && <#EachFieldTy as #ReprC>::is_valid(
+                            &_it.#each_field_name
+                        ) == false
+                        {
+                            #ඞ::eprintln!(
+                                "\
+                                    Encountered invalid bit-pattern \
+                                    for field `.{}` \
+                                    of type `{}`: \
+                                    got `{:02x?}`\
+                                ",
+                                #ඞ::stringify!(#each_field_name),
+                                #ඞ::any::type_name::<#EachFieldTy>(),
+                                unsafe {
+                                    #ඞ::slice::from_raw_parts(
+                                        <*const _>::cast::<u8>(&_it.#each_field_name),
+                                        #ඞ::mem::size_of_val(&_it.#each_field_name),
+                                    )
+                                },
+                            );
+                            _ret = false;
+                        }
+                    )*
+                    _ret
                 }
             }
         )
@@ -183,7 +220,7 @@ pub(in crate)
 fn derive_transparent (
     args: Args,
     attrs: &'_ mut Vec<Attribute>,
-    vis: &'_ Visibility,
+    _vis: &'_ Visibility,
     StructName @ _: &'_ Ident,
     generics: &'_ Generics,
     fields: &'_ Fields,
@@ -191,6 +228,15 @@ fn derive_transparent (
 {
     #[apply(let_quote)]
     use ::safer_ffi::ඞ;
+
+    let mut ret = quote!();
+
+    if let Some(js) = &args.js {
+        ret.extend(utils::compile_warning(
+            js,
+            "`js` annotation is ignored for `repr(transparent)`",
+        ));
+    }
 
     let FieldTy = match fields.iter().next() {
         | Some(f) => &f.ty,
@@ -207,8 +253,6 @@ fn derive_transparent (
             ))
         ;
     });
-
-    let mut ret = quote!();
 
     // Forward ReprC to point to the `CLayoutOf` its first type.
     ret.extend({
@@ -297,9 +341,12 @@ fn derive_opaque (
     pub_: &'_ Visibility,
     StructName @ _: &'_ Ident,
     generics: &'_ Generics,
-    fields: &'_ Fields,
+    _: &'_ Fields,
 ) -> Result<TokenStream2>
 {
+    #[apply(let_quote)]
+    use ::safer_ffi::ඞ;
+
     // Strip the `repr(opaque)`
     attrs.retain(|attr| bool::not({
         mod kw { ::syn::custom_keyword!(opaque); }
@@ -309,8 +356,12 @@ fn derive_opaque (
 
     let mut ret = quote!();
 
-    #[apply(let_quote)]
-    use ::safer_ffi::ඞ;
+    if let Some(js) = &args.js {
+        ret.extend(utils::compile_warning(
+            js,
+            "`js` annotation is ignored for `repr(opaque)`",
+        ));
+    }
 
     let OpaqueStructName = format_ident!(
         "__opaque_{}", StructName,
@@ -344,6 +395,7 @@ fn derive_opaque (
         let header_generation = quote!();
         #[cfg(feature = "headers")]
         let header_generation = {
+            drop(header_generation);
             let ref short_name: Quote![ String ] = match args.rename {
                 | Some(string_expr) => quote!(
                     #ඞ::From::from(#string_expr)
@@ -439,7 +491,7 @@ fn derive_opaque (
                 type CLayout = Self;
 
                 fn is_valid (
-                    it: &'_ Self::CLayout,
+                    _: &'_ Self::CLayout,
                 ) -> #ඞ::bool
                 {
                     true

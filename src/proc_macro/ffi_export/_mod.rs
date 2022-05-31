@@ -1,5 +1,6 @@
 use super::*;
 
+#[allow(unused_macros)]
 macro_rules! emit {( $($tt:tt)* ) => ( $($tt)* )}
 
 pub(in super)

@@ -26,7 +26,7 @@ fn derive (
         ref generics,
         ref data,
     } = input;
-    let mut ret = match data {
+    let ret = match data {
         | Data::Struct(DataStruct { fields, .. }) => struct_::derive(
             args,
             attrs,

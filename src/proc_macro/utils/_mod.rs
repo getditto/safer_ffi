@@ -189,18 +189,21 @@ fn compile_warning (
 ) -> TokenStream2
 {
     let mut spans = span.to_token_stream().into_iter().map(|tt| tt.span());
-    let fst = spans.next().unwrap_or_else(|| Span::call_site());
-    let lst = spans.fold(fst, |cur, _| cur);
-    let safer_ffi_ = Ident::new("safer_ffi_", fst);
-    let warning = Ident::new("warning", fst);
+    let fst = spans.next().unwrap_or_else(Span::call_site);
+    let lst = spans.fold(fst, |_, cur| cur);
     let ref message = ["\n", message].concat();
-    quote!(
+    let warning = Ident::new("warning", fst);
+    quote_spanned!(lst=>
+        #[allow(nonstandard_style, clippy::all)]
         const _: () = {
-            mod safer_ffi_ {
+            #[allow(nonstandard_style)]
+            struct safer_ffi_ {
                 #[deprecated(note = #message)]
-                pub fn warning() {}
+                #warning: ()
             }
-            let _ = #safer_ffi_::#warning;
+            //                     fst    lst
+            let _ = safer_ffi_ { #warning: () };
+            //                   ^^^^^^^^^^^^
         };
     )
 }
@@ -214,10 +217,14 @@ fn extract_docs (
         attr.path
             .is_ident("doc")
             .then(|| Parser::parse2(
-                |input: ParseStream<'_>| Result::Ok(
-                    if input.parse::<Option<Token![=]>>()?.is_some() {
-                        Some(input.parse::<Expr>()?)
+                |input: ParseStream<'_>| Ok(
+                    if input.peek(Token![=]) {
+                        let _: Token![=] = input.parse::<Token![=]>().unwrap();
+                        let doc_str: Expr = input.parse()?;
+                        let _: Option<Token![,]> = input.parse()?;
+                        Some(doc_str)
                     } else {
+                        let _ = input.parse::<TokenStream2>();
                         None
                     }
                 ),
@@ -227,4 +234,20 @@ fn extract_docs (
             .flatten()
         })
         .collect()
+}
+
+pub(crate)
+struct LazyQuote(
+    pub(crate) fn() -> TokenStream2,
+    pub(crate) ::core::cell::RefCell<Option<TokenStream2>>,
+);
+
+impl ::quote::ToTokens for LazyQuote {
+    fn to_tokens (self: &'_ LazyQuote, tokens: &'_ mut TokenStream2)
+    {
+        self.1
+            .borrow_mut()
+            .get_or_insert_with(self.0)
+            .to_tokens(tokens)
+    }
 }

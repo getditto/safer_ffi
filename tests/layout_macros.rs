@@ -13,6 +13,7 @@ use ::std::{
     ops::Not as _,
 };
 use ::safer_ffi::{
+    closure::*,
     prelude::*,
     layout::{
         CType,
@@ -119,7 +120,7 @@ struct Crazy {
         extern "C" fn(char_p::Raw) -> bool,
         Tuple2<
             [Foo<'static>; 12],
-            Option<repr_c::Box<Option<MyBool>>>
+            Option<repr_c::Box<MyBool>>
         >,
     ),
     closure: RefDynFnMut2<'static, (), i32, usize>,
@@ -278,39 +279,26 @@ fn test_niche ()
 
     assert!(
         MyBool::is_valid(&
-            MyBool_Layout(42)
+            MyBool_Layout {
+                discriminant: 42,
+            }
         )
     );
     assert!(
         MyBool::is_valid(&
-            MyBool_Layout(43)
+            MyBool_Layout {
+                discriminant: 43,
+            }
         )
     );
 
     assert!(bool::not(
         MyBool::is_valid(&
-            MyBool_Layout(44)
+            MyBool_Layout {
+                discriminant: 44,
+            }
         )
     ));
-
-    // Some(MyBool::True)
-    assert!(
-        <Option<MyBool>>::is_valid(&
-            MyBool_Layout(42)
-        )
-    );
-    // Some(MyBool::False)
-    assert!(
-        <Option<MyBool>>::is_valid(&
-            MyBool_Layout(43)
-        )
-    );
-    // None
-    assert!(
-        <Option<MyBool>>::is_valid(&
-            MyBool_Layout(unsafe { ::core::mem::transmute(None::<MyBool>) })
-        )
-    );
 }
 
 #[test]

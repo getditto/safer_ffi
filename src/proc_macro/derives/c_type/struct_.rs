@@ -4,7 +4,7 @@ pub(in crate)
 fn derive (
     args: Args,
     attrs: &'_ [Attribute],
-    vis: &'_ Visibility,
+    pub_: &'_ Visibility,
     StructName @ _: &'_ Ident,
     generics: &'_ Generics,
     fields: &'_ Fields,
@@ -28,6 +28,24 @@ fn derive (
 
     let mut ret = quote!();
 
+    if cfg!(feature = "js") && args.js.is_some() {
+        // invoke the legacy `CType!` macro which is the one currently featuring
+        // the js FFI glue generating logic.
+        let (params, bounds) = generics.my_split();
+        ret.extend(quote!(
+            ::safer_ffi::layout::CType! {
+                #[repr(C, nodejs)]
+                #pub_
+                struct #StructName
+                    [#params]
+                where {
+                    #(#bounds ,)*
+                }
+                #fields
+            }
+        ))
+    }
+
     let impl_body = quote!(
         type OPAQUE_KIND = #OpaqueKind::Concrete;
     );
@@ -39,12 +57,6 @@ fn derive (
         ;
         let ref EachFieldTy =
             fields.iter().vmap(|Field { ty, .. }| ty)
-        ;
-        let ref each_field_name =
-            fields.iter().vmap(|f| f.ident.as_ref().unwrap())
-        ;
-        let ref each_field_name_str =
-            each_field_name.iter().vmap(ToString::to_string)
         ;
         let ref StructName_str =
             args.rename.map_or_else(
@@ -173,9 +185,9 @@ fn derive (
         )
     });
 
-    #[cfg(feature = "js")] {
-        ret.extend(super::js::handle(/* … */)?);
-    }
+    // #[cfg(feature = "js")] {
+    //     ret.extend(super::js::handle(/* … */)?);
+    // }
 
     Ok(ret)
 }

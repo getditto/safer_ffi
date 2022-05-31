@@ -641,8 +641,7 @@ __cfg_headers__! {
 /// It is generally recommended to avoid manually (and `unsafe`-ly)
 /// implementing the [`ReprC`] trait. Instead, the recommended and blessed way
 /// is to use the [`#[derive_ReprC]`](/safer_ffi/layout/attr.derive_ReprC.html)
-/// attribute (when the `proc_macros` feature is enabled, or the [`ReprC!`]
-/// macro when it is not) on your `#[repr(C)] struct` (or your field-less
+/// attribute on your `#[repr(C)] struct` (or your field-less
 /// `#[repr(<integer>)] enum`).
 ///
 /// [`ReprC`]: `trait@ReprC`
@@ -672,22 +671,6 @@ __cfg_headers__! {
 ///     } Instant_t;
 ///     ```
 ///
-/// or you can use what the attribute macro expands to, to avoid requiring
-/// the `proc_macros` feature:
-///
-/// ```rust,no_run
-/// # fn main () {}
-/// use ::safer_ffi::prelude::*;
-///
-/// ReprC! {
-///     #[repr(C)]
-///     struct Instant {
-///         seconds: u64,
-///         nanos: u32,
-///     }
-/// }
-/// ```
-///
 /// #### Field-less `enum`
 ///
 /// ```rust,no_run
@@ -716,25 +699,6 @@ __cfg_headers__! {
 ///         STATUS_OH_NO,
 ///     }
 ///     ```
-///
-/// or you can use what the attribute macro expands to, to avoid requiring
-/// the `proc_macros` feature:
-///
-/// ```rust,no_run
-/// # fn main () {}
-/// use ::safer_ffi::prelude::*;
-///
-/// ReprC! {
-///     #[repr(u8)]
-///     enum Status {
-///         Ok = 0,
-///         Busy,
-///         NotInTheMood,
-///         OnStrike,
-///         OhNo,
-///     }
-/// }
-/// ```
 ///
 /// #### Generic `struct`
 ///
@@ -769,29 +733,6 @@ __cfg_headers__! {
 ///         double y;
 ///     } Point_double_t;
 ///     ```
-///
-/// This is where the attribute macro shines. Indeed, the [`ReprC!`] macro has
-/// some parsing limitations (for the sake of simplicity and performance) that
-/// require unorthodox syntax when generics are involved (see
-/// [the macro documentation][`ReprC!`] for more info about it):
-///
-///
-/// ```rust,no_run
-/// # fn main () {}
-/// use ::safer_ffi::prelude::*;
-///
-/// ReprC! {
-///     #[repr(C)]
-///     struct Point[Coordinate]
-///     where {
-///         Coordinate : ReprC,
-///     }
-///     {
-///         x: Coordinate,
-///         y: Coordinate,
-///     }
-/// }
-/// ```
 pub
 unsafe
 trait ReprC : Sized {

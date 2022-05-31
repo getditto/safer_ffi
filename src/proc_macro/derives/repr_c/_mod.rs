@@ -1,6 +1,6 @@
 use super::*;
 
-use args::Args;
+pub(in super) use args::Args;
 mod args;
 
 pub(in crate)
@@ -32,7 +32,7 @@ fn derive (
         ref generics,
         ref data,
     } = input;
-    let mut ret = match *data {
+    let ret = match *data {
         | Data::Struct(DataStruct { ref fields, .. }) => struct_::derive(
             args,
             attrs,

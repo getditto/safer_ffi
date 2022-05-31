@@ -8,18 +8,29 @@ macro_rules! use_prelude { () => (
 
 /// I really don't get the complexity of `cfg_if!`…
 macro_rules! cfg_match {
-    ( _ => { $($expansion:tt)* } $(,)? ) => ( $($expansion)* );
+    (
+        _ => { $($expansion:tt)* } $(,)?
+    ) => (
+        $($expansion)*
+    );
+
     (
         $cfg:meta => $expansion:tt $(,
-        $($rest:tt)* )?
+        $($($rest:tt)+)? )?
     ) => (
         #[cfg($cfg)]
-        cfg_match! { _ => $expansion } $(
+        cfg_match! { _ => $expansion } $($(
+
         #[cfg(not($cfg))]
-        cfg_match! { $($rest)* } )?
+        cfg_match! { $($rest)+ } )?)?
     );
+
     // Bonus: expression-friendly syntax: `cfg_match!({ … })`
-    ({ $($input:tt)* }) => ({ cfg_match! { $($input)* } })
+    ({
+        $($input:tt)*
+    }) => ({
+        cfg_match! { $($input)* }
+    });
 }
 
 cfg_match! {

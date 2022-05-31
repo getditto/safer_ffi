@@ -134,9 +134,35 @@ public unsafe partial class Ffi {
         foo_t * foo);
 }
 
+/// <summary>
+/// <c>&'lt [T]</c> but with a guaranteed <c>#[repr(C)]</c> layout.
+///
+/// # C layout (for some given type T)
+///
+/// ```c
+/// typedef struct {
+/// // Cannot be NULL
+/// T * ptr;
+/// size_t len;
+/// } slice_T;
+/// ```
+///
+/// # Nullable pointer?
+///
+/// If you want to support the above typedef, but where the <c>ptr</c> field is
+/// allowed to be <c>NULL</c> (with the contents of <c>len</c> then being undefined)
+/// use the <c>Option< slice_ptr<_> ></c> type.
+/// </summary>
 [StructLayout(LayoutKind.Sequential, Size = 16)]
 public unsafe struct slice_ref_int32_t {
+    /// <summary>
+    /// Pointer to the first element (if any).
+    /// </summary>
     public Int32 /*const*/ * ptr;
+
+    /// <summary>
+    /// Element count
+    /// </summary>
     public UIntPtr len;
 }
 
@@ -163,14 +189,30 @@ public unsafe partial class Ffi {
 
 [UnmanagedFunctionPointer(CallingConvention.Winapi)]
 public unsafe /* static */ delegate
+    UInt16
+    uint16_uint8_fptr (
+        byte _0);
+
+public unsafe partial class Ffi {
+    [return: MarshalAs(UnmanagedType.FunctionPtr)]
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    uint16_uint8_fptr returns_a_fn_ptr ();
+}
+
+[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+public unsafe /* static */ delegate
     void
     void_void_ptr_char_const_ptr_fptr (
         void * _0,
         byte /*const*/ * _1);
 
+/// <summary>
+/// <c>&'lt mut (dyn 'lt + Send + FnMut(A1) -> Ret)</c>
+/// </summary>
 [StructLayout(LayoutKind.Sequential, Size = 16)]
 public unsafe struct RefDynFnMut1_void_char_const_ptr_t {
     public void * env_ptr;
+
     [MarshalAs(UnmanagedType.FunctionPtr)]
     public void_void_ptr_char_const_ptr_fptr call;
 }

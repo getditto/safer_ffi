@@ -111,10 +111,13 @@ macro_rules! __let_quote {
         $last_segment:ident $(as $rename:ident)? $(,
         $($rest:tt)* )? $(;)?
     ) => (
-        let quoted = ::quote::quote!(
-            $($path)* $last_segment
+        let quoted = crate::utils::LazyQuote(
+            || ::quote::quote!(
+                $($path)* $last_segment
+            ),
+            None.into(),
         );
-        #[allow(nonstandard_style)]
+        #[allow(nonstandard_style, unused_variables)]
         #[cfg(all(
             $($rename = "__if_provided",
                 any(),
