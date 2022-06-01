@@ -74,7 +74,7 @@ version = "=0.3.0"
 default-features = false
 
 [workspace]
-members = ["src/proc_macro"]
+members = ["src/proc_macro", "examples/point"]
 
 [package.metadata.docs.rs]
 all-features = true

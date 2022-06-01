@@ -31,6 +31,13 @@ Minimum Supported Rust Version: `1.56.0`
 
 ## Quickstart
 
+Please try:
+```
+$ cd examples/point
+$ make
+```
+
+
 ### `Cargo.toml`
 
 Edit your `Cargo.toml` like so:
@@ -196,7 +203,7 @@ int main (int argc, char const * const argv[])
 #### Compilation command
 
 ```bash
-cc main.c -o main -L target/debug -l crate_name -l pthread -l dl
+cc main.c -o main -L target/debug -l crate_name -l pthread -l dl -lm
 
 # Now feel free to run the compiled binary
 ./main
