@@ -32,8 +32,9 @@ Minimum Supported Rust Version: `1.56.0`
 ## Quickstart
 
 You may try working with the `examples/point` example embedded in the repo:
-```
-$ cd examples/point
+```bash
+git clone https://github.com/getditto/safer_ffi && cd safer_ffi
+cd examples/point
 $ make
 ```
 
