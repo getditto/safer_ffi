@@ -31,7 +31,7 @@ Minimum Supported Rust Version: `1.56.0`
 
 ## Quickstart
 
-Please try:
+You may try working with the `examples/point` example embedded in the repo:
 ```
 $ cd examples/point
 $ make
