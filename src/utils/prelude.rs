@@ -25,12 +25,18 @@ pub(in crate) use ::core::{
         Not as _,
     },
 };
-#[cfg(not(target_arch = "wasm32"))]
-pub(in crate) use ::libc::size_t;
 
-#[cfg(target_arch = "wasm32")]
-#[allow(bad_style)]
-pub(in crate) type size_t = u32;
+cfg_if::cfg_if! {
+    if #[cfg(any(
+        not(feature = "std"),
+        target_arch = "wasm32",
+    ))] {
+        #[allow(bad_style)]
+        pub(in crate) type size_t = usize;
+    } else {
+        pub(in crate) use ::libc::size_t;
+    }
+}
 
 cfg_alloc! {
     pub(in crate) use ::alloc::{
