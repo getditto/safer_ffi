@@ -16,7 +16,7 @@ struct c_char /* = */ (
 );
 
 /// Assert that `::libc::c_char` is either `uint8_t` or `int8_t`.
-#[cfg(not(target_arch = "wasm32"))] // no libc on WASM
+#[cfg(not(any(target_arch = "wasm32", not(feature = "std"))))] // no libc on WASM nor no_std
 const _: () = {
     trait IsU8OrI8
     {}
