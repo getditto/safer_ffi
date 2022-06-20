@@ -27,12 +27,12 @@ pub(in crate) use ::core::{
 };
 
 cfg_if::cfg_if! {
-    if #[cfg(not(feature = "std"))] {
+    if #[cfg(any(
+        not(feature = "std"),
+        target_arch = "wasm32",
+    ))] {
         #[allow(bad_style)]
         pub(in crate) type size_t = usize;
-    } else if #[cfg(target_arch = "wasm32")] {
-        #[allow(bad_style)]
-        pub(in crate) type size_t = u32;
     } else {
         pub(in crate) use ::libc::size_t;
     }
