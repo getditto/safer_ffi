@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["builder",""]],"struct":[["Builder",""],["HashSetDefiner","Simplest implementation of a [`Definer`]: a `HashSet<String>, &'_ mut dyn Write` pair."]],"trait":[["Definer","Helper for the generation of C headers."]]});
+window.SIDEBAR_ITEMS = {"fn":[["builder",""]],"struct":[["Builder",""],["HashSetDefiner","Simplest implementation of a [`Definer`]: a `HashSet<String>, &'_ mut dyn Write` pair."]],"trait":[["Definer","Helper for the generation of C headers."]]};
