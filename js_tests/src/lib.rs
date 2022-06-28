@@ -24,6 +24,26 @@ fn add (x: i32, y: i32)
 }
 
 #[derive_ReprC]
+#[repr(C, nodejs)]
+pub
+struct Point {
+    x: f64,
+    y: f64,
+}
+
+#[ffi_export(node_js)]
+fn middle_point (
+    a: Point,
+    b: Point,
+) -> Point
+{
+    Point {
+        x: (a.x + b.x) / 2.,
+        y: (a.y + b.y) / 2.,
+    }
+}
+
+#[derive_ReprC]
 #[ReprC::opaque]
 pub
 struct Foo { opaque: i32 }
