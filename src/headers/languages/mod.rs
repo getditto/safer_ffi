@@ -8,7 +8,6 @@ use {
     },
     super::{
         Definer,
-        Language,
     },
 };
 
@@ -110,9 +109,9 @@ trait HeaderLanguage : UpcastAny {
 
     fn emit_docs (
         self: &'_ Self,
-        ctx: &'_ mut dyn Definer,
-        docs: Docs<'_>,
-        indentation: &'_ Indentation,
+        _ctx: &'_ mut dyn Definer,
+        _docs: Docs<'_>,
+        _indentation: &'_ Indentation,
     ) -> io::Result<()>
     {
         // This function is just offered as a convenience helper;
@@ -143,16 +142,6 @@ struct StructField<'lt> {
 
     pub
     ty: &'lt dyn PhantomCType,
-}
-
-pub
-struct TypeMethods {
-    short_name: fn() -> String,
-
-    name_wrapping_var: fn(
-        language: &'_ dyn HeaderLanguage,
-        var_name: &'_ str,
-    ) -> String,
 }
 
 pub

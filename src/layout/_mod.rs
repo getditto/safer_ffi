@@ -99,8 +99,8 @@ impl<T : LegacyCType> CType for T {
 
     #[inline]
     fn define_self__impl (
-        language: &'_ dyn HeaderLanguage,
-        definer: &'_ mut dyn Definer,
+        _: &'_ dyn HeaderLanguage,
+        _: &'_ mut dyn Definer,
     ) -> io::Result<()>
     {
         unimplemented!()
@@ -380,7 +380,6 @@ unsafe trait LegacyCType
         ///     // ...
         /// }
         /// ```
-        #[inline]
         fn c_define_self (definer: &'_ mut dyn Definer)
           -> io::Result<()>
         ;

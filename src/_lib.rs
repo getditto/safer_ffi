@@ -22,11 +22,6 @@
 #![doc = include_str!("../README.md")]
 #![cfg(not(rustfmt))]
 
-#![feature(rustc_attrs)] #![allow(warnings)]
-
-#[macro_use]
-extern crate fstrings;
-
 #[macro_use]
 extern crate macro_rules_attribute;
 
