@@ -89,7 +89,6 @@ inventory.version = "0.1.6"
 inventory.optional = true
 scopeguard.version = "1.1.0"
 unwind_safe.version = "0.1.0"
-fstrings = "0.2.3"
 with_builtin_macros.version = "0.0.3"
 macro_rules_attribute = "0.1.0"
 
