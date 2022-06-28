@@ -7,6 +7,23 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
         42 + 27,
     );
 
+    assert.deepEqual(
+        ffi.middle_point(
+            {
+                x: 0.,
+                y: 0.,
+            },
+            {
+                x: 42.,
+                y: 27.,
+            },
+        ),
+        {
+            x: 21.,
+            y: 13.5,
+        },
+    );
+
     (() => {
         let foo = ffi.foo_new();
 
