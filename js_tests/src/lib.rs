@@ -23,8 +23,28 @@ fn add (x: i32, y: i32)
     i32::wrapping_add(x, y)
 }
 
+#[derive_ReprC(js)]
+#[repr(C)]
+pub
+struct Point {
+    x: f64,
+    y: f64,
+}
+
+#[ffi_export(node_js)]
+fn middle_point (
+    a: Point,
+    b: Point,
+) -> Point
+{
+    Point {
+        x: (a.x + b.x) / 2.,
+        y: (a.y + b.y) / 2.,
+    }
+}
+
 #[derive_ReprC]
-#[ReprC::opaque]
+#[repr(opaque)]
 pub
 struct Foo { opaque: i32 }
 
@@ -63,7 +83,7 @@ fn concat (s1: char_p::Ref<'_>, s2: char_p::Ref<'_>)
 }
 
 #[ffi_export(node_js)]
-fn concat_bytes (
+fn concat_byte_slices (
     xs1: Option<c_slice::Ref<'_, u8>>,
     xs2: Option<c_slice::Ref<'_, u8>>,
 ) -> Option<c_slice::Box<u8>>
@@ -223,8 +243,8 @@ fn takes_out_slice (v: &mut Option<c_slice::Box<u8>>)
     *v = Some(vec![42, 27].into_boxed_slice().into());
 }
 
-#[derive_ReprC]
-#[repr(C, nodejs)]
+#[derive_ReprC(js)]
+#[repr(C)]
 pub enum MyBool { True, False = 1 }
 
 #[ffi_export(node_js)]
@@ -234,8 +254,8 @@ fn boolify (b: MyBool)
     matches!(b, MyBool::True)
 }
 
-#[derive_ReprC]
-#[repr(u8, nodejs)]
+#[derive_ReprC(js)]
+#[repr(u8)]
 pub enum MyBool2 { True, False = 1 }
 
 #[ffi_export(node_js)]

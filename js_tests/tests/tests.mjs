@@ -7,6 +7,23 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
         42 + 27,
     );
 
+    assert.deepEqual(
+        ffi.middle_point(
+            {
+                x: 0.,
+                y: 0.,
+            },
+            {
+                x: 42.,
+                y: 27.,
+            },
+        ),
+        {
+            x: 21.,
+            y: 13.5,
+        },
+    );
+
     (() => {
         let foo = ffi.foo_new();
 
@@ -122,7 +139,7 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
     );
 
     assert.deepEqual(
-        Uint8Array.from(ffi.boxCBytesIntoBuffer(ffi.concat_bytes(
+        Uint8Array.from(ffi.boxCBytesIntoBuffer(ffi.concat_byte_slices(
             Uint8Array.from('Hello, ', c => c.charCodeAt(0)),
             Uint8Array.from('World!', c => c.charCodeAt(0)),
         ))),

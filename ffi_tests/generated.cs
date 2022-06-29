@@ -32,7 +32,43 @@ public unsafe struct AnUnusedStruct_t {
     public Wow_t are_you_still_there;
 }
 
-public enum Triforce_t : byte {
+public unsafe partial class Ffi {
+    public const Int32 FOO = 42;
+}
+
+public enum Bar_t : sbyte {
+    A = 43,
+    B = 42,
+}
+
+[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+public unsafe /* static */ delegate
+    void *
+    void_ptr_bool_fptr (
+        [MarshalAs(UnmanagedType.U1)]
+        bool _0);
+
+/// <summary>
+/// Hello, <c>World</c>!
+/// </summary>
+[StructLayout(LayoutKind.Sequential, Size = 16)]
+public unsafe struct next_generation_t {
+    /// <summary>
+    /// I test some <c>gen</c>-eration.
+    /// </summary>
+    public Bar_t gen;
+
+    /// <summary>
+    /// with function pointers and everything!
+    /// </summary>
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public void_ptr_bool_fptr cb;
+}
+
+/// <summary>
+/// Hello, <c>World</c>!
+/// </summary>
+public enum triforce_t : byte {
     Din = 3,
     Farore = 1,
     Naryu,
@@ -43,7 +79,13 @@ public unsafe partial class Ffi {
     Int32 async_get_ft ();
 }
 
-public enum SomeReprCEnum_t {
+/// <summary>
+/// This is a <c>#[repr(C)]</c> enum, which leads to a classic enum def.
+/// </summary>
+public enum SomeReprCEnum_t  {
+    /// <summary>
+    /// This is some variant.
+    /// </summary>
     SomeVariant,
 }
 
@@ -53,41 +95,37 @@ public unsafe partial class Ffi {
         SomeReprCEnum_t _baz);
 }
 
-public enum Bar_t : byte {
-    A,
-}
-
 public unsafe partial class Ffi {
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     void check_bar (
         Bar_t _bar);
 }
 
-/** \brief
- *  Concatenate the two input strings into a new one.
- *
- *  The returned string must be freed using `free_char_p`.
- */
 public unsafe partial class Ffi {
+    /// <summary>
+    /// Concatenate the two input strings into a new one.
+    ///
+    /// The returned string must be freed using <c>free_char_p</c>.
+    /// </summary>
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     byte * concat (
         byte /*const*/ * fst,
         byte /*const*/ * snd);
 }
 
-/** \brief
- *  Frees a string created by `concat`.
- */
 public unsafe partial class Ffi {
+    /// <summary>
+    /// Frees a string created by <c>concat</c>.
+    /// </summary>
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     void free_char_p (
         byte * _string);
 }
 
 public struct foo_t {
-   #pragma warning disable 0169
-   private byte OPAQUE;
-   #pragma warning restore 0169
+    #pragma warning disable 0169
+    private byte OPAQUE;
+    #pragma warning restore 0169
 }
 
 public unsafe partial class Ffi {
@@ -96,17 +134,43 @@ public unsafe partial class Ffi {
         foo_t * foo);
 }
 
+/// <summary>
+/// <c>&'lt [T]</c> but with a guaranteed <c>#[repr(C)]</c> layout.
+///
+/// # C layout (for some given type T)
+///
+/// ```c
+/// typedef struct {
+/// // Cannot be NULL
+/// T * ptr;
+/// size_t len;
+/// } slice_T;
+/// ```
+///
+/// # Nullable pointer?
+///
+/// If you want to support the above typedef, but where the <c>ptr</c> field is
+/// allowed to be <c>NULL</c> (with the contents of <c>len</c> then being undefined)
+/// use the <c>Option< slice_ptr<_> ></c> type.
+/// </summary>
 [StructLayout(LayoutKind.Sequential, Size = 16)]
 public unsafe struct slice_ref_int32_t {
+    /// <summary>
+    /// Pointer to the first element (if any).
+    /// </summary>
     public Int32 /*const*/ * ptr;
+
+    /// <summary>
+    /// Element count
+    /// </summary>
     public UIntPtr len;
 }
 
-/** \brief
- *  Returns a pointer to the maximum integer of the input slice, or `NULL` if
- *  it is empty.
- */
 public unsafe partial class Ffi {
+    /// <summary>
+    /// Returns a pointer to the maximum integer of the input slice, or <c>NULL</c> if
+    /// it is empty.
+    /// </summary>
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     Int32 /*const*/ * max (
         slice_ref_int32_t xs);
@@ -125,23 +189,39 @@ public unsafe partial class Ffi {
 
 [UnmanagedFunctionPointer(CallingConvention.Winapi)]
 public unsafe /* static */ delegate
+    UInt16
+    uint16_uint8_fptr (
+        byte _0);
+
+public unsafe partial class Ffi {
+    [return: MarshalAs(UnmanagedType.FunctionPtr)]
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    uint16_uint8_fptr returns_a_fn_ptr ();
+}
+
+[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+public unsafe /* static */ delegate
     void
     void_void_ptr_char_const_ptr_fptr (
         void * _0,
         byte /*const*/ * _1);
 
+/// <summary>
+/// <c>&'lt mut (dyn 'lt + Send + FnMut(A1) -> Ret)</c>
+/// </summary>
 [StructLayout(LayoutKind.Sequential, Size = 16)]
 public unsafe struct RefDynFnMut1_void_char_const_ptr_t {
     public void * env_ptr;
+
     [MarshalAs(UnmanagedType.FunctionPtr)]
     public void_void_ptr_char_const_ptr_fptr call;
 }
 
-/** \brief
- *  Same as `concat`, but with a callback-based API to auto-free the created
- *  string.
- */
 public unsafe partial class Ffi {
+    /// <summary>
+    /// Same as <c>concat</c>, but with a callback-based API to auto-free the created
+    /// string.
+    /// </summary>
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     void with_concat (
         byte /*const*/ * fst,
@@ -156,8 +236,9 @@ public unsafe /* static */ delegate
         foo_t * _0);
 
 public unsafe partial class Ffi {
+    [return: MarshalAs(UnmanagedType.U1)]
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    void with_foo (
+    bool with_foo (
         [MarshalAs(UnmanagedType.FunctionPtr)]
         void_foo_ptr_fptr cb);
 }

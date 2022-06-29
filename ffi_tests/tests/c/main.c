@@ -95,6 +95,12 @@ int main (
     // test async_get_ft
     assert(async_get_ft() == 42);
 
+    // test constant
+    assert(FOO == 42);
+
+    // test the currified thing
+    assert(returns_a_fn_ptr()(0x42) == 0x4200);
+
     puts("C: [ok]");
 
     return EXIT_SUCCESS;

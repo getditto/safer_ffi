@@ -25,32 +25,32 @@ struct ErasedRef<'a>(
     ::core::marker::PhantomData<&'a ()>,
 );
 
-#[macro_export]
-macro_rules! const_ {(
-    $(
-        for $generics:tt $(where { $($wc:tt)* })? ,
-    )?
-        $VALUE:block : $T:ty
-) => ({
-    struct __Generics $generics (
-        *mut Self,
-    )
-    // where
-    //     $($($wc)*)?
-    ;
+// #[macro_export]
+// macro_rules! const_ {(
+//     $(
+//         for $generics:tt $(where { $($wc:tt)* })? ,
+//     )?
+//         $VALUE:block : $T:ty
+// ) => ({
+//     struct __Generics $generics (
+//         *mut Self,
+//     )
+//     // where
+//     //     $($($wc)*)?
+//     ;
 
-    impl $generics
-        $crate::dyn_traits::__AssocConst<$T>
-    for
-        __Generics $generics
-    where
-        $($($wc)*)?
-    {
-        const CONST: $T = $VALUE;
-    }
+//     impl $generics
+//         $crate::dyn_traits::__AssocConst<$T>
+//     for
+//         __Generics $generics
+//     where
+//         $($($wc)*)?
+//     {
+//         const CONST: $T = $VALUE;
+//     }
 
-    <__Generics $generics as $crate::dyn_traits::__AssocConst<$T>>::CONST
-})}
+//     <__Generics $generics as $crate::dyn_traits::__AssocConst<$T>>::CONST
+// })}
 
 pub
 trait ReprCTrait {
@@ -79,6 +79,7 @@ mod ty {
     struct Erased(crate::tuple::CVoid); //  { _private: () }
 }
 
+#[apply(cfg_alloc)]
 pub
 trait VirtualPtrFromBox<T> : ReprCTrait { // DynTrait : ?Sized + ReprCTrait > : Sized {
     fn boxed_into_virtual_ptr (
@@ -87,6 +88,7 @@ trait VirtualPtrFromBox<T> : ReprCTrait { // DynTrait : ?Sized + ReprCTrait > : 
     ;
 }
 
+#[apply(cfg_alloc)]
 impl<
     T,
     DynTrait : ?Sized + VirtualPtrFromBox<T>, // + ReprCTrait,

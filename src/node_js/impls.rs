@@ -222,7 +222,7 @@ match_! {( const, mut ) {
                         env.create_string_from_std(format!(
                             "{pointee} {mut}*",
                             mut = if stringify!($mut) == "const" { "const " } else { "" },
-                            pointee = <T as crate::layout::CType>::c_var(""),
+                            pointee = <T as crate::layout::CType>::name(&$crate::headers::languages::C),
                         ))?
                     ;
 
@@ -309,7 +309,7 @@ match_! {( const, mut ) {
                     let expected_ty: &str = &format!(
                         "{pointee} {mut}*",
                         mut = if stringify!($mut) == "const" { "const " } else { "" },
-                        pointee = <T as crate::layout::CType>::c_var(""),
+                        pointee = <T as crate::layout::CType>::name(&$crate::headers::languages::C),
                     );
                     let actual_ty = ty.into_utf8()?;
                     let mut actual_ty = actual_ty.as_str()?;

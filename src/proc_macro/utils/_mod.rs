@@ -1,34 +1,20 @@
+#![allow(unused)]
+#![warn(unused_must_use)]
+
 use super::*;
 
-pub(in crate)
+pub(in crate) use extension_traits::*;
 mod extension_traits;
 
-pub(in crate) use mb_file_expanded::mb_file_expanded;
+pub(in crate) use macros::*;
+mod macros;
+
+pub(in crate) use mb_file_expanded::*;
 mod mb_file_expanded;
 
-pub(in crate)
-fn compile_error (err_msg: &'_ str, span: Span)
-  -> TokenStream
-{
-    use ::proc_macro::{*, TokenTree as TT};
-    macro_rules! spanned {($expr:expr) => ({
-        let mut it = $expr;
-        it.set_span(span);
-        it
-    })}
-    <TokenStream as ::std::iter::FromIterator<_>>::from_iter(vec![
-        TT::Ident(Ident::new("compile_error", span)),
-        TT::Punct(spanned!(Punct::new('!', Spacing::Alone))),
-        TT::Group(spanned!(Group::new(
-            Delimiter::Brace,
-            ::core::iter::once(TT::Literal(
-                spanned!(Literal::string(err_msg))
-            )).collect(),
-        ))),
-    ])
-}
+pub(in crate) use trait_impl_shenanigans::*;
+mod trait_impl_shenanigans;
 
-#[cfg(feature = "proc_macros")]
 pub(in crate)
 trait MySplit {
     type Ret;
@@ -37,7 +23,6 @@ trait MySplit {
     ;
 }
 
-#[cfg(feature = "proc_macros")]
 impl MySplit for Generics {
     type Ret = (TokenStream2, Vec<WherePredicate>);
 
@@ -149,75 +134,120 @@ fn pretty_print_tokenstream (
     }
 }
 
-macro_rules! emit {( $($tt:tt)* ) => ( $($tt)* )}
-
-#[cfg(feature = "proc_macros")] emit! {
+pub(in crate)
+struct RemapNonStaticLifetimesTo<'__> {
     pub(in crate)
-    struct RemapNonStaticLifetimesTo<'__> {
-        pub(in crate)
-        new_lt_name: &'__ str,
+    new_lt_name: &'__ str,
+}
+
+impl ::syn::visit_mut::VisitMut
+    for RemapNonStaticLifetimesTo<'_>
+{
+    fn visit_lifetime_mut (
+        self: &'_ mut Self,
+        lifetime: &'_ mut Lifetime,
+    )
+    {
+        if lifetime.ident != "static" {
+            lifetime.ident = Ident::new(
+                self.new_lt_name,
+                lifetime.ident.span(),
+            );
+        }
     }
 
-    impl ::syn::visit_mut::VisitMut
-        for RemapNonStaticLifetimesTo<'_>
+    fn visit_type_reference_mut (
+        self: &'_ mut Self,
+        ty_ref: &'_ mut TypeReference,
+    )
     {
-        fn visit_lifetime_mut (
-            self: &'_ mut Self,
-            lifetime: &'_ mut Lifetime,
-        )
-        {
-            if lifetime.ident != "static" {
-                lifetime.ident = Ident::new(
-                    self.new_lt_name,
-                    lifetime.ident.span(),
-                );
-            }
+        // 1 – sub-recurse
+        visit_mut::visit_type_reference_mut(self, ty_ref);
+        // 2 – handle the implicitly elided case.
+        if ty_ref.lifetime.is_none() {
+            ty_ref.lifetime = Some(Lifetime::new(
+                &["'", self.new_lt_name].concat(),
+                ty_ref.and_token.span,
+            ));
         }
+    }
 
-        fn visit_type_reference_mut (
-            self: &'_ mut Self,
-            ty_ref: &'_ mut TypeReference,
-        )
-        {
-            // 1 – sub-recurse
-            visit_mut::visit_type_reference_mut(self, ty_ref);
-            // 2 – handle the implicitly elided case.
-            if ty_ref.lifetime.is_none() {
-                ty_ref.lifetime = Some(Lifetime::new(
-                    &["'", self.new_lt_name].concat(),
-                    ty_ref.and_token.span,
-                ));
-            }
-        }
-
-        fn visit_parenthesized_generic_arguments_mut (
-            self: &'_ mut Self,
-            _: &'_ mut ParenthesizedGenericArguments,
-        )
-        {
-            // Elided lifetimes in `fn(…)` or `Fn…(…)` are higher order:
-            /* do not subrecurse */
-        }
+    fn visit_parenthesized_generic_arguments_mut (
+        self: &'_ mut Self,
+        _: &'_ mut ParenthesizedGenericArguments,
+    )
+    {
+        // Elided lifetimes in `fn(…)` or `Fn…(…)` are higher order:
+        /* do not subrecurse */
     }
 }
 
-macro_rules! dbg_parse_quote {(
-    $($code:tt)*
-) => (
-    (|| {
-        fn type_of_some<T> (_: Option<T>)
-          -> &'static str
-        {
-            ::core::any::type_name::<T>()
-        }
+pub(in crate)
+fn compile_warning (
+    span: &dyn ToTokens,
+    message: &str,
+) -> TokenStream2
+{
+    let mut spans = span.to_token_stream().into_iter().map(|tt| tt.span());
+    let fst = spans.next().unwrap_or_else(Span::call_site);
+    let lst = spans.fold(fst, |_, cur| cur);
+    let ref message = ["\n", message].concat();
+    let warning = Ident::new("warning", fst);
+    quote_spanned!(lst=>
+        #[allow(nonstandard_style, clippy::all)]
+        const _: () = {
+            #[allow(nonstandard_style)]
+            struct safer_ffi_ {
+                #[deprecated(note = #message)]
+                #warning: ()
+            }
+            //                     fst    lst
+            let _ = safer_ffi_ { #warning: () };
+            //                   ^^^^^^^^^^^^
+        };
+    )
+}
 
-        let target_ty = None; if false { return target_ty.unwrap(); }
-        eprintln!(
-            "[{}:{}:{}:parse_quote!]\n  - ty: `{ty}`\n  - code: `{code}`",
-            file!(), line!(), column!(),
-            code = ::quote::quote!( $($code)* ),
-            ty = type_of_some(target_ty),
-        );
-        ::syn::parse_quote!( $($code)* )
-    })()
-)} pub(in crate) use dbg_parse_quote;
+pub(in crate)
+fn extract_docs (
+    attrs: &'_ [Attribute]
+) -> Result<Vec<Expr>>
+{
+    attrs.iter().filter_map(|attr| {
+        attr.path
+            .is_ident("doc")
+            .then(|| Parser::parse2(
+                |input: ParseStream<'_>| Ok(
+                    if input.peek(Token![=]) {
+                        let _: Token![=] = input.parse::<Token![=]>().unwrap();
+                        let doc_str: Expr = input.parse()?;
+                        let _: Option<Token![,]> = input.parse()?;
+                        Some(doc_str)
+                    } else {
+                        let _ = input.parse::<TokenStream2>();
+                        None
+                    }
+                ),
+                attr.tokens.clone(),
+            )
+            .transpose())
+            .flatten()
+        })
+        .collect()
+}
+
+pub(crate)
+struct LazyQuote(
+    pub(crate) fn() -> TokenStream2,
+    pub(crate) ::core::cell::RefCell<Option<TokenStream2>>,
+);
+
+impl ::quote::ToTokens for LazyQuote {
+    fn to_tokens (self: &'_ LazyQuote, tokens: &'_ mut TokenStream2)
+    {
+        self.1
+            .borrow_mut()
+            .get_or_insert_with(self.0)
+            .to_tokens(tokens)
+    }
+}
