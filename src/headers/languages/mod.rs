@@ -14,8 +14,10 @@ use {
 pub use c::C;
 mod c;
 
-pub use csharp::CSharp;
-mod csharp;
+__cfg_csharp__! {
+    pub use csharp::CSharp;
+    mod csharp;
+}
 
 pub
 struct Indentation {
@@ -290,7 +292,7 @@ macro_rules! mk_out {
             ) => (
                 // we have to use eager expansion of `concat!` coupled with
                 // span manipulation for the implicit format args to work…
-                with_builtin! {
+                ::with_builtin_macros::with_builtin! {
                     let $concat = concat!($_(
                         "{", stringify!($indent_name), "}",
                         $line,

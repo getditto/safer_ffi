@@ -570,9 +570,9 @@ dependencies = [
 
 [[package]]
 name = "uninit"
-version = "0.3.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac20c07bcac4f505f1e4fbd2e55b54f6297a35a27538f107cb3d4254b4514146"
+checksum = "bdb5fa53d0101e0cd980b0d679db2c76f75c94b883985f57cfe7f50c72dd0536"
 
 [[package]]
 name = "untrusted"

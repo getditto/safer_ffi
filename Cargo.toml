@@ -17,8 +17,6 @@ readme = "README.md"
 [features]
 default = [
     "std",
-    # FIXME: REMOVE!
-    "dyn-traits", "csharp-headers",
 ]
 
 # Document under the following features: all but for debug or experimental.
@@ -112,7 +110,7 @@ version = "0.1.0-rc1"  # Keep in sync
 optional = true
 # Since we are relying on internals of their `Out` reference,
 # we pin the version.
-version = "=0.3.0"
+version = "0.5.0"
 default-features = false
 
 [workspace]

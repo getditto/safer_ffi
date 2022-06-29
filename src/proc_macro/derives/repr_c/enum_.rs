@@ -89,14 +89,13 @@ fn derive (
         }
     ));
 
-    let impl_body = quote!(
+    let mut impl_body = quote!(
         type OPAQUE_KIND = #OpaqueKind::Concrete;
     );
 
     let ref each_doc = utils::extract_docs(attrs)?;
 
-    #[cfg(feature = "headers")]
-    let impl_body = {
+    if cfg!(feature = "headers") {
         #[apply(let_quote!)]
         use ::safer_ffi::{
             ඞ::fmt,
@@ -108,8 +107,6 @@ fn derive (
                 },
             },
         };
-
-        let mut impl_body = impl_body;
 
         let ref EnumName_str =
             args.rename.map_or_else(
@@ -162,9 +159,7 @@ fn derive (
                 )
             }
         ));
-
-        impl_body
-    };
+    }
 
     ret.extend(quote!(
         unsafe
