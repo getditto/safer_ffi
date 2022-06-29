@@ -432,6 +432,7 @@ dependencies = [
  "macro_rules_attribute",
  "mini_paste",
  "napi-dispatcher",
+ "safer-ffi",
  "safer_ffi-proc_macros",
  "scopeguard",
  "uninit",

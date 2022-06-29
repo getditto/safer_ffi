@@ -304,11 +304,16 @@ macro_rules! mk_out {
                             ( $_($line)* ) (
                                 // …and replace, with it, the spans of the whole
                                 //  `write!(` invocation.
-                                write!(
-                                    $out,
-                                    $concat
-                                    $_($rest)*
-                                )?
+                                for line in
+                                    format!(
+                                        $concat
+                                        $_($rest)*
+                                    )
+                                    .split_inclusive('\n')
+                                {
+                                    let new_line = if line.ends_with('\n') { "\n" } else { "" };
+                                    write!($out, "{}{new_line}", line.trim_end())?;
+                                }
                             )
                         }
                     }

@@ -39,7 +39,7 @@ cfg_match! {
             $($item:item)*
         ) => (
             $(
-                #[cfg_attr(all(docs), doc(cfg(feature = "alloc")))]
+                #[cfg_attr(all(feature = "docs"), doc(cfg(feature = "alloc")))]
                 $item
             )*
         )}
@@ -59,7 +59,7 @@ cfg_match! {
             $($item:item)*
         ) => (
             $(
-                #[cfg_attr(all(docs), doc(cfg(feature = "std")))]
+                #[cfg_attr(all(feature = "docs"), doc(cfg(feature = "std")))]
                 $item
             )*
         )}

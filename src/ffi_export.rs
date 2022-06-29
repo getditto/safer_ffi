@@ -170,7 +170,7 @@ macro_rules! __ffi_export__ {
             mod __ty_aliases {
                 #![allow(nonstandard_style, unused_parens)]
                 use super::*;
-                $(
+                $($crate::__last__! { $((
                     // Incidentally, the usage of a `type` alias ensures
                     // `__make_all_lifetimes_static!` is not missing hidden
                     // lifetime parameters in paths (_e.g._, `Cow<str>`, or
@@ -187,24 +187,26 @@ macro_rules! __ffi_export__ {
                             >::NapiValue
                         )
                     ;
-                )*
+                ))*})*
             }
             #[$crate::node_js::derive::js_export(js_name = $fname)]
             fn __node_js $(<$($lt $(: $sup_lt)?),*>)? (
                 $(
-                    $arg_name: __ty_aliases::$arg_name,
+                    $($arg_name)*: $crate::__last__! { $((__ty_aliases::$arg_name))* },
                 )*
             ) -> $crate::node_js::Result<$crate::node_js::JsUnknown>
             {
                 let __ctx__ = $crate::node_js::derive::__js_ctx!();
-                $(
+
+                $($crate::__last__! { $((
                     let $arg_name: <$arg_ty as $crate::layout::ReprC>::CLayout =
                         $crate::node_js::ReprNapi::from_napi_value(
                             __ctx__.env,
                             $arg_name,
                         )?
                     ;
-                )*
+                ))*})*
+
                 #[cfg(any(
                     $($(
                         not(target_arch = "wasm32"),
@@ -213,7 +215,7 @@ macro_rules! __ffi_export__ {
                 ))] {
                     fn __assert_send<__T : $crate::ඞ::marker::Send> ()
                     {}
-                    $(
+                    $($crate::__last__! { $((
                         let $arg_name = unsafe {
                             // The raw `CType` may not be `Send` (_e.g._, it
                             // may be a raw pointer), but we can turn off the
@@ -222,15 +224,20 @@ macro_rules! __ffi_export__ {
                             let _ = __assert_send::<$arg_ty>;
                             $crate::node_js::UnsafeAssertSend::new($arg_name)
                         };
-                    )*
-                    return napi::JsPromise::from_task_spawned_on_worker_pool(__ctx__.env, move || unsafe {
-                        $fname(
-                            $(
-                                $crate::node_js::UnsafeAssertSend::into_inner($arg_name)
-                            ),*
-                        )
-                    }).map(|it| it.into_unknown());
+                    ))*})*
+                    return
+                        napi::JsPromise::from_task_spawned_on_worker_pool(__ctx__.env, move || unsafe {
+                            $fname(
+                                $(
+                                    $crate::node_js::UnsafeAssertSend::into_inner(
+                                        $crate::__last__! { $(($arg_name))* }
+                                    )
+                                ),*
+                            )
+                        })
+                        .map(|it| it.into_unknown());
                 }
+
                 #[cfg(all(
                     $($(
                         target_arch = "wasm32",
@@ -238,7 +245,11 @@ macro_rules! __ffi_export__ {
                     )?)?
                 ))] {
                     let ret = unsafe {
-                        $fname($($arg_name),*)
+                        $fname(
+                            $(
+                                $crate::__last__! { $(($arg_name))* }
+                            ),*
+                        )
                     };
                     return
                         napi::ReprNapi::to_napi_value(ret, __ctx__.env)
@@ -297,7 +308,9 @@ macro_rules! __ffi_export__ {
                         &[
                             $(
                                 $crate::ඞ::FunctionArg {
-                                    name: $crate::ඞ::stringify!($arg_name),
+                                    name: $crate::__last__! {$((
+                                        $crate::ඞ::stringify!($arg_name)
+                                    ))*},
                                     ty: &$crate::ඞ::PhantomData::<
                                         $crate::ඞ::CLayoutOf<$arg_ty>,
                                     >,

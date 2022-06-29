@@ -119,24 +119,6 @@ void
 check_bar (
     Bar_t _bar);
 
-/** \remark Has the same ABI as `uint8_t` **/
-#ifdef DOXYGEN
-typedef enum Bar
-#else
-typedef uint8_t Bar_t; enum
-#endif
-{
-    /** . */
-    BAR_A,
-}
-#ifdef DOXYGEN
-Bar_t
-#endif
-;
-
-void check_bar (
-    Bar_t _bar);
-
 /** \brief
  *  Concatenate the two input strings into a new one.
  *
@@ -187,6 +169,9 @@ typedef struct slice_ref_int32 {
      */
     int32_t const * ptr;
 
+    /** \brief
+     *  Element count
+     */
     size_t len;
 } slice_ref_int32_t;
 

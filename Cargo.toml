@@ -78,7 +78,7 @@ node-js = [
 [dev-dependencies]
 macro_rules_attribute = "0.1.0"
 safer-ffi.path = "."
-safer-ffi.features = ["headers"]
+safer-ffi.features = ["csharp-headers", "async-fn"]
 
 [target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
 libc = { version = "0.2.66", default-features = false }
