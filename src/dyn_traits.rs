@@ -79,6 +79,7 @@ mod ty {
     struct Erased(crate::tuple::CVoid); //  { _private: () }
 }
 
+#[apply(cfg_alloc)]
 pub
 trait VirtualPtrFromBox<T> : ReprCTrait { // DynTrait : ?Sized + ReprCTrait > : Sized {
     fn boxed_into_virtual_ptr (
@@ -87,6 +88,7 @@ trait VirtualPtrFromBox<T> : ReprCTrait { // DynTrait : ?Sized + ReprCTrait > : 
     ;
 }
 
+#[apply(cfg_alloc)]
 impl<
     T,
     DynTrait : ?Sized + VirtualPtrFromBox<T>, // + ReprCTrait,
