@@ -14,6 +14,8 @@ repository = "https://github.com/getditto/safer_ffi"
 
 readme = "README.md"
 
+exclude = ["/guide"]
+
 [features]
 default = [
     "std",
@@ -75,6 +77,8 @@ node-js = [
 
 [dev-dependencies]
 macro_rules_attribute = "0.1.0"
+safer-ffi.path = "."
+safer-ffi.features = ["headers"]
 
 [target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
 libc = { version = "0.2.66", default-features = false }
@@ -126,3 +130,7 @@ members = [
 
 [package.metadata.docs.rs]
 features = ["docs"]
+
+[[test]]
+name = "ffi-tests"
+path = "ffi_tests/src/lib.rs"

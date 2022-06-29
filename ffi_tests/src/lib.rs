@@ -42,12 +42,11 @@ fn returns_a_fn_ptr ()
 fn with_concat (
     fst: char_p::Ref<'_>,
     snd: char_p::Ref<'_>,
-    /*mut*/ cb: ::safer_ffi::closure::RefDynFnMut1<'_, (), char_p::Raw>,
+    mut cb: ::safer_ffi::closure::RefDynFnMut1<'_, (), char_p::Raw>,
 )
 {
-    let mut cb = cb;
-    let s = concat(fst, snd);
-    cb.call(s.as_ref().into());
+    let concat = concat(fst, snd);
+    cb.call(concat.as_ref().into());
 }
 
 /// Returns a pointer to the maximum integer of the input slice, or `NULL` if

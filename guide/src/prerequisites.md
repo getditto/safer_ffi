@@ -1,3 +1,3 @@
 # Prerequisites
 
-  - Minimum Supported Rust Version: `1.45.0`
+  - Minimum Supported Rust Version: `1.60.0`

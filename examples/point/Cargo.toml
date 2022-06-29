@@ -1,0 +1,16 @@
+[package]
+name = "point"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+safer-ffi = { path = "../..", features = ["proc_macros"] }
+
+[features]
+c-headers = ["safer-ffi/headers"]

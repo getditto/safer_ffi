@@ -125,7 +125,7 @@ match_! {(
     /// It defaults to:
     ///
     /// ```rust,ignore
-    /// format!("__RUST_{}__", env::var("CARGO_CRATE_NAME")?.to_ascii_uppercase())
+    /// format!("__RUST_{}__", env::var("CARGO_CRATE_NAME")?.replace("-", "_").to_ascii_uppercase())
     /// ```
     guard: &'__ str,
 

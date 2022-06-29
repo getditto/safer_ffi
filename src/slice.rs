@@ -726,5 +726,15 @@ const _: () = {
                 <rust::Box<[_]>>::into(rust::Box::new([]))
             }
         }
+        impl<T : Clone> Clone
+            for slice_boxed<T>
+        {
+            #[inline]
+            fn clone (self: &'_ slice_boxed<T>)
+              -> slice_boxed<T>
+            {
+                rust::Vec::from(self.as_slice()).into_boxed_slice().into()
+            }
+        }
     }
 };

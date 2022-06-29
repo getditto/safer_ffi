@@ -27,9 +27,17 @@ https://github.com/getditto/safer_ffi)
 
 ## Prerequisites
 
-Minimum Supported Rust Version: `1.57.0`
+Minimum Supported Rust Version: `1.60.0`
 
 ## Quickstart
+
+You may try working with the `examples/point` example embedded in the repo:
+```bash
+git clone https://github.com/getditto/safer_ffi && cd safer_ffi
+cd examples/point
+$ make
+```
+
 
 ### `Cargo.toml`
 
@@ -63,8 +71,7 @@ use ::safer_ffi::prelude::*;
 #[derive_ReprC]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
-pub
-struct Point {
+pub struct Point {
     x: f64,
     y: f64,
 }
@@ -72,11 +79,7 @@ struct Point {
 /* Export a Rust function to the C world. */
 /// Returns the middle point of `[a, b]`.
 #[ffi_export]
-fn mid_point (
-    a: &Point,
-    b: &Point,
-) -> Point
-{
+fn mid_point(a: &Point, b: &Point) -> Point {
     Point {
         x: (a.x + b.x) / 2.,
         y: (a.y + b.y) / 2.,
@@ -95,16 +98,14 @@ pub enum Figure {
 
 /// Pretty-prints a point using Rust's formatting logic.
 #[ffi_export]
-fn print_point (point: &Point)
-{
+fn print_point(point: &Point) {
     println!("{:?}", point);
 }
 
 /// The following test function is necessary for the header generation.
 #[::safer_ffi::cfg_headers]
 #[test]
-fn generate_headers () -> ::std::io::Result<()>
-{
+fn generate_headers() -> ::std::io::Result<()> {
     ::safer_ffi::headers::builder()
         .to_file("rust_points.h")?
         .generate()
@@ -158,7 +159,7 @@ Point_t mid_point (
     Point_t const * a,
     Point_t const * b);
 
-typedef enum Figure 
+typedef enum Figure
 {
 	FIGURE_CIRCLE,
 	FIGURE_SQUARE
@@ -203,7 +204,7 @@ int main (int argc, char const * const argv[])
 #### Compilation command
 
 ```bash
-cc main.c -o main -L target/debug -l crate_name -l pthread -l dl
+cc main.c -o main -L target/debug -l crate_name -l pthread -l dl -lm
 
 # Now feel free to run the compiled binary
 ./main

@@ -44,7 +44,7 @@ macro_rules! __ffi_export__ {
     $(extern $("C")?)?
     fn $fname:ident $(<$($lt:lifetime $(: $sup_lt:lifetime)?),* $(,)?>)? (
         $(
-            $arg_name:ident : $arg_ty:ty
+            $($arg_name:ident)+ : $arg_ty:ty
         ),* $(,)?
     ) $(-> $Ret:ty)?
     $( where {
@@ -60,7 +60,7 @@ macro_rules! __ffi_export__ {
     extern "C"
     fn $fname $(<$($lt $(: $sup_lt)?),*>)? (
         $(
-            $arg_name : $arg_ty,
+            $($arg_name)+ : $arg_ty,
         )*
     ) $(-> $Ret)?
     $(
@@ -73,7 +73,7 @@ macro_rules! __ffi_export__ {
         use $fname as [< $fname __orig >];
     }
 
-    #[allow(dead_code, nonstandard_style, unused_parens)]
+    #[allow(dead_code, nonstandard_style, unused_parens, clippy::all)]
     const _: () = {
         $($(#[doc = $doc])+)?
         #[allow(improper_ctypes_definitions)]
@@ -85,7 +85,7 @@ macro_rules! __ffi_export__ {
         extern "C"
         fn $fname $(<$($lt $(: $sup_lt)?),*>)? (
             $(
-                $arg_name : <$arg_ty as $crate::layout::ReprC>::CLayout,
+                $($arg_name)+ : <$arg_ty as $crate::layout::ReprC>::CLayout,
             )*
         ) -> <($($Ret)?) as $crate::layout::ReprC>::CLayout
         where
@@ -105,7 +105,7 @@ macro_rules! __ffi_export__ {
                     }
                 )?
                 $(
-                    {
+                    $crate::__last__! { $(({
                         mod __parameter__ {
                             pub(in super)
                             fn $arg_name<T> (_: T)
@@ -114,11 +114,11 @@ macro_rules! __ffi_export__ {
                             {}
                         }
                         let _ = __parameter__::$arg_name::<$arg_ty>;
-                    }
+                    }))+ }
                     #[allow(unused_unsafe)]
-                    let $arg_name: $arg_ty = unsafe {
+                    let $($arg_name)+: $arg_ty = unsafe {
                         $crate::layout::from_raw_unchecked::<$arg_ty>(
-                            $arg_name,
+                            $crate::__last__! { $(( $arg_name ))+ },
                         )
                     };
                 )*
@@ -261,7 +261,7 @@ macro_rules! __ffi_export__ {
         $crate::inventory::submit! {
             #![crate = $crate]
             $crate::FfiExport { name: $crate::ඞ::stringify!($fname), gen_def: {
-                #[allow(unused_parens)]
+                #[allow(unused_parens, clippy::all)]
                 fn typedef $(<$($lt $(: $sup_lt)?),*>)? (
                     definer: &'_ mut dyn $crate::ඞ::Definer,
                     lang: $crate::headers::Language,
@@ -363,3 +363,24 @@ macro_rules! __ffi_export__ {
         }
     }
 )}
+
+#[doc(hidden)] #[macro_export]
+macro_rules! __last__ {
+    (
+        $not_last:tt
+        $($rest:tt)+
+    ) => (
+        $crate::__last__! {
+            $($rest)*
+        }
+    );
+
+    (
+        // last
+        (
+            $($contents:tt)*
+        )
+    ) => (
+        $($contents)*
+    );
+}

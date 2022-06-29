@@ -96,7 +96,7 @@ enum triforce {
 triforce_t;
 
 /** <No documentation available> */
-int32_t 
+int32_t
 async_get_ft (void);
 
 /** \brief
@@ -110,13 +110,31 @@ typedef enum SomeReprCEnum {
 } SomeReprCEnum_t;
 
 /** <No documentation available> */
-void 
+void
 check_SomeReprCEnum (
     SomeReprCEnum_t _baz);
 
 /** <No documentation available> */
-void 
+void
 check_bar (
+    Bar_t _bar);
+
+/** \remark Has the same ABI as `uint8_t` **/
+#ifdef DOXYGEN
+typedef enum Bar
+#else
+typedef uint8_t Bar_t; enum
+#endif
+{
+    /** . */
+    BAR_A,
+}
+#ifdef DOXYGEN
+Bar_t
+#endif
+;
+
+void check_bar (
     Bar_t _bar);
 
 /** \brief
@@ -124,7 +142,7 @@ check_bar (
  *
  *  The returned string must be freed using `free_char_p`.
  */
-char * 
+char *
 concat (
     char const * fst,
     char const * snd);
@@ -132,7 +150,7 @@ concat (
 /** \brief
  *  Frees a string created by `concat`.
  */
-void 
+void
 free_char_p (
     char * _string);
 
@@ -140,7 +158,7 @@ free_char_p (
 typedef struct foo foo_t;
 
 /** <No documentation available> */
-void 
+void
 free_foo (
     foo_t * foo);
 
@@ -169,9 +187,6 @@ typedef struct slice_ref_int32 {
      */
     int32_t const * ptr;
 
-    /** \brief
-     *  Element count
-     */
     size_t len;
 } slice_ref_int32_t;
 
@@ -179,16 +194,16 @@ typedef struct slice_ref_int32 {
  *  Returns a pointer to the maximum integer of the input slice, or `NULL` if
  *  it is empty.
  */
-int32_t const * 
+int32_t const *
 max (
     slice_ref_int32_t xs);
 
 /** <No documentation available> */
-foo_t * 
+foo_t *
 new_foo (void);
 
 /** <No documentation available> */
-int32_t 
+int32_t
 read_foo (
     foo_t const * foo);
 
@@ -211,14 +226,14 @@ typedef struct RefDynFnMut1_void_char_const_ptr {
  *  Same as `concat`, but with a callback-based API to auto-free the created
  *  string.
  */
-void 
+void
 with_concat (
     char const * fst,
     char const * snd,
     RefDynFnMut1_void_char_const_ptr_t cb);
 
 /** <No documentation available> */
-bool 
+bool
 with_foo (
     void (*cb)(foo_t *));
 

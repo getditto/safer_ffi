@@ -1,8 +1,7 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use super::*;
 
-// use crate::layout::CTypeFmt;
-
+#[cfg(not(any(target_arch = "wasm32", not(feature = "std"))))] // no libc on WASM nor no_std
 const_assert! {
     ::core::mem::size_of::<crate::libc::uintptr_t>()
     ==
