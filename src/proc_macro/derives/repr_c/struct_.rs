@@ -172,7 +172,7 @@ fn derive (
                             &_it.#each_field_name
                         ) == false
                         {
-                            #ඞ::eprintln!(
+                            #ඞ::__error__!(
                                 "\
                                     Encountered invalid bit-pattern \
                                     for field `.{}` \
