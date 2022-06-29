@@ -4,18 +4,20 @@ proc-macro = true
 
 [package]
 name = "safer_ffi-proc_macros"
-# Keep in sync with `/Cargo.toml`
-version = "0.0.5"
+version = "0.1.0-rc1"  # Keep in sync
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 description = "Procedural macro internals of `::safer_ffi`"
 license = "MIT"
 
 [dependencies]
-proc-macro2 = { version = "1.0", optional = true }
-quote = { version = "1.0", optional = true }
-proc-macro-hack = { version = "0.5.15", optional = true }
+proc-macro2.version = "1.0"
+quote.version = "1.0"
+
+# prettyplease.optional = true
+prettyplease.version = "0.1.7"
+macro_rules_attribute = "0.1.0"
 
 [dependencies.syn]
 version = "1.0"
@@ -24,11 +26,15 @@ features = [
     "full",
     "visit-mut",
 ]
-optional = true
 
 [features]
-async-fn = ["proc_macros"]
+async-fn = []
+dyn-traits = []
 headers = []
-node-js = ["async-fn", "proc_macros"]
-proc_macros = [ "proc-macro2", "proc-macro-hack", "quote", "syn" ]
-verbose-expansions = []
+js = [
+    "async-fn",
+]
+node-js = ["js"]  # legacy alias.
+verbose-expansions = [
+    # "prettyplease",
+]

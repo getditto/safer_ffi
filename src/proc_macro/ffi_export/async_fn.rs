@@ -1,28 +1,33 @@
-use super::*;
+use {
+    ::syn::{
+        visit_mut::VisitMut,
+    },
+    super::{
+        *,
+    },
+};
 
-use ::proc_macro2::{Span, TokenStream as TokenStream2};
-
-pub(in crate)
+pub(in super)
 fn export (
     Attrs { block_on, node_js }: Attrs,
     fun: &'_ ItemFn,
-) -> TokenStream
+) -> Result<TokenStream2>
 {
     let block_on = match (block_on, fun.sig.asyncness) {
         | (Some(block_on), Some(_asyncness)) => block_on,
-        | (Some(block_on), None) => {
-            return Error::new_spanned(block_on, "\
+        | (Some(block_on), None) => bail!(
+            "\
                 `#[ffi_export(…)]`'s `executor` attribute \
                 can only be applied to an `async fn`. \
-            ").into_compile_error().into();
-        },
-        | (None, Some(asyncness)) => {
-            return Error::new_spanned(asyncness, "\
+            " => block_on
+        ),
+        | (None, Some(asyncness)) => bail!(
+            "\
                 In order for `#[ffi_export(…)]` to support `async fn`, you \
                 need to feed it an `executor = …` parameter and then use \
                 `ffi_await!(…)` as the last expression of the function's body.\
-            ").into_compile_error().into();
-        },
+            " => asyncness
+        ),
         | (None, None) => unreachable!(),
     };
     // The body of the function is expected to be of the form:
@@ -75,12 +80,14 @@ fn export (
             },
         })()
         {
-            return Error::new(err_span, "\
-                `#[ffi_export(…, executor = …)]` expects the last \
-                expression/statement to be an expression of the form: \
-                `ffi_await!(<some future>)` such as:\n    \
-                ffi_await!(async move {\n        …\n    })\n\
-            ").into_compile_error().into();
+            bail!(
+                "\
+                    `#[ffi_export(…, executor = …)]` expects the last \
+                    expression/statement to be an expression of the form: \
+                    `ffi_await!(<some future>)` such as:\n    \
+                    ffi_await!(async move {\n        …\n    })\n\
+                " => spanned!(err_span)
+            );
         }
         (stmts, async_body.unwrap())
     };
@@ -90,7 +97,7 @@ fn export (
     let ret = if cfg!(feature = "node-js") {
         if node_js.is_none() {
             // Nothing to do in this branch:
-            return fun.into_token_stream().into();
+            return Ok(fun.into_token_stream());
         }
         let fname = &fun.sig.ident;
         let mut fun_signature = fun.sig.clone();
@@ -275,7 +282,7 @@ fn export (
             }
         )
     };
-    ret.into()
+    Ok(ret)
 }
 
 use ::syn::parse::{Parse, ParseStream};
@@ -293,8 +300,9 @@ mod kw {
 }
 
 impl Parse for Attrs {
-    fn parse (input: ParseStream<'_>)
-      -> Result<Attrs>
+    fn parse (
+        input: ParseStream<'_>,
+    ) -> Result<Attrs>
     {
         let mut ret = Attrs::default();
         while input.is_empty().not() {
@@ -322,61 +330,20 @@ impl Parse for Attrs {
     }
 }
 
-fn respan (span: Span, tokens: TokenStream2)
-  -> TokenStream2
+fn respan (
+    span: Span,
+    tokens: TokenStream2,
+) -> TokenStream2
 {
-  use ::proc_macro2::{Group, TokenTree as TT};
-  tokens.into_iter().map(|tt| match tt {
-      | TT::Group(g) => TT::Group(
-          Group::new(g.delimiter(), respan(span, g.stream()))
-      ),
-      | mut tt => {
-          tt.set_span(tt.span().resolved_at(span));
-          tt
-      },
-  }).collect()
-}
+    use ::proc_macro2::*;
 
-struct RemapNonStaticLifetimesTo<'__> {
-    new_lt_name: &'__ str,
-}
-use visit_mut::VisitMut;
-impl VisitMut for RemapNonStaticLifetimesTo<'_> {
-    fn visit_lifetime_mut (
-        self: &'_ mut Self,
-        lifetime: &'_ mut Lifetime,
-    )
-    {
-        if lifetime.ident != "static" {
-            lifetime.ident = Ident::new(
-                self.new_lt_name,
-                lifetime.ident.span(),
-            );
-        }
-    }
-
-    fn visit_type_reference_mut (
-        self: &'_ mut Self,
-        ty_ref: &'_ mut TypeReference,
-    )
-    {
-        // 1 – sub-recurse
-        visit_mut::visit_type_reference_mut(self, ty_ref);
-        // 2 – handle the implicitly elided case.
-        if ty_ref.lifetime.is_none() {
-            ty_ref.lifetime = Some(Lifetime::new(
-                &["'", self.new_lt_name].concat(),
-                ty_ref.and_token.span,
-            ));
-        }
-    }
-
-    fn visit_parenthesized_generic_arguments_mut (
-        self: &'_ mut Self,
-        _: &'_ mut ParenthesizedGenericArguments,
-    )
-    {
-        // Elided lifetimes in `fn(…)` or `Fn…(…)` are higher order:
-        /* do not subrecurse */
-    }
+    tokens.into_iter().map(|tt| match tt {
+        | TT::Group(g) => TT::Group(
+            Group::new(g.delimiter(), respan(span, g.stream()))
+        ),
+        | mut tt => {
+            tt.set_span(tt.span().resolved_at(span));
+            tt
+        },
+    }).collect()
 }

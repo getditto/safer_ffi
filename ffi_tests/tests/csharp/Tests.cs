@@ -122,6 +122,16 @@ static class Tests
             Trace.Assert(called);
         }
 
+        // test constant
+        unsafe {
+            Trace.Assert(Ffi.FOO == 42);
+        }
+
+        // test the currified thing
+        unsafe {
+            Trace.Assert(Ffi.returns_a_fn_ptr()(0x42) == 0x4200);
+        }
+
         Console.WriteLine("C#: [ok]");
     }
 }

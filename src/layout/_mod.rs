@@ -4,7 +4,10 @@
 use_prelude!();
 
 __cfg_headers__! {
-    use crate::headers::Definer;
+    use crate::headers::{
+        Definer,
+        languages::*,
+    };
 }
 
 #[macro_use]
@@ -13,11 +16,9 @@ mod macros;
 #[doc(inline)]
 pub use crate::{from_CType_impl_ReprC, ReprC, CType};
 
-cfg_proc_macros! {
-    pub use crate::{
-        derive_ReprC,
-    };
-}
+pub use crate::{
+    derive_ReprC,
+};
 
 type_level_enum! {
     pub
@@ -28,10 +29,146 @@ type_level_enum! {
 }
 
 pub
-fn __assert_concrete__<T>() where
-    T : ReprC,
-    <T as ReprC>::CLayout : CType<OPAQUE_KIND = OpaqueKind::Concrete>,
-{}
+unsafe
+trait CType
+:
+    Sized +
+    Copy +
+{
+    type OPAQUE_KIND : OpaqueKind::T;
+
+    __cfg_headers__! {
+        fn short_name ()
+          -> String
+        ;
+
+        #[allow(nonstandard_style)]
+        fn define_self__impl (
+            language: &'_ dyn HeaderLanguage,
+            definer: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        ;
+
+        fn define_self (
+            language: &'_ dyn HeaderLanguage,
+            definer: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        {
+            definer.define_once(
+                &Self::name(language),
+                &mut |definer| Self::define_self__impl(language, definer),
+            )
+        }
+
+        fn name (
+            _language: &'_ dyn HeaderLanguage,
+        ) -> String
+        {
+            format!("{}_t", Self::short_name())
+        }
+
+        fn name_wrapping_var (
+            language: &'_ dyn HeaderLanguage,
+            var_name: &'_ str,
+        ) -> String
+        {
+            let sep = if var_name.is_empty() { "" } else { " " };
+            format!("{}{sep}{var_name}", Self::name(language))
+        }
+
+        /// Optional marshaler attached to the type (_e.g._,
+        /// `[MarshalAs(UnmanagedType.FunctionPtr)]`)
+        fn csharp_marshaler ()
+          -> Option<String>
+        {
+            None
+        }
+    }
+}
+
+unsafe
+impl<T : LegacyCType> CType for T {
+    type OPAQUE_KIND = <T as LegacyCType>::OPAQUE_KIND;
+
+    __cfg_headers__! {
+        #[inline]
+        fn short_name ()
+          -> String
+        {
+            <Self as LegacyCType>::c_short_name().to_string()
+        }
+
+        #[inline]
+        fn define_self__impl (
+            _: &'_ dyn HeaderLanguage,
+            _: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        {
+            unimplemented!()
+        }
+
+        fn define_self (
+            language: &'_ dyn HeaderLanguage,
+            definer: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        {
+            match () {
+                | _case if language.is::<C>() => {
+                    <Self as LegacyCType>::c_define_self(definer)
+                },
+                #[cfg(feature = "csharp-headers")]
+                | _case if language.is::<CSharp>() => {
+                    <Self as LegacyCType>::csharp_define_self(definer)
+                },
+                | _ => unimplemented!(),
+            }
+        }
+
+        #[inline]
+        fn name (
+            language: &'_ dyn HeaderLanguage,
+        ) -> String
+        {
+            Self::name_wrapping_var(language, "")
+        }
+
+        #[inline]
+        fn name_wrapping_var (
+            language: &'_ dyn HeaderLanguage,
+            var_name: &'_ str,
+        ) -> String
+        {
+            match () {
+                | _case if language.is::<C>() => {
+                    <Self as LegacyCType>::c_var(var_name).to_string()
+                },
+                #[cfg(feature = "csharp-headers")]
+                | _case if language.is::<CSharp>() => {
+                    let sep = if var_name.is_empty() { "" } else { " " };
+                    format!("{}{sep}{var_name}", Self::csharp_ty())
+                },
+                | _ => unimplemented!(),
+            }
+        }
+
+        #[inline]
+        fn csharp_marshaler ()
+          -> Option<String>
+        {
+            cfg_match!({
+                feature = "csharp-headers" => {
+                    <T as LegacyCType>::legacy_csharp_marshaler()
+                },
+                _ => {
+                    unimplemented!("missing `csharp-headers` Cargo feature");
+                },
+            })
+        }
+    }
+}
+
+pub
+type CLayoutOf<ImplReprC> = <ImplReprC as ReprC>::CLayout;
 
 /// One of the two core traits of this crate (with [`ReprC`][`trait@ReprC`]).
 ///
@@ -64,7 +201,7 @@ fn __assert_concrete__<T>() where
 ///
 ///       - This crates provides as many of these implementations as possible.
 ///
-///   - an recursively, a non-zero-sized `#[repr(C)]` struct of `CType` fields.
+///   - and recursively, a non-zero-sized `#[repr(C)]` struct of `CType` fields.
 ///
 ///       - the [`CType!`] macro can be used to wrap a `#[repr(C)]` struct
 ///         definition to _safely_ and automagically implement the trait
@@ -76,10 +213,11 @@ fn __assert_concrete__<T>() where
 ///
 /// For such types, see the [`ReprC`][`trait@ReprC`] trait.
 pub
-unsafe trait CType
+unsafe trait LegacyCType
 :
     Sized +
     Copy +
+    CType +
 {
     type OPAQUE_KIND : OpaqueKind::T;
     __cfg_headers__! {
@@ -132,7 +270,21 @@ unsafe trait CType
         fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
           -> fmt::Result
         ;
+        // {
+        //     Self::short_name_fmt(&C, fmt)
+        // }
 
+        // fn short_name_fmt (
+        //     language: &'_ dyn HeaderLanguage,
+        //     fmt: &'_ mut fmt::Formatter<'_>,
+        // ) -> fmt::Result
+        // {
+        //     match () {
+        //         | _case if language.is::<C>() => Self::c_short_name_fmt(fmt),
+        //         // | _case if language.is::<CSharp>() => Self::csharp_short_name_fmt(fmt),
+        //         | _ => unimplemented!(),
+        //     }
+        // }
 
         /// Convenience function for _callers_ / users of types implementing
         /// [`CType`][`trait@CType`].
@@ -239,13 +391,22 @@ unsafe trait CType
         ///     // ...
         /// }
         /// ```
-        #[inline]
         fn c_define_self (definer: &'_ mut dyn Definer)
           -> io::Result<()>
-        {
-            let _ = definer;
-            Ok(())
-        }
+        ;
+        // {
+        //     Self::define_self(&C, definer)
+        // }
+
+        // #[inline]
+        // fn define_self__impl (
+        //     language: &'_ dyn HeaderLanguage,
+        //     definer: &'_ mut dyn Definer,
+        // ) -> io::Result<()>
+        // {
+        //     let _ = (language, definer);
+        //     Ok(())
+        // }
 
         /// The core method of the trait: it provides the implementation to be
         /// used by [`CType::c_var`], by bringing a `Formatter` in scope.
@@ -366,14 +527,17 @@ unsafe trait CType
             /// Extra typedef code (_e.g._ `[LayoutKind.Sequential] struct ...`)
             fn csharp_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
-            {
-                let _ = definer;
-                Ok(())
-            }
+            ;
+            // {
+            //     Self::define_self(
+            //         &CSharp,
+            //         definer,
+            //     )
+            // }
 
             /// Optional marshaler attached to the type (_e.g._,
             /// `[MarshalAs(UnmanagedType.FunctionPtr)]`)
-            fn csharp_marshaler ()
+            fn legacy_csharp_marshaler ()
               -> Option<rust::String>
             {
                 None
@@ -408,7 +572,7 @@ __cfg_headers__! {
 
         #[allow(missing_debug_implementations)]
         pub
-        struct ImplDisplay<'__, T : CType> {
+        struct ImplDisplay<'__, T : LegacyCType> {
             pub(in super)
             var_name: &'__ str,
 
@@ -416,7 +580,7 @@ __cfg_headers__! {
             _phantom: ::core::marker::PhantomData<T>,
         }
 
-        impl<T : CType> Display
+        impl<T : LegacyCType> Display
             for ImplDisplay<'_, T>
         {
             #[inline]
@@ -434,12 +598,12 @@ __cfg_headers__! {
 
         #[allow(missing_debug_implementations)]
         pub
-        struct ImplDisplay<T : CType> {
+        struct ImplDisplay<T : LegacyCType> {
             pub(in super)
             _phantom: ::core::marker::PhantomData<T>,
         }
 
-        impl<T : CType> Display
+        impl<T : LegacyCType> Display
             for ImplDisplay<T>
         {
             #[inline]
@@ -487,8 +651,7 @@ __cfg_headers__! {
 /// It is generally recommended to avoid manually (and `unsafe`-ly)
 /// implementing the [`ReprC`] trait. Instead, the recommended and blessed way
 /// is to use the [`#[derive_ReprC]`](/safer_ffi/layout/attr.derive_ReprC.html)
-/// attribute (when the `proc_macros` feature is enabled, or the [`ReprC!`]
-/// macro when it is not) on your `#[repr(C)] struct` (or your field-less
+/// attribute on your `#[repr(C)] struct` (or your field-less
 /// `#[repr(<integer>)] enum`).
 ///
 /// [`ReprC`]: `trait@ReprC`
@@ -518,22 +681,6 @@ __cfg_headers__! {
 ///     } Instant_t;
 ///     ```
 ///
-/// or you can use what the attribute macro expands to, to avoid requiring
-/// the `proc_macros` feature:
-///
-/// ```rust,no_run
-/// # fn main () {}
-/// use ::safer_ffi::prelude::*;
-///
-/// ReprC! {
-///     #[repr(C)]
-///     struct Instant {
-///         seconds: u64,
-///         nanos: u32,
-///     }
-/// }
-/// ```
-///
 /// #### Field-less `enum`
 ///
 /// ```rust,no_run
@@ -562,25 +709,6 @@ __cfg_headers__! {
 ///         STATUS_OH_NO,
 ///     }
 ///     ```
-///
-/// or you can use what the attribute macro expands to, to avoid requiring
-/// the `proc_macros` feature:
-///
-/// ```rust,no_run
-/// # fn main () {}
-/// use ::safer_ffi::prelude::*;
-///
-/// ReprC! {
-///     #[repr(u8)]
-///     enum Status {
-///         Ok = 0,
-///         Busy,
-///         NotInTheMood,
-///         OnStrike,
-///         OhNo,
-///     }
-/// }
-/// ```
 ///
 /// #### Generic `struct`
 ///
@@ -615,29 +743,6 @@ __cfg_headers__! {
 ///         double y;
 ///     } Point_double_t;
 ///     ```
-///
-/// This is where the attribute macro shines. Indeed, the [`ReprC!`] macro has
-/// some parsing limitations (for the sake of simplicity and performance) that
-/// require unorthodox syntax when generics are involved (see
-/// [the macro documentation][`ReprC!`] for more info about it):
-///
-///
-/// ```rust,no_run
-/// # fn main () {}
-/// use ::safer_ffi::prelude::*;
-///
-/// ReprC! {
-///     #[repr(C)]
-///     struct Point[Coordinate]
-///     where {
-///         Coordinate : ReprC,
-///     }
-///     {
-///         x: Coordinate,
-///         y: Coordinate,
-///     }
-/// }
-/// ```
 pub
 unsafe
 trait ReprC : Sized {
@@ -752,12 +857,7 @@ fn from_raw_unchecked<T : ReprC> (c_layout: T::CLayout)
     }
 }
 
-#[cfg_attr(all(feature = "proc_macros", not(docs)),
-    require_unsafe_in_body,
-)]
-#[cfg_attr(not(feature = "proc_macros"),
-    allow(unused_unsafe),
-)]
+#[deny(unsafe_op_in_unsafe_fn)]
 #[inline]
 pub
 unsafe
@@ -777,12 +877,7 @@ fn from_raw<T : ReprC> (c_layout: T::CLayout)
     }
 }
 
-#[cfg_attr(all(feature = "proc_macros", not(docs)),
-    require_unsafe_in_body,
-)]
-#[cfg_attr(not(feature = "proc_macros"),
-    allow(unused_unsafe),
-)]
+#[deny(unsafe_op_in_unsafe_fn)]
 #[inline]
 pub
 unsafe // May not be sound when input has uninit bytes that the output does not
@@ -802,5 +897,35 @@ mod impls;
 
 mod niche;
 
-#[doc(hidden)] /* Not part of the public API */ pub
+#[apply(hidden_export)]
 use niche::HasNiche as __HasNiche__;
+
+#[apply(hidden_export)]
+trait Is { type EqTo : ?Sized; }
+impl<T : ?Sized> Is for T { type EqTo = Self; }
+
+/// Alias for `ReprC where Self::CLayout::OPAQUE_KIND = OpaqueKind::Concrete`
+pub
+trait ConcreteReprC
+where
+    Self : ReprC,
+{
+    type ConcreteCLayout
+    :
+        Is<EqTo = CLayoutOf<Self>> +
+        CType<OPAQUE_KIND = OpaqueKind::Concrete> +
+    ;
+}
+impl<T : ?Sized> ConcreteReprC for T
+where
+    Self : ReprC,
+    CLayoutOf<Self> : CType<OPAQUE_KIND = OpaqueKind::Concrete>,
+{
+    type ConcreteCLayout = CLayoutOf<Self>;
+}
+
+#[apply(hidden_export)]
+fn __assert_concrete__<T> ()
+where
+    T : ConcreteReprC,
+{}
