@@ -90,69 +90,80 @@ unsafe
 impl<T : LegacyCType> CType for T {
     type OPAQUE_KIND = <T as LegacyCType>::OPAQUE_KIND;
 
-    #[inline]
-    fn short_name ()
-      -> String
-    {
-        <Self as LegacyCType>::c_short_name().to_string()
-    }
-
-    #[inline]
-    fn define_self__impl (
-        _: &'_ dyn HeaderLanguage,
-        _: &'_ mut dyn Definer,
-    ) -> io::Result<()>
-    {
-        unimplemented!()
-    }
-
-    fn define_self (
-        language: &'_ dyn HeaderLanguage,
-        definer: &'_ mut dyn Definer,
-    ) -> io::Result<()>
-    {
-        match () {
-            | _case if language.is::<C>() => {
-                <Self as LegacyCType>::c_define_self(definer)
-            },
-            | _case if language.is::<CSharp>() => {
-                <Self as LegacyCType>::csharp_define_self(definer)
-            },
-            | _ => unimplemented!(),
+    __cfg_headers__! {
+        #[inline]
+        fn short_name ()
+          -> String
+        {
+            <Self as LegacyCType>::c_short_name().to_string()
         }
-    }
 
-    #[inline]
-    fn name (
-        language: &'_ dyn HeaderLanguage,
-    ) -> String
-    {
-        Self::name_wrapping_var(language, "")
-    }
-
-    #[inline]
-    fn name_wrapping_var (
-        language: &'_ dyn HeaderLanguage,
-        var_name: &'_ str,
-    ) -> String
-    {
-        match () {
-            | _case if language.is::<C>() => {
-                <Self as LegacyCType>::c_var(var_name).to_string()
-            },
-            | _case if language.is::<CSharp>() => {
-                let sep = if var_name.is_empty() { "" } else { " " };
-                format!("{}{sep}{var_name}", Self::csharp_ty())
-            },
-            | _ => unimplemented!(),
+        #[inline]
+        fn define_self__impl (
+            _: &'_ dyn HeaderLanguage,
+            _: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        {
+            unimplemented!()
         }
-    }
 
-    #[inline]
-    fn csharp_marshaler ()
-      -> Option<String>
-    {
-        <T as LegacyCType>::legacy_csharp_marshaler()
+        fn define_self (
+            language: &'_ dyn HeaderLanguage,
+            definer: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        {
+            match () {
+                | _case if language.is::<C>() => {
+                    <Self as LegacyCType>::c_define_self(definer)
+                },
+                #[cfg(feature = "csharp-headers")]
+                | _case if language.is::<CSharp>() => {
+                    <Self as LegacyCType>::csharp_define_self(definer)
+                },
+                | _ => unimplemented!(),
+            }
+        }
+
+        #[inline]
+        fn name (
+            language: &'_ dyn HeaderLanguage,
+        ) -> String
+        {
+            Self::name_wrapping_var(language, "")
+        }
+
+        #[inline]
+        fn name_wrapping_var (
+            language: &'_ dyn HeaderLanguage,
+            var_name: &'_ str,
+        ) -> String
+        {
+            match () {
+                | _case if language.is::<C>() => {
+                    <Self as LegacyCType>::c_var(var_name).to_string()
+                },
+                #[cfg(feature = "csharp-headers")]
+                | _case if language.is::<CSharp>() => {
+                    let sep = if var_name.is_empty() { "" } else { " " };
+                    format!("{}{sep}{var_name}", Self::csharp_ty())
+                },
+                | _ => unimplemented!(),
+            }
+        }
+
+        #[inline]
+        fn csharp_marshaler ()
+          -> Option<String>
+        {
+            cfg_match!({
+                feature = "csharp-headers" => {
+                    <T as LegacyCType>::legacy_csharp_marshaler()
+                },
+                _ => {
+                    unimplemented!("missing `csharp-headers` Cargo feature");
+                },
+            })
+        }
     }
 }
 

@@ -26,9 +26,6 @@
 extern crate macro_rules_attribute;
 
 #[macro_use]
-extern crate with_builtin_macros;
-
-#[macro_use]
 #[path = "utils/_mod.rs"]
 #[doc(hidden)] /** Not part of the public API **/ pub
 mod __utils__;
@@ -220,7 +217,6 @@ pub use ::safer_ffi_proc_macros::c_str as c;
 ///     } Point_double_t;
 ///     ```
 pub use ::safer_ffi_proc_macros::derive_ReprC;
-pub type GenerationFunction = fn(&mut dyn headers::Definer, headers::Language) -> std::io::Result<()>;
 
 #[macro_use]
 #[path = "layout/_mod.rs"]
@@ -240,8 +236,14 @@ __cfg_headers__! {
     #[allow(missing_copy_implementations, missing_debug_implementations)]
     #[doc(hidden)] pub
     struct FfiExport {
-        pub name: &'static str,
-        pub gen_def: GenerationFunction,
+        pub
+        name: &'static str,
+
+        pub
+        gen_def:
+            fn(&mut dyn headers::Definer, headers::Language)
+              -> std::io::Result<()>
+        ,
     }
 
     ::inventory::collect!(FfiExport);
@@ -485,16 +487,6 @@ mod __ {
             self,
         },
         crate::{
-            headers::{
-                Definer,
-                languages::{
-                    self,
-                    EnumVariant,
-                    FunctionArg,
-                    HeaderLanguage,
-                    StructField,
-                },
-            },
             layout::{
                 CLayoutOf,
                 ConcreteReprC,
@@ -504,6 +496,18 @@ mod __ {
                 __HasNiche__,
             },
             prelude::*,
+        },
+    };
+
+    #[cfg(feature = "headers")]
+    pub use crate::headers::{
+        Definer,
+        languages::{
+            self,
+            EnumVariant,
+            FunctionArg,
+            HeaderLanguage,
+            StructField,
         },
     };
 

@@ -46,12 +46,11 @@ fn derive (
         ))
     }
 
-    let impl_body = quote!(
+    let mut impl_body = quote!(
         type OPAQUE_KIND = #OpaqueKind::Concrete;
     );
 
-    #[cfg(feature = "headers")]
-    let impl_body = {
+    if cfg!(feature = "headers") {
         let EachGenericTy =
             generics.type_params().map(|it| &it.ident)
         ;
@@ -65,7 +64,6 @@ fn derive (
             )
         ;
 
-        let mut impl_body = impl_body;
         impl_body.extend(quote!(
             fn short_name ()
               -> #ඞ::String
@@ -123,9 +121,7 @@ fn derive (
                 )
             }
         ));
-
-        impl_body
-    };
+    }
 
     ret.extend({
         let (intro_generics, fwd_generics, where_clauses) =
