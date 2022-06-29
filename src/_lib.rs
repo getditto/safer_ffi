@@ -423,30 +423,9 @@ struct __PanicOnDrop__; impl Drop for __PanicOnDrop__ {
     }
 }
 
-#[cfg(feature = "log")]
 #[apply(hidden_export)]
 macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
-    $crate::log::error!($($tt)*);
-    let _panic_on_drop = $crate::__PanicOnDrop__;
-    $crate::ඞ::panic!($($tt)*);
-})}
-
-#[cfg(all(
-    not(feature = "log"),
-    feature = "std",
-))]
-#[apply(hidden_export)]
-macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
-    $crate::ඞ::eprintln!($($tt)*);
-    $crate::ඞ::process::abort();
-})}
-
-#[cfg(all(
-    not(feature = "log"),
-    not(feature = "std"),
-))]
-#[apply(hidden_export)]
-macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
+    $crate::ඞ::__error__!($($tt)*);
     let _panic_on_drop = $crate::__PanicOnDrop__;
     $crate::ඞ::panic!($($tt)*);
 })}
@@ -520,10 +499,10 @@ mod __ {
         },
         feature = "alloc" => {
             pub use {
-                ::core::{
+                ::core::{*,
                     prelude::rust_2021::*,
                 },
-                ::alloc::{*,
+                ::alloc::{
                     boxed::Box,
                     string::String,
                     vec::Vec,
@@ -553,6 +532,28 @@ mod __ {
     impl<T : ?Sized> IdentityIgnoring<'_> for T {
         type ItSelf = Self;
     }
+
+    cfg_match! {
+        feature = "log" => {
+            #[apply(hidden_export)]
+            macro_rules! __error__ {( $($msg:tt)* ) => (
+                $crate::log::error! { $($msg)* }
+            )}
+        },
+        feature = "std" => {
+            #[apply(hidden_export)]
+            macro_rules! __error__ {( $($msg:tt)* ) => (
+                $crate::ඞ::eprintln! { $($msg)* }
+            )}
+        },
+        _ => {
+            #[apply(hidden_export)]
+            macro_rules! __error__ {( $($msg:tt)* ) => (
+                /* nothing we can do */
+            )}
+        },
+    }
+    pub use __error__;
 
     #[cfg(feature = "alloc")]
     pub
