@@ -20,7 +20,7 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
-          - windows-latest
+          # - windows-latest
         rust:
           - 1.60.0
           - stable
@@ -33,9 +33,9 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
 
-      - name: Instal LLVM
-        run: choco install -y llvm
-        if: runner.os == 'Windows'
+      # - name: Instal LLVM
+      #   run: choco install -y llvm
+      #   if: runner.os == 'Windows'
 
       - name: Clone repo
         uses: actions/checkout@v2
@@ -51,9 +51,10 @@ jobs:
     needs: check
     strategy:
       matrix:
-        feature--std: ['', '--features std']
-        feature--alloc: ['', '--features alloc']
+        feature--std: ['', '--features alloc', '--features std']
         feature--async-fn: ['', '--features async-fn']
+        feature--headers: ['', '--features headers', '--features csharp-headers']
+        feature--dyn-traits: ['', '--features dyn-traits']
         # feature--log: ['', '--features log']
         feature--out-refs: ['', '--features out-refs']
         feature--node-js: ['', '--features node-js']
@@ -74,8 +75,9 @@ jobs:
           args: |
             --no-default-features
             ${{ matrix.feature--std }}
-            ${{ matrix.feature--alloc }}
             ${{ matrix.feature--async-fn }}
+            ${{ matrix.feature--headers }}
+            ${{ matrix.feature--dyn-traits }}
             ${{ matrix.feature--out-refs }}
             ${{ matrix.feature--node-js }}
 
@@ -90,7 +92,7 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
-          # - windows-latest
+          - windows-latest
         rust:
           # - 1.60.0
           - stable
@@ -115,7 +117,7 @@ jobs:
           RUST_BACKTRACE: full
         with:
           command: test
-          args: --no-default-features --features std
+          args: --features docs
 
       - name: FFI test (C & C#?)
         run: make -C ffi_tests
