@@ -121,6 +121,7 @@ jobs:
 
       - name: FFI test (C & C#?)
         run: make -C ffi_tests
+        if: runner.os != 'Windows'
         env:
           RUSTC_BOOTSTRAP: 1
           RUSTFLAGS: -Zmacro-backtrace
@@ -128,6 +129,7 @@ jobs:
 
       - name: FFI test (js)
         run: make -C js_tests
+        if: runner.os != 'Windows'
         env:
           RUSTC_BOOTSTRAP: 1
           RUSTFLAGS: -Zmacro-backtrace
