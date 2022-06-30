@@ -5,7 +5,7 @@ set -euxo pipefail
 BASE_DIR="$(git rev-parse --show-toplevel)"
 
 cd $BASE_DIR
-cargo +nightly doc --all-features
+RUSTC_BOOTSTRAP=1 cargo doc --features docs
 (cd guide
     (cd src && sed -e "s#{ROOT_PATH}#${1-/}#g" links.md.template > links.md)
     mdbook build

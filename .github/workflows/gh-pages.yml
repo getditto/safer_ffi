@@ -147,7 +147,7 @@ jobs:
         with:
           profile: default
           override: true
-          toolchain: nightly
+          toolchain: 1.60.0
 
       - name: Install `mdbook`
         uses: peaceiris/actions-mdbook@v1
@@ -162,6 +162,8 @@ jobs:
         with:
           command: doc
           args: --features docs
+        env:
+          RUSTC_BOOTSTRAP: 1
 
       - name: Build guide and documentation
         run: |
