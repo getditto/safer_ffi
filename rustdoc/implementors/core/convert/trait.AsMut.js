@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["napi"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/convert/trait.AsMut.html\" title=\"trait core::convert::AsMut\">AsMut</a>&lt;[<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.u8.html\">u8</a>]&gt; for <a class=\"struct\" href=\"napi/struct.JsBufferValue.html\" title=\"struct napi::JsBufferValue\">JsBufferValue</a>","synthetic":false,"types":["napi::js_values::buffer::JsBufferValue"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

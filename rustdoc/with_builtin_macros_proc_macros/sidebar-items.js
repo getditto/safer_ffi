@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["with_builtin","Pre-processor (pattern) with hard-coded implementations for some of the built-in macros, so as to be able to chain their result with custom macros."]]};

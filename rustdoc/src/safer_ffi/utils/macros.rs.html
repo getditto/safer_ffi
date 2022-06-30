@@ -192,84 +192,202 @@
 <span id="186">186</span>
 <span id="187">187</span>
 <span id="188">188</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unused_macros</span>)]</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unused_macros</span>)]</span>
 
 <span class="macro">macro_rules!</span> <span class="ident">use_prelude</span> { () =&gt; (
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::prelude</span>::<span class="kw-2">*</span>;
 )}
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">mod</span> <span class="ident">cfg_alloc</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>,
-    )]</span>
-    <span class="macro">macro_rules!</span> <span class="ident">cfg_alloc</span> {(
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
+<span class="doccomment">/// I really don&#39;t get the complexity of `cfg_if!`…</span>
+<span class="macro">macro_rules!</span> <span class="ident">cfg_match</span> {
+    (
+        <span class="kw">_</span> =&gt; { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expansion</span>:<span class="ident">tt</span>)<span class="op">*</span> } $(,)<span class="question-mark">?</span>
     ) =&gt; (
-        $(
-            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">docs</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>), <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)))]</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>
-        )<span class="op">*</span>
-    )}
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expansion</span>)<span class="op">*</span>
+    );
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>,
-    ))]</span>
-    <span class="macro">macro_rules!</span> <span class="ident">cfg_alloc</span> {(
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
+    (
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cfg</span>:<span class="ident">meta</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expansion</span>:<span class="ident">tt</span> $(,
+        $($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">+</span>)<span class="question-mark">?</span> )<span class="question-mark">?</span>
     ) =&gt; (
-        <span class="comment">// Nothing</span>
-    )}
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">cfg</span>)]</span>
+        <span class="macro">cfg_match!</span> { <span class="kw">_</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expansion</span> } $($(
+
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">cfg</span>))]</span>
+        <span class="macro">cfg_match!</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="op">+</span> } )<span class="question-mark">?</span>)<span class="question-mark">?</span>
+    );
+
+    <span class="comment">// Bonus: expression-friendly syntax: `cfg_match!({ … })`</span>
+    ({
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">input</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    }) =&gt; ({
+        <span class="macro">cfg_match!</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">input</span>)<span class="op">*</span> }
+    });
 }
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">mod</span> <span class="ident">cfg_std</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>,
-    )]</span>
-    <span class="macro">macro_rules!</span> <span class="ident">cfg_std</span> {(
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
-    ) =&gt; (
-        $(
-            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">docs</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>), <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)))]</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>
-        )<span class="op">*</span>
-    )}
-
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>,
-    ))]</span>
-    <span class="macro">macro_rules!</span> <span class="ident">cfg_std</span> {(
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
-    ) =&gt; (
-        <span class="comment">// Nothing</span>
-    )}
+<span class="macro">cfg_match!</span> {
+    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span> =&gt; {
+        <span class="macro">macro_rules!</span> <span class="ident">cfg_alloc</span> {(
+            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
+        ) =&gt; (
+            $(
+                <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>), <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)))]</span>
+                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>
+            )<span class="op">*</span>
+        )}
+    },
+    <span class="kw">_</span> =&gt; {
+        <span class="macro">macro_rules!</span> <span class="ident">cfg_alloc</span> {(
+            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
+        ) =&gt; (
+            <span class="comment">// Nothing</span>
+        )}
+    },
 }
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">mod</span> <span class="ident">cfg_proc_macros</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;proc_macros&quot;</span>,
-    )]</span>
-    <span class="macro">macro_rules!</span> <span class="ident">cfg_proc_macros</span> {(
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
-    ) =&gt; (
-        $(
-            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">docs</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>), <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;proc_macros&quot;</span>)))]</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>
-        )<span class="op">*</span>
-    )}
-
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;proc_macros&quot;</span>,
-    ))]</span>
-    <span class="macro">macro_rules!</span> <span class="ident">cfg_proc_macros</span> {(
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
-    ) =&gt; (
-        <span class="comment">// Nothing</span>
-    )}
+<span class="macro">cfg_match!</span> {
+    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span> =&gt; {
+        <span class="macro">macro_rules!</span> <span class="ident">cfg_std</span> {(
+            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
+        ) =&gt; (
+            $(
+                <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>), <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)))]</span>
+                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>
+            )<span class="op">*</span>
+        )}
+    },
+    <span class="kw">_</span> =&gt; {
+        <span class="macro">macro_rules!</span> <span class="ident">cfg_std</span> {(
+            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
+        ) =&gt; (
+            <span class="comment">// Nothing</span>
+        )}
+    },
 }
+
+<span class="macro">macro_rules!</span> <span class="ident">cfg_wasm</span> {( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span> ) =&gt; (
+    $(
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>
+    )<span class="op">*</span>
+)}
+<span class="macro">macro_rules!</span> <span class="ident">cfg_not_wasm</span> {( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span> ) =&gt; (
+    $(
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>
+    )<span class="op">*</span>
+)}
 
 <span class="macro">macro_rules!</span> <span class="ident">const_assert</span> {
     (
@@ -302,40 +420,89 @@
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">type_level_enum</span> {(
-    $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
+    $( <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">tt</span>]</span> )<span class="op">*</span>
     <span class="macro-nonterminal">$</span><span class="kw">pub</span>:<span class="macro-nonterminal">vis</span>
     <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span>:<span class="ident">ident</span> {
         $(
-            $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant_meta</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
+            $( <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc_variant</span>:<span class="ident">tt</span>]</span> )<span class="op">*</span>
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span>:<span class="ident">ident</span>
-        ),<span class="op">+</span> $(,)<span class="question-mark">?</span>
+        ),<span class="op">*</span> $(,)<span class="question-mark">?</span>
     }
 ) =&gt; (
-    <span class="attribute">#[<span class="ident">allow</span>(
-        <span class="ident">bad_style</span>,
-        <span class="ident">missing_copy_implementations</span>,
-        <span class="ident">missing_debug_implementations</span>,
+    $( <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>]</span> )<span class="op">*</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ### Type-level `enum`</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Until `const_generics` can handle custom `enum`s, this pattern must be</span>
+    <span class="doccomment">/// implemented at the type level.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// We thus end up with:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```rust,ignore</span>
+    <span class="doccomment">/// #[type_level_enum]</span>
+    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">::core::concat!</span>(
+        <span class="string">&quot; enum &quot;</span>, <span class="macro">::core::stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span>), <span class="string">&quot; {&quot;</span>,
     )]</span>
-    $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>]</span>)<span class="op">*</span>
-    <span class="macro-nonterminal">$</span><span class="kw">pub</span>
-    <span class="kw">mod</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span> {
-        <span class="kw">use</span> <span class="ident">private::Sealed</span>; <span class="kw">mod</span> <span class="ident">private</span> { <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sealed</span> {} }
-        <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">__</span> : <span class="ident">Sealed</span> {}
-        $(
-            $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant_meta</span>]</span>)<span class="op">*</span>
-            <span class="kw">pub</span>
-            <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span> {}
-                <span class="kw">impl</span> <span class="ident">__</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span> {} <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span> {}
-        )<span class="op">+</span>
-    }
-)}
+    $(
+        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">::core::concat!</span>(
+            <span class="string">&quot;         &quot;</span>, <span class="macro">::core::stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span>), <span class="string">&quot;,&quot;</span>,
+        )]</span>
+    )<span class="op">*</span>
+    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; }&quot;</span>]</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">::core::concat!</span>(
+        <span class="string">&quot;With [`&quot;</span>, <span class="macro">::core::stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span>), <span class="string">&quot;::T`](#reexports) \
+        being the type-level \&quot;enum type\&quot;:&quot;</span>,
+    )]</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```rust,ignore</span>
+    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">::core::concat!</span>(
+        <span class="string">&quot;&lt;Param : &quot;</span>, <span class="macro">::core::stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span>), <span class="string">&quot;::T&gt;&quot;</span>
+    )]</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">warnings</span>)]</span>
+    <span class="macro-nonterminal">$</span><span class="kw">pub</span> <span class="kw">mod</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span> {
+        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span> <span class="kw">as</span> <span class="ident">T</span>;
 
-<span class="macro">macro_rules!</span> <span class="ident">with_doc</span> {(
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">expr</span>]</span>
-    $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">*</span>
-) =&gt; (
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>]</span>
-    $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="op">*</span>
+        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">::core::concat!</span>(
+            <span class="string">&quot;See [`&quot;</span>, <span class="macro">::core::stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span>), <span class="string">&quot;`]&quot;</span>,
+            <span class="string">&quot;[super::&quot;</span>, <span class="macro">::core::stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span>), <span class="string">&quot;]&quot;</span>
+        )]</span>
+        <span class="kw">pub</span>
+        <span class="kw">trait</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span>
+        :
+            <span class="ident">__sealed</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span> <span class="op">+</span>
+            <span class="ident">::core::marker::Sized</span> <span class="op">+</span>
+            <span class="lifetime">&#39;static</span> <span class="op">+</span>
+        {
+            <span class="kw">const</span> <span class="ident">VALUE</span>: <span class="ident">__value</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span>;
+        }
+
+        <span class="kw">mod</span> <span class="ident">__sealed</span> { <span class="kw">pub</span> <span class="kw">trait</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span> {} }
+
+        <span class="kw">mod</span> <span class="ident">__value</span> {
+            <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+            <span class="kw">pub</span> <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span> { $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span> ),<span class="op">*</span> }
+        }
+
+        $(
+            $( <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc_variant</span>]</span> )<span class="op">*</span>
+            <span class="kw">pub</span> <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span> {}
+            <span class="kw">impl</span> <span class="ident">__sealed</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span> {}
+            <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span> {
+                <span class="kw">const</span> <span class="ident">VALUE</span>: <span class="ident">__value</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span> <span class="op">=</span>
+                    <span class="ident">__value</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span>
+                ;
+            }
+            <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span> {
+                <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">VALUE</span>: <span class="ident">__value</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span> <span class="op">=</span>
+                    <span class="ident">__value</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span>
+                ;
+            }
+        )<span class="op">*</span>
+    }
 )}
 
 <span class="macro">macro_rules!</span> <span class="ident">doc_test</span> {
@@ -343,43 +510,94 @@
         <span class="attribute">#![<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">ident</span>]</span>
         $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span>:<span class="ident">tt</span>)<span class="op">*</span>
     ) =&gt; (
-        <span class="macro">with_doc!</span> {
+        <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
             <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">concat!</span>(
                 <span class="string">&quot;```rust,&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>), <span class="string">&quot;\n&quot;</span>,
-                <span class="macro">stringify!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span>)<span class="kw-2">*</span>),
-                <span class="string">&quot;\n```\n&quot;</span>,
+                <span class="macro">stringify!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span>)<span class="kw-2">*</span>), <span class="string">&quot;\n&quot;</span>,
             )]</span>
+            <span class="doccomment">/// ```</span>
             <span class="kw">pub</span> <span class="kw">mod</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {}
-        }
+        };
     );
 
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span> :
         $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span>:<span class="ident">tt</span>)<span class="op">*</span>
     ) =&gt; (
-        <span class="macro">with_doc!</span> {
+        <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
             <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">concat!</span>(
                 <span class="string">&quot;```rust\n&quot;</span>,
-                <span class="macro">stringify!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span>)<span class="kw-2">*</span>),
-                <span class="string">&quot;\n```\n&quot;</span>,
+                <span class="macro">stringify!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span>)<span class="kw-2">*</span>), <span class="string">&quot;\n&quot;</span>,
             )]</span>
+            <span class="doccomment">/// ```</span>
             <span class="kw">pub</span> <span class="kw">mod</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {}
-        }
+        };
     );
 }
 
-<span class="macro">cfg_proc_macros!</span> {
-    <span class="macro">doc_test!</span> { <span class="ident">c_str</span>:
-        <span class="kw">use</span> <span class="ident">::safer_ffi::prelude</span>::<span class="kw-2">*</span>;
+<span class="macro">doc_test!</span> { <span class="ident">c_str</span>:
+    <span class="kw">use</span> <span class="ident">::safer_ffi::prelude</span>::<span class="kw-2">*</span>;
 
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro">c!</span>(<span class="string">&quot;Hello, World!&quot;</span>);
-    }
-    <span class="macro">doc_test!</span> { <span class="ident">c_str_inner_nul_byte</span>:
-        <span class="attribute">#![<span class="ident">compile_fail</span>]</span>
-        <span class="kw">use</span> <span class="ident">::safer_ffi::prelude</span>::<span class="kw-2">*</span>;
-
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro">c!</span>(<span class="string">&quot;Hell\0, World!&quot;</span>);
-    }
+    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro">c!</span>(<span class="string">&quot;Hello, World!&quot;</span>);
 }
+<span class="macro">doc_test!</span> { <span class="ident">c_str_inner_nul_byte</span>:
+    <span class="attribute">#![<span class="ident">compile_fail</span>]</span>
+    <span class="kw">use</span> <span class="ident">::safer_ffi::prelude</span>::<span class="kw-2">*</span>;
+
+    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro">c!</span>(<span class="string">&quot;Hell\0, World!&quot;</span>);
+}
+
+<span class="doccomment">/// Items exported through this macro are internal implementation details</span>
+<span class="doccomment">/// that exported macros may need access to.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Users of this crate should not directly use them (unless the pinpoint the</span>
+<span class="doccomment">/// version dependency), since they are considered to be semver-exempt and</span>
+<span class="doccomment">/// could thus cause breakage.</span>
+<span class="macro">macro_rules!</span> <span class="ident">hidden_export</span> {
+    (
+        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
+        <span class="macro">macro_rules!</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    ) =&gt; (
+        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="op">*</span>
+        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="doccomment">/** Not part of the public API **/</span> <span class="attribute">#[<span class="ident">macro_export</span>]</span>
+        <span class="macro">macro_rules!</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="op">*</span>
+    );
+
+    (
+        @<span class="ident">attrs</span>[ $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">tt</span>)<span class="op">*</span> ]
+        <span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">current</span>:<span class="ident">meta</span>]</span>
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    ) =&gt; (
+        <span class="macro">hidden_export!</span> {
+            @<span class="ident">attrs</span>[ $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>)<span class="op">*</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">current</span> ]
+            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="op">*</span>
+        }
+    );
+
+    (
+        @<span class="ident">attrs</span>[ $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">tt</span>)<span class="op">*</span> ]
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    ) =&gt; (
+        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="op">*</span>
+        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="doccomment">/** Not part of the public API **/</span> <span class="kw">pub</span>
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>)<span class="op">*</span>
+    );
+
+    (
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">input</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    ) =&gt; (
+        <span class="macro">hidden_export!</span> {
+            @<span class="ident">attrs</span>[]
+            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">input</span>)<span class="op">*</span>
+        }
+    )
+}
+
+<span class="macro">macro_rules!</span> <span class="ident">match_</span> {(
+    ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">scrutinee</span>:<span class="ident">tt</span>)<span class="op">*</span> ) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rules</span>:<span class="ident">tt</span>
+) =&gt; (
+    <span class="macro">macro_rules!</span> <span class="ident">__recurse__</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rules</span>
+    <span class="macro">__recurse__!</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">scrutinee</span>)<span class="op">*</span> }
+)}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
 </body></html>

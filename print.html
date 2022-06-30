@@ -200,7 +200,7 @@ headers).</p>
 <p>Link to <a href="introduction//safer_ffi/rustdoc/safer_ffi/"><i class="fa fa-cubes" aria-hidden="true"></i> the <code>rustdoc</code>-generated API documentation <i class="fa fa-cubes" aria-hidden="true"></i></a>.</p>
 <h2><a class="header" href="#prerequisites" id="prerequisites">Prerequisites</a></h2>
 <ul>
-<li>Minimum Supported Rust Version: <code>1.56.0</code></li>
+<li>Minimum Supported Rust Version: <code>1.60.0</code></li>
 </ul>
 <h2><a class="header" href="#getting-started" id="getting-started">Getting started</a></h2>
 <p>See <a href="introduction//safer_ffi/introduction/quickstart.html">the next chapter</a> or <a href="introduction//safer_ffi/usage/_.html">the chapter on <em>Detailed Usage</em></a>.</p>
@@ -1522,7 +1522,7 @@ mod hidden {
             | None =&gt; {
                 // Got an invalid `LogLevel` bit-pattern
                 if compile_time_condition() {
-                    eprintln!(&quot;Got an invalid `LogLevel` bit-pattern&quot;)
+                    eprintln!(&quot;Got an invalid `LogLevel` bit-pattern&quot;);
                     abort();
                 } else {
                     use ::std::hint::unreachable_unchecked as UB;

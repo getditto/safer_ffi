@@ -68,7 +68,31 @@
 <span id="62">62</span>
 <span id="63">63</span>
 <span id="64">64</span>
-</pre><pre class="rust"><code><span class="macro">use_prelude!</span>();
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+<span class="macro">use_prelude!</span>();
 
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(
@@ -107,7 +131,7 @@
 };
 
 <span class="kw">unsafe</span>
-<span class="kw">impl</span> <span class="ident">CType</span>
+<span class="kw">impl</span> <span class="ident">LegacyCType</span>
     <span class="kw">for</span> <span class="ident">c_char</span>
 { <span class="macro">__cfg_headers__!</span> {
     <span class="kw">fn</span> <span class="ident">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
@@ -127,11 +151,33 @@
             <span class="ident">sep</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">var_name</span>.<span class="ident">is_empty</span>() { <span class="string">&quot;&quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> },
         )
     }
+
+    <span class="kw">fn</span> <span class="ident">c_define_self</span> (
+        <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident"><span class="kw">crate</span>::headers::Definer</span>,
+    ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    {
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="macro">__cfg_csharp__!</span> {
+        <span class="kw">fn</span> <span class="ident">csharp_define_self</span> (
+            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident"><span class="kw">crate</span>::headers::Definer</span>,
+        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+        {
+            <span class="prelude-val">Ok</span>(())
+        }
+
+        <span class="kw">fn</span> <span class="ident">csharp_ty</span> ()
+          -&gt; <span class="ident">rust::String</span>
+        {
+            <span class="string">&quot;byte&quot;</span>.<span class="ident">into</span>()
+        }
+    }
 } <span class="kw">type</span> <span class="ident">OPAQUE_KIND</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::layout::OpaqueKind::Concrete</span>; }
 
 <span class="macro">from_CType_impl_ReprC!</span> {
     <span class="ident">c_char</span>
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
 </body></html>

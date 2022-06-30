@@ -60,10 +60,9 @@
 <span id="54">54</span>
 <span id="55">55</span>
 <span id="56">56</span>
-<span id="57">57</span>
-<span id="58">58</span>
-<span id="59">59</span>
-</pre><pre class="rust"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">mod</span> <span class="ident">macros</span>;
 
 <span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">crate</span>)
@@ -80,40 +79,35 @@
     <span class="kw">use</span> <span class="ident">::core::ops</span>::{<span class="ident">Not</span> <span class="kw">as</span> <span class="kw">_</span>};
     <span class="macro">assert!</span>(
         <span class="ident">::core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="ident">::core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>(),
-        <span class="macro">concat!</span>(
-            <span class="string">&quot;Error, size mismatch.&quot;</span>,
-            <span class="string">&quot; This is a soundness bug, please report an issue ASAP&quot;</span>,
-        )
+        <span class="string">&quot;Error, size mismatch. \
+        This is a soundness bug, please report an issue ASAP&quot;</span>,
     );
     <span class="macro">assert!</span>(
         <span class="ident">::core::mem::needs_drop</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">not</span>(),
-        <span class="macro">concat!</span>(
-            <span class="string">&quot;Error, input has drop glue.&quot;</span>,
-            <span class="string">&quot; This is a soundness bug, please report an issue ASAP&quot;</span>,
-        ),
+        <span class="string">&quot;Error, input has drop glue. \
+        This is a soundness bug, please report an issue ASAP&quot;</span>,
     );
     <span class="ident">::core::mem::transmute_copy</span>(<span class="ident">it</span>)
 }
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">warnings</span>)]</span>
 <span class="kw">pub</span>
-<span class="kw">struct</span> <span class="ident">screaming_case</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span><span class="op">&gt;</span>(
+<span class="kw">struct</span> <span class="ident">screaming_case</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span><span class="op">&gt;</span> (
     <span class="kw">pub</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;__</span> <span class="ident">str</span>,
     <span class="kw">pub</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;__</span> <span class="ident">str</span>,
 );
 
 <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-    <span class="kw">use</span> <span class="ident">::core::fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>, <span class="ident">Write</span>};
+    <span class="kw">use</span> <span class="ident">::core</span>::{<span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>, <span class="ident">Write</span>}, <span class="ident">ops::Not</span>};
 
     <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">screaming_case</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">fmt</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">Self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
-        -&gt; <span class="ident">fmt::Result</span>
+          -&gt; <span class="ident">fmt::Result</span>
         {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">not_first</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            [<span class="self">self</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="number">1</span>].<span class="ident">iter</span>().<span class="ident">copied</span>().<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">chars</span>()).<span class="ident">try_for_each</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
-                <span class="kw">if</span> <span class="bool-val">true</span>
-                    <span class="op">&amp;&amp;</span> <span class="ident">::core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">not_first</span>, <span class="bool-val">true</span>)
-                    <span class="op">&amp;&amp;</span> <span class="ident">c</span>.<span class="ident">is_ascii_uppercase</span>()
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            [<span class="self">self</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="number">1</span>].<span class="ident">iter</span>().<span class="ident">flat_map</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">chars</span>()).<span class="ident">try_for_each</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
+                <span class="kw">if</span> <span class="ident">::core::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="ident">first</span>).<span class="ident">not</span>()
+                <span class="op">&amp;&amp;</span> <span class="ident">c</span>.<span class="ident">is_ascii_uppercase</span>()
                 {
                     <span class="ident">fmt</span>.<span class="ident">write_char</span>(<span class="string">&#39;_&#39;</span>)<span class="question-mark">?</span>;
                 }
@@ -123,5 +117,5 @@
     }
 };
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
 </body></html>

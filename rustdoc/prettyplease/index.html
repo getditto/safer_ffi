@@ -1,0 +1,250 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="github crates-io docs-rs"><meta name="keywords" content="rust, rustlang, rust-lang, prettyplease"><title>prettyplease - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="../crates.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../prettyplease/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../prettyplease/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"><a href="#">Crate prettyplease</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 0.1.10</li><li><a id="all-types" href="all.html">All Items</a></li></ul></div><section><div class="block"><ul><li><a href="#functions">Functions</a></li></ul></div></section></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../prettyplease/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1">
+                                <a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
+    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">prettyplease</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/prettyplease/lib.rs.html#1-375">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><a href="https://github.com/dtolnay/prettyplease"><img src="https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github" alt="github" /></a> <a href="https://crates.io/crates/prettyplease"><img src="https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust" alt="crates-io" /></a> <a href="https://docs.rs/prettyplease"><img src="https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logoColor=white&amp;logo=data:image/svg+xml;base64,PHN2ZyByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDUxMiA1MTIiPjxwYXRoIGZpbGw9IiNmNWY1ZjUiIGQ9Ik00ODguNiAyNTAuMkwzOTIgMjE0VjEwNS41YzAtMTUtOS4zLTI4LjQtMjMuNC0zMy43bC0xMDAtMzcuNWMtOC4xLTMuMS0xNy4xLTMuMS0yNS4zIDBsLTEwMCAzNy41Yy0xNC4xIDUuMy0yMy40IDE4LjctMjMuNCAzMy43VjIxNGwtOTYuNiAzNi4yQzkuMyAyNTUuNSAwIDI2OC45IDAgMjgzLjlWMzk0YzAgMTMuNiA3LjcgMjYuMSAxOS45IDMyLjJsMTAwIDUwYzEwLjEgNS4xIDIyLjEgNS4xIDMyLjIgMGwxMDMuOS01MiAxMDMuOSA1MmMxMC4xIDUuMSAyMi4xIDUuMSAzMi4yIDBsMTAwLTUwYzEyLjItNi4xIDE5LjktMTguNiAxOS45LTMyLjJWMjgzLjljMC0xNS05LjMtMjguNC0yMy40LTMzLjd6TTM1OCAyMTQuOGwtODUgMzEuOXYtNjguMmw4NS0zN3Y3My4zek0xNTQgMTA0LjFsMTAyLTM4LjIgMTAyIDM4LjJ2LjZsLTEwMiA0MS40LTEwMi00MS40di0uNnptODQgMjkxLjFsLTg1IDQyLjV2LTc5LjFsODUtMzguOHY3NS40em0wLTExMmwtMTAyIDQxLjQtMTAyLTQxLjR2LS42bDEwMi0zOC4yIDEwMiAzOC4ydi42em0yNDAgMTEybC04NSA0Mi41di03OS4xbDg1LTM4Ljh2NzUuNHptMC0xMTJsLTEwMiA0MS40LTEwMi00MS40di0uNmwxMDItMzguMiAxMDIgMzguMnYuNnoiPjwvcGF0aD48L3N2Zz4K" alt="docs-rs" /></a></p>
+<br>
+<p><strong>prettyplease::unparse</strong> — a minimal <code>syn</code> syntax tree pretty-printer</p>
+<br>
+<h2 id="overview"><a href="#overview">Overview</a></h2>
+<p>This is a pretty-printer to turn a <code>syn</code> syntax tree into a <code>String</code> of
+well-formatted source code. In contrast to rustfmt, this library is intended
+to be suitable for arbitrary generated code.</p>
+<p>Rustfmt prioritizes high-quality output that is impeccable enough that you’d
+be comfortable spending your career staring at its output — but that
+means some heavyweight algorithms, and it has a tendency to bail out on code
+that is hard to format (for example <a href="https://github.com/rust-lang/rustfmt/issues/3697">rustfmt#3697</a>, and there are dozens
+more issues like it). That’s not necessarily a big deal for human-generated
+code because when code gets highly nested, the human will naturally be
+inclined to refactor into more easily formattable code. But for generated
+code, having the formatter just give up leaves it totally unreadable.</p>
+<p>This library is designed using the simplest possible algorithm and data
+structures that can deliver about 95% of the quality of rustfmt-formatted
+output. In my experience testing real-world code, approximately 97-98% of
+output lines come out identical between rustfmt’s formatting and this
+crate’s. The rest have slightly different linebreak decisions, but still
+clearly follow the dominant modern Rust style.</p>
+<p>The tradeoffs made by this crate are a good fit for generated code that you
+will <em>not</em> spend your career staring at. For example, the output of
+<code>bindgen</code>, or the output of <code>cargo-expand</code>. In those cases it’s more
+important that the whole thing be formattable without the formatter giving
+up, than that it be flawless.</p>
+<br>
+<h2 id="feature-matrix"><a href="#feature-matrix">Feature matrix</a></h2>
+<p>Here are a few superficial comparisons of this crate against the AST
+pretty-printer built into rustc, and rustfmt. The sections below go into
+more detail comparing the output of each of these libraries.</p>
+<div><table><thead><tr><th></th><th>prettyplease</th><th>rustc</th><th>rustfmt</th></tr></thead><tbody>
+<tr><td>non-pathological behavior on big or generated code</td><td>✅</td><td>❌</td><td>❌</td></tr>
+<tr><td>idiomatic modern formatting (“locally indistinguishable from rustfmt”)</td><td>✅</td><td>❌</td><td>✅</td></tr>
+<tr><td>throughput</td><td>60 MB/s</td><td>39 MB/s</td><td>2.8 MB/s</td></tr>
+<tr><td>number of dependencies</td><td>3</td><td>72</td><td>66</td></tr>
+<tr><td>compile time including dependencies</td><td>2.4 sec</td><td>23.1 sec</td><td>29.8 sec</td></tr>
+<tr><td>buildable using a stable Rust compiler</td><td>✅</td><td>❌</td><td>❌</td></tr>
+<tr><td>published to crates.io</td><td>✅</td><td>❌</td><td>❌</td></tr>
+<tr><td>extensively configurable output</td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>intended to accommodate hand-maintained source code</td><td>❌</td><td>❌</td><td>✅</td></tr>
+</tbody></table>
+</div><br>
+<h2 id="comparison-to-rustfmt"><a href="#comparison-to-rustfmt">Comparison to rustfmt</a></h2>
+<ul>
+<li><a href="https://github.com/dtolnay/prettyplease/blob/0.1.0/examples/input.rs">input.rs</a></li>
+<li><a href="https://github.com/dtolnay/prettyplease/blob/0.1.0/examples/output.prettyplease.rs">output.prettyplease.rs</a></li>
+<li><a href="https://github.com/dtolnay/prettyplease/blob/0.1.0/examples/output.rustfmt.rs">output.rustfmt.rs</a></li>
+</ul>
+<p>If you weren’t told which output file is which, it would be practically
+impossible to tell — <strong>except</strong> for line 435 in the rustfmt output,
+which is more than 1000 characters long because rustfmt just gave up
+formatting that part of the file:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>            <span class="kw">match</span> <span class="ident">segments</span>[<span class="number">5</span>] {
+                <span class="number">0</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;::{}&quot;</span>, <span class="ident">ipv4</span>),
+                <span class="number">0xffff</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;::ffff:{}&quot;</span>, <span class="ident">ipv4</span>),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            }
+        } <span class="kw">else</span> { # [<span class="ident">derive</span> (<span class="ident">Copy</span> , <span class="ident">Clone</span> , <span class="ident">Default</span>)] <span class="kw">struct</span> <span class="ident">Span</span> { <span class="ident">start</span> : <span class="ident">usize</span> , <span class="ident">len</span> : <span class="ident">usize</span> , } <span class="kw">let</span> <span class="ident">zeroes</span> <span class="op">=</span> { <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">longest</span> <span class="op">=</span> <span class="ident">Span</span> :: <span class="ident">default</span> () ; <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">Span</span> :: <span class="ident">default</span> () ; <span class="kw">for</span> (<span class="ident">i</span> , <span class="op">&amp;</span> <span class="ident">segment</span>) <span class="kw">in</span> <span class="ident">segments</span> . <span class="ident">iter</span> () . <span class="ident">enumerate</span> () { <span class="kw">if</span> <span class="ident">segment</span> <span class="op">==</span> <span class="number">0</span> { <span class="kw">if</span> <span class="ident">current</span> . <span class="ident">len</span> <span class="op">==</span> <span class="number">0</span> { <span class="ident">current</span> . <span class="ident">start</span> <span class="op">=</span> <span class="ident">i</span> ; } <span class="ident">current</span> . <span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span> ; <span class="kw">if</span> <span class="ident">current</span> . <span class="ident">len</span> <span class="op">&gt;</span> <span class="ident">longest</span> . <span class="ident">len</span> { <span class="ident">longest</span> <span class="op">=</span> <span class="ident">current</span> ; } } <span class="kw">else</span> { <span class="ident">current</span> <span class="op">=</span> <span class="ident">Span</span> :: <span class="ident">default</span> () ; } } <span class="ident">longest</span> } ; # [<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; Write a colon-separated part of the address&quot;</span>] # [<span class="ident">inline</span>] <span class="kw">fn</span> <span class="ident">fmt_subslice</span> (<span class="ident">f</span> : <span class="op">&amp;</span> <span class="kw-2">mut</span> <span class="ident">fmt</span> :: <span class="ident">Formatter</span> <span class="op">&lt;</span> <span class="lifetime">&#39;_</span> <span class="op">&gt;</span> , <span class="ident">chunk</span> : <span class="op">&amp;</span> [<span class="ident">u16</span>]) -&gt; <span class="ident">fmt</span> :: <span class="prelude-ty">Result</span> { <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span> ((<span class="ident">first</span> , <span class="ident">tail</span>)) <span class="op">=</span> <span class="ident">chunk</span> . <span class="ident">split_first</span> () { <span class="ident">write</span> <span class="op">!</span> (<span class="ident">f</span> , <span class="string">&quot;{:x}&quot;</span> , <span class="ident">first</span>) <span class="question-mark">?</span> ; <span class="kw">for</span> <span class="ident">segment</span> <span class="kw">in</span> <span class="ident">tail</span> { <span class="ident">f</span> . <span class="ident">write_char</span> (<span class="string">&#39;:&#39;</span>) <span class="question-mark">?</span> ; <span class="ident">write</span> <span class="op">!</span> (<span class="ident">f</span> , <span class="string">&quot;{:x}&quot;</span> , <span class="ident">segment</span>) <span class="question-mark">?</span> ; } } <span class="prelude-val">Ok</span> (()) } <span class="kw">if</span> <span class="ident">zeroes</span> . <span class="ident">len</span> <span class="op">&gt;</span> <span class="number">1</span> { <span class="ident">fmt_subslice</span> (<span class="ident">f</span> , <span class="op">&amp;</span> <span class="ident">segments</span> [.. <span class="ident">zeroes</span> . <span class="ident">start</span>]) <span class="question-mark">?</span> ; <span class="ident">f</span> . <span class="ident">write_str</span> (<span class="string">&quot;::&quot;</span>) <span class="question-mark">?</span> ; <span class="ident">fmt_subslice</span> (<span class="ident">f</span> , <span class="op">&amp;</span> <span class="ident">segments</span> [<span class="ident">zeroes</span> . <span class="ident">start</span> <span class="op">+</span> <span class="ident">zeroes</span> . <span class="ident">len</span> ..]) } <span class="kw">else</span> { <span class="ident">fmt_subslice</span> (<span class="ident">f</span> , <span class="op">&amp;</span> <span class="ident">segments</span>) } }
+    } <span class="kw">else</span> {
+        <span class="kw">const</span> <span class="ident">IPV6_BUF_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="number">4</span> <span class="op">*</span> <span class="number">8</span>) <span class="op">+</span> <span class="number">7</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="ident">IPV6_BUF_LEN</span>];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf_slice</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[..];</code></pre></div>
+<p>This is a pretty typical manifestation of rustfmt bailing out in generated
+code — a chunk of the input ends up on one line. The other
+manifestation is that you’re working on some code, running rustfmt on save
+like a conscientious developer, but after a while notice it isn’t doing
+anything. You introduce an intentional formatting issue, like a stray indent
+or semicolon, and run rustfmt to check your suspicion. Nope, it doesn’t get
+cleaned up — rustfmt is just not formatting the part of the file you
+are working on.</p>
+<p>The prettyplease library is designed to have no pathological cases that
+force a bail out; the entire input you give it will get formatted in some
+“good enough” form.</p>
+<p>Separately, rustfmt can be problematic to integrate into projects. It’s
+written using rustc’s internal syntax tree, so it can’t be built by a stable
+compiler. Its releases are not regularly published to crates.io, so in Cargo
+builds you’d need to depend on it as a git dependency, which precludes
+publishing your crate to crates.io also. You can shell out to a <code>rustfmt</code>
+binary, but that’ll be whatever rustfmt version is installed on each
+developer’s system (if any), which can lead to spurious diffs in checked-in
+generated code formatted by different versions. In contrast prettyplease is
+designed to be easy to pull in as a library, and compiles fast.</p>
+<br>
+<h2 id="comparison-to-rustc_ast_pretty"><a href="#comparison-to-rustc_ast_pretty">Comparison to rustc_ast_pretty</a></h2>
+<ul>
+<li><a href="https://github.com/dtolnay/prettyplease/blob/0.1.0/examples/input.rs">input.rs</a></li>
+<li><a href="https://github.com/dtolnay/prettyplease/blob/0.1.0/examples/output.prettyplease.rs">output.prettyplease.rs</a></li>
+<li><a href="https://github.com/dtolnay/prettyplease/blob/0.1.0/examples/output.rustc.rs">output.rustc.rs</a></li>
+</ul>
+<p>This is the pretty-printer that gets used when rustc prints source code,
+such as <code>rustc -Zunpretty=expanded</code>. It’s used also by the standard
+library’s <code>stringify!</code> when stringifying an interpolated macro_rules AST
+fragment, like an $:expr, and transitively by <code>dbg!</code> and many macros in the
+ecosystem.</p>
+<p>Rustc’s formatting is mostly okay, but does not hew closely to the dominant
+contemporary style of Rust formatting. Some things wouldn’t ever be written
+on one line, like this <code>match</code> expression, and certainly not with a comma in
+front of the closing brace:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">IpAddr</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">match</span> <span class="ident">other</span> { <span class="ident">IpAddr::V4</span>(<span class="ident">v4</span>) =&gt; <span class="self">self</span> <span class="op">==</span> <span class="ident">v4</span>, <span class="ident">IpAddr::V6</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>, }
+}</code></pre></div>
+<p>Some places use non-multiple-of-4 indentation, which is definitely not the
+norm:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">to_ipv6_mapped</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Ipv6Addr</span> {
+    <span class="kw">let</span> [<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>, <span class="ident">d</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">octets</span>();
+    <span class="ident">Ipv6Addr</span>{<span class="ident">inner</span>:
+                 <span class="ident">c::in6_addr</span>{<span class="ident">s6_addr</span>:
+                                 [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0xFF</span>,
+                                  <span class="number">0xFF</span>, <span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>, <span class="ident">d</span>],},}
+}</code></pre></div>
+<p>And although there isn’t an egregious example of it in the link because the
+input code is pretty tame, in general rustc_ast_pretty has pathological
+behavior on generated code. It has a tendency to use excessive horizontal
+indentation and rapidly run out of width:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="ident">::std::io::_print</span>(<span class="ident">::core::fmt::Arguments::new_v1</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;&quot;</span>],
+                                                 <span class="kw-2">&amp;</span><span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="ident">msg</span>,) {
+                                                      <span class="ident">_args</span> =&gt;
+                                                      [<span class="ident">::core::fmt::ArgumentV1::new</span>(<span class="ident">_args</span>.<span class="number">0</span>,
+                                                                                    <span class="ident">::core::fmt::Display::fmt</span>)],
+                                                  }));</code></pre></div>
+<p>The snippets above are clearly different from modern rustfmt style. In
+contrast, prettyplease is designed to have output that is practically
+indistinguishable from rustfmt-formatted code.</p>
+<br>
+<h2 id="example"><a href="#example">Example</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// [dependencies]</span>
+<span class="comment">// prettyplease = &quot;0.1&quot;</span>
+<span class="comment">// syn = { version = &quot;1&quot;, default-features = false, features = [&quot;full&quot;, &quot;parsing&quot;] }</span>
+
+<span class="kw">const</span> <span class="ident">INPUT</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="macro">stringify!</span> {
+    <span class="kw">use</span> <span class="kw">crate</span>::{
+          <span class="ident">lazy</span>::{<span class="ident">Lazy</span>, <span class="ident">SyncLazy</span>, <span class="ident">SyncOnceCell</span>}, <span class="ident">panic</span>,
+        <span class="ident">sync</span>::{ <span class="ident">atomic</span>::{<span class="ident">AtomicUsize</span>, <span class="ident">Ordering::SeqCst</span>},
+            <span class="ident">mpsc::channel</span>, <span class="ident">Mutex</span>, },
+      <span class="ident">thread</span>,
+    };
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">U</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">U</span> { <span class="ident">U::from</span>(<span class="self">self</span>) }
+    }
+};
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">syntax_tree</span> <span class="op">=</span> <span class="ident">syn::parse_file</span>(<span class="ident">INPUT</span>).<span class="ident">unwrap</span>();
+    <span class="kw">let</span> <span class="ident">formatted</span> <span class="op">=</span> <span class="ident">prettyplease::unparse</span>(<span class="kw-2">&amp;</span><span class="ident">syntax_tree</span>);
+    <span class="macro">print!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">formatted</span>);
+}</code></pre></div>
+<br>
+<h2 id="algorithm-notes"><a href="#algorithm-notes">Algorithm notes</a></h2>
+<p>The approach and terminology used in the implementation are derived from
+<a href="http://i.stanford.edu/pub/cstr/reports/cs/tr/79/770/CS-TR-79-770.pdf"><em>Derek C. Oppen, “Pretty Printing” (1979)</em></a>, on which
+rustc_ast_pretty is also based, and from rustc_ast_pretty’s implementation
+written by Graydon Hoare in 2011 (and modernized over the years by dozens of
+volunteer maintainers).</p>
+<p>The paper describes two language-agnostic interacting procedures <code>Scan()</code>
+and <code>Print()</code>. Language-specific code decomposes an input data structure
+into a stream of <code>string</code> and <code>break</code> tokens, and <code>begin</code> and <code>end</code> tokens
+for grouping. Each <code>begin</code>–<code>end</code> range may be identified as either
+“consistent breaking” or “inconsistent breaking”. If a group is consistently
+breaking, then if the whole contents do not fit on the line, <em>every</em> <code>break</code>
+token in the group will receive a linebreak. This is appropriate, for
+example, for Rust struct literals, or arguments of a function call. If a
+group is inconsistently breaking, then the <code>string</code> tokens in the group are
+greedily placed on the line until out of space, and linebroken only at those
+<code>break</code> tokens for which the next string would not fit. For example, this is
+appropriate for the contents of a braced <code>use</code> statement in Rust.</p>
+<p>Scan’s job is to efficiently accumulate sizing information about groups and
+breaks. For every <code>begin</code> token we compute the distance to the matched <code>end</code>
+token, and for every <code>break</code> we compute the distance to the next <code>break</code>.
+The algorithm uses a ringbuffer to hold tokens whose size is not yet
+ascertained. The maximum size of the ringbuffer is bounded by the target
+line length and does not grow indefinitely, regardless of deep nesting in
+the input stream. That’s because once a group is sufficiently big, the
+precise size can no longer make a difference to linebreak decisions and we
+can effectively treat it as “infinity”.</p>
+<p>Print’s job is to use the sizing information to efficiently assign a
+“broken” or “not broken” status to every <code>begin</code> token. At that point the
+output is easily constructed by concatenating <code>string</code> tokens and breaking
+at <code>break</code> tokens contained within a broken group.</p>
+<p>Leveraging these primitives (i.e. cleverly placing the all-or-nothing
+consistent breaks and greedy inconsistent breaks) to yield
+rustfmt-compatible formatting for all of Rust’s syntax tree nodes is a fun
+challenge.</p>
+<p>Here is a visualization of some Rust tokens fed into the pretty printing
+algorithm. Consistently breaking <code>begin</code>—<code>end</code> pairs are represented
+by <code>«</code>⁠<code>»</code>, inconsistently breaking by <code>‹</code>⁠<code>›</code>, <code>break</code> by <code>·</code>,
+and the rest of the non-whitespace are <code>string</code>.</p>
+<div class="example-wrap"><pre class="language-text"><code>use crate::«{·
+‹    lazy::«{·‹Lazy,· SyncLazy,· SyncOnceCell›·}»,·
+    panic,·
+    sync::«{·
+‹        atomic::«{·‹AtomicUsize,· Ordering::SeqCst›·}»,·
+        mpsc::channel,· Mutex›,·
+    }»,·
+    thread›,·
+}»;·
+«‹«impl&lt;«·T‹›,· U‹›·»&gt;» Into&lt;«·U·»&gt;· for T›·
+where·
+    U:‹ From&lt;«·T·»&gt;›,·
+{·
+«    fn into(·«·self·») -&gt; U {·
+‹        U::from(«·self·»)›·
+»    }·
+»}·</code></pre></div>
+<p>The algorithm described in the paper is not quite sufficient for producing
+well-formatted Rust code that is locally indistinguishable from rustfmt’s
+style. The reason is that in the paper, the complete non-whitespace contents
+are assumed to be independent of linebreak decisions, with Scan and Print
+being only in control of the whitespace (spaces and line breaks). In Rust as
+idiomatically formattted by rustfmt, that is not the case. Trailing commas
+are one example; the punctuation is only known <em>after</em> the broken vs
+non-broken status of the surrounding group is known:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">Struct</span> { <span class="ident">x</span>: <span class="number">0</span>, <span class="ident">y</span>: <span class="bool-val">true</span> };
+
+<span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">Struct</span> {
+    <span class="ident">x</span>: <span class="ident">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>,
+    <span class="ident">y</span>: <span class="ident">yyyyyyyyyyyyyyyyyyyyyyyyyyyyyy</span>,   <span class="comment">//&lt;- trailing comma if the expression wrapped</span>
+};</code></pre></div>
+<p>The formatting of <code>match</code> expressions is another case; we want small arms on
+the same line as the pattern, and big arms wrapped in a brace. The presence
+of the brace punctuation, comma, and semicolon are all dependent on whether
+the arm fits on the line:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">match</span> <span class="ident">total_nanos</span>.<span class="ident">checked_add</span>(<span class="ident">entry</span>.<span class="ident">nanos</span> <span class="kw">as</span> <span class="ident">u64</span>) {
+    <span class="prelude-val">Some</span>(<span class="ident">n</span>) =&gt; <span class="ident">tmp</span> <span class="op">=</span> <span class="ident">n</span>,   <span class="comment">//&lt;- small arm, inline with comma</span>
+    <span class="prelude-val">None</span> =&gt; {
+        <span class="ident">total_secs</span> <span class="op">=</span> <span class="ident">total_secs</span>
+            .<span class="ident">checked_add</span>(<span class="ident">total_nanos</span> <span class="op">/</span> <span class="ident">NANOS_PER_SEC</span> <span class="kw">as</span> <span class="ident">u64</span>)
+            .<span class="ident">expect</span>(<span class="string">&quot;overflow in iter::sum over durations&quot;</span>);
+    }   <span class="comment">//&lt;- big arm, needs brace added, and also semicolon^</span>
+}</code></pre></div>
+<p>The printing algorithm implementation in this crate accommodates all of
+these situations with conditional punctuation tokens whose selection can be
+deferred and populated after it’s known that the group is or is not broken.</p>
+</div></details><h2 id="functions" class="small-section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.unparse.html" title="prettyplease::unparse fn">unparse</a></div><div class="item-right docblock-short"></div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="prettyplease" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
+</body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"trait":[["ToSocketAddrs","Converts or resolves without blocking to one or more `SocketAddr` values."]]};

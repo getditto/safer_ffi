@@ -743,7 +743,9 @@
 <span id="737">737</span>
 <span id="738">738</span>
 <span id="739">739</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Logic common to all fat pointers.</span>
+<span id="740">740</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+<span class="doccomment">//! Logic common to all fat pointers.</span>
 
 <span class="macro">use_prelude!</span>();
 <span class="kw">use</span> <span class="ident">::core::slice</span>;
@@ -764,7 +766,7 @@
 ;
 
 <span class="macro">ReprC!</span> {
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">nodejs</span>)]</span>
     <span class="doccomment">/// Like [`slice_ref`] and [`slice_mut`], but with any lifetime attached</span>
     <span class="doccomment">/// whatsoever.</span>
     <span class="doccomment">///</span>
@@ -840,7 +842,7 @@
 
 <span class="macro">cfg_alloc!</span> {
     <span class="macro">ReprC!</span> {
-        <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+        <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">nodejs</span>)]</span>
         <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">docs</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>), <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)))]</span>
         <span class="doccomment">/// [`Box`][`rust::Box`]`&lt;[T]&gt;` (fat pointer to a slice),</span>
         <span class="doccomment">/// but with a guaranteed `#[repr(C)]` layout.</span>
@@ -1005,7 +1007,7 @@
 }
 
 <span class="macro">ReprC!</span> {
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">nodejs</span>)]</span>
     <span class="doccomment">/// `&amp;&#39;lt [T]` but with a guaranteed `#[repr(C)]` layout.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # C layout (for some given type T)</span>
@@ -1483,5 +1485,5 @@
     }
 };
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
 </body></html>

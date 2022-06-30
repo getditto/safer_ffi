@@ -771,12 +771,180 @@
 <span id="765">765</span>
 <span id="766">766</span>
 <span id="767">767</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Trait abstractions describing the semantics of &quot;being `#[repr(C)]`&quot;</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+<span class="doccomment">//! Trait abstractions describing the semantics of &quot;being `#[repr(C)]`&quot;</span>
 
 <span class="macro">use_prelude!</span>();
 
 <span class="macro">__cfg_headers__!</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::headers::Definer</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::headers</span>::{
+        <span class="ident">Definer</span>,
+        <span class="ident">languages</span>::<span class="kw-2">*</span>,
+    };
 }
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
@@ -785,11 +953,9 @@
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">from_CType_impl_ReprC</span>, <span class="ident">ReprC</span>, <span class="ident">CType</span>};
 
-<span class="macro">cfg_proc_macros!</span> {
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::safer_ffi_proc_macro</span>::{
-        <span class="ident">derive_ReprC</span>,
-    };
-}
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">derive_ReprC</span>,
+};
 
 <span class="macro">type_level_enum!</span> {
     <span class="kw">pub</span>
@@ -800,10 +966,146 @@
 }
 
 <span class="kw">pub</span>
-<span class="kw">fn</span> <span class="ident">__assert_concrete__</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="kw">where</span>
-    <span class="ident">T</span> : <span class="ident">ReprC</span>,
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">ReprC</span><span class="op">&gt;</span><span class="ident">::CLayout</span> : <span class="ident">CType</span><span class="op">&lt;</span><span class="ident">OPAQUE_KIND</span> <span class="op">=</span> <span class="ident">OpaqueKind::Concrete</span><span class="op">&gt;</span>,
-{}
+<span class="kw">unsafe</span>
+<span class="kw">trait</span> <span class="ident">CType</span>
+:
+    <span class="ident">Sized</span> <span class="op">+</span>
+    <span class="ident">Copy</span> <span class="op">+</span>
+{
+    <span class="kw">type</span> <span class="ident">OPAQUE_KIND</span> : <span class="ident">OpaqueKind::T</span>;
+
+    <span class="macro">__cfg_headers__!</span> {
+        <span class="kw">fn</span> <span class="ident">short_name</span> ()
+          -&gt; <span class="ident">String</span>
+        ;
+
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">nonstandard_style</span>)]</span>
+        <span class="kw">fn</span> <span class="ident">define_self__impl</span> (
+            <span class="ident">language</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw">dyn</span> <span class="ident">HeaderLanguage</span>,
+            <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>,
+        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+        ;
+
+        <span class="kw">fn</span> <span class="ident">define_self</span> (
+            <span class="ident">language</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw">dyn</span> <span class="ident">HeaderLanguage</span>,
+            <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>,
+        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+        {
+            <span class="ident">definer</span>.<span class="ident">define_once</span>(
+                <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::name</span>(<span class="ident">language</span>),
+                <span class="kw-2">&amp;mut</span> <span class="op">|</span><span class="ident">definer</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::define_self__impl</span>(<span class="ident">language</span>, <span class="ident">definer</span>),
+            )
+        }
+
+        <span class="kw">fn</span> <span class="ident">name</span> (
+            <span class="ident">_language</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw">dyn</span> <span class="ident">HeaderLanguage</span>,
+        ) -&gt; <span class="ident">String</span>
+        {
+            <span class="macro">format!</span>(<span class="string">&quot;{}_t&quot;</span>, <span class="ident"><span class="self">Self</span>::short_name</span>())
+        }
+
+        <span class="kw">fn</span> <span class="ident">name_wrapping_var</span> (
+            <span class="ident">language</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw">dyn</span> <span class="ident">HeaderLanguage</span>,
+            <span class="ident">var_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
+        ) -&gt; <span class="ident">String</span>
+        {
+            <span class="kw">let</span> <span class="ident">sep</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">var_name</span>.<span class="ident">is_empty</span>() { <span class="string">&quot;&quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> };
+            <span class="macro">format!</span>(<span class="string">&quot;{}{sep}{var_name}&quot;</span>, <span class="ident"><span class="self">Self</span>::name</span>(<span class="ident">language</span>))
+        }
+
+        <span class="doccomment">/// Optional marshaler attached to the type (_e.g._,</span>
+        <span class="doccomment">/// `[MarshalAs(UnmanagedType.FunctionPtr)]`)</span>
+        <span class="kw">fn</span> <span class="ident">csharp_marshaler</span> ()
+          -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>
+        {
+            <span class="prelude-val">None</span>
+        }
+    }
+}
+
+<span class="kw">unsafe</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="ident">LegacyCType</span><span class="op">&gt;</span> <span class="ident">CType</span> <span class="kw">for</span> <span class="ident">T</span> {
+    <span class="kw">type</span> <span class="ident">OPAQUE_KIND</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">LegacyCType</span><span class="op">&gt;</span><span class="ident">::OPAQUE_KIND</span>;
+
+    <span class="macro">__cfg_headers__!</span> {
+        <span class="attribute">#[<span class="ident">inline</span>]</span>
+        <span class="kw">fn</span> <span class="ident">short_name</span> ()
+          -&gt; <span class="ident">String</span>
+        {
+            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">LegacyCType</span><span class="op">&gt;</span><span class="ident">::c_short_name</span>().<span class="ident">to_string</span>()
+        }
+
+        <span class="attribute">#[<span class="ident">inline</span>]</span>
+        <span class="kw">fn</span> <span class="ident">define_self__impl</span> (
+            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw">dyn</span> <span class="ident">HeaderLanguage</span>,
+            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>,
+        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+        {
+            <span class="macro">unimplemented!</span>()
+        }
+
+        <span class="kw">fn</span> <span class="ident">define_self</span> (
+            <span class="ident">language</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw">dyn</span> <span class="ident">HeaderLanguage</span>,
+            <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>,
+        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+        {
+            <span class="kw">match</span> () {
+                <span class="op">|</span> <span class="ident">_case</span> <span class="kw">if</span> <span class="ident">language</span>.<span class="ident">is</span>::<span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>() =&gt; {
+                    <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">LegacyCType</span><span class="op">&gt;</span><span class="ident">::c_define_self</span>(<span class="ident">definer</span>)
+                },
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
+                <span class="op">|</span> <span class="ident">_case</span> <span class="kw">if</span> <span class="ident">language</span>.<span class="ident">is</span>::<span class="op">&lt;</span><span class="ident">CSharp</span><span class="op">&gt;</span>() =&gt; {
+                    <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">LegacyCType</span><span class="op">&gt;</span><span class="ident">::csharp_define_self</span>(<span class="ident">definer</span>)
+                },
+                <span class="op">|</span> <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(),
+            }
+        }
+
+        <span class="attribute">#[<span class="ident">inline</span>]</span>
+        <span class="kw">fn</span> <span class="ident">name</span> (
+            <span class="ident">language</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw">dyn</span> <span class="ident">HeaderLanguage</span>,
+        ) -&gt; <span class="ident">String</span>
+        {
+            <span class="ident"><span class="self">Self</span>::name_wrapping_var</span>(<span class="ident">language</span>, <span class="string">&quot;&quot;</span>)
+        }
+
+        <span class="attribute">#[<span class="ident">inline</span>]</span>
+        <span class="kw">fn</span> <span class="ident">name_wrapping_var</span> (
+            <span class="ident">language</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw">dyn</span> <span class="ident">HeaderLanguage</span>,
+            <span class="ident">var_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
+        ) -&gt; <span class="ident">String</span>
+        {
+            <span class="kw">match</span> () {
+                <span class="op">|</span> <span class="ident">_case</span> <span class="kw">if</span> <span class="ident">language</span>.<span class="ident">is</span>::<span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>() =&gt; {
+                    <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">LegacyCType</span><span class="op">&gt;</span><span class="ident">::c_var</span>(<span class="ident">var_name</span>).<span class="ident">to_string</span>()
+                },
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
+                <span class="op">|</span> <span class="ident">_case</span> <span class="kw">if</span> <span class="ident">language</span>.<span class="ident">is</span>::<span class="op">&lt;</span><span class="ident">CSharp</span><span class="op">&gt;</span>() =&gt; {
+                    <span class="kw">let</span> <span class="ident">sep</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">var_name</span>.<span class="ident">is_empty</span>() { <span class="string">&quot;&quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> };
+                    <span class="macro">format!</span>(<span class="string">&quot;{}{sep}{var_name}&quot;</span>, <span class="ident"><span class="self">Self</span>::csharp_ty</span>())
+                },
+                <span class="op">|</span> <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(),
+            }
+        }
+
+        <span class="attribute">#[<span class="ident">inline</span>]</span>
+        <span class="kw">fn</span> <span class="ident">csharp_marshaler</span> ()
+          -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>
+        {
+            <span class="macro">cfg_match!</span>({
+                <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span> =&gt; {
+                    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">LegacyCType</span><span class="op">&gt;</span><span class="ident">::legacy_csharp_marshaler</span>()
+                },
+                <span class="kw">_</span> =&gt; {
+                    <span class="macro">unimplemented!</span>(<span class="string">&quot;missing `csharp-headers` Cargo feature&quot;</span>);
+                },
+            })
+        }
+    }
+}
+
+<span class="kw">pub</span>
+<span class="kw">type</span> <span class="ident">CLayoutOf</span><span class="op">&lt;</span><span class="ident">ImplReprC</span><span class="op">&gt;</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">ImplReprC</span> <span class="kw">as</span> <span class="ident">ReprC</span><span class="op">&gt;</span><span class="ident">::CLayout</span>;
 
 <span class="doccomment">/// One of the two core traits of this crate (with [`ReprC`][`trait@ReprC`]).</span>
 <span class="doccomment">///</span>
@@ -836,7 +1138,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">///       - This crates provides as many of these implementations as possible.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///   - an recursively, a non-zero-sized `#[repr(C)]` struct of `CType` fields.</span>
+<span class="doccomment">///   - and recursively, a non-zero-sized `#[repr(C)]` struct of `CType` fields.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///       - the [`CType!`] macro can be used to wrap a `#[repr(C)]` struct</span>
 <span class="doccomment">///         definition to _safely_ and automagically implement the trait</span>
@@ -848,12 +1150,13 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// For such types, see the [`ReprC`][`trait@ReprC`] trait.</span>
 <span class="kw">pub</span>
-<span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">CType</span>
+<span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">LegacyCType</span>
 :
     <span class="ident">Sized</span> <span class="op">+</span>
     <span class="ident">Copy</span> <span class="op">+</span>
+    <span class="ident">CType</span> <span class="op">+</span>
 {
-    <span class="kw">type</span> <span class="ident">OPAQUE_KIND</span> : <span class="ident">OpaqueKind::__</span>;
+    <span class="kw">type</span> <span class="ident">OPAQUE_KIND</span> : <span class="ident">OpaqueKind::T</span>;
     <span class="macro">__cfg_headers__!</span> {
         <span class="doccomment">/// A short-name description of the type, mainly used to fill</span>
         <span class="doccomment">/// &quot;placeholders&quot; such as when monomorphising generics structs or</span>
@@ -904,7 +1207,21 @@
         <span class="kw">fn</span> <span class="ident">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
           -&gt; <span class="ident">fmt::Result</span>
         ;
+        <span class="comment">// {</span>
+        <span class="comment">//     Self::short_name_fmt(&amp;C, fmt)</span>
+        <span class="comment">// }</span>
 
+        <span class="comment">// fn short_name_fmt (</span>
+        <span class="comment">//     language: &amp;&#39;_ dyn HeaderLanguage,</span>
+        <span class="comment">//     fmt: &amp;&#39;_ mut fmt::Formatter&lt;&#39;_&gt;,</span>
+        <span class="comment">// ) -&gt; fmt::Result</span>
+        <span class="comment">// {</span>
+        <span class="comment">//     match () {</span>
+        <span class="comment">//         | _case if language.is::&lt;C&gt;() =&gt; Self::c_short_name_fmt(fmt),</span>
+        <span class="comment">//         // | _case if language.is::&lt;CSharp&gt;() =&gt; Self::csharp_short_name_fmt(fmt),</span>
+        <span class="comment">//         | _ =&gt; unimplemented!(),</span>
+        <span class="comment">//     }</span>
+        <span class="comment">// }</span>
 
         <span class="doccomment">/// Convenience function for _callers_ / users of types implementing</span>
         <span class="doccomment">/// [`CType`][`trait@CType`].</span>
@@ -1011,13 +1328,22 @@
         <span class="doccomment">///     // ...</span>
         <span class="doccomment">/// }</span>
         <span class="doccomment">/// ```</span>
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
         <span class="kw">fn</span> <span class="ident">c_define_self</span> (<span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
           -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        {
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">definer</span>;
-            <span class="prelude-val">Ok</span>(())
-        }
+        ;
+        <span class="comment">// {</span>
+        <span class="comment">//     Self::define_self(&amp;C, definer)</span>
+        <span class="comment">// }</span>
+
+        <span class="comment">// #[inline]</span>
+        <span class="comment">// fn define_self__impl (</span>
+        <span class="comment">//     language: &amp;&#39;_ dyn HeaderLanguage,</span>
+        <span class="comment">//     definer: &amp;&#39;_ mut dyn Definer,</span>
+        <span class="comment">// ) -&gt; io::Result&lt;()&gt;</span>
+        <span class="comment">// {</span>
+        <span class="comment">//     let _ = (language, definer);</span>
+        <span class="comment">//     Ok(())</span>
+        <span class="comment">// }</span>
 
         <span class="doccomment">/// The core method of the trait: it provides the implementation to be</span>
         <span class="doccomment">/// used by [`CType::c_var`], by bringing a `Formatter` in scope.</span>
@@ -1133,6 +1459,46 @@
                 <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
             }
         }
+
+        <span class="macro">__cfg_csharp__!</span> {
+            <span class="doccomment">/// Extra typedef code (_e.g._ `[LayoutKind.Sequential] struct ...`)</span>
+            <span class="kw">fn</span> <span class="ident">csharp_define_self</span> (<span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
+              -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+            ;
+            <span class="comment">// {</span>
+            <span class="comment">//     Self::define_self(</span>
+            <span class="comment">//         &amp;CSharp,</span>
+            <span class="comment">//         definer,</span>
+            <span class="comment">//     )</span>
+            <span class="comment">// }</span>
+
+            <span class="doccomment">/// Optional marshaler attached to the type (_e.g._,</span>
+            <span class="doccomment">/// `[MarshalAs(UnmanagedType.FunctionPtr)]`)</span>
+            <span class="kw">fn</span> <span class="ident">legacy_csharp_marshaler</span> ()
+              -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">rust::String</span><span class="op">&gt;</span>
+            {
+                <span class="prelude-val">None</span>
+            }
+
+            <span class="comment">// TODO: Optimize out those unnecessary heap-allocations</span>
+            <span class="doccomment">/// Type name (_e.g._, `int`, `string`, `IntPtr`)</span>
+            <span class="kw">fn</span> <span class="ident">csharp_ty</span> ()
+              -&gt; <span class="ident">rust::String</span>
+            {
+                <span class="ident"><span class="self">Self</span>::c_var</span>(<span class="string">&quot;&quot;</span>).<span class="ident">to_string</span>()
+            }
+
+            <span class="doccomment">/// Convenience function for formatting `{ty} {var}` in CSharp.</span>
+            <span class="kw">fn</span> <span class="ident">csharp_var</span> (<span class="ident">var_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>)
+              -&gt; <span class="ident">rust::String</span>
+            {
+                <span class="macro">format!</span>(
+                    <span class="string">&quot;{}{sep}{}&quot;</span>,
+                    <span class="ident"><span class="self">Self</span>::csharp_ty</span>(), <span class="ident">var_name</span>,
+                    <span class="ident">sep</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">var_name</span>.<span class="ident">is_empty</span>() { <span class="string">&quot;&quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> },
+                )
+            }
+        }
     }
 }
 
@@ -1143,7 +1509,7 @@
 
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_debug_implementations</span>)]</span>
         <span class="kw">pub</span>
-        <span class="kw">struct</span> <span class="ident">ImplDisplay</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span>, <span class="ident">T</span> : <span class="ident">CType</span><span class="op">&gt;</span> {
+        <span class="kw">struct</span> <span class="ident">ImplDisplay</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span>, <span class="ident">T</span> : <span class="ident">LegacyCType</span><span class="op">&gt;</span> {
             <span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">super</span>)
             <span class="ident">var_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;__</span> <span class="ident">str</span>,
 
@@ -1151,7 +1517,7 @@
             <span class="ident">_phantom</span>: <span class="ident">::core::marker::PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="ident">CType</span><span class="op">&gt;</span> <span class="ident">Display</span>
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="ident">LegacyCType</span><span class="op">&gt;</span> <span class="ident">Display</span>
             <span class="kw">for</span> <span class="ident">ImplDisplay</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span>
         {
             <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -1169,12 +1535,12 @@
 
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_debug_implementations</span>)]</span>
         <span class="kw">pub</span>
-        <span class="kw">struct</span> <span class="ident">ImplDisplay</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="ident">CType</span><span class="op">&gt;</span> {
+        <span class="kw">struct</span> <span class="ident">ImplDisplay</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="ident">LegacyCType</span><span class="op">&gt;</span> {
             <span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">super</span>)
             <span class="ident">_phantom</span>: <span class="ident">::core::marker::PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="ident">CType</span><span class="op">&gt;</span> <span class="ident">Display</span>
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="ident">LegacyCType</span><span class="op">&gt;</span> <span class="ident">Display</span>
             <span class="kw">for</span> <span class="ident">ImplDisplay</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
         {
             <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -1222,8 +1588,7 @@
 <span class="doccomment">/// It is generally recommended to avoid manually (and `unsafe`-ly)</span>
 <span class="doccomment">/// implementing the [`ReprC`] trait. Instead, the recommended and blessed way</span>
 <span class="doccomment">/// is to use the [`#[derive_ReprC]`](/safer_ffi/layout/attr.derive_ReprC.html)</span>
-<span class="doccomment">/// attribute (when the `proc_macros` feature is enabled, or the [`ReprC!`]</span>
-<span class="doccomment">/// macro when it is not) on your `#[repr(C)] struct` (or your field-less</span>
+<span class="doccomment">/// attribute on your `#[repr(C)] struct` (or your field-less</span>
 <span class="doccomment">/// `#[repr(&lt;integer&gt;)] enum`).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`ReprC`]: `trait@ReprC`</span>
@@ -1253,22 +1618,6 @@
 <span class="doccomment">///     } Instant_t;</span>
 <span class="doccomment">///     ```</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// or you can use what the attribute macro expands to, to avoid requiring</span>
-<span class="doccomment">/// the `proc_macros` feature:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,no_run</span>
-<span class="doccomment">/// # fn main () {}</span>
-<span class="doccomment">/// use ::safer_ffi::prelude::*;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ReprC! {</span>
-<span class="doccomment">///     #[repr(C)]</span>
-<span class="doccomment">///     struct Instant {</span>
-<span class="doccomment">///         seconds: u64,</span>
-<span class="doccomment">///         nanos: u32,</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
 <span class="doccomment">/// #### Field-less `enum`</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust,no_run</span>
@@ -1297,25 +1646,6 @@
 <span class="doccomment">///         STATUS_OH_NO,</span>
 <span class="doccomment">///     }</span>
 <span class="doccomment">///     ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// or you can use what the attribute macro expands to, to avoid requiring</span>
-<span class="doccomment">/// the `proc_macros` feature:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,no_run</span>
-<span class="doccomment">/// # fn main () {}</span>
-<span class="doccomment">/// use ::safer_ffi::prelude::*;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ReprC! {</span>
-<span class="doccomment">///     #[repr(u8)]</span>
-<span class="doccomment">///     enum Status {</span>
-<span class="doccomment">///         Ok = 0,</span>
-<span class="doccomment">///         Busy,</span>
-<span class="doccomment">///         NotInTheMood,</span>
-<span class="doccomment">///         OnStrike,</span>
-<span class="doccomment">///         OhNo,</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// #### Generic `struct`</span>
 <span class="doccomment">///</span>
@@ -1350,29 +1680,6 @@
 <span class="doccomment">///         double y;</span>
 <span class="doccomment">///     } Point_double_t;</span>
 <span class="doccomment">///     ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is where the attribute macro shines. Indeed, the [`ReprC!`] macro has</span>
-<span class="doccomment">/// some parsing limitations (for the sake of simplicity and performance) that</span>
-<span class="doccomment">/// require unorthodox syntax when generics are involved (see</span>
-<span class="doccomment">/// [the macro documentation][`ReprC!`] for more info about it):</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,no_run</span>
-<span class="doccomment">/// # fn main () {}</span>
-<span class="doccomment">/// use ::safer_ffi::prelude::*;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ReprC! {</span>
-<span class="doccomment">///     #[repr(C)]</span>
-<span class="doccomment">///     struct Point[Coordinate]</span>
-<span class="doccomment">///     where {</span>
-<span class="doccomment">///         Coordinate : ReprC,</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     {</span>
-<span class="doccomment">///         x: Coordinate,</span>
-<span class="doccomment">///         y: Coordinate,</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
 <span class="kw">pub</span>
 <span class="kw">unsafe</span>
 <span class="kw">trait</span> <span class="ident">ReprC</span> : <span class="ident">Sized</span> {
@@ -1487,12 +1794,7 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;proc_macros&quot;</span>, <span class="ident">not</span>(<span class="ident">docs</span>)),
-    <span class="ident">require_unsafe_in_body</span>,
-)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;proc_macros&quot;</span>),
-    <span class="ident">allow</span>(<span class="ident">unused_unsafe</span>),
-)]</span>
+<span class="attribute">#[<span class="ident">deny</span>(<span class="ident">unsafe_op_in_unsafe_fn</span>)]</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span>
 <span class="kw">unsafe</span>
@@ -1512,12 +1814,7 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;proc_macros&quot;</span>, <span class="ident">not</span>(<span class="ident">docs</span>)),
-    <span class="ident">require_unsafe_in_body</span>,
-)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;proc_macros&quot;</span>),
-    <span class="ident">allow</span>(<span class="ident">unused_unsafe</span>),
-)]</span>
+<span class="attribute">#[<span class="ident">deny</span>(<span class="ident">unsafe_op_in_unsafe_fn</span>)]</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span>
 <span class="kw">unsafe</span> <span class="comment">// May not be sound when input has uninit bytes that the output does not</span>
@@ -1532,12 +1829,43 @@
     }
 }
 
+<span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">crate</span>)
 <span class="kw">mod</span> <span class="ident">impls</span>;
 
 <span class="kw">mod</span> <span class="ident">niche</span>;
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="comment">/* Not part of the public API */</span> <span class="kw">pub</span>
+<span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
 <span class="kw">use</span> <span class="ident">niche::HasNiche</span> <span class="kw">as</span> <span class="ident">__HasNiche__</span>;
+
+<span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
+<span class="kw">trait</span> <span class="ident">Is</span> { <span class="kw">type</span> <span class="ident">EqTo</span> : <span class="question-mark">?</span><span class="ident">Sized</span>; }
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Is</span> <span class="kw">for</span> <span class="ident">T</span> { <span class="kw">type</span> <span class="ident">EqTo</span> <span class="op">=</span> <span class="self">Self</span>; }
+
+<span class="doccomment">/// Alias for `ReprC where Self::CLayout::OPAQUE_KIND = OpaqueKind::Concrete`</span>
+<span class="kw">pub</span>
+<span class="kw">trait</span> <span class="ident">ConcreteReprC</span>
+<span class="kw">where</span>
+    <span class="self">Self</span> : <span class="ident">ReprC</span>,
+{
+    <span class="kw">type</span> <span class="ident">ConcreteCLayout</span>
+    :
+        <span class="ident">Is</span><span class="op">&lt;</span><span class="ident">EqTo</span> <span class="op">=</span> <span class="ident">CLayoutOf</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span>
+        <span class="ident">CType</span><span class="op">&lt;</span><span class="ident">OPAQUE_KIND</span> <span class="op">=</span> <span class="ident">OpaqueKind::Concrete</span><span class="op">&gt;</span> <span class="op">+</span>
+    ;
+}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">ConcreteReprC</span> <span class="kw">for</span> <span class="ident">T</span>
+<span class="kw">where</span>
+    <span class="self">Self</span> : <span class="ident">ReprC</span>,
+    <span class="ident">CLayoutOf</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> : <span class="ident">CType</span><span class="op">&lt;</span><span class="ident">OPAQUE_KIND</span> <span class="op">=</span> <span class="ident">OpaqueKind::Concrete</span><span class="op">&gt;</span>,
+{
+    <span class="kw">type</span> <span class="ident">ConcreteCLayout</span> <span class="op">=</span> <span class="ident">CLayoutOf</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
+}
+
+<span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
+<span class="kw">fn</span> <span class="ident">__assert_concrete__</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> ()
+<span class="kw">where</span>
+    <span class="ident">T</span> : <span class="ident">ConcreteReprC</span>,
+{}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
 </body></html>

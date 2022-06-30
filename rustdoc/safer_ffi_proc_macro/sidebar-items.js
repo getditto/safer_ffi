@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"attr":[["cfg_headers",""],["derive_CType",""],["derive_ReprC","Safely implement `ReprC` for a `#[repr(C)]` struct when all its fields are `ReprC`."],["ffi_export","Export a function to be callable by C."]],"macro":[["proc_macro_hack_c_str",""]]};

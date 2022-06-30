@@ -240,7 +240,7 @@ mod hidden {
             | None =&gt; {
                 // Got an invalid `LogLevel` bit-pattern
                 if compile_time_condition() {
-                    eprintln!(&quot;Got an invalid `LogLevel` bit-pattern&quot;)
+                    eprintln!(&quot;Got an invalid `LogLevel` bit-pattern&quot;);
                     abort();
                 } else {
                     use ::std::hint::unreachable_unchecked as UB;

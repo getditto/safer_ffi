@@ -1,0 +1,62 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Applies the given `macro_rules!` macro to the decorated item."><meta name="keywords" content="rust, rustlang, rust-lang, macro_rules_derive"><title>macro_rules_derive in macro_rules_attribute - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../macro_rules_attribute/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../macro_rules_attribute/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
+        </a><div class="sidebar-elems"><h2 class="location"><a href="index.html">In macro_rules_attribute</a></h2></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../macro_rules_attribute/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1">
+                                <a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
+    <h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">macro_rules_attribute</a>::<wbr><a class="attr" href="#">macro_rules_derive</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/macro_rules_attribute_proc_macro/mod.rs.html#55-59">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust attr"><code>#[macro_rules_derive]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Applies the given <code>macro_rules!</code> macro to the decorated item.</p>
+<p>This, as with any <code>#[derive(...)]</code>, <strong>does not consume</strong> the item it
+decorates: instead, it only generates code on top of it.</p>
+<h3 id="examples"><a href="#examples">Examples</a></h3><h4 id="implementing-intoint-for-a-given-reprint-enum"><a href="#implementing-intoint-for-a-given-reprint-enum">Implementing <code>Into&lt;Int&gt;</code> for a given <code>#[repr(Int)]</code> <code>enum</code>:</a></h4>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">macro_rules_attribute</span>;
+
+<span class="macro">macro_rules!</span> <span class="ident">ToInteger</span> {(
+   <span class="attribute">#[<span class="ident">repr</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Int</span>:<span class="ident">ident</span>)]</span>
+   $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">enum_meta</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
+   <span class="macro-nonterminal">$</span><span class="kw">pub</span>:<span class="macro-nonterminal">vis</span>
+   <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Enum</span>:<span class="ident">ident</span> {
+       $(
+           <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span>:<span class="ident">ident</span> $(<span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>:<span class="ident">expr</span>)<span class="question-mark">?</span>
+       ),<span class="op">*</span> $(,)<span class="question-mark">?</span>
+   }
+) =&gt; (
+   <span class="kw">impl</span> <span class="ident">::core::convert::From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">Enum</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Int</span> {
+       <span class="attribute">#[<span class="ident">inline</span>]</span>
+       <span class="kw">fn</span> <span class="ident">from</span> (<span class="ident">x</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Enum</span>)
+         -&gt; <span class="self">Self</span>
+       {
+           <span class="ident">x</span> <span class="kw">as</span> <span class="kw">_</span>
+       }
+   }
+)}
+
+<span class="attribute">#[<span class="ident">macro_rules_derive</span>(<span class="ident">ToInteger</span>)]</span> <span class="comment">// or `#[macro_rules_derive(ToInteger!)]`</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u32</span>)]</span>
+<span class="kw">enum</span> <span class="ident">Bool</span> {
+   <span class="ident">False</span>,
+   <span class="ident">True</span>,
+}
+
+<span class="kw">fn</span> <span class="ident">main</span> ()
+{
+   <span class="macro">assert_eq!</span>(<span class="ident">u32::from</span>(<span class="ident">Bool::False</span>), <span class="number">0</span>);
+   <span class="macro">assert_eq!</span>(<span class="ident">u32::from</span>(<span class="ident">Bool::True</span>), <span class="number">1</span>);
+   <span class="comment">// assert_eq!(u8::from(Bool::False), 0);</span>
+   <span class="comment">// ^ error[E0277]: the trait bound `u8: std::convert::From&lt;main::Bool&gt;` is not satisfied</span>
+}</code></pre></div>
+<h3 id="difference-with-derive"><a href="#difference-with-derive">Difference with <code>#[derive]</code></a></h3>
+<p><code>#[<a href="attr.macro_rules_derive.html" title="macro_rules_derive">macro_rules_derive</a>]</code> is specifically intended to be used
+with <code>macro_rules!</code>-based derives:</p>
+<ul>
+<li>
+<p>it won’t accept classic derives;</p>
+</li>
+<li>
+<p>thanks to that, the trailing <code>!</code> on the macro name is not mandatory.</p>
+</li>
+</ul>
+<p>For <code>#[<a href="attr.derive.html" title="derive">derive</a>]</code>, it’s exactly the opposite.</p>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="macro_rules_attribute" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
+</body></html>

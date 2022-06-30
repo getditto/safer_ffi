@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Convenience macro to define new derive aliases."><meta name="keywords" content="rust, rustlang, rust-lang, derive_alias"><title>derive_alias in macro_rules_attribute - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../macro_rules_attribute/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../macro_rules_attribute/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
+        </a><div class="sidebar-elems"><h2 class="location"><a href="index.html">In macro_rules_attribute</a></h2></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../macro_rules_attribute/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1">
+                                <a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
+    <h1 class="fqn"><span class="in-band">Macro <a href="index.html">macro_rules_attribute</a>::<wbr><a class="macro" href="#">derive_alias</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/macro_rules_attribute/lib.rs.html#386-414">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><div class="example-wrap"><pre class="rust macro"><code><span class="macro">macro_rules!</span> <span class="ident">derive_alias</span> {
+    (
+    $(
+        <span class="attribute">#[<span class="ident">derive</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">MacroName</span>:<span class="ident">ident</span> <span class="op">!</span>)]</span> <span class="op">=</span> <span class="attribute">#[<span class="ident">derive</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">derives</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>)]</span>;
+    )<span class="op">*</span>
+) =&gt; { ... };
+}</code></pre></div>
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Convenience macro to define new derive aliases.</p>
+<p>The so-defined macros are intended to be used by
+<code>#[<a href="attr.macro_rules_derive.html" title="macro_rules_derive">macro_rules_derive</a>]</code> or this crate’s
+<code>#[<a href="attr.derive.html" title="derive">derive</a>]</code>.</p>
+<h3 id="examples"><a href="#examples">Examples</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">macro_rules_attribute</span>;
+
+<span class="macro">derive_alias!</span> {
+   <span class="attribute">#[<span class="ident">derive</span>(<span class="macro">Copy!</span>)]</span> <span class="op">=</span> <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>;
+   <span class="attribute">#[<span class="ident">derive</span>(<span class="macro">Eq!</span>)]</span> <span class="op">=</span> <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>;
+   <span class="attribute">#[<span class="ident">derive</span>(<span class="macro">Ord!</span>)]</span> <span class="op">=</span> <span class="attribute">#[<span class="ident">derive</span>(<span class="macro">Eq!</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>;
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="macro">Copy!</span>, <span class="macro">Ord!</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Foo</span> {
+   <span class="comment">// …</span>
+}
+
+<span class="comment">// Note: this defines `Copy!`, `Eq!` and `Ord!` as properly scoped</span>
+<span class="comment">// `crate`-local macros.</span>
+<span class="kw">mod</span> <span class="ident">example</span> {
+   <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Copy</span>;
+
+   <span class="attribute">#[<span class="ident">derive</span>(<span class="macro">Copy!</span>, <span class="macro">super::Eq!</span>)]</span>
+   <span class="kw">struct</span> <span class="ident">Bar</span>;
+}</code></pre></div>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">macro_rules_attribute</span>;
+
+<span class="kw">use</span> <span class="ident">::core</span>::{<span class="ident">fmt::Debug</span>, <span class="ident">hash::Hash</span>};
+
+<span class="doccomment">/// Trait alias pattern: `T : TheUsualSuspects ⇔ T : Debug + Copy + Ord + Hash`.</span>
+<span class="kw">trait</span> <span class="ident">TheUsualSuspects</span>
+<span class="kw">where</span> <span class="comment">// `⇒` direction</span>
+   <span class="self">Self</span> : <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Hash</span>,
+{}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">TheUsualSuspects</span> <span class="kw">for</span> <span class="ident">T</span>
+<span class="kw">where</span> <span class="comment">// `⇐` direction</span>
+   <span class="self">Self</span> : <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Hash</span>,
+{}
+
+<span class="macro">derive_alias!</span> {
+   <span class="attribute">#[<span class="ident">derive</span>(<span class="macro">TheUsualSuspects!</span>)]</span> <span class="op">=</span> <span class="attribute">#[<span class="ident">derive</span>(
+       <span class="ident">Debug</span>,
+       <span class="ident">Copy</span>,   <span class="ident">Clone</span>,
+       <span class="ident">Ord</span>,    <span class="ident">PartialOrd</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>,
+       <span class="ident">Hash</span>,
+   )]</span>;
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="macro">TheUsualSuspects!</span>)]</span>
+<span class="kw">struct</span> <span class="ident">KeyserSöze</span>;
+
+<span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+   <span class="kw">fn</span> <span class="ident">compile_time_assert_impls</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> ()
+   <span class="kw">where</span>
+       <span class="ident">T</span> : <span class="ident">TheUsualSuspects</span>,
+   {}
+
+   <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">compile_time_assert_impls</span>::<span class="op">&lt;</span><span class="ident">KeyserSöze</span><span class="op">&gt;</span>;
+};</code></pre></div>
+<h4 id="caveat-regarding-derive-helpers-inert-made-attributes"><a href="#caveat-regarding-derive-helpers-inert-made-attributes">Caveat regarding derive helpers (inert-made attributes)</a></h4><details><summary>Click to see</summary>
+<p>Some derive attributes (such as <code>{De,}Serialize</code>), can involve helper
+attributes (such as <code>#[serde]</code>).
+This yields
+<a href="https://doc.rust-lang.org/1.60.0/reference/attributes.html#active-and-inert-attributes" target="_blank">inert</a>
+derive-<a href="https://doc.rust-lang.org/1.60.0/reference/procedural-macros.html#derive-macro-helper-attributes" target="_blank">helper-attributes</a>,
+which represent a <em>semantic</em> aspect of the derive that
+<strong>non-compiler-blessed macros such as this one cannot possibly know about</strong>.</p>
+<p>This makes aliasing such derives problematic, <strong>since the <code>derive</code> aliases
+won’t be able to handle the helper attributes</strong>.</p>
+
+<div class='information'><div class='tooltip compile_fail'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered compile_fail"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">macro_rules_attribute</span>;
+
+<span class="macro">derive_alias!</span> {
+   <span class="attribute">#[<span class="ident">derive</span>(<span class="macro">Serde!</span>)]</span> <span class="op">=</span> <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">::serde::Deserialize</span>, <span class="ident">::serde::Serialize</span>)]</span>;
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="macro">Serde!</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span> <span class="comment">// Error, unknown `#[serde]` attribute</span>
+<span class="kw">struct</span> <span class="ident">Mejrs</span> {
+   <span class="ident">swaginess</span>: <span class="ident">u8</span>,
+}</code></pre></div>
+<p>The above, for instance, yields something along the lines of:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="ident">error</span>: <span class="ident">cannot</span> <span class="ident">find</span> <span class="ident">attribute</span> <span class="string">&quot;serde&quot;</span> <span class="kw">in</span> <span class="ident">this</span> <span class="ident">scope</span>
+  <span class="op">-</span>-&gt; <span class="ident">src</span><span class="op">/</span><span class="ident">lib</span>.<span class="ident">rs</span>:<span class="number">11</span>:<span class="number">3</span>
+   <span class="op">|</span>
+<span class="number">11</span> <span class="op">|</span> <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span>
+   <span class="op">|</span>   <span class="op">^</span><span class="op">^</span><span class="op">^</span><span class="op">^</span><span class="op">^</span>
+   <span class="op">|</span>
+   <span class="op">=</span> <span class="ident">note</span>: <span class="string">&quot;serde&quot;</span> <span class="ident">is</span> <span class="kw">in</span> <span class="ident">scope</span>, <span class="ident">but</span> <span class="ident">it</span> <span class="ident">is</span> <span class="ident">a</span> <span class="kw">crate</span>, <span class="ident">not</span> <span class="ident">an</span> <span class="ident">attribute</span></code></pre></div>
+<p>The only solution is to forgo the niceties of a <code>derive_alias!</code>, and define
+your own <code>#[<a href="attr.apply.html" title="apply">apply</a>]</code>-able <code>macro_rules_attribute</code> that aliases
+the <code>#[derive(…)]</code> attribute as a whole. <a href="macro.attribute_alias.html" title="attribute_alias!"><code>attribute_alias!</code></a> can come in
+handy in such situations:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">macro_rules_attribute</span>;
+
+<span class="macro">attribute_alias!</span> {
+   <span class="attribute">#[<span class="ident">apply</span>(<span class="ident">derive_Serde</span>)]</span> <span class="op">=</span> <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">::serde::Deserialize</span>, <span class="ident">::serde::Serialize</span>)]</span>;
+}
+
+<span class="attribute">#[<span class="ident">apply</span>(<span class="ident">derive_Serde</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span> <span class="comment">// OK</span>
+<span class="kw">struct</span> <span class="ident">Mejrs</span> {
+   <span class="ident">swaginess</span>: <span class="ident">u8</span>,
+}</code></pre></div>
+<hr />
+</details></div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="macro_rules_attribute" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
+</body></html>

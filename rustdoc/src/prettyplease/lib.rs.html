@@ -1,0 +1,759 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/prettyplease-0.1.10/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../prettyplease/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../prettyplease/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../prettyplease/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1">
+                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+</pre><pre class="rust"><code><span class="doccomment">//! [![github]](https://github.com/dtolnay/prettyplease)&amp;ensp;[![crates-io]](https://crates.io/crates/prettyplease)&amp;ensp;[![docs-rs]](https://docs.rs/prettyplease)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github</span>
+<span class="doccomment">//! [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust</span>
+<span class="doccomment">//! [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logoColor=white&amp;logo=data:image/svg+xml;base64,PHN2ZyByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDUxMiA1MTIiPjxwYXRoIGZpbGw9IiNmNWY1ZjUiIGQ9Ik00ODguNiAyNTAuMkwzOTIgMjE0VjEwNS41YzAtMTUtOS4zLTI4LjQtMjMuNC0zMy43bC0xMDAtMzcuNWMtOC4xLTMuMS0xNy4xLTMuMS0yNS4zIDBsLTEwMCAzNy41Yy0xNC4xIDUuMy0yMy40IDE4LjctMjMuNCAzMy43VjIxNGwtOTYuNiAzNi4yQzkuMyAyNTUuNSAwIDI2OC45IDAgMjgzLjlWMzk0YzAgMTMuNiA3LjcgMjYuMSAxOS45IDMyLjJsMTAwIDUwYzEwLjEgNS4xIDIyLjEgNS4xIDMyLjIgMGwxMDMuOS01MiAxMDMuOSA1MmMxMC4xIDUuMSAyMi4xIDUuMSAzMi4yIDBsMTAwLTUwYzEyLjItNi4xIDE5LjktMTguNiAxOS45LTMyLjJWMjgzLjljMC0xNS05LjMtMjguNC0yMy40LTMzLjd6TTM1OCAyMTQuOGwtODUgMzEuOXYtNjguMmw4NS0zN3Y3My4zek0xNTQgMTA0LjFsMTAyLTM4LjIgMTAyIDM4LjJ2LjZsLTEwMiA0MS40LTEwMi00MS40di0uNnptODQgMjkxLjFsLTg1IDQyLjV2LTc5LjFsODUtMzguOHY3NS40em0wLTExMmwtMTAyIDQxLjQtMTAyLTQxLjR2LS42bDEwMi0zOC4yIDEwMiAzOC4ydi42em0yNDAgMTEybC04NSA0Mi41di03OS4xbDg1LTM4Ljh2NzUuNHptMC0xMTJsLTEwMiA0MS40LTEwMi00MS40di0uNmwxMDItMzguMiAxMDIgMzguMnYuNnoiPjwvcGF0aD48L3N2Zz4K</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;br&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! **prettyplease::unparse** &amp;mdash; a minimal `syn` syntax tree pretty-printer</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;br&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Overview</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This is a pretty-printer to turn a `syn` syntax tree into a `String` of</span>
+<span class="doccomment">//! well-formatted source code. In contrast to rustfmt, this library is intended</span>
+<span class="doccomment">//! to be suitable for arbitrary generated code.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Rustfmt prioritizes high-quality output that is impeccable enough that you&#39;d</span>
+<span class="doccomment">//! be comfortable spending your career staring at its output &amp;mdash; but that</span>
+<span class="doccomment">//! means some heavyweight algorithms, and it has a tendency to bail out on code</span>
+<span class="doccomment">//! that is hard to format (for example [rustfmt#3697], and there are dozens</span>
+<span class="doccomment">//! more issues like it). That&#39;s not necessarily a big deal for human-generated</span>
+<span class="doccomment">//! code because when code gets highly nested, the human will naturally be</span>
+<span class="doccomment">//! inclined to refactor into more easily formattable code. But for generated</span>
+<span class="doccomment">//! code, having the formatter just give up leaves it totally unreadable.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [rustfmt#3697]: https://github.com/rust-lang/rustfmt/issues/3697</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This library is designed using the simplest possible algorithm and data</span>
+<span class="doccomment">//! structures that can deliver about 95% of the quality of rustfmt-formatted</span>
+<span class="doccomment">//! output. In my experience testing real-world code, approximately 97-98% of</span>
+<span class="doccomment">//! output lines come out identical between rustfmt&#39;s formatting and this</span>
+<span class="doccomment">//! crate&#39;s. The rest have slightly different linebreak decisions, but still</span>
+<span class="doccomment">//! clearly follow the dominant modern Rust style.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The tradeoffs made by this crate are a good fit for generated code that you</span>
+<span class="doccomment">//! will *not* spend your career staring at. For example, the output of</span>
+<span class="doccomment">//! `bindgen`, or the output of `cargo-expand`. In those cases it&#39;s more</span>
+<span class="doccomment">//! important that the whole thing be formattable without the formatter giving</span>
+<span class="doccomment">//! up, than that it be flawless.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;br&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Feature matrix</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Here are a few superficial comparisons of this crate against the AST</span>
+<span class="doccomment">//! pretty-printer built into rustc, and rustfmt. The sections below go into</span>
+<span class="doccomment">//! more detail comparing the output of each of these libraries.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! | | prettyplease | rustc | rustfmt |</span>
+<span class="doccomment">//! | --- | --- | --- | --- |</span>
+<span class="doccomment">//! | non-pathological behavior on big or generated code | ✅ | ❌ | ❌ |</span>
+<span class="doccomment">//! | idiomatic modern formatting (&quot;locally indistinguishable from rustfmt&quot;) | ✅ | ❌ | ✅ |</span>
+<span class="doccomment">//! | throughput | 60 MB/s | 39 MB/s | 2.8 MB/s |</span>
+<span class="doccomment">//! | number of dependencies | 3 | 72 | 66 |</span>
+<span class="doccomment">//! | compile time including dependencies | 2.4 sec | 23.1 sec | 29.8 sec |</span>
+<span class="doccomment">//! | buildable using a stable Rust compiler | ✅ | ❌ | ❌ |</span>
+<span class="doccomment">//! | published to crates.io | ✅ | ❌ | ❌ |</span>
+<span class="doccomment">//! | extensively configurable output | ❌ | ❌ | ✅ |</span>
+<span class="doccomment">//! | intended to accommodate hand-maintained source code | ❌ | ❌ | ✅ |</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;br&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Comparison to rustfmt</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! - [input.rs](https://github.com/dtolnay/prettyplease/blob/0.1.0/examples/input.rs)</span>
+<span class="doccomment">//! - [output.prettyplease.rs](https://github.com/dtolnay/prettyplease/blob/0.1.0/examples/output.prettyplease.rs)</span>
+<span class="doccomment">//! - [output.rustfmt.rs](https://github.com/dtolnay/prettyplease/blob/0.1.0/examples/output.rustfmt.rs)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! If you weren&#39;t told which output file is which, it would be practically</span>
+<span class="doccomment">//! impossible to tell &amp;mdash; **except** for line 435 in the rustfmt output,</span>
+<span class="doccomment">//! which is more than 1000 characters long because rustfmt just gave up</span>
+<span class="doccomment">//! formatting that part of the file:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # const _: &amp;str = stringify! {{{</span>
+<span class="doccomment">//!             match segments[5] {</span>
+<span class="doccomment">//!                 0 =&gt; write!(f, &quot;::{}&quot;, ipv4),</span>
+<span class="doccomment">//!                 0xffff =&gt; write!(f, &quot;::ffff:{}&quot;, ipv4),</span>
+<span class="doccomment">//!                 _ =&gt; unreachable!(),</span>
+<span class="doccomment">//!             }</span>
+<span class="doccomment">//!         } else { # [derive (Copy , Clone , Default)] struct Span { start : usize , len : usize , } let zeroes = { let mut longest = Span :: default () ; let mut current = Span :: default () ; for (i , &amp; segment) in segments . iter () . enumerate () { if segment == 0 { if current . len == 0 { current . start = i ; } current . len += 1 ; if current . len &gt; longest . len { longest = current ; } } else { current = Span :: default () ; } } longest } ; # [doc = &quot; Write a colon-separated part of the address&quot;] # [inline] fn fmt_subslice (f : &amp; mut fmt :: Formatter &lt; &#39;_ &gt; , chunk : &amp; [u16]) -&gt; fmt :: Result { if let Some ((first , tail)) = chunk . split_first () { write ! (f , &quot;{:x}&quot; , first) ? ; for segment in tail { f . write_char (&#39;:&#39;) ? ; write ! (f , &quot;{:x}&quot; , segment) ? ; } } Ok (()) } if zeroes . len &gt; 1 { fmt_subslice (f , &amp; segments [.. zeroes . start]) ? ; f . write_str (&quot;::&quot;) ? ; fmt_subslice (f , &amp; segments [zeroes . start + zeroes . len ..]) } else { fmt_subslice (f , &amp; segments) } }</span>
+<span class="doccomment">//!     } else {</span>
+<span class="doccomment">//!         const IPV6_BUF_LEN: usize = (4 * 8) + 7;</span>
+<span class="doccomment">//!         let mut buf = [0u8; IPV6_BUF_LEN];</span>
+<span class="doccomment">//!         let mut buf_slice = &amp;mut buf[..];</span>
+<span class="doccomment">//! # }};</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This is a pretty typical manifestation of rustfmt bailing out in generated</span>
+<span class="doccomment">//! code &amp;mdash; a chunk of the input ends up on one line. The other</span>
+<span class="doccomment">//! manifestation is that you&#39;re working on some code, running rustfmt on save</span>
+<span class="doccomment">//! like a conscientious developer, but after a while notice it isn&#39;t doing</span>
+<span class="doccomment">//! anything. You introduce an intentional formatting issue, like a stray indent</span>
+<span class="doccomment">//! or semicolon, and run rustfmt to check your suspicion. Nope, it doesn&#39;t get</span>
+<span class="doccomment">//! cleaned up &amp;mdash; rustfmt is just not formatting the part of the file you</span>
+<span class="doccomment">//! are working on.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The prettyplease library is designed to have no pathological cases that</span>
+<span class="doccomment">//! force a bail out; the entire input you give it will get formatted in some</span>
+<span class="doccomment">//! &quot;good enough&quot; form.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Separately, rustfmt can be problematic to integrate into projects. It&#39;s</span>
+<span class="doccomment">//! written using rustc&#39;s internal syntax tree, so it can&#39;t be built by a stable</span>
+<span class="doccomment">//! compiler. Its releases are not regularly published to crates.io, so in Cargo</span>
+<span class="doccomment">//! builds you&#39;d need to depend on it as a git dependency, which precludes</span>
+<span class="doccomment">//! publishing your crate to crates.io also. You can shell out to a `rustfmt`</span>
+<span class="doccomment">//! binary, but that&#39;ll be whatever rustfmt version is installed on each</span>
+<span class="doccomment">//! developer&#39;s system (if any), which can lead to spurious diffs in checked-in</span>
+<span class="doccomment">//! generated code formatted by different versions. In contrast prettyplease is</span>
+<span class="doccomment">//! designed to be easy to pull in as a library, and compiles fast.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;br&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Comparison to rustc_ast_pretty</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! - [input.rs](https://github.com/dtolnay/prettyplease/blob/0.1.0/examples/input.rs)</span>
+<span class="doccomment">//! - [output.prettyplease.rs](https://github.com/dtolnay/prettyplease/blob/0.1.0/examples/output.prettyplease.rs)</span>
+<span class="doccomment">//! - [output.rustc.rs](https://github.com/dtolnay/prettyplease/blob/0.1.0/examples/output.rustc.rs)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This is the pretty-printer that gets used when rustc prints source code,</span>
+<span class="doccomment">//! such as `rustc -Zunpretty=expanded`. It&#39;s used also by the standard</span>
+<span class="doccomment">//! library&#39;s `stringify!` when stringifying an interpolated macro_rules AST</span>
+<span class="doccomment">//! fragment, like an $:expr, and transitively by `dbg!` and many macros in the</span>
+<span class="doccomment">//! ecosystem.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Rustc&#39;s formatting is mostly okay, but does not hew closely to the dominant</span>
+<span class="doccomment">//! contemporary style of Rust formatting. Some things wouldn&#39;t ever be written</span>
+<span class="doccomment">//! on one line, like this `match` expression, and certainly not with a comma in</span>
+<span class="doccomment">//! front of the closing brace:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # const _: &amp;str = stringify! {</span>
+<span class="doccomment">//! fn eq(&amp;self, other: &amp;IpAddr) -&gt; bool {</span>
+<span class="doccomment">//!     match other { IpAddr::V4(v4) =&gt; self == v4, IpAddr::V6(_) =&gt; false, }</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! # };</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Some places use non-multiple-of-4 indentation, which is definitely not the</span>
+<span class="doccomment">//! norm:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # const _: &amp;str = stringify! {</span>
+<span class="doccomment">//! pub const fn to_ipv6_mapped(&amp;self) -&gt; Ipv6Addr {</span>
+<span class="doccomment">//!     let [a, b, c, d] = self.octets();</span>
+<span class="doccomment">//!     Ipv6Addr{inner:</span>
+<span class="doccomment">//!                  c::in6_addr{s6_addr:</span>
+<span class="doccomment">//!                                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF,</span>
+<span class="doccomment">//!                                   0xFF, a, b, c, d],},}</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! # };</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! And although there isn&#39;t an egregious example of it in the link because the</span>
+<span class="doccomment">//! input code is pretty tame, in general rustc_ast_pretty has pathological</span>
+<span class="doccomment">//! behavior on generated code. It has a tendency to use excessive horizontal</span>
+<span class="doccomment">//! indentation and rapidly run out of width:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # const _: &amp;str = stringify! {</span>
+<span class="doccomment">//! ::std::io::_print(::core::fmt::Arguments::new_v1(&amp;[&quot;&quot;],</span>
+<span class="doccomment">//!                                                  &amp;match (&amp;msg,) {</span>
+<span class="doccomment">//!                                                       _args =&gt;</span>
+<span class="doccomment">//!                                                       [::core::fmt::ArgumentV1::new(_args.0,</span>
+<span class="doccomment">//!                                                                                     ::core::fmt::Display::fmt)],</span>
+<span class="doccomment">//!                                                   }));</span>
+<span class="doccomment">//! # };</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The snippets above are clearly different from modern rustfmt style. In</span>
+<span class="doccomment">//! contrast, prettyplease is designed to have output that is practically</span>
+<span class="doccomment">//! indistinguishable from rustfmt-formatted code.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;br&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Example</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! // [dependencies]</span>
+<span class="doccomment">//! // prettyplease = &quot;0.1&quot;</span>
+<span class="doccomment">//! // syn = { version = &quot;1&quot;, default-features = false, features = [&quot;full&quot;, &quot;parsing&quot;] }</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! const INPUT: &amp;str = stringify! {</span>
+<span class="doccomment">//!     use crate::{</span>
+<span class="doccomment">//!           lazy::{Lazy, SyncLazy, SyncOnceCell}, panic,</span>
+<span class="doccomment">//!         sync::{ atomic::{AtomicUsize, Ordering::SeqCst},</span>
+<span class="doccomment">//!             mpsc::channel, Mutex, },</span>
+<span class="doccomment">//!       thread,</span>
+<span class="doccomment">//!     };</span>
+<span class="doccomment">//!     impl&lt;T, U&gt; Into&lt;U&gt; for T where U: From&lt;T&gt; {</span>
+<span class="doccomment">//!         fn into(self) -&gt; U { U::from(self) }</span>
+<span class="doccomment">//!     }</span>
+<span class="doccomment">//! };</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! fn main() {</span>
+<span class="doccomment">//!     let syntax_tree = syn::parse_file(INPUT).unwrap();</span>
+<span class="doccomment">//!     let formatted = prettyplease::unparse(&amp;syntax_tree);</span>
+<span class="doccomment">//!     print!(&quot;{}&quot;, formatted);</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;br&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Algorithm notes</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The approach and terminology used in the implementation are derived from</span>
+<span class="doccomment">//! [*Derek C. Oppen, &quot;Pretty Printing&quot; (1979)*][paper], on which</span>
+<span class="doccomment">//! rustc_ast_pretty is also based, and from rustc_ast_pretty&#39;s implementation</span>
+<span class="doccomment">//! written by Graydon Hoare in 2011 (and modernized over the years by dozens of</span>
+<span class="doccomment">//! volunteer maintainers).</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [paper]: http://i.stanford.edu/pub/cstr/reports/cs/tr/79/770/CS-TR-79-770.pdf</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The paper describes two language-agnostic interacting procedures `Scan()`</span>
+<span class="doccomment">//! and `Print()`. Language-specific code decomposes an input data structure</span>
+<span class="doccomment">//! into a stream of `string` and `break` tokens, and `begin` and `end` tokens</span>
+<span class="doccomment">//! for grouping. Each `begin`&amp;ndash;`end` range may be identified as either</span>
+<span class="doccomment">//! &quot;consistent breaking&quot; or &quot;inconsistent breaking&quot;. If a group is consistently</span>
+<span class="doccomment">//! breaking, then if the whole contents do not fit on the line, *every* `break`</span>
+<span class="doccomment">//! token in the group will receive a linebreak. This is appropriate, for</span>
+<span class="doccomment">//! example, for Rust struct literals, or arguments of a function call. If a</span>
+<span class="doccomment">//! group is inconsistently breaking, then the `string` tokens in the group are</span>
+<span class="doccomment">//! greedily placed on the line until out of space, and linebroken only at those</span>
+<span class="doccomment">//! `break` tokens for which the next string would not fit. For example, this is</span>
+<span class="doccomment">//! appropriate for the contents of a braced `use` statement in Rust.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Scan&#39;s job is to efficiently accumulate sizing information about groups and</span>
+<span class="doccomment">//! breaks. For every `begin` token we compute the distance to the matched `end`</span>
+<span class="doccomment">//! token, and for every `break` we compute the distance to the next `break`.</span>
+<span class="doccomment">//! The algorithm uses a ringbuffer to hold tokens whose size is not yet</span>
+<span class="doccomment">//! ascertained. The maximum size of the ringbuffer is bounded by the target</span>
+<span class="doccomment">//! line length and does not grow indefinitely, regardless of deep nesting in</span>
+<span class="doccomment">//! the input stream. That&#39;s because once a group is sufficiently big, the</span>
+<span class="doccomment">//! precise size can no longer make a difference to linebreak decisions and we</span>
+<span class="doccomment">//! can effectively treat it as &quot;infinity&quot;.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Print&#39;s job is to use the sizing information to efficiently assign a</span>
+<span class="doccomment">//! &quot;broken&quot; or &quot;not broken&quot; status to every `begin` token. At that point the</span>
+<span class="doccomment">//! output is easily constructed by concatenating `string` tokens and breaking</span>
+<span class="doccomment">//! at `break` tokens contained within a broken group.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Leveraging these primitives (i.e. cleverly placing the all-or-nothing</span>
+<span class="doccomment">//! consistent breaks and greedy inconsistent breaks) to yield</span>
+<span class="doccomment">//! rustfmt-compatible formatting for all of Rust&#39;s syntax tree nodes is a fun</span>
+<span class="doccomment">//! challenge.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Here is a visualization of some Rust tokens fed into the pretty printing</span>
+<span class="doccomment">//! algorithm. Consistently breaking `begin`&amp;mdash;`end` pairs are represented</span>
+<span class="doccomment">//! by `«`&amp;#8288;`»`, inconsistently breaking by `‹`&amp;#8288;`›`, `break` by `·`,</span>
+<span class="doccomment">//! and the rest of the non-whitespace are `string`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```text</span>
+<span class="doccomment">//! use crate::«{·</span>
+<span class="doccomment">//! ‹    lazy::«{·‹Lazy,· SyncLazy,· SyncOnceCell›·}»,·</span>
+<span class="doccomment">//!     panic,·</span>
+<span class="doccomment">//!     sync::«{·</span>
+<span class="doccomment">//! ‹        atomic::«{·‹AtomicUsize,· Ordering::SeqCst›·}»,·</span>
+<span class="doccomment">//!         mpsc::channel,· Mutex›,·</span>
+<span class="doccomment">//!     }»,·</span>
+<span class="doccomment">//!     thread›,·</span>
+<span class="doccomment">//! }»;·</span>
+<span class="doccomment">//! «‹«impl&lt;«·T‹›,· U‹›·»&gt;» Into&lt;«·U·»&gt;· for T›·</span>
+<span class="doccomment">//! where·</span>
+<span class="doccomment">//!     U:‹ From&lt;«·T·»&gt;›,·</span>
+<span class="doccomment">//! {·</span>
+<span class="doccomment">//! «    fn into(·«·self·») -&gt; U {·</span>
+<span class="doccomment">//! ‹        U::from(«·self·»)›·</span>
+<span class="doccomment">//! »    }·</span>
+<span class="doccomment">//! »}·</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The algorithm described in the paper is not quite sufficient for producing</span>
+<span class="doccomment">//! well-formatted Rust code that is locally indistinguishable from rustfmt&#39;s</span>
+<span class="doccomment">//! style. The reason is that in the paper, the complete non-whitespace contents</span>
+<span class="doccomment">//! are assumed to be independent of linebreak decisions, with Scan and Print</span>
+<span class="doccomment">//! being only in control of the whitespace (spaces and line breaks). In Rust as</span>
+<span class="doccomment">//! idiomatically formattted by rustfmt, that is not the case. Trailing commas</span>
+<span class="doccomment">//! are one example; the punctuation is only known *after* the broken vs</span>
+<span class="doccomment">//! non-broken status of the surrounding group is known:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # struct Struct { x: u64, y: bool }</span>
+<span class="doccomment">//! # let xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx = 0;</span>
+<span class="doccomment">//! # let yyyyyyyyyyyyyyyyyyyyyyyyyyyyyy = true;</span>
+<span class="doccomment">//! #</span>
+<span class="doccomment">//! let _ = Struct { x: 0, y: true };</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let _ = Struct {</span>
+<span class="doccomment">//!     x: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx,</span>
+<span class="doccomment">//!     y: yyyyyyyyyyyyyyyyyyyyyyyyyyyyyy,   //&lt;- trailing comma if the expression wrapped</span>
+<span class="doccomment">//! };</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The formatting of `match` expressions is another case; we want small arms on</span>
+<span class="doccomment">//! the same line as the pattern, and big arms wrapped in a brace. The presence</span>
+<span class="doccomment">//! of the brace punctuation, comma, and semicolon are all dependent on whether</span>
+<span class="doccomment">//! the arm fits on the line:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # struct Entry { nanos: u32 }</span>
+<span class="doccomment">//! # let total_nanos = 0u64;</span>
+<span class="doccomment">//! # let mut total_secs = 0u64;</span>
+<span class="doccomment">//! # let tmp;</span>
+<span class="doccomment">//! # let entry = Entry { nanos: 0 };</span>
+<span class="doccomment">//! # const NANOS_PER_SEC: u32 = 1_000_000_000;</span>
+<span class="doccomment">//! #</span>
+<span class="doccomment">//! match total_nanos.checked_add(entry.nanos as u64) {</span>
+<span class="doccomment">//!     Some(n) =&gt; tmp = n,   //&lt;- small arm, inline with comma</span>
+<span class="doccomment">//!     None =&gt; {</span>
+<span class="doccomment">//!         total_secs = total_secs</span>
+<span class="doccomment">//!             .checked_add(total_nanos / NANOS_PER_SEC as u64)</span>
+<span class="doccomment">//!             .expect(&quot;overflow in iter::sum over durations&quot;);</span>
+<span class="doccomment">//!     }   //&lt;- big arm, needs brace added, and also semicolon^</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The printing algorithm implementation in this crate accommodates all of</span>
+<span class="doccomment">//! these situations with conditional punctuation tokens whose selection can be</span>
+<span class="doccomment">//! deferred and populated after it&#39;s known that the group is or is not broken.</span>
+
+<span class="attribute">#![<span class="ident">allow</span>(
+    <span class="ident">clippy::cast_possible_wrap</span>,
+    <span class="ident">clippy::cast_sign_loss</span>,
+    <span class="ident">clippy::doc_markdown</span>,
+    <span class="ident">clippy::enum_glob_use</span>,
+    <span class="ident">clippy::items_after_statements</span>,
+    <span class="ident">clippy::match_like_matches_macro</span>,
+    <span class="ident">clippy::match_same_arms</span>,
+    <span class="ident">clippy::module_name_repetitions</span>,
+    <span class="ident">clippy::must_use_candidate</span>,
+    <span class="ident">clippy::needless_pass_by_value</span>,
+    <span class="ident">clippy::similar_names</span>,
+    <span class="ident">clippy::unused_self</span>,
+    <span class="ident">clippy::vec_init_then_push</span>
+)]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">exhaustive</span>), <span class="ident">feature</span>(<span class="ident">non_exhaustive_omitted_patterns_lint</span>))]</span>
+
+<span class="kw">mod</span> <span class="ident">algorithm</span>;
+<span class="kw">mod</span> <span class="ident">attr</span>;
+<span class="kw">mod</span> <span class="ident">convenience</span>;
+<span class="kw">mod</span> <span class="ident">data</span>;
+<span class="kw">mod</span> <span class="ident">expr</span>;
+<span class="kw">mod</span> <span class="ident">file</span>;
+<span class="kw">mod</span> <span class="ident">generics</span>;
+<span class="kw">mod</span> <span class="ident">item</span>;
+<span class="kw">mod</span> <span class="ident">iter</span>;
+<span class="kw">mod</span> <span class="ident">lifetime</span>;
+<span class="kw">mod</span> <span class="ident">lit</span>;
+<span class="kw">mod</span> <span class="ident">mac</span>;
+<span class="kw">mod</span> <span class="ident">pat</span>;
+<span class="kw">mod</span> <span class="ident">path</span>;
+<span class="kw">mod</span> <span class="ident">ring</span>;
+<span class="kw">mod</span> <span class="ident">stmt</span>;
+<span class="kw">mod</span> <span class="ident">token</span>;
+<span class="kw">mod</span> <span class="ident">ty</span>;
+
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::algorithm::Printer</span>;
+<span class="kw">use</span> <span class="ident">syn::File</span>;
+
+<span class="comment">// Target line width.</span>
+<span class="kw">const</span> <span class="ident">MARGIN</span>: <span class="ident">isize</span> <span class="op">=</span> <span class="number">89</span>;
+
+<span class="comment">// Number of spaces increment at each level of block indentation.</span>
+<span class="kw">const</span> <span class="ident">INDENT</span>: <span class="ident">isize</span> <span class="op">=</span> <span class="number">4</span>;
+
+<span class="comment">// Every line is allowed at least this much space, even if highly indented.</span>
+<span class="kw">const</span> <span class="ident">MIN_SPACE</span>: <span class="ident">isize</span> <span class="op">=</span> <span class="number">60</span>;
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unparse</span>(<span class="ident">file</span>: <span class="kw-2">&amp;</span><span class="ident">File</span>) -&gt; <span class="ident">String</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Printer::new</span>();
+    <span class="ident">p</span>.<span class="ident">file</span>(<span class="ident">file</span>);
+    <span class="ident">p</span>.<span class="ident">eof</span>()
+}
+</code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="prettyplease" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
+</body></html>

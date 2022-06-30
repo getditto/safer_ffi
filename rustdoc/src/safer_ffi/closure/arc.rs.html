@@ -266,7 +266,9 @@
 <span id="260">260</span>
 <span id="261">261</span>
 <span id="262">262</span>
-</pre><pre class="rust"><code><span class="doccomment">//! `Arc&lt;dyn &#39;static + Send + Sync + Fn(...) -&gt; _&gt;` but with a `#[repr(C)]`</span>
+<span id="263">263</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+<span class="doccomment">//! `Arc&lt;dyn &#39;static + Send + Sync + Fn(...) -&gt; _&gt;` but with a `#[repr(C)]`</span>
 <span class="doccomment">//! layout (inlined virtual method table).</span>
 
 <span class="kw">use</span> <span class="ident">::alloc::sync::Arc</span>;
@@ -529,5 +531,5 @@
     (<span class="ident">ArcDynFn1</span>, <span class="ident">A1</span>),
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
 </body></html>

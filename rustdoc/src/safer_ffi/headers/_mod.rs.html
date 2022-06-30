@@ -376,7 +376,302 @@
 <span id="370">370</span>
 <span id="371">371</span>
 <span id="372">372</span>
-</pre><pre class="rust"><code><span class="doccomment">//! C headers generation.</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+<span class="doccomment">//! C headers generation.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This module is only enabled when the `&quot;headers&quot;` feature of `::safer_ffi` is</span>
 <span class="doccomment">//! enabled, which is expected to be done through a cargo feature within the</span>
@@ -418,7 +713,7 @@
 <span class="doccomment">//!     drop(it);</span>
 <span class="doccomment">//! }</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! # macro_rules! ignore { ($($t:tt)*) =&gt; () } ignore! {</span>
+<span class="doccomment">//! # #[cfg(any())] macro_rules! {</span>
 <span class="doccomment">//! #[::safer_ffi::cfg_headers]</span>
 <span class="doccomment">//! #[test]</span>
 <span class="doccomment">//! # }</span>
@@ -430,7 +725,7 @@
 <span class="doccomment">//!         .to_file(&quot;filename.h&quot;)?</span>
 <span class="doccomment">//!         .generate()</span>
 <span class="doccomment">//! }</span>
-<span class="comment">// //! # generate_c_header().unwrap();</span>
+<span class="doccomment">//! # generate_c_header().unwrap();</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! so that</span>
@@ -480,19 +775,74 @@
 
 <span class="kw">use</span> <span class="ident">::std</span>::{
     <span class="ident">collections::HashSet</span>,
-    <span class="ident">env</span>,
     <span class="ident">fs</span>,
     <span class="ident">io</span>,
     <span class="ident">path::Path</span>,
 };
 
 <span class="macro">use_prelude!</span>();
-<span class="kw">use</span> <span class="ident">rust</span>::{<span class="ident">String</span>, <span class="ident">Vec</span>};
+<span class="kw">use</span> <span class="ident">rust</span>::{<span class="ident">String</span>};
+
+<span class="kw">pub</span> <span class="comment">// (in crate)</span>
+<span class="kw">mod</span> <span class="ident">languages</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">definer</span>::{<span class="ident">Definer</span>, <span class="ident">HashSetDefiner</span>};
 <span class="kw">mod</span> <span class="ident">definer</span>;
 
-<span class="macro">macro_rules!</span> <span class="ident">with_optional_fields</span> {(
+
+
+<span class="macro">match_!</span> {(
+    <span class="doccomment">/// Sets up the name of the `ifndef` guard of the header file.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// It defaults to:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```rust,ignore</span>
+    <span class="doccomment">/// format!(&quot;__RUST_{}__&quot;, env::var(&quot;CARGO_CRATE_NAME&quot;)?.replace(&quot;-&quot;, &quot;_&quot;).to_ascii_uppercase())</span>
+    <span class="doccomment">/// ```</span>
+    <span class="ident">guard</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;__</span> <span class="ident">str</span>,
+
+    <span class="doccomment">/// Sets up the banner of the generated C header file.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// It defaults to:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```rust,ignore</span>
+    <span class="doccomment">/// concat!(</span>
+    <span class="doccomment">///     &quot;/*! \\file */\n&quot;,</span>
+    <span class="doccomment">///     &quot;/*******************************************\n&quot;,</span>
+    <span class="doccomment">///     &quot; *                                         *\n&quot;,</span>
+    <span class="doccomment">///     &quot; *  File auto-generated by `::safer_ffi`.  *\n&quot;,</span>
+    <span class="doccomment">///     &quot; *                                         *\n&quot;,</span>
+    <span class="doccomment">///     &quot; *  Do not manually edit this file.        *\n&quot;,</span>
+    <span class="doccomment">///     &quot; *                                         *\n&quot;,</span>
+    <span class="doccomment">///     &quot; *******************************************/\n&quot;,</span>
+    <span class="doccomment">/// )</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// &lt;pre style=&quot;color:#000020;background:#f6f8ff;&quot;&gt;&lt;span style=&quot;color:#3f7f8f; &quot;&gt;/*! \file */&lt;/span&gt;</span>
+    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;/*******************************************&lt;/span&gt;</span>
+    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;</span>
+    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  File auto-generated by `::safer_ffi`.  *&lt;/span&gt;</span>
+    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;</span>
+    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  Do not manually edit this file.        *&lt;/span&gt;</span>
+    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;</span>
+    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*******************************************/&lt;/span&gt;</span>
+    <span class="doccomment">/// &lt;/pre&gt;</span>
+    <span class="ident">banner</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;__</span> <span class="ident">str</span>,
+
+    <span class="doccomment">/// Sets the [`Language`] of the generated headers.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// It defaults to [`Language::C`].</span>
+    <span class="ident">language</span>: <span class="ident">Language</span>,
+
+    <span class="doccomment">/// Sets prefix for generated functions, structs &amp; enums</span>
+    <span class="ident">naming_convention</span>: <span class="ident">NamingConvention</span>,
+
+    <span class="doccomment">/// Whether to yield a stable header or not (order of defined items guaranteed</span>
+    <span class="doccomment">/// not to change provided the source code doesn&#39;t change either).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// It defaults to `true`.</span>
+    <span class="ident">stable_header</span>: <span class="ident">bool</span>,
+) <span class="comment">/* as */</span> {(
     $(
         $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_meta</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>:<span class="ident">ident</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_ty</span>:<span class="ident">ty</span>
@@ -572,7 +922,7 @@
                 <span class="ident">fs::OpenOptions::new</span>()
                     .<span class="ident">create</span>(<span class="bool-val">true</span>)<span class="comment">/*or*/</span>.<span class="ident">truncate</span>(<span class="bool-val">true</span>)
                     .<span class="ident">write</span>(<span class="bool-val">true</span>)
-                    .<span class="ident">open</span>(<span class="ident">filename</span>)<span class="question-mark">?</span>
+                    .<span class="ident">open</span>(<span class="ident">filename</span>.<span class="ident">as_ref</span>())<span class="question-mark">?</span>
             ))
         }
 
@@ -639,49 +989,10 @@
         <span class="comment">//     }</span>
         <span class="comment">// }</span>
     }
-)}
-
-<span class="macro">with_optional_fields!</span> {
-    <span class="doccomment">/// Sets up the name of the `ifndef` guard of the header file.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It defaults to:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,ignore</span>
-    <span class="doccomment">/// format!(&quot;__RUST_{}__&quot;, env::var(&quot;CARGO_PKG_NAME&quot;)?.replace(&quot;-&quot;, &quot;_&quot;).to_ascii_uppercase())</span>
-    <span class="doccomment">/// ```</span>
-    <span class="ident">guard</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;__</span> <span class="ident">str</span>,
-
-    <span class="doccomment">/// Sets up the banner of the generated C header file.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It defaults to:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,ignore</span>
-    <span class="doccomment">/// concat!(</span>
-    <span class="doccomment">///     &quot;/*! \\file */\n&quot;,</span>
-    <span class="doccomment">///     &quot;/*******************************************\n&quot;,</span>
-    <span class="doccomment">///     &quot; *                                         *\n&quot;,</span>
-    <span class="doccomment">///     &quot; *  File auto-generated by `::safer_ffi`.  *\n&quot;,</span>
-    <span class="doccomment">///     &quot; *                                         *\n&quot;,</span>
-    <span class="doccomment">///     &quot; *  Do not manually edit this file.        *\n&quot;,</span>
-    <span class="doccomment">///     &quot; *                                         *\n&quot;,</span>
-    <span class="doccomment">///     &quot; *******************************************/\n&quot;,</span>
-    <span class="doccomment">/// )</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// &lt;pre style=&quot;color:#000020;background:#f6f8ff;&quot;&gt;&lt;span style=&quot;color:#3f7f8f; &quot;&gt;/*! \file */&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;/*******************************************&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  File auto-generated by `::safer_ffi`.  *&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  Do not manually edit this file.        *&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*******************************************/&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;/pre&gt;</span>
-    <span class="ident">banner</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;__</span> <span class="ident">str</span>,
-}
+)}}
 
 <span class="kw">impl</span> <span class="ident">Builder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">WhereTo</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// More customizable version of [`.generate()`][`Builder::generate].</span>
+    <span class="doccomment">/// More customizable version of [`.generate()`][Builder::generate].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// With this call, one can provide a custom implementation of a [`Definer`],</span>
     <span class="doccomment">/// which can be useful for mock tests, mainly.</span>
@@ -689,20 +1000,22 @@
     <span class="kw">fn</span> <span class="ident">generate_with_definer</span> (<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">definer</span>: <span class="kw">impl</span> <span class="ident">Definer</span>)
       -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     {
-        <span class="kw">let</span> <span class="ident">s</span>;
         <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="kw">let</span> <span class="ident">guard</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span> <span class="op">=</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">it</span>) <span class="op">=</span> <span class="ident">config</span>.<span class="ident">guard</span> { <span class="ident">it</span> } <span class="kw">else</span> {
-                <span class="ident">s</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;__RUST_{}__&quot;</span>,
-                    <span class="ident">env::var</span>(<span class="string">&quot;CARGO_PKG_NAME&quot;</span>)
-                        .<span class="ident">unwrap</span>()
-                        .<span class="ident">replace</span>(<span class="string">&quot;-&quot;</span>, <span class="string">&quot;_&quot;</span>)
-                        .<span class="ident">to_ascii_uppercase</span>()
-                );
-                <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">s</span>
-            }
-        ;
-        <span class="kw">let</span> <span class="ident">banner</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span> <span class="op">=</span> <span class="ident">config</span>.<span class="ident">banner</span>.<span class="ident">unwrap_or</span>(<span class="macro">concat!</span>(
+        <span class="comment">// Banner</span>
+        <span class="ident">config</span>.<span class="ident">write_banner</span>(<span class="kw-2">&amp;mut</span> <span class="ident">definer</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Prelude</span>
+        <span class="ident">config</span>.<span class="ident">write_prelude</span>(<span class="kw-2">&amp;mut</span> <span class="ident">definer</span>)<span class="question-mark">?</span>;
+        <span class="comment">/* User-provided defs! */</span>
+        <span class="ident">config</span>.<span class="ident">write_body</span>(<span class="kw-2">&amp;mut</span> <span class="ident">definer</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Epilogue</span>
+        <span class="ident">config</span>.<span class="ident">write_epilogue</span>(<span class="kw-2">&amp;mut</span> <span class="ident">definer</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">fn</span> <span class="ident">write_banner</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">self</span>, <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
+      -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    {
+        <span class="kw">let</span> <span class="ident">banner</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">banner</span>.<span class="ident">unwrap_or</span>(<span class="macro">concat!</span>(
             <span class="string">&quot;/*! \\file */\n&quot;</span>,
             <span class="string">&quot;/*******************************************\n&quot;</span>,
             <span class="string">&quot; *                                         *\n&quot;</span>,
@@ -710,44 +1023,319 @@
             <span class="string">&quot; *                                         *\n&quot;</span>,
             <span class="string">&quot; *  Do not manually edit this file.        *\n&quot;</span>,
             <span class="string">&quot; *                                         *\n&quot;</span>,
-            <span class="string">&quot; *******************************************/&quot;</span>,
+            <span class="string">&quot; *******************************************/\n&quot;</span>,
         ));
+        <span class="macro">writeln!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(), <span class="string">&quot;{}&quot;</span>, <span class="ident">banner</span>)
+    }
 
-        <span class="macro">write!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
-            <span class="macro">concat!</span>(
-                <span class="string">&quot;{banner}\n\n&quot;</span>,
-                <span class="string">&quot;#ifndef {guard}\n&quot;</span>,
-                <span class="string">&quot;#define {guard}\n&quot;</span>,
-                <span class="string">&quot;\n&quot;</span>,
-                <span class="string">&quot;#ifdef __cplusplus\n&quot;</span>,
-                <span class="string">&quot;extern \&quot;C\&quot; {{\n&quot;</span>,
-                <span class="string">&quot;#endif\n\n&quot;</span>,
+    <span class="kw">fn</span> <span class="ident">write_prelude</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">self</span>, <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
+      -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    {
+        <span class="kw">let</span> <span class="ident">lang</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">language</span>.<span class="ident">unwrap_or</span>(<span class="ident">Language::C</span>);
+
+        <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">guard</span>();
+
+        <span class="kw">match</span> <span class="ident">lang</span> {
+            <span class="op">|</span> <span class="ident">Language::C</span> =&gt; <span class="macro">write!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
+                <span class="macro">include_str!</span>(<span class="string">&quot;templates/c/_prelude.h&quot;</span>),
+                <span class="ident">guard</span> <span class="op">=</span> <span class="ident">guard</span>,
             ),
-            <span class="ident">guard</span> <span class="op">=</span> <span class="ident">guard</span>,
-            <span class="ident">banner</span> <span class="op">=</span> <span class="ident">banner</span>,
-        )<span class="question-mark">?</span>;
-        <span class="ident"><span class="kw">crate</span>::inventory::iter</span>
-            .<span class="ident">into_iter</span>()
-            <span class="comment">// Iterate in reverse fashion to more closely match</span>
-            <span class="comment">// the Rust definition order.</span>
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">into_iter</span>().<span class="ident">rev</span>()
-            .<span class="ident">try_for_each</span>(<span class="op">|</span><span class="ident"><span class="kw">crate</span>::FfiExport</span>(<span class="ident">define</span>)<span class="op">|</span> <span class="ident">define</span>(<span class="kw-2">&amp;mut</span> <span class="ident">definer</span>))
-            <span class="question-mark">?</span>
+
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
+            <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; <span class="macro">write!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
+                <span class="macro">include_str!</span>(<span class="string">&quot;templates/csharp/_prelude.cs&quot;</span>),
+                <span class="ident">NameSpace</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::pascal_cased_lib_name</span>(),
+                <span class="ident">RustLib</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::lib_name</span>(),
+            ),
+        }
+    }
+
+    <span class="doccomment">/// Heart of safer ffi: write the items in the header</span>
+    <span class="kw">fn</span> <span class="ident">write_body</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">self</span>, <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
+      -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    {
+        <span class="kw">let</span> <span class="ident">stable_header</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">stable_header</span>.<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>);
+        <span class="kw">let</span> <span class="ident">lang</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">language</span>.<span class="ident">unwrap_or</span>(<span class="ident">Language::C</span>);
+        <span class="kw">let</span> <span class="ident">_naming_convention</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">naming_convention</span>
+                .<span class="ident">as_ref</span>()
+                .<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">NamingConvention::Default</span>)
         ;
-        <span class="macro">write!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
-            <span class="macro">concat!</span>(
-                <span class="string">&quot;\n&quot;</span>,
-                <span class="string">&quot;#ifdef __cplusplus\n&quot;</span>,
-                <span class="string">&quot;}} /* extern \&quot;C\&quot; */\n&quot;</span>,
-                <span class="string">&quot;#endif\n&quot;</span>,
-                <span class="string">&quot;\n&quot;</span>,
-                <span class="string">&quot;#endif /* {} */\n&quot;</span>,
-            ),
-            <span class="ident">guard</span>,
-        )<span class="question-mark">?</span>;
+        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">storage0</span>, <span class="kw-2">mut</span> <span class="ident">storage1</span>) <span class="op">=</span> (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
+        <span class="kw">let</span> <span class="ident">gen_defs</span>: <span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">stable_header</span> {
+            <span class="ident">storage0</span>.<span class="ident">get_or_insert</span>(
+                <span class="ident"><span class="kw">crate</span>::inventory::iter</span>
+                    .<span class="ident">into_iter</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident"><span class="kw">crate</span>::FfiExport</span> { <span class="ident">name</span>, <span class="ident">gen_def</span> }<span class="op">|</span> (<span class="ident">name</span>, <span class="ident">gen_def</span>))
+                    <span class="comment">// Sort the definitions for a reliable header generation.</span>
+                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">::std::collections::BTreeMap</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+                    .<span class="ident">into_iter</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">gen_def</span>)<span class="op">|</span> <span class="ident">gen_def</span>)
+            )
+        } <span class="kw">else</span> {
+            <span class="ident">storage1</span>.<span class="ident">get_or_insert</span>(
+                <span class="ident"><span class="kw">crate</span>::inventory::iter</span>
+                    .<span class="ident">into_iter</span>()
+                    <span class="comment">// Iterate in reverse fashion to more closely match</span>
+                    <span class="comment">// the Rust definition order.</span>
+                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">rust::Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">into_iter</span>().<span class="ident">rev</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident"><span class="kw">crate</span>::FfiExport</span> { <span class="ident">gen_def</span>, .. }<span class="op">|</span> <span class="ident">gen_def</span>)
+            )
+        };
+        (<span class="kw-2">&amp;mut</span> { <span class="ident">gen_defs</span> }).<span class="ident">try_for_each</span>(<span class="op">|</span><span class="ident">gen_def</span><span class="op">|</span> <span class="ident">gen_def</span>(<span class="ident">definer</span>, <span class="ident">lang</span>))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">fn</span> <span class="ident">write_epilogue</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">self</span>, <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
+      -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    {
+        <span class="kw">let</span> <span class="ident">lang</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">language</span>.<span class="ident">unwrap_or</span>(<span class="ident">Language::C</span>);
+        <span class="kw">match</span> <span class="ident">lang</span> {
+            <span class="op">|</span> <span class="ident">Language::C</span> =&gt; <span class="macro">write!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
+                <span class="macro">include_str!</span>(<span class="string">&quot;templates/c/epilogue.h&quot;</span>),
+                <span class="ident">guard</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">guard</span>(),
+            ),
+
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
+            <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; {
+                <span class="kw">let</span> <span class="ident">pkg_name</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::pascal_cased_lib_name</span>();
+                    <span class="macro">write!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
+                <span class="macro">include_str!</span>(<span class="string">&quot;templates/csharp/epilogue.cs&quot;</span>),
+                <span class="ident">PkgName</span> <span class="op">=</span> <span class="ident">pkg_name</span>,
+            )
+            },
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">guard</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">self</span>)
+      -&gt; <span class="ident">String</span>
+    {
+        <span class="self">self</span>.<span class="ident">guard</span>.<span class="ident">map_or_else</span>(
+            <span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;__RUST_{}__&quot;</span>, <span class="ident"><span class="self">Self</span>::lib_name</span>().<span class="ident">to_ascii_uppercase</span>()),
+            <span class="ident">Into::into</span>,
+        )
+    }
+
+    <span class="doccomment">/// Return the library name</span>
+    <span class="kw">fn</span> <span class="ident">lib_name</span> ()
+      -&gt; <span class="ident">String</span>
+    {
+        <span class="ident">::std::env::var</span>(<span class="string">&quot;CARGO_CRATE_NAME&quot;</span>)
+            .<span class="ident">or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
+                <span class="ident">::std::env::var</span>(<span class="string">&quot;CARGO_PKG_NAME&quot;</span>)
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">replace</span>(<span class="string">&#39;-&#39;</span>, <span class="string">&quot;_&quot;</span>))
+            })
+            .<span class="ident">expect</span>(<span class="string">&quot;Missing `CARGO_{CRATE,PKG}_NAME` env vars&quot;</span>)
+    }
+
+    <span class="doccomment">/// Return a Pascal Cased (UpperCamelCase) version of the lib name.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">pascal_cased_lib_name</span>() -&gt; <span class="ident">String</span> {
+        <span class="ident"><span class="self">Self</span>::lib_name</span>()
+            .<span class="ident">chars</span>()
+            .<span class="ident">filter_map</span>({
+                <span class="comment">// `true` for PascalCase, `false` for lowerCamelCase.</span>
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">underscore</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="kw">move</span> <span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="ident">c</span> {
+                    <span class="op">|</span> <span class="kw">_</span> <span class="kw">if</span> <span class="ident">underscore</span> =&gt; {
+                        <span class="ident">underscore</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                        <span class="ident">c</span>.<span class="ident">to_ascii_uppercase</span>()
+                    },
+
+                    <span class="op">|</span> <span class="string">&#39;_&#39;</span> =&gt; {
+                        <span class="ident">underscore</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                        <span class="kw">return</span> <span class="prelude-val">None</span>; <span class="comment">// continue</span>
+                    },
+
+                    <span class="op">|</span> <span class="kw">_</span> =&gt; {
+                        <span class="ident">c</span>
+                    },
+                })
+            })
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>()
+    }
+}
+
+
+<span class="doccomment">/// Language of the generated headers.</span>
+<span class="attribute">#[<span class="ident">derive</span>(
+    <span class="ident">Debug</span>,
+    <span class="ident">Copy</span>, <span class="ident">Clone</span>,
+    <span class="ident">PartialEq</span>, <span class="ident">Eq</span>,
+)]</span>
+<span class="kw">pub</span>
+<span class="kw">enum</span> <span class="ident">Language</span> {
+    <span class="doccomment">/// C, _lingua franca_ of FFI interop.</span>
+    <span class="ident">C</span>,
+
+    <span class="doccomment">/// C# (experimental).</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>))
+    )]</span>
+    <span class="ident">CSharp</span>,
+}
+
+<span class="doccomment">/// Allow user to specify</span>
+<span class="kw">pub</span>
+<span class="kw">enum</span> <span class="ident">NamingConvention</span> {
+    <span class="ident">Default</span>,
+    <span class="ident">Suffix</span>(<span class="ident">String</span>),
+    <span class="ident">Prefix</span>(<span class="ident">String</span>),
+    <span class="ident">Custom</span>(<span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>)-&gt; <span class="ident">String</span>),
+}
+
+<span class="macro">hidden_export!</span> {
+    <span class="doccomment">/// Invoke the language-specific typedef code for the given type.</span>
+    <span class="kw">fn</span> <span class="ident">__define_self__</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="ident">ReprC</span><span class="op">&gt;</span> (
+        <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>,
+        <span class="ident">lang</span>: <span class="ident">Language</span>,
+    ) -&gt; <span class="ident">::std::io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    {
+        <span class="kw">match</span> <span class="ident">lang</span> {
+            <span class="op">|</span> <span class="ident">Language::C</span> =&gt; {
+                <span class="op">&lt;</span><span class="ident">T::CLayout</span> <span class="kw">as</span> <span class="ident">CType</span><span class="op">&gt;</span><span class="ident">::define_self</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::headers::languages::C</span>, <span class="ident">definer</span>)
+            },
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
+            <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; {
+                <span class="op">&lt;</span><span class="ident">T::CLayout</span> <span class="kw">as</span> <span class="ident">CType</span><span class="op">&gt;</span><span class="ident">::define_self</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::headers::languages::CSharp</span>, <span class="ident">definer</span>)
+            },
+        }
+    }
+}
+
+<span class="kw">use</span> <span class="ident"><span class="self">self</span>::languages</span>::{
+    <span class="ident">FunctionArg</span>,
+    <span class="ident">HeaderLanguage</span>,
+    <span class="ident">PhantomCType</span>,
+};
+
+<span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
+<span class="kw">fn</span> <span class="ident">__define_fn__</span> (
+    <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>,
+    <span class="ident">lang</span>: <span class="ident">Language</span>,
+    <span class="ident">docs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> [<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>],
+    <span class="ident">fname</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
+    <span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> [<span class="ident">FunctionArg</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>],
+    <span class="ident">ret_ty</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw">dyn</span> <span class="ident">PhantomCType</span>,
+) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+{
+    <span class="kw">let</span> <span class="ident">dyn_lang</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">HeaderLanguage</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">lang</span> {
+        <span class="op">|</span> <span class="ident">Language::C</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">languages::C</span>,
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
+        <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">languages::CSharp</span>,
+    };
+    <span class="ident">dyn_lang</span>.<span class="ident">emit_function</span>(
+        <span class="ident">definer</span>,
+        <span class="ident">docs</span>,
+        <span class="ident">fname</span>,
+        <span class="ident">args</span>,
+        <span class="ident">ret_ty</span>,
+    )
+}
+
+<span class="macro">hidden_export!</span> {
+    <span class="doccomment">/// Helpers for the generation of FFI-imported function declarations.</span>
+    <span class="kw">mod</span> <span class="ident">__define_fn__</span> {
+        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+        <span class="kw">use</span> <span class="ident">::std</span>::{
+            <span class="ident">fmt::Write</span> <span class="kw">as</span> <span class="kw">_</span>,
+            <span class="ident">io::Result</span>,
+        };
+
+        <span class="kw">pub</span>
+        <span class="kw">fn</span> <span class="ident">name</span> (
+            <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">String</span>,
+            <span class="ident">f_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
+            <span class="ident">lang</span>: <span class="ident">Language</span>,
+        )
+        {
+            <span class="kw">match</span> <span class="ident">lang</span> {
+                <span class="op">|</span> <span class="ident">Language::C</span> =&gt; <span class="macro">write!</span>(<span class="ident">out</span>,
+                    <span class="string">&quot;{} (&quot;</span>, <span class="ident">f_name</span>.<span class="ident">trim</span>(),
+                ),
+
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
+                <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; <span class="macro">write!</span>(<span class="ident">out</span>,
+                    <span class="string">&quot;{} (&quot;</span>, <span class="ident">f_name</span>.<span class="ident">trim</span>(),
+                ),
+            }
+            .<span class="ident">expect</span>(<span class="string">&quot;`write!`-ing to a `String` cannot fail&quot;</span>)
+        }
+
+        <span class="kw">pub</span>
+        <span class="kw">fn</span> <span class="ident">arg</span><span class="op">&lt;</span><span class="ident">Arg</span> : <span class="ident">ReprC</span><span class="op">&gt;</span> (
+            <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">String</span>,
+            <span class="ident">arg_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
+            <span class="ident">lang</span>: <span class="ident">Language</span>,
+        )
+        {
+            <span class="kw">if</span> <span class="ident">out</span>.<span class="ident">ends_with</span>(<span class="string">&quot;(&quot;</span>).<span class="ident">not</span>() {
+                <span class="ident">out</span>.<span class="ident">push_str</span>(<span class="string">&quot;,&quot;</span>);
+            }
+            <span class="kw">match</span> <span class="ident">lang</span> {
+                <span class="op">|</span> <span class="ident">Language::C</span> =&gt; <span class="macro">write!</span>(<span class="ident">out</span>,
+                    <span class="string">&quot;\n    {}&quot;</span>,
+                    <span class="ident">Arg::CLayout::name_wrapping_var</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::headers::languages::C</span>, <span class="ident">arg_name</span>),
+                ),
+
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
+                <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; <span class="macro">write!</span>(<span class="ident">out</span>,
+                    <span class="string">&quot;\n        {marshaler}{}&quot;</span>,
+                     <span class="ident">Arg::CLayout::name_wrapping_var</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::headers::languages::CSharp</span>, <span class="ident">arg_name</span>),
+                    <span class="ident">marshaler</span> <span class="op">=</span>
+                        <span class="ident">Arg::CLayout::csharp_marshaler</span>()
+                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;[MarshalAs({})]\n        &quot;</span>, <span class="ident">m</span>))
+                            .<span class="ident">as_deref</span>()
+                            .<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>)
+                    ,
+                ),
+            }
+            .<span class="ident">expect</span>(<span class="string">&quot;`write!`-ing to a `String` cannot fail&quot;</span>)
+        }
+
+        <span class="kw">pub</span>
+        <span class="kw">fn</span> <span class="ident">ret</span><span class="op">&lt;</span><span class="ident">Ret</span> : <span class="ident">ReprC</span><span class="op">&gt;</span> (
+            <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>,
+            <span class="ident">lang</span>: <span class="ident">Language</span>,
+            <span class="kw-2">mut</span> <span class="ident">fname_and_args</span>: <span class="ident">String</span>,
+        ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+        {
+            <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">definer</span>.<span class="ident">out</span>();
+            <span class="kw">match</span> <span class="ident">lang</span> {
+                <span class="op">|</span> <span class="ident">Language::C</span> =&gt; {
+                    <span class="kw">if</span> <span class="ident">fname_and_args</span>.<span class="ident">ends_with</span>(<span class="string">&quot;(&quot;</span>) {
+                        <span class="ident">fname_and_args</span>.<span class="ident">push_str</span>(<span class="string">&quot;void&quot;</span>);
+                    }
+                    <span class="macro">writeln!</span>(<span class="ident">out</span>,
+                        <span class="string">&quot;{});\n&quot;</span>,
+                        <span class="ident">Ret::CLayout::name_wrapping_var</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::headers::languages::C</span>, <span class="kw-2">&amp;</span><span class="ident">fname_and_args</span>),
+                    )
+                },
+
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
+                <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; {
+                    <span class="macro">writeln!</span>(<span class="ident">out</span>,
+                        <span class="macro">concat!</span>(
+                            <span class="string">&quot;public unsafe partial class Ffi {{\n    &quot;</span>,
+                            <span class="string">&quot;{mb_marshaler}&quot;</span>,
+                            <span class="string">&quot;[DllImport(RustLib, ExactSpelling = true)] public static unsafe extern\n&quot;</span>,
+                            <span class="string">&quot;    {});\n&quot;</span>,
+                            <span class="string">&quot;}}\n&quot;</span>,
+                        ),
+                        <span class="ident">Ret::CLayout::name_wrapping_var</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::headers::languages::CSharp</span>, <span class="kw-2">&amp;</span><span class="ident">fname_and_args</span>),
+                        <span class="ident">mb_marshaler</span> <span class="op">=</span>
+                            <span class="ident">Ret::CLayout::csharp_marshaler</span>()
+                                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;[return: MarshalAs({})]\n    &quot;</span>, <span class="ident">m</span>))
+                                .<span class="ident">as_deref</span>()
+                                .<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>)
+                        ,
+                    )
+                },
+            }
+        }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
 </body></html>

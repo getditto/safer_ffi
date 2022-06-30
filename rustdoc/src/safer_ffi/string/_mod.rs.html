@@ -86,15 +86,21 @@
 <span id="80">80</span>
 <span id="81">81</span>
 <span id="82">82</span>
-</pre><pre class="rust"><code><span class="doccomment">//! `Rust` string types with a defined `#[repr(C)]` layout, albeit not `char *`</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+<span class="doccomment">//! `Rust` string types with a defined `#[repr(C)]` layout, albeit not `char *`</span>
 <span class="doccomment">//! compatible (_fat_ pointers).</span>
 
 <span class="macro">use_prelude!</span>();
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::slice</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">slice</span>::<span class="kw-2">*</span>;
 <span class="kw">mod</span> <span class="ident">slice</span>;
 
 <span class="macro">cfg_alloc!</span> {
+    <span class="kw">use</span> <span class="ident">repr_c::Vec</span>;
+
     <span class="macro">ReprC!</span> {
         <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
         <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">docs</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>), <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)))]</span>
@@ -169,5 +175,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
 </body></html>

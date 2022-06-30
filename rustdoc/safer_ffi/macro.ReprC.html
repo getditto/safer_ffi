@@ -1,161 +1,42 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Safely implement [`ReprC`][`trait@crate::layout::ReprC`] for a `#[repr(C)]` struct when all its fields are `ReprC`."><meta name="keywords" content="rust, rustlang, rust-lang, ReprC"><title>ReprC in safer_ffi - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../safer_ffi/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Transitioning helper macro: still uses the old `ReprC!` syntax, but just to forward to the new `#[derive_ReprC2($(js)?)]` one."><meta name="keywords" content="rust, rustlang, rust-lang, ReprC"><title>ReprC in safer_ffi - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../safer_ffi/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../safer_ffi/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
         </a><div class="sidebar-elems"><h2 class="location"><a href="index.html">In safer_ffi</a></h2></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../safer_ffi/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1">
                                 <a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div>
                         </div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Macro <a href="index.html">safer_ffi</a>::<wbr><a class="macro" href="#">ReprC</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/safer_ffi/layout/macros.rs.html#257-937">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><div class="example-wrap"><pre class="rust macro"><code><span class="macro">macro_rules!</span> <span class="ident">ReprC</span> {
+    <h1 class="fqn"><span class="in-band">Macro <a href="index.html">safer_ffi</a>::<wbr><a class="macro" href="#">ReprC</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/safer_ffi/layout/macros.rs.html#252-303">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><div class="example-wrap"><pre class="rust macro"><code><span class="macro">macro_rules!</span> <span class="ident">ReprC</span> {
     (
-        $( @[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">expr</span>] )<span class="question-mark">?</span>
-        $(<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">prev_doc</span>:<span class="ident">tt</span>]</span>)<span class="op">*</span> <span class="comment">// support doc comments _before_ `#[repr(C)]`</span>
-        <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-        $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-        <span class="macro-nonterminal">$</span><span class="kw">pub</span>:<span class="macro-nonterminal">vis</span>
-        <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">StructName</span>:<span class="ident">ident</span> $(
-            [
-                $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lt</span>:<span class="ident">lifetime</span> ,)<span class="op">*</span>
-                $($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">ident</span>),<span class="op">+</span> $(,)<span class="question-mark">?</span>)<span class="question-mark">?</span>
-            ]
-                $(<span class="kw">where</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">bounds</span>:<span class="ident">tt</span>)<span class="op">*</span> })<span class="question-mark">?</span>
-        )<span class="question-mark">?</span>
-        {
-            $(
-                $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_meta</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_pub</span>:<span class="ident">vis</span>
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_name</span>:<span class="ident">ident</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_ty</span>:<span class="ident">ty</span>
-            ),<span class="op">+</span> $(,)<span class="question-mark">?</span>
-        }
-    ) =&gt; { ... };
-    (
-        $( @[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">expr</span>] )<span class="question-mark">?</span>
-        $(<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">prev_doc</span>:<span class="ident">tt</span>]</span>)<span class="op">*</span>
-        <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
-        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
-        <span class="macro-nonterminal">$</span><span class="kw">pub</span>:<span class="macro-nonterminal">vis</span>
-        <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">StructName</span>:<span class="ident">ident</span> $(
-            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] $(
-                <span class="kw">where</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">bounds</span>:<span class="ident">tt</span>)<span class="op">*</span> }
+    $(
+        @[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">expr</span>]
+    )<span class="question-mark">?</span>
+    $(
+        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc2</span>:<span class="ident">expr</span>]</span>
+    )<span class="op">*</span>
+    <span class="attribute">#[<span class="ident">repr</span>(
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C_or_transparent</span>:<span class="ident">ident</span> $(,
+            $($(@<span class="macro-nonterminal">$</span><span class="macro-nonterminal">if_nodejs</span>:<span class="ident">tt</span>)<span class="question-mark">?</span>
+        <span class="ident">nodejs</span> $(,)<span class="question-mark">?</span>
             )<span class="question-mark">?</span>
         )<span class="question-mark">?</span>
-        (
-            $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_meta</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_pub</span>:<span class="ident">vis</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_ty</span>:<span class="ident">ty</span> $(,
-            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">*</span> )<span class="question-mark">?</span>
-        );
-    ) =&gt; { ... };
-    (
-        $(<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">prev_doc</span>:<span class="ident">tt</span>]</span>)<span class="op">*</span>
-        <span class="attribute">#[<span class="ident">repr</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Int</span>:<span class="ident">ident</span>)]</span>
-        $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-        <span class="macro-nonterminal">$</span><span class="kw">pub</span>:<span class="macro-nonterminal">vis</span>
-        <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span>:<span class="ident">ident</span> {
-            $(
-                $($(<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant_doc</span>:<span class="ident">expr</span>]</span>)<span class="op">+</span>)<span class="question-mark">?</span>
-                <span class="comment">// $(#[$variant_meta:meta])*</span>
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span>:<span class="ident">ident</span> $(<span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">discriminant</span>:<span class="ident">expr</span>)<span class="question-mark">?</span>
-            ),<span class="op">+</span> $(,)<span class="question-mark">?</span>
-        }
-    ) =&gt; { ... };
-    (
-        $(<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">prev_doc</span>:<span class="ident">tt</span>]</span>)<span class="op">*</span>
-        <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Int</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>)]</span>
-        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
-        <span class="macro-nonterminal">$</span><span class="kw">pub</span>:<span class="macro-nonterminal">vis</span>
-        <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">EnumName</span>:<span class="ident">ident</span> {
-            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variants</span>:<span class="ident">tt</span>)<span class="op">*</span>
-        }
-    ) =&gt; { ... };
-    (
-        $(<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">prev_doc</span>:<span class="ident">tt</span>]</span>)<span class="op">*</span>
-        <span class="attribute">#[
-            <span class="ident">ReprC</span>
-            ::
-            <span class="ident">opaque</span>
-            $(
-                ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">c_name</span>:<span class="ident">expr</span>)<span class="question-mark">?</span> )
-            )<span class="question-mark">?</span>
-        ]</span>
-        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
-        <span class="macro-nonterminal">$</span><span class="kw">pub</span>:<span class="macro-nonterminal">vis</span>
-        <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">StructName</span>:<span class="ident">ident</span> $(
-            [
-                $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lt</span>:<span class="ident">lifetime</span> ,)<span class="op">*</span>
-                $($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">ident</span>),<span class="op">+</span> $(,)<span class="question-mark">?</span>)<span class="question-mark">?</span>
-            ]
-                $(<span class="kw">where</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">bounds</span>:<span class="ident">tt</span>)<span class="op">*</span> })<span class="question-mark">?</span>
-        )<span class="question-mark">?</span>
-        { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">opaque</span>:<span class="ident">tt</span>)<span class="op">*</span> }
-    ) =&gt; { ... };
-    (@<span class="ident">validate_int_repr</span> <span class="ident">u8</span>) =&gt; { ... };
-    (@<span class="ident">validate_int_repr</span> <span class="ident">u16</span>) =&gt; { ... };
-    (@<span class="ident">validate_int_repr</span> <span class="ident">u32</span>) =&gt; { ... };
-    (@<span class="ident">validate_int_repr</span> <span class="ident">u64</span>) =&gt; { ... };
-    (@<span class="ident">validate_int_repr</span> <span class="ident">u128</span>) =&gt; { ... };
-    (@<span class="ident">validate_int_repr</span> <span class="ident">i8</span>) =&gt; { ... };
-    (@<span class="ident">validate_int_repr</span> <span class="ident">i16</span>) =&gt; { ... };
-    (@<span class="ident">validate_int_repr</span> <span class="ident">i32</span>) =&gt; { ... };
-    (@<span class="ident">validate_int_repr</span> <span class="ident">i64</span>) =&gt; { ... };
-    (@<span class="ident">validate_int_repr</span> <span class="ident">i128</span>) =&gt; { ... };
-    (@<span class="ident">deny_C</span> <span class="ident">C</span>) =&gt; { ... };
-    (@<span class="ident">deny_C</span> <span class="ident">c_int</span>) =&gt; { ... };
-    (@<span class="ident">deny_C</span> <span class="ident">c_uint</span>) =&gt; { ... };
-    (@<span class="ident">deny_C</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">otherwise</span>:<span class="ident">tt</span>) =&gt; { ... };
-    (@<span class="ident">first</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fst</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ignored</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; { ... };
+    )]</span>
+    $(
+        <span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span>
+    )<span class="op">*</span>
+    <span class="macro-nonterminal">$</span><span class="kw">pub</span>:<span class="macro-nonterminal">vis</span>
+    <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">StructName</span>:<span class="ident">ident</span> $([$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>])<span class="question-mark">?</span>
+    $(
+        <span class="kw">where</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">wc</span>:<span class="ident">tt</span>)<span class="op">*</span> }
+    )<span class="question-mark">?</span>
+    $({
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    })<span class="question-mark">?</span>
+    $((
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">body2</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    );)<span class="question-mark">?</span>
+) =&gt; { ... };
 }</code></pre></div>
-</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Safely implement <a href="layout/trait.ReprC.html" title="crate::layout::ReprC"><code>ReprC</code></a>
-for a <code>#[repr(C)]</code> struct <strong>when all its fields are <code>ReprC</code></strong>.</p>
-<h2 id="syntax"><a href="#syntax">Syntax</a></h2>
-<p>Note: given that this macro is implemented as a <code>macro_rules!</code> macro for
-the sake of compilation speed, it cannot parse arbitrary generic parameters
-and where clauses.</p>
-<p>Instead, it expects a special syntax whereby the generic parameters are
-written between square brackets, and only introduce <code>lifetime</code> parameters
-and type parameters, with no bounds whatsoever (and a necessary trailing
-comma for the lifetime parameters); the bounds must all be added to the
-optional following <code>where { &lt;where clauses here&gt; }</code> (note the necessary
-braces):</p>
-<ul>
-<li>
-<p>Instead of:</p>
-
-<div class='information'><div class='tooltip compile_fail'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered compile_fail"><code><span class="kw">use</span> <span class="ident">::safer_ffi::layout::ReprC</span>;
-
-<span class="macro">ReprC!</span> {
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-    <span class="kw">struct</span> <span class="ident">GenericStruct</span><span class="op">&lt;</span><span class="lifetime">&#39;lifetime</span>, <span class="ident">T</span> : <span class="lifetime">&#39;lifetime</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span> : <span class="ident">ReprC</span>,
-    {
-        <span class="ident">inner</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;lifetime</span> <span class="ident">T</span>,
-    }
-}</code></pre></div>
-</li>
-<li>
-<p>You need to write:</p>
-
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">::safer_ffi::layout::ReprC</span>;
-
-<span class="macro">ReprC!</span> {
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-    <span class="kw">struct</span> <span class="ident">GenericStruct</span>[<span class="lifetime">&#39;lifetime</span>, <span class="ident">T</span>]
-    <span class="kw">where</span> {
-        <span class="ident">T</span> : <span class="lifetime">&#39;lifetime</span> <span class="op">+</span> <span class="ident">ReprC</span>,
-    }
-    {
-        <span class="ident">inner</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;lifetime</span> <span class="ident">T</span>,
-    }
-}</code></pre></div>
-</li>
-</ul>
-<h2 id="derive_reprc"><a href="#derive_reprc"><code>#[derive_ReprC]</code></a></h2>
-<p>If all this looks cumbersome to you, and if you don’t care about the
-compilation-from-scratch time, then it is highly advised you enable
-the <code>proc_macros</code> feature:</p>
-<div class="example-wrap"><pre class="language-toml"><code>[dependencies]
-safer-ffi = { version = &quot;...&quot;, features = [&quot;proc_macros&quot;] }</code></pre></div>
-<p>and use the <a href="/safer_ffi/layout/attr.derive_ReprC.html"><code>#[derive_ReprC]</code></a> attribute macro instead,
-which will do the rewriting for you.</p>
-</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Transitioning helper macro: still uses the old <code>ReprC!</code> syntax, but just to
+forward to the new <code>#[derive_ReprC2($(js)?)]</code> one.</p>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
 </body></html>
