@@ -364,13 +364,13 @@ impl Builder<'_, WhereTo> {
         let guard = self.guard();
 
         match lang {
-            | Language::C => write!(definer.out(),
+            | Language::C => writeln!(definer.out(),
                 include_str!("templates/c/_prelude.h"),
                 guard = guard,
             ),
 
             #[cfg(feature = "csharp-headers")]
-            | Language::CSharp => write!(definer.out(),
+            | Language::CSharp => writeln!(definer.out(),
                 include_str!("templates/csharp/_prelude.cs"),
                 NameSpace = Self::pascal_cased_lib_name(),
                 RustLib = Self::lib_name(),
