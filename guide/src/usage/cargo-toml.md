@@ -14,11 +14,13 @@ type:
 
 [lib]
 crate-type = [
-    "staticlib",  # to generate a C _static_ library file:
+    "staticlib",  # Ensure it gets compiled as a (static) C library
                   # `target/{debug,release}/libcrate_name.a`
-    # and / or:
-    "cdylib",     # to generate a C _dynamic_ library file,
+    # and/or:
+    "cdylib",     # If you want a shared/dynamic C library (advanced)
                   # `target/{debug,release}/libcrate_name.{so,dylib}`
+
+    "lib",        # For downstream Rust dependents: `examples/`, `tests/` etc.
 ]
 ```
 
@@ -29,35 +31,48 @@ a dependency, and enable the `proc_macros` feature:
 
 ```toml
 [dependencies]
-safer-ffi = { version = "*", features = ["proc-macros"] }
+safer-ffi.version = "x.y.z"
 ```
 
-  - Where `"*"` ought to be replaced by the last released version, which you
-    can find by running `cargo search safer-ffi` or
-    [`cargo add`][cargo-edit]`safer-ffi --features proc_macros`
-
-<details><summary>About the <code>proc_macros</code> feature</summary>
-
-although still a WIP, the author of `safer_ffi` is making an important effort
-to make the usage of procedural macros be as optional as possible, so
-as to allow downstream users to avoid pulling the very heavyweight
-`syn + quote` dependencies, by offering alternative basic macros
-alternatives (such as `ReprC!` instead of `#[derive_ReprC]`)
-
-</details>
+  - Where `"x.y.z"` ought to be replaced by the last released version, which you
+    can find by running `cargo search safer-ffi` or `cargo add safer-ffi`
 
   - If working in a `no_std` environment, you will need to disable the default
     `std` feature by adding `default-features = false`.
+
+    ```toml
+    [dependencies]
+    safer-ffi.version = "x.y.z"
+    safer-ffi.default-features = false  # <- Add this!
+    ```
+
 
       - if, however, you still have access to an allocator, you can enable the
         `alloc` feature, to get the defintions of `safer_ffi::{Box, String, Vec}`
         _etc._
 
+        ```toml
+        [dependencies]
+        safer-ffi.version = "x.y.z"
+        safer-ffi.default-features = false
+        safer-ffi.features = [
+            "alloc",  # <- Add this!
+        ]
+        ```
+
   - You may also enable the `log` feature so that `safer_ffi` may log `error!`s
     when the semi-checked casts from raw C types into their Rust counterparts
     fail (_e.g._, when receiving a `bool` that is nether `0` nor `1`).
 
-### `[features] c-headers`
+    ```toml
+    [dependencies]
+    safer-ffi.version = "x.y.z"
+    safer-ffi.features = [
+        "log",  # <- Add this!
+    ]
+    ```
+
+### `[features] headers`
 
 Finally, in order to alleviate the compile-time when not generating the headers
 (it is customary to bundle pre-generated headers when distributing an
@@ -67,10 +82,10 @@ default (behind the `safer_ffi/headers` feature).
 
 However, when [generating the headers][header-generation], such machinery is
 needed. Thus the simplest solution is for the FFI crate to have a Cargo feature
-(flag) that transitively enables the `safer_ffi/headers` feature. You can name such
-feature however you want. In this guide, it is named `c-headers`.
+(flag) that transitively enables the `safer_ffi/headers` feature. You can name
+such feature however you want. In this guide, it is named `headers`.
 
 ```toml
 [features]
-c-headers = ["safer_ffi/headers"]
+headers = ["safer_ffi/headers"]
 ```

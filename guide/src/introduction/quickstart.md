@@ -2,43 +2,68 @@
 
 # Quickstart
 
-To start using `::safer_ffi`, edit your `Cargo.toml` like so:
+#### Small self-contained demo
 
-### Step 1: `Cargo.toml`
+You may try working with the `examples/point` example embedded in the repo:
+
+```bash
+git clone https://github.com/getditto/safer_ffi && cd safer_ffi
+(cd examples/point && make)
+```
+
+Otherwise, to start using `::safer_ffi`, follow the following steps:
+
+### Crate layout
+
+#### Step 1: `Cargo.toml`
+
+Edit your `Cargo.toml` like so:
 
 ```toml
 [package]
 name = "crate_name"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 
 [lib]
-crate-type = ["staticlib"]
+crate-type = [
+    "staticlib",  # Ensure it gets compiled as a (static) C library
+  # "cdylib",     # If you want a shared/dynamic C library (advanced)
+    "lib",        # For downstream Rust dependents: `examples/`, `tests/` etc.
+]
 
 [dependencies]
-safer-ffi = { version = "*", features = ["proc_macros"] }
+# Use `cargo add` or `cargo search` to find the latest values of x.y.z.
+# For instance:
+#   cargo add safer-ffi
+safer-ffi.version = "x.y.z"
+safer-ffi.features = [] # you may add some later on.
 
 [features]
-c-headers = ["safer-ffi/headers"]
+# If you want to generate the headers, use a feature-gate
+# to opt into doing so:
+headers = ["safer-ffi/headers"]
 ```
+
+  - Where `"*"` ought to be replaced by the last released version, which you
+    can find by running `cargo search safer-ffi`.
 
   - See the [dedicated chapter on `Cargo.toml`][cargo-toml] for more info.
 
-### Step 2: `src/lib.rs`
+#### Step 2: `src/lib.rs`
 
 Then, to export a Rust function to FFI, add the
 [`#[derive_ReprC]`][derive_ReprC] and [`#[ffi_export]`][ffi_export] attributes
 like so:
 
-```rust,noplaypen
+```rust ,no_run
 use ::safer_ffi::prelude::*;
 
 /// A `struct` usable from both Rust and C
 #[derive_ReprC]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
-pub
-struct Point {
+pub struct Point {
     x: f64,
     y: f64,
 }
@@ -46,11 +71,7 @@ struct Point {
 /* Export a Rust function to the C world. */
 /// Returns the middle point of `[a, b]`.
 #[ffi_export]
-fn mid_point (
-    a: &Point,
-    b: &Point,
-) -> Point
-{
+fn mid_point(a: &Point, b: &Point) -> Point {
     Point {
         x: (a.x + b.x) / 2.,
         y: (a.y + b.y) / 2.,
@@ -59,16 +80,13 @@ fn mid_point (
 
 /// Pretty-prints a point using Rust's formatting logic.
 #[ffi_export]
-fn print_point (point: &Point)
-{
+fn print_point(point: &Point) {
     println!("{:?}", point);
 }
 
-/// The following test function is necessary for the header generation.
-#[::safer_ffi::cfg_headers]
-#[test]
-fn generate_headers () -> ::std::io::Result<()>
-{
+// The following function is only necessary for the header generation.
+#[cfg(feature = "headers")] // c.f. the `Cargo.toml` section
+pub fn generate_headers() -> ::std::io::Result<()> {
     ::safer_ffi::headers::builder()
         .to_file("rust_points.h")?
         .generate()
@@ -77,17 +95,28 @@ fn generate_headers () -> ::std::io::Result<()>
 
   - See [the dedicated chapter on `src/lib.rs`][lib-rs] for more info.
 
-### Step 3: Compilation & header generation
+#### Step 3: `examples/generate-headers.rs`
+
+```rust ,ignore
+fn main() -> ::std::io::Result<()> {
+    ::crate_name::generate_headers()
+}
+```
+
+### Compilation & header generation
 
 ```bash
 # Compile the C library (in `target/{debug,release}/libcrate_name.ext`)
 cargo build # --release
 
 # Generate the C header
-cargo test --features c-headers -- generate_headers
+cargo run --features headers --example generate-headers
 ```
 
-<details><summary><code>filename.h</code></summary>
+  - See [the dedicated chapter on header generation][header-generation] for
+    more info.
+
+<details><summary>Generated C header (<code>rust_points.h</code>)</summary>
 
 ```C
 /*! \file */
@@ -101,66 +130,66 @@ cargo test --features c-headers -- generate_headers
 
 #ifndef __RUST_CRATE_NAME__
 #define __RUST_CRATE_NAME__
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+
+#include <stddef.h>
+#include <stdint.h>
+
 /** \brief
  *  A `struct` usable from both Rust and C
  */
-typedef struct {
-
+typedef struct Point {
+    /** <No documentation available> */
     double x;
 
+    /** <No documentation available> */
     double y;
-
 } Point_t;
 
 /** \brief
  *  Returns the middle point of `[a, b]`.
  */
-Point_t mid_point (
+Point_t
+mid_point (
     Point_t const * a,
     Point_t const * b);
 
 /** \brief
  *  Pretty-prints a point using Rust's formatting logic.
  */
-void print_point (
+void
+print_point (
     Point_t const * point);
 
 
 #ifdef __cplusplus
-} /* extern "C" */
+} /* extern \"C\" */
 #endif
 
 #endif /* __RUST_CRATE_NAME__ */
 ```
 
-</details>
-
-  - See [the dedicated chapter on header generation][header-generation] for
-    more info.
-
 ___
 
-## Using it from C
+</details>
 
-<details>
-<summary>
+## Testing it from C
+
 Here is a basic example to showcase FFI calling into our exported Rust
 functions:
-</summary>
 
-#### `main.c`
+### `main.c`
 
 ```C
 #include <stdlib.h>
 
 #include "rust_points.h"
 
-int main (int argc, char const * const argv[])
+int
+main (int argc, char const * const argv[])
 {
     Point_t a = { .x = 84, .y = 45 };
     Point_t b = { .x = 0, .y = 39 };
@@ -170,21 +199,80 @@ int main (int argc, char const * const argv[])
 }
 ```
 
-#### Compilation command
+### Compilation command
 
 ```bash
-cc main.c -o main -L target/debug -l crate_name -l pthread -l dl
+cc -o main{,.c} -L target/debug -l crate_name -l{pthread,dl,m}
 
 # Now feel free to run the compiled binary
 ./main
 ```
 
-which outputs:
+  - <details><summary>Note regarding the extra <code>-l…</code> flags.</summary>
+
+    Those vary based on the version of the Rust standard library being used, and
+    the system being used to compile it. In order to reliably know which ones to
+    use, `rustc` itself ought to be queried for it.
+
+    Simple command:
+
+    ```bash
+    rustc --crate-type=staticlib --print=native-static-libs -</dev/null
+    ```
+
+    this yields, _to the stderr_, output along the lines of:
+
+    ```text
+    note: Link against the following native artifacts when linking against this static library. The order and any duplication can be significant on some platforms.
+
+    note: native-static-libs: -lSystem -lresolv -lc -lm -liconv
+    ```
+
+    Using something like `sed -nE 's/^note: native-static-libs: (.*)/\1/p'` is
+    thus a convenient way to extract these flags:
+
+    ```bash
+    rustc --crate-type=staticlib --print=native-static-libs -</dev/null \
+        2>&1 | sed -nE 's/^note: native-static-libs: (.*)/\1/p'
+    ```
+
+    Ideally, you would not query for this information _in a vacuum_ (_e.g._,
+    `/dev/null` file being used as input Rust code just above), and rather,
+    would apply it for your actual code being compiled:
+
+    ```bash
+    cargo rustc -q -- --print=native-static-libs \
+        2>&1 | sed -nE 's/^note: native-static-libs: (.*)/\1/p'
+    ```
+
+    And if you really wanted to polish things further, you could use the
+    JSON-formatted compiler output (this, for instance, avoids having to
+    redirect `stderr`). But then you'd have to use a JSON parser, such as `jq`:
+
+    ```bash
+    RUST_STDLIB_DEPS=$(set -eo pipefail && \
+        cargo rustc \
+            --message-format=json \
+            -- --print=native-static-libs \
+        | jq -r '
+            select (.reason == "compiler-message")
+            | .message.message
+        ' | sed -nE 's/^native-static-libs: (.*)/\1/p' \
+    )
+    ```
+
+    and then use:
+
+    ```bash
+    cc -o main{,.c} -L target/debug -l crate_name ${RUST_STDLIB_DEPS}
+    ```
+
+    </details>
+
+which does output:
 
 ```text
 Point { x: 42.0, y: 42.0 }
 ```
 
 🚀🚀
-
-</details>
