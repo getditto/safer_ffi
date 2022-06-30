@@ -3,10 +3,9 @@ path = "src/_lib.rs"
 
 [package]
 name = "safer-ffi"
-# Keep in sync with `[dependencies.safer_ffi-proc_macro]` and `src/proc_macro/Cargo.toml`
-version = "0.0.10"
+version = "0.1.0"  # Keep in sync
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 description = "Write safer FFI code in Rust without polluting it with unsafe code"
 keywords = ["ffi", "no_std", "framework", "safety", "bindings"]
@@ -22,63 +21,115 @@ default = [
     "std",
 ]
 
+# Document under the following features: all but for debug or experimental.
+docs = [
+    "csharp-headers",
+    "default",
+    "nightly",
+    "uninit",
+]
+
 nightly = []
 
 alloc = []
-std = [ "alloc" ]
-
-derives = ["proc_macros"] # alias
-proc_macros = [
-    "safer_ffi-proc_macro/proc_macros",
-    "require_unsafe_in_body",
-    "proc-macro-hack",
+std = [
+    "alloc",
 ]
+
+# Deprecated
+proc_macros = []
+
+async-fn = [
+    "safer_ffi-proc_macros/async-fn",
+]
+
 debug_proc_macros = [
-    "proc_macros",
-    "safer_ffi-proc_macro/verbose-expansions",
+    "safer_ffi-proc_macros/verbose-expansions",
 ]
 
-out-refs = ["uninit"]
+dyn-traits = [
+    "safer_ffi-proc_macros/dyn-traits",
+]
+
+out-refs = [
+    "uninit",
+]
 
 headers = [
     "inventory",
-    "safer_ffi-proc_macro/headers",
+    "safer_ffi-proc_macros/headers",
+    "std",
+]
+csharp-headers = [
+    "headers",
+]
+
+node-js = [
+    "async-fn",
+    "headers",
+    "inventory",
+    # "napi",
+    # "napi-derive",
+    "safer_ffi-proc_macros/node-js",
+    # For convenience
     "std",
 ]
 
 [dev-dependencies]
-macro_rules_attribute = "0.0.1"
+macro_rules_attribute = "0.1.0"
 safer-ffi.path = "."
-safer-ffi.features = ["proc_macros", "headers"]
+safer-ffi.features = ["csharp-headers", "async-fn"]
 
 [target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
 libc = { version = "0.2.66", default-features = false }
 
 [dependencies]
 paste = { package = "mini_paste", version = "0.1.*" }
-log = { version = "0.4.8", optional = true }
-require_unsafe_in_body = { version = "0.2.1", optional = true }
-inventory = { version = "0.1.6", optional = true }
-proc-macro-hack = { version = "0.5.15", optional = true }
-cfg-if = "1.0.0"
+log.version = "0.4.8"
+log.optional = true
+inventory.version = "0.1.6"
+inventory.optional = true
+scopeguard.version = "1.1.0"
+unwind_safe.version = "0.1.0"
+with_builtin_macros.version = "0.0.3"
+macro_rules_attribute = "0.1.0"
 
-[dependencies.safer_ffi-proc_macro]
+[dependencies.napi]
+package = "napi-dispatcher"
+path = "napi-dispatcher"
+# optional = true
+
+# [dependencies.napi-derive]
+# path = "napi-dispatcher/napi-nodejs-derive"
+# optional = true
+# version = "1.0.0"
+# git = "https://github.com/getditto/napi-rs"
+# branch = "ditto/closure-into-jsfunction"
+
+[dependencies.safer_ffi-proc_macros]
 path = "src/proc_macro"
-version = "0.0.10"
+version = "0.1.0-rc1"  # Keep in sync
 
 [dependencies.uninit]
 optional = true
 # Since we are relying on internals of their `Out` reference,
 # we pin the version.
-version = "=0.3.0"
+version = "0.5.0"
 default-features = false
 
 [workspace]
-members = ["src/proc_macro", "examples/point"]
+members = [
+    "src/proc_macro",
+    "napi-dispatcher",
+    "napi-dispatcher/nodejs-derive",
+    "napi-dispatcher/nodejs-derive/src/proc_macros",
+    "napi-dispatcher/wasm",
+    "napi-dispatcher/wasm/src/proc_macros",
+    "safer-ffi-build",
+]
 
 [package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docs"]
+features = ["docs"]
 
 [[test]]
 name = "ffi-tests"

@@ -1,0 +1,3 @@
+libjs_tests.dylib
+tests/rust.node
+target/**/*

@@ -9,154 +9,222 @@
 
 #ifndef __RUST_FFI_TESTS__
 #define __RUST_FFI_TESTS__
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct foo foo_t;
-
-foo_t * new_foo (void);
-
-
 #include <stddef.h>
 #include <stdint.h>
 
-int32_t read_foo (
-    foo_t const * foo);
-
-void free_foo (
-    foo_t * foo);
-
+/** <No documentation available> */
 /** \remark Has the same ABI as `uint8_t` **/
 #ifdef DOXYGEN
-typedef enum Bar
-#else
-typedef uint8_t Bar_t; enum
+typedef
 #endif
-{
-    /** . */
-    BAR_A,
+enum Wow {
+    /** <No documentation available> */
+    WOW_LEROY,
+    /** <No documentation available> */
+    WOW_JENKINS,
 }
-#ifdef DOXYGEN
-Bar_t
+#ifndef DOXYGEN
+; typedef uint8_t
 #endif
-;
+Wow_t;
 
-void check_bar (
+/** <No documentation available> */
+typedef struct AnUnusedStruct {
+    /** <No documentation available> */
+    Wow_t are_you_still_there;
+} AnUnusedStruct_t;
+
+/** <No documentation available> */
+#define FOO ((int32_t) 42)
+
+/** <No documentation available> */
+/** \remark Has the same ABI as `int8_t` **/
+#ifdef DOXYGEN
+typedef
+#endif
+enum Bar {
+    /** <No documentation available> */
+    BAR_A = 43,
+    /** <No documentation available> */
+    BAR_B = 42,
+}
+#ifndef DOXYGEN
+; typedef int8_t
+#endif
+Bar_t;
+
+
+#include <stdbool.h>
+
+/** \brief
+ *  Hello, `World`!
+ */
+typedef struct next_generation {
+    /** \brief
+     *  I test some `gen`-eration.
+     */
+    Bar_t gen;
+
+    /** \brief
+     *  with function pointers and everything!
+     */
+    void * (*cb)(bool);
+} next_generation_t;
+
+/** \brief
+ *  Hello, `World`!
+ */
+/** \remark Has the same ABI as `uint8_t` **/
+#ifdef DOXYGEN
+typedef
+#endif
+enum triforce {
+    /** <No documentation available> */
+    TRIFORCE_DIN = 3,
+    /** <No documentation available> */
+    TRIFORCE_FARORE = 1,
+    /** <No documentation available> */
+    TRIFORCE_NARYU,
+}
+#ifndef DOXYGEN
+; typedef uint8_t
+#endif
+triforce_t;
+
+/** <No documentation available> */
+int32_t
+async_get_ft (void);
+
+/** \brief
+ *  This is a `#[repr(C)]` enum, which leads to a classic enum def.
+ */
+typedef enum SomeReprCEnum {
+    /** \brief
+     *  This is some variant.
+     */
+    SOME_REPR_C_ENUM_SOME_VARIANT,
+} SomeReprCEnum_t;
+
+/** <No documentation available> */
+void
+check_SomeReprCEnum (
+    SomeReprCEnum_t _baz);
+
+/** <No documentation available> */
+void
+check_bar (
     Bar_t _bar);
 
 /** \brief
  *  Concatenate the two input strings into a new one.
- * 
+ *
  *  The returned string must be freed using `free_char_p`.
  */
-char * concat (
+char *
+concat (
     char const * fst,
     char const * snd);
 
 /** \brief
  *  Frees a string created by `concat`.
  */
-void free_char_p (
+void
+free_char_p (
     char * _string);
 
-typedef struct RefDynFnMut1_void_char_const_ptr {
+/** <No documentation available> */
+typedef struct foo foo_t;
 
-    void * env_ptr;
-
-    void (*call)(void *, char const *);
-
-} RefDynFnMut1_void_char_const_ptr_t;
-
-/** \brief
- *  Same as `concat`, but with a callback-based API to auto-free the created
- *  string.
- */
-void with_concat (
-    char const * fst,
-    char const * snd,
-    RefDynFnMut1_void_char_const_ptr_t cb);
+/** <No documentation available> */
+void
+free_foo (
+    foo_t * foo);
 
 /** \brief
  *  `&'lt [T]` but with a guaranteed `#[repr(C)]` layout.
- * 
+ *
  *  # C layout (for some given type T)
- * 
+ *
  *  ```c
  *  typedef struct {
- *      // Cannot be NULL
- *      T * ptr;
- *      size_t len;
+ *  // Cannot be NULL
+ *  T * ptr;
+ *  size_t len;
  *  } slice_T;
  *  ```
- * 
+ *
  *  # Nullable pointer?
- * 
+ *
  *  If you want to support the above typedef, but where the `ptr` field is
  *  allowed to be `NULL` (with the contents of `len` then being undefined)
  *  use the `Option< slice_ptr<_> >` type.
  */
 typedef struct slice_ref_int32 {
-
+    /** \brief
+     *  Pointer to the first element (if any).
+     */
     int32_t const * ptr;
 
+    /** \brief
+     *  Element count
+     */
     size_t len;
-
 } slice_ref_int32_t;
 
 /** \brief
  *  Returns a pointer to the maximum integer of the input slice, or `NULL` if
  *  it is empty.
  */
-int32_t const * max (
+int32_t const *
+max (
     slice_ref_int32_t xs);
 
-/** \remark Has the same ABI as `uint8_t` **/
-#ifdef DOXYGEN
-typedef enum Triforce
-#else
-typedef uint8_t Triforce_t; enum
-#endif
-{
-    /** . */
-    TRIFORCE_DIN = 3,
-    /** . */
-    TRIFORCE_FARORE = 1,
-    /** . */
-    TRIFORCE_NARYU,
-}
-#ifdef DOXYGEN
-Triforce_t
-#endif
-;
+/** <No documentation available> */
+foo_t *
+new_foo (void);
 
-/** \remark Has the same ABI as `uint8_t` **/
-#ifdef DOXYGEN
-typedef enum Wow
-#else
-typedef uint8_t Wow_t; enum
-#endif
-{
-    /** . */
-    WOW_LEROY,
-    /** . */
-    WOW_JENKINS,
-}
-#ifdef DOXYGEN
-Wow_t
-#endif
-;
+/** <No documentation available> */
+int32_t
+read_foo (
+    foo_t const * foo);
 
-typedef struct AnUnusedStruct {
+/** <No documentation available> */
+uint16_t (*
+returns_a_fn_ptr (void))(uint8_t);
 
-    Wow_t are_you_still_there;
+/** \brief
+ *  `&'lt mut (dyn 'lt + Send + FnMut(A1) -> Ret)`
+ */
+typedef struct RefDynFnMut1_void_char_const_ptr {
+    /** <No documentation available> */
+    void * env_ptr;
 
-} AnUnusedStruct_t;
+    /** <No documentation available> */
+    void (*call)(void *, char const *);
+} RefDynFnMut1_void_char_const_ptr_t;
+
+/** \brief
+ *  Same as `concat`, but with a callback-based API to auto-free the created
+ *  string.
+ */
+void
+with_concat (
+    char const * fst,
+    char const * snd,
+    RefDynFnMut1_void_char_const_ptr_t cb);
+
+/** <No documentation available> */
+bool
+with_foo (
+    void (*cb)(foo_t *));
 
 
 #ifdef __cplusplus
-} /* extern "C" */
+} /* extern \"C\" */
 #endif
 
 #endif /* __RUST_FFI_TESTS__ */

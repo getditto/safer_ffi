@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use_prelude!();
 use crate::prelude::c_slice;
 
@@ -26,7 +27,7 @@ impl<T : ReprC + HasNiche> ReprC
 macro_rules! unsafe_impls {(
     $(
         $(@for[$($generics:tt)*])?
-        $T:ty => |$it:pat| $expr:expr
+        $T:ty => |$it:pat_param| $expr:expr
     ),* $(,)?
 ) => (
     $(
@@ -72,22 +73,22 @@ unsafe_impls! {
     // char_p::Ref<'_> => |it| it.is_null(),
     // char_p::Raw => |it| it.is_null(),
 
-    bool => |&it| {
-        it == unsafe { mem::transmute(None::<bool>) }
-    },
+    // bool => |&it| {
+    //     it == unsafe { mem::transmute(None::<bool>) }
+    // },
 }
 
 cfg_alloc! {
     unsafe_impls! {
         // @for[T : ReprC]
-        // Box<T> => |it| it.is_null(),
+        // repr_c::Box<T> => |it| it.is_null(),
         @for[T : ReprC]
         c_slice::Box<T> => |it| it.ptr.is_null(),
         @for[T : ReprC]
-        Vec<T> => |it| it.ptr.is_null(),
+        repr_c::Vec<T> => |it| it.ptr.is_null(),
 
         // str::Box => |it| it.ptr.is_null(),
-        // String => |it| it.ptr.is_null(),
+        // repr_c::String => |it| it.ptr.is_null(),
 
         // char_p::Box => |it| it.is_null(),
     }

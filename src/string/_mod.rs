@@ -1,12 +1,15 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 //! `Rust` string types with a defined `#[repr(C)]` layout, albeit not `char *`
 //! compatible (_fat_ pointers).
 
 use_prelude!();
 
-pub use self::slice::*;
+pub use slice::*;
 mod slice;
 
 cfg_alloc! {
+    use repr_c::Vec;
+
     ReprC! {
         #[repr(transparent)]
         #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]

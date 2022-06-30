@@ -1,5 +1,9 @@
 [lib]
-crate-type = ["rlib", "staticlib"]
+crate-type = [
+    "rlib", # cargo test
+    "staticlib", # C test (os X)
+    "cdylib", # CSharp test
+]
 
 [package]
 name = "ffi_tests"
@@ -8,10 +12,13 @@ authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-safer-ffi = { path = "..", features = ["proc_macros"] }
+
+[dependencies.safer-ffi]
+path = ".."
+features = ["async-fn"]
 
 [features]
-generate-headers = ["safer-ffi/headers"]
+generate-headers = ["safer-ffi/csharp-headers"]
 
 # [dev-dependencies]
 # cc = "1.0.50"
@@ -20,3 +27,6 @@ generate-headers = ["safer-ffi/headers"]
 panic = "unwind"
 
 [workspace]
+
+[dev-dependencies]
+scopeguard = "1.1.0"

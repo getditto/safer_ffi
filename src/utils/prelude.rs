@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(unused_imports)]
 
 pub(in crate) use crate::{
@@ -7,13 +8,7 @@ pub(in crate) use crate::{
     tuple::*,
     utils::markers::*,
 };
-cfg_alloc! {
-    pub(in crate) use crate::prelude::repr_c::{
-        Box,
-        String,
-        Vec,
-    };
-}
+
 pub(in crate) use ::core::{
     convert::{TryFrom, TryInto},
     ffi::c_void,
@@ -26,16 +21,14 @@ pub(in crate) use ::core::{
     },
 };
 
-cfg_if::cfg_if! {
-    if #[cfg(any(
-        not(feature = "std"),
-        target_arch = "wasm32",
-    ))] {
-        #[allow(bad_style)]
-        pub(in crate) type size_t = usize;
-    } else {
+cfg_match! {
+    target_arch = "wasm32" => {
+        #[allow(bad_style, dead_code)]
+        pub(in crate) type size_t = u32;
+    },
+    _ => {
         pub(in crate) use ::libc::size_t;
-    }
+    },
 }
 
 cfg_alloc! {
@@ -48,13 +41,12 @@ cfg_alloc! {
 
 pub(in crate)
 mod rust {
-    cfg_alloc! {
-        pub(in crate) use ::alloc::{
-            boxed::Box,
-            string::String,
-            vec::Vec,
-        };
-    }
+    #[apply(cfg_alloc)]
+    pub(in crate) use ::alloc::{
+        boxed::Box,
+        string::String,
+        vec::Vec,
+    };
 }
 
 pub(in crate)
@@ -63,11 +55,10 @@ mod ptr {
     pub(in crate) use crate::ptr::*;
 }
 
-cfg_std! {
-    pub(in crate) use ::std::{
-        io,
-    };
-}
+#[apply(cfg_std)]
+pub(in crate) use ::std::{
+    io,
+};
 
 pub(in crate)
 use crate::prelude::*;

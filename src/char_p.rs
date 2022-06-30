@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 //! `char *`-compatible strings (slim pointers), for easier use from within C.
 //
 //! They thus do not support inner nulls, nor string appending.
@@ -63,6 +64,26 @@ impl fmt::Display
         fmt::Display::fmt(self.to_str(), fmt)
     }
 }
+
+unsafe // Safety: proof delegated to `where` bound.
+impl Send for char_p_ref<'_>
+where
+    for<'lt> &'lt [u8] : Send,
+{}
+
+unsafe // Safety: proof delegated to `where` bound.
+impl Sync for char_p_ref<'_>
+where
+    for<'lt> &'lt [u8] : Sync,
+{}
+
+unsafe // Safety: no non-`unsafe` API.
+impl Send for char_p_raw
+{}
+
+unsafe // Safety: no non-`unsafe` API.
+impl Sync for char_p_raw
+{}
 
 #[derive(Debug)]
 pub
@@ -254,12 +275,7 @@ ReprC! {
     );
 }
 
-#[cfg_attr(feature = "proc_macros",
-    require_unsafe_in_bodies,
-)]
-#[cfg_attr(not(feature = "proc_macros"),
-    allow(unused_unsafe),
-)]
+#[deny(unsafe_op_in_unsafe_fn)]
 impl char_p_raw {
     /// # Safety
     ///
@@ -426,7 +442,7 @@ cfg_alloc! {
         @for['lt] &'lt str => rust::String,
         // @for['lt] str::Ref<'lt> => rust::String,
         rust::String => rust::String,
-        String => rust::String,
+        repr_c::String => rust::String,
     }
     cfg_std! {
         derive_MyFrom_from! {

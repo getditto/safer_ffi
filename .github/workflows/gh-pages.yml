@@ -20,11 +20,11 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
-          - windows-latest
+          # - windows-latest
         rust:
-          - 1.56.0
+          - 1.60.0
           - stable
-          - nightly
+          # - nightly
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -33,9 +33,9 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
 
-      - name: Instal LLVM
-        run: choco install -y llvm
-        if: runner.os == 'Windows'
+      # - name: Instal LLVM
+      #   run: choco install -y llvm
+      #   if: runner.os == 'Windows'
 
       - name: Clone repo
         uses: actions/checkout@v2
@@ -51,17 +51,19 @@ jobs:
     needs: check
     strategy:
       matrix:
-        feature--proc_macros: ['', '--features proc_macros']
-        feature--std: ['', '--features std']
-        feature--alloc: ['', '--features alloc']
-        feature--log: ['', '--features log']
+        feature--std: ['', '--features alloc', '--features std']
+        feature--async-fn: ['', '--features async-fn']
+        feature--headers: ['', '--features headers', '--features csharp-headers']
+        feature--dyn-traits: ['', '--features dyn-traits']
+        # feature--log: ['', '--features log']
         feature--out-refs: ['', '--features out-refs']
+        feature--node-js: ['', '--features node-js']
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.56.0
+          toolchain: 1.60.0
           override: true
 
       - name: Clone repo
@@ -72,11 +74,12 @@ jobs:
           command: check
           args: |
             --no-default-features
-            ${{ matrix.feature--proc_macros }}
             ${{ matrix.feature--std }}
-            ${{ matrix.feature--alloc }}
-            ${{ matrix.feature--log }}
+            ${{ matrix.feature--async-fn }}
+            ${{ matrix.feature--headers }}
+            ${{ matrix.feature--dyn-traits }}
             ${{ matrix.feature--out-refs }}
+            ${{ matrix.feature--node-js }}
 
   # == BUILD & TEST == #
   build-and-test:
@@ -86,26 +89,51 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        rust:
+          # - 1.60.0
+          - stable
+          - nightly
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: default
           override: true
-          toolchain: nightly
+          toolchain: ${{ matrix.rust }}
+          target: wasm32-unknown-unknown
 
       - name: Clone repo
         uses: actions/checkout@v2
 
       - name: Cargo test
         uses: actions-rs/cargo@v1
+        env:
+          RUSTC_BOOTSTRAP: 1
+          RUSTFLAGS: -Zmacro-backtrace
+          RUST_BACKTRACE: full
         with:
           command: test
-          args: --all-features
+          args: --features docs
 
-      - name: FFI test
+      - name: FFI test (C & C#?)
         run: make -C ffi_tests
+        if: runner.os != 'Windows'
+        env:
+          RUSTC_BOOTSTRAP: 1
+          RUSTFLAGS: -Zmacro-backtrace
+          RUST_BACKTRACE: full
+
+      - name: FFI test (js)
+        run: make -C js_tests
+        if: runner.os != 'Windows'
+        env:
+          RUSTC_BOOTSTRAP: 1
+          RUSTFLAGS: -Zmacro-backtrace
+          RUST_BACKTRACE: full
 
   # Deploy to Github pages #
   deploy:
@@ -133,7 +161,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: doc
-          args: --all-features
+          args: --features docs
 
       - name: Build guide and documentation
         run: |

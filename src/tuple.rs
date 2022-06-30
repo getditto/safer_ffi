@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 //! Tuple types with a guaranteed `#[repr(C)]` layout.
 //!
 //! Simplified for lighter documentation, but the actual `struct` definitions
@@ -17,7 +18,7 @@ mod void {
 pub(in crate) use void::CVoid;
 
 unsafe
-impl CType
+impl LegacyCType
     for CVoid
 { __cfg_headers__! {
     fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
@@ -36,6 +37,28 @@ impl CType
             var_name,
             sep = if var_name.is_empty() { "" } else { " " },
         )
+    }
+
+    fn c_define_self (
+        _: &'_ mut dyn crate::headers::Definer,
+    ) -> io::Result<()>
+    {
+        Ok(())
+    }
+
+    __cfg_csharp__! {
+        fn csharp_define_self (
+            _: &'_ mut dyn crate::headers::Definer,
+        ) -> io::Result<()>
+        {
+            Ok(())
+        }
+
+        fn csharp_ty ()
+          -> rust::String
+        {
+            "void".into()
+        }
     }
 } type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete; }
 from_CType_impl_ReprC! { CVoid }

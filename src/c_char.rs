@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use_prelude!();
 
 #[repr(transparent)]
@@ -37,7 +38,7 @@ const _: () = {
 };
 
 unsafe
-impl CType
+impl LegacyCType
     for c_char
 { __cfg_headers__! {
     fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
@@ -56,6 +57,28 @@ impl CType
             var_name,
             sep = if var_name.is_empty() { "" } else { " " },
         )
+    }
+
+    fn c_define_self (
+        _: &'_ mut dyn crate::headers::Definer,
+    ) -> io::Result<()>
+    {
+        Ok(())
+    }
+
+    __cfg_csharp__! {
+        fn csharp_define_self (
+            _: &'_ mut dyn crate::headers::Definer,
+        ) -> io::Result<()>
+        {
+            Ok(())
+        }
+
+        fn csharp_ty ()
+          -> rust::String
+        {
+            "byte".into()
+        }
     }
 } type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete; }
 

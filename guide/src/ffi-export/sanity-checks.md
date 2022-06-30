@@ -75,7 +75,7 @@ trigger "instant UB"**, contrary to a hand-crafted definition.
                 | None => {
                     // Got an invalid `LogLevel` bit-pattern
                     if compile_time_condition() {
-                        eprintln!("Got an invalid `LogLevel` bit-pattern")
+                        eprintln!("Got an invalid `LogLevel` bit-pattern");
                         abort();
                     } else {
                         use ::std::hint::unreachable_unchecked as UB;
