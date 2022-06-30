@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Notified","Future returned from [`Notify::notified()`]"]]};
+initSidebarItems({"struct":[["Notified","Future returned from [`Notify::notified()`]"]]});

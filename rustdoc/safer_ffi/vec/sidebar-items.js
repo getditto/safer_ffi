@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Vec","Same as [`Vec<T>`][`rust::Vec`], but with guaranteed `#[repr(C)]` layout"],["Vec_Layout","Same as [`Vec<T>`][`rust::Vec`], but with guaranteed `#[repr(C)]` layout"]]};
+initSidebarItems({"struct":[["Vec","Same as [`Vec<T>`][`rust::Vec`], but with guaranteed `#[repr(C)]` layout"],["Vec_Layout","Same as [`Vec<T>`][`rust::Vec`], but with guaranteed `#[repr(C)]` layout"]]});

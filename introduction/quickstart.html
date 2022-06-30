@@ -176,37 +176,62 @@
             <div id="content" class="content">
                 <main>
                     <h1><a class="header" href="#quickstart" id="quickstart">Quickstart</a></h1>
-<p>To start using <code>::safer_ffi</code>, edit your <code>Cargo.toml</code> like so:</p>
-<h3><a class="header" href="#step-1-cargotoml" id="step-1-cargotoml">Step 1: <code>Cargo.toml</code></a></h3>
+<h4><a class="header" href="#small-self-contained-demo" id="small-self-contained-demo">Small self-contained demo</a></h4>
+<p>You may try working with the <code>examples/point</code> example embedded in the repo:</p>
+<pre><code class="language-bash">git clone https://github.com/getditto/safer_ffi &amp;&amp; cd safer_ffi
+(cd examples/point &amp;&amp; make)
+</code></pre>
+<p>Otherwise, to start using <code>::safer_ffi</code>, follow the following steps:</p>
+<h3><a class="header" href="#crate-layout" id="crate-layout">Crate layout</a></h3>
+<h4><a class="header" href="#step-1-cargotoml" id="step-1-cargotoml">Step 1: <code>Cargo.toml</code></a></h4>
+<p>Edit your <code>Cargo.toml</code> like so:</p>
 <pre><code class="language-toml">[package]
 name = &quot;crate_name&quot;
 version = &quot;0.1.0&quot;
-edition = &quot;2018&quot;
+edition = &quot;2021&quot;
 
 [lib]
-crate-type = [&quot;staticlib&quot;]
+crate-type = [
+    &quot;staticlib&quot;,  # Ensure it gets compiled as a (static) C library
+  # &quot;cdylib&quot;,     # If you want a shared/dynamic C library (advanced)
+    &quot;lib&quot;,        # For downstream Rust dependents: `examples/`, `tests/` etc.
+]
 
 [dependencies]
-safer-ffi = { version = &quot;*&quot;, features = [&quot;proc_macros&quot;] }
+# Use `cargo add` or `cargo search` to find the latest values of x.y.z.
+# For instance:
+#   cargo add safer-ffi
+safer-ffi.version = &quot;x.y.z&quot;
+safer-ffi.features = [] # you may add some later on.
 
 [features]
-c-headers = [&quot;safer-ffi/headers&quot;]
+# If you want to generate the headers, use a feature-gate
+# to opt into doing so:
+headers = [&quot;safer-ffi/headers&quot;]
 </code></pre>
 <ul>
-<li>See the <a href="/safer_ffi/usage/cargo-toml.html">dedicated chapter on <code>Cargo.toml</code></a> for more info.</li>
+<li>
+<p>Where <code>&quot;*&quot;</code> ought to be replaced by the last released version, which you
+can find by running <code>cargo search safer-ffi</code>.</p>
+</li>
+<li>
+<p>See the <a href="/safer_ffi/usage/cargo-toml.html">dedicated chapter on <code>Cargo.toml</code></a> for more info.</p>
+</li>
 </ul>
-<h3><a class="header" href="#step-2-srclibrs" id="step-2-srclibrs">Step 2: <code>src/lib.rs</code></a></h3>
+<h4><a class="header" href="#step-2-srclibrs" id="step-2-srclibrs">Step 2: <code>src/lib.rs</code></a></h4>
 <p>Then, to export a Rust function to FFI, add the
 <a href="/safer_ffi/derive-reprc/_.html"><code>#[derive_ReprC]</code></a> and <a href="/safer_ffi/ffi-export/_.html"><code>#[ffi_export]</code></a> attributes
 like so:</p>
-<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
+<pre><pre class="playpen"><code class="language-rust no_run">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>use ::safer_ffi::prelude::*;
 
 /// A `struct` usable from both Rust and C
 #[derive_ReprC]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
-pub
-struct Point {
+pub struct Point {
     x: f64,
     y: f64,
 }
@@ -214,11 +239,7 @@ struct Point {
 /* Export a Rust function to the C world. */
 /// Returns the middle point of `[a, b]`.
 #[ffi_export]
-fn mid_point (
-    a: &amp;Point,
-    b: &amp;Point,
-) -&gt; Point
-{
+fn mid_point(a: &amp;Point, b: &amp;Point) -&gt; Point {
     Point {
         x: (a.x + b.x) / 2.,
         y: (a.y + b.y) / 2.,
@@ -227,32 +248,39 @@ fn mid_point (
 
 /// Pretty-prints a point using Rust's formatting logic.
 #[ffi_export]
-fn print_point (point: &amp;Point)
-{
+fn print_point(point: &amp;Point) {
     println!(&quot;{:?}&quot;, point);
 }
 
-/// The following test function is necessary for the header generation.
-#[::safer_ffi::cfg_headers]
-#[test]
-fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
-{
+// The following function is only necessary for the header generation.
+#[cfg(feature = &quot;headers&quot;)] // c.f. the `Cargo.toml` section
+pub fn generate_headers() -&gt; ::std::io::Result&lt;()&gt; {
     ::safer_ffi::headers::builder()
         .to_file(&quot;rust_points.h&quot;)?
         .generate()
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <ul>
 <li>See <a href="/safer_ffi/usage/lib-rs.html">the dedicated chapter on <code>src/lib.rs</code></a> for more info.</li>
 </ul>
-<h3><a class="header" href="#step-3-compilation--header-generation" id="step-3-compilation--header-generation">Step 3: Compilation &amp; header generation</a></h3>
+<h4><a class="header" href="#step-3-examplesgenerate-headersrs" id="step-3-examplesgenerate-headersrs">Step 3: <code>examples/generate-headers.rs</code></a></h4>
+<pre><code class="language-rust ignore">fn main() -&gt; ::std::io::Result&lt;()&gt; {
+    ::crate_name::generate_headers()
+}
+</code></pre>
+<h3><a class="header" href="#compilation--header-generation" id="compilation--header-generation">Compilation &amp; header generation</a></h3>
 <pre><code class="language-bash"># Compile the C library (in `target/{debug,release}/libcrate_name.ext`)
 cargo build # --release
 
 # Generate the C header
-cargo test --features c-headers -- generate_headers
+cargo run --features headers --example generate-headers
 </code></pre>
-<details><summary><code>filename.h</code></summary>
+<ul>
+<li>See <a href="/safer_ffi/usage/lib-rs.html#header-generation">the dedicated chapter on header generation</a> for
+more info.</li>
+</ul>
+<details><summary>Generated C header (<code>rust_points.h</code>)</summary>
 <pre><code class="language-C">/*! \file */
 /*******************************************
  *                                         *
@@ -264,60 +292,59 @@ cargo test --features c-headers -- generate_headers
 
 #ifndef __RUST_CRATE_NAME__
 #define __RUST_CRATE_NAME__
-
 #ifdef __cplusplus
 extern &quot;C&quot; {
 #endif
 
+
+#include &lt;stddef.h&gt;
+#include &lt;stdint.h&gt;
+
 /** \brief
  *  A `struct` usable from both Rust and C
  */
-typedef struct {
-
+typedef struct Point {
+    /** &lt;No documentation available&gt; */
     double x;
 
+    /** &lt;No documentation available&gt; */
     double y;
-
 } Point_t;
 
 /** \brief
  *  Returns the middle point of `[a, b]`.
  */
-Point_t mid_point (
+Point_t
+mid_point (
     Point_t const * a,
     Point_t const * b);
 
 /** \brief
  *  Pretty-prints a point using Rust's formatting logic.
  */
-void print_point (
+void
+print_point (
     Point_t const * point);
 
 
 #ifdef __cplusplus
-} /* extern &quot;C&quot; */
+} /* extern \&quot;C\&quot; */
 #endif
 
 #endif /* __RUST_CRATE_NAME__ */
 </code></pre>
-</details>
-<ul>
-<li>See <a href="/safer_ffi/usage/lib-rs.html#header-generation">the dedicated chapter on header generation</a> for
-more info.</li>
-</ul>
 <hr />
-<h2><a class="header" href="#using-it-from-c" id="using-it-from-c">Using it from C</a></h2>
-<details>
-<summary>
-Here is a basic example to showcase FFI calling into our exported Rust
-functions:
-</summary>
-<h4><a class="header" href="#mainc" id="mainc"><code>main.c</code></a></h4>
+</details>
+<h2><a class="header" href="#testing-it-from-c" id="testing-it-from-c">Testing it from C</a></h2>
+<p>Here is a basic example to showcase FFI calling into our exported Rust
+functions:</p>
+<h3><a class="header" href="#mainc" id="mainc"><code>main.c</code></a></h3>
 <pre><code class="language-C">#include &lt;stdlib.h&gt;
 
 #include &quot;rust_points.h&quot;
 
-int main (int argc, char const * const argv[])
+int
+main (int argc, char const * const argv[])
 {
     Point_t a = { .x = 84, .y = 45 };
     Point_t b = { .x = 0, .y = 39 };
@@ -326,17 +353,59 @@ int main (int argc, char const * const argv[])
     return EXIT_SUCCESS;
 }
 </code></pre>
-<h4><a class="header" href="#compilation-command" id="compilation-command">Compilation command</a></h4>
-<pre><code class="language-bash">cc main.c -o main -L target/debug -l crate_name -l pthread -l dl
+<h3><a class="header" href="#compilation-command" id="compilation-command">Compilation command</a></h3>
+<pre><code class="language-bash">cc -o main{,.c} -L target/debug -l crate_name -l{pthread,dl,m}
 
 # Now feel free to run the compiled binary
 ./main
 </code></pre>
-<p>which outputs:</p>
+<ul>
+<li><details><summary>Note regarding the extra <code>-l…</code> flags.</summary>
+<p>Those vary based on the version of the Rust standard library being used, and
+the system being used to compile it. In order to reliably know which ones to
+use, <code>rustc</code> itself ought to be queried for it.</p>
+<p>Simple command:</p>
+<pre><code class="language-bash">rustc --crate-type=staticlib --print=native-static-libs -&lt;/dev/null
+</code></pre>
+<p>this yields, <em>to the stderr</em>, output along the lines of:</p>
+<pre><code class="language-text">note: Link against the following native artifacts when linking against this static library. The order and any duplication can be significant on some platforms.
+
+note: native-static-libs: -lSystem -lresolv -lc -lm -liconv
+</code></pre>
+<p>Using something like <code>sed -nE 's/^note: native-static-libs: (.*)/\1/p'</code> is
+thus a convenient way to extract these flags:</p>
+<pre><code class="language-bash">rustc --crate-type=staticlib --print=native-static-libs -&lt;/dev/null \
+    2&gt;&amp;1 | sed -nE 's/^note: native-static-libs: (.*)/\1/p'
+</code></pre>
+<p>Ideally, you would not query for this information <em>in a vacuum</em> (<em>e.g.</em>,
+<code>/dev/null</code> file being used as input Rust code just above), and rather,
+would apply it for your actual code being compiled:</p>
+<pre><code class="language-bash">cargo rustc -q -- --print=native-static-libs \
+    2&gt;&amp;1 | sed -nE 's/^note: native-static-libs: (.*)/\1/p'
+</code></pre>
+<p>And if you really wanted to polish things further, you could use the
+JSON-formatted compiler output (this, for instance, avoids having to
+redirect <code>stderr</code>). But then you'd have to use a JSON parser, such as <code>jq</code>:</p>
+<pre><code class="language-bash">RUST_STDLIB_DEPS=$(set -eo pipefail &amp;&amp; \
+    cargo rustc \
+        --message-format=json \
+        -- --print=native-static-libs \
+    | jq -r '
+        select (.reason == &quot;compiler-message&quot;)
+        | .message.message
+    ' | sed -nE 's/^native-static-libs: (.*)/\1/p' \
+)
+</code></pre>
+<p>and then use:</p>
+<pre><code class="language-bash">cc -o main{,.c} -L target/debug -l crate_name ${RUST_STDLIB_DEPS}
+</code></pre>
+</details>
+</li>
+</ul>
+<p>which does output:</p>
 <pre><code class="language-text">Point { x: 42.0, y: 42.0 }
 </code></pre>
 <p>🚀🚀</p>
-</details>
 
                 </main>
 

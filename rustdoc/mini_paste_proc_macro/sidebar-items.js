@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":[["item",""]]};
+initSidebarItems({"macro":[["item",""]]});

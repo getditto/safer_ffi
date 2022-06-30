@@ -179,50 +179,86 @@
 <h3><a class="header" href="#export-items-to-the-ffi-world" id="export-items-to-the-ffi-world">Export items to the FFI world</a></h3>
 <p>To do this, simply slap the <code>#[ffi_export]</code> attribute on any &quot;item&quot; that you
 wish to see exported to C.</p>
+<p>The only currently supported such &quot;item&quot;s are:</p>
+<ul>
+<li><strong>function definitions</strong> (main entry point of the crate!)</li>
+<li><code>const</code>s</li>
+<li>type definitions (when not mentioned by an exported function).</li>
+</ul>
 <div class="warning">
-<p>The only currently supported such &quot;item&quot;s are function definitions: <code>const</code> and
-<code>static</code>s are not supported yet. This ought to be fixed soon.</p>
+<p><code>static</code>s are not supported yet. This ought to be fixed soon.</p>
 </div>
 <p>If using non-primitive non-<code>safer_ffi</code>-provided types, then those must be
 <a href="/safer_ffi/derive-reprc/_.html"><code>#[derive_ReprC]</code> annotated</a>.</p>
 <p>At which point the only thing remaining is to generate the header file.</p>
 <h3><a class="header" href="#header-generation" id="header-generation">Header generation</a></h3>
+<pre><code class="language-rust ignore">// with the `safer-ffi/headers` feature enabled:
+::safer_ffi::headers::builder()
+    .to_file(&quot;….h&quot;)?
+ // .other_optional_adapters()
+    .generate()?
+</code></pre>
+<div class="warning">
 <p>Given how <code>safer_ffi</code> implements the C reflection logic as methods within
 <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.CType.html">a trait</a> related to <a href="/safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a>, the only way to generate the headers
-is to be a &quot;Rust downstream&quot; user of the library, within the same compilation
-unit / crate (a limitation that comes from the way the machinery currently
-operates). That is, a <strong>unit test</strong>.</p>
-<p>So you need to define a <code>cfg</code>-gated unit test that calls into the
+is to have that <code>.generate()</code> call be written <em>directly</em> in the library
+(a limitation that comes from the way the machinery currently operates),
+<code>.generate()</code> cannot be written in a downstream/dependent crate, such as a <code>bin</code>
+or an <code>example</code>.</p>
+</div>
+<p>On the other hand, it is perfectly possible to have the Rust library export a
+function which does this <code>.generate()</code> call.</p>
+<p>That's why you'll end up with the following pattern:</p>
+<p>Define a <code>cfg</code>-gated <code>pub fn</code> that calls into the
 <a href="/safer_ffi/rustdoc/safer_ffi/headers/struct.Builder.html"><code>safer_ffi::headers::builder()</code></a> to <code>.generate()</code> the headers into the given
 file(name), or into the given <code>Write</code>-able / &quot;write sink&quot;:</p>
 <ul>
 <li>
 <p>Basic example:</p>
-<pre><code class="language-rust noplaypen">#[::safer_ffi::cfg_headers]
-#[test]
-fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
-{
+<pre><pre class="playpen"><code class="language-rust norun">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>//! src/lib.rs
+#[cfg(feature = &quot;headers&quot;)]
+pub fn generate_headers() -&gt; ::std::io::Result&lt;()&gt; {
     ::safer_ffi::headers::builder()
         .to_file(&quot;filename.h&quot;)?
         .generate()
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
+<pre><pre class="playpen"><code class="language-rust norun">//! examples/generate-headers.rs
+fn main() -&gt; ::std::io::Result&lt;()&gt; {
+    ::crate_name::generate_headers()
+}
+</code></pre></pre>
 </li>
 <li>
 <p>And run:</p>
-<pre><code class="language-bash">cargo test --features c-headers -- generate_headers --nocapture
+<pre><code class="language-bash">cargo run --example generate-headers --features headers
 </code></pre>
 <p>to generate the headers.</p>
+</li>
+<li>
+<p>You may also    want to add:</p>
+<pre><code class="language-toml"># Cargo.toml
+[[example]]
+name = &quot;generate-headers&quot;
+required-features = [&quot;headers&quot;]
+</code></pre>
+<p>to your <code>Cargo.toml</code> to improve the error messages when the feature is
+missing.</p>
 </li>
 </ul>
 <details>
 <summary>More advanced example (runtime-dependent header output)</summary>
-<pre><code class="language-rust noplaypen">#[::safer_ffi::cfg_headers]
-#[test]
-fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
-{
+<pre><pre class="playpen"><code class="language-rust norun">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>#[cfg(feature = &quot;headers&quot;)]
+fn generate_headers() -&gt; ::std::io::Result&lt;()&gt; {
     let builder = ::safer_ffi::headers::builder();
-    if let Ok(filename) = ::std::env::var(&quot;HEADERS_FILE&quot;) {
+    if let Some(filename) = ::std::env::args_os().nth(1) {
         builder
             .to_file(&amp;filename)?
             .generate()
@@ -232,10 +268,10 @@ fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
             .generate()
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>and run</p>
-<pre><code class="language-bash">HEADERS_FILE=/path/to/headers.h \
-cargo test --features c-headers -- generate_headers --nocapture
+<pre><code class="language-bash">cargo run --example generate-headers --features headers -- /path/to/headers.h
 </code></pre>
 </details>
 

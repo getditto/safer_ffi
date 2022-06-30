@@ -1,4 +1,4 @@
-var sourcesIndex = {};
+var N = null;var sourcesIndex = {};
 sourcesIndex["ctor"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["ghost"] = {"name":"","files":["args.rs","derive.rs","lib.rs","parse.rs","variance.rs","visibility.rs"]};
 sourcesIndex["inventory"] = {"name":"","files":["lib.rs"]};

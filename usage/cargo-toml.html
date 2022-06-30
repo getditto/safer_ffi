@@ -185,48 +185,61 @@ type:</p>
 
 [lib]
 crate-type = [
-    &quot;staticlib&quot;,  # to generate a C _static_ library file:
+    &quot;staticlib&quot;,  # Ensure it gets compiled as a (static) C library
                   # `target/{debug,release}/libcrate_name.a`
-    # and / or:
-    &quot;cdylib&quot;,     # to generate a C _dynamic_ library file,
+    # and/or:
+    &quot;cdylib&quot;,     # If you want a shared/dynamic C library (advanced)
                   # `target/{debug,release}/libcrate_name.{so,dylib}`
+
+    &quot;lib&quot;,        # For downstream Rust dependents: `examples/`, `tests/` etc.
 ]
 </code></pre>
 <h3><a class="header" href="#dependenciessafer_ffi" id="dependenciessafer_ffi"><code>[dependencies.safer_ffi]</code></a></h3>
 <p>To get access to <code>safer_ffi</code> and its ergonomic attribute macros we add <code>safer_ffi</code> as
 a dependency, and enable the <code>proc_macros</code> feature:</p>
 <pre><code class="language-toml">[dependencies]
-safer-ffi = { version = &quot;*&quot;, features = [&quot;proc-macros&quot;] }
+safer-ffi.version = &quot;x.y.z&quot;
 </code></pre>
 <ul>
-<li>Where <code>&quot;*&quot;</code> ought to be replaced by the last released version, which you
-can find by running <code>cargo search safer-ffi</code> or
-<a href="https://github.com/killercup/cargo-edit"><code>cargo add</code></a><code>safer-ffi --features proc_macros</code></li>
-</ul>
-<details><summary>About the <code>proc_macros</code> feature</summary>
-<p>although still a WIP, the author of <code>safer_ffi</code> is making an important effort
-to make the usage of procedural macros be as optional as possible, so
-as to allow downstream users to avoid pulling the very heavyweight
-<code>syn + quote</code> dependencies, by offering alternative basic macros
-alternatives (such as <code>ReprC!</code> instead of <code>#[derive_ReprC]</code>)</p>
-</details>
-<ul>
+<li>
+<p>Where <code>&quot;x.y.z&quot;</code> ought to be replaced by the last released version, which you
+can find by running <code>cargo search safer-ffi</code> or <code>cargo add safer-ffi</code></p>
+</li>
 <li>
 <p>If working in a <code>no_std</code> environment, you will need to disable the default
 <code>std</code> feature by adding <code>default-features = false</code>.</p>
+<pre><code class="language-toml">[dependencies]
+safer-ffi.version = &quot;x.y.z&quot;
+safer-ffi.default-features = false  # &lt;- Add this!
+</code></pre>
 <ul>
-<li>if, however, you still have access to an allocator, you can enable the
+<li>
+<p>if, however, you still have access to an allocator, you can enable the
 <code>alloc</code> feature, to get the defintions of <code>safer_ffi::{Box, String, Vec}</code>
-<em>etc.</em></li>
+<em>etc.</em></p>
+<pre><code class="language-toml">[dependencies]
+safer-ffi.version = &quot;x.y.z&quot;
+safer-ffi.default-features = false
+safer-ffi.features = [
+    &quot;alloc&quot;,  # &lt;- Add this!
+]
+</code></pre>
+</li>
 </ul>
 </li>
 <li>
 <p>You may also enable the <code>log</code> feature so that <code>safer_ffi</code> may log <code>error!</code>s
 when the semi-checked casts from raw C types into their Rust counterparts
 fail (<em>e.g.</em>, when receiving a <code>bool</code> that is nether <code>0</code> nor <code>1</code>).</p>
+<pre><code class="language-toml">[dependencies]
+safer-ffi.version = &quot;x.y.z&quot;
+safer-ffi.features = [
+    &quot;log&quot;,  # &lt;- Add this!
+]
+</code></pre>
 </li>
 </ul>
-<h3><a class="header" href="#features-c-headers" id="features-c-headers"><code>[features] c-headers</code></a></h3>
+<h3><a class="header" href="#features-headers" id="features-headers"><code>[features] headers</code></a></h3>
 <p>Finally, in order to alleviate the compile-time when not generating the headers
 (it is customary to bundle pre-generated headers when distributing an
 FFI-compatible Rust crate), the runtime C reflection and header generation
@@ -234,10 +247,10 @@ machinery (the most heavyweight part of <code>safer_ffi</code>) is feature-gated
 default (behind the <code>safer_ffi/headers</code> feature).</p>
 <p>However, when <a href="/safer_ffi/usage/lib-rs.html#header-generation">generating the headers</a>, such machinery is
 needed. Thus the simplest solution is for the FFI crate to have a Cargo feature
-(flag) that transitively enables the <code>safer_ffi/headers</code> feature. You can name such
-feature however you want. In this guide, it is named <code>c-headers</code>.</p>
+(flag) that transitively enables the <code>safer_ffi/headers</code> feature. You can name
+such feature however you want. In this guide, it is named <code>headers</code>.</p>
 <pre><code class="language-toml">[features]
-c-headers = [&quot;safer_ffi/headers&quot;]
+headers = [&quot;safer_ffi/headers&quot;]
 </code></pre>
 
                 </main>

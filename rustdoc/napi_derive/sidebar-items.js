@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":[["contextless_function",""],["js_function",""],["module_exports",""]]};
+initSidebarItems({"attr":[["contextless_function",""],["js_function",""],["module_exports",""]]});

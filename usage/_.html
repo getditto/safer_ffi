@@ -181,36 +181,42 @@ works</a>.</p>
 <h2><a class="header" href="#tldr" id="tldr">TL,DR</a></h2>
 <h3><a class="header" href="#cargotoml" id="cargotoml"><code>Cargo.toml</code></a></h3>
 <pre><code class="language-toml">[lib]
-crate-type = [&quot;staticlib&quot;]
+crate-type = [&quot;staticlib&quot;, &quot;lib&quot;]
 
 [dependencies]
-safer-ffi = { version = &quot;...&quot;, features = [&quot;proc_macros&quot;] }
+safer-ffi = &quot;...&quot;
 
 [features]
-c-headers = [&quot;safer-ffi/headers&quot;]
+headers = [&quot;safer-ffi/headers&quot;]
 </code></pre>
 <h3><a class="header" href="#srclibrs" id="srclibrs"><code>src/lib.rs</code></a></h3>
-<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
+<pre><pre class="playpen"><code class="language-rust norun">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>use ::safer_ffi::prelude::*;
 
 #[ffi_export]
-fn add (x: i32, y: i32) -&gt; i32
-{
+fn add(x: i32, y: i32) -&gt; i32 {
     x.wrapping_add(y)
 }
 
-#[::safer_ffi::cfg_headers]
-#[test]
-fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
-{
+#[cfg(feature = &quot;headers&quot;)]
+pub fn generate_headers() -&gt; ::std::io::Result&lt;()&gt; {
     ::safer_ffi::headers::builder()
         .to_file(&quot;filename.h&quot;)?
         .generate()
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#examplesgenerate-headers" id="examplesgenerate-headers"><code>examples/generate-headers</code></a></h3>
+<pre><pre class="playpen"><code class="language-rust norun">fn main() -&gt; ::std::io::Result&lt;()&gt; {
+    ::crate_name::generate_headers()
+}
+</code></pre></pre>
 <ul>
 <li>
 <p>And run:</p>
-<pre><code class="language-bash">cargo test --features c-headers -- generate_headers --nocapture
+<pre><code class="language-bash">cargo run --example generate-headers --features headers
 </code></pre>
 <p>to generate the headers.</p>
 </li>

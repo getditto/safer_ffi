@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":[["js_export",""]],"macro":[["__js_ctx",""],["__make_all_lifetimes_static",""]]};
+initSidebarItems({"attr":[["js_export",""]],"macro":[["__js_ctx",""],["__make_all_lifetimes_static",""]]});

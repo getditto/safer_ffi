@@ -209,37 +209,62 @@ headers).</p>
 Some features may be missing, while others may be changed when further improving it.</p>
 </span>
 <h1><a class="header" href="#quickstart" id="quickstart">Quickstart</a></h1>
-<p>To start using <code>::safer_ffi</code>, edit your <code>Cargo.toml</code> like so:</p>
-<h3><a class="header" href="#step-1-cargotoml" id="step-1-cargotoml">Step 1: <code>Cargo.toml</code></a></h3>
+<h4><a class="header" href="#small-self-contained-demo" id="small-self-contained-demo">Small self-contained demo</a></h4>
+<p>You may try working with the <code>examples/point</code> example embedded in the repo:</p>
+<pre><code class="language-bash">git clone https://github.com/getditto/safer_ffi &amp;&amp; cd safer_ffi
+(cd examples/point &amp;&amp; make)
+</code></pre>
+<p>Otherwise, to start using <code>::safer_ffi</code>, follow the following steps:</p>
+<h3><a class="header" href="#crate-layout" id="crate-layout">Crate layout</a></h3>
+<h4><a class="header" href="#step-1-cargotoml" id="step-1-cargotoml">Step 1: <code>Cargo.toml</code></a></h4>
+<p>Edit your <code>Cargo.toml</code> like so:</p>
 <pre><code class="language-toml">[package]
 name = &quot;crate_name&quot;
 version = &quot;0.1.0&quot;
-edition = &quot;2018&quot;
+edition = &quot;2021&quot;
 
 [lib]
-crate-type = [&quot;staticlib&quot;]
+crate-type = [
+    &quot;staticlib&quot;,  # Ensure it gets compiled as a (static) C library
+  # &quot;cdylib&quot;,     # If you want a shared/dynamic C library (advanced)
+    &quot;lib&quot;,        # For downstream Rust dependents: `examples/`, `tests/` etc.
+]
 
 [dependencies]
-safer-ffi = { version = &quot;*&quot;, features = [&quot;proc_macros&quot;] }
+# Use `cargo add` or `cargo search` to find the latest values of x.y.z.
+# For instance:
+#   cargo add safer-ffi
+safer-ffi.version = &quot;x.y.z&quot;
+safer-ffi.features = [] # you may add some later on.
 
 [features]
-c-headers = [&quot;safer-ffi/headers&quot;]
+# If you want to generate the headers, use a feature-gate
+# to opt into doing so:
+headers = [&quot;safer-ffi/headers&quot;]
 </code></pre>
 <ul>
-<li>See the <a href="introduction//safer_ffi/usage/cargo-toml.html">dedicated chapter on <code>Cargo.toml</code></a> for more info.</li>
+<li>
+<p>Where <code>&quot;*&quot;</code> ought to be replaced by the last released version, which you
+can find by running <code>cargo search safer-ffi</code>.</p>
+</li>
+<li>
+<p>See the <a href="introduction//safer_ffi/usage/cargo-toml.html">dedicated chapter on <code>Cargo.toml</code></a> for more info.</p>
+</li>
 </ul>
-<h3><a class="header" href="#step-2-srclibrs" id="step-2-srclibrs">Step 2: <code>src/lib.rs</code></a></h3>
+<h4><a class="header" href="#step-2-srclibrs" id="step-2-srclibrs">Step 2: <code>src/lib.rs</code></a></h4>
 <p>Then, to export a Rust function to FFI, add the
 <a href="introduction//safer_ffi/derive-reprc/_.html"><code>#[derive_ReprC]</code></a> and <a href="introduction//safer_ffi/ffi-export/_.html"><code>#[ffi_export]</code></a> attributes
 like so:</p>
-<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
+<pre><pre class="playpen"><code class="language-rust no_run">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>use ::safer_ffi::prelude::*;
 
 /// A `struct` usable from both Rust and C
 #[derive_ReprC]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
-pub
-struct Point {
+pub struct Point {
     x: f64,
     y: f64,
 }
@@ -247,11 +272,7 @@ struct Point {
 /* Export a Rust function to the C world. */
 /// Returns the middle point of `[a, b]`.
 #[ffi_export]
-fn mid_point (
-    a: &amp;Point,
-    b: &amp;Point,
-) -&gt; Point
-{
+fn mid_point(a: &amp;Point, b: &amp;Point) -&gt; Point {
     Point {
         x: (a.x + b.x) / 2.,
         y: (a.y + b.y) / 2.,
@@ -260,32 +281,39 @@ fn mid_point (
 
 /// Pretty-prints a point using Rust's formatting logic.
 #[ffi_export]
-fn print_point (point: &amp;Point)
-{
+fn print_point(point: &amp;Point) {
     println!(&quot;{:?}&quot;, point);
 }
 
-/// The following test function is necessary for the header generation.
-#[::safer_ffi::cfg_headers]
-#[test]
-fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
-{
+// The following function is only necessary for the header generation.
+#[cfg(feature = &quot;headers&quot;)] // c.f. the `Cargo.toml` section
+pub fn generate_headers() -&gt; ::std::io::Result&lt;()&gt; {
     ::safer_ffi::headers::builder()
         .to_file(&quot;rust_points.h&quot;)?
         .generate()
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <ul>
 <li>See <a href="introduction//safer_ffi/usage/lib-rs.html">the dedicated chapter on <code>src/lib.rs</code></a> for more info.</li>
 </ul>
-<h3><a class="header" href="#step-3-compilation--header-generation" id="step-3-compilation--header-generation">Step 3: Compilation &amp; header generation</a></h3>
+<h4><a class="header" href="#step-3-examplesgenerate-headersrs" id="step-3-examplesgenerate-headersrs">Step 3: <code>examples/generate-headers.rs</code></a></h4>
+<pre><code class="language-rust ignore">fn main() -&gt; ::std::io::Result&lt;()&gt; {
+    ::crate_name::generate_headers()
+}
+</code></pre>
+<h3><a class="header" href="#compilation--header-generation" id="compilation--header-generation">Compilation &amp; header generation</a></h3>
 <pre><code class="language-bash"># Compile the C library (in `target/{debug,release}/libcrate_name.ext`)
 cargo build # --release
 
 # Generate the C header
-cargo test --features c-headers -- generate_headers
+cargo run --features headers --example generate-headers
 </code></pre>
-<details><summary><code>filename.h</code></summary>
+<ul>
+<li>See <a href="introduction//safer_ffi/usage/lib-rs.html#header-generation">the dedicated chapter on header generation</a> for
+more info.</li>
+</ul>
+<details><summary>Generated C header (<code>rust_points.h</code>)</summary>
 <pre><code class="language-C">/*! \file */
 /*******************************************
  *                                         *
@@ -297,60 +325,59 @@ cargo test --features c-headers -- generate_headers
 
 #ifndef __RUST_CRATE_NAME__
 #define __RUST_CRATE_NAME__
-
 #ifdef __cplusplus
 extern &quot;C&quot; {
 #endif
 
+
+#include &lt;stddef.h&gt;
+#include &lt;stdint.h&gt;
+
 /** \brief
  *  A `struct` usable from both Rust and C
  */
-typedef struct {
-
+typedef struct Point {
+    /** &lt;No documentation available&gt; */
     double x;
 
+    /** &lt;No documentation available&gt; */
     double y;
-
 } Point_t;
 
 /** \brief
  *  Returns the middle point of `[a, b]`.
  */
-Point_t mid_point (
+Point_t
+mid_point (
     Point_t const * a,
     Point_t const * b);
 
 /** \brief
  *  Pretty-prints a point using Rust's formatting logic.
  */
-void print_point (
+void
+print_point (
     Point_t const * point);
 
 
 #ifdef __cplusplus
-} /* extern &quot;C&quot; */
+} /* extern \&quot;C\&quot; */
 #endif
 
 #endif /* __RUST_CRATE_NAME__ */
 </code></pre>
-</details>
-<ul>
-<li>See <a href="introduction//safer_ffi/usage/lib-rs.html#header-generation">the dedicated chapter on header generation</a> for
-more info.</li>
-</ul>
 <hr />
-<h2><a class="header" href="#using-it-from-c" id="using-it-from-c">Using it from C</a></h2>
-<details>
-<summary>
-Here is a basic example to showcase FFI calling into our exported Rust
-functions:
-</summary>
-<h4><a class="header" href="#mainc" id="mainc"><code>main.c</code></a></h4>
+</details>
+<h2><a class="header" href="#testing-it-from-c" id="testing-it-from-c">Testing it from C</a></h2>
+<p>Here is a basic example to showcase FFI calling into our exported Rust
+functions:</p>
+<h3><a class="header" href="#mainc" id="mainc"><code>main.c</code></a></h3>
 <pre><code class="language-C">#include &lt;stdlib.h&gt;
 
 #include &quot;rust_points.h&quot;
 
-int main (int argc, char const * const argv[])
+int
+main (int argc, char const * const argv[])
 {
     Point_t a = { .x = 84, .y = 45 };
     Point_t b = { .x = 0, .y = 39 };
@@ -359,53 +386,101 @@ int main (int argc, char const * const argv[])
     return EXIT_SUCCESS;
 }
 </code></pre>
-<h4><a class="header" href="#compilation-command" id="compilation-command">Compilation command</a></h4>
-<pre><code class="language-bash">cc main.c -o main -L target/debug -l crate_name -l pthread -l dl
+<h3><a class="header" href="#compilation-command" id="compilation-command">Compilation command</a></h3>
+<pre><code class="language-bash">cc -o main{,.c} -L target/debug -l crate_name -l{pthread,dl,m}
 
 # Now feel free to run the compiled binary
 ./main
 </code></pre>
-<p>which outputs:</p>
+<ul>
+<li><details><summary>Note regarding the extra <code>-l…</code> flags.</summary>
+<p>Those vary based on the version of the Rust standard library being used, and
+the system being used to compile it. In order to reliably know which ones to
+use, <code>rustc</code> itself ought to be queried for it.</p>
+<p>Simple command:</p>
+<pre><code class="language-bash">rustc --crate-type=staticlib --print=native-static-libs -&lt;/dev/null
+</code></pre>
+<p>this yields, <em>to the stderr</em>, output along the lines of:</p>
+<pre><code class="language-text">note: Link against the following native artifacts when linking against this static library. The order and any duplication can be significant on some platforms.
+
+note: native-static-libs: -lSystem -lresolv -lc -lm -liconv
+</code></pre>
+<p>Using something like <code>sed -nE 's/^note: native-static-libs: (.*)/\1/p'</code> is
+thus a convenient way to extract these flags:</p>
+<pre><code class="language-bash">rustc --crate-type=staticlib --print=native-static-libs -&lt;/dev/null \
+    2&gt;&amp;1 | sed -nE 's/^note: native-static-libs: (.*)/\1/p'
+</code></pre>
+<p>Ideally, you would not query for this information <em>in a vacuum</em> (<em>e.g.</em>,
+<code>/dev/null</code> file being used as input Rust code just above), and rather,
+would apply it for your actual code being compiled:</p>
+<pre><code class="language-bash">cargo rustc -q -- --print=native-static-libs \
+    2&gt;&amp;1 | sed -nE 's/^note: native-static-libs: (.*)/\1/p'
+</code></pre>
+<p>And if you really wanted to polish things further, you could use the
+JSON-formatted compiler output (this, for instance, avoids having to
+redirect <code>stderr</code>). But then you'd have to use a JSON parser, such as <code>jq</code>:</p>
+<pre><code class="language-bash">RUST_STDLIB_DEPS=$(set -eo pipefail &amp;&amp; \
+    cargo rustc \
+        --message-format=json \
+        -- --print=native-static-libs \
+    | jq -r '
+        select (.reason == &quot;compiler-message&quot;)
+        | .message.message
+    ' | sed -nE 's/^native-static-libs: (.*)/\1/p' \
+)
+</code></pre>
+<p>and then use:</p>
+<pre><code class="language-bash">cc -o main{,.c} -L target/debug -l crate_name ${RUST_STDLIB_DEPS}
+</code></pre>
+</details>
+</li>
+</ul>
+<p>which does output:</p>
 <pre><code class="language-text">Point { x: 42.0, y: 42.0 }
 </code></pre>
 <p>🚀🚀</p>
-</details>
 <h1><a class="header" href="#usage" id="usage">Usage</a></h1>
 <p>Using <code>safer_ffi</code> is pretty simple, provided one knows <a href="usage//safer_ffi/appendix/c-compilation.html">how C compilation
 works</a>.</p>
 <h2><a class="header" href="#tldr" id="tldr">TL,DR</a></h2>
 <h3><a class="header" href="#cargotoml" id="cargotoml"><code>Cargo.toml</code></a></h3>
 <pre><code class="language-toml">[lib]
-crate-type = [&quot;staticlib&quot;]
+crate-type = [&quot;staticlib&quot;, &quot;lib&quot;]
 
 [dependencies]
-safer-ffi = { version = &quot;...&quot;, features = [&quot;proc_macros&quot;] }
+safer-ffi = &quot;...&quot;
 
 [features]
-c-headers = [&quot;safer-ffi/headers&quot;]
+headers = [&quot;safer-ffi/headers&quot;]
 </code></pre>
 <h3><a class="header" href="#srclibrs" id="srclibrs"><code>src/lib.rs</code></a></h3>
-<pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
+<pre><pre class="playpen"><code class="language-rust norun">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>use ::safer_ffi::prelude::*;
 
 #[ffi_export]
-fn add (x: i32, y: i32) -&gt; i32
-{
+fn add(x: i32, y: i32) -&gt; i32 {
     x.wrapping_add(y)
 }
 
-#[::safer_ffi::cfg_headers]
-#[test]
-fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
-{
+#[cfg(feature = &quot;headers&quot;)]
+pub fn generate_headers() -&gt; ::std::io::Result&lt;()&gt; {
     ::safer_ffi::headers::builder()
         .to_file(&quot;filename.h&quot;)?
         .generate()
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#examplesgenerate-headers" id="examplesgenerate-headers"><code>examples/generate-headers</code></a></h3>
+<pre><pre class="playpen"><code class="language-rust norun">fn main() -&gt; ::std::io::Result&lt;()&gt; {
+    ::crate_name::generate_headers()
+}
+</code></pre></pre>
 <ul>
 <li>
 <p>And run:</p>
-<pre><code class="language-bash">cargo test --features c-headers -- generate_headers --nocapture
+<pre><code class="language-bash">cargo run --example generate-headers --features headers
 </code></pre>
 <p>to generate the headers.</p>
 </li>
@@ -420,48 +495,61 @@ type:</p>
 
 [lib]
 crate-type = [
-    &quot;staticlib&quot;,  # to generate a C _static_ library file:
+    &quot;staticlib&quot;,  # Ensure it gets compiled as a (static) C library
                   # `target/{debug,release}/libcrate_name.a`
-    # and / or:
-    &quot;cdylib&quot;,     # to generate a C _dynamic_ library file,
+    # and/or:
+    &quot;cdylib&quot;,     # If you want a shared/dynamic C library (advanced)
                   # `target/{debug,release}/libcrate_name.{so,dylib}`
+
+    &quot;lib&quot;,        # For downstream Rust dependents: `examples/`, `tests/` etc.
 ]
 </code></pre>
 <h3><a class="header" href="#dependenciessafer_ffi" id="dependenciessafer_ffi"><code>[dependencies.safer_ffi]</code></a></h3>
 <p>To get access to <code>safer_ffi</code> and its ergonomic attribute macros we add <code>safer_ffi</code> as
 a dependency, and enable the <code>proc_macros</code> feature:</p>
 <pre><code class="language-toml">[dependencies]
-safer-ffi = { version = &quot;*&quot;, features = [&quot;proc-macros&quot;] }
+safer-ffi.version = &quot;x.y.z&quot;
 </code></pre>
 <ul>
-<li>Where <code>&quot;*&quot;</code> ought to be replaced by the last released version, which you
-can find by running <code>cargo search safer-ffi</code> or
-<a href="https://github.com/killercup/cargo-edit"><code>cargo add</code></a><code>safer-ffi --features proc_macros</code></li>
-</ul>
-<details><summary>About the <code>proc_macros</code> feature</summary>
-<p>although still a WIP, the author of <code>safer_ffi</code> is making an important effort
-to make the usage of procedural macros be as optional as possible, so
-as to allow downstream users to avoid pulling the very heavyweight
-<code>syn + quote</code> dependencies, by offering alternative basic macros
-alternatives (such as <code>ReprC!</code> instead of <code>#[derive_ReprC]</code>)</p>
-</details>
-<ul>
+<li>
+<p>Where <code>&quot;x.y.z&quot;</code> ought to be replaced by the last released version, which you
+can find by running <code>cargo search safer-ffi</code> or <code>cargo add safer-ffi</code></p>
+</li>
 <li>
 <p>If working in a <code>no_std</code> environment, you will need to disable the default
 <code>std</code> feature by adding <code>default-features = false</code>.</p>
+<pre><code class="language-toml">[dependencies]
+safer-ffi.version = &quot;x.y.z&quot;
+safer-ffi.default-features = false  # &lt;- Add this!
+</code></pre>
 <ul>
-<li>if, however, you still have access to an allocator, you can enable the
+<li>
+<p>if, however, you still have access to an allocator, you can enable the
 <code>alloc</code> feature, to get the defintions of <code>safer_ffi::{Box, String, Vec}</code>
-<em>etc.</em></li>
+<em>etc.</em></p>
+<pre><code class="language-toml">[dependencies]
+safer-ffi.version = &quot;x.y.z&quot;
+safer-ffi.default-features = false
+safer-ffi.features = [
+    &quot;alloc&quot;,  # &lt;- Add this!
+]
+</code></pre>
+</li>
 </ul>
 </li>
 <li>
 <p>You may also enable the <code>log</code> feature so that <code>safer_ffi</code> may log <code>error!</code>s
 when the semi-checked casts from raw C types into their Rust counterparts
 fail (<em>e.g.</em>, when receiving a <code>bool</code> that is nether <code>0</code> nor <code>1</code>).</p>
+<pre><code class="language-toml">[dependencies]
+safer-ffi.version = &quot;x.y.z&quot;
+safer-ffi.features = [
+    &quot;log&quot;,  # &lt;- Add this!
+]
+</code></pre>
 </li>
 </ul>
-<h3><a class="header" href="#features-c-headers" id="features-c-headers"><code>[features] c-headers</code></a></h3>
+<h3><a class="header" href="#features-headers" id="features-headers"><code>[features] headers</code></a></h3>
 <p>Finally, in order to alleviate the compile-time when not generating the headers
 (it is customary to bundle pre-generated headers when distributing an
 FFI-compatible Rust crate), the runtime C reflection and header generation
@@ -469,59 +557,95 @@ machinery (the most heavyweight part of <code>safer_ffi</code>) is feature-gated
 default (behind the <code>safer_ffi/headers</code> feature).</p>
 <p>However, when <a href="usage//safer_ffi/usage/lib-rs.html#header-generation">generating the headers</a>, such machinery is
 needed. Thus the simplest solution is for the FFI crate to have a Cargo feature
-(flag) that transitively enables the <code>safer_ffi/headers</code> feature. You can name such
-feature however you want. In this guide, it is named <code>c-headers</code>.</p>
+(flag) that transitively enables the <code>safer_ffi/headers</code> feature. You can name
+such feature however you want. In this guide, it is named <code>headers</code>.</p>
 <pre><code class="language-toml">[features]
-c-headers = [&quot;safer_ffi/headers&quot;]
+headers = [&quot;safer_ffi/headers&quot;]
 </code></pre>
 <h1><a class="header" href="#srclibrs-1" id="srclibrs-1"><code>src/lib.rs</code></a></h1>
 <h3><a class="header" href="#export-items-to-the-ffi-world" id="export-items-to-the-ffi-world">Export items to the FFI world</a></h3>
 <p>To do this, simply slap the <code>#[ffi_export]</code> attribute on any &quot;item&quot; that you
 wish to see exported to C.</p>
+<p>The only currently supported such &quot;item&quot;s are:</p>
+<ul>
+<li><strong>function definitions</strong> (main entry point of the crate!)</li>
+<li><code>const</code>s</li>
+<li>type definitions (when not mentioned by an exported function).</li>
+</ul>
 <div class="warning">
-<p>The only currently supported such &quot;item&quot;s are function definitions: <code>const</code> and
-<code>static</code>s are not supported yet. This ought to be fixed soon.</p>
+<p><code>static</code>s are not supported yet. This ought to be fixed soon.</p>
 </div>
 <p>If using non-primitive non-<code>safer_ffi</code>-provided types, then those must be
 <a href="usage//safer_ffi/derive-reprc/_.html"><code>#[derive_ReprC]</code> annotated</a>.</p>
 <p>At which point the only thing remaining is to generate the header file.</p>
 <h3><a class="header" href="#header-generation" id="header-generation">Header generation</a></h3>
+<pre><code class="language-rust ignore">// with the `safer-ffi/headers` feature enabled:
+::safer_ffi::headers::builder()
+    .to_file(&quot;….h&quot;)?
+ // .other_optional_adapters()
+    .generate()?
+</code></pre>
+<div class="warning">
 <p>Given how <code>safer_ffi</code> implements the C reflection logic as methods within
 <a href="usage//safer_ffi/rustdoc/safer_ffi/layout/trait.CType.html">a trait</a> related to <a href="usage//safer_ffi/rustdoc/safer_ffi/layout/trait.ReprC.html"><code>ReprC</code></a>, the only way to generate the headers
-is to be a &quot;Rust downstream&quot; user of the library, within the same compilation
-unit / crate (a limitation that comes from the way the machinery currently
-operates). That is, a <strong>unit test</strong>.</p>
-<p>So you need to define a <code>cfg</code>-gated unit test that calls into the
+is to have that <code>.generate()</code> call be written <em>directly</em> in the library
+(a limitation that comes from the way the machinery currently operates),
+<code>.generate()</code> cannot be written in a downstream/dependent crate, such as a <code>bin</code>
+or an <code>example</code>.</p>
+</div>
+<p>On the other hand, it is perfectly possible to have the Rust library export a
+function which does this <code>.generate()</code> call.</p>
+<p>That's why you'll end up with the following pattern:</p>
+<p>Define a <code>cfg</code>-gated <code>pub fn</code> that calls into the
 <a href="usage//safer_ffi/rustdoc/safer_ffi/headers/struct.Builder.html"><code>safer_ffi::headers::builder()</code></a> to <code>.generate()</code> the headers into the given
 file(name), or into the given <code>Write</code>-able / &quot;write sink&quot;:</p>
 <ul>
 <li>
 <p>Basic example:</p>
-<pre><code class="language-rust noplaypen">#[::safer_ffi::cfg_headers]
-#[test]
-fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
-{
+<pre><pre class="playpen"><code class="language-rust norun">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>//! src/lib.rs
+#[cfg(feature = &quot;headers&quot;)]
+pub fn generate_headers() -&gt; ::std::io::Result&lt;()&gt; {
     ::safer_ffi::headers::builder()
         .to_file(&quot;filename.h&quot;)?
         .generate()
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
+<pre><pre class="playpen"><code class="language-rust norun">//! examples/generate-headers.rs
+fn main() -&gt; ::std::io::Result&lt;()&gt; {
+    ::crate_name::generate_headers()
+}
+</code></pre></pre>
 </li>
 <li>
 <p>And run:</p>
-<pre><code class="language-bash">cargo test --features c-headers -- generate_headers --nocapture
+<pre><code class="language-bash">cargo run --example generate-headers --features headers
 </code></pre>
 <p>to generate the headers.</p>
+</li>
+<li>
+<p>You may also    want to add:</p>
+<pre><code class="language-toml"># Cargo.toml
+[[example]]
+name = &quot;generate-headers&quot;
+required-features = [&quot;headers&quot;]
+</code></pre>
+<p>to your <code>Cargo.toml</code> to improve the error messages when the feature is
+missing.</p>
 </li>
 </ul>
 <details>
 <summary>More advanced example (runtime-dependent header output)</summary>
-<pre><code class="language-rust noplaypen">#[::safer_ffi::cfg_headers]
-#[test]
-fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
-{
+<pre><pre class="playpen"><code class="language-rust norun">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>#[cfg(feature = &quot;headers&quot;)]
+fn generate_headers() -&gt; ::std::io::Result&lt;()&gt; {
     let builder = ::safer_ffi::headers::builder();
-    if let Ok(filename) = ::std::env::var(&quot;HEADERS_FILE&quot;) {
+    if let Some(filename) = ::std::env::args_os().nth(1) {
         builder
             .to_file(&amp;filename)?
             .generate()
@@ -531,10 +655,10 @@ fn generate_headers () -&gt; ::std::io::Result&lt;()&gt;
             .generate()
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>and run</p>
-<pre><code class="language-bash">HEADERS_FILE=/path/to/headers.h \
-cargo test --features c-headers -- generate_headers --nocapture
+<pre><code class="language-bash">cargo run --example generate-headers --features headers -- /path/to/headers.h
 </code></pre>
 </details>
 <h1><a class="header" href="#custom-types" id="custom-types">Custom Types</a></h1>
