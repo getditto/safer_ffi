@@ -1036,13 +1036,13 @@
         <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">guard</span>();
 
         <span class="kw">match</span> <span class="ident">lang</span> {
-            <span class="op">|</span> <span class="ident">Language::C</span> =&gt; <span class="macro">write!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
+            <span class="op">|</span> <span class="ident">Language::C</span> =&gt; <span class="macro">writeln!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
                 <span class="macro">include_str!</span>(<span class="string">&quot;templates/c/_prelude.h&quot;</span>),
                 <span class="ident">guard</span> <span class="op">=</span> <span class="ident">guard</span>,
             ),
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
-            <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; <span class="macro">write!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
+            <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; <span class="macro">writeln!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
                 <span class="macro">include_str!</span>(<span class="string">&quot;templates/csharp/_prelude.cs&quot;</span>),
                 <span class="ident">NameSpace</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::pascal_cased_lib_name</span>(),
                 <span class="ident">RustLib</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::lib_name</span>(),
