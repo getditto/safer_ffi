@@ -36,8 +36,7 @@ std = [
     "alloc",
 ]
 
-# Deprecated
-proc_macros = []
+proc_macros = [] # Deprecated
 
 async-fn = [
     "safer_ffi-proc_macros/async-fn",
@@ -61,6 +60,10 @@ headers = [
     "std",
 ]
 csharp-headers = [
+    "headers",
+]
+# Tweak the generated `.h` ever so slightly.
+c-headers-with-fn-style = [
     "headers",
 ]
 
