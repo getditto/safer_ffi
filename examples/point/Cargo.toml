@@ -10,7 +10,7 @@ edition = "2021"
 crate-type = ["staticlib"]
 
 [dependencies]
-safer-ffi = { path = "../..", features = ["proc_macros"] }
+safer-ffi.path = "../.."
 
 [features]
 c-headers = ["safer-ffi/headers"]
