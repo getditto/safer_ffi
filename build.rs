@@ -1,3 +1,5 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 fn main() {
     if cfg!(feature = "proc_macros") {
         println!("cargo:warning=[safer-ffi] \

@@ -22,6 +22,7 @@ using System.Runtime.InteropServices;
 public unsafe partial class Ffi {
     private const string RustLib = "ffi_tests";
 }
+
 public enum Wow_t : byte {
     Leroy,
     Jenkins,

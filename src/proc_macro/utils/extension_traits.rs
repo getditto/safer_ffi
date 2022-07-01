@@ -1,3 +1,5 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub(in crate)
 trait CollectVec : Sized + IntoIterator {
     fn vec (self: Self)

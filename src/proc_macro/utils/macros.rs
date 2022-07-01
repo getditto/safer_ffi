@@ -1,3 +1,5 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 macro_rules! spanned {( $span:expr $(,)? ) => (
     ::proc_macro2::Ident::new("__", $span)
 )} pub(in crate) use spanned;

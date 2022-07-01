@@ -1,3 +1,5 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 use super::*;
 
 #[path = "c_type/_mod.rs"]
