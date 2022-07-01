@@ -446,7 +446,11 @@
 <span id="441">441</span>
 <span id="442">442</span>
 <span id="443">443</span>
-</pre><pre class="rust"><code><span class="kw">use</span> {
+<span id="444">444</span>
+<span id="445">445</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+
+<span class="kw">use</span> {
     <span class="ident">::syn</span>::{
         <span class="ident">visit_mut::VisitMut</span>,
     },

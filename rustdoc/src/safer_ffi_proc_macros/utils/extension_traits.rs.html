@@ -72,7 +72,11 @@
 <span id="67">67</span>
 <span id="68">68</span>
 <span id="69">69</span>
-</pre><pre class="rust"><code><span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">crate</span>)
+<span id="70">70</span>
+<span id="71">71</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+
+<span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">crate</span>)
 <span class="kw">trait</span> <span class="ident">CollectVec</span> : <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">IntoIterator</span> {
     <span class="kw">fn</span> <span class="ident">vec</span> (<span class="self">self</span>: <span class="self">Self</span>)
       -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>

@@ -138,7 +138,11 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span id="136">136</span>
+<span id="137">137</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+
+<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;c_type/_mod.rs&quot;</span>]</span>
 <span class="kw">mod</span> <span class="ident">c_type</span>;

@@ -141,7 +141,11 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span id="139">139</span>
+<span id="140">140</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+
+<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_macros</span>)]</span>
 <span class="macro">macro_rules!</span> <span class="ident">emit</span> {( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span> ) =&gt; ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span> )}

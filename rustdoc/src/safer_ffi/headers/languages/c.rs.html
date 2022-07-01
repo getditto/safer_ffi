@@ -235,7 +235,11 @@
 <span id="230">230</span>
 <span id="231">231</span>
 <span id="232">232</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span id="233">233</span>
+<span id="234">234</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+
+<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span>
 <span class="kw">struct</span> <span class="ident">C</span>;

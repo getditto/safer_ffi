@@ -192,7 +192,11 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span id="190">190</span>
+<span id="191">191</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+
+<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">crate</span>)
 <span class="kw">fn</span> <span class="ident">derive</span> (
