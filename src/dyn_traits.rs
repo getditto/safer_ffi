@@ -27,33 +27,6 @@ struct ErasedRef<'a>(
     ::core::marker::PhantomData<&'a ()>,
 );
 
-// #[macro_export]
-// macro_rules! const_ {(
-//     $(
-//         for $generics:tt $(where { $($wc:tt)* })? ,
-//     )?
-//         $VALUE:block : $T:ty
-// ) => ({
-//     struct __Generics $generics (
-//         *mut Self,
-//     )
-//     // where
-//     //     $($($wc)*)?
-//     ;
-
-//     impl $generics
-//         $crate::dyn_traits::__AssocConst<$T>
-//     for
-//         __Generics $generics
-//     where
-//         $($($wc)*)?
-//     {
-//         const CONST: $T = $VALUE;
-//     }
-
-//     <__Generics $generics as $crate::dyn_traits::__AssocConst<$T>>::CONST
-// })}
-
 pub
 trait ReprCTrait {
     type VTable : ConcreteReprC;
@@ -64,11 +37,6 @@ trait ReprCTrait {
         vtable: &'_ Self::VTable,
     )
     ;
-
-    // fn type_name (
-    //     vtable: &'_ Self::VTable,
-    // ) -> &'static str
-    // ;
 }
 
 mod ty {
@@ -76,14 +44,13 @@ mod ty {
 
     #[super::derive_ReprC]
     #[repr(transparent)]
-    // #[ReprC::opaque]
     pub
-    struct Erased(crate::tuple::CVoid); //  { _private: () }
+    struct Erased(crate::tuple::CVoid);
 }
 
 #[apply(cfg_alloc)]
 pub
-trait VirtualPtrFromBox<T> : ReprCTrait { // DynTrait : ?Sized + ReprCTrait > : Sized {
+trait VirtualPtrFromBox<T> : ReprCTrait {
     fn boxed_into_virtual_ptr (
         this: rust::Box<T>,
     ) -> VirtualPtr<Self>
@@ -93,8 +60,7 @@ trait VirtualPtrFromBox<T> : ReprCTrait { // DynTrait : ?Sized + ReprCTrait > : 
 #[apply(cfg_alloc)]
 impl<
     T,
-    DynTrait : ?Sized + VirtualPtrFromBox<T>, // + ReprCTrait,
-    // T : BoxedIntoVirtualPtr<DynTrait>,
+    DynTrait : ?Sized + VirtualPtrFromBox<T>,
 >
     From<rust::Box<T>>
 for
@@ -201,10 +167,8 @@ for
             .field("vtable", &format_args!(
                 concat!(
                     "{:p}",
-                    // " ({})",
                 ),
                 self.__vtable(),
-                // DynTrait::type_name(self.__vtable()),
             ))
             .finish()
     }
