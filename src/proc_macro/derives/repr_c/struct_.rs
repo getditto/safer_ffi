@@ -54,7 +54,7 @@ fn derive (
         }
     } else {
         bail! {
-            "missing explicit `#[repr(C)]` annotation"
+            "missing explicit `#[repr(…)]` annotation"
         }
     }
 
@@ -185,7 +185,7 @@ fn derive (
                                 #ඞ::any::type_name::<#EachFieldTy>(),
                                 unsafe {
                                     #ඞ::slice::from_raw_parts(
-                                        <*const _>::cast::<u8>(&_it.#each_field_name),
+                                        <*const _>::cast::<#ඞ::u8>(&_it.#each_field_name),
                                         #ඞ::mem::size_of_val(&_it.#each_field_name),
                                     )
                                 },
