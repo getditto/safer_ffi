@@ -308,11 +308,11 @@ Point { x: 42.0, y: 42.0 }
 
 🚀🚀
 
-[callbacks]: https://getditto.github.io/safer_ffi/callbacks/_.md
-[cargo-toml]: https://getditto.github.io/safer_ffi/usage/cargo-toml.md
-[ffi_export]: https://getditto.github.io/safer_ffi/ffi-export/_.md
-[header-generation]: https://getditto.github.io/safer_ffi/usage/lib-rs.md#header-generation
-[derive_ReprC]: https://getditto.github.io/safer_ffi/derive-reprc/_.md
-[lib-rs]: https://getditto.github.io/safer_ffi/usage/lib-rs.md
+[callbacks]: https://getditto.github.io/safer_ffi/callbacks/_.html
+[cargo-toml]: https://getditto.github.io/safer_ffi/usage/cargo-toml.html
+[ffi_export]: https://getditto.github.io/safer_ffi/ffi-export/_.html
+[header-generation]: https://getditto.github.io/safer_ffi/usage/lib-rs.html#header-generation
+[derive_ReprC]: https://getditto.github.io/safer_ffi/derive-reprc/_.html
+[lib-rs]: https://getditto.github.io/safer_ffi/usage/lib-rs.html
 
 </details>
