@@ -50,12 +50,12 @@ headers = [&quot;safer-ffi/headers&quot;]</code></pre></div>
 can find by running <code>cargo search safer-ffi</code>.</p>
 </li>
 <li>
-<p>See the <a href="https://getditto.github.io/safer_ffi/usage/cargo-toml.md">dedicated chapter on <code>Cargo.toml</code></a> for more info.</p>
+<p>See the <a href="https://getditto.github.io/safer_ffi/usage/cargo-toml.html">dedicated chapter on <code>Cargo.toml</code></a> for more info.</p>
 </li>
 </ul>
 <h5 id="step-2-srclibrs"><a href="#step-2-srclibrs">Step 2: <code>src/lib.rs</code></a></h5>
 <p>Then, to export a Rust function to FFI, add the
-<a href="https://getditto.github.io/safer_ffi/derive-reprc/_.md"><code>#[derive_ReprC]</code></a> and <a href="https://getditto.github.io/safer_ffi/ffi-export/_.md"><code>#[ffi_export]</code></a> attributes
+<a href="https://getditto.github.io/safer_ffi/derive-reprc/_.html"><code>#[derive_ReprC]</code></a> and <a href="https://getditto.github.io/safer_ffi/ffi-export/_.html"><code>#[ffi_export]</code></a> attributes
 like so:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">::safer_ffi::prelude</span>::<span class="kw-2">*</span>;
@@ -93,7 +93,7 @@ like so:</p>
         .<span class="ident">generate</span>()
 }</code></pre></div>
 <ul>
-<li>See <a href="https://getditto.github.io/safer_ffi/usage/lib-rs.md">the dedicated chapter on <code>src/lib.rs</code></a> for more info.</li>
+<li>See <a href="https://getditto.github.io/safer_ffi/usage/lib-rs.html">the dedicated chapter on <code>src/lib.rs</code></a> for more info.</li>
 </ul>
 <h5 id="step-3-examplesgenerate-headersrs"><a href="#step-3-examplesgenerate-headersrs">Step 3: <code>examples/generate-headers.rs</code></a></h5>
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="ident">::std::io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
@@ -103,7 +103,7 @@ like so:</p>
 
 cargo run --features headers --example generate-headers</code></pre></div>
 <ul>
-<li>See <a href="https://getditto.github.io/safer_ffi/usage/lib-rs.md#header-generation">the dedicated chapter on header generation</a> for
+<li>See <a href="https://getditto.github.io/safer_ffi/usage/lib-rs.html#header-generation">the dedicated chapter on header generation</a> for
 more info.</li>
 </ul>
 <details><summary>Generated C header (<code>rust_points.h</code>)</summary>
