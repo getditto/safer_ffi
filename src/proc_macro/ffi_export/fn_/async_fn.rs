@@ -11,24 +11,24 @@ use {
 
 pub(in super)
 fn export (
-    Attrs { block_on, node_js }: Attrs,
+    Args { executor, node_js }: Args,
     fun: &'_ ItemFn,
 ) -> Result<TokenStream2>
 {
-    let block_on = match (block_on, fun.sig.asyncness) {
-        | (Some(block_on), Some(_asyncness)) => block_on,
-        | (Some(block_on), None) => bail!(
+    let block_on = match (executor, fun.sig.asyncness) {
+        | (Some(Executor { block_on, .. }), Some(_asyncness)) => block_on,
+        | (Some(Executor { kw: executor, .. }), None) => bail!(
             "\
                 `#[ffi_export(…)]`'s `executor` attribute \
                 can only be applied to an `async fn`. \
-            " => block_on
+            " => executor,
         ),
         | (None, Some(asyncness)) => bail!(
             "\
                 In order for `#[ffi_export(…)]` to support `async fn`, you \
                 need to feed it an `executor = …` parameter and then use \
                 `ffi_await!(…)` as the last expression of the function's body.\
-            " => asyncness
+            " => asyncness,
         ),
         | (None, None) => unreachable!(),
     };
@@ -285,51 +285,6 @@ fn export (
         )
     };
     Ok(ret)
-}
-
-use ::syn::parse::{Parse, ParseStream};
-
-#[derive(Default)]
-pub(in super)
-struct Attrs {
-    pub(in super) node_js: Option<kw::node_js>,
-    pub(in super) block_on: Option<Expr>,
-}
-
-mod kw {
-    ::syn::custom_keyword!(node_js);
-    ::syn::custom_keyword!(executor);
-}
-
-impl Parse for Attrs {
-    fn parse (
-        input: ParseStream<'_>,
-    ) -> Result<Attrs>
-    {
-        let mut ret = Attrs::default();
-        while input.is_empty().not() {
-            let snoopy = input.lookahead1();
-            match () {
-                | _case if snoopy.peek(kw::executor) => match ret.block_on {
-                    | Some(_) => return Err(input.error("duplicate attribute")),
-                    | ref mut it @ None => {
-                        let _: kw::executor = input.parse().unwrap();
-                        let _: Token![ = ] = input.parse()?;
-                        *it = Some(input.parse()?);
-                    },
-                },
-                | _case if snoopy.peek(kw::node_js) => match ret.node_js {
-                    | Some(_) => return Err(input.error("duplicate attribute")),
-                    | ref mut it @ None => {
-                        *it = Some(input.parse().unwrap());
-                    },
-                },
-                | _default => return Err(snoopy.error()),
-            }
-            let _: Option<Token![ , ]> = input.parse()?;
-        }
-        Ok(ret)
-    }
 }
 
 fn respan (

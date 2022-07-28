@@ -88,7 +88,10 @@ fn c_str (input: TokenStream)
 fn ffi_export (attrs: TokenStream, input: TokenStream)
   -> TokenStream
 {
-    unwrap!(ffi_export::ffi_export(attrs.into(), input.into()))
+    unwrap!(
+        ffi_export::ffi_export(attrs.into(), input.into())
+            .map(utils::mb_file_expanded)
+    )
 }
 
 #[proc_macro_attribute] pub

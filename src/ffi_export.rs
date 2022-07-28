@@ -326,55 +326,6 @@ macro_rules! __ffi_export__ {
             }}
         }
     }
-);
-
-(
-    $(#[doc = $doc:expr])*
-    $pub:vis const $VAR:ident : $T:ty = $value:expr;
-) => (
-    $(#[doc = $doc])*
-    $pub const $VAR : $T = $value;
-
-    #[cfg(not(target_arch = "wasm32"))]
-    $crate::__cfg_headers__! {
-        $crate::inventory::submit! {
-            #![crate = $crate]
-            $crate::FfiExport {
-                name: $crate::ඞ::stringify!($VAR),
-                gen_def: {
-                    |
-                        definer: &'_ mut dyn $crate::ඞ::Definer,
-                        lang: $crate::headers::Language,
-                    |
-                    {
-                        {
-                            use $crate::headers::{
-                                Language,
-                                languages::{self, HeaderLanguage},
-                            };
-                            let header_builder: &'static dyn HeaderLanguage =
-                                match lang {
-                                    | Language::C => &languages::C,
-                                    | Language::CSharp => &languages::CSharp,
-                                }
-                            ;
-                            header_builder
-                        }.emit_constant(
-                            definer,
-                            &[
-                                $($($doc),*)?
-                            ],
-                            $crate::ඞ::stringify!($VAR),
-                            &$crate::ඞ::PhantomData::<
-                                $crate::ඞ::CLayoutOf< $T >,
-                            >,
-                            &$VAR,
-                        )
-                    }
-                },
-            }
-        }
-    }
 )}
 
 #[doc(hidden)] #[macro_export]
