@@ -2,7 +2,7 @@ use super::*;
 
 pub(in super)
 fn handle (
-    args: parse::Nothing,
+    _args: parse::Nothing,
     Ty @ _: &'_ Ident,
     generics: &'_ Generics,
     input: &dyn ToTokens,

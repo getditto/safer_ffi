@@ -114,7 +114,7 @@ macro_rules! __let_quote {
         $($rest:tt)* )? $(;)?
     ) => (
         let quoted = crate::utils::LazyQuote(
-            || ::quote::quote!(
+            || ::quote::quote_spanned!(::proc_macro2::Span::mixed_site()=>
                 $($path)* $last_segment
             ),
             None.into(),

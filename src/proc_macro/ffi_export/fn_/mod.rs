@@ -10,6 +10,14 @@ const SUPPORTED_ABIS: &[&str] = &[
     "C",
 ];
 
+fn concrete_c_type (T @ _: &'_ Type)
+  -> Type
+{
+    parse_quote_spanned!(T.span()=>
+        <#T as ::safer_ffi::ඞ::ConcreteReprC>::ConcreteCLayout
+    )
+}
+
 pub(in super)
 fn handle (
     args: Args,
@@ -18,8 +26,10 @@ fn handle (
 {
     // async fn case.
     if args.executor.is_some() || fun.sig.asyncness.is_some() {
-        #[cfg(feature = "async-fn")]
-        return async_fn::export(args, &fun);
+        if true {
+            #[cfg(feature = "async-fn")]
+            return async_fn::export(args, &fun);
+        }
         bail! {
             "\
                 Support for `#[ffi_export(executor = …)] async fn` requires \
@@ -36,6 +46,9 @@ fn handle (
     // positives against us.
     fun.attrs.push(parse_quote!(
         #[allow(improper_ctypes_definitions)]
+    ));
+    fun.attrs.push(parse_quote!(
+        #[forbid(elided_lifetimes_in_paths)]
     ));
     // Ergonomics: lack-of-`extern` defaults to `extern "C"`.
     fun.sig.abi.get_or_insert_with(|| parse_quote!(
@@ -105,6 +118,14 @@ fn handle (
             }
         }
     });
+    fn arg_tys (fun: &ItemFn)
+      -> impl Iterator<Item = &'_ Type>
+    {
+        fun.sig.inputs.iter().map(|fn_arg| match *fn_arg {
+            | FnArg::Typed(PatType { ref ty, .. }) => &**ty,
+            | FnArg::Receiver(_) => unreachable!(),
+        })
+    }
     // C-ize the return type.
     match ffi_fun.sig.output {
         ref mut out @ ReturnType::Default => *out = parse_quote!(
@@ -122,9 +143,14 @@ fn handle (
         ..
     } = fun;
     let ref fname_str = fname.to_string();
-    ffi_fun.sig.ident = format_ident!("{}__ffi_export__", fname);
+    ffi_fun.sig.ident = format_ident!(
+        "{}__ffi_export__", fname,
+        span = fname.span().resolved_at(Span::mixed_site()),
+    );
     ffi_fun.attrs.push(parse_quote!(
-        #[export_name = #fname_str]
+        #[cfg_attr(not(target_arch = "wasm32"),
+            export_name = #fname_str,
+        )]
     ));
     #[apply(let_quote!)]
     use ::safer_ffi::{
@@ -144,9 +170,151 @@ fn handle (
         ).1
     });
 
+    #[cfg_attr(not(feature = "js"), allow(unused))]
+    let mut js_body = quote!();
+    #[cfg(feature = "js")]
+    if let Some(args_node_js) = &args.node_js {
+        #[apply(let_quote!)]
+        use ::safer_ffi::{
+            ඞ,
+            layout,
+            node_js,
+            node_js::{napi, ReprNapi},
+        };
+
+        let span = Span::mixed_site().located_at(args_node_js.kw.span());
+        let fname = &ffi_fun.sig.ident;
+        let orig_fname = &fun.sig.ident;
+        let EachArgTyStatic @ _ =
+            arg_tys(&fun).vmap(|ty| {
+                let mut ty = ty.clone();
+                visit_mut::VisitMut::visit_type_mut(
+                    &mut utils::RemapNonStaticLifetimesTo { new_lt_name: "static" },
+                    &mut ty,
+                );
+                ty
+            })
+        ;
+        let EachArgTyJs @ _ =
+            EachArgTyStatic.iter().map(|ty| quote!(
+                <#ඞ::CLayoutOf<#ty> as #ReprNapi>::NapiValue
+            ))
+        ;
+        let each_arg_spanned_at_fun = each_arg.iter().map(|arg| {
+            format_ident!("{}", arg, span = arg.span().located_at(fun.sig.ident.span()))
+        });
+        let ty_aliases = quote_spanned!(span=>
+            // We want to use `type $arg_name = <$arg_ty as …>::Assoc;`
+            // (with the lifetimes appearing there having been replaced with
+            // `'static`, to soothe `#[wasm_bindgen]`).
+            //
+            // To avoid polluting the namespace with that many `$arg_name`s,
+            // we will namespace those type aliases.
+            mod __ty_aliases {
+                #![allow(nonstandard_style, unused_parens)]
+                use super::*;
+                #(
+                    // Incidentally, the usage of a `type` alias ensures
+                    // `__make_all_lifetimes_static!` is not missing hidden
+                    // lifetime parameters in paths (_e.g._, `Cow<str>`, or
+                    // more on point, `char_p::Ref`). Indeed, when one does
+                    // that inside a type alias, a very nice error message
+                    // will complain about it.
+                    // (this is for version sof Rust somehow ignoring the
+                    // `elided_lifetimes_in_paths` lint)
+                    pub(in super)
+                    type #each_arg_spanned_at_fun = #EachArgTyJs;
+                )*
+            }
+        );
+        let EachArgTyJs = each_arg.iter().map(|arg| quote!(
+            __ty_aliases::#arg
+        ));
+        let (generics, _, where_clause) = fun.sig.generics.split_for_impl();
+        let body = |call_and_return| quote_spanned!(span=>
+            const _: () = {
+                #ty_aliases
+
+                #[#node_js::derive::js_export(js_name = #orig_fname)]
+                fn __node_js #generics (
+                    #( #each_arg: #EachArgTyJs ),*
+                ) -> #node_js::Result<#node_js::JsUnknown>
+                #where_clause
+                {
+                    let __ctx__ = #node_js::derive::__js_ctx!();
+                    #(
+                        let #each_arg: #ඞ::CLayoutOf<#EachArgTyStatic> =
+                            #node_js::ReprNapi::from_napi_value(
+                                __ctx__.env,
+                                #each_arg,
+                            )?
+                        ;
+                    )*
+
+                    #call_and_return
+                }
+            };
+        );
+        // where
+        let call_and_return = if let Some(async_worker) = &args_node_js.async_worker {
+            quote_spanned!(Span::mixed_site().located_at(async_worker.span())=>
+                #[cfg(not(target_arch = "wasm32"))] {
+                    #node_js::JsPromise::from_task_spawned_on_worker_pool(
+                        __ctx__.env,
+                        unsafe {
+                            fn __assert_send<__T : #ඞ::marker::Send>() {}
+                            #(
+                                let #each_arg = {
+                                    // The raw `CType` may not be `Send` (_e.g._, it
+                                    // may be a raw pointer), but we can turn off the
+                                    // lint if the `ReprC` whence it originated is
+                                    // `Send`.
+                                    let _ = __assert_send::<#EachArgTyStatic>;
+                                    #node_js::UnsafeAssertSend::new(#each_arg)
+                                };
+                            )*
+                            move || {
+                                #(
+                                    let #each_arg = {
+                                        #node_js::UnsafeAssertSend::into_inner(#each_arg)
+                                    };
+                                )*
+                                #fname( #(#each_arg),* )
+                            }
+                        },
+                    )
+                    .map(|it| it.into_unknown())
+                }
+
+                #[cfg(target_arch = "wasm32")] {
+                    let ret = unsafe {
+                        #fname( #(#each_arg),* )
+                    };
+                    #ReprNapi::to_napi_value(ret, __ctx__.env)
+                        .map(|it| #node_js::JsPromise::<#node_js::JsUnknown>::resolve(
+                            it.as_ref(),
+                        ))
+                        .map(|it| it.into_unknown())
+                }
+            )
+        } else {
+            quote_spanned!(Span::mixed_site()=>
+                let ret = unsafe {
+                    #fname( #(#each_arg),* )
+                };
+                #ReprNapi::to_napi_value(ret, __ctx__.env)
+                    .map(|it| it.into_unknown())
+            )
+        };
+        js_body.extend(body(call_and_return));
+    };
+
     let mut fun = fun;
     fun.block.stmts.insert(0, parse_quote!(
-        { #ffi_fun }
+        {
+            #ffi_fun
+            #js_body
+        }
     ));
 
     let mut ret = fun.to_token_stream();
@@ -160,12 +328,7 @@ fn handle (
             ),
             | ReturnType::Type(_, ref ty) => &**ty,
         };
-        let ref EachArgTy @ _ =
-            fun.sig.inputs.iter().vmap(|fn_arg| match *fn_arg {
-                | FnArg::Typed(PatType { ref ty, .. }) => ty,
-                | FnArg::Receiver(_) => unreachable!(),
-            })
-        ;
+        let ref EachArgTy @ _ = arg_tys(&fun).vec();
         let each_doc = utils::extract_docs(&fun.attrs)?;
         let (generics, _, where_clause) = fun.sig.generics.split_for_impl();
         ret.extend(quote!(
@@ -195,9 +358,9 @@ fn handle (
                                     )
                                 );
                             }
-                            #(
-                                #headers::__define_self__::<#EachArgTy>(definer, lang)?;
-                            )*
+                        #(
+                            #headers::__define_self__::<#EachArgTy>(definer, lang)?;
+                        )*
                             #headers::__define_self__::<#RetTy>(definer, lang)?;
                             #headers::__define_fn__(
                                 definer,
@@ -225,13 +388,6 @@ fn handle (
             }
         ));
     }
-    Ok(ret)
-}
 
-fn concrete_c_type (T @ _: &'_ Type)
-  -> Type
-{
-    parse_quote_spanned!(T.span()=>
-        <#T as ::safer_ffi::ඞ::ConcreteReprC>::ConcreteCLayout
-    )
+    Ok(ret)
 }

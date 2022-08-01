@@ -7,6 +7,9 @@ struct Args {
     pub(in crate) executor: Option<Executor>,
 }
 
+#[cfg_attr(not(feature = "js"),
+    allow(dead_code),
+)]
 pub(in crate)
 struct NodeJs {
     pub(in crate) kw: kw::node_js,
@@ -17,6 +20,9 @@ pub(in crate)
 struct Executor {
     pub(in crate) kw: kw::executor,
     pub(in crate) _eq: Token![=],
+    #[cfg_attr(not(feature = "async_fn"),
+        allow(dead_code),
+    )]
     pub(in crate) block_on: Expr,
 }
 
@@ -36,7 +42,7 @@ impl Parse for Args {
             let snoopy = input.lookahead1();
             match () {
                 | _case if snoopy.peek(kw::executor) => {
-                    if let Some(it) = &ret.executor {
+                    if ret.executor.is_some() {
                         return Err(input.error("duplicate parameter"));
                     }
                     ret.executor = Some(Executor {
@@ -47,7 +53,7 @@ impl Parse for Args {
                 },
 
                 | _case if snoopy.peek(kw::node_js) => {
-                    if let Some(it) = &ret.node_js {
+                    if ret.node_js.is_some() {
                         return Err(input.error("duplicate parameter"));
                     }
                     ret.node_js = Some(NodeJs {
