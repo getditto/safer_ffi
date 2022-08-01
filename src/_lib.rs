@@ -275,9 +275,6 @@ mod closure;
 pub
 mod dyn_traits;
 
-#[path = "ffi_export.rs"]
-mod __ffi_export;
-
 pub
 mod ptr;
 
