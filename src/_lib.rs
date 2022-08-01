@@ -269,12 +269,11 @@ pub
 mod closure;
 
 #[cfg(feature = "dyn-traits")]
-#[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "dyn-traits")))]
+#[cfg_attr(feature = "nightly",
+    doc(cfg(feature = "dyn-traits")),
+)]
 pub
 mod dyn_traits;
-
-#[path = "ffi_export.rs"]
-mod __ffi_export;
 
 pub
 mod ptr;
@@ -414,7 +413,7 @@ pub mod node_js;
 
 #[apply(hidden_export)]
 #[allow(missing_copy_implementations, missing_debug_implementations)]
-struct __PanicOnDrop__; impl Drop for __PanicOnDrop__ {
+struct __PanicOnDrop__ {} impl Drop for __PanicOnDrop__ {
     fn drop (self: &'_ mut Self)
     {
         panic!()
@@ -422,11 +421,12 @@ struct __PanicOnDrop__; impl Drop for __PanicOnDrop__ {
 }
 
 #[apply(hidden_export)]
-macro_rules! __abort_with_msg__ { ($($tt:tt)*) => ({
-    $crate::ඞ::__error__!($($tt)*);
-    let _panic_on_drop = $crate::__PanicOnDrop__;
-    $crate::ඞ::panic!($($tt)*);
-})}
+macro_rules! __abort_with_msg__ { ($($tt:tt)*) => (
+    match ($crate::__PanicOnDrop__ {}) { _ => {
+        $crate::ඞ::__error__!($($tt)*);
+        $crate::ඞ::panic!($($tt)*);
+    }}
+)}
 
 #[cfg(target_arch = "wasm32")]
 #[allow(dead_code)]
@@ -477,14 +477,21 @@ mod __ {
     };
 
     #[cfg(feature = "headers")]
-    pub use crate::headers::{
-        Definer,
-        languages::{
-            self,
-            EnumVariant,
-            FunctionArg,
-            HeaderLanguage,
-            StructField,
+    pub use {
+        ::inventory,
+        crate::{
+            headers::{
+                Definer,
+                Language,
+                languages::{
+                    self,
+                    EnumVariant,
+                    FunctionArg,
+                    HeaderLanguage,
+                    StructField,
+                },
+            },
+            FfiExport,
         },
     };
 
@@ -552,6 +559,25 @@ mod __ {
         },
     }
     pub use __error__;
+
+    #[allow(missing_debug_implementations)]
+    pub
+    struct UnwindGuard /* = */ (
+        pub &'static str,
+    );
+
+    impl Drop for UnwindGuard {
+        fn drop (self: &'_ mut Self)
+        {
+            let &mut Self(fname) = self;
+            __abort_with_msg__!("\
+                Error, attempted to panic across the FFI \
+                boundary of `{fname}()`, \
+                which is Undefined Behavior.\n\
+                Aborting for soundness.\
+            ");
+        }
+    }
 
     #[cfg(feature = "alloc")]
     pub

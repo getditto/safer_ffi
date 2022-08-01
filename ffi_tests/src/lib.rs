@@ -36,6 +36,16 @@ fn returns_a_fn_ptr ()
     f
 }
 
+/// https://github.com/getditto/safer_ffi/issues/45
+#[ffi_export]
+fn _issue_45<'a, 'b> (_: i32)
+  -> i32
+where
+    'a : 'b,
+{
+    unimplemented!();
+}
+
 /// Same as `concat`, but with a callback-based API to auto-free the created
 /// string.
 #[ffi_export]

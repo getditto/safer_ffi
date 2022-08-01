@@ -235,7 +235,7 @@ fn test_with_concat ()
         fn with_concat (
             fst: char_p::Ref<'_>,
             snd: char_p::Ref<'_>,
-            cb: RefDynFnMut1<(), char_p::Raw>,
+            cb: RefDynFnMut1<'_, (), char_p::Raw>,
         )
         {
             let concat = &*format!("{}{}\0", fst.to_str(), snd.to_str());

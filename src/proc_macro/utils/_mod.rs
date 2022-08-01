@@ -252,3 +252,13 @@ impl ::quote::ToTokens for LazyQuote {
             .to_tokens(tokens)
     }
 }
+
+pub(in crate)
+fn parenthesized<T> (
+    input: ParseStream<'_>,
+    scope: impl FnOnce(token::Paren, ParseStream<'_>) -> Result<T>,
+) -> Result<T>
+{
+    let contents;
+    scope(parenthesized!(contents in input), &contents)
+}

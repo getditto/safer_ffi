@@ -1,7 +1,6 @@
 #![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(nonstandard_style, unused_imports)]
-// #![allow(warnings)] // #![feature(proc_macro_span)]
 
 use {
     ::core::{
@@ -88,7 +87,10 @@ fn c_str (input: TokenStream)
 fn ffi_export (attrs: TokenStream, input: TokenStream)
   -> TokenStream
 {
-    unwrap!(ffi_export::ffi_export(attrs.into(), input.into()))
+    unwrap!(
+        ffi_export::ffi_export(attrs.into(), input.into())
+            .map(utils::mb_file_expanded)
+    )
 }
 
 #[proc_macro_attribute] pub

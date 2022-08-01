@@ -77,6 +77,12 @@ public enum triforce_t : byte {
 
 public unsafe partial class Ffi {
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    Int32 _issue_42 (
+        Int32 __arg_0);
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     Int32 async_get_ft ();
 }
 

@@ -1,6 +1,6 @@
 [lib]
 crate-type = [
-    "rlib", # cargo test
+    "lib", # cargo test
     "staticlib", # C test (os X)
     "cdylib", # CSharp test
 ]
@@ -15,13 +15,12 @@ edition = "2018"
 
 [dependencies.safer-ffi]
 path = ".."
-features = ["async-fn"]
+features = [
+    "async-fn",
+]
 
 [features]
 generate-headers = ["safer-ffi/csharp-headers"]
-
-# [dev-dependencies]
-# cc = "1.0.50"
 
 [profile.dev]
 panic = "unwind"
