@@ -172,10 +172,11 @@
 <span id="167">167</span>
 <span id="168">168</span>
 <span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::all</span>)]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">nonstandard_style</span>, <span class="ident">unused_imports</span>)]</span>
-<span class="comment">// #![allow(warnings)] // #![feature(proc_macro_span)]</span>
 
 <span class="kw">use</span> {
     <span class="ident">::core</span>::{
@@ -262,7 +263,10 @@
 <span class="kw">fn</span> <span class="ident">ffi_export</span> (<span class="ident">attrs</span>: <span class="ident">TokenStream</span>, <span class="ident">input</span>: <span class="ident">TokenStream</span>)
   -&gt; <span class="ident">TokenStream</span>
 {
-    <span class="macro">unwrap!</span>(<span class="ident">ffi_export::ffi_export</span>(<span class="ident">attrs</span>.<span class="ident">into</span>(), <span class="ident">input</span>.<span class="ident">into</span>()))
+    <span class="macro">unwrap!</span>(
+        <span class="ident">ffi_export::ffi_export</span>(<span class="ident">attrs</span>.<span class="ident">into</span>(), <span class="ident">input</span>.<span class="ident">into</span>())
+            .<span class="ident">map</span>(<span class="ident">utils::mb_file_expanded</span>)
+    )
 }
 
 <span class="attribute">#[<span class="ident">proc_macro_attribute</span>]</span> <span class="kw">pub</span>

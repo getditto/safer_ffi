@@ -319,7 +319,7 @@
         $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">*</span> )<span class="question-mark">?</span> $(;)<span class="question-mark">?</span>
     ) =&gt; (
         <span class="kw">let</span> <span class="ident">quoted</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::utils::LazyQuote</span>(
-            <span class="op">|</span><span class="op">|</span> <span class="macro">::quote::quote!</span>(
+            <span class="op">|</span><span class="op">|</span> <span class="macro">::quote::quote_spanned!</span>(<span class="ident">::proc_macro2::Span::mixed_site</span>()=&gt;
                 $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>)<span class="op">*</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">last_segment</span>
             ),
             <span class="prelude-val">None</span>.<span class="ident">into</span>(),
