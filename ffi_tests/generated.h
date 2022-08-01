@@ -98,6 +98,11 @@ triforce_t;
 
 /** <No documentation available> */
 int32_t
+_issue_42 (
+    int32_t __arg_0);
+
+/** <No documentation available> */
+int32_t
 async_get_ft (void);
 
 /** \brief
