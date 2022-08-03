@@ -97,9 +97,12 @@ fn handle (
                         ..
                     })
                         /* should not be needed thanks to mixed site hygiene */
-                        // // ensure user-provided names cannot collide with the
-                        // // ones we generate.
-                        // if arg_name.to_string().starts_with(ARG_PREFIX).not()
+                        // ensure user-provided names cannot collide with the
+                        // ones we generate.
+                        //   - While mixed-site hygiene would help on the Rust
+                        //     side, it won't on the generated code side:
+                        //     `./generated.h:144:13: error: redefinition of parameter '__arg_1'`
+                        if arg_name.to_string().starts_with(ARG_PREFIX).not()
                     => {
                         *by_ref = None;
                         *mutability = None;
@@ -220,7 +223,7 @@ fn handle (
                     // more on point, `char_p::Ref`). Indeed, when one does
                     // that inside a type alias, a very nice error message
                     // will complain about it.
-                    // (this is for version sof Rust somehow ignoring the
+                    // (this is for versions of Rust somehow ignoring the
                     // `elided_lifetimes_in_paths` lint)
                     pub(in super)
                     type #each_arg_spanned_at_fun = #EachArgTyJs;
