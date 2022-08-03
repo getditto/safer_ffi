@@ -96,9 +96,11 @@ enum triforce {
 #endif
 triforce_t;
 
-/** <No documentation available> */
+/** \brief
+ *  https://github.com/getditto/safer_ffi/issues/45
+ */
 int32_t
-_issue_42 (
+_issue_45 (
     int32_t __arg_0);
 
 /** <No documentation available> */

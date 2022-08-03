@@ -76,8 +76,11 @@ public enum triforce_t : byte {
 }
 
 public unsafe partial class Ffi {
+    /// <summary>
+    /// https://github.com/getditto/safer_ffi/issues/45
+    /// </summary>
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    Int32 _issue_42 (
+    Int32 _issue_45 (
         Int32 __arg_0);
 }
 
