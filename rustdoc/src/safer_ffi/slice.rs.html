@@ -765,7 +765,7 @@
 ;
 
 <span class="macro">ReprC!</span> {
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">nodejs</span>)]</span>
+    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">js</span>)]</span>
     <span class="doccomment">/// Like [`slice_ref`] and [`slice_mut`], but with any lifetime attached</span>
     <span class="doccomment">/// whatsoever.</span>
     <span class="doccomment">///</span>
@@ -841,7 +841,7 @@
 
 <span class="macro">cfg_alloc!</span> {
     <span class="macro">ReprC!</span> {
-        <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">nodejs</span>)]</span>
+        <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">js</span>)]</span>
         <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">docs</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>), <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)))]</span>
         <span class="doccomment">/// [`Box`][`rust::Box`]`&lt;[T]&gt;` (fat pointer to a slice),</span>
         <span class="doccomment">/// but with a guaranteed `#[repr(C)]` layout.</span>
@@ -1006,7 +1006,7 @@
 }
 
 <span class="macro">ReprC!</span> {
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">nodejs</span>)]</span>
+    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">js</span>)]</span>
     <span class="doccomment">/// `&amp;&#39;lt [T]` but with a guaranteed `#[repr(C)]` layout.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # C layout (for some given type T)</span>

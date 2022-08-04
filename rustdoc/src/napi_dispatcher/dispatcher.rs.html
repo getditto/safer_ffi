@@ -25,7 +25,6 @@
 <span id="20">20</span>
 <span id="21">21</span>
 <span id="22">22</span>
-<span id="23">23</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">warn</span>(<span class="ident">warnings</span>)]</span> <span class="comment">// Prevent `-Dwarnings` from causing breakage.</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::all</span>)]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
@@ -42,7 +41,6 @@
     <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">napi</span>;
     <span class="kw">pub</span> <span class="kw">use</span> ::{
         <span class="ident">napi</span>::<span class="kw-2">*</span>,
-        <span class="comment">// napi_derive as derive,</span>
     };
 
     <span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">napi_derive</span> <span class="kw">as</span> <span class="ident">derive</span>;

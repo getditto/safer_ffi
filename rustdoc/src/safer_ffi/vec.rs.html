@@ -196,7 +196,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::slice</span>::<span class="kw-2">*</span>;
 
 <span class="macro">ReprC!</span> {
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">nodejs</span>)]</span>
+    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">js</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">docs</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>), <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)))]</span>
     <span class="doccomment">/// Same as [`Vec&lt;T&gt;`][`rust::Vec`], but with guaranteed `#[repr(C)]` layout</span>
     <span class="kw">pub</span>

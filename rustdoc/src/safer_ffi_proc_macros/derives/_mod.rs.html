@@ -231,7 +231,7 @@
         <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">utils::mb_file_expanded</span>(<span class="ident">output</span>));
     }
 
-    <span class="comment">// Compatibility with legacy mode (`nodejs` annotations):</span>
+    <span class="comment">// Compatibility with legacy mode (`js` annotations):</span>
     <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">attrs</span>, <span class="ident">rest</span>) <span class="op">=</span> <span class="ident">Parser::parse2</span>(
         <span class="op">|</span><span class="ident">input</span>: <span class="ident">ParseStream</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">|</span> <span class="prelude-ty">Result</span>::<span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="ident">::Ok</span>(
             (
@@ -252,9 +252,9 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span>
             <span class="ident">idents</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">position</span>(<span class="op">|</span><span class="ident">repr</span><span class="op">|</span> <span class="ident">repr</span> <span class="op">==</span> <span class="string">&quot;nodejs&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">repr</span> <span class="op">==</span> <span class="string">&quot;js&quot;</span>)
+                .<span class="ident">position</span>(<span class="op">|</span><span class="ident">repr</span><span class="op">|</span> <span class="ident">repr</span> <span class="op">==</span> <span class="string">&quot;js&quot;</span>)
         {
-            <span class="comment">// `repr(C, nodejs)` case.</span>
+            <span class="comment">// `repr(C, js)` case.</span>
             <span class="comment">// Are we targetting js *right now*?</span>
             <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;js&quot;</span>) {
                 <span class="comment">// Legacy mode.</span>

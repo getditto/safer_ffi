@@ -199,7 +199,7 @@
         .<span class="ident">into_iter</span>()
         .<span class="ident">enumerate</span>()
         .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">binding</span>)<span class="op">|</span> -&gt; <span class="ident">Stmt</span> { <span class="macro">parse_quote!</span>(
-            <span class="kw">let</span> #<span class="ident">binding</span> <span class="op">=</span> <span class="ident">::safer_ffi::node_js::derive</span>::#<span class="macro">js_ctx!</span>().<span class="ident">get</span>(#<span class="ident">i</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> #<span class="ident">binding</span> <span class="op">=</span> <span class="ident">::safer_ffi::js::derive</span>::#<span class="macro">js_ctx!</span>().<span class="ident">get</span>(#<span class="ident">i</span>)<span class="question-mark">?</span>;
         )})
         .<span class="ident">chain</span>(<span class="ident">mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="ident">fun</span>.<span class="ident">block</span>.<span class="ident">stmts</span>))
         .<span class="ident">collect</span>()
@@ -215,7 +215,7 @@
         <span class="macro">quote!</span>()
     } <span class="kw">else</span> {
         <span class="macro">quote!</span>(
-            <span class="kw">use</span> <span class="ident">::safer_ffi::node_js</span> <span class="kw">as</span> <span class="ident">napi</span>;
+            <span class="kw">use</span> <span class="ident">::safer_ffi::js</span> <span class="kw">as</span> <span class="ident">napi</span>;
         )
     };
     <span class="kw">let</span> <span class="ident">stmts</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">fun</span>.<span class="ident">block</span>.<span class="ident">stmts</span>;
@@ -223,7 +223,7 @@
         <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
             #<span class="ident">napi_import</span>
 
-            <span class="attribute">#[<span class="ident">::safer_ffi::node_js::derive::js_function</span>(#<span class="ident">inputs_count</span>)]</span>
+            <span class="attribute">#[<span class="ident">::safer_ffi::js::derive::js_function</span>(#<span class="ident">inputs_count</span>)]</span>
             <span class="comment">// #fun</span>
             <span class="kw">fn</span> #<span class="ident">name</span> (
                 #<span class="ident">js_ctx</span>: <span class="ident">napi::CallContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
@@ -232,10 +232,10 @@
                 #(#<span class="ident">stmts</span>)<span class="op">*</span>
             }
 
-            <span class="macro">::safer_ffi::node_js::registering::submit!</span> {
-                <span class="attribute">#![<span class="kw">crate</span> <span class="op">=</span> <span class="ident">::safer_ffi::node_js::registering</span>]</span>
+            <span class="macro">::safer_ffi::js::registering::submit!</span> {
+                <span class="attribute">#![<span class="kw">crate</span> <span class="op">=</span> <span class="ident">::safer_ffi::js::registering</span>]</span>
 
-                <span class="ident">::safer_ffi::node_js::registering::NapiRegistryEntry::NamedMethod</span> {
+                <span class="ident">::safer_ffi::js::registering::NapiRegistryEntry::NamedMethod</span> {
                     <span class="ident">name</span>: <span class="macro">::core::stringify!</span>(#<span class="ident">js_name</span>),
                     <span class="ident">method</span>: #<span class="ident">name</span>,
                 }

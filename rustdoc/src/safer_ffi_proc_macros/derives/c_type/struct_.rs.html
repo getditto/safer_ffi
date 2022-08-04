@@ -232,7 +232,7 @@
         <span class="kw">let</span> (<span class="ident">params</span>, <span class="ident">bounds</span>) <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">my_split</span>();
         <span class="ident">ret</span>.<span class="ident">extend</span>(<span class="macro">quote!</span>(
             <span class="macro">::safer_ffi::layout::CType!</span> {
-                <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">nodejs</span>)]</span>
+                <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">js</span>)]</span>
                 #<span class="ident">pub_</span>
                 <span class="kw">struct</span> #<span class="ident">StructName</span>
                     [#<span class="ident">params</span>]
