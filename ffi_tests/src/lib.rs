@@ -61,8 +61,8 @@ fn with_concat (
 
 /// Returns a pointer to the maximum integer of the input slice, or `NULL` if
 /// it is empty.
-#[ffi_export]
-fn max<'a> (
+#[ffi_export(rename = "max")]
+fn max_but_with_a_weird_rust_name<'a> (
     xs: c_slice::Ref<'a, i32>,
 ) -> Option<&'a i32>
 {

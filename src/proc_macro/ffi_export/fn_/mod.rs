@@ -41,6 +41,20 @@ fn handle (
         }
     }
 
+    let mut storage = None;
+    let export_name_str: &LitStr =
+        if let Some(Rename { new_name, .. }) = &args.rename {
+            new_name
+        } else {
+            storage.get_or_insert(
+                LitStr::new(
+                    &fun.sig.ident.to_string(),
+                    fun.sig.ident.span(),
+                )
+            )
+        }
+    ;
+
     // *We* handle the C-safety heuristics in a more accurate manner than
     // rustc's lint, so let's disable it to prevent it from firing false
     // positives against us.
@@ -145,14 +159,13 @@ fn handle (
         },
         ..
     } = fun;
-    let ref fname_str = fname.to_string();
     ffi_fun.sig.ident = format_ident!(
         "{}__ffi_export__", fname,
         span = fname.span().resolved_at(Span::mixed_site()),
     );
     ffi_fun.attrs.push(parse_quote!(
         #[cfg_attr(not(target_arch = "wasm32"),
-            export_name = #fname_str,
+            export_name = #export_name_str,
         )]
     ));
     #[apply(let_quote!)]
@@ -163,7 +176,7 @@ fn handle (
     *ffi_fun.block = parse_quote_spanned!(Span::mixed_site()=> {
         let abort_on_unwind_guard;
         (
-            abort_on_unwind_guard = #ඞ::UnwindGuard(#fname_str),
+            abort_on_unwind_guard = #ඞ::UnwindGuard(#export_name_str),
             unsafe {
                 #layout::into_raw(
                     #fname( #(#layout::from_raw_unchecked(#each_arg)),* )
@@ -187,7 +200,18 @@ fn handle (
 
         let span = Span::mixed_site().located_at(args_node_js.kw.span());
         let fname = &ffi_fun.sig.ident;
-        let orig_fname = &fun.sig.ident;
+        let mut storage = None;
+        let export_name =
+            if let Some(Rename { ref new_name, .. }) = args.rename {
+                storage.get_or_insert(
+                    new_name
+                        .parse()
+                        .expect("checked when parsing args")
+                )
+            } else {
+                &fun.sig.ident
+            }
+        ;
         let EachArgTyStatic @ _ =
             arg_tys(&fun).vmap(|ty| {
                 let mut ty = ty.clone();
@@ -238,7 +262,7 @@ fn handle (
             const _: () = {
                 #ty_aliases
 
-                #[#node_js::derive::js_export(js_name = #orig_fname)]
+                #[#node_js::derive::js_export(js_name = #export_name)]
                 fn __node_js #generics (
                     #( #each_arg: #EachArgTyJs ),*
                 ) -> #node_js::Result<#node_js::JsUnknown>
@@ -339,7 +363,7 @@ fn handle (
             #ඞ::inventory::submit! {
                 #![crate = #ඞ]
                 #ඞ::FfiExport {
-                    name: #fname_str,
+                    name: #export_name_str,
                     gen_def: {
                         fn gen_def #generics (
                             definer: &'_ mut dyn #ඞ::Definer,
@@ -349,13 +373,13 @@ fn handle (
                         {#ඞ::io::Result::<()>::Ok({
                             // FIXME: this merges the value namespace with the type
                             // namespace...
-                            if ! definer.insert(#fname_str) {
+                            if ! definer.insert(#export_name_str) {
                                 return #ඞ::result::Result::Err(
                                     #ඞ::io::Error::new(
                                         #ඞ::io::ErrorKind::AlreadyExists,
                                         #ඞ::concat!(
                                             "Error, attempted to declare `",
-                                            #fname_str,
+                                            #export_name_str,
                                             "` while another declaration already exists",
                                         ),
                                     )
@@ -369,7 +393,7 @@ fn handle (
                                 definer,
                                 lang,
                                 &[ #(#each_doc),* ],
-                                #fname_str,
+                                #export_name_str,
                                 &[
                                     #(
                                         #ඞ::FunctionArg {
