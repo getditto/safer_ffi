@@ -11,4 +11,4 @@ edition = "2018"
 napi-build = { version = "=1.0.1", optional = true }
 
 [features]
-node-js = ["napi-build"]
+js = ["napi-build"]

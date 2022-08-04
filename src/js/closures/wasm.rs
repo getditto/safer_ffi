@@ -175,7 +175,7 @@ match_! {(
                 &[
                     // send_ret
                     {
-                        use crate::node_js::__::wasm_bindgen;
+                        use crate::js::__::wasm_bindgen;
 
                         #[wasm_bindgen(inline_js = r#"
                             export function mk_send_ret() {

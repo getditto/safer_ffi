@@ -11,7 +11,7 @@ use {
 
 pub(in super)
 fn export (
-    Args { executor, node_js, rename }: Args,
+    Args { executor, js, rename }: Args,
     fun: &'_ ItemFn,
 ) -> Result<TokenStream2>
 {
@@ -34,7 +34,7 @@ fn export (
     };
     // The body of the function is expected to be of the form:
     // ```rust
-    // #[ffi_export(node_js, executor = …)]
+    // #[ffi_export(js, executor = …)]
     // async fn ffi_func (args…)
     //   -> Ret
     // {
@@ -96,8 +96,8 @@ fn export (
 
     let block_on = respan(fun.block.span(), block_on.into_token_stream());
 
-    let ret = if cfg!(feature = "node-js") {
-        if node_js.is_none() {
+    let ret = if cfg!(feature = "js") {
+        if js.is_none() {
             // Nothing to do in this branch:
             return Ok(fun.into_token_stream());
         }
@@ -115,15 +115,15 @@ fn export (
         let mut fun_signature = fun.sig.clone();
         fun_signature.asyncness = None;
         fun_signature.ident = Ident::new(
-            "__node_js",
+            "__js",
             fname.span().resolved_at(Span::call_site()),
         );
         let RetTy @ _ =
             match ::core::mem::replace(
                 &mut fun_signature.output,
                 parse_quote!(
-                  -> ::safer_ffi::node_js::Result<
-                        ::safer_ffi::node_js::JsUnknown
+                  -> ::safer_ffi::js::Result<
+                        ::safer_ffi::js::JsUnknown
                     >
                 ),
             )
@@ -183,7 +183,7 @@ fn export (
         ;
 
         let safer_ffi_js_promise_spawn = quote_spanned!(ffi_await=>
-            ::safer_ffi::node_js::JsPromise::spawn
+            ::safer_ffi::js::JsPromise::spawn
         );
         let async_move = quote_spanned!(ffi_await=>
             async move
@@ -206,7 +206,7 @@ fn export (
                     since the corresponding `ReprC` type is \
                     already captured by the future, the `CType` \
                     wrapper can be assumed to be `Send`.";
-                    ::safer_ffi::node_js::UnsafeAssertSend::new(
+                    ::safer_ffi::js::UnsafeAssertSend::new(
                         ::safer_ffi::layout::into_raw(ret)
                     )
                 }
@@ -236,22 +236,22 @@ fn export (
                             <
                                 <#EachArgTyStatic as ::safer_ffi::layout::ReprC>::CLayout
                                 as
-                                ::safer_ffi::node_js::ReprNapi
+                                ::safer_ffi::js::ReprNapi
                             >::NapiValue
                         ;
                     )*
                 }
 
-                #[::safer_ffi::node_js::derive::js_export(js_name = #export_name)]
+                #[::safer_ffi::js::derive::js_export(js_name = #export_name)]
                 #fun_signature
                 {
                     #[inline(never)]
                     fn #fname< #(#each_lifetime,)* > (
-                        __env__: &'_ ::safer_ffi::node_js::Env,
+                        __env__: &'_ ::safer_ffi::js::Env,
                         #(
                             #each_arg_name: #EachArgTyBounded
                         ),*
-                    ) -> ::safer_ffi::node_js::Result<::safer_ffi::node_js::JsPromise>
+                    ) -> ::safer_ffi::js::Result<::safer_ffi::js::JsPromise>
                     {
                         #(#prelude)*
                         #safer_ffi_js_promise_spawn(
@@ -260,12 +260,12 @@ fn export (
                         .map(|it| it.resolve_into_unknown())
                     }
 
-                    let __ctx__ = ::safer_ffi::node_js::derive::__js_ctx!();
+                    let __ctx__ = ::safer_ffi::js::derive::__js_ctx!();
                     #fname(
                         __ctx__.env,
                         #({
                             let #each_arg_name: <#EachArgTy as ::safer_ffi::layout::ReprC>::CLayout =
-                                ::safer_ffi::node_js::ReprNapi::from_napi_value(
+                                ::safer_ffi::js::ReprNapi::from_napi_value(
                                     __ctx__.env,
                                     #each_arg_name,
                                 )?

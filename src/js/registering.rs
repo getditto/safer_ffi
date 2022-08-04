@@ -9,9 +9,9 @@
 //! in this module.
 //!
 //! Moreover, in order to support automagically getting access to the set
-//! of all the `#[ffi_export(node_js)]`-annotated functions, we use
+//! of all the `#[ffi_export(js)]`-annotated functions, we use
 //! [`::inventory`] to define here a registry that will be extended by each
-//! `#[ffi_export(node_js)]` annotation. Thanks to the magic of [`::inventory`],
+//! `#[ffi_export(js)]` annotation. Thanks to the magic of [`::inventory`],
 //! we can then iterate over it here and it Just Works™.
 
 #[allow(

@@ -406,10 +406,10 @@ macro_rules! NULL {() => (
 #[apply(hidden_export)]
 use ::log;
 
-#[cfg(feature = "node-js")]
+#[cfg(feature = "js")]
 // #[apply(hidden_export)]
-#[path = "node_js/_mod.rs"]
-pub mod node_js;
+#[path = "js/_mod.rs"]
+pub mod js;
 
 #[apply(hidden_export)]
 #[allow(missing_copy_implementations, missing_debug_implementations)]

@@ -14,7 +14,6 @@ macro_rules! emit {( $($_:tt)* ) => ( $($_)* )}
     extern crate napi;
     pub use ::{
         napi::*,
-        // napi_derive as derive,
     };
 
     pub extern crate napi_derive as derive;

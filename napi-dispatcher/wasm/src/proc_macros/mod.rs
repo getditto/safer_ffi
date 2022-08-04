@@ -26,7 +26,7 @@ fn __js_ctx (
 {
     let _: parse::Nothing = parse_macro_input!(input);
     quote!(
-        ::safer_ffi::node_js::CallContext::__new()
+        ::safer_ffi::js::CallContext::__new()
     ).into()
 }
 
@@ -49,8 +49,8 @@ fn js_export (
     quote!(
         const _: () = {
             use ::safer_ffi::{
-                node_js as napi,
-                node_js::__::wasm_bindgen,
+                js as napi,
+                js::__::wasm_bindgen,
             };
 
             #[wasm_bindgen(#js_name)]

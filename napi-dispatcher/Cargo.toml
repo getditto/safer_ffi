@@ -23,6 +23,5 @@ napi-derive.path = "nodejs-derive"
 napi-derive.package = "napi-dispatcher-nodejs-derive"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-# [dependencies]
 napi-wasm.path = "wasm"
 napi-wasm.package = "napi-dispatcher-wasm"

@@ -89,7 +89,7 @@ fn derive_ReprC (
         return Ok(utils::mb_file_expanded(output));
     }
 
-    // Compatibility with legacy mode (`nodejs` annotations):
+    // Compatibility with legacy mode (`js` annotations):
     let (mut attrs, rest) = Parser::parse2(
         |input: ParseStream<'_>| Result::<_>::Ok(
             (
@@ -110,9 +110,9 @@ fn derive_ReprC (
         if let Some(i) =
             idents
                 .iter()
-                .position(|repr| repr == "nodejs" || repr == "js")
+                .position(|repr| repr == "js")
         {
-            // `repr(C, nodejs)` case.
+            // `repr(C, js)` case.
             // Are we targetting js *right now*?
             if cfg!(feature = "js") {
                 // Legacy mode.

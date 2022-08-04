@@ -30,11 +30,11 @@ console_error_panic_hook = "0.1.6"
 safer-ffi-build = { path = "../safer-ffi-build" }
 
 [features]
-default = ["nodejs"]
+default = ["js"]
 async-fn = ["safer-ffi/async-fn"]
-nodejs = [
-    "safer-ffi/node-js",
-    "safer-ffi-build/node-js",
+js = [
+    "safer-ffi/js",
+    "safer-ffi-build/js",
 ]
 # wasm = ["wasm-bindgen-test"]
 

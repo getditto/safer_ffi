@@ -39,8 +39,7 @@ match_! {(
                         Err(Error::new(
                             Status::InvalidArg,
                             format!(
-                                "Numeric overflow: \
-                                parameter `{:?}` does not fit into a `{}`",
+                                "Numeric overflow: parameter `{:?}` does not fit into a `{}`",
                                 n,
                                 ::core::any::type_name::<$xN>(),
                             ),
@@ -57,8 +56,7 @@ match_! {(
                 {
                     let n: $x32 = self.try_into().map_err(|_| {
                         Error::from_reason(format!(
-                            "Numeric overflow: \
-                            value `{:?}` cannot be losslessly converted into Js",
+                            "Numeric overflow: value `{:?}` cannot be losslessly converted into Js",
                             self,
                         ))
                     })?;
@@ -222,7 +220,9 @@ match_! {( const, mut ) {
                         env.create_string_from_std(format!(
                             "{pointee} {mut}*",
                             mut = if stringify!($mut) == "const" { "const " } else { "" },
-                            pointee = <T as crate::layout::CType>::name(&$crate::headers::languages::C),
+                            pointee = <T as crate::layout::CType>::name(
+                                &$crate::headers::languages::C,
+                            ),
                         ))?
                     ;
 
@@ -377,7 +377,6 @@ match_! {(
 }}
 
 impl<const N: usize> ReprNapi for [u8;N] {
-
     type NapiValue = JsBuffer;
 
     #[inline]
