@@ -11,6 +11,5 @@ version = "1.0.0"
 git = "https://github.com/getditto/napi-rs"
 branch = "ditto/closure-into-jsfunction"
 
-[dependencies.napi-dispatcher-nodejs-derive-proc_macros] # proc-macros]
+[dependencies.napi-dispatcher-nodejs-derive-proc_macros]
 path = "src/proc_macros"
-# package = "napi-dispatcher-nodejs-derive-proc_macros"

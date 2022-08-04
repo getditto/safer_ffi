@@ -3,12 +3,12 @@
 
 use ::safer_ffi::prelude::*;
 
-#[cfg(feature = "nodejs")]
+#[cfg(feature = "js")]
 const _: () = {
-    ::safer_ffi::node_js::register_exported_functions!();
+    ::safer_ffi::js::register_exported_functions!();
 };
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn setup ()
 {
     #[cfg(target_arch = "wasm32")] {
@@ -16,7 +16,7 @@ fn setup ()
     }
 }
 
-#[ffi_export(node_js, rename = "add")]
+#[ffi_export(js, rename = "add")]
 fn add_with_a_weird_rust_name (x: i32, y: i32)
   -> i32
 {
@@ -31,7 +31,7 @@ struct Point {
     y: f64,
 }
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn middle_point (
     a: Point,
     b: Point,
@@ -48,7 +48,7 @@ fn middle_point (
 pub
 struct Foo { opaque: i32 }
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn foo_new ()
   -> repr_c::Box<Foo>
 {
@@ -56,24 +56,24 @@ fn foo_new ()
         .into()
 }
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn foo_read (foo: &'_ Foo)
   -> i32
 {
     foo.opaque
 }
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn foo_free (_p: Option<repr_c::Box<Foo>>)
 {}
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn print (s: char_p::Ref<'_>)
 {
     println!("{}", s);
 }
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn concat (s1: char_p::Ref<'_>, s2: char_p::Ref<'_>)
   -> char_p::Box
 {
@@ -82,7 +82,7 @@ fn concat (s1: char_p::Ref<'_>, s2: char_p::Ref<'_>)
         .unwrap()
 }
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn concat_byte_slices (
     xs1: Option<c_slice::Ref<'_, u8>>,
     xs2: Option<c_slice::Ref<'_, u8>>,
@@ -94,7 +94,7 @@ fn concat_byte_slices (
         .into()
 })}
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn get_hello ()
   -> char_p::Box
 {
@@ -147,9 +147,9 @@ fn call_with_42 (
     ret
 }
 
-#[cfg(feature = "nodejs")]
+#[cfg(feature = "js")]
 const _: () = {
-    use ::safer_ffi::node_js as napi;
+    use ::safer_ffi::js as napi;
 
     #[cfg(not(target_arch = "wasm32"))]
     const _: () = {
@@ -157,13 +157,13 @@ const _: () = {
             ::std::sync::atomic::AtomicBool::new(false)
         };
 
-        #[ffi_export(node_js)]
+        #[ffi_export(js)]
         fn spinlock_aquire ()
         {
             while LOCKED.swap(true, ::std::sync::atomic::Ordering::Acquire) {}
         }
 
-        #[ffi_export(node_js)]
+        #[ffi_export(js)]
         fn spinlock_release ()
         {
             LOCKED.store(false, ::std::sync::atomic::Ordering::Release);
@@ -225,19 +225,19 @@ const _: () = {
     }
 };
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn set_bool (b: Out<'_, bool>)
 {
     b.write(true);
 }
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn takes_out_vec (v: &mut Option<repr_c::Vec<u8>>)
 {
     *v = Some(vec![42, 27].into());
 }
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn takes_out_slice (v: &mut Option<c_slice::Box<u8>>)
 {
     *v = Some(vec![42, 27].into_boxed_slice().into());
@@ -247,7 +247,7 @@ fn takes_out_slice (v: &mut Option<c_slice::Box<u8>>)
 #[repr(C)]
 pub enum MyBool { True, False = 1 }
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn boolify (b: MyBool)
   -> bool
 {
@@ -258,14 +258,14 @@ fn boolify (b: MyBool)
 #[repr(u8)]
 pub enum MyBool2 { True, False = 1 }
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn boolify2 (b: MyBool2)
   -> bool
 {
     matches!(b, MyBool2::True)
 }
 
-#[ffi_export(node_js(async_worker))]
+#[ffi_export(js(async_worker))]
 fn long_running ()
   -> i32
 {
@@ -275,7 +275,7 @@ fn long_running ()
     42
 }
 
-#[ffi_export(node_js, executor = ::futures::executor::block_on)]
+#[ffi_export(js, executor = ::futures::executor::block_on)]
 async fn long_running_fut (bytes: c_slice::Ref<'_, u8>)
   -> u8
 {
@@ -289,14 +289,14 @@ async fn long_running_fut (bytes: c_slice::Ref<'_, u8>)
     })
 }
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn site_id (id: [u8; 8])
   -> char_p::Box
 {
     char_p::new(format!("{:02x?}", id))
 }
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn check_big_int_unsigned (
     value: u64,
     expected: char_p::Ref<'_>,
@@ -306,7 +306,7 @@ fn check_big_int_unsigned (
     value
 }
 
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn check_big_int_signed (
     value: i64,
     expected: char_p::Ref<'_>,
@@ -337,7 +337,7 @@ fn sleep (ms: u32)
     }
 
     #[cfg(target_arch = "wasm32")] {
-        use ::safer_ffi::node_js::__::*;
+        use ::safer_ffi::js::__::*;
 
         #[wasm_bindgen(inline_js = r#"
             export function sleep(ms) {

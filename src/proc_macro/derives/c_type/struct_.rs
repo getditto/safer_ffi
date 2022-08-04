@@ -36,7 +36,7 @@ fn derive (
         let (params, bounds) = generics.my_split();
         ret.extend(quote!(
             ::safer_ffi::layout::CType! {
-                #[repr(C, nodejs)]
+                #[repr(C, js)]
                 #pub_
                 struct #StructName
                     [#params]

@@ -822,9 +822,9 @@ macro_rules! impl_ReprC_for {(
 pub
 struct Bool(u8);
 
-#[cfg(feature = "node-js")]
+#[cfg(feature = "js")]
 const _: () = {
-    use crate::node_js::*;
+    use crate::js::*;
 
     impl ReprNapi for Bool {
         type NapiValue = JsBoolean;

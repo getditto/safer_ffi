@@ -18,7 +18,7 @@ fn concat (
 }
 
 /// Frees a string created by `concat`.
-#[ffi_export(node_js)]
+#[ffi_export(js)]
 fn free_char_p (_string: Option<char_p::Box>)
 {}
 

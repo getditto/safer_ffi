@@ -3,7 +3,7 @@ use super::*;
 #[derive(Default)]
 pub(in crate)
 struct Args {
-    pub(in crate) node_js: Option<NodeJs>,
+    pub(in crate) js: Option<Js>,
     pub(in crate) executor: Option<Executor>,
     pub(in crate) rename: Option<Rename>,
 }
@@ -12,8 +12,8 @@ struct Args {
     allow(dead_code),
 )]
 pub(in crate)
-struct NodeJs {
-    pub(in crate) kw: kw::node_js,
+struct Js {
+    pub(in crate) kw: kw::js,
     pub(in crate) async_worker: Option<kw::async_worker>,
 }
 
@@ -37,7 +37,7 @@ struct Rename {
 mod kw {
     ::syn::custom_keyword!(async_worker);
     ::syn::custom_keyword!(executor);
-    ::syn::custom_keyword!(node_js);
+    ::syn::custom_keyword!(js);
     ::syn::custom_keyword!(rename);
 }
 
@@ -61,11 +61,11 @@ impl Parse for Args {
                     });
                 },
 
-                | _case if snoopy.peek(kw::node_js) => {
-                    if ret.node_js.is_some() {
+                | _case if snoopy.peek(kw::js) => {
+                    if ret.js.is_some() {
                         return Err(input.error("duplicate parameter"));
                     }
-                    ret.node_js = Some(NodeJs {
+                    ret.js = Some(Js {
                         kw: input.parse().unwrap(),
                         async_worker: if input.peek(token::Paren) {
                             utils::parenthesized(input, |_paren, input| Ok({

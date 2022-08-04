@@ -72,7 +72,7 @@ fn js_export (
         .into_iter()
         .enumerate()
         .map(|(i, binding)| -> Stmt { parse_quote!(
-            let #binding = ::safer_ffi::node_js::derive::#js_ctx!().get(#i)?;
+            let #binding = ::safer_ffi::js::derive::#js_ctx!().get(#i)?;
         )})
         .chain(mem::take(&mut fun.block.stmts))
         .collect()
@@ -88,7 +88,7 @@ fn js_export (
         quote!()
     } else {
         quote!(
-            use ::safer_ffi::node_js as napi;
+            use ::safer_ffi::js as napi;
         )
     };
     let stmts = &fun.block.stmts;
@@ -96,7 +96,7 @@ fn js_export (
         const _: () = {
             #napi_import
 
-            #[::safer_ffi::node_js::derive::js_function(#inputs_count)]
+            #[::safer_ffi::js::derive::js_function(#inputs_count)]
             // #fun
             fn #name (
                 #js_ctx: napi::CallContext<'_>,
@@ -105,10 +105,10 @@ fn js_export (
                 #(#stmts)*
             }
 
-            ::safer_ffi::node_js::registering::submit! {
-                #![crate = ::safer_ffi::node_js::registering]
+            ::safer_ffi::js::registering::submit! {
+                #![crate = ::safer_ffi::js::registering]
 
-                ::safer_ffi::node_js::registering::NapiRegistryEntry::NamedMethod {
+                ::safer_ffi::js::registering::NapiRegistryEntry::NamedMethod {
                     name: ::core::stringify!(#js_name),
                     method: #name,
                 }

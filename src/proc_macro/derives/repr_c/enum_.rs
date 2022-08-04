@@ -196,7 +196,7 @@ fn derive (
         ;
         ret.extend(quote!(
             ::safer_ffi::layout::CType! {
-                @node_js_enum
+                @js_enum
                 #EnumName_Layout {
                     #(
                         #EachVariant = #EnumName_Layout {

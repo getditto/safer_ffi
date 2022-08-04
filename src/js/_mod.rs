@@ -120,10 +120,10 @@ cfg_not_wasm! {
 }
 
 #[macro_export]
-macro_rules! node_js_register_exported_functions {() => (
+macro_rules! js_register_exported_functions {() => (
     #[cfg(not(target_arch = "wasm32"))]
     const _: () = {
-        use ::safer_ffi::node_js as napi;
+        use ::safer_ffi::js as napi;
 
         #[no_mangle] pub
         unsafe extern "C"
@@ -136,7 +136,7 @@ macro_rules! node_js_register_exported_functions {() => (
         }
     };
 )}
-pub use node_js_register_exported_functions as register_exported_functions;
+pub use js_register_exported_functions as register_exported_functions;
 
 pub
 trait IntoUnknown : ::core::convert::TryFrom<JsUnknown> {

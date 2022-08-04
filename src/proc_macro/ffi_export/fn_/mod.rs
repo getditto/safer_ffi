@@ -189,16 +189,16 @@ fn handle (
     #[cfg_attr(not(feature = "js"), allow(unused))]
     let mut js_body = quote!();
     #[cfg(feature = "js")]
-    if let Some(args_node_js) = &args.node_js {
+    if let Some(args_js) = &args.js {
         #[apply(let_quote!)]
         use ::safer_ffi::{
             ඞ,
             layout,
-            node_js,
-            node_js::{napi, ReprNapi},
+            js,
+            js::{napi, ReprNapi},
         };
 
-        let span = Span::mixed_site().located_at(args_node_js.kw.span());
+        let span = Span::mixed_site().located_at(args_js.kw.span());
         let fname = &ffi_fun.sig.ident;
         let mut storage = None;
         let export_name =
@@ -262,16 +262,16 @@ fn handle (
             const _: () = {
                 #ty_aliases
 
-                #[#node_js::derive::js_export(js_name = #export_name)]
-                fn __node_js #generics (
+                #[#js::derive::js_export(js_name = #export_name)]
+                fn __js #generics (
                     #( #each_arg: #EachArgTyJs ),*
-                ) -> #node_js::Result<#node_js::JsUnknown>
+                ) -> #js::Result<#js::JsUnknown>
                 #where_clause
                 {
-                    let __ctx__ = #node_js::derive::__js_ctx!();
+                    let __ctx__ = #js::derive::__js_ctx!();
                     #(
                         let #each_arg: #ඞ::CLayoutOf<#EachArgTyStatic> =
-                            #node_js::ReprNapi::from_napi_value(
+                            #js::ReprNapi::from_napi_value(
                                 __ctx__.env,
                                 #each_arg,
                             )?
@@ -283,10 +283,10 @@ fn handle (
             };
         );
         // where
-        let call_and_return = if let Some(async_worker) = &args_node_js.async_worker {
+        let call_and_return = if let Some(async_worker) = &args_js.async_worker {
             quote_spanned!(Span::mixed_site().located_at(async_worker.span())=>
                 #[cfg(not(target_arch = "wasm32"))] {
-                    #node_js::JsPromise::from_task_spawned_on_worker_pool(
+                    #js::JsPromise::from_task_spawned_on_worker_pool(
                         __ctx__.env,
                         unsafe {
                             fn __assert_send<__T : #ඞ::marker::Send>() {}
@@ -297,13 +297,13 @@ fn handle (
                                     // lint if the `ReprC` whence it originated is
                                     // `Send`.
                                     let _ = __assert_send::<#EachArgTyStatic>;
-                                    #node_js::UnsafeAssertSend::new(#each_arg)
+                                    #js::UnsafeAssertSend::new(#each_arg)
                                 };
                             )*
                             move || {
                                 #(
                                     let #each_arg = {
-                                        #node_js::UnsafeAssertSend::into_inner(#each_arg)
+                                        #js::UnsafeAssertSend::into_inner(#each_arg)
                                     };
                                 )*
                                 #fname( #(#each_arg),* )
@@ -318,7 +318,7 @@ fn handle (
                         #fname( #(#each_arg),* )
                     };
                     #ReprNapi::to_napi_value(ret, __ctx__.env)
-                        .map(|it| #node_js::JsPromise::<#node_js::JsUnknown>::resolve(
+                        .map(|it| #js::JsPromise::<#js::JsUnknown>::resolve(
                             it.as_ref(),
                         ))
                         .map(|it| it.into_unknown())

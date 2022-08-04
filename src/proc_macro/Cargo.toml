@@ -34,7 +34,6 @@ headers = []
 js = [
     "async-fn",
 ]
-node-js = ["js"]  # legacy alias.
 verbose-expansions = [
     # "prettyplease",
 ]
