@@ -57,7 +57,7 @@ jobs:
         feature--dyn-traits: ['', '--features dyn-traits']
         # feature--log: ['', '--features log']
         feature--out-refs: ['', '--features out-refs']
-        feature--node-js: ['', '--features node-js']
+        feature--js: ['', '--features js']
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -79,7 +79,7 @@ jobs:
             ${{ matrix.feature--headers }}
             ${{ matrix.feature--dyn-traits }}
             ${{ matrix.feature--out-refs }}
-            ${{ matrix.feature--node-js }}
+            ${{ matrix.feature--js }}
 
   # == BUILD & TEST == #
   build-and-test:
