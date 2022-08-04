@@ -11,7 +11,7 @@ use {
 
 pub(in super)
 fn export (
-    Args { executor, node_js }: Args,
+    Args { executor, node_js, rename }: Args,
     fun: &'_ ItemFn,
 ) -> Result<TokenStream2>
 {
@@ -102,6 +102,16 @@ fn export (
             return Ok(fun.into_token_stream());
         }
         let fname = &fun.sig.ident;
+        let mut storage = None;
+        let export_name = if let Some(Rename { new_name, .. }) = &rename {
+            storage.get_or_insert(
+                new_name
+                    .parse()
+                    .expect("checked when parsing args")
+            )
+        } else {
+            fname
+        };
         let mut fun_signature = fun.sig.clone();
         fun_signature.asyncness = None;
         fun_signature.ident = Ident::new(
@@ -232,7 +242,7 @@ fn export (
                     )*
                 }
 
-                #[::safer_ffi::node_js::derive::js_export(js_name = #fname)]
+                #[::safer_ffi::node_js::derive::js_export(js_name = #export_name)]
                 #fun_signature
                 {
                     #[inline(never)]

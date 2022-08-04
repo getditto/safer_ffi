@@ -16,8 +16,8 @@ fn setup ()
     }
 }
 
-#[ffi_export(node_js)]
-fn add (x: i32, y: i32)
+#[ffi_export(node_js, rename = "add")]
+fn add_with_a_weird_rust_name (x: i32, y: i32)
   -> i32
 {
     i32::wrapping_add(x, y)

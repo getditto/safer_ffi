@@ -5,6 +5,7 @@ pub(in crate)
 struct Args {
     pub(in crate) node_js: Option<NodeJs>,
     pub(in crate) executor: Option<Executor>,
+    pub(in crate) rename: Option<Rename>,
 }
 
 #[cfg_attr(not(feature = "js"),
@@ -26,10 +27,18 @@ struct Executor {
     pub(in crate) block_on: Expr,
 }
 
+pub(in crate)
+struct Rename {
+    pub(in crate) _kw: kw::rename,
+    pub(in crate) _eq: Token![=],
+    pub(in crate) new_name: LitStr,
+}
+
 mod kw {
     ::syn::custom_keyword!(async_worker);
     ::syn::custom_keyword!(executor);
     ::syn::custom_keyword!(node_js);
+    ::syn::custom_keyword!(rename);
 }
 
 impl Parse for Args {
@@ -68,6 +77,25 @@ impl Parse for Args {
                             }))?
                         } else {
                             None
+                        },
+                    });
+                },
+
+                | _case if snoopy.peek(kw::rename) => {
+                    if ret.rename.is_some() {
+                        return Err(input.error("duplicate parameter"));
+                    }
+                    ret.rename = Some(Rename {
+                        _kw: input.parse().unwrap(),
+                        _eq: input.parse()?,
+                        new_name: {
+                            let it = input.parse::<LitStr>()?;
+                            if it.parse::<Ident>().is_err() {
+                                bail! {
+                                    "expected a function name (identifier)" => it,
+                                }
+                            }
+                            it
                         },
                     });
                 },
