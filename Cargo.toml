@@ -84,7 +84,11 @@ inventory-0-3-1 = [
 [dev-dependencies]
 macro_rules_attribute = "0.1.0"
 safer-ffi.path = "."
-safer-ffi.features = ["csharp-headers", "async-fn"]
+safer-ffi.features = [
+    "async-fn",
+    "csharp-headers",
+    "dyn-traits",
+]
 
 [target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
 libc = { version = "0.2.66", default-features = false }
