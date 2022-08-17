@@ -19,13 +19,16 @@ fn handle (
         }
     }
     let ref Ty_str @ _ = Ty.to_string();
+    let inventory_krate = cfg!(not(feature = "inventory-0-3-1")).then(|| {
+        quote!( #![crate = ::safer_ffi] )
+    });
     Ok(quote!(
         #input
 
         #[cfg(not(target_arch = "wasm32"))]
         ::safer_ffi::__cfg_headers__! {
             ::safer_ffi::inventory::submit! {
-                #![crate = ::safer_ffi]
+                #inventory_krate
 
                 ::safer_ffi::FfiExport {
                     name: #Ty_str,

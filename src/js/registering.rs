@@ -26,9 +26,9 @@ enum NapiRegistryEntry {
     },
 }
 
-::inventory::collect!(NapiRegistryEntry);
+self::inventory::collect!(NapiRegistryEntry);
 
-pub use ::inventory::{self, submit};
+pub use crate::inventory::{self, submit};
 
 #[cold]
 pub
@@ -41,7 +41,7 @@ fn napi_register_module_v1 (
     // let env = ::napi::Env::from_raw(raw_env);
     let mut exports: ::napi::JsObject = ::napi::NapiValue::from_raw_unchecked(raw_env, raw_exports);
     match (|| ::napi::Result::<_>::Ok({
-        for entry in ::inventory::iter::<NapiRegistryEntry> {
+        for entry in crate::inventory::iter::<NapiRegistryEntry> {
             match entry {
                 | &NapiRegistryEntry::NamedMethod { name, method } => {
                     let _ = exports.create_named_method(name, method);
