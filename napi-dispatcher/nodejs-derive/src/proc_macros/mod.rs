@@ -92,6 +92,9 @@ fn js_export (
         )
     };
     let stmts = &fun.block.stmts;
+    let krate_annotation = cfg!(not(feature = "inventory-0-3-1")).then(|| {
+        quote!( #![crate = ::safer_ffi::js::registering] )
+    });
     let ret = quote!(
         const _: () = {
             #napi_import
@@ -106,7 +109,7 @@ fn js_export (
             }
 
             ::safer_ffi::js::registering::submit! {
-                #![crate = ::safer_ffi::js::registering]
+                #krate_annotation
 
                 ::safer_ffi::js::registering::NapiRegistryEntry::NamedMethod {
                     name: ::core::stringify!(#js_name),

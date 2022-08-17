@@ -76,6 +76,11 @@ js = [
     "std",
 ]
 
+inventory-0-3-1 = [
+    "dep:inventory-0-3-1",
+    "safer_ffi-proc_macros/inventory-0-3-1",
+]
+
 [dev-dependencies]
 macro_rules_attribute = "0.1.0"
 safer-ffi.path = "."
@@ -94,6 +99,12 @@ scopeguard.version = "1.1.0"
 unwind_safe.version = "0.1.0"
 with_builtin_macros.version = "0.0.3"
 macro_rules_attribute = "0.1.0"
+
+
+[dependencies.inventory-0-3-1]
+package = "inventory"
+version = "0.3.1"
+optional = true
 
 [dependencies.napi]
 package = "napi-dispatcher"

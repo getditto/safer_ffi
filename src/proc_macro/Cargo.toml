@@ -37,3 +37,5 @@ js = [
 verbose-expansions = [
     # "prettyplease",
 ]
+
+inventory-0-3-1 = []

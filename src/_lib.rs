@@ -223,8 +223,16 @@ pub use ::safer_ffi_proc_macros::derive_ReprC;
 pub mod layout;
 
 __cfg_headers__! {
-    #[doc(hidden)] pub
-    use ::inventory;
+    cfg_match! {
+        feature = "inventory-0-3-1" => {
+            #[doc(hidden)] pub
+            use ::inventory_0_3_1 as inventory;
+        },
+        _ => {
+            #[doc(hidden)] pub
+            use ::inventory;
+        },
+    }
 
     #[cfg_attr(feature = "nightly",
         doc(cfg(feature = "headers")),
@@ -246,7 +254,7 @@ __cfg_headers__! {
         ,
     }
 
-    ::inventory::collect!(FfiExport);
+    self::inventory::collect!(FfiExport);
 }
 
 cfg_alloc! {
@@ -481,7 +489,6 @@ mod __ {
 
     #[cfg(feature = "headers")]
     pub use {
-        ::inventory,
         crate::{
             headers::{
                 Definer,
@@ -494,6 +501,7 @@ mod __ {
                     StructField,
                 },
             },
+            inventory,
             FfiExport,
         },
     };
