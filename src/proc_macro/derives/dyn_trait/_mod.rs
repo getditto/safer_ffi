@@ -86,7 +86,7 @@ fn try_handle_trait (
             .map(VTableEntry::type_and_value)
             .unzip::<_, _, Vec<_>, Vec<_>>()
     ;
-    let VTableName @ _ = format_ident!("{}Vtable", TraitName);
+    let VTableName @ _ = format_ident!("{}VTable", TraitName);
     let impl_Trait = format_ident!("__impl_{}", TraitName);
 
     // Original generics but for introducing the `'usability` lifetime param.
@@ -121,8 +121,7 @@ fn try_handle_trait (
     ;
 
     // Emit the vtable type definition
-    ret.extend(quote!(
-        // #[cfg_eval]
+    let vtable_def = quote_spanned!(Span::mixed_site()=>
         #[#ඞ::derive_ReprC]
         #[repr(C)]
         #pub_
@@ -155,7 +154,7 @@ fn try_handle_trait (
                 >
             ,
         }
-    ));
+    );
 
     let Send @ _ = &[quote!(::core::marker::Send)][..];
     let Sync @ _ = &[quote!(::core::marker::Sync)][..];
@@ -288,8 +287,12 @@ fn try_handle_trait (
     ret = quote!(
         #trait_
 
+        #vtable_def
+
         #[allow(warnings, clippy::all)]
-        const _: () = { #ret };
+        const _: () = {
+            #ret
+        };
     );
     Ok(Some(ret))
 }
