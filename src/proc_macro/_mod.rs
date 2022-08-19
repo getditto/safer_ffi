@@ -131,12 +131,11 @@ fn __respan (
     input: TokenStream,
 ) -> TokenStream
 {
-    use ::proc_macro2::{*, TokenStream as TokenStream2};
     let parser = |input: ParseStream<'_>| Result::Ok({
         let mut contents;
         ({
             parenthesized!(contents in input);
-            let tt: TokenTree = contents.parse()?;
+            let tt: ::proc_macro2::TokenTree = contents.parse()?;
             let _: TokenStream2 = contents.parse()?;
             tt.span()
         }, {
@@ -145,27 +144,29 @@ fn __respan (
         })
     });
     let (span, tts) = parse_macro_input!(input with parser);
-    return respan(span, tts.into()).into();
-    // where:
-    fn respan (
-        span: Span,
-        tts: TokenStream2,
-    ) -> TokenStream2
-    {
-        tts.into_iter().map(|mut tt| {
-            if let TokenTree::Group(ref mut g) = tt {
-                let g_span = g.span();
-                *g = Group::new(
-                    g.delimiter(),
-                    respan(span, g.stream()),
-                );
-                g.set_span(/* span.located_at */ g_span)
-            } else {
-                tt.set_span(
-                    span //.located_at(tt.span())
-                );
-            }
-            tt
-        }).collect()
-    }
+    respan(span, tts.into()).into()
+}
+
+// where:
+fn respan (
+    span: Span,
+    tts: TokenStream2,
+) -> TokenStream2
+{
+    use ::proc_macro2::{*, TokenStream as TokenStream2};
+    tts.into_iter().map(|mut tt| {
+        if let TokenTree::Group(ref mut g) = tt {
+            let g_span = g.span();
+            *g = Group::new(
+                g.delimiter(),
+                respan(span, g.stream()),
+            );
+            g.set_span(/* span.located_at */ g_span)
+        } else {
+            tt.set_span(
+                span //.located_at(tt.span())
+            );
+        }
+        tt
+    }).collect()
 }

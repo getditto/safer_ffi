@@ -14,7 +14,7 @@ pub(in crate)
 fn derive (
     args: Args,
     attrs: &'_ mut Vec<Attribute>,
-    vis: &'_ Visibility,
+    pub_: &'_ Visibility,
     StructName @ _: &'_ Ident,
     generics: &'_ Generics,
     fields: &'_ Fields,
@@ -31,7 +31,7 @@ fn derive (
             | "transparent" => return derive_transparent(
                 args,
                 attrs,
-                vis,
+                pub_,
                 StructName,
                 generics,
                 fields,
@@ -40,7 +40,7 @@ fn derive (
             | "opaque" => return derive_opaque(
                 args,
                 attrs,
-                vis,
+                pub_,
                 StructName,
                 generics,
                 fields,
@@ -99,7 +99,13 @@ fn derive (
                     ])
                     .collect()
             ,
-            vis: parse_quote!(pub),
+            vis: {
+                let pub_ = crate::respan(
+                    pub_.span().resolved_at(Span::mixed_site()),
+                    pub_.to_token_stream(),
+                );
+                parse_quote!(#pub_)
+            },
             struct_token: parse_quote!(struct),
             ident: StructName_Layout.clone(),
             generics: ctype_generics.clone(),
