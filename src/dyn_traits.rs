@@ -43,9 +43,9 @@ mod ty {
     #![allow(warnings)]
 
     #[super::derive_ReprC]
-    #[repr(transparent)]
+    #[repr(opaque)]
     pub
-    struct Erased(crate::tuple::CVoid);
+    struct Erased(());
 }
 
 #[apply(cfg_alloc)]
