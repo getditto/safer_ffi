@@ -104,9 +104,16 @@ fn try_handle_trait (
 
     let EachToBeInvariantParam @ _ =
         Iterator::chain(
-            trait_generics_and_lt.lifetimes().map(|LifetimeDef { lifetime, .. }| quote!(
-                &#lifetime ()
-            )),
+            trait_generics_and_lt
+                .lifetimes()
+                .map(|LifetimeDef { lifetime, .. }| quote!(
+                    // We need something which *names* `lifetime`,
+                    // but which "yields" / results in a 'static CType.
+                    // So let's use the
+                    // non-generic-assoc-type-of-a-generic-trait trick for this.
+                    <() as #ඞ::IdentityIgnoring<#lifetime>>::ItSelf
+                ))
+            ,
             trait_generics_and_lt.type_params().map(|ty| {
                 ty.ident.to_token_stream()
             })
@@ -146,9 +153,7 @@ fn try_handle_trait (
             // >,
             _invariant:
                 ::core::marker::PhantomData<
-                // &#lifetime mut Self,
-                // &#lifetime mut #VTableName #fwd_trait_generics_and_lt,
-                    fn(&()) -> &mut (#(
+                    *mut (#(
                         #EachToBeInvariantParam,
                     )*)
                 >
