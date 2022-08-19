@@ -164,12 +164,7 @@ for
     {
         fmt .debug_struct(::core::any::type_name::<Self>())
             .field("ptr", &format_args!("{:p}", self.__ptr()))
-            .field("vtable", &format_args!(
-                concat!(
-                    "{:p}",
-                ),
-                self.__vtable(),
-            ))
+            .field("vtable", &format_args!("{:p}", self.__vtable()))
             .finish()
     }
 }

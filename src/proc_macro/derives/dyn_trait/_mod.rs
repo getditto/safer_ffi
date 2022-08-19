@@ -147,10 +147,6 @@ fn try_handle_trait (
             #(#each_vtable_entry_attrs)*
             #each_vtable_entry_name: #EachVTableEntryType,
         )*
-            // __type_name__debug: ::core::option::Option<
-            //     extern "C"
-            //     fn() -> #ඞ::string::str_ref<'static>
-            // >,
             _invariant:
                 ::core::marker::PhantomData<
                     *mut (#(
@@ -197,6 +193,31 @@ fn try_handle_trait (
         let EACH_VTABLE_ENTRY_VALUE @ _ =
             each_vtable_entry_value_f.iter().map(|f| f(&QSelf, &all_generics))
         ;
+        let VTABLE_EXPR @ _ = quote_spanned!(Span::mixed_site()=>
+            &#VTableName {
+                release_vptr: {
+                    unsafe extern "C"
+                    fn release_vptr<#impl_Trait : #TraitName #fwd_trait_generics> (
+                        ptr: ::safer_ffi::ptr::NonNullOwned< #ErasedTy >,
+                    )
+                    {
+                        let ptr = ptr.cast::<#impl_Trait>();
+                        ::core::mem::drop(
+                            #Box::from_raw(
+                                { ptr }.as_mut_ptr()
+                            )
+                        )
+                    }
+                    release_vptr::<#impl_Trait> // as …
+                },
+                retain_vptr: None,
+            #(
+                #(#each_vtable_entry_attrs)*
+                #each_vtable_entry_name: #EACH_VTABLE_ENTRY_VALUE,
+            )*
+                _invariant: ::core::marker::PhantomData,
+            }
+        );
         if mem::take(must_emit_generic_vtable_reference) {
             ret.extend(quote_spanned!(Span::mixed_site()=>
                 struct __GenericConst #intro_all_generics (
@@ -204,73 +225,12 @@ fn try_handle_trait (
                 );
 
                 impl #intro_all_generics
-                //     ::safer_ffi::dyn_traits::__AssocConst<
-                //         &#lifetime <
-                //             dyn #Trait
-                //             as
-                //             ::safer_ffi::dyn_traits::ReprCTrait
-                //         >::VTable
-                //     >
-                // for
                     __GenericConst #fwd_all_generics
                 #where_clause
                 {
                     #[allow(unused_parens)]
-                    const VALUE
-                    : (
-                        &#lifetime <
-                            dyn #Trait
-                            as
-                            ::safer_ffi::dyn_traits::ReprCTrait
-                        >::VTable
-                    ) = (
-                        &#VTableName {
-                            // __type_name__debug: Some({
-                            //     extern "C"
-                            //     fn __type_name__debug<#impl_Trait> ()
-                            //       -> #ඞ::string::str_ref<'static>
-                            //     {
-                            //         let s: &'static ::core::primitive::str =
-                            //             ::core::any::type_name::<#impl_Trait>()
-                            //         ;
-                            //         let ptr = s.as_bytes().as_ptr() as *mut u8;
-                            //         let len = s.len();
-                            //         unsafe {
-                            //             ::core::mem::transmute::<
-                            //                 #ඞ::slice::slice_raw_Layout<u8>,
-                            //                 #ඞ::string::str_ref<'static>,
-                            //             >(
-                            //                 safer_ffi::slice::slice_raw_Layout {
-                            //                     ptr,
-                            //                     len,
-                            //                 }
-                            //             )
-                            //         }
-                            //     }
-                            //     __type_name__debug::<#impl_Trait>
-                            // }),
-                            release_vptr: {
-                                unsafe extern "C"
-                                fn release_vptr<#impl_Trait : #TraitName #fwd_trait_generics> (
-                                    ptr: ::safer_ffi::ptr::NonNullOwned< #ErasedTy >,
-                                )
-                                {
-                                    let ptr = ptr.cast::<#impl_Trait>();
-                                    ::core::mem::drop(
-                                        #Box::from_raw(
-                                            { ptr }.as_mut_ptr()
-                                        )
-                                    )
-                                }
-                                release_vptr::<#impl_Trait> // as …
-                            },
-                            retain_vptr: None,
-                        #(
-                            #(#each_vtable_entry_attrs)*
-                            #each_vtable_entry_name: #EACH_VTABLE_ENTRY_VALUE,
-                        )*
-                            _invariant: ::core::marker::PhantomData,
-                        }
+                    const VALUE: &#lifetime #VTableName #fwd_trait_generics_and_lt = (
+                        #VTABLE_EXPR
                     );
                 }
             ));
@@ -291,17 +251,6 @@ fn try_handle_trait (
                 {
                     release_vptr(ptr)
                 }
-
-                // fn type_name (
-                //     &Self::VTable { __type_name__debug, .. }: &'_ Self::VTable,
-                // ) -> &'static ::core::primitive::str
-                // {
-                //     if let ::core::option::Option::Some(f) = __type_name__debug {
-                //         f().as_str()
-                //     } else {
-                //         "<no debug type name available>"
-                //     }
-                // }
             }
 
             impl #intro_trait_generics_and_lt
@@ -326,17 +275,7 @@ fn try_handle_trait (
                         from_raw_parts(
                             ::core::mem::transmute(boxed),
                             ::core::convert::Into::into(
-                                <
-                                    __GenericConst #fwd_all_generics
-                                    // as
-                                    // ::safer_ffi::dyn_traits::__AssocConst<
-                                    //     &#lifetime <
-                                    //         dyn #Trait
-                                    //         as
-                                    //         ::safer_ffi::dyn_traits::ReprCTrait
-                                    //     >::VTable
-                                    // >
-                                >::VALUE
+                                <__GenericConst #fwd_all_generics>::VALUE
                             ),
                         )
                     }
