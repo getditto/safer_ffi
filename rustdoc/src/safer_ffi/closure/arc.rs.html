@@ -266,6 +266,38 @@
 <span id="261">261</span>
 <span id="262">262</span>
 <span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
 <span class="doccomment">//! `Arc&lt;dyn &#39;static + Send + Sync + Fn(...) -&gt; _&gt;` but with a `#[repr(C)]`</span>
 <span class="doccomment">//! layout (inlined virtual method table).</span>
@@ -279,9 +311,21 @@
         $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_N</span>:<span class="ident">ident</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_k</span>:<span class="ident">ident</span> ,)<span class="op">*</span> )<span class="question-mark">?</span>
     )
 ) =&gt; (
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ret</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_N</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span>
+        <span class="ident"><span class="kw">crate</span>::boxed::FitForCArc</span>
+    <span class="kw">for</span>
+        <span class="kw">dyn</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="ident">Fn</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_N</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; <span class="ident">Ret</span>
+    <span class="kw">where</span>
+        <span class="ident">Ret</span> : <span class="ident">ReprC</span>, $(
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_N</span> : <span class="ident">ReprC</span>, $(
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_k</span> : <span class="ident">ReprC</span>, )<span class="kw-2">*</span>)<span class="question-mark">?</span>
+    {
+        <span class="kw">type</span> <span class="ident">CArcWrapped</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ArcDynFn_N</span> <span class="op">&lt;</span><span class="ident">Ret</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_N</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span>;
+    }
+
     <span class="macro">ReprC!</span> {
         @[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">concat!</span>(
-            <span class="string">&quot;`Arc&lt;dyn &#39;static + Send + Sync + Fn(&quot;</span> $(,
+            <span class="string">&quot;`Arc&lt;dyn Send + Sync + Fn(&quot;</span> $(,
                 <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_N</span>) $(, <span class="string">&quot;, &quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_k</span>))<span class="op">*</span>
             )<span class="question-mark">?</span>,
             <span class="string">&quot;) -&gt; Ret&gt;`&quot;</span>,
@@ -337,6 +381,25 @@
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_k</span> : <span class="ident">ReprC</span>, )<span class="kw-2">*</span>)<span class="question-mark">?</span>
     {}
 
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Ret</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_N</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span>
+        <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">for</span>
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ArcDynFn_N</span> <span class="op">&lt;</span><span class="ident">Ret</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_N</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">Ret</span> : <span class="ident">ReprC</span>, $(
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_N</span> : <span class="ident">ReprC</span>, $(
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_k</span> : <span class="ident">ReprC</span>, )<span class="kw-2">*</span>)<span class="question-mark">?</span>
+        <span class="ident">F</span> : <span class="ident">Fn</span>( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_N</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span> ) -&gt; <span class="ident">Ret</span>,
+        <span class="ident">F</span> : <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    {
+        <span class="attribute">#[<span class="ident">inline</span>]</span>
+        <span class="kw">fn</span> <span class="ident">from</span> (<span class="ident">f</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>)
+          -&gt; <span class="self">Self</span>
+        {
+            <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">f</span>)
+        }
+    }
+
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ret</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_N</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span>
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ArcDynFn_N</span> <span class="op">&lt;</span><span class="ident">Ret</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_N</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span><span class="op">&gt;</span>
     <span class="kw">where</span>
@@ -346,7 +409,8 @@
     {
         <span class="attribute">#[<span class="ident">inline</span>]</span>
         <span class="kw">pub</span>
-        <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> (<span class="ident">f</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span>
+        <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> (<span class="ident">f</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>)
+          -&gt; <span class="self">Self</span>
         <span class="kw">where</span>
             <span class="ident">F</span> : <span class="ident">Fn</span>( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_N</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span> ) -&gt; <span class="ident">Ret</span>,
             <span class="ident">F</span> : <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,

@@ -41,12 +41,107 @@
 <span id="36">36</span>
 <span id="37">37</span>
 <span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
 <span class="doccomment">//! Closures with a `#[repr(C)]` layout (inlined vtable),</span>
 <span class="doccomment">//! up to 9 function arguments.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Simplified for lighter documentation, but the actual `struct` definitions</span>
 <span class="doccomment">//! and impls range up to `...DynFn...9`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Examples</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ### FFI-safe `Box&lt;dyn FnMut()&gt;`</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">/*!  - ```rust
+    use ::safer_ffi::prelude::*;
+
+    let mut captured = String::from(&quot;…&quot;);
+    let ffi_safe: repr_c::Box&lt;dyn Send + FnMut()&gt; =
+        Box::new(move || {
+            captured.push(&#39;!&#39;);
+            println!(&quot;{}&quot;, captured);
+        })
+        .into()
+    ;
+
+    fn assert_ffi_safe (_: &amp;impl ReprC)
+    {}
+    assert_ffi_safe(&amp;ffi_safe);
+    ``` */</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ### FFI-safe `Arc&lt;dyn Fn()&gt;`</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">/*!  - ```rust
+    use ::{
+        safer_ffi::{
+            prelude::*,
+        },
+        std::{
+            sync::Arc,
+        },
+    };
+
+    let captured = String::from(&quot;…&quot;);
+    let ffi_safe: repr_c::Arc&lt;dyn Send + Sync + Fn()&gt; =
+        Arc::new(move || {
+            println!(&quot;{}&quot;, captured);
+        })
+        .into()
+    ;
+
+    fn assert_ffi_safe (_: &amp;impl ReprC)
+    {}
+    assert_ffi_safe(&amp;ffi_safe);
+    ``` */</span>
+<span class="doccomment">//!</span>
 
 <span class="macro">cfg_alloc!</span> {
     <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">arc</span>;
@@ -69,6 +164,7 @@
         },
     };
 }
+
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">borrowed</span>;
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
