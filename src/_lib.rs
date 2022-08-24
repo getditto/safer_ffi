@@ -348,6 +348,9 @@ mod prelude {
                 string::String,
                 vec::Vec,
             };
+
+            pub
+            type Arc<T> = <T as crate::boxed::FitForCArc>::CArcWrapped;
         }
     }
     pub

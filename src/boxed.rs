@@ -8,17 +8,17 @@ ReprC! {
     /// Same as [`Box<T>`][`rust::Box`], (_e.g._, same `#[repr(C)]` layout), but
     /// with **no non-aliasing guarantee**.
     pub
-    struct Box[T] (
+    struct Box_[T] (
         ptr::NonNullOwned<T>,
     );
 }
 
 impl<T> From<rust::Box<T>>
-    for Box<T>
+    for Box_<T>
 {
     #[inline]
     fn from (boxed: rust::Box<T>)
-      -> Box<T>
+      -> Box_<T>
     {
         Self(
             ptr::NonNull::from(rust::Box::leak(boxed))
@@ -27,7 +27,7 @@ impl<T> From<rust::Box<T>>
     }
 }
 
-impl<T> Box<T> {
+impl<T> Box_<T> {
     #[inline]
     pub
     fn new (value: T)
@@ -39,7 +39,7 @@ impl<T> Box<T> {
 
     #[inline]
     pub
-    fn into (self: Box<T>)
+    fn into (self: Box_<T>)
       -> rust::Box<T>
     {
         let mut this = mem::ManuallyDrop::new(self);
@@ -50,10 +50,10 @@ impl<T> Box<T> {
 }
 
 impl<T> Drop
-    for Box<T>
+    for Box_<T>
 {
     #[inline]
-    fn drop (self: &'_ mut Box<T>)
+    fn drop (self: &'_ mut Box_<T>)
     {
         unsafe {
             drop::<rust::Box<T>>(
@@ -64,12 +64,12 @@ impl<T> Drop
 }
 
 impl<T> Deref
-    for Box<T>
+    for Box_<T>
 {
     type Target = T;
 
     #[inline]
-    fn deref (self: &'_ Box<T>)
+    fn deref (self: &'_ Box_<T>)
       -> &'_ T
     {
         unsafe {
@@ -79,10 +79,10 @@ impl<T> Deref
 }
 
 impl<T> DerefMut
-    for Box<T>
+    for Box_<T>
 {
     #[inline]
-    fn deref_mut (self: &'_ mut Box<T>)
+    fn deref_mut (self: &'_ mut Box_<T>)
       -> &'_ mut T
     {
         unsafe {
@@ -92,19 +92,19 @@ impl<T> DerefMut
 }
 
 unsafe impl<T> Send
-    for Box<T>
+    for Box_<T>
 where
     rust::Box<T> : Send,
 {}
 
 unsafe impl<T> Sync
-    for Box<T>
+    for Box_<T>
 where
     rust::Box<T> : Sync,
 {}
 
 impl<T : fmt::Debug> fmt::Debug
-    for Box<T>
+    for Box_<T>
 {
     fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
       -> fmt::Result
@@ -118,3 +118,20 @@ pub use crate::slice::slice_boxed;
 
 #[doc(no_inline)]
 pub use crate::string::str_boxed;
+
+pub
+type Box<T> = <T as FitForCBox>::CBoxWrapped;
+
+pub
+trait FitForCBox {
+    type CBoxWrapped;
+}
+
+impl<T : Sized + ReprC> FitForCBox for T {
+    type CBoxWrapped = Box_<T>;
+}
+
+pub
+trait FitForCArc {
+    type CArcWrapped;
+}

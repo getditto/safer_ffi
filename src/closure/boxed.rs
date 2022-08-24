@@ -10,6 +10,18 @@ macro_rules! with_tuple {(
         $( $A_N:ident, $($A_k:ident ,)* )?
     )
 ) => (
+    impl<Ret $(, $A_N $(, $A_k)*)?>
+        crate::boxed::FitForCBox
+    for
+        dyn 'static + Send + FnMut($($A_N $(, $A_k)*)?) -> Ret
+    where
+        Ret : ReprC, $(
+        $A_N : ReprC, $(
+        $A_k : ReprC, )*)?
+    {
+        type CBoxWrapped = $BoxDynFnMut_N<Ret $(, $A_N $(, $A_k)*)?>;
+    }
+
     ReprC! {
         @[doc = concat!(
             "`Box<dyn 'static + Send + FnMut(" $(,
@@ -52,6 +64,25 @@ macro_rules! with_tuple {(
             $A_N : ReprC, $(
             $A_k : ReprC, )*)?
         {}
+
+    impl<F, Ret $(, $A_N $(, $A_k)*)?>
+        From<rust::Box<F>>
+    for
+        $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
+    where
+        Ret : ReprC, $(
+        $A_N : ReprC, $(
+        $A_k : ReprC, )*)?
+        F : FnMut( $($A_N $(, $A_k)*)? ) -> Ret,
+        F : Send + 'static,
+    {
+        #[inline]
+        fn from (f: rust::Box<F>)
+          -> Self
+        {
+            Self::new(f)
+        }
+    }
 
     impl<Ret $(, $A_N $(, $A_k)*)?>
         $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
