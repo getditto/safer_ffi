@@ -108,6 +108,28 @@ int32_t
 async_get_ft (void);
 
 /** \brief
+ *  `Arc<dyn Send + Sync + Fn() -> Ret>`
+ */
+typedef struct ArcDynFn0_void {
+    /** <No documentation available> */
+    void * env_ptr;
+
+    /** <No documentation available> */
+    void (*call)(void *);
+
+    /** <No documentation available> */
+    void (*release)(void *);
+
+    /** <No documentation available> */
+    void (*retain)(void *);
+} ArcDynFn0_void_t;
+
+/** <No documentation available> */
+void
+call_in_the_background (
+    ArcDynFn0_void_t f);
+
+/** \brief
  *  This is a `#[repr(C)]` enum, which leads to a classic enum def.
  */
 typedef enum SomeReprCEnum {

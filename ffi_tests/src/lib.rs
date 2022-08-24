@@ -36,6 +36,18 @@ fn returns_a_fn_ptr ()
     f
 }
 
+#[ffi_export]
+fn call_in_the_background (
+    f: repr_c::Arc<dyn Send + Sync + Fn()>,
+)
+{
+    let f2 = f.clone();
+    ::std::thread::spawn(move || {
+        f2.call()
+    });
+    drop(f);
+}
+
 /// https://github.com/getditto/safer_ffi/issues/45
 #[ffi_export]
 fn _issue_45<'a, 'b> (_: i32)
@@ -92,7 +104,8 @@ mod foo {
     #[ffi_export]
     fn new_foo () -> repr_c::Box<Foo>
     {
-        repr_c::Box::new(Foo { hidden: 42 })
+        Box::new(Foo { hidden: 42 })
+            .into()
     }
 
     #[ffi_export]

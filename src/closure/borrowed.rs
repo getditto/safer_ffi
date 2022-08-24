@@ -48,6 +48,25 @@ macro_rules! with_tuple {(
         $A_k : ReprC, )*)?
     {}
 
+    impl<'lt, F, Ret $(, $A_N $(, $A_k)*)?>
+        From<&'lt mut F>
+    for
+        $RefDynFnMut_N<'lt, Ret $(, $A_N $(, $A_k)*)?>
+    where
+        Ret : ReprC, $(
+        $A_N : ReprC, $(
+        $A_k : ReprC, )*)?
+        F : Fn( $($A_N $(, $A_k)*)? ) -> Ret,
+        F : Send + 'static,
+    {
+        #[inline]
+        fn from (f: &'lt mut F)
+          -> Self
+        {
+            Self::new(f)
+        }
+    }
+
     impl<'lt, Ret $(, $A_N $(, $A_k)*)?>
         $RefDynFnMut_N <'lt, Ret $(, $A_N $(, $A_k)*)?>
     where

@@ -89,6 +89,35 @@ public unsafe partial class Ffi {
     Int32 async_get_ft ();
 }
 
+[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+public unsafe /* static */ delegate
+    void
+    void_void_ptr_fptr (
+        void * _0);
+
+/// <summary>
+/// <c>Arc<dyn Send + Sync + Fn() -> Ret></c>
+/// </summary>
+[StructLayout(LayoutKind.Sequential, Size = 32)]
+public unsafe struct ArcDynFn0_void_t {
+    public void * env_ptr;
+
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public void_void_ptr_fptr call;
+
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public void_void_ptr_fptr release;
+
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public void_void_ptr_fptr retain;
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    void call_in_the_background (
+        ArcDynFn0_void_t f);
+}
+
 /// <summary>
 /// This is a <c>#[repr(C)]</c> enum, which leads to a classic enum def.
 /// </summary>

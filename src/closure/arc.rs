@@ -11,9 +11,21 @@ macro_rules! with_tuple {(
         $( $A_N:ident, $($A_k:ident ,)* )?
     )
 ) => (
+    impl<Ret $(, $A_N $(, $A_k)*)?>
+        crate::boxed::FitForCArc
+    for
+        dyn 'static + Send + Sync + Fn($($A_N $(, $A_k)*)?) -> Ret
+    where
+        Ret : ReprC, $(
+        $A_N : ReprC, $(
+        $A_k : ReprC, )*)?
+    {
+        type CArcWrapped = $ArcDynFn_N <Ret $(, $A_N $(, $A_k)*)?>;
+    }
+
     ReprC! {
         @[doc = concat!(
-            "`Arc<dyn 'static + Send + Sync + Fn(" $(,
+            "`Arc<dyn Send + Sync + Fn(" $(,
                 stringify!($A_N) $(, ", ", stringify!($A_k))*
             )?,
             ") -> Ret>`",
@@ -69,6 +81,25 @@ macro_rules! with_tuple {(
         $A_k : ReprC, )*)?
     {}
 
+    impl<F, Ret $(, $A_N $(, $A_k)*)?>
+        From<Arc<F>>
+    for
+        $ArcDynFn_N <Ret $(, $A_N $(, $A_k)*)?>
+    where
+        Ret : ReprC, $(
+        $A_N : ReprC, $(
+        $A_k : ReprC, )*)?
+        F : Fn( $($A_N $(, $A_k)*)? ) -> Ret,
+        F : Send + Sync + 'static,
+    {
+        #[inline]
+        fn from (f: Arc<F>)
+          -> Self
+        {
+            Self::new(f)
+        }
+    }
+
     impl<Ret $(, $A_N $(, $A_k)*)?>
         $ArcDynFn_N <Ret $(, $A_N $(, $A_k)*)?>
     where
@@ -78,7 +109,8 @@ macro_rules! with_tuple {(
     {
         #[inline]
         pub
-        fn new<F> (f: Arc<F>) -> Self
+        fn new<F> (f: Arc<F>)
+          -> Self
         where
             F : Fn( $($A_N $(, $A_k)*)? ) -> Ret,
             F : Send + Sync + 'static,
