@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdatomic.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -30,6 +31,23 @@ void foo_cb (
         42
     );
     foo_cb_called = true;
+}
+
+static atomic_int X = 0;
+void arc_call (
+    atomic_int * x)
+{
+    puts("Called from the other side");
+}
+void arc_retain (
+    atomic_int * x)
+{
+    *x += 1;
+}
+void arc_release (
+    atomic_int * x)
+{
+    *x -= 1;
 }
 
 int main (
@@ -100,6 +118,15 @@ int main (
 
     // test the currified thing
     assert(returns_a_fn_ptr()(0x42) == 0x4200);
+
+    X = 1;
+    call_in_the_background((ArcDynFn0_void_t) {
+        .env_ptr = ((void *) &X),
+        .call = ((void (*)(void *)) arc_call),
+        .release = ((void (*)(void *)) arc_release),
+        .retain = ((void (*)(void *)) arc_retain),
+    });
+    while (X > 0);
 
     puts("C: [ok]");
 
