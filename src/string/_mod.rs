@@ -20,6 +20,7 @@ cfg_alloc! {
         );
     }
 
+    /// Convert a [`std::string::String`] to a [`safer_ffi::String`].
     impl From<rust::String>
         for String
     {
@@ -29,15 +30,16 @@ cfg_alloc! {
             Self(rust::Vec::from(s).into())
         }
     }
-    impl Into<rust::String>
-        for String
+
+    /// Convert a [`safer_ffi::String`] to a [`std::string::String`].
+    impl From<String> for rust::String
     {
         #[inline]
-        fn into (self: String) -> rust::String
+        fn from(value: String) -> rust::String
         {
             unsafe {
                 rust::String::from_utf8_unchecked(
-                    self.0.into()
+                    value.0.into()
                 )
             }
         }

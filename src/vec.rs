@@ -45,6 +45,7 @@ impl<T> Vec<T> {
     }
 }
 
+/// Convert a [`std::vec::Vec`] to a [`safer_ffi::Vec`].
 impl<T> From<rust::Vec<T>>
     for Vec<T>
 {
@@ -66,14 +67,14 @@ impl<T> From<rust::Vec<T>>
     }
 }
 
-impl<T> Into<rust::Vec<T>>
-    for Vec<T>
+/// Convert a [`safer_ffi::Vec`] to a [`std::vec::Vec`].
+impl<T> From<Vec<T>> for rust::Vec<T>
 {
     #[inline]
-    fn into (self: Vec<T>)
+    fn from (value: Vec<T>)
       -> rust::Vec<T>
     {
-        let mut this = mem::ManuallyDrop::new(self);
+        let mut this = mem::ManuallyDrop::new(value);
         unsafe {
             // Safety: pointers originate from `Vec`.
             rust::Vec::from_raw_parts(
