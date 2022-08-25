@@ -93,27 +93,25 @@ cfg_alloc! {
         }
     }
 
-    impl Into<rust::Box<str>>
-        for str_boxed
+    impl From<str_boxed> for rust::Box<str>
     {
-        fn into (self: str_boxed)
+        fn from (value: str_boxed)
           -> rust::Box<str>
         {
             unsafe {
                 rust::Box::from_raw(rust::Box::<[u8]>::into_raw(
-                    self.0.into()
+                    value.0.into()
                 ) as _)
             }
         }
     }
 
-    impl Into<rust::String>
-        for str_boxed
+    impl From<str_boxed> for rust::String
     {
-        fn into (self: str_boxed)
+        fn from (value: str_boxed)
           -> rust::String
         {
-            <rust::Box<str>>::into(self.into())
+            <rust::Box<str>>::into(value.into())
         }
     }
 }

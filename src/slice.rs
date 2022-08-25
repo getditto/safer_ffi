@@ -181,14 +181,13 @@ cfg_alloc! {
         }
     }
 
-    impl<T> Into<rust::Box<[T]>>
-        for slice_boxed<T>
+    impl<T> From<slice_boxed<T>> for rust::Box<[T]>
     {
         #[inline]
-        fn into (self: slice_boxed<T>)
+        fn from (value: slice_boxed<T>)
           -> rust::Box<[T]>
         {
-            let mut this = mem::ManuallyDrop::new(self);
+            let mut this = mem::ManuallyDrop::new(value);
             unsafe {
                 rust::Box::from_raw(
                     slice::from_raw_parts_mut(
