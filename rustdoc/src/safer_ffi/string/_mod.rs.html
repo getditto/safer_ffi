@@ -88,6 +88,8 @@
 <span id="83">83</span>
 <span id="84">84</span>
 <span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
 <span class="doccomment">//! `Rust` string types with a defined `#[repr(C)]` layout, albeit not `char *`</span>
 <span class="doccomment">//! compatible (_fat_ pointers).</span>
@@ -110,6 +112,7 @@
         );
     }
 
+    <span class="doccomment">/// Convert a [`std::string::String`] to a [`safer_ffi::String`].</span>
     <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">rust::String</span><span class="op">&gt;</span>
         <span class="kw">for</span> <span class="ident">String</span>
     {
@@ -119,15 +122,16 @@
             <span class="self">Self</span>(<span class="ident">rust::Vec::from</span>(<span class="ident">s</span>).<span class="ident">into</span>())
         }
     }
-    <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">rust::String</span><span class="op">&gt;</span>
-        <span class="kw">for</span> <span class="ident">String</span>
+
+    <span class="doccomment">/// Convert a [`safer_ffi::String`] to a [`std::string::String`].</span>
+    <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">rust::String</span>
     {
         <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">into</span> (<span class="self">self</span>: <span class="ident">String</span>) -&gt; <span class="ident">rust::String</span>
+        <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">String</span>) -&gt; <span class="ident">rust::String</span>
         {
             <span class="kw">unsafe</span> {
                 <span class="ident">rust::String::from_utf8_unchecked</span>(
-                    <span class="self">self</span>.<span class="number">0</span>.<span class="ident">into</span>()
+                    <span class="ident">value</span>.<span class="number">0</span>.<span class="ident">into</span>()
                 )
             }
         }

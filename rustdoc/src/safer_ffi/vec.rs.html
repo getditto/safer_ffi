@@ -189,6 +189,7 @@
 <span id="184">184</span>
 <span id="185">185</span>
 <span id="186">186</span>
+<span id="187">187</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
 
 <span class="macro">use_prelude!</span>();
@@ -236,6 +237,7 @@
     }
 }
 
+<span class="doccomment">/// Convert a [`std::vec::Vec`] to a [`safer_ffi::Vec`].</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">rust::Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 {
@@ -257,14 +259,14 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">rust::Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="doccomment">/// Convert a [`safer_ffi::Vec`] to a [`std::vec::Vec`].</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">rust::Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">into</span> (<span class="self">self</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
+    <span class="kw">fn</span> <span class="ident">from</span> (<span class="ident">value</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
       -&gt; <span class="ident">rust::Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="ident">mem::ManuallyDrop::new</span>(<span class="self">self</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="ident">mem::ManuallyDrop::new</span>(<span class="ident">value</span>);
         <span class="kw">unsafe</span> {
             <span class="comment">// Safety: pointers originate from `Vec`.</span>
             <span class="ident">rust::Vec::from_raw_parts</span>(
