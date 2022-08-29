@@ -40,6 +40,9 @@
 <span id="35">35</span>
 <span id="36">36</span>
 <span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">super</span>)
@@ -61,13 +64,16 @@
         }
     }
     <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">Ty_str</span> @ <span class="kw">_</span> <span class="op">=</span> <span class="ident">Ty</span>.<span class="ident">to_string</span>();
+    <span class="kw">let</span> <span class="ident">inventory_krate</span> <span class="op">=</span> <span class="macro">cfg!</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;inventory-0-3-1&quot;</span>)).<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> {
+        <span class="macro">quote!</span>( <span class="attribute">#![<span class="kw">crate</span> <span class="op">=</span> <span class="ident">::safer_ffi</span>]</span> )
+    });
     <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(
         #<span class="ident">input</span>
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
         <span class="macro">::safer_ffi::__cfg_headers__!</span> {
             <span class="macro">::safer_ffi::inventory::submit!</span> {
-                <span class="attribute">#![<span class="kw">crate</span> <span class="op">=</span> <span class="ident">::safer_ffi</span>]</span>
+                #<span class="ident">inventory_krate</span>
 
                 <span class="ident">::safer_ffi::FfiExport</span> {
                     <span class="ident">name</span>: #<span class="ident">Ty_str</span>,

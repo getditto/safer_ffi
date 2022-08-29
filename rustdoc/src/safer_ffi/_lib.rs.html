@@ -655,6 +655,14 @@
 <span id="650">650</span>
 <span id="651">651</span>
 <span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">warn</span>(<span class="ident">warnings</span>)]</span> <span class="comment">// Prevent `-Dwarnings` from causing breakage.</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::all</span>)]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
@@ -880,8 +888,16 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">layout</span>;
 
 <span class="macro">__cfg_headers__!</span> {
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="kw">pub</span>
-    <span class="kw">use</span> <span class="ident">::inventory</span>;
+    <span class="macro">cfg_match!</span> {
+        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;inventory-0-3-1&quot;</span> =&gt; {
+            <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="kw">pub</span>
+            <span class="kw">use</span> <span class="ident">::inventory_0_3_1</span> <span class="kw">as</span> <span class="ident">inventory</span>;
+        },
+        <span class="kw">_</span> =&gt; {
+            <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="kw">pub</span>
+            <span class="kw">use</span> <span class="ident">::inventory</span>;
+        },
+    }
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>,
         <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;headers&quot;</span>)),
@@ -903,7 +919,7 @@
         ,
     }
 
-    <span class="macro">::inventory::collect!</span>(<span class="ident">FfiExport</span>);
+    <span class="macro">self::inventory::collect!</span>(<span class="ident">FfiExport</span>);
 }
 
 <span class="macro">cfg_alloc!</span> {
@@ -1138,7 +1154,6 @@
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;headers&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> {
-        <span class="ident">::inventory</span>,
         <span class="kw">crate</span>::{
             <span class="ident">headers</span>::{
                 <span class="ident">Definer</span>,
@@ -1151,6 +1166,7 @@
                     <span class="ident">StructField</span>,
                 },
             },
+            <span class="ident">inventory</span>,
             <span class="ident">FfiExport</span>,
         },
     };
