@@ -76,7 +76,7 @@ safer-ffi.features = [] # you may add some later on.
 headers = ["safer-ffi/headers"]
 ```
 
-  - Where `"*"` ought to be replaced by the last released version, which you
+  - Where `"x.y.z"` ought to be replaced by the last released version, which you
     can find by running `cargo search safer-ffi`.
 
   - See the [dedicated chapter on `Cargo.toml`][cargo-toml] for more info.
