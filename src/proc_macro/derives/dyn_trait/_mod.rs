@@ -13,12 +13,13 @@ use {
     }
 };
 
+mod receiver_types;
+mod vtable_entry;
+
 enum Input {
     Trait(ItemTrait),
     TokenStream(TokenStream2),
 }
-
-mod vtable_entry;
 
 impl Parse for Input {
     fn parse (input: ParseStream<'_>)
@@ -111,7 +112,7 @@ fn try_handle_trait (
                     // but which "yields" / results in a 'static CType.
                     // So let's use the
                     // non-generic-assoc-type-of-a-generic-trait trick for this.
-                    <() as #ඞ::IdentityIgnoring<#lifetime>>::ItSelf
+                    <u8 as #ඞ::IdentityIgnoring<#lifetime>>::ItSelf
                 ))
             ,
             trait_generics_and_lt.type_params().map(|ty| {

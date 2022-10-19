@@ -1040,3 +1040,155 @@ impl_ReprC_for! { unsafe {
             (*it as usize) % ::core::mem::align_of::<T>() == 0
         },
 }}
+
+pub
+type OpaqueLayout<T> = OpaqueLayout_<
+    ::core::marker::PhantomData<T>,
+>;
+
+#[derive(Debug, Clone, Copy)]
+pub
+struct OpaqueLayout_<Phantom> (
+    Phantom,
+);
+
+from_CType_impl_ReprC!(@for[T] OpaqueLayout<T>);
+unsafe
+impl<T> CType for OpaqueLayout<T> {
+    type OPAQUE_KIND = OpaqueKind::Opaque;
+
+    __cfg_headers__! {
+        fn short_name ()
+          -> String
+        {
+            let mut it = String::from("Opaque");
+            crate::ඞ::append_unqualified_name(&mut it, ::core::any::type_name::<T>());
+            it
+        }
+
+        fn define_self__impl (
+            language: &'_ dyn HeaderLanguage,
+            definer: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        {
+            language.emit_opaque_type(
+                definer,
+                &[
+                    &format!(
+                        "The layout of `{}` is opaque/subject to changes.",
+                        ::core::any::type_name::<T>(),
+                    ),
+                ],
+                &PhantomData::<Self>,
+            )
+        }
+    }
+}
+
+#[derive(Debug)]
+#[repr(transparent)]
+pub
+struct Opaque<T> {
+    pub concrete: T,
+}
+
+impl<T> ::core::ops::Deref for Opaque<T> {
+    type Target = T;
+
+    fn deref (self: &'_ Opaque<T>)
+      -> &'_ T
+    {
+        &self.concrete
+    }
+}
+
+impl<T> ::core::ops::DerefMut for Opaque<T> {
+    fn deref_mut (self: &'_ mut Opaque<T>)
+      -> &'_ mut T
+    {
+        &mut self.concrete
+    }
+}
+
+impl<T> From<Box<T>> for Box<Opaque<T>> {
+    fn from (b: Box<T>)
+      -> Box<Opaque<T>>
+    {
+        unsafe {
+            Box::from_raw(Box::into_raw(b).cast())
+        }
+    }
+}
+
+impl<T> From<Box<T>> for crate::boxed::Box_<Opaque<T>> {
+    fn from (b: Box<T>)
+      -> repr_c::Box<Opaque<T>>
+    {
+        Box::<Opaque<T>>::from(b).into()
+    }
+}
+
+impl<'r, T> From<&'r T> for &'r Opaque<T> {
+    fn from (r: &'r T)
+      -> &'r Opaque<T>
+    {
+        unsafe {
+            &* <*const _>::cast::<Opaque<T>>(r)
+        }
+    }
+}
+
+impl<'r, T> From<&'r mut T> for &'r mut Opaque<T> {
+    fn from (r: &'r mut T)
+      -> &'r mut Opaque<T>
+    {
+        unsafe {
+            &mut* <*mut _>::cast::<Opaque<T>>(r)
+        }
+    }
+}
+
+unsafe
+impl<T> ReprC for Opaque<T> {
+    type CLayout = OpaqueLayout<T>;
+
+    fn is_valid (_: &'_ Self::CLayout)
+      -> bool
+    {
+        unreachable! {"\
+            wondering about the validity of an opaque type \
+            makes no sense\
+        "};
+    }
+}
+
+match_! {(
+    ['c] ::core::task::Context<'c> => "core_task_Context",
+) {(
+    $(
+        $(#[doc = $docs:expr])*
+        [$($generics:tt)*] $T:ty => $short_name:expr
+    ),* $(,)?
+) => (
+    $(
+        unsafe
+        impl<$($generics)*>
+            ReprC
+        for
+            $T
+        where
+            // …
+        {
+            type CLayout = OpaqueLayout<$T>;
+
+            fn is_valid (_: &'_ Self::CLayout)
+              -> bool
+            {
+                unreachable! {"\
+                    wondering about the validity of an opaque type \
+                    makes no sense\
+                "};
+            }
+        }
+    )*
+)}}

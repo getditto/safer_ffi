@@ -19,6 +19,7 @@ exclude = ["/guide"]
 [features]
 default = [
     "std",
+    "tokio",
 ]
 
 # Document under the following features: all but for debug or experimental.
@@ -48,6 +49,16 @@ debug_proc_macros = [
 
 dyn-traits = [
     "safer_ffi-proc_macros/dyn-traits",
+]
+
+futures = [
+    "dep:futures",
+    "dyn-traits",
+]
+
+tokio = [
+    "dep:tokio",
+    "futures",
 ]
 
 out-refs = [
@@ -94,6 +105,11 @@ safer-ffi.features = [
 libc = { version = "0.2.66", default-features = false }
 
 [dependencies]
+futures.version = "0.3.24"
+futures.optional = true
+tokio.version = "1.21.2"
+tokio.optional = true
+
 paste = { package = "mini_paste", version = "0.1.*" }
 log.version = "0.4.8"
 log.optional = true

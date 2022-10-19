@@ -11,6 +11,7 @@ use ::{
 use crate::{
     utils::TurboFish,
 };
+use gloo_utils::format::JsValueSerdeExt;
 
 pub
 mod derive {

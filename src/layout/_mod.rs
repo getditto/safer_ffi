@@ -892,6 +892,7 @@ fn into_raw<T : ReprC> (it: T)
     }
 }
 
+pub use impls::Opaque;
 pub(in crate)
 mod impls;
 
