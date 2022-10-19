@@ -298,7 +298,7 @@ match_! {(
             Builder {
                 target: WhereTo, $(
                 $field, )*
-            }.generate_with_definer(HashSetDefiner {
+            }.generate_with_definer(&mut HashSetDefiner {
                 out: &mut target,
                 defines_set: Default::default(),
             })
@@ -325,18 +325,18 @@ impl Builder<'_, WhereTo> {
     /// With this call, one can provide a custom implementation of a [`Definer`],
     /// which can be useful for mock tests, mainly.
     pub
-    fn generate_with_definer (self, mut definer: impl Definer)
+    fn generate_with_definer (self, definer: &mut impl Definer)
       -> io::Result<()>
     {
         let config = self;
         // Banner
-        config.write_banner(&mut definer)?;
+        config.write_banner(definer)?;
         // Prelude
-        config.write_prelude(&mut definer)?;
+        config.write_prelude(definer)?;
         /* User-provided defs! */
-        config.write_body(&mut definer)?;
+        config.write_body(definer)?;
         // Epilogue
-        config.write_epilogue(&mut definer)?;
+        config.write_epilogue(definer)?;
         Ok(())
     }
 
