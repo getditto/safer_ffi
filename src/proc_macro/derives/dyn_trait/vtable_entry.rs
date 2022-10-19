@@ -69,6 +69,7 @@ impl<'trait_> VTableEntry<'trait_> {
                         unsafe {
                             ::core::mem::transmute(
                                 (self.__vtable().#name)(
+                                    // FIXME: use traits to feature .into_raw() / .from_raw()
                                     ::core::mem::transmute(self.__ptr()),
                                     #(
                                         ::core::mem::transmute(#each_arg_name),
@@ -120,7 +121,7 @@ impl<'trait_> VTableEntry<'trait_> {
                 src: _,
             } => {
                 let span = Span::mixed_site().located_at(name.span());
-                let EachArgTy @ _ = EachArgTy.iter().copied().map(CType).collect::<Vec<_>>();
+                let EachArgTy @ _ = EachArgTy.iter().copied().vmap(CType);
                 let OutputTy @ _ = CType(OutputTy.get(0).unwrap_or(&parse_quote!( () )));
                 let type_ = quote_spanned!(span=>
                     for<#(#each_for_lifetime),*>
@@ -236,8 +237,8 @@ fn vtable_entries<'trait_> (
         | TraitItem::Method(ref trait_item_method @ TraitItemMethod {
             attrs: _,
             sig: ref sig @ Signature {
-                constness: _, // ref const_,
-                asyncness: _, // ref async_,
+                constness: ref const_,
+                asyncness: ref async_,
                 unsafety: _, // ref unsafe_,
                 abi: _, // ref extern_,
                 fn_token: _,
@@ -245,39 +246,49 @@ fn vtable_entries<'trait_> (
                 ref generics,
                 ref paren_token,
                 ref inputs,
-                variadic: _, // ref variadic,
+                variadic: ref variadic,
                 output: ref RetTy @ _,
             },
             default: _,
             semi_token: _,
         }) => {
-            // Is there a `Self : Sized` opt-out-of-`dyn` clause?
-            if matches!(
-                generics.where_clause, Some(ref where_clause)
-                if where_clause.predicates.iter().any(|clause| matches!(
-                    *clause, WherePredicate::Type(PredicateType {
-                        lifetimes: ref _for,
-                        bounded_ty: Type::Path(TypePath {
-                            qself: None,
-                            path: ref BoundedTy @ _,
-                        }),
-                        colon_token: _,
-                        ref bounds,
-                    })
-                    if BoundedTy.is_ident("Self")
-                    && bounds.iter().any(|Bound @ _| matches!(
-                        *Bound, TypeParamBound::Trait(TraitBound {
-                            path: ref Super @ _,
-                            ..
-                        })
-                        if Super.is_ident("Sized")
-                    ))
-                ))
-            )
-            {
-                // If so, skip it, it did opt out after all.
-                continue_!()
-            }
+            // // Is there a `Self : Sized` opt-out-of-`dyn` clause?
+            // if matches!(
+            //     generics.where_clause, Some(ref where_clause)
+            //     if where_clause.predicates.iter().any(|clause| matches!(
+            //         *clause, WherePredicate::Type(PredicateType {
+            //             lifetimes: ref _for,
+            //             bounded_ty: Type::Path(TypePath {
+            //                 qself: None,
+            //                 path: ref BoundedTy @ _,
+            //             }),
+            //             colon_token: _,
+            //             ref bounds,
+            //         })
+            //         if BoundedTy.is_ident("Self")
+            //         && bounds.iter().any(|Bound @ _| matches!(
+            //             *Bound, TypeParamBound::Trait(TraitBound {
+            //                 path: ref Super @ _,
+            //                 ..
+            //             })
+            //             if Super.is_ident("Sized")
+            //         ))
+            //     ))
+            // )
+            // {
+            //     // If so, skip it, it did opt out after all.
+            //     continue_!()
+            // }
+            match_! {(const_ async_ variadic) {( $($it:tt)* ) => (
+                $(
+                    if $it.is_some() {
+                        failwith! {
+                            "not `dyn`-safe" => $it,
+                        }
+                    }
+
+                )*
+            )}}
             let ref mut storage = None;
             let lifetime_of_and = move |and: &Token![&], mb_lt| {
                 let _: &Option<Lifetime> = mb_lt;
@@ -287,67 +298,10 @@ fn vtable_entries<'trait_> (
                     )
                 })
             };
-            let self_lt: Option<&Lifetime> = if let Some(receiver) = sig.receiver() {
-                let is_Self = |T: &Type| matches!(
-                    *T, Type::Path(TypePath {
-                        qself: None, ref path,
-                    }) if path.is_ident("Self")
-                );
-                loop {
-                    match *receiver {
-                        | FnArg::Receiver(Receiver {
-                            attrs: _,
-                            reference: /* heh */ ref ref_,
-                            // thanks to raw pointers, we can disregard mutability
-                            mutability: _,
-                            self_token: _,
-                        }) => {
-                            break ref_.as_ref().map(|(and, mb_lt)| lifetime_of_and(and, mb_lt));
-                        },
-                        | FnArg::Typed(PatType { ref ty, ..}) => {
-                            match **ty {
-                                | Type::Reference(TypeReference {
-                                    and_token: ref and,
-                                    lifetime: ref mb_lt,
-                                    elem: ref Pointee @ _,
-                                    ..
-                                })
-                                    if is_Self(Pointee)
-                                => {
-                                    break Some(lifetime_of_and(and, mb_lt));
-                                },
-
-                                | _ if is_Self(ty) => {
-                                    failwith!("owned `Self` receiver is not `dyn` safe" => ty);
-                                },
-
-                                | Type::Path(TypePath {
-                                    qself: None,
-                                    path: ref BoxedSelf @ _,
-                                })
-                                    if BoxedSelf.segments.last().unwrap().ident == "Box"
-                                => {
-                                    // generate a compile-time assertion checking
-                                    // that the path is indeed a Box.
-                                    emit.extend(quote!(
-                                        const _: () = {
-                                            enum __Self {}
-                                            impl
-                                                ::safer_ffi::dyn_traits::__assert_dyn_safe
-                                            for
-                                                __Self
-                                            {
-                                                fn m(self: #BoxedSelf) {}
-                                            }
-                                        };
-                                    ));
-                                    break None;
-                                },
-                                | _ => {},
-                            }
-                            failwith!("arbitrary `Self` types are not supported" => ty);
-                        },
-                    }
+            let receiver = if let Some(fn_arg) = sig.receiver() {
+                match ReceiverType::from_fn_arg(fn_arg) {
+                    | Ok(it) => it,
+                    | Err(err) => return Some(Err(err)),
                 }
             } else {
                 return Some(Err(Error::new(
@@ -359,6 +313,7 @@ fn vtable_entries<'trait_> (
                     ",
                 )));
             };
+            let self_lt = Some { 0: &Lifetime::new("'_", Span::mixed_site()) };
             /* From now on, we'll assume "no funky stuff", _e.g._, no generics, etc.
              * since at the time of this writing, this kind of funky stuff is denied for
              * `dyn Trait`s, and we're gonna emit a `dyn_safe(true)` assertion beforehand.

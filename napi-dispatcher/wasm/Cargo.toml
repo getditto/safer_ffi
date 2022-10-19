@@ -7,6 +7,8 @@ authors = [
 edition = "2018"
 
 [dependencies]
+gloo-utils = { version = "0.1.5", features = ["serde"] }
+
 js-sys.version = "0.3.51"
 
 napi-dispatcher-wasm-proc_macros.path = "src/proc_macros"
@@ -17,6 +19,5 @@ serde.version = "1.0.0"
 serde.features = ["derive"]
 
 wasm-bindgen.version = "0.2.73"
-wasm-bindgen.features = ["serde-serialize"]
 
 wasm-bindgen-futures = "0.4.24"

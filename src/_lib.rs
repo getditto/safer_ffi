@@ -283,6 +283,10 @@ mod closure;
 pub
 mod dyn_traits;
 
+#[cfg(feature = "futures")]
+#[path = "futures/_mod.rs"]
+pub mod futures;
+
 pub
 mod ptr;
 
