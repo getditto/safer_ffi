@@ -279,9 +279,7 @@ fn try_handle_trait (
                         ::safer_ffi::dyn_traits::VirtualPtr::<dyn #Trait>::
                         from_raw_parts(
                             ::core::mem::transmute(boxed),
-                            ::core::convert::Into::into(
-                                <__GenericConst #fwd_all_generics>::VALUE
-                            ),
+                            #VTableName { ..*<__GenericConst #fwd_all_generics>::VALUE },
                         )
                     }
                 }

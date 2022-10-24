@@ -12,14 +12,14 @@ pub use self::ty::{
     Erased as ErasedTy,
 };
 
-#[super::derive_ReprC]
-#[repr(transparent)]
-#[allow(missing_debug_implementations)]
-pub
-struct ErasedRef<'a>(
-    ptr::NonNull<ErasedTy>,
-    ::core::marker::PhantomData<&'a ()>,
-);
+// #[super::derive_ReprC]
+// #[repr(transparent)]
+// #[allow(missing_debug_implementations)]
+// pub
+// struct ErasedRef<'a>(
+//     ptr::NonNull<ErasedTy>,
+//     ::core::marker::PhantomData<&'a ()>,
+// );
 
 pub
 trait ReprCTrait {
@@ -85,7 +85,7 @@ pub
 struct VirtualPtr<DynTrait : ?Sized + ReprCTrait>(
     VirtualPtr_<
         /* ptr: */ ptr::NonNullOwned<ty::Erased>,
-        /* vtable: */ ptr::NonNullRef<DynTrait::VTable>,
+        /* vtable: */ DynTrait::VTable,
     >
 );
 
@@ -107,7 +107,7 @@ impl<DynTrait : ?Sized + ReprCTrait> VirtualPtr<DynTrait> {
     unsafe
     fn from_raw_parts (
         ptr: ptr::NonNullOwned<ty::Erased>,
-        vtable: ptr::NonNullRef<DynTrait::VTable>,
+        vtable: DynTrait::VTable,
     ) -> VirtualPtr<DynTrait>
     {
         Self(VirtualPtr_ { ptr, vtable })
@@ -122,9 +122,9 @@ impl<DynTrait : ?Sized + ReprCTrait> VirtualPtr<DynTrait> {
 
     pub
     fn __vtable<'vtable> (self: &'_ VirtualPtr<DynTrait>)
-      -> &'vtable DynTrait::VTable
+      -> &'_ DynTrait::VTable
     {
-      unsafe { &*self.0.vtable.as_ptr() }
+      &self.0.vtable
     }
 }
 
