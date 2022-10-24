@@ -1,12 +1,6 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 
 use_prelude!();
-
-hidden_export! {
-    trait __AssocConst<Ty> {
-        const CONST: Ty;
-    }
-}
 hidden_export! {
     #[cfg(feature = "alloc")]
     trait __assert_dyn_safe {

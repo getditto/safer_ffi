@@ -221,7 +221,7 @@ impl<'trait_> VTableEntry<'trait_> {
 pub(in super)
 fn vtable_entries<'trait_> (
     trait_items: &'trait_ mut [TraitItem],
-    emit: &mut TokenStream2,
+    _emit: &mut TokenStream2,
 ) -> Result<Vec<VTableEntry<'trait_>>>
 {
     use ::quote::format_ident as ident;
@@ -230,9 +230,9 @@ fn vtable_entries<'trait_> (
     macro_rules! failwith {( $err_msg:expr => $at:expr $(,)? ) => (
         return Some(Err(Error::new_spanned($at, $err_msg)))
     )}
-    macro_rules! continue_ {() => (
-        return None
-    )}
+    // macro_rules! continue_ {() => (
+    //     return None
+    // )}
     trait_items.iter_mut().filter_map(|it| Some(Result::Ok(match *it {
         | TraitItem::Method(ref trait_item_method @ TraitItemMethod {
             attrs: _,
@@ -246,7 +246,7 @@ fn vtable_entries<'trait_> (
                 ref generics,
                 ref paren_token,
                 ref inputs,
-                variadic: ref variadic,
+                ref variadic,
                 output: ref RetTy @ _,
             },
             default: _,
@@ -289,15 +289,15 @@ fn vtable_entries<'trait_> (
 
                 )*
             )}}
-            let ref mut storage = None;
-            let lifetime_of_and = move |and: &Token![&], mb_lt| {
-                let _: &Option<Lifetime> = mb_lt;
-                mb_lt.as_ref().unwrap_or_else(|| {
-                    { storage }.get_or_insert(
-                        Lifetime::new("'_", and.span)
-                    )
-                })
-            };
+            // let ref mut storage = None;
+            // let lifetime_of_and = move |and: &Token![&], mb_lt| {
+            //     let _: &Option<Lifetime> = mb_lt;
+            //     mb_lt.as_ref().unwrap_or_else(|| {
+            //         { storage }.get_or_insert(
+            //             Lifetime::new("'_", and.span)
+            //         )
+            //     })
+            // };
             let receiver = if let Some(fn_arg) = sig.receiver() {
                 match ReceiverType::from_fn_arg(fn_arg) {
                     | Ok(it) => it,

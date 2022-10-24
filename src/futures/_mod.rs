@@ -15,13 +15,12 @@ use {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub
 enum PollFuture {
-    Success = 0,
-    Pending = 1,
-    Failure = -1,
+    Success,
+    Pending,
 }
 
-/// Output has to be `Result<(), ()>`.
-#[derive_ReprC]
+/// Output has to be `()`
+#[derive_ReprC(dyn)]
 pub
 trait FfiFuture {
     fn poll (self: Pin<&mut Self>, ctx: &'_ mut Context<'_>)
@@ -29,14 +28,13 @@ trait FfiFuture {
     ;
 }
 
-impl<F : Future<Output = Result<(), ()>>> FfiFuture for F {
+impl<F : Future<Output = ()>> FfiFuture for F {
     fn poll (self: Pin<&mut Self>, ctx: &'_ mut Context<'_>)
       -> PollFuture
     {
         match Future::poll(self, ctx) {
-            Poll::Pending => PollFuture::Pending,
-            Poll::Ready(Ok(())) => PollFuture::Success,
-            Poll::Ready(Err(())) => PollFuture::Failure,
+            | Poll::Pending => PollFuture::Pending,
+            | Poll::Ready(()) => PollFuture::Success,
         }
     }
 }
@@ -51,13 +49,11 @@ match_! {(
         impl VirtualPtr<dyn '_ + $($Send +)? FfiFuture> {
             pub
             async fn into_future (mut self)
-              -> Result<(), ()>
             {
                 ::futures::future::poll_fn(
                     move |cx| match Pin::new(&mut self).poll(cx) {
-                        PollFuture::Pending => Poll::Pending,
-                        PollFuture::Success => Poll::Ready(Ok(())),
-                        PollFuture::Failure => Poll::Ready(Err(())),
+                        | PollFuture::Pending => Poll::Pending,
+                        | PollFuture::Success => Poll::Ready(()),
                     }
                 )
                 .await
@@ -67,8 +63,9 @@ match_! {(
 )}}
 
 
-#[derive_ReprC]
-pub trait FfiFutureExecutor {
+#[derive_ReprC(dyn)]
+pub
+trait FfiFutureExecutor {
     fn dyn_spawn (
         self: &'_ Self,
         future: VirtualPtr<dyn 'static + Send + FfiFuture>,
@@ -89,19 +86,31 @@ pub trait FfiFutureExecutor {
 }
 
 impl VirtualPtr<dyn 'static + Send + Sync + FfiFutureExecutor> {
-    fn spawn (
+    pub
+    fn spawn<R : 'static + Send> (
         self: &'_ Self,
-        fut: impl 'static + Send + Future<Output = Result<(), ()>>,
-    ) -> impl Future<Output = Result<(), ()>>
+        fut: impl 'static + Send + Future<Output = R>,
+    ) -> impl Future<Output = R>
     {
-        self.dyn_spawn(Box::new(fut).into())
-            .into_future()
+        let (tx, rx) = ::futures::channel::oneshot::channel();
+        let fut = self.dyn_spawn(
+            Box::new(async move {
+                tx.send(fut.await).ok();
+            })
+            .into()
+        );
+        async move {
+            fut.into_future().await;
+            rx  .await
+                .unwrap()
+        }
     }
 
+    pub
     fn spawn_blocking (
         self: &'_ Self,
         action: impl 'static + Send + FnOnce(),
-    ) -> impl Future<Output = Result<(), ()>>
+    ) -> impl Future<Output = ()>
     {
         let mut action = Some(action);
         let action = move || {
@@ -117,6 +126,7 @@ impl VirtualPtr<dyn 'static + Send + Sync + FfiFutureExecutor> {
             .into_future()
     }
 
+    pub
     fn block_on<R : Send> (
         self: &'_ Self,
         fut: impl Send + Future<Output = R>
@@ -126,7 +136,6 @@ impl VirtualPtr<dyn 'static + Send + Sync + FfiFutureExecutor> {
         self.dyn_block_on(
             Box::new(async {
                 ret = Some(fut.await);
-                Ok(())
             })
             .into()
         );
@@ -144,7 +153,8 @@ cfg_match! { feature = "tokio" => {
         {
             let fut = self.spawn(future.into_future());
             let fut = async {
-                fut.await.unwrap_or(Err(()))
+                fut .await
+                    .unwrap_or_else(|err| ::std::panic::resume_unwind(err.into_panic()))
             };
             Box::new(fut)
                 .into()
@@ -158,7 +168,7 @@ cfg_match! { feature = "tokio" => {
             let fut = self.spawn_blocking(|| { action }.call());
             let fut = async {
                 fut .await
-                    .map_err(drop)
+                    .unwrap_or_else(|err| ::std::panic::resume_unwind(err.into_panic()))
             };
             Box::new(fut)
                 .into()
@@ -169,7 +179,7 @@ cfg_match! { feature = "tokio" => {
             future: VirtualPtr<dyn '_ + Send + FfiFuture>,
         )
         {
-            self.block_on(future.into_future()).ok();
+            self.block_on(future.into_future())
         }
     }
 
@@ -238,28 +248,33 @@ macro_rules! ffi_export_future_helpers {() => (
 mod tests {
     use super::*;
 
-    // Can convert a future into an ffi one, and back!
-    async fn check ()
+    #[cfg(feature = "tokio")]
+    #[test]
+    fn async_test ()
     {
-        let fut: VirtualPtr<dyn FfiFuture> = Box::new(async {
-            async {}.await;
-            Ok(())
-        }).into();
-        fut.into_future().await;
+        let runtime = ::tokio::runtime::Runtime::new().unwrap();
+        let handle = runtime.handle().clone();
+        let ffi_future_executor = Box::new(handle).into(); // `.into()` virtualizes the pointer.
+        let x = test_spawner(ffi_future_executor);
+        assert_eq!(x, 42);
     }
 
     #[ffi_export]
     fn test_spawner (
         executor: VirtualPtr<dyn 'static + Send + Sync + FfiFutureExecutor>,
-    )
+    ) -> i32
     {
-        let _: i32 = executor.spawn(async {
-
+        let x: i32 = executor.block_on(async {
+            let x: i32 =
+                executor.spawn(async {
+                    async {}.await;
+                    42
+                })
+                .await
+            ;
+            x
         });
-        let _: i32 = executor.block_on(async {
-            async {}.await;
-            42
-        });
+        x
     }
 
     ffi_export_future_helpers!();
