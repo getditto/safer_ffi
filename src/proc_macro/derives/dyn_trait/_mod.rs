@@ -6,6 +6,9 @@ use {
     },
     super::*,
     self::{
+        receiver_types::{
+            ReceiverType,
+        },
         vtable_entry::{
             VTableEntry,
             vtable_entries,
@@ -13,6 +16,7 @@ use {
     }
 };
 
+mod args;
 mod receiver_types;
 mod vtable_entry;
 
@@ -37,7 +41,7 @@ impl Parse for Input {
 
 pub(in super)
 fn try_handle_trait (
-    attrs: &'_ TokenStream2,
+    args: &'_ TokenStream2,
     input: &'_ mut TokenStream2,
 ) -> Result< Option<TokenStream2> >
 {
@@ -58,6 +62,7 @@ fn try_handle_trait (
             it
         },
     };
+    let _args: args::Args = parse2(args.clone())?;
     let mut ret = TokenStream2::new();
     let ItemTrait {
         attrs: _,
@@ -283,7 +288,6 @@ fn try_handle_trait (
             }
         ));
     }
-    let _: parse::Nothing = parse2(attrs.clone())?;
     drop(each_vtable_entry_value_f);
     ret = quote!(
         #trait_
