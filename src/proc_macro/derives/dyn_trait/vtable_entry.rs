@@ -70,10 +70,8 @@ impl<'trait_> VTableEntry<'trait_> {
                             ::core::mem::transmute(
                                 (self.__vtable().#name)(
                                     // FIXME: use traits to feature .into_raw() / .from_raw()
-                                    ::core::mem::transmute(self.__ptr()),
-                                    #(
-                                        ::core::mem::transmute(#each_arg_name),
-                                    )*
+                                    ::core::mem::transmute(self.__ptr()), #(
+                                    ::core::mem::transmute(#each_arg_name), )*
                                 )
                             )
                         }
@@ -313,6 +311,12 @@ fn vtable_entries<'trait_> (
                     ",
                 )));
             };
+            if matches!(receiver.kind, ReceiverKind::Reference { .. }).not() {
+                failwith! {
+                    "non-reference receivers are not supported yet"
+                        => sig.receiver().unwrap()
+                }
+            }
             let self_lt = Some { 0: &Lifetime::new("'_", Span::mixed_site()) };
             /* From now on, we'll assume "no funky stuff", _e.g._, no generics, etc.
              * since at the time of this writing, this kind of funky stuff is denied for
@@ -348,10 +352,10 @@ fn vtable_entries<'trait_> (
                 ,
                 ErasedSelf: if let Some(_) = self_lt {
                     parse_quote!(
-                        // ::safer_ffi::dyn_traits::ErasedRef<#lt>
-                        ::safer_ffi::ptr::NonNull<
-                            ::safer_ffi::dyn_traits::ErasedTy,
-                        >
+                        ::safer_ffi::dyn_traits::ErasedRef<'static>
+                        // ::safer_ffi::ptr::NonNull<
+                        //     ::safer_ffi::dyn_traits::ErasedTy,
+                        // >
                     )
                 } else {
                     parse_quote!(

@@ -1,8 +1,34 @@
 use super::*;
 
+macro_rules! define_kws {(
+    $_:tt $($kw:ident),* $(,)?
+) => (
+    mod kw {
+        $(
+            ::syn::custom_keyword!($kw);
+        )*
+    }
+
+    macro_rules! sym {
+        $(
+            ( $kw ) => ( kw::$kw );
+        )*
+        (
+            $_($otherwise:tt)*
+        ) => (
+            ::syn::Token![ $_($otherwise)* ]
+        );
+    }
+)}
+
+define_kws! {$
+    Clone,
+}
+
 pub
 struct Args {
-    pub dyn_: Token![dyn],
+    pub dyn_: sym![dyn],
+    pub clone: Option<sym![Clone]>,
 }
 
 impl Parse for Args {
@@ -20,20 +46,27 @@ impl Parse for Args {
                 &format!("{err} — usage: `#[derive_ReprC(dyn, …)]`"),
             )),
         };
+        let mut clone = None;
         let _: Option<Token![,]> = input.parse()?;
         while input.is_empty().not() {
             let snoopy = input.lookahead1();
             match () {
-                | _case if input.peek(Token![dyn]) => {
-                    return Err(input.error("duplicate arg"));
+                | _case if input.peek(sym![dyn]) => {
+                    return Err(input.error("duplicate parameter"));
                 },
-                | _todo_other_cases if false => {},
+                | _case if snoopy.peek(sym![Clone]) => {
+                    if clone.is_some() {
+                        input.error("duplicate parameter");
+                    }
+                    clone = Some(input.parse().unwrap());
+                },
                 | _default => return Err(snoopy.error()),
             }
             let _: Option<Token![,]> = input.parse()?;
         }
         Ok(Self {
             dyn_,
+            clone,
         })
     }
 }

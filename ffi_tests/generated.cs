@@ -238,6 +238,133 @@ public unsafe partial class Ffi {
     uint16_uint8_fptr returns_a_fn_ptr ();
 }
 
+/// <summary>
+/// The layout of <c>core::task::wake::Context</c> is opaque/subject to changes.
+/// </summary>
+public struct Opaque_Context_t {
+    #pragma warning disable 0169
+    private byte OPAQUE;
+    #pragma warning restore 0169
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    ArcDynFn0_void_t rust_future_task_context_get_waker (
+        Opaque_Context_t /*const*/ * task_context);
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    void rust_future_task_context_wake (
+        Opaque_Context_t /*const*/ * task_context);
+}
+
+public struct Erased_t {
+    #pragma warning disable 0169
+    private byte OPAQUE;
+    #pragma warning restore 0169
+}
+
+[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+public unsafe /* static */ delegate
+    void
+    void_Erased_ptr_fptr (
+        Erased_t * _0);
+
+/// <summary>
+/// An FFI-safe <c>Poll<()></c>.
+/// </summary>
+public enum PollFuture_t : sbyte {
+    Success,
+    Pending,
+}
+
+[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+public unsafe /* static */ delegate
+    PollFuture_t
+    PollFuture_Erased_const_ptr_Opaque_Context_ptr_fptr (
+        Erased_t /*const*/ * _0,
+        Opaque_Context_t * _1);
+
+[StructLayout(LayoutKind.Sequential, Size = 16)]
+public unsafe struct FfiFutureVTable_t {
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public void_Erased_ptr_fptr release_vptr;
+
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public PollFuture_Erased_const_ptr_Opaque_Context_ptr_fptr poll;
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 24)]
+public unsafe struct VirtualPtr__Erased_ptr_FfiFutureVTable_t {
+    public Erased_t * ptr;
+
+    public FfiFutureVTable_t vtable;
+}
+
+[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+public unsafe /* static */ delegate
+    VirtualPtr__Erased_ptr_FfiFutureVTable_t
+    VirtualPtr__Erased_ptr_FfiFutureVTable_Erased_const_ptr_VirtualPtr__Erased_ptr_FfiFutureVTable_fptr (
+        Erased_t /*const*/ * _0,
+        VirtualPtr__Erased_ptr_FfiFutureVTable_t _1);
+
+/// <summary>
+/// <c>Box<dyn 'static + Send + FnMut() -> Ret></c>
+/// </summary>
+[StructLayout(LayoutKind.Sequential, Size = 24)]
+public unsafe struct BoxDynFnMut0_void_t {
+    public void * env_ptr;
+
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public void_void_ptr_fptr call;
+
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public void_void_ptr_fptr free;
+}
+
+[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+public unsafe /* static */ delegate
+    VirtualPtr__Erased_ptr_FfiFutureVTable_t
+    VirtualPtr__Erased_ptr_FfiFutureVTable_Erased_const_ptr_BoxDynFnMut0_void_fptr (
+        Erased_t /*const*/ * _0,
+        BoxDynFnMut0_void_t _1);
+
+[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+public unsafe /* static */ delegate
+    void
+    void_Erased_const_ptr_VirtualPtr__Erased_ptr_FfiFutureVTable_fptr (
+        Erased_t /*const*/ * _0,
+        VirtualPtr__Erased_ptr_FfiFutureVTable_t _1);
+
+[StructLayout(LayoutKind.Sequential, Size = 32)]
+public unsafe struct FfiFutureExecutorVTable_t {
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public void_Erased_ptr_fptr release_vptr;
+
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public VirtualPtr__Erased_ptr_FfiFutureVTable_Erased_const_ptr_VirtualPtr__Erased_ptr_FfiFutureVTable_fptr dyn_spawn;
+
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public VirtualPtr__Erased_ptr_FfiFutureVTable_Erased_const_ptr_BoxDynFnMut0_void_fptr dyn_spawn_blocking;
+
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public void_Erased_const_ptr_VirtualPtr__Erased_ptr_FfiFutureVTable_fptr dyn_block_on;
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 40)]
+public unsafe struct VirtualPtr__Erased_ptr_FfiFutureExecutorVTable_t {
+    public Erased_t * ptr;
+
+    public FfiFutureExecutorVTable_t vtable;
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    Int32 test_spawner (
+        VirtualPtr__Erased_ptr_FfiFutureExecutorVTable_t executor);
+}
+
 [UnmanagedFunctionPointer(CallingConvention.Winapi)]
 public unsafe /* static */ delegate
     void

@@ -227,6 +227,103 @@ uint16_t (*
 returns_a_fn_ptr (void))(uint8_t);
 
 /** \brief
+ *  The layout of `core::task::wake::Context` is opaque/subject to changes.
+ */
+typedef struct Opaque_Context Opaque_Context_t;
+
+/** <No documentation available> */
+ArcDynFn0_void_t
+rust_future_task_context_get_waker (
+    Opaque_Context_t const * task_context);
+
+/** <No documentation available> */
+void
+rust_future_task_context_wake (
+    Opaque_Context_t const * task_context);
+
+/** <No documentation available> */
+typedef struct Erased Erased_t;
+
+/** \brief
+ *  An FFI-safe `Poll<()>`.
+ */
+/** \remark Has the same ABI as `int8_t` **/
+#ifdef DOXYGEN
+typedef
+#endif
+enum PollFuture {
+    /** <No documentation available> */
+    POLL_FUTURE_SUCCESS,
+    /** <No documentation available> */
+    POLL_FUTURE_PENDING,
+}
+#ifndef DOXYGEN
+; typedef int8_t
+#endif
+PollFuture_t;
+
+/** <No documentation available> */
+typedef struct FfiFutureVTable {
+    /** <No documentation available> */
+    void (*release_vptr)(Erased_t *);
+
+    /** <No documentation available> */
+    PollFuture_t (*poll)(Erased_t const *, Opaque_Context_t *);
+} FfiFutureVTable_t;
+
+/** <No documentation available> */
+typedef struct VirtualPtr__Erased_ptr_FfiFutureVTable {
+    /** <No documentation available> */
+    Erased_t * ptr;
+
+    /** <No documentation available> */
+    FfiFutureVTable_t vtable;
+} VirtualPtr__Erased_ptr_FfiFutureVTable_t;
+
+/** \brief
+ *  `Box<dyn 'static + Send + FnMut() -> Ret>`
+ */
+typedef struct BoxDynFnMut0_void {
+    /** <No documentation available> */
+    void * env_ptr;
+
+    /** <No documentation available> */
+    void (*call)(void *);
+
+    /** <No documentation available> */
+    void (*free)(void *);
+} BoxDynFnMut0_void_t;
+
+/** <No documentation available> */
+typedef struct FfiFutureExecutorVTable {
+    /** <No documentation available> */
+    void (*release_vptr)(Erased_t *);
+
+    /** <No documentation available> */
+    VirtualPtr__Erased_ptr_FfiFutureVTable_t (*dyn_spawn)(Erased_t const *, VirtualPtr__Erased_ptr_FfiFutureVTable_t);
+
+    /** <No documentation available> */
+    VirtualPtr__Erased_ptr_FfiFutureVTable_t (*dyn_spawn_blocking)(Erased_t const *, BoxDynFnMut0_void_t);
+
+    /** <No documentation available> */
+    void (*dyn_block_on)(Erased_t const *, VirtualPtr__Erased_ptr_FfiFutureVTable_t);
+} FfiFutureExecutorVTable_t;
+
+/** <No documentation available> */
+typedef struct VirtualPtr__Erased_ptr_FfiFutureExecutorVTable {
+    /** <No documentation available> */
+    Erased_t * ptr;
+
+    /** <No documentation available> */
+    FfiFutureExecutorVTable_t vtable;
+} VirtualPtr__Erased_ptr_FfiFutureExecutorVTable_t;
+
+/** <No documentation available> */
+int32_t
+test_spawner (
+    VirtualPtr__Erased_ptr_FfiFutureExecutorVTable_t executor);
+
+/** \brief
  *  `&'lt mut (dyn 'lt + Send + FnMut(A1) -> Ret)`
  */
 typedef struct RefDynFnMut1_void_char_const_ptr {
