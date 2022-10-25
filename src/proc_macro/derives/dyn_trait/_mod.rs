@@ -7,6 +7,7 @@ use {
     super::*,
     self::{
         receiver_types::{
+            ReceiverKind,
             ReceiverType,
         },
         vtable_entry::{
@@ -62,7 +63,7 @@ fn try_handle_trait (
             it
         },
     };
-    let _args: args::Args = parse2(args.clone())?;
+    let args: args::Args = parse2(args.clone())?;
     let mut ret = TokenStream2::new();
     let ItemTrait {
         attrs: _,
@@ -126,6 +127,8 @@ fn try_handle_trait (
         )
     ;
 
+    let if_retain = &[quote!()][.. if args.clone.is_some() { 1 } else { 0 }];
+
     // Emit the vtable type definition
     let vtable_def = quote_spanned!(Span::mixed_site()=>
         #[#ඞ::derive_ReprC]
@@ -141,13 +144,15 @@ fn try_handle_trait (
                     _: ::safer_ffi::ptr::NonNullOwned< #ErasedTy >,
                 )
             ,
-            retain_vptr: ::core::option::Option<
-                unsafe
-                extern "C"
-                fn (
-                    _: ::safer_ffi::ptr::NonNullRef< #ErasedTy >,
-                )
-            >,
+            #(#if_retain
+                retain_vptr: ::core::option::Option<
+                    unsafe
+                    extern "C"
+                    fn (
+                        _: ::safer_ffi::ptr::NonNullRef< #ErasedTy >,
+                    )
+                >,
+            )*
         #(
             #(#each_vtable_entry_attrs)*
             #each_vtable_entry_name: #EachVTableEntryType,
@@ -215,7 +220,9 @@ fn try_handle_trait (
                     }
                     release_vptr::<#impl_Trait> // as …
                 },
-                retain_vptr: None,
+                #(#if_retain
+                    retain_vptr: None,
+                )*
             #(
                 #(#each_vtable_entry_attrs)*
                 #each_vtable_entry_name: #EACH_VTABLE_ENTRY_VALUE,

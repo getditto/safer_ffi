@@ -12,14 +12,14 @@ pub use self::ty::{
     Erased as ErasedTy,
 };
 
-// #[super::derive_ReprC]
-// #[repr(transparent)]
-// #[allow(missing_debug_implementations)]
-// pub
-// struct ErasedRef<'a>(
-//     ptr::NonNull<ErasedTy>,
-//     ::core::marker::PhantomData<&'a ()>,
-// );
+#[super::derive_ReprC]
+#[repr(transparent)]
+#[allow(missing_debug_implementations)]
+pub
+struct ErasedRef<'a> (
+    ptr::NonNullRef<ErasedTy>,
+    ::core::marker::PhantomData<&'a ()>,
+);
 
 pub
 trait ReprCTrait {

@@ -280,3 +280,32 @@ mod futures {
         }
     }
 }
+
+mod executors {
+    use {
+        ::safer_ffi::{
+            futures::FfiFutureExecutor,
+            prelude::*,
+        },
+    };
+
+    ::safer_ffi::ffi_export_future_helpers!();
+
+    #[ffi_export]
+    fn test_spawner (
+        executor: VirtualPtr<dyn 'static + FfiFutureExecutor>,
+    ) -> i32
+    {
+        let x: i32 = executor.block_on(async {
+            let x: i32 =
+                executor.spawn(async {
+                    async {}.await;
+                    42
+                })
+                .await
+            ;
+            x
+        });
+        x
+    }
+}
