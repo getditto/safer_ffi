@@ -8,6 +8,7 @@ enum VTableEntry<'trait_> {
         src: &'trait_ TraitItemMethod,
         name: &'trait_ Ident,
         each_for_lifetime: Vec<&'trait_ Lifetime>,
+        receiver: ReceiverType,
         each_arg_name: Vec<Ident>,
         ErasedSelf: Type,
         EachArgTy: Vec<&'trait_ Type>,
@@ -46,6 +47,7 @@ impl<'trait_> VTableEntry<'trait_> {
                     ref attrs,
                     ..
                 },
+                receiver: _,
             } => {
                 let mut signature = full_signature.clone();
                 signature
@@ -117,6 +119,7 @@ impl<'trait_> VTableEntry<'trait_> {
                 EachArgTy,
                 OutputTy,
                 src: _,
+                receiver: _,
             } => {
                 let span = Span::mixed_site().located_at(name.span());
                 let EachArgTy @ _ = EachArgTy.iter().copied().vmap(CType);
@@ -304,11 +307,11 @@ fn vtable_entries<'trait_> (
             } else {
                 return Some(Err(Error::new(
                     paren_token.span,
-                    "\
-                        `dyn` trait requires a `self` receiver on this method. \
-                        Else opt-out of `dyn` trait support by adding a \
-                        `where Self : Sized` clause.\
-                    ",
+                    concat!(
+                        "`dyn` trait requires a `self` receiver on this method",
+                        // ". Else opt-out of `dyn` trait support by adding a \
+                        // `where Self : Sized` clause",
+                    ),
                 )));
             };
             if matches!(receiver.kind, ReceiverKind::Reference { .. }).not() {
@@ -335,6 +338,7 @@ fn vtable_entries<'trait_> (
                 } else {
                     vec![]
                 },
+                receiver,
                 each_arg_name:
                     inputs
                         .iter()

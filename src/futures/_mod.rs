@@ -39,12 +39,7 @@ impl<F : Send + Future<Output = ()>> FfiFuture for F {
     }
 }
 
-match_! {(
-    []
-    [Send]
-) {(
-    $([ $($Send:ident)? ])*
-) => (
+match_! {([] [Send]) {( $([ $($Send:ident)? ])* ) => (
     $(
         impl VirtualPtr<dyn '_ + $($Send +)? FfiFuture> {
             pub
