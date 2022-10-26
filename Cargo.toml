@@ -19,7 +19,6 @@ exclude = ["/guide"]
 [features]
 default = [
     "std",
-    "tokio",
 ]
 
 # Document under the following features: all but for debug or experimental.
@@ -98,7 +97,7 @@ safer-ffi.path = "."
 safer-ffi.features = [
     "async-fn",
     "csharp-headers",
-    "dyn-traits",
+    "tokio",
 ]
 
 [target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
@@ -108,6 +107,9 @@ libc = { version = "0.2.66", default-features = false }
 futures.version = "0.3.24"
 futures.optional = true
 tokio.version = "1.21.2"
+tokio.features = [
+    "rt",
+]
 tokio.optional = true
 
 paste = { package = "mini_paste", version = "0.1.*" }

@@ -1110,21 +1110,23 @@ impl<T> ::core::ops::DerefMut for Opaque<T> {
     }
 }
 
-impl<T> From<Box<T>> for Box<Opaque<T>> {
-    fn from (b: Box<T>)
-      -> Box<Opaque<T>>
+#[apply(cfg_alloc)]
+impl<T> From<rust::Box<T>> for rust::Box<Opaque<T>> {
+    fn from (b: rust::Box<T>)
+      -> rust::Box<Opaque<T>>
     {
         unsafe {
-            Box::from_raw(Box::into_raw(b).cast())
+            rust::Box::from_raw(rust::Box::into_raw(b).cast())
         }
     }
 }
 
-impl<T> From<Box<T>> for crate::boxed::Box_<Opaque<T>> {
-    fn from (b: Box<T>)
+#[apply(cfg_alloc)]
+impl<T> From<rust::Box<T>> for crate::boxed::Box_<Opaque<T>> {
+    fn from (b: rust::Box<T>)
       -> repr_c::Box<Opaque<T>>
     {
-        Box::<Opaque<T>>::from(b).into()
+        rust::Box::<Opaque<T>>::from(b).into()
     }
 }
 
