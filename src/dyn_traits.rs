@@ -1,12 +1,7 @@
+
 #![cfg_attr(rustfmt, rustfmt::skip)]
 
 use_prelude!();
-hidden_export! {
-    #[cfg(feature = "alloc")]
-    trait __assert_dyn_safe {
-        fn m(self: rust::Box<Self>);
-    }
-}
 
 pub use self::ty::{
     Erased as ErasedTy,
@@ -42,28 +37,69 @@ mod ty {
     struct Erased(());
 }
 
-#[apply(cfg_alloc)]
 pub
-trait VirtualPtrFromBox<T> : ReprCTrait {
-    fn boxed_into_virtual_ptr (
-        this: rust::Box<T>,
+trait VirtualPtrFrom<T> : ReprCTrait {
+    fn into_virtual_ptr (
+        this: T,
     ) -> VirtualPtr<Self>
     ;
 }
 
+impl<'r, T, DynTrait>
+    From<&'r T>
+for
+    VirtualPtr<DynTrait>
+where
+    DynTrait : ?Sized + VirtualPtrFrom<&'r T>,
+{
+    fn from (r: &'r T)
+      -> VirtualPtr<DynTrait>
+    {
+        DynTrait::into_virtual_ptr(r)
+    }
+}
+
+impl<'r, T, DynTrait>
+    From<&'r mut T>
+for
+    VirtualPtr<DynTrait>
+where
+    DynTrait : ?Sized + VirtualPtrFrom<&'r mut T>,
+{
+    fn from (r: &'r mut T)
+      -> VirtualPtr<DynTrait>
+    {
+        DynTrait::into_virtual_ptr(r)
+    }
+}
+
 #[apply(cfg_alloc)]
-impl<
-    T,
-    DynTrait : ?Sized + VirtualPtrFromBox<T>,
->
+impl<T, DynTrait>
     From<rust::Box<T>>
 for
     VirtualPtr<DynTrait>
+where
+    DynTrait : ?Sized + VirtualPtrFrom<rust::Box<T>>,
 {
     fn from (boxed: rust::Box<T>)
       -> VirtualPtr<DynTrait>
     {
-        DynTrait::boxed_into_virtual_ptr(boxed)
+        DynTrait::into_virtual_ptr(boxed)
+    }
+}
+
+pub
+trait DynClone : ReprCTrait {
+    fn dyn_clone (_: &VirtualPtr<Self>)
+      -> VirtualPtr<Self>
+    ;
+}
+
+impl<DynTrait : ?Sized + DynClone> Clone for VirtualPtr<DynTrait> {
+    fn clone (self: &'_ VirtualPtr<DynTrait>)
+      -> VirtualPtr<DynTrait>
+    {
+        DynTrait::dyn_clone(self)
     }
 }
 

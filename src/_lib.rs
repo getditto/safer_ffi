@@ -479,6 +479,7 @@ mod __ {
             self,
         },
         crate::{
+            ptr,
             layout::{
                 CLayoutOf,
                 ConcreteReprC,
