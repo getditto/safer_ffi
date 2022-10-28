@@ -3,6 +3,7 @@ use super::*;
 macro_rules! define_kws {(
     $_:tt $($kw:ident),* $(,)?
 ) => (
+    pub
     mod kw {
         $(
             ::syn::custom_keyword!($kw);

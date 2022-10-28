@@ -1,5 +1,9 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 
+use super::*;
+
+type Result<T, E = Error> = ::core::result::Result<T, E>;
+
 pub(in crate)
 trait CollectVec : Sized + IntoIterator {
     fn vec (self: Self)
@@ -68,4 +72,41 @@ trait Also : Sized {
         tweak(&mut self);
         self
     }
+}
+
+/// Allows to convert a `bool` or an `Option<T>` into a `#( … )*`-usable
+/// interpolable (to mock the `$( … )?` from `macro_rules!` macros).
+pub
+trait Kleene<'r> {
+    type Ret;
+    fn kleenable (self: &'r Self)
+      -> Self::Ret
+    ;
+}
+impl<'r, T : 'r + ToTokens> Kleene<'r> for Option<T> {
+    type Ret = &'r [T];
+    fn kleenable (self: &'r Option<T>)
+      -> &'r [T]
+    {
+        self.as_ref().map_or(&[], slice::from_ref)
+    }
+}
+// `bool` can be viewed as a `Option<EmptyTs>`.
+impl Kleene<'_> for bool {
+    type Ret = &'static [EmptyTs];
+    fn kleenable (self: &'_ bool)
+      -> &'static [EmptyTs]
+    {
+        if let true = self {
+            &[EmptyTs]
+        } else {
+            &[]
+        }
+    }
+}
+pub
+struct EmptyTs;
+impl ToTokens for EmptyTs {
+    fn to_tokens (self: &'_ EmptyTs, _: &mut TokenStream2)
+    {}
 }

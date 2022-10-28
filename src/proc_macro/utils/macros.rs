@@ -125,10 +125,10 @@ macro_rules! __let_quote {
                 any(),
             )?
         ))]
-        let $last_segment @ _ = quoted;
+        let ref $last_segment @ _ = quoted;
     $(
         #[allow(nonstandard_style)]
-        let $rename @ _ = quoted;
+        let ref $rename @ _ = quoted;
     )?
         __let_quote! {
             [
@@ -198,3 +198,251 @@ macro_rules! Quote {( $T:ty $(,)? ) => (
 macro_rules! Expr {( $T:ty $(,)? ) => (
     ::syn::Expr
 )} pub(in crate) use Expr;
+
+// Like `quote_spanned!` (defaulting to mixed_site), but allowing for
+// `#{ … }` interpolations.
+macro_rules! squote {
+    // ()
+    (
+        (out:
+            $($out:tt)*
+        )
+        (in:
+            [
+                ( $($paren:tt)* )
+                $($rest:tt)*
+            ]
+            $($in:tt)*
+        )
+    ) => (squote! {
+        (out:
+            [parenthesized: ]
+            $($out)*
+        )
+        (in:
+            [ $($paren)* ]
+            [ $($rest)* ]
+            $($in)*
+        )
+    });
+    (
+        (out:
+            [parenthesized: $($paren:tt)*]
+            [ $($acc:tt)* ]
+            $($out:tt)*
+        )
+        (in:
+            [
+                /* exhausted layer */
+            ]
+            $($in:tt)*
+        )
+    ) => (squote! {
+        (out:
+            [
+                $($acc)*
+                ( $($paren)* )
+            ]
+            $($out)*
+        )
+        (in:
+            $($in)*
+        )
+    });
+
+    // {}
+    (
+        (out:
+            $($out:tt)*
+        )
+        (in:
+            [
+                { $($brace:tt)* }
+                $($rest:tt)*
+            ]
+            $($in:tt)*
+        )
+    ) => (squote! {
+        (out:
+            [braced: ]
+            $($out)*
+        )
+        (in:
+            [ $($brace)* ]
+            [ $($rest)* ]
+            $($in)*
+        )
+    });
+    (
+        (out:
+            [braced: $($brace:tt)*]
+            [ $($acc:tt)* ]
+            $($out:tt)*
+        )
+        (in:
+            [
+                /* exhausted layer */
+            ]
+            $($in:tt)*
+        )
+    ) => (squote! {
+        (out:
+            [
+                $($acc)*
+                { $($brace)* }
+            ]
+            $($out)*
+        )
+        (in:
+            $($in)*
+        )
+    });
+
+    // []
+    (
+        (out:
+            $($out:tt)*
+        )
+        (in:
+            [
+                [ $($bracket:tt)* ]
+                $($rest:tt)*
+            ]
+            $($in:tt)*
+        )
+    ) => (squote! {
+        (out:
+            [bracketed: ]
+            $($out)*
+        )
+        (in:
+            [ $($bracket)* ]
+            [ $($rest)* ]
+            $($in)*
+        )
+    });
+    (
+        (out:
+            [bracketed: $($bracket:tt)*]
+            [ $($acc:tt)* ]
+            $($out:tt)*
+        )
+        (in:
+            [
+                /* exhausted layer */
+            ]
+            $($in:tt)*
+        )
+    ) => (squote! {
+        (out:
+            [
+                $($acc)*
+                [ $($bracket)* ]
+            ]
+            $($out)*
+        )
+        (in:
+            $($in)*
+        )
+    });
+
+    // #{…}
+    (
+        (out:
+            [ $($acc:tt)* ]
+            $($out:tt)*
+        )
+        (in:
+            [
+                #{ $e:expr }
+                $($rest:tt)*
+            ]
+            $($in:tt)*
+        )
+    ) => (
+        match &$e { interpolated => {
+            squote! {
+                (out:
+                    [
+                        $($acc)*
+                        #interpolated
+                    ]
+                    $($out)*
+                )
+                (in:
+                    [ $($rest)* ]
+                    $($in)*
+                )
+            }
+        }}
+    );
+
+    // $otherwise:tt
+    (
+        (out:
+            [ $($acc:tt)* ]
+            $($out:tt)*
+        )
+        (in:
+            [
+                $otherwise:tt
+                $($rest:tt)*
+            ]
+            $($in:tt)*
+        )
+    ) => (squote! {
+        (out:
+            [
+                $($acc)*
+                $otherwise
+            ]
+            $($out)*
+        )
+        (in:
+            [ $($rest)* ]
+            $($in)*
+        )
+    });
+
+    // end
+    (
+        (out:
+            [ $($out:tt)* ]
+            /* no more acc layers */
+        )
+        (in:
+            [ /* exhausted layer */ ]
+            /* no more input layers */
+        )
+    ) => (
+        ::quote::quote_spanned! {
+            $($out)*
+        }
+    );
+
+    // entry-point (with provided span)
+    (
+        @$span:expr=>
+        $($input:tt)*
+    ) => (
+        squote! {
+            (out:
+                [$span=> ]
+            )
+            (in:
+                [
+                    $($input)*
+                ]
+            )
+        }
+    );
+
+    // entry-point (no span provided)
+    (
+        $($input:tt)*
+    ) => (
+        squote! { @::proc_macro2::Span::mixed_site()=>
+            $($input)*
+        }
+    )
+} pub(in crate) use squote;

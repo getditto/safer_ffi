@@ -4,7 +4,9 @@
 
 use {
     ::core::{
+        mem,
         ops::Not as _,
+        slice,
     },
     ::proc_macro::{
         TokenStream,

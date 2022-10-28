@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive_ReprC(dyn)]
+#[derive_ReprC(dyn, Clone)]
 pub
 trait FfiFutureExecutor : Send + Sync {
     fn dyn_spawn (
@@ -33,7 +33,7 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
             {
                 let (tx, rx) = ::futures::channel::oneshot::channel();
                 let fut = self.dyn_spawn(
-                    Box::new(async move {
+                    Box::pin(async move {
                         tx.send(fut.await).ok();
                     })
                     .into()
@@ -73,12 +73,15 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
             ) -> R
             {
                 let mut ret = None;
-                self.dyn_block_on(
-                    Box::new(async {
-                        ret = Some(fut.await);
-                    })
-                    .into()
-                );
+                let fut = async {
+                    ret = Some(fut.await);
+                };
+                {
+                    ::futures::pin_mut!(fut);
+                    self.dyn_block_on(
+                        fut.into()
+                    );
+                }
                 ret.expect("`.dyn_block_on()` did not complete")
             }
         }
@@ -100,7 +103,7 @@ cfg_match! { feature = "tokio" => {
                         ::std::panic::resume_unwind(caught_panic.into_panic())
                     })
             };
-            Box::new(fut)
+            Box::pin(fut)
                 .into()
         }
 
@@ -116,7 +119,7 @@ cfg_match! { feature = "tokio" => {
                         ::std::panic::resume_unwind(caught_panic.into_panic())
                     })
             };
-            Box::new(fut)
+            Box::pin(fut)
                 .into()
         }
 

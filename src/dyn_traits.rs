@@ -45,48 +45,40 @@ trait VirtualPtrFrom<T> : ReprCTrait {
     ;
 }
 
-impl<'r, T, DynTrait>
-    From<&'r T>
-for
-    VirtualPtr<DynTrait>
-where
-    DynTrait : ?Sized + VirtualPtrFrom<&'r T>,
-{
-    fn from (r: &'r T)
-      -> VirtualPtr<DynTrait>
-    {
-        DynTrait::into_virtual_ptr(r)
-    }
-}
-
-impl<'r, T, DynTrait>
-    From<&'r mut T>
-for
-    VirtualPtr<DynTrait>
-where
-    DynTrait : ?Sized + VirtualPtrFrom<&'r mut T>,
-{
-    fn from (r: &'r mut T)
-      -> VirtualPtr<DynTrait>
-    {
-        DynTrait::into_virtual_ptr(r)
-    }
-}
-
-#[apply(cfg_alloc)]
-impl<T, DynTrait>
-    From<rust::Box<T>>
-for
-    VirtualPtr<DynTrait>
-where
-    DynTrait : ?Sized + VirtualPtrFrom<rust::Box<T>>,
-{
-    fn from (boxed: rust::Box<T>)
-      -> VirtualPtr<DynTrait>
-    {
-        DynTrait::into_virtual_ptr(boxed)
-    }
-}
+match_! {(
+    ['r] &'r T,
+    ['r] &'r mut T,
+    ['r] ::core::pin::Pin<&'r T>,
+    ['r] ::core::pin::Pin<&'r mut T>,
+    #[apply(cfg_alloc)]
+    [] rust::Box<T>,
+    #[apply(cfg_alloc)]
+    [] ::core::pin::Pin<rust::Box<T>>,
+) {
+    (
+        $(
+            $(#[$cfg:meta])?
+            [$($($generics:tt)+)?] $T:ty
+        ),* $(,)?
+    ) => (
+        $(
+            $(#[$cfg])?
+            impl<$($($generics)+ ,)? T, DynTrait>
+                From<$T>
+            for
+                VirtualPtr<DynTrait>
+            where
+                DynTrait : ?Sized + VirtualPtrFrom<$T>,
+            {
+                fn from (it: $T)
+                  -> VirtualPtr<DynTrait>
+                {
+                    DynTrait::into_virtual_ptr(it)
+                }
+            }
+        )*
+    )
+}}
 
 pub
 trait DynClone : ReprCTrait {
