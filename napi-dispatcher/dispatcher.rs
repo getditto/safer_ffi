@@ -11,12 +11,10 @@ macro_rules! emit {( $($_:tt)* ) => ( $($_)* )}
 }
 
 #[cfg(not(target_arch = "wasm32"))] emit! {
-    extern crate napi;
     pub use ::{
         napi::*,
+        napi_derive as derive,
     };
-
-    pub extern crate napi_derive as derive;
 
     pub type Result<T, E = Error> = ::core::result::Result<T, E>;
 }
