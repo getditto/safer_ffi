@@ -201,7 +201,8 @@ impl<'trait_> VTableEntry<'trait_> {
                             ) -> #OutputTy
                             #where_clause
                             {
-                                ::safer_ffi::layout::into_raw(#QSelf::#name(
+                                // ::safer_ffi::layout::into_raw(
+                                ::core::mem::transmute(#QSelf::#name(
                                     ::core::mem::transmute(__this) #(,
                                     ::safer_ffi::layout::from_raw_unchecked(
                                         #each_arg_name

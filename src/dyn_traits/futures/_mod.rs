@@ -7,6 +7,9 @@ use {
     ::safer_ffi::{
         prelude::*,
     },
+    super::{
+        *,
+    },
 };
 
 /// An FFI-safe `Poll<()>`.
@@ -22,14 +25,14 @@ enum PollFuture {
 /// Models a `Future` resolving to `()`.
 #[derive_ReprC(dyn)]
 pub
-trait FfiFuture : Send {
-    fn poll (self: Pin<&mut Self>, ctx: &'_ mut Context<'_>)
+trait FfiFuture {
+    fn dyn_poll (self: Pin<&mut Self>, ctx: &'_ mut Context<'_>)
       -> PollFuture
     ;
 }
 
-impl<F : Send + Future<Output = ()>> FfiFuture for F {
-    fn poll (self: Pin<&mut Self>, ctx: &'_ mut Context<'_>)
+impl<F : Future<Output = ()>> FfiFuture for F {
+    fn dyn_poll (self: Pin<&mut Self>, ctx: &'_ mut Context<'_>)
       -> PollFuture
     {
         match Future::poll(self, ctx) {
@@ -46,7 +49,7 @@ match_! {([] [Send]) {( $([ $($Send:ident)? ])* ) => (
             async fn into_future (mut self)
             {
                 ::futures::future::poll_fn(
-                    move |cx| match Pin::new(&mut self).poll(cx) {
+                    move |cx| match Pin::new(&mut self).dyn_poll(cx) {
                         | PollFuture::Pending => Poll::Pending,
                         | PollFuture::Success => Poll::Ready(()),
                     }

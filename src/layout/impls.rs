@@ -77,7 +77,7 @@ const _: () = { macro_rules! impl_CTypes {
             unsafe // Safety: See `usize`'s
             isize => "ssize" "IntPtr",
         }
-        #[cfg(docs)] impl_CTypes! { @fns (A1) } #[cfg(not(docs))]
+        #[cfg(docs)] impl_CTypes! { @fns (A1, A2) } #[cfg(not(docs))]
         impl_CTypes! { @fns
             (A9, A8, A7, A6, A5, A4, A3, A2, A1)
         }

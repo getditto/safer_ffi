@@ -280,12 +280,12 @@ mod closure;
 #[cfg_attr(feature = "nightly",
     doc(cfg(feature = "dyn-traits")),
 )]
+#[path = "dyn_traits/_mod.rs"]
 pub
 mod dyn_traits;
 
-#[cfg(feature = "futures")]
-#[path = "futures/_mod.rs"]
-pub mod futures;
+#[doc(no_inline)]
+pub use dyn_traits::futures;
 
 pub
 mod ptr;

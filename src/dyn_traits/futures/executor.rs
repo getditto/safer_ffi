@@ -1,24 +1,30 @@
 use super::*;
 
+/// Models an `async` runtime's _handle_.
 #[derive_ReprC(dyn, Clone)]
 pub
 trait FfiFutureExecutor : Send + Sync {
     fn dyn_spawn (
         self: &'_ Self,
-        future: VirtualPtr<dyn 'static + FfiFuture>,
-    ) -> VirtualPtr<dyn 'static + FfiFuture>
+        future: VirtualPtr<dyn 'static + Send + FfiFuture>,
+    ) -> VirtualPtr<dyn 'static + Send + FfiFuture>
     ;
 
     fn dyn_spawn_blocking (
         self: &'_ Self,
         action: repr_c::Box<dyn 'static + Send + FnMut()>,
-    ) -> VirtualPtr<dyn 'static + FfiFuture>
+    ) -> VirtualPtr<dyn 'static + Send + FfiFuture>
     ;
 
     fn dyn_block_on (
         self: &'_ Self,
         future: VirtualPtr<dyn '_ + FfiFuture>,
     )
+    ;
+
+    fn dyn_enter (
+        self: &'_ Self,
+    ) -> VirtualPtr<dyn '_ + DropGlue>
     ;
 }
 
@@ -69,7 +75,7 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
             pub
             fn block_on<R : Send> (
                 self: &'_ Self,
-                fut: impl Send + Future<Output = R>
+                fut: impl Future<Output = R>
             ) -> R
             {
                 let mut ret = None;
@@ -84,6 +90,14 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
                 }
                 ret.expect("`.dyn_block_on()` did not complete")
             }
+
+            pub
+            fn enter (
+                self: &'_ Self,
+            ) -> impl '_ + Sized
+            {
+                self.dyn_enter()
+            }
         }
 
     )*
@@ -93,8 +107,8 @@ cfg_match! { feature = "tokio" => {
     impl FfiFutureExecutor for ::tokio::runtime::Handle {
         fn dyn_spawn (
             self: &'_ Self,
-            future: VirtualPtr<dyn 'static + FfiFuture>,
-        ) -> VirtualPtr<dyn 'static + FfiFuture>
+            future: VirtualPtr<dyn 'static + Send + FfiFuture>,
+        ) -> VirtualPtr<dyn 'static + Send + FfiFuture>
         {
             let fut = self.spawn(future.into_future());
             let fut = async {
@@ -110,7 +124,7 @@ cfg_match! { feature = "tokio" => {
         fn dyn_spawn_blocking (
             self: &'_ Self,
             action: repr_c::Box<dyn 'static + Send + FnMut()>,
-        ) -> VirtualPtr<dyn 'static + FfiFuture>
+        ) -> VirtualPtr<dyn 'static + Send + FfiFuture>
         {
             let fut = self.spawn_blocking(|| { action }.call());
             let fut = async {
@@ -129,6 +143,13 @@ cfg_match! { feature = "tokio" => {
         )
         {
             self.block_on(future.into_future())
+        }
+
+        fn dyn_enter (
+            self: &'_ Self,
+        ) -> VirtualPtr<dyn '_ + DropGlue>
+        {
+            Box::new(ImplDropGlue(self.enter())).into()
         }
     }
 }}
