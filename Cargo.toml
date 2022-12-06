@@ -97,6 +97,7 @@ safer-ffi.path = "."
 safer-ffi.features = [
     "async-fn",
     "csharp-headers",
+    "dyn-traits",
     "tokio",
 ]
 

@@ -2,6 +2,7 @@
 
 use super::*;
 
+#[allow(unused)]
 macro_rules! quote {( $($tt:tt)* ) => (
     quote_spanned! { Span::mixed_site()=>
         $($tt)*
