@@ -131,6 +131,10 @@ impl<T : Sized> FitForCBox for T {
     type CBoxWrapped = Box_<T>;
 }
 
+impl<T : Sized> FitForCBox for [T] {
+    type CBoxWrapped = c_slice::Box<T>;
+}
+
 pub
 trait FitForCArc {
     type CArcWrapped;
