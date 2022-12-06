@@ -167,7 +167,7 @@ fn slice_box_uint8_t_to_js_buffer (
             .get_null()?
             .into_unknown()
     } else {
-        let p: crate::prelude::c_slice::Box<u8> = unsafe {
+        let p: crate::prelude::repr_c::Box<[u8]> = unsafe {
             crate::layout::from_raw_unchecked(fat)
         };
         ctx .env

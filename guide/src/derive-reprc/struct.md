@@ -144,11 +144,11 @@ struct ComplicatedStruct {
 fn create ()
   -> repr_c::Box<ComplicatedStruct>
 {
-    repr_c::Box::new(ComplicatedStruct {
+    Box::new(ComplicatedStruct {
         path: "/tmp".into(),
         cb: Rc::new(|path| println!("path = `{}`", path.to_string_lossy())),
         x: 42,
-    })
+    }).into()
 }
 
 #[ffi_export]
