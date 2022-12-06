@@ -3,6 +3,16 @@
 
 use_prelude!();
 
+#[cfg(feature = "futures")]
+#[path = "futures/_mod.rs"]
+pub mod futures;
+
+#[doc(no_inline)]
+pub use dyn_drop::*;
+
+pub
+mod dyn_drop;
+
 pub use self::ty::{
     Erased as ErasedTy,
 };
@@ -54,6 +64,10 @@ match_! {(
     [] rust::Box<T>,
     #[apply(cfg_alloc)]
     [] ::core::pin::Pin<rust::Box<T>>,
+    #[apply(cfg_alloc)]
+    [] ::std::rc::Rc<T>,
+    #[apply(cfg_std)]
+    [] ::std::sync::Arc<T>,
 ) {
     (
         $(
