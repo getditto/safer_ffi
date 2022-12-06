@@ -127,7 +127,7 @@ trait FitForCBox {
     type CBoxWrapped;
 }
 
-impl<T : Sized + ReprC> FitForCBox for T {
+impl<T : Sized> FitForCBox for T {
     type CBoxWrapped = Box_<T>;
 }
 
