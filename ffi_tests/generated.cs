@@ -271,6 +271,12 @@ public unsafe /* static */ delegate
     void_Erased_ptr_fptr (
         Erased_t * _0);
 
+[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+public unsafe /* static */ delegate
+    Erased_t *
+    Erased_ptr_Erased_const_ptr_fptr (
+        Erased_t /*const*/ * _0);
+
 /// <summary>
 /// An FFI-safe <c>Poll<()></c>.
 /// </summary>
@@ -337,10 +343,13 @@ public unsafe /* static */ delegate
         Erased_t /*const*/ * _0,
         VirtualPtr__Erased_ptr_FfiFutureVTable_t _1);
 
-[StructLayout(LayoutKind.Sequential, Size = 32)]
+[StructLayout(LayoutKind.Sequential, Size = 40)]
 public unsafe struct FfiFutureExecutorVTable_t {
     [MarshalAs(UnmanagedType.FunctionPtr)]
     public void_Erased_ptr_fptr release_vptr;
+
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public Erased_ptr_Erased_const_ptr_fptr retain_vptr;
 
     [MarshalAs(UnmanagedType.FunctionPtr)]
     public VirtualPtr__Erased_ptr_FfiFutureVTable_Erased_const_ptr_VirtualPtr__Erased_ptr_FfiFutureVTable_fptr dyn_spawn;
@@ -352,7 +361,7 @@ public unsafe struct FfiFutureExecutorVTable_t {
     public void_Erased_const_ptr_VirtualPtr__Erased_ptr_FfiFutureVTable_fptr dyn_block_on;
 }
 
-[StructLayout(LayoutKind.Sequential, Size = 40)]
+[StructLayout(LayoutKind.Sequential, Size = 48)]
 public unsafe struct VirtualPtr__Erased_ptr_FfiFutureExecutorVTable_t {
     public Erased_t * ptr;
 

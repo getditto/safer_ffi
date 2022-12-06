@@ -300,6 +300,9 @@ typedef struct FfiFutureExecutorVTable {
     void (*release_vptr)(Erased_t *);
 
     /** <No documentation available> */
+    Erased_t * (*retain_vptr)(Erased_t const *);
+
+    /** <No documentation available> */
     VirtualPtr__Erased_ptr_FfiFutureVTable_t (*dyn_spawn)(Erased_t const *, VirtualPtr__Erased_ptr_FfiFutureVTable_t);
 
     /** <No documentation available> */
