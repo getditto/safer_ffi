@@ -18,7 +18,7 @@ use {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub
 enum PollFuture {
-    Success,
+    Completed,
     Pending,
 }
 
@@ -37,7 +37,7 @@ impl<F : Future<Output = ()>> FfiFuture for F {
     {
         match Future::poll(self, ctx) {
             | Poll::Pending => PollFuture::Pending,
-            | Poll::Ready(()) => PollFuture::Success,
+            | Poll::Ready(()) => PollFuture::Completed,
         }
     }
 }
@@ -51,7 +51,7 @@ match_! {([] [Send]) {( $([ $($Send:ident)? ])* ) => (
                 ::futures::future::poll_fn(
                     move |cx| match Pin::new(&mut self).dyn_poll(cx) {
                         | PollFuture::Pending => Poll::Pending,
-                        | PollFuture::Success => Poll::Ready(()),
+                        | PollFuture::Completed => Poll::Ready(()),
                     }
                 )
                 .await

@@ -253,7 +253,7 @@ typedef
 #endif
 enum PollFuture {
     /** <No documentation available> */
-    POLL_FUTURE_SUCCESS,
+    POLL_FUTURE_COMPLETED,
     /** <No documentation available> */
     POLL_FUTURE_PENDING,
 }
@@ -268,7 +268,7 @@ typedef struct FfiFutureVTable {
     void (*release_vptr)(Erased_t *);
 
     /** <No documentation available> */
-    PollFuture_t (*poll)(Erased_t const *, Opaque_Context_t *);
+    PollFuture_t (*dyn_poll)(Erased_t *, Opaque_Context_t *);
 } FfiFutureVTable_t;
 
 /** <No documentation available> */
@@ -295,6 +295,21 @@ typedef struct BoxDynFnMut0_void {
 } BoxDynFnMut0_void_t;
 
 /** <No documentation available> */
+typedef struct DropGlueVTable {
+    /** <No documentation available> */
+    void (*release_vptr)(Erased_t *);
+} DropGlueVTable_t;
+
+/** <No documentation available> */
+typedef struct VirtualPtr__Erased_ptr_DropGlueVTable {
+    /** <No documentation available> */
+    Erased_t * ptr;
+
+    /** <No documentation available> */
+    DropGlueVTable_t vtable;
+} VirtualPtr__Erased_ptr_DropGlueVTable_t;
+
+/** <No documentation available> */
 typedef struct FfiFutureExecutorVTable {
     /** <No documentation available> */
     void (*release_vptr)(Erased_t *);
@@ -310,6 +325,9 @@ typedef struct FfiFutureExecutorVTable {
 
     /** <No documentation available> */
     void (*dyn_block_on)(Erased_t const *, VirtualPtr__Erased_ptr_FfiFutureVTable_t);
+
+    /** <No documentation available> */
+    VirtualPtr__Erased_ptr_DropGlueVTable_t (*dyn_enter)(Erased_t const *);
 } FfiFutureExecutorVTable_t;
 
 /** <No documentation available> */
