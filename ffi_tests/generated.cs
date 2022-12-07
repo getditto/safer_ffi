@@ -281,15 +281,15 @@ public unsafe /* static */ delegate
 /// An FFI-safe <c>Poll<()></c>.
 /// </summary>
 public enum PollFuture_t : sbyte {
-    Success,
+    Completed,
     Pending,
 }
 
 [UnmanagedFunctionPointer(CallingConvention.Winapi)]
 public unsafe /* static */ delegate
     PollFuture_t
-    PollFuture_Erased_const_ptr_Opaque_Context_ptr_fptr (
-        Erased_t /*const*/ * _0,
+    PollFuture_Erased_ptr_Opaque_Context_ptr_fptr (
+        Erased_t * _0,
         Opaque_Context_t * _1);
 
 [StructLayout(LayoutKind.Sequential, Size = 16)]
@@ -298,7 +298,7 @@ public unsafe struct FfiFutureVTable_t {
     public void_Erased_ptr_fptr release_vptr;
 
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    public PollFuture_Erased_const_ptr_Opaque_Context_ptr_fptr poll;
+    public PollFuture_Erased_ptr_Opaque_Context_ptr_fptr dyn_poll;
 }
 
 [StructLayout(LayoutKind.Sequential, Size = 24)]
@@ -343,7 +343,26 @@ public unsafe /* static */ delegate
         Erased_t /*const*/ * _0,
         VirtualPtr__Erased_ptr_FfiFutureVTable_t _1);
 
-[StructLayout(LayoutKind.Sequential, Size = 40)]
+[StructLayout(LayoutKind.Sequential, Size = 8)]
+public unsafe struct DropGlueVTable_t {
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public void_Erased_ptr_fptr release_vptr;
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 16)]
+public unsafe struct VirtualPtr__Erased_ptr_DropGlueVTable_t {
+    public Erased_t * ptr;
+
+    public DropGlueVTable_t vtable;
+}
+
+[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+public unsafe /* static */ delegate
+    VirtualPtr__Erased_ptr_DropGlueVTable_t
+    VirtualPtr__Erased_ptr_DropGlueVTable_Erased_const_ptr_fptr (
+        Erased_t /*const*/ * _0);
+
+[StructLayout(LayoutKind.Sequential, Size = 48)]
 public unsafe struct FfiFutureExecutorVTable_t {
     [MarshalAs(UnmanagedType.FunctionPtr)]
     public void_Erased_ptr_fptr release_vptr;
@@ -359,9 +378,12 @@ public unsafe struct FfiFutureExecutorVTable_t {
 
     [MarshalAs(UnmanagedType.FunctionPtr)]
     public void_Erased_const_ptr_VirtualPtr__Erased_ptr_FfiFutureVTable_fptr dyn_block_on;
+
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    public VirtualPtr__Erased_ptr_DropGlueVTable_Erased_const_ptr_fptr dyn_enter;
 }
 
-[StructLayout(LayoutKind.Sequential, Size = 48)]
+[StructLayout(LayoutKind.Sequential, Size = 56)]
 public unsafe struct VirtualPtr__Erased_ptr_FfiFutureExecutorVTable_t {
     public Erased_t * ptr;
 

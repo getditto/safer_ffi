@@ -321,7 +321,6 @@ fn vtable_entries<'trait_> (
                         => sig.receiver().unwrap()
                 }
             }
-            let self_lt = Some { 0: &Lifetime::new("'_", Span::mixed_site()) };
             /* From now on, we'll assume "no funky stuff", _e.g._, no generics, etc.
              * since at the time of this writing, this kind of funky stuff is denied for
              * `dyn Trait`s, and we're gonna emit a `dyn_safe(true)` assertion beforehand.
@@ -339,7 +338,6 @@ fn vtable_entries<'trait_> (
                 } else {
                     vec![]
                 },
-                receiver,
                 each_arg_name:
                     inputs
                         .iter()
@@ -355,19 +353,26 @@ fn vtable_entries<'trait_> (
                         }))
                         .collect()
                 ,
-                ErasedSelf: if let Some(_) = self_lt {
-                    parse_quote!(
-                        ::safer_ffi::dyn_traits::ErasedRef<'static>
-                        // ::safer_ffi::ptr::NonNull<
-                        //     ::safer_ffi::dyn_traits::ErasedTy,
-                        // >
-                    )
-                } else {
-                    parse_quote!(
-                        ::safer_ffi::ptr::NonNull<
-                            ::safer_ffi::dyn_traits::ErasedTy,
+                ErasedSelf: match receiver.kind {
+                    | ReceiverKind::Reference { mut_: true } => parse_quote!(
+                        ::safer_ffi::ptr::NonNullMut<
+                            ::safer_ffi::dyn_traits::ErasedTy
                         >
-                    )
+                    ),
+                    | ReceiverKind::Reference { mut_: false } => parse_quote!(
+                        ::safer_ffi::ptr::NonNullRef<
+                            ::safer_ffi::dyn_traits::ErasedTy
+                        >
+                    ),
+                    | ReceiverKind::Box
+                    | ReceiverKind::Arc
+                    => {
+                        parse_quote!(
+                            ::safer_ffi::ptr::NonNullOwned<
+                                ::safer_ffi::dyn_traits::ErasedTy
+                            >
+                        )
+                    },
                 },
                 EachArgTy:
                     inputs
@@ -383,6 +388,7 @@ fn vtable_entries<'trait_> (
                     | ReturnType::Type(_, it) => ::core::slice::from_ref(it),
                     | ReturnType::Default => &[],
                 },
+                receiver,
                 src: trait_item_method,
             }
         },
