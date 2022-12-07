@@ -284,6 +284,7 @@ mod closure;
 pub
 mod dyn_traits;
 
+#[cfg(feature = "futures")]
 #[doc(no_inline)]
 pub use dyn_traits::futures;
 
