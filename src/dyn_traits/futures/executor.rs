@@ -54,12 +54,15 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
             }
 
             pub
-            fn spawn_blocking (
+            fn spawn_blocking<R : 'static + Send> (
                 self: &'_ Self,
-                action: impl 'static + Send + FnOnce(),
-            ) -> impl Future<Output = ()>
+                action: impl 'static + Send + FnOnce() -> R,
+            ) -> impl Future<Output = Result<R, ::futures::channel::oneshot::Canceled>>
             {
-                let mut action = Some(action);
+                let (tx, rx) = ::futures::channel::oneshot::channel();
+                let mut action = Some(move || {
+                    let _ = tx.send(action());
+                });
                 let action = move || {
                     action
                         .take()
@@ -68,12 +71,15 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
                         ")
                         ()
                 };
-                self.dyn_spawn_blocking(Box::new(action).into())
-                    .into_future()
+                let fut = self.dyn_spawn_blocking(Box::new(action).into());
+                async move {
+                    fut.into_future().await;
+                    rx.await
+                }
             }
 
             pub
-            fn block_on<R : Send> (
+            fn block_on<R> (
                 self: &'_ Self,
                 fut: impl Future<Output = R>
             ) -> R
