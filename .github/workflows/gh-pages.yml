@@ -54,7 +54,7 @@ jobs:
         feature--std: ['', '--features alloc', '--features std']
         feature--async-fn: ['', '--features async-fn']
         feature--headers: ['', '--features headers', '--features csharp-headers']
-        feature--dyn-traits: ['', '--features dyn-traits']
+        feature--dyn-traits: ['', '--features dyn-traits', '--features futures', '--features tokio']
         # feature--log: ['', '--features log']
         feature--out-refs: ['', '--features out-refs']
         feature--js: ['', '--features js']
