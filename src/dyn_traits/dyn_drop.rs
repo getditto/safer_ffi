@@ -24,7 +24,7 @@ impl DynDrop {
 
 /// Convenience shorthand around
 /// `VirtualPtr<dyn 'static + Send + Sync + DropGlue>`.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[derive_ReprC]
 #[repr(transparent)]
 pub
