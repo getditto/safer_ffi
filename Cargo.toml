@@ -26,6 +26,7 @@ docs = [
     "csharp-headers",
     "default",
     "nightly",
+    "tokio",
     "uninit",
 ]
 
@@ -56,6 +57,7 @@ futures = [
 ]
 
 tokio = [
+    "async-compat",
     "dep:tokio",
     "futures",
 ]
@@ -101,46 +103,54 @@ safer-ffi.features = [
     "tokio",
 ]
 
-[target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
-libc = { version = "0.2.66", default-features = false }
-
 [dependencies]
-futures.version = "0.3.24"
+async-compat.optional = true
+async-compat.version = "0.2.1"
+
 futures.optional = true
+futures.version = "0.3.24"
+
+inventory.optional = true
+inventory.version = "0.1.6"
+
+inventory-0-3-1.optional = true
+inventory-0-3-1.package = "inventory"
+inventory-0-3-1.version = "0.3.1"
+
+log.optional = true
+log.version = "0.4.8"
+
+macro_rules_attribute.version = "0.1.0"
+
+napi.package = "napi-dispatcher"
+napi.path = "napi-dispatcher"
+
+paste.package = "mini_paste"
+paste.version = "0.1.*"
+
+scopeguard.version = "1.1.0"
+
+tokio.optional = true
 tokio.version = "1.21.2"
 tokio.features = [
     "rt",
 ]
-tokio.optional = true
 
-paste = { package = "mini_paste", version = "0.1.*" }
-log.version = "0.4.8"
-log.optional = true
-inventory.version = "0.1.6"
-inventory.optional = true
-scopeguard.version = "1.1.0"
+uninit.optional = true
+uninit.version = "0.5.0"
+uninit.default-features = false
+
 unwind_safe.version = "0.1.0"
+
 with_builtin_macros.version = "0.0.3"
-macro_rules_attribute = "0.1.0"
-
-
-[dependencies.inventory-0-3-1]
-package = "inventory"
-version = "0.3.1"
-optional = true
-
-[dependencies.napi]
-package = "napi-dispatcher"
-path = "napi-dispatcher"
 
 [dependencies.safer_ffi-proc_macros]
 path = "src/proc_macro"
 version = "0.1.0-rc1"  # Keep in sync
 
-[dependencies.uninit]
-optional = true
-version = "0.5.0"
-default-features = false
+[target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
+libc.version = "0.2.66"
+libc.default-features = false
 
 [workspace]
 members = [
