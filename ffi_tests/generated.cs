@@ -281,8 +281,8 @@ public unsafe /* static */ delegate
 /// An FFI-safe <c>Poll<()></c>.
 /// </summary>
 public enum PollFuture_t : sbyte {
-    Completed,
-    Pending,
+    Completed = 0,
+    Pending = -1,
 }
 
 [UnmanagedFunctionPointer(CallingConvention.Winapi)]

@@ -25,12 +25,24 @@ trait FfiFutureExecutor : Send + Sync {
     fn dyn_enter (
         self: &'_ Self,
     ) -> VirtualPtr<dyn '_ + DropGlue>
-    ;
+    {
+        Box::new(ImplDropGlue(())).into()
+    }
 }
 
 match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
     $(
         impl VirtualPtr<dyn 'static + FfiFutureExecutor + $($SendSync)*> {
+            #[cfg(feature = "tokio")]
+            pub
+            fn spawn_within_tokio_reactor<R : 'static + Send> (
+                self: &'_ Self,
+                fut: impl 'static + Send + Future<Output = R>,
+            ) -> impl Future<Output = R>
+            {
+                self.spawn(::async_compat::Compat::new(fut))
+            }
+
             pub
             fn spawn<R : 'static + Send> (
                 self: &'_ Self,
@@ -78,6 +90,16 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
                 }
             }
 
+            #[cfg(feature = "tokio")]
+            pub
+            fn block_on_within_tokio_reactor<R> (
+                self: &'_ Self,
+                fut: impl Future<Output = R>
+            ) -> R
+            {
+                self.block_on(::async_compat::Compat::new(fut))
+            }
+
             pub
             fn block_on<R> (
                 self: &'_ Self,
@@ -97,6 +119,8 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
                 ret.expect("`.dyn_block_on()` did not complete")
             }
 
+            /// "Enters" a context within which certain executor-specific
+            /// `Handle::current()`-functionalities shall work properly.
             pub
             fn enter (
                 self: &'_ Self,
@@ -105,11 +129,10 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
                 self.dyn_enter()
             }
         }
-
     )*
 )}}
 
-cfg_match! { feature = "tokio" => {
+cfg_match!(feature = "tokio" => {
     impl FfiFutureExecutor for ::tokio::runtime::Handle {
         fn dyn_spawn (
             self: &'_ Self,
@@ -158,7 +181,7 @@ cfg_match! { feature = "tokio" => {
             Box::new(ImplDropGlue(self.enter())).into()
         }
     }
-}}
+});
 
 #[macro_export]
 macro_rules! ffi_export_future_helpers {() => (

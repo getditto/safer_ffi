@@ -18,8 +18,8 @@ use {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub
 enum PollFuture {
-    Completed,
-    Pending,
+    Completed = 0,
+    Pending = -1,
 }
 
 /// Models a `Future` resolving to `()`.

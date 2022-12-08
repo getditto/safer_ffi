@@ -253,9 +253,9 @@ typedef
 #endif
 enum PollFuture {
     /** <No documentation available> */
-    POLL_FUTURE_COMPLETED,
+    POLL_FUTURE_COMPLETED = 0,
     /** <No documentation available> */
-    POLL_FUTURE_PENDING,
+    POLL_FUTURE_PENDING = -1,
 }
 #ifndef DOXYGEN
 ; typedef int8_t
