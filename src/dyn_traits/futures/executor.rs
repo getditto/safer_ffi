@@ -1,3 +1,5 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 use super::*;
 
 /// Models an `async` runtime's _handle_.
