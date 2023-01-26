@@ -1,3 +1,5 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 use ::safer_ffi::prelude::*;
 
 #[derive_ReprC(dyn)]
