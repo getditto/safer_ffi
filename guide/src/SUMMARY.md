@@ -6,9 +6,9 @@
 
   - [Detailed usage](usage/_.md)
 
-    - [`Cargo.toml`](usage/cargo-toml.md)
+    - [&lt;code&gt;Cargo.toml&lt;/code&gt;](usage/cargo-toml.md)
 
-    - [`src/lib.rs` and header generation](usage/lib-rs.md)
+    - [&lt;code&gt;src/lib.rs&lt;/code&gt; and header generation](usage/lib-rs.md)
 
     - [Custom types](usage/custom-types.md)
 
@@ -20,17 +20,17 @@
 
   - [Simple examples](simple-examples/_.md)
 
-    - [`string_concat`](simple-examples/string_concat.md)
+    - [&lt;code&gt;string_concat&lt;/code&gt;](simple-examples/string_concat.md)
 
     - [Maximum member of an array](simple-examples/max.md)
 
-  - [`ReprC` and `#[derive_ReprC]`](derive-reprc/_.md)
+  - [&lt;code&gt;ReprC&lt;/code&gt; and &lt;code&gt;#[derive_ReprC]&lt;/code&gt;](derive-reprc/_.md)
 
-      - [On a `struct`](derive-reprc/struct.md)
+      - [On a &lt;code&gt;struct&lt;/code&gt;](derive-reprc/struct.md)
 
-      - [On an `enum`](derive-reprc/enum.md)
+      - [On an &lt;code&gt;enum&lt;/code&gt;](derive-reprc/enum.md)
 
-  - [`#[ffi_export]`](ffi-export/_.md)
+  - [&lt;code&gt;#[ffi_export]&lt;/code&gt;](ffi-export/_.md)
 
       - [Auto-generated checks](ffi-export/sanity-checks.md)
 
@@ -42,10 +42,18 @@
 
       - [Closures](callbacks/closures.md)
 
+  - [&lt;code&gt;dyn Trait&lt;/code&gt;s / Virtual objects](dyn_traits/_.md)
+
+      - [&lt;code&gt;VirtualPtr&amp;lt;dyn Trait&amp;gt;&lt;/code&gt;](dyn_traits/virtual_ptr.md)
+
+      - [&lt;code&gt;#[derive_ReprC(dyn, …)]&lt;/code&gt;](dyn_traits/derive_reprc_dyn.md)
+
+      - [Example: FFI-safe &lt;code&gt;Future&lt;/code&gt;s and executors](dyn_traits/futures.md)
+
   - [Example: Real-world use case at Ditto](example-ditto/_.md)
 
-  - [Example: our own `hashmap` in C](example-hashmap/_.md)
+  - [Example: our own &lt;code&gt;hashmap&lt;/code&gt; in C](example-hashmap/_.md)
 
 [Appendix: FFI and C compilation](appendix/c-compilation.md)
 
-[Appendix: how does `safer_ffi` work](appendix/how-does-safer_ffi-work.md)
+[Appendix: how does &lt;code&gt;safer_ffi&lt;/code&gt; work](appendix/how-does-safer_ffi-work.md)
