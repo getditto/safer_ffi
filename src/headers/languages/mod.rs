@@ -20,6 +20,11 @@ __cfg_csharp__! {
     mod csharp;
 }
 
+__cfg_python__! {
+    pub use python::Python;
+    mod python;
+}
+
 pub
 struct Indentation {
     depth: ::core::cell::Cell<usize>,

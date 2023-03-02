@@ -21,7 +21,7 @@ features = [
 ]
 
 [features]
-generate-headers = ["safer-ffi/headers"]
+generate-headers = ["safer-ffi/headers", "safer-ffi/python-headers"]
 
 [profile.dev]
 panic = "unwind"

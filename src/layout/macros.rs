@@ -45,6 +45,22 @@ macro_rules! __cfg_csharp__ {(
     // Nothing
 )}
 
+#[cfg(feature = "python-headers")]
+#[macro_export] #[doc(hidden)]
+macro_rules! __cfg_python__ {(
+    $($item:item)*
+) => (
+    $($item)*
+)}
+
+#[cfg(not(feature = "python-headers"))]
+#[macro_export] #[doc(hidden)]
+macro_rules! __cfg_python__ {(
+    $($item:item)*
+) => (
+    // Nothing
+)}
+
 /// Safely implement [`CType`][`trait@crate::layout::LegacyCType`]
 /// for a `#[repr(C)]` struct **when all its fields are `CType`**.
 ///
