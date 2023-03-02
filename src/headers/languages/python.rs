@@ -2,66 +2,39 @@
 
 use super::*;
 
-pub
-struct C;
 
-impl HeaderLanguage for C {
+pub struct Python;
+
+
+/// Create a file whose content will be set in `ffi.cdef` of the Python module `cffi`
+impl HeaderLanguage for Python {
     fn emit_docs (
         self: &'_ Self,
-        ctx: &'_ mut dyn Definer,
-        docs: Docs<'_>,
-        indent: &'_ Indentation,
+        _ctx: &'_ mut dyn Definer,
+        _docs: Docs<'_>,
+        _indent: &'_ Indentation,
     ) -> io::Result<()>
     {
-        mk_out!(indent, ctx.out());
-
-        if docs.is_empty() {
-            out!(("/** <No documentation available> */"));
-            return Ok(());
-        }
-
-        out!(("/** \\brief"));
-        for line in docs.iter().copied().map(str::trim) {
-            let sep = if line.is_empty() { "" } else { "  " };
-            out!((" *{sep}{line}"));
-        }
-        out!((" */"));
-
-        Ok(())
+        // No documentation
+        return Ok(())
     }
 
     fn emit_simple_enum (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
-        docs: Docs<'_>,
+        _docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-        backing_integer: Option<&dyn PhantomCType>,
+        _backing_integer: Option<&dyn PhantomCType>,
         variants: &'_ [EnumVariant<'_>],
     ) -> io::Result<()>
     {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
-        let ref intn_t =
-            backing_integer.map(|it| it.name(self))
-        ;
-
-        self.emit_docs(ctx, docs, indent)?;
-
         let ref short_name = self_ty.short_name();
         let ref full_ty_name = self_ty.name(self);
 
-        if let Some(intn_t) = intn_t {
-            out!((
-                "/** \\remark Has the same ABI as `{intn_t}` **/"
-                "#ifdef DOXYGEN"
-                "typedef"
-                "#endif"
-                "enum {short_name} {{"
-            ));
-        } else {
-            out!(("typedef enum {short_name} {{"));
-        }
+        out!(("typedef enum {short_name} {{"));
 
         if let _ = indent.scope() {
             for v in variants {
@@ -71,26 +44,11 @@ impl HeaderLanguage for C {
                     enum_name,
                     v.name,
                 ) */;
-                if let Some(value) = v.discriminant {
-                    out!(("{variant_name} = {value:?},"));
-                } else {
-                    out!(("{variant_name},"));
-                }
+                out!(("{variant_name},"));
             }
         }
 
-        if let Some(intn_t) = intn_t {
-            out!((
-                "}}"
-                "#ifndef DOXYGEN"
-                "; typedef {intn_t}"
-                "#endif"
-                "{full_ty_name};"
-            ));
-        } else {
-            out!(("}} {full_ty_name};"));
-        }
-
+        out!(("}} {full_ty_name};"));
         out!("\n");
         Ok(())
     }
@@ -98,7 +56,7 @@ impl HeaderLanguage for C {
     fn emit_struct (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
-        docs: Docs<'_>,
+        _docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         fields: &'_ [StructField<'_>]
     ) -> io::Result<()>
@@ -112,7 +70,6 @@ impl HeaderLanguage for C {
             panic!("C does not support zero-sized structs!")
         }
 
-        self.emit_docs(ctx, docs, indent)?;
         out!(("typedef struct {short_name} {{"));
         if let _ = indent.scope() {
             let ref mut first = true;
@@ -144,18 +101,14 @@ impl HeaderLanguage for C {
     fn emit_opaque_type (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
-        docs: Docs<'_>,
+        _docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>
     {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
-        let short_name = self_ty.short_name();
         let full_ty_name = self_ty.name(self);
-
-        self.emit_docs(ctx, docs, indent)?;
-        out!(("typedef struct {short_name} {full_ty_name};"));
-
+        out!(("typedef ... {full_ty_name};"));
         out!("\n");
         Ok(())
     }
@@ -163,7 +116,7 @@ impl HeaderLanguage for C {
     fn emit_function (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
-        docs: Docs<'_>,
+        _docs: Docs<'_>,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
@@ -171,20 +124,11 @@ impl HeaderLanguage for C {
     {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
 
-        self.emit_docs(ctx, docs, indent)?;
-
         let ref fn_sig_but_for_ret_type: String = {
             let mut buf = Vec::<u8>::new();
             mk_out!(indent, buf);
 
-            out!(
-                "\n{indent}{fn}{fname} (",
-                fn = if cfg!(feature = "c-headers-with-fn-style") {
-                    "/* fn */ "
-                } else {
-                    ""
-                },
-            );
+            out!("\n{indent}{fname} (");
             let mut first = true;
             if let _ = indent.scope() {
                 for arg in args {
@@ -213,19 +157,17 @@ impl HeaderLanguage for C {
     fn emit_constant (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
-        docs: Docs<'_>,
+        _docs: Docs<'_>,
         name: &'_ str,
-        ty: &'_ dyn PhantomCType,
-        value: &'_ dyn ::core::fmt::Debug,
+        _ty: &'_ dyn PhantomCType,
+        _value: &'_ dyn ::core::fmt::Debug,
     ) -> io::Result<()>
     {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
-        self.emit_docs(ctx, docs, indent)?;
-        let ty = ty.name(self);
         out!((
-            "#define {name} (({ty}) {value:?})"
+            "#define {name} ..."
         ));
 
         out!("\n");

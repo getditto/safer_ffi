@@ -74,6 +74,9 @@ headers = [
     "safer_ffi-proc_macros/headers",
     "std",
 ]
+python-headers = [
+    "headers",
+]
 # Tweak the generated `.h` ever so slightly.
 c-headers-with-fn-style = [
     "headers",
@@ -99,6 +102,7 @@ inventory-0-3-1 = [
 internal-tests = [
     "async-fn",
     "headers",
+    "python-headers",
     "dyn-traits",
     "tokio/rt-multi-thread",
 ]

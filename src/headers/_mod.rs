@@ -374,6 +374,10 @@ impl Builder<'_, WhereTo> {
                 NameSpace = Self::pascal_cased_lib_name(),
                 RustLib = Self::lib_name(),
             ),
+
+            #[cfg(feature = "python-headers")]
+            // CHECKME
+            | Language::Python => Ok(()),
         }
     }
 
@@ -430,6 +434,9 @@ impl Builder<'_, WhereTo> {
                 PkgName = pkg_name,
             )
             },
+            #[cfg(feature = "python-headers")]
+            // CHECKME
+            | Language::Python => Ok(()),
         }
     }
 
@@ -495,6 +502,9 @@ enum Language {
 
     /// C#
     CSharp,
+    /// Python (experimental).
+    #[cfg(feature = "python-headers")]
+    Python,
 }
 
 /// Allow user to specify
@@ -520,6 +530,10 @@ hidden_export! {
             | Language::CSharp => {
                 <T::CLayout as CType>::define_self(&crate::headers::languages::CSharp, definer)
             },
+            #[cfg(feature = "python-headers")]
+            | Language::Python => {
+                <T::CLayout as CType>::define_self(&crate::headers::languages::Python, definer)
+            },
         }
     }
 }
@@ -543,6 +557,8 @@ fn __define_fn__ (
     let dyn_lang: &dyn HeaderLanguage = match lang {
         | Language::C => &languages::C,
         | Language::CSharp => &languages::CSharp,
+        #[cfg(feature = "python-headers")]
+        | Language::Python => &languages::Python,
     };
     dyn_lang.emit_function(
         definer,
@@ -577,6 +593,10 @@ hidden_export! {
                 | Language::CSharp => write!(out,
                     "{} (", f_name.trim(),
                 ),
+                #[cfg(feature = "python-headers")]
+                | Language::Python => write!(out,
+                    "{} (", f_name.trim(),
+                ),
             }
             .expect("`write!`-ing to a `String` cannot fail")
         }
@@ -606,6 +626,11 @@ hidden_export! {
                             .as_deref()
                             .unwrap_or("")
                     ,
+                ),
+                #[cfg(feature = "python-headers")]
+                | Language::Python => write!(out,
+                    "\n    {}",
+                    Arg::CLayout::name_wrapping_var(&crate::headers::languages::Python, arg_name),
                 ),
             }
             .expect("`write!`-ing to a `String` cannot fail")
@@ -646,6 +671,16 @@ hidden_export! {
                                 .as_deref()
                                 .unwrap_or("")
                         ,
+                    )
+                },
+                #[cfg(feature = "python-headers")]
+                | Language::Python => {
+                    if fname_and_args.ends_with("(") {
+                        fname_and_args.push_str("void");
+                    }
+                    writeln!(out,
+                        "{});\n",
+                        Ret::CLayout::name_wrapping_var(&crate::headers::languages::Python, &fname_and_args),
                     )
                 },
             }

@@ -98,6 +98,7 @@ fn try_handle_fptr (
         #[apply(let_quote!)]
         use ::safer_ffi::{
             __cfg_headers__,
+            __cfg_python__,
             __cfg_csharp__,
             ඞ,
             ඞ::{

@@ -49,6 +49,7 @@ fn handle (
                                 match lang {
                                     | Language::C => &languages::C,
                                     | Language::CSharp => &languages::CSharp,
+                                    | Language::Python => &languages::Python,
                                 }
                             ;
                             header_builder

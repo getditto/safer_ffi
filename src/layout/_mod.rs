@@ -119,6 +119,10 @@ impl<T : LegacyCType> CType for T {
                 | _case if language.is::<CSharp>() => {
                     <Self as LegacyCType>::csharp_define_self(definer)
                 },
+                #[cfg(feature = "python-headers")]
+                | _case if language.is::<Python>() => {
+                    <Self as LegacyCType>::c_define_self(definer)
+                },
                 | _ => unimplemented!(),
             }
         }
@@ -144,6 +148,10 @@ impl<T : LegacyCType> CType for T {
                 | _case if language.is::<CSharp>() => {
                     let sep = if var_name.is_empty() { "" } else { " " };
                     format!("{}{sep}{var_name}", Self::csharp_ty())
+                },
+                #[cfg(feature = "python-headers")]
+                | _case if language.is::<Python>() => {
+                    <Self as LegacyCType>::c_var(var_name).to_string()
                 },
                 | _ => unimplemented!(),
             }
