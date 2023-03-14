@@ -126,7 +126,7 @@ pub fn generate_headers() -> ::std::io::Result<()> {
 
   - See [the dedicated chapter on `src/lib.rs`][lib-rs] for more info.
 
-#### Step 3: `examples/generate-headers.rs`
+#### Step 3: `src/bin/generate-headers.rs`
 
 ```rust ,ignore
 fn main() -> ::std::io::Result<()> {
@@ -141,7 +141,7 @@ fn main() -> ::std::io::Result<()> {
 cargo build # --release
 
 # Generate the C header
-cargo run --features headers --example generate-headers
+cargo run --features headers --bin generate-headers
 ```
 
   - See [the dedicated chapter on header generation][header-generation] for
