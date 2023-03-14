@@ -73,10 +73,9 @@ jobs:
       matrix:
         feature--std: ['', '--features alloc', '--features std']
         feature--async-fn: ['', '--features async-fn']
-        feature--headers: ['', '--features headers', '--features csharp-headers']
+        feature--headers: ['', '--features headers']
         feature--dyn-traits: ['', '--features dyn-traits', '--features futures', '--features tokio']
         # feature--log: ['', '--features log']
-        feature--out-refs: ['', '--features out-refs']
         feature--js: ['', '--features js']
     steps:
       - name: Install Rust toolchain
@@ -98,7 +97,6 @@ jobs:
             ${{ matrix.feature--async-fn }}
             ${{ matrix.feature--headers }}
             ${{ matrix.feature--dyn-traits }}
-            ${{ matrix.feature--out-refs }}
             ${{ matrix.feature--js }}
 
   # == BUILD & TEST == #
@@ -114,9 +112,9 @@ jobs:
           - macos-latest
           - windows-latest
         rust:
-          # - 1.66.1
+          - 1.66.1
           - stable
-          - nightly
+          # - nightly
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -158,7 +156,7 @@ jobs:
   # Deploy to Github pages #
   deploy:
     if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     needs:
       - build-and-test
     steps:
@@ -172,7 +170,7 @@ jobs:
       - name: Install `mdbook`
         uses: peaceiris/actions-mdbook@v1
         with:
-          mdbook-version: '0.3.7'
+          mdbook-version: '0.4.4'
 
       - name: Clone repo
         uses: actions/checkout@v2
@@ -188,7 +186,7 @@ jobs:
       - name: Build guide and documentation
         run: |
           (cd guide
-            (cd src && sed -e "s@{ROOT_PATH}@${URL_ROOT_PATH}@" links.md.template > links.md)
+            (cd src && sed -e "s,{ROOT_PATH},${URL_ROOT_PATH}," links.md.template > links.md)
             mdbook build
             mkdir -p book/{assets,rustdoc}
             cp -r assets/* book/assets/

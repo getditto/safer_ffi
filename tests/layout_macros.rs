@@ -319,7 +319,6 @@ fn generate_headers ()
     for &language
         in  &[
                 C,
-                #[cfg(feature = "csharp-headers")]
                 CSharp,
             ]
     {

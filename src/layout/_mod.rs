@@ -116,7 +116,6 @@ impl<T : LegacyCType> CType for T {
                 | _case if language.is::<C>() => {
                     <Self as LegacyCType>::c_define_self(definer)
                 },
-                #[cfg(feature = "csharp-headers")]
                 | _case if language.is::<CSharp>() => {
                     <Self as LegacyCType>::csharp_define_self(definer)
                 },
@@ -142,7 +141,6 @@ impl<T : LegacyCType> CType for T {
                 | _case if language.is::<C>() => {
                     <Self as LegacyCType>::c_var(var_name).to_string()
                 },
-                #[cfg(feature = "csharp-headers")]
                 | _case if language.is::<CSharp>() => {
                     let sep = if var_name.is_empty() { "" } else { " " };
                     format!("{}{sep}{var_name}", Self::csharp_ty())
@@ -155,14 +153,7 @@ impl<T : LegacyCType> CType for T {
         fn csharp_marshaler ()
           -> Option<String>
         {
-            cfg_match!({
-                feature = "csharp-headers" => {
-                    <T as LegacyCType>::legacy_csharp_marshaler()
-                },
-                _ => {
-                    unimplemented!("missing `csharp-headers` Cargo feature");
-                },
-            })
+            <T as LegacyCType>::legacy_csharp_marshaler()
         }
     }
 }

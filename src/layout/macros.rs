@@ -29,7 +29,7 @@ macro_rules! __cfg_js__ {(
     // nothing
 )}
 
-#[cfg(feature = "csharp-headers")]
+#[cfg(feature = "headers")]
 #[macro_export] #[doc(hidden)]
 macro_rules! __cfg_csharp__ {(
     $($item:item)*
@@ -37,7 +37,7 @@ macro_rules! __cfg_csharp__ {(
     $($item)*
 )}
 
-#[cfg(not(feature = "csharp-headers"))]
+#[cfg(not(feature = "headers"))]
 #[macro_export] #[doc(hidden)]
 macro_rules! __cfg_csharp__ {(
     $($item:item)*

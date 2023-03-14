@@ -1032,7 +1032,6 @@ impl_ReprC_for! { unsafe {
 
 /* `HasNiche` from `niche.rs` impls `ReprC` for `Option<ptr>` types. */
 
-#[cfg(feature = "out-refs")]
 impl_ReprC_for! { unsafe {
     @for['out, T : 'out + Sized + ReprC]
     Out<'out, T>

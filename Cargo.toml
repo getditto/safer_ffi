@@ -23,11 +23,10 @@ default = [
 
 # Document under the following features: all but for debug or experimental.
 docs = [
-    "csharp-headers",
+    "headers",
     "default",
     "nightly",
     "tokio",
-    "uninit",
 ]
 
 nightly = []
@@ -62,17 +61,10 @@ tokio = [
     "futures",
 ]
 
-out-refs = [
-    "uninit",
-]
-
 headers = [
     "inventory",
     "safer_ffi-proc_macros/headers",
     "std",
-]
-csharp-headers = [
-    "headers",
 ]
 # Tweak the generated `.h` ever so slightly.
 c-headers-with-fn-style = [
@@ -98,7 +90,7 @@ macro_rules_attribute = "0.1.0"
 safer-ffi.path = "."
 safer-ffi.features = [
     "async-fn",
-    "csharp-headers",
+    "headers",
     "dyn-traits",
     "tokio",
 ]
@@ -125,18 +117,17 @@ macro_rules_attribute.version = "0.1.0"
 napi.package = "napi-dispatcher"
 napi.path = "napi-dispatcher"
 
-paste.package = "mini_paste"
-paste.version = "0.1.*"
+# paste.package = "mini_paste"
+paste.version = "1.0.12"
 
 scopeguard.version = "1.1.0"
 
 tokio.optional = true
-tokio.version = "1.21.2"
+tokio.version = "1.26.0"
 tokio.features = [
     "rt",
 ]
 
-uninit.optional = true
 uninit.version = "0.5.0"
 uninit.default-features = false
 

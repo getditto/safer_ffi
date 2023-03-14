@@ -2,13 +2,17 @@
 #![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt::skip)]
 #![cfg_attr(feature = "nightly",
-    feature(doc_cfg, trivial_bounds)
+    feature(doc_cfg)
 )]
 #![cfg_attr(not(feature = "std"),
     no_std,
 )]
 
-#![allow(nonstandard_style, trivial_bounds, unused_parens)]
+#![allow(
+    nonstandard_style,
+    trivial_bounds,
+    unused_parens,
+)]
 #![warn(
     missing_copy_implementations,
     missing_debug_implementations,
@@ -20,7 +24,6 @@
     unused_must_use,
 )]
 #![doc = include_str!("../README.md")]
-#![cfg(not(rustfmt))]
 
 #[macro_use]
 extern crate macro_rules_attribute;
@@ -242,7 +245,7 @@ __cfg_headers__! {
     mod headers;
 
     #[allow(missing_copy_implementations, missing_debug_implementations)]
-    #[doc(hidden)] pub
+    #[doc(hidden)] /** Not part of the public API */ pub
     struct FfiExport {
         pub
         name: &'static str,
@@ -285,6 +288,9 @@ pub
 mod dyn_traits;
 
 #[cfg(feature = "futures")]
+#[cfg_attr(all(docs, feature = "nightly"),
+    doc(cfg(feature = "futures"))
+)]
 #[doc(no_inline)]
 pub use dyn_traits::futures;
 
@@ -393,10 +399,6 @@ mod prelude {
         },
     };
 
-    #[cfg(feature = "out-refs")]
-    #[cfg_attr(all(docs, feature = "nightly"),
-        doc(cfg(feature = "out-refs"))
-    )]
     pub use ::uninit::prelude::{
         // Out reference itself
         Out,
