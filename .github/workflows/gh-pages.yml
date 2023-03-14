@@ -45,7 +45,7 @@ jobs:
           args: --features log
 
   releasable-to-crates-io:
-    name: Check the crate can be released to crates.io
+    name: Check the package can be released to crates.io
     runs-on: ubuntu-latest
     needs: check
     steps:
@@ -152,6 +152,25 @@ jobs:
           RUSTC_BOOTSTRAP: 1
           RUSTFLAGS: -Zmacro-backtrace
           RUST_BACKTRACE: full
+
+  all-good:
+    name: All the required checks
+    needs:
+      - check
+      - check-features
+      - build-and-test
+      - releasable-to-crates-io
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      - name: Job Checks
+        run: |
+          RESULT=$(echo "${{ join(needs.*.result, '') }}" | sed -e "s/success//g")
+          if [ -n "$RESULT" ]; then
+            echo "One or more jobs failed"
+            exit 1
+          fi
+          echo "All jobs succeeded"
 
   # Deploy to Github pages #
   deploy:

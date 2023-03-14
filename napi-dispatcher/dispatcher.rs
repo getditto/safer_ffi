@@ -11,6 +11,7 @@ macro_rules! emit {( $($_:tt)* ) => ( $($_)* )}
 }
 
 #[cfg(not(target_arch = "wasm32"))] emit! {
+    #[allow(unused_extern_crates)]
     extern crate napi;
     pub use ::{
         napi::*,
