@@ -1,6 +1,5 @@
 /target
 **/*.rs.bk
-Cargo.lock
 
 c_binary
 **/*.a
