@@ -15,7 +15,6 @@ jobs:
     name: Check nightly stable and MSRV
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         os:
           - ubuntu-latest
@@ -70,6 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: check
     strategy:
+      fail-fast: false
       matrix:
         feature--std: ['', '--features alloc', '--features std']
         feature--async-fn: ['', '--features async-fn']
@@ -103,7 +103,7 @@ jobs:
   build-and-test:
     name: Build and test
     runs-on: ${{ matrix.os }}
-    needs: [check, check-features]
+    needs: [check]
     strategy:
       fail-fast: false
       matrix:
