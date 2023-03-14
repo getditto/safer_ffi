@@ -14,7 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#ffffff" />
 
-    <link rel="shortcut icon" href="favicon.png">
+    <link rel="shortcut icon" href="">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/general.css">
     <link rel="stylesheet" href="css/chrome.css">
@@ -44,7 +44,7 @@
     <!-- Provide site root to javascript -->
     <script type="text/javascript">
         var path_to_root = "";
-        var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
     </script>
 
     <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -89,7 +89,7 @@
 
     <nav id="sidebar" class="sidebar" aria-label="Table of contents">
         <div class="sidebar-scrollbox">
-            <ol class="chapter"><li class="chapter-item expanded "><a href="introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="introduction/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li></ol></li><li class="chapter-item expanded "><a href="usage/_.html"><strong aria-hidden="true">2.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="usage/cargo-toml.html"><strong aria-hidden="true">2.1.</strong> Cargo.toml</a></li><li class="chapter-item expanded "><a href="usage/lib-rs.html"><strong aria-hidden="true">2.2.</strong> src/lib.rs and header generation</a></li><li class="chapter-item expanded "><a href="usage/custom-types.html"><strong aria-hidden="true">2.3.</strong> Custom types</a></li></ol></li><li class="chapter-item expanded "><a href="motivation/_.html"><strong aria-hidden="true">3.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="motivation/traditional-ffi.html"><strong aria-hidden="true">3.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="motivation/repr-c-forall.html"><strong aria-hidden="true">3.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="simple-examples/_.html"><strong aria-hidden="true">4.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-examples/string_concat.html"><strong aria-hidden="true">4.1.</strong> string_concat</a></li><li class="chapter-item expanded "><a href="simple-examples/max.html"><strong aria-hidden="true">4.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="derive-reprc/_.html"><strong aria-hidden="true">5.</strong> ReprC and #[derive_ReprC]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a struct</a></li><li class="chapter-item expanded "><a href="derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an enum</a></li></ol></li><li class="chapter-item expanded "><a href="ffi-export/_.html"><strong aria-hidden="true">6.</strong> #[ffi_export]</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="callbacks/_.html"><strong aria-hidden="true">7.</strong> Callbacks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="callbacks/fn_pointers.html"><strong aria-hidden="true">7.1.</strong> Function pointers</a></li><li class="chapter-item expanded "><a href="callbacks/closures.html"><strong aria-hidden="true">7.2.</strong> Closures</a></li></ol></li><li class="chapter-item expanded "><a href="example-ditto/_.html"><strong aria-hidden="true">8.</strong> Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded "><a href="example-hashmap/_.html"><strong aria-hidden="true">9.</strong> Example: our own hashmap in C</a></li><li class="chapter-item expanded affix "><a href="appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="appendix/how-does-safer_ffi-work.html">Appendix: how does safer_ffi work</a></li></ol>
+            <ol class="chapter"><li class="chapter-item expanded "><a href="introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="introduction/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li></ol></li><li class="chapter-item expanded "><a href="usage/_.html"><strong aria-hidden="true">2.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="usage/cargo-toml.html"><strong aria-hidden="true">2.1.</strong> <code>Cargo.toml</code></a></li><li class="chapter-item expanded "><a href="usage/lib-rs.html"><strong aria-hidden="true">2.2.</strong> <code>src/lib.rs</code> and header generation</a></li><li class="chapter-item expanded "><a href="usage/custom-types.html"><strong aria-hidden="true">2.3.</strong> Custom types</a></li></ol></li><li class="chapter-item expanded "><a href="motivation/_.html"><strong aria-hidden="true">3.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="motivation/traditional-ffi.html"><strong aria-hidden="true">3.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="motivation/repr-c-forall.html"><strong aria-hidden="true">3.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="simple-examples/_.html"><strong aria-hidden="true">4.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-examples/string_concat.html"><strong aria-hidden="true">4.1.</strong> <code>string_concat</code></a></li><li class="chapter-item expanded "><a href="simple-examples/max.html"><strong aria-hidden="true">4.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="derive-reprc/_.html"><strong aria-hidden="true">5.</strong> <code>ReprC</code> and <code>#[derive_ReprC]</code></a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a <code>struct</code></a></li><li class="chapter-item expanded "><a href="derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an <code>enum</code></a></li></ol></li><li class="chapter-item expanded "><a href="ffi-export/_.html"><strong aria-hidden="true">6.</strong> <code>#[ffi_export]</code></a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="callbacks/_.html"><strong aria-hidden="true">7.</strong> Callbacks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="callbacks/fn_pointers.html"><strong aria-hidden="true">7.1.</strong> Function pointers</a></li><li class="chapter-item expanded "><a href="callbacks/closures.html"><strong aria-hidden="true">7.2.</strong> Closures</a></li></ol></li><li class="chapter-item expanded "><a href="dyn_traits/_.html"><strong aria-hidden="true">8.</strong> <code>dyn Trait</code>s / Virtual objects</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="dyn_traits/virtual_ptr.html"><strong aria-hidden="true">8.1.</strong> <code>VirtualPtr&lt;dyn Trait&gt;</code></a></li><li class="chapter-item expanded "><a href="dyn_traits/derive_reprc_dyn.html"><strong aria-hidden="true">8.2.</strong> <code>#[derive_ReprC(dyn, …)]</code></a></li><li class="chapter-item expanded "><a href="dyn_traits/futures.html"><strong aria-hidden="true">8.3.</strong> Example: FFI-safe <code>Future</code>s and executors</a></li></ol></li><li class="chapter-item expanded "><a href="example-ditto/_.html"><strong aria-hidden="true">9.</strong> Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded "><a href="example-hashmap/_.html"><strong aria-hidden="true">10.</strong> Example: our own <code>hashmap</code> in C</a></li><li class="chapter-item expanded affix "><a href="appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="appendix/how-does-safer_ffi-work.html">Appendix: how does <code>safer_ffi</code> work</a></li></ol>
             <span id="sponsored">
                 Sponsored by<br/>
                 <a href="https://www.ditto.live"><img src="assets/ditto-logo-with-title-small.png" /></a>
@@ -255,8 +255,8 @@ can find by running <code>cargo search safer-ffi</code>.</p>
 <p>Then, to export a Rust function to FFI, add the
 <a href="introduction//safer_ffi/derive-reprc/_.html"><code>#[derive_ReprC]</code></a> and <a href="introduction//safer_ffi/ffi-export/_.html"><code>#[ffi_export]</code></a> attributes
 like so:</p>
-<pre><pre class="playpen"><code class="language-rust no_run">
-<span class="boring">#![allow(unused_variables)]
+<pre><pre class="playground"><code class="language-rust no_run">
+<span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use ::safer_ffi::prelude::*;
 
@@ -297,7 +297,7 @@ pub fn generate_headers() -&gt; ::std::io::Result&lt;()&gt; {
 <ul>
 <li>See <a href="introduction//safer_ffi/usage/lib-rs.html">the dedicated chapter on <code>src/lib.rs</code></a> for more info.</li>
 </ul>
-<h4><a class="header" href="#step-3-examplesgenerate-headersrs" id="step-3-examplesgenerate-headersrs">Step 3: <code>examples/generate-headers.rs</code></a></h4>
+<h4><a class="header" href="#step-3-srcbingenerate-headersrs" id="step-3-srcbingenerate-headersrs">Step 3: <code>src/bin/generate-headers.rs</code></a></h4>
 <pre><code class="language-rust ignore">fn main() -&gt; ::std::io::Result&lt;()&gt; {
     ::crate_name::generate_headers()
 }
@@ -307,7 +307,7 @@ pub fn generate_headers() -&gt; ::std::io::Result&lt;()&gt; {
 cargo build # --release
 
 # Generate the C header
-cargo run --features headers --example generate-headers
+cargo run --features headers --bin generate-headers
 </code></pre>
 <ul>
 <li>See <a href="introduction//safer_ffi/usage/lib-rs.html#header-generation">the dedicated chapter on header generation</a> for
@@ -454,8 +454,8 @@ safer-ffi = &quot;...&quot;
 headers = [&quot;safer-ffi/headers&quot;]
 </code></pre>
 <h3><a class="header" href="#srclibrs" id="srclibrs"><code>src/lib.rs</code></a></h3>
-<pre><pre class="playpen"><code class="language-rust norun">
-<span class="boring">#![allow(unused_variables)]
+<pre><pre class="playground"><code class="language-rust norun">
+<span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use ::safer_ffi::prelude::*;
 
@@ -472,15 +472,15 @@ pub fn generate_headers() -&gt; ::std::io::Result&lt;()&gt; {
 }
 <span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#examplesgenerate-headers" id="examplesgenerate-headers"><code>examples/generate-headers</code></a></h3>
-<pre><pre class="playpen"><code class="language-rust norun">fn main() -&gt; ::std::io::Result&lt;()&gt; {
+<h3><a class="header" href="#srcbingenerate-headersrs" id="srcbingenerate-headersrs"><code>src/bin/generate-headers.rs</code></a></h3>
+<pre><pre class="playground"><code class="language-rust norun">fn main() -&gt; ::std::io::Result&lt;()&gt; {
     ::crate_name::generate_headers()
 }
 </code></pre></pre>
 <ul>
 <li>
 <p>And run:</p>
-<pre><code class="language-bash">cargo run --example generate-headers --features headers
+<pre><code class="language-bash">cargo run --bin generate-headers --features headers
 </code></pre>
 <p>to generate the headers.</p>
 </li>
@@ -602,8 +602,8 @@ file(name), or into the given <code>Write</code>-able / &quot;write sink&quot;:<
 <ul>
 <li>
 <p>Basic example:</p>
-<pre><pre class="playpen"><code class="language-rust norun">
-<span class="boring">#![allow(unused_variables)]
+<pre><pre class="playground"><code class="language-rust norun">
+<span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>//! src/lib.rs
 #[cfg(feature = &quot;headers&quot;)]
@@ -614,7 +614,7 @@ pub fn generate_headers() -&gt; ::std::io::Result&lt;()&gt; {
 }
 <span class="boring">}
 </span></code></pre></pre>
-<pre><pre class="playpen"><code class="language-rust norun">//! examples/generate-headers.rs
+<pre><pre class="playground"><code class="language-rust norun">//! src/bin/generate-headers.rs
 fn main() -&gt; ::std::io::Result&lt;()&gt; {
     ::crate_name::generate_headers()
 }
@@ -622,14 +622,14 @@ fn main() -&gt; ::std::io::Result&lt;()&gt; {
 </li>
 <li>
 <p>And run:</p>
-<pre><code class="language-bash">cargo run --example generate-headers --features headers
+<pre><code class="language-bash">cargo run --bin generate-headers --features headers
 </code></pre>
 <p>to generate the headers.</p>
 </li>
 <li>
-<p>You may also    want to add:</p>
+<p>You may also want to add:</p>
 <pre><code class="language-toml"># Cargo.toml
-[[example]]
+[[bin]]
 name = &quot;generate-headers&quot;
 required-features = [&quot;headers&quot;]
 </code></pre>
@@ -639,8 +639,8 @@ missing.</p>
 </ul>
 <details>
 <summary>More advanced example (runtime-dependent header output)</summary>
-<pre><pre class="playpen"><code class="language-rust norun">
-<span class="boring">#![allow(unused_variables)]
+<pre><pre class="playground"><code class="language-rust norun">
+<span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>#[cfg(feature = &quot;headers&quot;)]
 fn generate_headers() -&gt; ::std::io::Result&lt;()&gt; {
@@ -658,7 +658,7 @@ fn generate_headers() -&gt; ::std::io::Result&lt;()&gt; {
 <span class="boring">}
 </span></code></pre></pre>
 <p>and run</p>
-<pre><code class="language-bash">cargo run --example generate-headers --features headers -- /path/to/headers.h
+<pre><code class="language-bash">cargo run --bin generate-headers --features headers -- /path/to/headers.h
 </code></pre>
 </details>
 <h1><a class="header" href="#custom-types" id="custom-types">Custom Types</a></h1>
@@ -1322,11 +1322,11 @@ struct ComplicatedStruct {
 fn create ()
   -&gt; repr_c::Box&lt;ComplicatedStruct&gt;
 {
-    repr_c::Box::new(ComplicatedStruct {
+    Box::new(ComplicatedStruct {
         path: &quot;/tmp&quot;.into(),
         cb: Rc::new(|path| println!(&quot;path = `{}`&quot;, path.to_string_lossy())),
         x: 42,
-    })
+    }).into()
 }
 
 #[ffi_export]
@@ -2121,6 +2121,961 @@ prefix), and how the latter can be converted to the former by having
 <code>.retain = NULL</code>.</li>
 </ul>
 </details>
+<h1><a class="header" href="#ffi-safe-dyn-traits--virtual-objects" id="ffi-safe-dyn-traits--virtual-objects">FFI-safe <code>dyn Trait</code>s / Virtual objects</a></h1>
+<p>This is a generalization of callbacks. For instance, while you could model an <code>Iterator</code> as an <code>FnMut()</code>, and then make that closure FFI-compatible based on the <a href="dyn_traits//safer_ffi/callbacks/_.html">previous chapter</a>, you could also be tempted to instead actually use some FFI-safe version of <code>dyn Iterator</code>, right?</p>
+<details><summary>Example (click to see)</summary>
+<p>Rather than doing:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use ::safer_ffi::prelude::*;
+
+#[ffi_export]
+fn fibonacci() -&gt; repr_c::Box&lt;dyn Send + FnMut() -&gt; u32&gt; {
+    let mut state = (0, 1);
+    Box::new(move || {
+        let to_yield = state.0;
+        (state.0, state.1) = (state.1, state.0 + state.1);
+        to_yield
+    })
+    .into()
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ul>
+<li><details><summary>C usage</summary>
+<p>Generated header:</p>
+<pre><code class="language-c">/** \brief
+ *  `Box&lt;dyn 'static + Send + FnMut() -&gt; Ret&gt;`
+ */
+typedef struct BoxDynFnMut0_uint32 {
+    /** &lt;No documentation available&gt; */
+    void * env_ptr;
+
+    /** &lt;No documentation available&gt; */
+    uint32_t (*call)(void *);
+
+    /** &lt;No documentation available&gt; */
+    void (*free)(void *);
+} BoxDynFnMut0_uint32_t;
+
+/** &lt;No documentation available&gt; */
+BoxDynFnMut0_uint32_t
+fibonacci (void);
+</code></pre>
+<p>Usage:</p>
+<pre><code class="language-cpp">// 1. Create it
+auto next = fibonacci();
+// 2. Use it
+for(int i = 0; i &lt; 5; ++i) {
+    printf(&quot;%u\n&quot;, next.call(next.env_ptr));
+}
+// 3. Release it
+next.free(next.env_ptr);
+</code></pre>
+</details>
+</li>
+</ul>
+<p>You may want to instead do:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//! PSEUDO CODE
+
+#[somehow_make_it_ffi_dyn_safe]
+trait FfiIterator : Send {
+    fn next(&amp;mut self) -&gt; u32;
+}
+
+#[ffi_export]
+fn fibonacci() -&gt; repr_c::Box&lt;dyn FfiIterator&gt; {
+    struct Fibo(u32, u32);
+
+    impl FfiIterator&lt;u32&gt; for Fibo {
+        fn next(&amp;mut self) -&gt; u32 {
+            let to_ret = self.0;
+            (self.0, self.1) = (self.1, self.0 + self.1);
+            to_ret;
+        }
+    }
+
+    Box::new(Fibo(0, 1))
+        .into()
+}
+<span class="boring">}
+</span></code></pre></pre>
+</details>
+<p>This functionality is indeed supported by <code>safer-ffi</code>, thanks to the combination of <em>two</em> things:</p>
+<ol>
+<li>
+<p>the <code>#[derive_ReprC(dyn)]</code> annotation on a given <code>Trait</code> definition (this makes it so <code>dyn Trait : <a href="dyn_traits//safer_ffi/rustdoc/safer_ffi/dyn_traits/trait.ReprCTrait.html">ReprCTrait</a></code>)</p>
+</li>
+<li>
+<p>the <code>VirtualPtr&lt;dyn Trait + …&gt;</code> FFI-safe <code>Box</code>-like pointer usage in some function signature.</p>
+</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//! REAL CODE
+
+use ::safer_ffi::prelude::*;
+
+#[derive_ReprC(dyn)] // 👈 1
+trait FfiIterator : Send {
+    fn next(&amp;mut self) -&gt; u32;
+}
+
+#[ffi_export]
+fn fibonacci()
+  -&gt; VirtualPtr&lt;dyn FfiIterator&gt; // 👈 2
+{
+    struct Fibo(u32, u32);
+
+    impl FfiIterator for Fibo {
+        fn next(&amp;mut self) -&gt; u32 {
+            let to_ret = self.0;
+            (self.0, self.1) = (self.1, self.0 + self.1);
+            to_ret
+        }
+    }
+
+    Box::new(Fibo(0, 1))
+        .into()
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ul>
+<li>
+<p>The resulting <code>VirtualPtr</code> then has an opaque data <code>.ptr</code> field, as well as a <code>.vtable</code> field, containing all the (virtual) methods of the trait, as well as the special <code>release_vptr</code> method<sup class="footnote-reference"><a href="#retain_vptr">1</a></sup>.</p>
+<details><summary>Generated header (click to see)</summary>
+<pre><code class="language-c">/** &lt;No documentation available&gt; */
+typedef struct Erased Erased_t;
+
+/** &lt;No documentation available&gt; */
+typedef struct FfiIteratorVTable {
+    /** &lt;No documentation available&gt; */
+    void (*release_vptr)(Erased_t *);
+
+    /** &lt;No documentation available&gt; */
+    uint32_t (*next)(Erased_t *);
+} FfiIteratorVTable_t;
+
+/** &lt;No documentation available&gt; */
+typedef struct VirtualPtr__Erased_ptr_FfiIteratorVTable {
+    /** &lt;No documentation available&gt; */
+    Erased_t * ptr;
+
+    /** &lt;No documentation available&gt; */
+    FfiIteratorVTable_t vtable;
+} VirtualPtr__Erased_ptr_FfiIteratorVTable_t;
+
+/** &lt;No documentation available&gt; */
+VirtualPtr__Erased_ptr_FfiIteratorVTable_t
+fibonacci (void);
+</code></pre>
+</details>
+<p>FFI usage:</p>
+<pre><code class="language-cpp">// 1. Create it
+auto obj = fibonacci();
+// 2. Use it
+for(int i = 0; i &lt; 5; ++i) {
+    printf(&quot;%u\n&quot;, obj.vtable.next(obj.ptr));
+}
+// 3. Release it
+obj.vtable.release_vptr(obj.ptr);
+</code></pre>
+<p>Trick:</p>
+<ol>
+<li>
+<pre><code class="language-c">#define CALL(obj, method, ...) \
+    obj.vtable method(obj.ptr ##__VA_ARGS__)
+</code></pre>
+</li>
+<li>
+<p>So as to:</p>
+<pre><code class="language-cpp">// 1. Create it
+auto obj = fibonacci();
+// 2. Use it
+for(int i = 0; i &lt; 5; ++i) {
+    printf(&quot;%u\n&quot;, CALL(obj, .next));
+}
+// 3. Release it
+CALL(obj, .release_vptr);
+</code></pre>
+</li>
+</ol>
+</li>
+</ul>
+<div class="footnote-definition" id="retain_vptr"><sup class="footnote-definition-label">1</sup>
+<p>as well as the special <code>retain_vptr</code>, in the case of <code>#[derive_ReprC(dyn, Clone)]</code></p>
+</div>
+<h1><a class="header" href="#virtualptrdyn-trait" id="virtualptrdyn-trait"><code>VirtualPtr&lt;dyn Trait&gt;</code></a></h1>
+<p><a href="dyn_traits//safer_ffi/rustdoc/safer_ffi/dyn_traits/struct.VirtualPtr.html"><code>VirtualPtr</code></a> is the key <strong>pointer type</strong> enabling all the FFI-safe <code>dyn</code>-support machinery in <code>safer-ffi</code>.</p>
+<ul>
+<li>
+<p>In order to better convey its purpose and semantics, other names considered for this type (besides a <code>VPtr</code> shorthand) have been:</p>
+<ul>
+<li><code>DynPtr&lt;dyn Trait&gt;</code></li>
+<li><code>DynBox&lt;dyn Trait&gt;</code></li>
+<li><code>VirtualBox&lt;dyn Trait&gt;</code> / <code>VBox</code> (this one has been <em>very</em> strongly considered)</li>
+</ul>
+</li>
+</ul>
+<p>Indeed, this type embodies <strong>owning pointer</strong> semantics, much like <code>Box</code> does.</p>
+<p>But it does so with a twist, hence the dedicated special name: <strong>the owning mode is, itself, virtual/<code>dyn</code></strong>!</p>
+<ul>
+<li>
+<p>As will be seen in the remainder of this post, this aspect of <code>VirtualPtr</code> is gonna be the key element to allow <strong>full type unification across even <em>different pointer types</em>!</strong></p>
+<p>For instance, consider:</p>
+<pre><code class="language-rust ignore">fn together&lt;'r&gt;(
+    a: Box&lt;impl 'r + Trait&gt;,
+    b: Rc&lt;impl 'r + Trait&gt;,
+    c: &amp;'r impl Trait,
+) -&gt; [???; 3] // 🤔🤔🤔
+{
+    [a.into(), b.into(), c.into()]
+}
+</code></pre>
+<p>With <code>VirtualPtr</code>, we can fully type-erase and thus type-unify all these three types into a common one:</p>
+<pre><code class="language-rust ignore"><span class="boring">(
+</span>) -&gt; [VirtualPtr&lt;dyn 'r + Trait&gt;; 3] // 💡💡💡
+</code></pre>
+</li>
+</ul>
+<h3><a class="header" href="#this-allows-a-unified-type-able-to-cover-all-of-boxdyn-trait-arcdyn-trait-mut-dyn-trait-under-one-same-umbrella" id="this-allows-a-unified-type-able-to-cover-all-of-boxdyn-trait-arcdyn-trait-mut-dyn-trait-under-one-same-umbrella">This allows a unified type able to cover all of <code>Box&lt;dyn Trait&gt;</code>, <code>{A,}Rc&lt;dyn Trait&gt;</code>, <code>&amp;[mut] dyn Trait</code> under one same umbrella</a></h3>
+<blockquote>
+<p><em>One type to unify them all,</em></p>
+<p><em>One type to coërce them,</em></p>
+<p><em>One type to bring them all</em></p>
+<p><em>and in the erasure bind them.</em></p>
+</blockquote>
+<p><img src="dyn_traits//safer_ffi/assets/one-virtualptr-to-rule-them-all.jpg" alt="One VirtualPtr to rule them all" /></p>
+<h2><a class="header" href="#constructing-a-virtualptr-from-rust" id="constructing-a-virtualptr-from-rust">Constructing a <code>VirtualPtr</code> from Rust</a></h2>
+<p>That is, whilst <strong>a <code>Box&lt;impl Trait&gt;</code> can<sup class="footnote-reference"><a href="#repr_c_trait">1</a></sup> be &quot;coërced&quot; <code>.into()</code> a <code>VirtualPtr&lt;dyn Trait&gt;</code></strong>, <code>Box</code> will oftentimes not be the sole pointer/indirection with that capability. Indeed, there will often be other similar &quot;coërcions&quot; from a <code>&amp;impl Trait</code>, a <code>&amp;mut impl Trait</code>, a <code>Rc&lt;impl Trait&gt;</code>, or a <code>Arc&lt;impl Trait + Send + Sync&gt;</code>!</p>
+<div class="footnote-definition" id="repr_c_trait"><sup class="footnote-definition-label">1</sup>
+<p>provided that <code>dyn Trait</code> be a <code>ReprCTrait</code>, <em>i.e.</em>, that the <code>Trait</code> definition have been <code>#[derive_ReprC(dyn)]</code>-annotated.</p>
+</div>
+<p>Here is the complete list of possible conversion at the moment:</p>
+<ol>
+<li>
+<h4><a class="header" href="#given-t-where-t--t--trait" id="given-t-where-t--t--trait">Given <code>&lt;T&gt; where T : 'T + Trait</code>,</a></h4>
+</li>
+<li>
+<p>With <code>Trait</code> &quot;being <code>ReprC</code>&quot; / FFI-safe (<em>i.e.</em>, <code>dyn Trait : ReprCTrait</code>)</p>
+</li>
+</ol>
+<table><thead><tr><th><strong><code>From&lt;...&gt;</code></strong></th><th><strong><code>.into()</code></strong></th><th><strong>Notes</strong> for <code>Trait</code></th></tr></thead><tbody>
+<tr><td><code>Box&lt;T&gt;</code></td><td><code>VirtualPtr&lt;dyn 'T + Trait&gt;</code></td><td>• (requires <code>T : Clone</code> when <code>Clone</code>-annotated)</td></tr>
+<tr><td><code>&amp;T</code></td><td><code>VirtualPtr&lt;dyn '_ + Trait&gt;</code></td><td>• cannot have <code>&amp;mut self</code> methods</td></tr>
+<tr><td><code>&amp;mut T</code></td><td><code>VirtualPtr&lt;dyn '_ + Trait&gt;</code></td><td>• cannot be <code>Clone</code>-annotated</td></tr>
+<tr><td><code>Rc&lt;T&gt;</code></td><td><code>VirtualPtr&lt;dyn 'T + Trait&gt;</code></td><td>• must be <code>Clone</code>-annotated<br>• cannot have <code>&amp;mut self</code> methods</td></tr>
+<tr><td><code>Arc&lt;T&gt;</code></td><td><code>VirtualPtr&lt;dyn 'T + Trait + Send + Sync&gt;</code></td><td>• must be <code>Clone</code>-annotated<br>• cannot have <code>&amp;mut self</code> methods<br>• requires <code>T : Send + Sync</code></td></tr>
+</tbody></table>
+<ul>
+<li>Where &quot;<code>Clone</code>-annotated&quot; refers to the <code>#[derive_Repr(dyn, Clone)]</code> case.</li>
+</ul>
+<h4><a class="header" href="#remarks" id="remarks">Remarks</a></h4>
+<ul>
+<li>
+<p>Whenever <code>T : 'static</code>, we can pick <code>'T = 'static</code>, so that <code>dyn 'T + Trait</code> may be more succintly written as <code>dyn Trait</code>.</p>
+</li>
+<li>
+<p>If the trait has methods with a <code>Pin</code>ned <code>self</code> receiver, then the <code>From&lt;…&gt;</code>-column needs to be <code>Pin</code>-wrapped.</p>
+</li>
+<li>
+<p><strong><code>+ Send</code> and/or <code>+ Sync</code> can always be added</strong> inside a <code>VirtualPtr</code>, in which case <code>T : Send</code> and/or <code>T : Sync</code> (respectively) will be required.</p>
+<ul>
+<li>The only exception here is <code>Rc</code>, since <code>Rc&lt;dyn Trait + Send + Sync&gt;</code> <em>&amp; co.</em> are oxymorons which have been deemed not to deserve the necessary codegen (if multiple ownership and <code>Send + Sync</code> is required, use <code>Arc</code>, otherwise, use <code>Rc</code>).</li>
+</ul>
+<p><strong>Tip</strong>: Since <code>+ Send + Sync</code> is so pervasive(ly recommended for one's sanity) when doing FFI, these can be added as super-traits of our <code>Trait</code>, so that they be implied in both <code>T : Trait</code> and <code>dyn Trait</code>, thereby alleviating the syntax without compromising the thread-safety:</p>
+<pre><code class="language-rust ignore">#[derive_ReprC(dyn, /* Clone */)]
+trait Trait : Send + Sync {
+</code></pre>
+<ul>
+<li>But be aware that, even with such a super trait annotation, <code>dyn Trait</code> and <code>dyn Trait + Send + Sync</code> will remain being distinct types  as far as Rust is concerned! ⚠️</li>
+</ul>
+</li>
+</ul>
+<h3><a class="header" href="#its-ffi-layout-constructing-and-using-virtualptr-from-the-ffi" id="its-ffi-layout-constructing-and-using-virtualptr-from-the-ffi">Its FFI-layout: constructing and using <code>VirtualPtr</code> from the FFI</a></h3>
+<p>Given some:</p>
+<pre><code class="language-rust ignore">#[derive_ReprC(dyn, /* Clone */)]
+trait Trait {
+    fn get(&amp;self, _: bool) -&gt; i32;
+    fn set(&amp;mut self, _: i32);
+    fn method3(&amp;… self, _: Arg1, _: Arg2, …) -&gt; Ret;
+    …
+}
+</code></pre>
+<ul>
+<li>(with <code>Arg1 : ReprC&lt;CLayout = CArg1&gt;</code>, <em>etc.</em>)</li>
+</ul>
+<p>A <code>VirtualPtr&lt;dyn Trait&gt;</code> will be laid out as the following:</p>
+<pre><code class="language-rust ignore">type ErasedPtr = ptr::NonNull&lt;ty::Erased&gt;; /* modulo const/mut */
+
+#[repr(C)]
+struct VirtualPtr&lt;dyn Trait&gt; {
+    ptr: ErasedPtr,
+    // Note: it is *inlined* / *no* pointer indirection!
+    vtable: {
+        // the `drop` / `free`ing function.
+        release_vptr: unsafe extern fn(ErasedPtr),
+
+        /* if `Clone`-annotated:
+        retain_vptr: unsafe extern fn(ErasedPtr) -&gt; VirtualPtr&lt;dyn Trait&gt;, */
+
+        /* and the FFI-safe virtual methods of the trait: */
+        get: unsafe extern fn(ErasedPtr, _: CLayoutOf&lt;bool&gt;) -&gt; i32,
+        set: unsafe extern fn(ErasedPtr, _: i32),
+        method3: unsafe extern fn(ErasedPtr, _: CArg1, _: CArg2, …) -&gt; CRet,
+        …
+    },
+}
+</code></pre>
+<h2><a class="header" href="#a-fully-virtual-owning-mode" id="a-fully-virtual-owning-mode">A fully virtual owning mode</a></h2>
+<p>Remember the sentence above?</p>
+<blockquote>
+<p>But it does so with a twist, hence the dedicated special name: <strong>the owning mode is, itself, virtual/<code>dyn</code></strong>!</p>
+</blockquote>
+<p>What this means is that <strong><em>all of the destructor</em> is virtual / <code>dyn</code>amically-dispatched</strong>, for instance (and ditto for <code>.clone()</code>ing, when applicable).</p>
+<h3><a class="header" href="#non-fully-virtual-examples" id="non-fully-virtual-examples">Non-fully-virtual examples</a></h3>
+<p>To better understand this nuance, consider the opposite (types which are not <em>fully</em> virtual / <code>dyn</code>amically dispatched, such as <code>Box&lt;dyn …&gt;</code>): what happens when you drop a <code>Box&lt;dyn Trait&gt;</code> <em>vs.</em> dropping a <code>Rc&lt;dyn Trait&gt;</code>?</p>
+<ul>
+<li>
+<h4><a class="header" href="#when-you-drop-a-boxdyn-trait" id="when-you-drop-a-boxdyn-trait">when you drop a <code>Box&lt;dyn Trait&gt;</code>:</a></h4>
+<ol>
+<li>It <em>virtually/<code>dyn</code></em>-amically queries the <code>Layout</code> knowledge of that <code>dyn Trait</code> type-erased data;</li>
+<li>It <em>virtually/<code>dyn</code></em>-amically drops the <code>dyn Trait</code> pointee <em>in place</em>;</li>
+<li>It then calls <code>dealloc</code> (<code>free</code>) of the backing storage using the aforementioned data <code>Layout</code> (as the layout of the whole allocation, since a <code>Box&lt;T&gt;</code> allocates exactly as much memory as needed to hold a <code>T</code>)</li>
+</ol>
+<p>This last step is thus <em>statically</em> dispatched, thanks to the <em>static</em>/compile-time knowledge of the hard-coded <code>Box</code> type in <code>Box&lt;dyn Trait&gt;</code>!</p>
+<details><summary>Pseudo-code</summary>
+<pre><code class="language-rust ignore">//! Pseudo-code!
+fn drop(self: &amp;mut Box&lt;dyn …&gt;) {
+    let layout = self.dyn_layout(); // (self.vtable.layout)(self.ptr)
+    unsafe {
+        // SAFETY: this is conceptual pseudo-code and may have bugs.
+        self.dyn_drop_in_place(); // (self.vtable.drop_in_place)(self.ptr)
+        dealloc(&amp;mut *self as *mut _, layout);
+    }
+}
+</code></pre>
+</details>
+</li>
+<li>
+<h4><a class="header" href="#when-you-drop-a-rcdyn-trait" id="when-you-drop-a-rcdyn-trait">when you drop a <code>Rc&lt;dyn Trait&gt;</code>:</a></h4>
+<ol>
+<li>It <em>virtually/<code>dyn</code></em>-amically queries the <code>Layout</code> knowledge of that <code>dyn Trait</code> type-erased data;</li>
+<li>It then embiggens the aforementioned layout so as to get the layout of all of the <code>Rc</code>'s actual pointee / actual allocation (that is, <a href="https://github.com/rust-lang/rust/blob/64165aac68af780182ff89a6eb3982e3c262266e/library/alloc/src/rc.rs#L290-L303">the <code>RcBox</code>, <em>i.e.</em>, the data alongside two reference counters</a>), so as to be able to access those counters,</li>
+<li>and then decrements the appropriate counters (mostly the strong count);</li>
+<li>if it detects that it was the last owner (strong count from 1 to 0):
+<ol>
+<li>It <em>virtually/<code>dyn</code></em>-amically drops the <code>dyn Trait</code> pointee <em>in place</em>;</li>
+<li>It then calls <code>dealloc</code> (<code>free</code>) for that whole <code>RcBox</code>'s backing storage (when there are no outstanding <code>Weak</code>s).</li>
+</ol>
+</li>
+</ol>
+<p>The steps <code>2.</code>, <code>3.</code> and <code>4.2</code> are thus <em>statically</em> dispatched, thanks to the <em>static</em>/compile-time knowledge of the hard-coded <code>Rc</code> type in <code>Rc&lt;dyn Trait&gt;</code>!</p>
+<details><summary>Pseudo-code</summary>
+<pre><code class="language-rust ignore">//! Pseudo-code!
+fn drop(self: &amp;mut Rc&lt;dyn …&gt;) {
+    let layout = self.dyn_layout(); // (self.vtable.layout)(self.ptr)
+    unsafe {
+        // SAFETY: this is conceptual pseudo-code and may have bugs.
+        let rcbox: &amp;RcBox&lt;dyn …&gt; = adjust_ptr(self.ptr, layout);
+        let prev = rcbox.strong_count.get();
+        rcbox.strong_count.set(prev - 1);
+        if prev == 1 {
+            // if last strong owner
+            rcbox.data.dyn_drop_in_place(); // (….vtable.drop_in_place)(….ptr)
+            if rcbox.weak_count == … {
+                // if no outstanding weaks
+                dealloc(rcbox as *const _ as *mut _, layout);
+            }
+        }
+    }
+}
+</code></pre>
+</details>
+</li>
+</ul>
+<p>We can actually even go further, and wonder what Rust does:</p>
+<ul>
+<li>
+<h4><a class="header" href="#when-a-mut-dyn-trait-or-a-dyn-trait-goes-out-of-scope" id="when-a-mut-dyn-trait-or-a-dyn-trait-goes-out-of-scope">when a <code>&amp;mut dyn Trait</code> or a <code>&amp;dyn Trait</code> goes out of scope:</a></h4>
+<ol>
+<li>
+<p>Nothing.</p>
+<p>(Since it knows that the <code>&amp;[mut] _</code> types have no drop glue whatsoever)</p>
+</li>
+</ol>
+<p>This step (or rather, lack thereof) is another example of <em>statically</em> dispatched logic.</p>
+</li>
+</ul>
+<p>It should thus now be clear that:</p>
+<ul>
+<li>
+<p>whilst type erasure <em>of the pointee</em> does happen whenever your deal with a <code>ConcretePtr&lt;dyn Trait&gt;</code> such as <code>Box&lt;dyn Trait&gt;</code>, <code>&amp;mut dyn Trait</code>, <em>etc.</em></p>
+</li>
+<li>
+<p>on the other hand, the <code>ConcretePtr</code> behind which such erasure happens is not, itself, type-erased! It is still statically-known, and functionality such as <code>Drop</code>, <code>Clone</code>, or even <code>Copy</code> may take advantage of that information (<em>e.g.</em>, <code>&amp;dyn Trait</code> is <code>Copy</code>).</p>
+</li>
+</ul>
+<h3><a class="header" href="#another-example-dyn_clone" id="another-example-dyn_clone">Another example: <code>dyn_clone()</code></a></h3>
+<p>Let's now compare, in the context of type-erased <code>dyn Trait</code> pointees, a static operation <em>vs.</em> a virtual / <code>dyn</code>amically dispatched one.</p>
+<p>For starters, let's consider the following <code>Trait</code> definition:</p>
+<pre><code class="language-rs">trait Trait : 'static {
+    //                 &amp;dyn Trait
+    fn dyn_clone(self: &amp;Self) -&gt; Box&lt;dyn Trait&gt;;
+}
+
+impl&lt;T : 'static + Clone&gt; Trait for T {
+    fn dyn_clone(self: &amp;T) -&gt; Box&lt;dyn Trait&gt; {
+        Box::new(T::clone(self)) /* as Box&lt;dyn Trait&gt; */
+    }
+}
+</code></pre>
+<p>and now, let's think about and compare the behaviors of the two following functions:</p>
+<pre><code class="language-rs">fn clone_box(b: &amp;Box&lt;dyn Trait&gt;) -&gt; Box&lt;dyn Trait&gt; {
+    b.dyn_clone()
+}
+
+fn clone_rc(r: &amp;Rc&lt;dyn Trait&gt;) -&gt; Rc&lt;dyn Trait&gt; {
+    r.clone() // Rc::clone(r)
+}
+</code></pre>
+<ul>
+<li><code>clone_box</code> is <code>dyn</code>amically calling and delegating to <code>dyn Trait</code>'s <code>dyn_clone</code> virtual method;</li>
+<li><code>clone_rc</code> is statically / within-hard-coded code logic performing a (strong) reference-count increment inside the <code>RcBox&lt;dyn Trait&gt;</code> pointee, thereby never interacting with the <code>dyn Trait</code> value itself.</li>
+</ul>
+<p>(Granted, the former is performing a statically-dispatched <code>Deref</code> coercion beforehand, and the latter may be <code>dyn</code>amically looking up <code>dyn Trait</code>'s <code>Layout</code>, but the main point still stands).</p>
+<h3><a class="header" href="#from-partially-dynamic-to-fully-dynamic" id="from-partially-dynamic-to-fully-dynamic">From partially <code>dyn</code>amic to <em>fully</em> <code>dyn</code>amic</a></h3>
+<p>From all this, I hope the hybrid static-<code>dyn</code>amic nature of Rust's <code>ConcretePtr&lt;dyn ErasedPointee&gt;</code> (wide) pointers logic is now more apparent and clearer.</p>
+<p>From there, we can then wonder what happens if we made it all <em>fully</em> <code>dynamic</code>: <code>VirtualPtr</code> is born!</p>
+<h4><a class="header" href="#summary" id="summary">Summary</a></h4>
+<ul>
+<li>
+<p><em>all</em> of the <code>drop</code> glue is to be <code>dyn</code>amically dispatched (through some virtual <code>fn</code> pointer performing a <code>drop_ptr</code> operation):</p>
+<pre><code class="language-rust ignore">//! Pseudo-code
+impl&lt;T&gt; DynDrop for Box&lt;T&gt; {
+    fn dyn_drop_ptr(self)
+    {
+        drop::&lt;Box&lt;T&gt;&gt;(self);
+    }
+}
+
+impl&lt;T&gt; DynDrop for Arc&lt;T&gt; {
+    fn dyn_drop_ptr(self)
+    {
+        drop::&lt;Arc&lt;T&gt;&gt;(self);
+    }
+}
+
+impl&lt;T&gt; DynDrop for &amp;mut T {
+    fn dyn_drop_ptr(self)
+    {}
+}
+
+impl&lt;T&gt; DynDrop for &amp;T {
+    fn dyn_drop_ptr(self)
+    {}
+}
+</code></pre>
+<p>Notice how this shall therefore imbue with <code>move</code>/ownership semantics originally-<code>Copy</code> pointers such as <code>&amp;T</code>. Indeed, once we go fully virtual, by virtue of being compatible/type-unified with non-<code>Copy</code> pointers such as <code>Box&lt;T&gt;</code> or <code>&amp;mut T</code>, it means we have to conservatively assume any <code>VirtualPtr&lt;…&gt;</code> instance may have to run significant drop glue at most once, which thence makes <code>VirtualPtr</code>s not be <code>Copy</code>, even when they've originated from a <code>&amp;T</code> reference.</p>
+</li>
+<li>
+<p><code>Clone</code>, if any, is also to be fully <code>dyn</code>amically dispatched as well:</p>
+<pre><code class="language-rust ignore">//! Pseudo-code
+impl&lt;T&gt; DynClone for Box&lt;T&gt;
+where
+    T : Clone,
+{
+    fn dyn_clone_ptr(self: &amp;Self)
+      -&gt; Self
+    {
+        Box::new(T::clone(&amp;**self))
+    }
+}
+
+impl&lt;T&gt; DynClone for Arc&lt;T&gt; {
+    fn dyn_clone_ptr(self: &amp;Self)
+      -&gt; Self
+    {
+        Arc::clone(self)
+    }
+}
+
+/*
+ * no `Clone` for `&amp;mut`, obviously:
+ * thus, no `From&lt;&amp;mut T&gt;` for `VirtualPtr&lt;dyn DynClone&gt;` either.
+ */
+
+impl&lt;T&gt; DynClone for &amp;'_ T {
+    fn dyn_clone_ptr(self: &amp;Self)
+      -&gt; Self
+    {
+        // `&amp;T : Copy`
+        *self
+    }
+}
+</code></pre>
+<p>Regarding the previous point about <code>&amp;T</code>-originated <code>VirtualPtr</code>s not being <code>Copy</code> anymore, we can see we can get the functional API back (<em>i.e.</em>, <code>Clone</code>), if we pinky promise not to mix such <code>VirtualPtr</code>s with non-<code>Clone</code>-originating pointers (such as <code>&amp;mut T</code>)</p>
+<ul>
+<li><details><summary>Bonus: <code>&mut T</code>-reborrowing</summary>
+<p>If you think about <code>&amp;mut T</code>, whilst not <code>Copy</code>, it's still kind of an interesting pointer, since a <code>&amp;'short mut &amp;'long mut T</code> can yield a <code>&amp;'short mut T</code> through reborrowing, thereby removing one layer of indirection, by &quot;squashing&quot; the lifetimes together into their intersection (which here happens to be the shortest one, <code>'short</code>, since <code>'long : 'short</code>).</p>
+<p>In explicit API parlance, this would become:</p>
+<pre><code class="language-rust ignore">impl&lt;'long&gt; DynReborrowMut for &amp;'long mut T {
+    fn dyn_reborrow_mut(
+        //    &amp;'short mut VirtualPtr&lt;dyn 'long + …&gt;
+        self: &amp;'short mut Self,
+    ) -&gt; &amp;'short mut T
+    //   VirtualPtr&lt;dyn 'short + …&gt;
+    {
+        *self /* `&amp;mut **self` to be precise */
+    }
+}
+
+impl&lt;'long&gt; DynReborrowMut for &amp;'long T { // …
+<span class="boring">}
+</span></code></pre>
+<p>Despite intellectually interesting, this is nonetheless a niche and contrived API which is therefore not exposed through <code>safer-ffi</code>'s <code>VirtualPtr</code> type, for it is deemed that <code>&amp;'short mut VirtualPtr&lt;dyn 'long + …&gt;</code> ought to offer most of the API of a reborrowed <code>VirtualPtr&lt;dyn 'short + …&gt;</code>.</p>
+<hr />
+</details>
+</li>
+</ul>
+</li>
+</ul>
+<h3><a class="header" href="#related-readconcept-dyn-" id="related-readconcept-dyn-">Related read/concept: <code>dyn *</code></a></h3>
+<p>In a way, the API/functionality of <code>VirtualPtr</code> is quite similar to the very recent <code>dyn *</code> experimental<sup class="footnote-reference"><a href="#exp">2</a></sup> <a href="https://dev-doc.rust-lang.org/1.68.0/unstable-book/language-features/dyn-star.html">unstable feature</a> of Rust.</p>
+<p>As of this writing<sup class="footnote-reference"><a href="#exp">2</a></sup>, there isn't that much proper documentation about it, and one would have to wander through Zulip discussions to know more about it, but for the following post:</p>
+<blockquote>
+<h3><a class="header" href="#a-hrefhttpstheincredibleholkorgblog20221212dyn-star-codegena-look-at-dyn-code-generation--by-eric-holka" id="a-hrefhttpstheincredibleholkorgblog20221212dyn-star-codegena-look-at-dyn-code-generation--by-eric-holka"><a href="https://theincredibleholk.org/blog/2022/12/12/dyn-star-codegen/"><em>A Look at dyn* Code Generation</em> — by Eric Holk</a></a></h3>
+</blockquote>
+<div class="footnote-definition" id="exp"><sup class="footnote-definition-label">2</sup>
+<p>as of 1.68.0</p>
+</div>
+<details><summary>Click here to see my own summary of <code>dyn *</code></summary>
+<p>The gist of it is that barring <code>repr(C)</code> / <code>extern &quot;C&quot;</code> / FFI-compatibility considerations about which <code>dyn *</code> does not worry, the idea is kind of the same as <code>VirtualPtr</code>, but for one extra quirk. Instead of a simple thin pointer-sized data pointer, a <code>dyn *</code> will rather use the following &quot;erased data&quot; type:</p>
+<pre><code class="language-rust ignore">union ErasedData&lt;const N: usize = 1&gt; {
+    ptr: *mut ty::Erased,
+    inline: [MaybeUninit&lt;usize&gt;; N],
+}
+
+struct dyn* Trait&lt;const N: usize = 1&gt; {
+    data: ErasedData&lt;N&gt;,
+    vtable: …,
+}
+</code></pre>
+<p>Historically, most platforms have featured <code>*mut _</code> and <code>usize</code> having the same layout, so on those platforms and in the case of <code>N = 1</code> (and papering over <code>MaybeUninit</code> / padding bytes), you may still be seeing a <code>*mut ty::Erased</code> <em>directly</em> rather than an <code>ErasedData</code>.</p>
+<p>For instance, we could imagine all this applied to our <code>VirtualPtr</code>s: we'd now be able to implement it for non-pointer types, provided they fit within the <code>ErasedData</code> inline storage!</p>
+<pre><code class="language-rust ignore">//! Pseudo-code: currently *NOT* in `safer-ffi`
+
+#[derive_ReprC(dyn)]
+trait Example : Clone {
+    fn dyn_print(&amp;self);
+}
+
+impl Example for usize /* which fits inside `*mut Erased` */ {
+    /* auto-generated:
+    fn dyn_drop(self)
+    {
+        /* nothing to do to drop a `usize` since it is `Copy` */
+    }
+
+    fn dyn_clone(self: &amp;Self)
+      -&gt; Self
+    {
+        *self
+    } */
+
+    fn dyn_print(self: &amp;Self)
+    {
+        dbg!(*self);
+    }
+}
+
+fn main()
+{
+    let n: usize = 42;
+    // look ma: no indirection!
+    let vptr: VirtualPtr&lt;dyn Example&gt; = n.into();
+ /* let vptr = VirtualPtr {
+        vptr: ErasedData { inline: n },
+        vtable: VTable {
+            release_vptr: usize::dyn_drop,
+            retain_vptr: usize::dyn_clone,
+            dyn_print: usize::dyn_print,
+        },
+    }; */
+    vptr.dyn_print(); // correctly prints `42`.
+}
+</code></pre>
+<ul>
+<li>Note that this is currently deemed too niche and is <strong>not</strong> featured by <code>safer-ffi</code>.</li>
+</ul>
+</details>
+<h1><a class="header" href="#derive_reprcdyn--usage" id="derive_reprcdyn--usage"><code>#[derive_ReprC(dyn, …)]</code> usage</a></h1>
+<h2><a class="header" href="#summary-1" id="summary-1">Summary</a></h2>
+<p>Given a <em>simple</em> <code>Trait</code> definition with <strong>signatures involving <code>ReprC</code> types <em>exclusively</em></strong>, and using <code>Traits</code> as syntax for <code>'usability + Trait $(+ Send)? $(+ Sync)?</code>, then:</p>
+<ol>
+<li>
+<p>annotating it with <code>#[derive_ReprC(dyn)]</code></p>
+<p>(or <code>#[derive_ReprC(dyn, Clone)])</code> when &quot;<code>Clone</code>-annotating&quot;),</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive_ReprC(dyn, /* Clone */)]
+trait Trait /* : Send + Sync */ {
+<span class="boring">}
+</span><span class="boring">}
+</span></code></pre></pre>
+</li>
+<li>
+<p>makes <code>dyn Traits : ReprCTrait</code>, which, in turn,</p>
+</li>
+<li>
+<p>makes <code>VirtualPtr&lt;dyn Traits&gt;</code> become a legal/nameable type, so that:</p>
+<ul>
+<li>
+<p><code>VirtualPtr&lt;dyn Traits&gt; : Traits</code>,</p>
+</li>
+<li>
+<p><code>VirtualPtr&lt;dyn Traits&gt; : ReprC</code> and thus, <a href="dyn_traits/virtual_ptr.html#its-ffi-layout-constructing-and-using-virtualptr-from-the-ffi">FFI-compatible</a>,</p>
+</li>
+<li>
+<p><code>VirtualPtr&lt;dyn Traits&gt; : From&lt;Box&lt;impl Traits&gt;&gt;</code> <a href="dyn_traits/virtual_ptr.html#constructing-a-virtualptr-from-rust">and so on for the other most pervasive Rust &quot;smart&quot; pointer types</a>,</p>
+</li>
+<li>
+<p>In the case of <code>#[derive_ReprC(dyn, Clone)]</code>, we'll also have:</p>
+<ul>
+<li>
+<p><code>VirtualPtr&lt;dyn Traits&gt; : Clone</code>,</p>
+</li>
+<li>
+<p><code>From&lt;{A,}Rc&lt;impl Traits&gt;&gt;</code>,</p>
+</li>
+</ul>
+<p>But at the cost of losing the <code>From</code> impls for <code>&amp;mut</code> and <code>Box&lt;impl !Clone&gt;</code>.</p>
+</li>
+<li>
+<p><code>From&lt;&amp;impl Traits&gt;</code> (and <code>From&lt;{A,}Rc&lt;impl Traits&gt;&gt;</code>) will only be available when there are no <code>&amp;mut self</code> methods in the trait definition.</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3><a class="header" href="#a-simple-trait-definition" id="a-simple-trait-definition">A <em>simple</em> <code>Trait</code> definition?</a></h3>
+<p>A <code>Trait</code> definition is deemed <em>simple</em> if:</p>
+<ul>
+<li>it only has <em>methods</em> in it (<code>fn method(self: …, …)</code>);</li>
+<li>is <code>dyn</code>-safe (no generics, no <code>where Self : Sized</code>);</li>
+<li>with only <code>&amp;Self</code> and <code>&amp;mut Self</code> receiver types (the owned case is not supported yet).
+<ul>
+<li><code>Pin&lt;&gt;</code>-wrapping them is, however, accepted (thereby making the <code>From</code> impls require it).</li>
+</ul>
+</li>
+</ul>
+<h1><a class="header" href="#example-ffi-safe-futures-and-executors" id="example-ffi-safe-futures-and-executors">Example: FFI-safe <code>Future</code>s and executors</a></h1>
+<p>By the way, all this is actually already directly featured by <code>safer-ffi</code> itself if you enable the <code>futures</code> or <code>tokio</code> features.</p>
+<h2><a class="header" href="#ffifuture" id="ffifuture"><code>FfiFuture</code></a></h2>
+<ol>
+<li>
+<p><code>Future</code> Trait:</p>
+<pre><code class="language-rust ignore">trait Future {
+    type Output;
+
+    fn poll(self: Pin&lt;&amp;mut Self&gt;, &amp;'_ mut Context&lt;'_&gt;)
+      -&gt; Poll&lt;Self::Output&gt;
+    ;
+}
+</code></pre>
+</li>
+<li>
+<p><em>Simplify</em> it: <code>Future&lt;Output = ()&gt;</code></p>
+<pre><code class="language-rust ignore">trait SimpleFuture {
+    fn dyn_poll(self: Pin&lt;&amp;mut Self&gt;, &amp;'_ mut Context&lt;'_&gt;)
+      -&gt; Poll&lt;()&gt;
+    ;
+}
+</code></pre>
+<ul>
+<li>Renamed to <code>dyn_poll</code> for more readable semantics down the line.</li>
+</ul>
+</li>
+<li>
+<p>Make it FFI-compatible: define an FFI-safe <code>Poll&lt;()&gt;</code> equivalent</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive_ReprC]
+#[repr(u8)]
+enum FfiPoll {
+    Completed,
+    Pending,
+}
+
+#[derive_ReprC(dyn)]
+trait FfiFuture {
+    fn dyn_poll(self: Pin&lt;&amp;mut Self&gt;, &amp;'_ mut Context&lt;'_&gt;)
+      -&gt; FfiPoll
+    ;
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ul>
+<li>
+<p>We have reached a point where <code>#[derive_ReprC(dyn)]</code> can be used!</p>
+</li>
+<li>
+<p>This means we have now gotten the <code>impl -&gt; dyn</code> &quot;coërcions&quot;:</p>
+<ul>
+<li>
+<pre><code class="language-rust ignore">impl&lt;'f, F : 'f + FfiFuture&gt; From&lt;
+    Pin&lt;Box&lt;F&gt;&gt;
+&gt; for // ↓
+    VirtualPtr&lt;dyn 'f + FfiFuture&gt;
+</code></pre>
+</li>
+<li>
+<pre><code class="language-rust ignore">impl&lt;'f, F : 'f + FfiFuture&gt; From&lt;
+    Pin&lt;&amp;'f mut F&gt;
+&gt; for // ↓
+    VirtualPtr&lt;dyn 'f + FfiFuture&gt;
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Convenience conversions to/from Rust Futures.</p>
+<ul>
+<li>
+<p>From:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;F : Future&lt;Output = ()&gt;&gt; FfiFuture for F {
+    fn dyn_poll(self: Pin&lt;&amp;mut Self&gt;, ctx: &amp;'_ mut Context&lt;'_&gt;)
+      -&gt; FfiPoll
+    {
+        match self.poll(ctx) {
+            | Poll::Pending =&gt; FfiPoll::Pending,
+            | Poll::Ready(()) =&gt; FfiPoll::Completed,
+        }
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+<li>
+<p>Into:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;'fut&gt; VirtualPtr&lt;dyn 'fut + FfiFuture&gt; {
+    fn into_future(self)
+      -&gt; impl 'fut + Future&lt;Output = ()&gt;
+    {
+        let mut vptr = self;
+        ::core::future::poll_fn(move /* vptr */ |cx| {
+            match Pin::new(&amp;mut vptr).dyn_poll(cx) {
+                | FfiPoll::Pending =&gt; Poll::Pending,
+                | FfiPoll::Completed =&gt; Poll::Ready(()),
+            }
+        })
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+</ul>
+</li>
+</ol>
+<h2><a class="header" href="#bonus-offering-wake-ups-to-the-ffi" id="bonus-offering-wake-ups-to-the-ffi">Bonus: offering <code>Wake</code> ups to the FFI:</a></h2>
+<p>Remember: <code>Context</code> is an opaque FFI type, which makes it unusable there. FFI users won't be able to provide their own custom <code>dyn FfiFuture</code> objects (other than trivial <code>Future</code>s or <code>Future</code>s busy-looping the polls).</p>
+<p>We can palliate this by exposing virtual methods / accessors specific to the opaque <code>Context</code> type:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[macro_export]
+macro_rules! ffi_export_future_helpers {() =&gt; (
+    const _: () = {
+        use $crate::ඞ::std::{sync::Arc, task::Context, prelude::v1::*};
+
+        #[ffi_export]
+        fn rust_future_task_context_wake (
+            task_context: &amp;'static Context&lt;'static&gt;,
+        )
+        {
+            task_context.waker().wake_by_ref()
+        }
+
+        #[ffi_export]
+        fn rust_future_task_context_get_waker (
+            task_context: &amp;'static Context&lt;'static&gt;,
+        ) -&gt; Arc&lt;dyn 'static + Send + Sync + Fn()&gt;
+        {
+            let waker = task_context.waker().clone();
+            Arc::new(move || waker.wake_by_ref()).into()
+        }
+    };
+)}
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#ffi-safe-executor--runtime-handle" id="ffi-safe-executor--runtime-handle">FFI-safe <code>Executor</code> / <code>Runtime Handle</code></a></h2>
+<p>Note: <code>::tokio</code> does not expose an <code>Executor</code> API, but rather, a <code>Runtime</code>, which packages/bundles both the <code>Executor</code> part<sup class="footnote-reference"><a href="#exec">1</a></sup> as well as the <code>Reactor</code> part<sup class="footnote-reference"><a href="#reac">2</a></sup>. The latter is the reason some of <code>::tokio</code>'s <strong>leaf</strong> <code>Future</code>s (such as File I/O and <code>sleep</code>s) cannot be polled, by default, by other executors… See <a href="https://docs.rs/async-compat">https://docs.rs/async-compat</a> for more info.</p>
+<div class="footnote-definition" id="exec"><sup class="footnote-definition-label">1</sup>
+<p>the <code>block_on()</code> runtime in charge of calling <code>.poll()</code> to make a future progress, with concurrent <code>.poll()</code>s to spawed <code>Future</code>s.</p>
+</div>
+<div class="footnote-definition" id="reac"><sup class="footnote-definition-label">2</sup>
+<p>background thread(s)/threadpool to which certain <code>Waker::wake()</code> calls are scheduled, needed by certain leaf futures.</p>
+</div>
+<ol>
+<li>
+<p>A <code>trait</code> abstraction thereof:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Executor : Send + Sync {
+    fn block_on&lt;T&gt;(
+        self: &amp;'_ Self,
+        future: impl '_ + Future&lt;Output = T&gt;,
+    ) -&gt; T
+    ;
+    fn spawn(
+        self: &amp;'_ Self,
+        future: impl 'static + Send + Future&lt;Output = ()&gt;
+    ) -&gt; Pin&lt;Box&lt;dyn Send + Future&lt;Output = ()&gt;&gt;&gt;
+    ;
+}
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+<li>
+<p>Making it <code>dyn</code>-safe:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Executor : Send + Sync {
+    fn dyn_block_on(
+        self: &amp;'_ Self,
+        future: Pin&lt;Box&lt;dyn '_ + Future&lt;Output = ()&gt;&gt;&gt;,
+    )
+    ;
+    fn dyn_spawn(
+        self: &amp;'_ Self,
+        future: Pin&lt;Box&lt;dyn Send + Future&lt;Output = ()&gt;&gt;&gt;
+    ) -&gt; Pin&lt;Box&lt;dyn Send + Future&lt;Output = ()&gt;&gt;&gt;
+    ;
+}
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+<li>
+<p>Making it FFI-safe:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive_ReprC(dyn, Clone)]
+trait FfiFutureExecutor : Send + Sync {
+    fn dyn_block_on(
+        self: &amp;'_ Self,
+        future: VirtualPtr&lt;dyn '_ + FfiFuture&gt;,
+    )
+    ;
+    fn dyn_spawn(
+        self: &amp;'_ Self,
+        future: VirtualPtr&lt;dyn Send + FfiFuture&gt;
+    ) -&gt; VirtualPtr&lt;dyn Send + FfiFuture&gt;
+    ;
+}
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+<li>
+<p>From a <code>::tokio::Handle</code>:</p>
+<pre><code class="language-rust ignore">impl FfiFutureExecutor for ::tokio::runtime::Handle {
+    fn dyn_block_on (
+        self: &amp;'_ Self,
+        ffi_fut: VirtualPtr&lt;dyn '_ + FfiFuture&gt;,
+    )
+    {
+        self.block_on(ffi_fut.into_future())
+    }
+
+    fn dyn_spawn (
+        self: &amp;'_ Self,
+        future: VirtualPtr&lt;dyn Send + FfiFuture&gt;,
+    ) -&gt; VirtualPtr&lt;dyn Send + FfiFuture&gt;
+    {
+        let handle_result = self.spawn(future.into_future());
+        let handle_unwrapped = async {
+            handle
+                .await
+                .unwrap_or_else(|caught_panic| {
+                    ::std::panic::resume_unwind(caught_panic.into_panic())
+                })
+        };
+        Box::pin(handle_unwrapped)
+            .into()
+    }
+}
+</code></pre>
+</li>
+<li>
+<p>Usable as an <code>Executor</code>:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Notice how we got the generics back!
+impl VirtualPtr&lt;dyn FfiFutureExecutor&gt; {
+    fn block_on&lt;R&gt; (
+        self: &amp;'_ Self,
+        fut: impl Future&lt;Output = R&gt;
+    ) -&gt; R
+    {
+        // We use `Option&lt;R&gt;` as a simple non-`'static` channel
+        // to get the generic payload back.
+        let mut ret = None;
+        self.dyn_block_on(
+            // From&lt; Pin&lt;&amp;mut F&gt; &gt;
+            ::core::pin::pin!(async {
+                ret = Some(fut.await);
+            })
+            .into()
+        );
+        ret.expect(&quot;`.dyn_block_on()` did not complete&quot;)
+    }
+
+    fn spawn&lt;R : 'static + Send&gt; (
+        self: &amp;'_ Self,
+        fut: impl 'static + Send + Future&lt;Output = R&gt;,
+    ) -&gt; impl 'static + Future&lt;Output = R&gt;
+    {
+        // Channel to be able to get the generic payload back.
+        let (tx, rx) = ::futures::channel::oneshot::channel();
+        let ffi_handle = self.dyn_spawn(
+            // From&lt; Pin&lt;Box&lt;F&gt;&gt; &gt;
+            Box::pin(async move {
+                tx.send(fut.await).ok();
+            })
+            .into()
+        );
+        let handle = async move {
+            ffi_handle.into_future().await;
+            rx  .await
+                .expect(&quot;\
+                    executor dropped the `spawn`ed task \
+                    before its completion\
+                &quot;)
+        };
+        handle
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+</ol>
 <h1><a class="header" href="#real-world-example-at-a-hrefhttpswwwdittoliveaboutcompanyimg-srcexample-dittosafer_ffiassetsditto-logo-with-title-smallpng-altditto-logo-a" id="real-world-example-at-a-hrefhttpswwwdittoliveaboutcompanyimg-srcexample-dittosafer_ffiassetsditto-logo-with-title-smallpng-altditto-logo-a">Real-world example at <a href="https://www.ditto.live/about/company"><img src="example-ditto//safer_ffi/assets/ditto-logo-with-title-small.png" alt="Ditto-logo" /></a></a></h1>
 <span style="text-align: center">
 <h3><a class="header" href="#a-hrefhttpswwwdittoliveblogintroducing-safer-ffiimg-srcexample-dittosafer_ffiassetsditto-logo-smallpng-altditto-logo-no-title--see-our--blog-post-img-srcexample-dittosafer_ffiassetsditto-logo-smallpng-altditto-logo-no-title-a" id="a-hrefhttpswwwdittoliveblogintroducing-safer-ffiimg-srcexample-dittosafer_ffiassetsditto-logo-smallpng-altditto-logo-no-title--see-our--blog-post-img-srcexample-dittosafer_ffiassetsditto-logo-smallpng-altditto-logo-no-title-a"><a href="https://www.ditto.live/blog/introducing-safer-ffi"><img src="example-ditto//safer_ffi/assets/ditto-logo-small.png" alt="ditto-logo-no-title" /> <strong>See our  blog post</strong> <img src="example-ditto//safer_ffi/assets/ditto-logo-small.png" alt="ditto-logo-no-title" /></a></a></h3>
@@ -2358,10 +3313,6 @@ custom extension of the framework</strong>!</li>
 
     
 
-    
-    <script type="text/javascript">
-        window.playpen_copyable = true;
-    </script>
     
 
     

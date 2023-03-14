@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.18.1/src/runtime/blocking/pool.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pool.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../tokio/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.26.0/src/runtime/blocking/pool.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pool.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../tokio/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -416,419 +411,792 @@
 <span id="411">411</span>
 <span id="412">412</span>
 <span id="413">413</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Thread pool for blocking operations</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Thread pool for blocking operations
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::loom::sync</span>::{<span class="ident">Arc</span>, <span class="ident">Condvar</span>, <span class="ident">Mutex</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::loom::thread</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime::blocking::schedule::NoopSchedule</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime::blocking::shutdown</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime::builder::ThreadNameFn</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime::context</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime::task</span>::{<span class="self">self</span>, <span class="ident">JoinHandle</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime</span>::{<span class="ident">Builder</span>, <span class="ident">Callback</span>, <span class="ident">ToHandle</span>};
+</span><span class="kw">use </span><span class="kw">crate</span>::loom::sync::{Arc, Condvar, Mutex};
+<span class="kw">use </span><span class="kw">crate</span>::loom::thread;
+<span class="kw">use </span><span class="kw">crate</span>::runtime::blocking::schedule::BlockingSchedule;
+<span class="kw">use </span><span class="kw">crate</span>::runtime::blocking::{shutdown, BlockingTask};
+<span class="kw">use </span><span class="kw">crate</span>::runtime::builder::ThreadNameFn;
+<span class="kw">use </span><span class="kw">crate</span>::runtime::task::{<span class="self">self</span>, JoinHandle};
+<span class="kw">use </span><span class="kw">crate</span>::runtime::{Builder, Callback, Handle};
 
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">VecDeque</span>};
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<span class="kw">use </span>std::collections::{HashMap, VecDeque};
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::io;
+<span class="kw">use </span>std::sync::atomic::{AtomicUsize, Ordering};
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">BlockingPool</span> {
-    <span class="ident">spawner</span>: <span class="ident">Spawner</span>,
-    <span class="ident">shutdown_rx</span>: <span class="ident">shutdown::Receiver</span>,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>BlockingPool {
+    spawner: Spawner,
+    shutdown_rx: shutdown::Receiver,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Spawner</span> {
-    <span class="ident">inner</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Inner</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Spawner {
+    inner: Arc&lt;Inner&gt;,
 }
 
-<span class="kw">struct</span> <span class="ident">Inner</span> {
-    <span class="doccomment">/// State shared between worker threads.</span>
-    <span class="ident">shared</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Shared</span><span class="op">&gt;</span>,
-
-    <span class="doccomment">/// Pool threads wait on this.</span>
-    <span class="ident">condvar</span>: <span class="ident">Condvar</span>,
-
-    <span class="doccomment">/// Spawned threads use this name.</span>
-    <span class="ident">thread_name</span>: <span class="ident">ThreadNameFn</span>,
-
-    <span class="doccomment">/// Spawned thread stack size.</span>
-    <span class="ident">stack_size</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-
-    <span class="doccomment">/// Call after a thread starts.</span>
-    <span class="ident">after_start</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Callback</span><span class="op">&gt;</span>,
-
-    <span class="doccomment">/// Call before a thread stops.</span>
-    <span class="ident">before_stop</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Callback</span><span class="op">&gt;</span>,
-
-    <span class="comment">// Maximum number of threads.</span>
-    <span class="ident">thread_cap</span>: <span class="ident">usize</span>,
-
-    <span class="comment">// Customizable wait timeout.</span>
-    <span class="ident">keep_alive</span>: <span class="ident">Duration</span>,
+<span class="attribute">#[derive(Default)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>SpawnerMetrics {
+    num_threads: AtomicUsize,
+    num_idle_threads: AtomicUsize,
+    queue_depth: AtomicUsize,
 }
 
-<span class="kw">struct</span> <span class="ident">Shared</span> {
-    <span class="ident">queue</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">Task</span><span class="op">&gt;</span>,
-    <span class="ident">num_th</span>: <span class="ident">usize</span>,
-    <span class="ident">num_idle</span>: <span class="ident">u32</span>,
-    <span class="ident">num_notify</span>: <span class="ident">u32</span>,
-    <span class="ident">shutdown</span>: <span class="ident">bool</span>,
-    <span class="ident">shutdown_tx</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">shutdown::Sender</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Prior to shutdown, we clean up JoinHandles by having each timed-out</span>
-    <span class="doccomment">/// thread join on the previous timed-out thread. This is not strictly</span>
-    <span class="doccomment">/// necessary but helps avoid Valgrind false positives, see</span>
-    <span class="doccomment">/// &lt;https://github.com/tokio-rs/tokio/commit/646fbae76535e397ef79dbcaacb945d4c829f666&gt;</span>
-    <span class="doccomment">/// for more information.</span>
-    <span class="ident">last_exiting_thread</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">thread::JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// This holds the JoinHandles for all running threads; on shutdown, the thread</span>
-    <span class="doccomment">/// calling shutdown handles joining on these.</span>
-    <span class="ident">worker_threads</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">thread::JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// This is a counter used to iterate worker_threads in a consistent order (for loom&#39;s</span>
-    <span class="doccomment">/// benefit).</span>
-    <span class="ident">worker_thread_index</span>: <span class="ident">usize</span>,
-}
-
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Task</span> {
-    <span class="ident">task</span>: <span class="ident">task::UnownedTask</span><span class="op">&lt;</span><span class="ident">NoopSchedule</span><span class="op">&gt;</span>,
-    <span class="ident">mandatory</span>: <span class="ident">Mandatory</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">Mandatory</span> {
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">fs</span>), <span class="ident">allow</span>(<span class="ident">dead_code</span>))]</span>
-    <span class="ident">Mandatory</span>,
-    <span class="ident">NonMandatory</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">Task</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">task</span>: <span class="ident">task::UnownedTask</span><span class="op">&lt;</span><span class="ident">NoopSchedule</span><span class="op">&gt;</span>, <span class="ident">mandatory</span>: <span class="ident">Mandatory</span>) -&gt; <span class="ident">Task</span> {
-        <span class="ident">Task</span> { <span class="ident">task</span>, <span class="ident">mandatory</span> }
+<span class="kw">impl </span>SpawnerMetrics {
+    <span class="kw">fn </span>num_threads(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.num_threads.load(Ordering::Relaxed)
     }
 
-    <span class="kw">fn</span> <span class="ident">run</span>(<span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">task</span>.<span class="ident">run</span>();
+    <span class="kw">fn </span>num_idle_threads(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.num_idle_threads.load(Ordering::Relaxed)
     }
 
-    <span class="kw">fn</span> <span class="ident">shutdown_or_run_if_mandatory</span>(<span class="self">self</span>) {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mandatory</span> {
-            <span class="ident">Mandatory::NonMandatory</span> =&gt; <span class="self">self</span>.<span class="ident">task</span>.<span class="ident">shutdown</span>(),
-            <span class="ident">Mandatory::Mandatory</span> =&gt; <span class="self">self</span>.<span class="ident">task</span>.<span class="ident">run</span>(),
+    <span class="macro">cfg_metrics! </span>{
+        <span class="kw">fn </span>queue_depth(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+            <span class="self">self</span>.queue_depth.load(Ordering::Relaxed)
+        }
+    }
+
+    <span class="kw">fn </span>inc_num_threads(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.num_threads.fetch_add(<span class="number">1</span>, Ordering::Relaxed);
+    }
+
+    <span class="kw">fn </span>dec_num_threads(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.num_threads.fetch_sub(<span class="number">1</span>, Ordering::Relaxed);
+    }
+
+    <span class="kw">fn </span>inc_num_idle_threads(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.num_idle_threads.fetch_add(<span class="number">1</span>, Ordering::Relaxed);
+    }
+
+    <span class="kw">fn </span>dec_num_idle_threads(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.num_idle_threads.fetch_sub(<span class="number">1</span>, Ordering::Relaxed)
+    }
+
+    <span class="kw">fn </span>inc_queue_depth(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.queue_depth.fetch_add(<span class="number">1</span>, Ordering::Relaxed);
+    }
+
+    <span class="kw">fn </span>dec_queue_depth(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.queue_depth.fetch_sub(<span class="number">1</span>, Ordering::Relaxed);
+    }
+}
+
+<span class="kw">struct </span>Inner {
+    <span class="doccomment">/// State shared between worker threads.
+    </span>shared: Mutex&lt;Shared&gt;,
+
+    <span class="doccomment">/// Pool threads wait on this.
+    </span>condvar: Condvar,
+
+    <span class="doccomment">/// Spawned threads use this name.
+    </span>thread_name: ThreadNameFn,
+
+    <span class="doccomment">/// Spawned thread stack size.
+    </span>stack_size: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+
+    <span class="doccomment">/// Call after a thread starts.
+    </span>after_start: <span class="prelude-ty">Option</span>&lt;Callback&gt;,
+
+    <span class="doccomment">/// Call before a thread stops.
+    </span>before_stop: <span class="prelude-ty">Option</span>&lt;Callback&gt;,
+
+    <span class="comment">// Maximum number of threads.
+    </span>thread_cap: usize,
+
+    <span class="comment">// Customizable wait timeout.
+    </span>keep_alive: Duration,
+
+    <span class="comment">// Metrics about the pool.
+    </span>metrics: SpawnerMetrics,
+}
+
+<span class="kw">struct </span>Shared {
+    queue: VecDeque&lt;Task&gt;,
+    num_notify: u32,
+    shutdown: bool,
+    shutdown_tx: <span class="prelude-ty">Option</span>&lt;shutdown::Sender&gt;,
+    <span class="doccomment">/// Prior to shutdown, we clean up JoinHandles by having each timed-out
+    /// thread join on the previous timed-out thread. This is not strictly
+    /// necessary but helps avoid Valgrind false positives, see
+    /// &lt;https://github.com/tokio-rs/tokio/commit/646fbae76535e397ef79dbcaacb945d4c829f666&gt;
+    /// for more information.
+    </span>last_exiting_thread: <span class="prelude-ty">Option</span>&lt;thread::JoinHandle&lt;()&gt;&gt;,
+    <span class="doccomment">/// This holds the JoinHandles for all running threads; on shutdown, the thread
+    /// calling shutdown handles joining on these.
+    </span>worker_threads: HashMap&lt;usize, thread::JoinHandle&lt;()&gt;&gt;,
+    <span class="doccomment">/// This is a counter used to iterate worker_threads in a consistent order (for loom&#39;s
+    /// benefit).
+    </span>worker_thread_index: usize,
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Task {
+    task: task::UnownedTask&lt;BlockingSchedule&gt;,
+    mandatory: Mandatory,
+}
+
+<span class="attribute">#[derive(PartialEq, Eq)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>Mandatory {
+    <span class="attribute">#[cfg_attr(not(fs), allow(dead_code))]
+    </span>Mandatory,
+    NonMandatory,
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>SpawnError {
+    <span class="doccomment">/// Pool is shutting down and the task was not scheduled
+    </span>ShuttingDown,
+    <span class="doccomment">/// There are no worker threads available to take the task
+    /// and the OS failed to spawn a new one
+    </span>NoThreads(io::Error),
+}
+
+<span class="kw">impl </span>From&lt;SpawnError&gt; <span class="kw">for </span>io::Error {
+    <span class="kw">fn </span>from(e: SpawnError) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>e {
+            SpawnError::ShuttingDown =&gt; {
+                io::Error::new(io::ErrorKind::Other, <span class="string">&quot;blocking pool shutting down&quot;</span>)
+            }
+            SpawnError::NoThreads(e) =&gt; e,
         }
     }
 }
 
-<span class="kw">const</span> <span class="ident">KEEP_ALIVE</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration::from_secs</span>(<span class="number">10</span>);
+<span class="kw">impl </span>Task {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(task: task::UnownedTask&lt;BlockingSchedule&gt;, mandatory: Mandatory) -&gt; Task {
+        Task { task, mandatory }
+    }
 
-<span class="doccomment">/// Runs the provided function on an executor dedicated to blocking operations.</span>
-<span class="doccomment">/// Tasks will be scheduled as non-mandatory, meaning they may not get executed</span>
-<span class="doccomment">/// in case of runtime shutdown.</span>
-<span class="attribute">#[<span class="ident">track_caller</span>]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">spawn_blocking</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">func</span>: <span class="ident">F</span>) -&gt; <span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">FnOnce</span>() -&gt; <span class="ident">R</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">R</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-{
-    <span class="kw">let</span> <span class="ident">rt</span> <span class="op">=</span> <span class="ident">context::current</span>();
-    <span class="ident">rt</span>.<span class="ident">spawn_blocking</span>(<span class="ident">func</span>)
-}
+    <span class="kw">fn </span>run(<span class="self">self</span>) {
+        <span class="self">self</span>.task.run();
+    }
 
-<span class="macro">cfg_fs!</span> {
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(
-        <span class="ident">all</span>(<span class="ident">loom</span>, <span class="ident">not</span>(<span class="ident">test</span>)), <span class="comment">// the function is covered by loom tests</span>
-        <span class="ident">test</span>
-    ), <span class="ident">allow</span>(<span class="ident">dead_code</span>))]</span>
-    <span class="doccomment">/// Runs the provided function on an executor dedicated to blocking</span>
-    <span class="doccomment">/// operations. Tasks will be scheduled as mandatory, meaning they are</span>
-    <span class="doccomment">/// guaranteed to run unless a shutdown is already taking place. In case a</span>
-    <span class="doccomment">/// shutdown is already taking place, `None` will be returned.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">spawn_mandatory_blocking</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">func</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>() -&gt; <span class="ident">R</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">R</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    {
-        <span class="kw">let</span> <span class="ident">rt</span> <span class="op">=</span> <span class="ident">context::current</span>();
-        <span class="ident">rt</span>.<span class="ident">as_inner</span>().<span class="ident">spawn_mandatory_blocking</span>(<span class="kw-2">&amp;</span><span class="ident">rt</span>, <span class="ident">func</span>)
+    <span class="kw">fn </span>shutdown_or_run_if_mandatory(<span class="self">self</span>) {
+        <span class="kw">match </span><span class="self">self</span>.mandatory {
+            Mandatory::NonMandatory =&gt; <span class="self">self</span>.task.shutdown(),
+            Mandatory::Mandatory =&gt; <span class="self">self</span>.task.run(),
+        }
     }
 }
 
-<span class="comment">// ===== impl BlockingPool =====</span>
+<span class="kw">const </span>KEEP_ALIVE: Duration = Duration::from_secs(<span class="number">10</span>);
 
-<span class="kw">impl</span> <span class="ident">BlockingPool</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="ident">Builder</span>, <span class="ident">thread_cap</span>: <span class="ident">usize</span>) -&gt; <span class="ident">BlockingPool</span> {
-        <span class="kw">let</span> (<span class="ident">shutdown_tx</span>, <span class="ident">shutdown_rx</span>) <span class="op">=</span> <span class="ident">shutdown::channel</span>();
-        <span class="kw">let</span> <span class="ident">keep_alive</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">keep_alive</span>.<span class="ident">unwrap_or</span>(<span class="ident">KEEP_ALIVE</span>);
+<span class="doccomment">/// Runs the provided function on an executor dedicated to blocking operations.
+/// Tasks will be scheduled as non-mandatory, meaning they may not get executed
+/// in case of runtime shutdown.
+</span><span class="attribute">#[track_caller]
+#[cfg_attr(tokio_wasi, allow(dead_code))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>spawn_blocking&lt;F, R&gt;(func: F) -&gt; JoinHandle&lt;R&gt;
+<span class="kw">where
+    </span>F: FnOnce() -&gt; R + Send + <span class="lifetime">&#39;static</span>,
+    R: Send + <span class="lifetime">&#39;static</span>,
+{
+    <span class="kw">let </span>rt = Handle::current();
+    rt.spawn_blocking(func)
+}
 
-        <span class="ident">BlockingPool</span> {
-            <span class="ident">spawner</span>: <span class="ident">Spawner</span> {
-                <span class="ident">inner</span>: <span class="ident">Arc::new</span>(<span class="ident">Inner</span> {
-                    <span class="ident">shared</span>: <span class="ident">Mutex::new</span>(<span class="ident">Shared</span> {
-                        <span class="ident">queue</span>: <span class="ident">VecDeque::new</span>(),
-                        <span class="ident">num_th</span>: <span class="number">0</span>,
-                        <span class="ident">num_idle</span>: <span class="number">0</span>,
-                        <span class="ident">num_notify</span>: <span class="number">0</span>,
-                        <span class="ident">shutdown</span>: <span class="bool-val">false</span>,
-                        <span class="ident">shutdown_tx</span>: <span class="prelude-val">Some</span>(<span class="ident">shutdown_tx</span>),
-                        <span class="ident">last_exiting_thread</span>: <span class="prelude-val">None</span>,
-                        <span class="ident">worker_threads</span>: <span class="ident">HashMap::new</span>(),
-                        <span class="ident">worker_thread_index</span>: <span class="number">0</span>,
+<span class="macro">cfg_fs! </span>{
+    <span class="attribute">#[cfg_attr(any(
+        all(loom, not(test)), <span class="comment">// the function is covered by loom tests
+        </span>test
+    ), allow(dead_code))]
+    </span><span class="doccomment">/// Runs the provided function on an executor dedicated to blocking
+    /// operations. Tasks will be scheduled as mandatory, meaning they are
+    /// guaranteed to run unless a shutdown is already taking place. In case a
+    /// shutdown is already taking place, `None` will be returned.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>spawn_mandatory_blocking&lt;F, R&gt;(func: F) -&gt; <span class="prelude-ty">Option</span>&lt;JoinHandle&lt;R&gt;&gt;
+    <span class="kw">where
+        </span>F: FnOnce() -&gt; R + Send + <span class="lifetime">&#39;static</span>,
+        R: Send + <span class="lifetime">&#39;static</span>,
+    {
+        <span class="kw">let </span>rt = Handle::current();
+        rt.inner.blocking_spawner().spawn_mandatory_blocking(<span class="kw-2">&amp;</span>rt, func)
+    }
+}
+
+<span class="comment">// ===== impl BlockingPool =====
+
+</span><span class="kw">impl </span>BlockingPool {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(builder: <span class="kw-2">&amp;</span>Builder, thread_cap: usize) -&gt; BlockingPool {
+        <span class="kw">let </span>(shutdown_tx, shutdown_rx) = shutdown::channel();
+        <span class="kw">let </span>keep_alive = builder.keep_alive.unwrap_or(KEEP_ALIVE);
+
+        BlockingPool {
+            spawner: Spawner {
+                inner: Arc::new(Inner {
+                    shared: Mutex::new(Shared {
+                        queue: VecDeque::new(),
+                        num_notify: <span class="number">0</span>,
+                        shutdown: <span class="bool-val">false</span>,
+                        shutdown_tx: <span class="prelude-val">Some</span>(shutdown_tx),
+                        last_exiting_thread: <span class="prelude-val">None</span>,
+                        worker_threads: HashMap::new(),
+                        worker_thread_index: <span class="number">0</span>,
                     }),
-                    <span class="ident">condvar</span>: <span class="ident">Condvar::new</span>(),
-                    <span class="ident">thread_name</span>: <span class="ident">builder</span>.<span class="ident">thread_name</span>.<span class="ident">clone</span>(),
-                    <span class="ident">stack_size</span>: <span class="ident">builder</span>.<span class="ident">thread_stack_size</span>,
-                    <span class="ident">after_start</span>: <span class="ident">builder</span>.<span class="ident">after_start</span>.<span class="ident">clone</span>(),
-                    <span class="ident">before_stop</span>: <span class="ident">builder</span>.<span class="ident">before_stop</span>.<span class="ident">clone</span>(),
-                    <span class="ident">thread_cap</span>,
-                    <span class="ident">keep_alive</span>,
+                    condvar: Condvar::new(),
+                    thread_name: builder.thread_name.clone(),
+                    stack_size: builder.thread_stack_size,
+                    after_start: builder.after_start.clone(),
+                    before_stop: builder.before_stop.clone(),
+                    thread_cap,
+                    keep_alive,
+                    metrics: Default::default(),
                 }),
             },
-            <span class="ident">shutdown_rx</span>,
+            shutdown_rx,
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">spawner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Spawner</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">spawner</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>spawner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Spawner {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.spawner
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">shutdown</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shared</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">spawner</span>.<span class="ident">inner</span>.<span class="ident">shared</span>.<span class="ident">lock</span>();
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>shutdown(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;) {
+        <span class="kw">let </span><span class="kw-2">mut </span>shared = <span class="self">self</span>.spawner.inner.shared.lock();
 
-        <span class="comment">// The function can be called multiple times. First, by explicitly</span>
-        <span class="comment">// calling `shutdown` then by the drop handler calling `shutdown`. This</span>
-        <span class="comment">// prevents shutting down twice.</span>
-        <span class="kw">if</span> <span class="ident">shared</span>.<span class="ident">shutdown</span> {
+        <span class="comment">// The function can be called multiple times. First, by explicitly
+        // calling `shutdown` then by the drop handler calling `shutdown`. This
+        // prevents shutting down twice.
+        </span><span class="kw">if </span>shared.shutdown {
             <span class="kw">return</span>;
         }
 
-        <span class="ident">shared</span>.<span class="ident">shutdown</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="ident">shared</span>.<span class="ident">shutdown_tx</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="self">self</span>.<span class="ident">spawner</span>.<span class="ident">inner</span>.<span class="ident">condvar</span>.<span class="ident">notify_all</span>();
+        shared.shutdown = <span class="bool-val">true</span>;
+        shared.shutdown_tx = <span class="prelude-val">None</span>;
+        <span class="self">self</span>.spawner.inner.condvar.notify_all();
 
-        <span class="kw">let</span> <span class="ident">last_exited_thread</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="ident">shared</span>.<span class="ident">last_exiting_thread</span>);
-        <span class="kw">let</span> <span class="ident">workers</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="ident">shared</span>.<span class="ident">worker_threads</span>);
+        <span class="kw">let </span>last_exited_thread = std::mem::take(<span class="kw-2">&amp;mut </span>shared.last_exiting_thread);
+        <span class="kw">let </span>workers = std::mem::take(<span class="kw-2">&amp;mut </span>shared.worker_threads);
 
-        <span class="ident">drop</span>(<span class="ident">shared</span>);
+        drop(shared);
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">shutdown_rx</span>.<span class="ident">wait</span>(<span class="ident">timeout</span>) {
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">last_exited_thread</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">th</span><span class="op">|</span> <span class="ident">th</span>.<span class="ident">join</span>());
+        <span class="kw">if </span><span class="self">self</span>.shutdown_rx.wait(timeout) {
+            <span class="kw">let _ </span>= last_exited_thread.map(|th| th.join());
 
-            <span class="comment">// Loom requires that execution be deterministic, so sort by thread ID before joining.</span>
-            <span class="comment">// (HashMaps use a randomly-seeded hash function, so the order is nondeterministic)</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">workers</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">thread::JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">workers</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>();
-            <span class="ident">workers</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">id</span>);
+            <span class="comment">// Loom requires that execution be deterministic, so sort by thread ID before joining.
+            // (HashMaps use a randomly-seeded hash function, so the order is nondeterministic)
+            </span><span class="kw">let </span><span class="kw-2">mut </span>workers: Vec&lt;(usize, thread::JoinHandle&lt;()&gt;)&gt; = workers.into_iter().collect();
+            workers.sort_by_key(|(id, <span class="kw">_</span>)| <span class="kw-2">*</span>id);
 
-            <span class="kw">for</span> (<span class="ident">_id</span>, <span class="ident">handle</span>) <span class="kw">in</span> <span class="ident">workers</span>.<span class="ident">into_iter</span>() {
-                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">handle</span>.<span class="ident">join</span>();
+            <span class="kw">for </span>(_id, handle) <span class="kw">in </span>workers.into_iter() {
+                <span class="kw">let _ </span>= handle.join();
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">BlockingPool</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">shutdown</span>(<span class="prelude-val">None</span>);
+<span class="kw">impl </span>Drop <span class="kw">for </span>BlockingPool {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.shutdown(<span class="prelude-val">None</span>);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">BlockingPool</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;BlockingPool&quot;</span>).<span class="ident">finish</span>()
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>BlockingPool {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        fmt.debug_struct(<span class="string">&quot;BlockingPool&quot;</span>).finish()
     }
 }
 
-<span class="comment">// ===== impl Spawner =====</span>
+<span class="comment">// ===== impl Spawner =====
 
-<span class="kw">impl</span> <span class="ident">Spawner</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">spawn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">task</span>: <span class="ident">Task</span>, <span class="ident">rt</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToHandle</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), ()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shared</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">shared</span>.<span class="ident">lock</span>();
+</span><span class="kw">impl </span>Spawner {
+    <span class="attribute">#[track_caller]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>spawn_blocking&lt;F, R&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, rt: <span class="kw-2">&amp;</span>Handle, func: F) -&gt; JoinHandle&lt;R&gt;
+    <span class="kw">where
+        </span>F: FnOnce() -&gt; R + Send + <span class="lifetime">&#39;static</span>,
+        R: Send + <span class="lifetime">&#39;static</span>,
+    {
+        <span class="kw">let </span>(join_handle, spawn_result) =
+            <span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) &amp;&amp; std::mem::size_of::&lt;F&gt;() &gt; <span class="number">2048 </span>{
+                <span class="self">self</span>.spawn_blocking_inner(Box::new(func), Mandatory::NonMandatory, <span class="prelude-val">None</span>, rt)
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.spawn_blocking_inner(func, Mandatory::NonMandatory, <span class="prelude-val">None</span>, rt)
+            };
 
-        <span class="kw">if</span> <span class="ident">shared</span>.<span class="ident">shutdown</span> {
-            <span class="comment">// Shutdown the task: it&#39;s fine to shutdown this task (even if</span>
-            <span class="comment">// mandatory) because it was scheduled after the shutdown of the</span>
-            <span class="comment">// runtime began.</span>
-            <span class="ident">task</span>.<span class="ident">task</span>.<span class="ident">shutdown</span>();
+        <span class="kw">match </span>spawn_result {
+            <span class="prelude-val">Ok</span>(()) =&gt; join_handle,
+            <span class="comment">// Compat: do not panic here, return the join_handle even though it will never resolve
+            </span><span class="prelude-val">Err</span>(SpawnError::ShuttingDown) =&gt; join_handle,
+            <span class="prelude-val">Err</span>(SpawnError::NoThreads(e)) =&gt; {
+                <span class="macro">panic!</span>(<span class="string">&quot;OS can&#39;t spawn worker thread: {}&quot;</span>, e)
+            }
+        }
+    }
 
-            <span class="comment">// no need to even push this task; it would never get picked up</span>
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(());
+    <span class="macro">cfg_fs! </span>{
+        <span class="attribute">#[track_caller]
+        #[cfg_attr(any(
+            all(loom, not(test)), <span class="comment">// the function is covered by loom tests
+            </span>test
+        ), allow(dead_code))]
+        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>spawn_mandatory_blocking&lt;F, R&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, rt: <span class="kw-2">&amp;</span>Handle, func: F) -&gt; <span class="prelude-ty">Option</span>&lt;JoinHandle&lt;R&gt;&gt;
+        <span class="kw">where
+            </span>F: FnOnce() -&gt; R + Send + <span class="lifetime">&#39;static</span>,
+            R: Send + <span class="lifetime">&#39;static</span>,
+        {
+            <span class="kw">let </span>(join_handle, spawn_result) = <span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) &amp;&amp; std::mem::size_of::&lt;F&gt;() &gt; <span class="number">2048 </span>{
+                <span class="self">self</span>.spawn_blocking_inner(
+                    Box::new(func),
+                    Mandatory::Mandatory,
+                    <span class="prelude-val">None</span>,
+                    rt,
+                )
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.spawn_blocking_inner(
+                    func,
+                    Mandatory::Mandatory,
+                    <span class="prelude-val">None</span>,
+                    rt,
+                )
+            };
+
+            <span class="kw">if </span>spawn_result.is_ok() {
+                <span class="prelude-val">Some</span>(join_handle)
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>}
+        }
+    }
+
+    <span class="attribute">#[track_caller]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>spawn_blocking_inner&lt;F, R&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        func: F,
+        is_mandatory: Mandatory,
+        name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+        rt: <span class="kw-2">&amp;</span>Handle,
+    ) -&gt; (JoinHandle&lt;R&gt;, <span class="prelude-ty">Result</span>&lt;(), SpawnError&gt;)
+    <span class="kw">where
+        </span>F: FnOnce() -&gt; R + Send + <span class="lifetime">&#39;static</span>,
+        R: Send + <span class="lifetime">&#39;static</span>,
+    {
+        <span class="kw">let </span>fut = BlockingTask::new(func);
+        <span class="kw">let </span>id = task::Id::next();
+        <span class="attribute">#[cfg(all(tokio_unstable, feature = <span class="string">&quot;tracing&quot;</span>))]
+        </span><span class="kw">let </span>fut = {
+            <span class="kw">use </span>tracing::Instrument;
+            <span class="kw">let </span>location = std::panic::Location::caller();
+            <span class="kw">let </span>span = <span class="macro">tracing::trace_span!</span>(
+                target: <span class="string">&quot;tokio::task::blocking&quot;</span>,
+                <span class="string">&quot;runtime.spawn&quot;</span>,
+                kind = %<span class="string">&quot;blocking&quot;</span>,
+                task.name = %name.unwrap_or_default(),
+                task.id = id.as_u64(),
+                <span class="string">&quot;fn&quot; </span>= %std::any::type_name::&lt;F&gt;(),
+                spawn.location = %<span class="macro">format_args!</span>(<span class="string">&quot;{}:{}:{}&quot;</span>, location.file(), location.line(), location.column()),
+            );
+            fut.instrument(span)
+        };
+
+        <span class="attribute">#[cfg(not(all(tokio_unstable, feature = <span class="string">&quot;tracing&quot;</span>)))]
+        </span><span class="kw">let _ </span>= name;
+
+        <span class="kw">let </span>(task, handle) = task::unowned(fut, BlockingSchedule::new(rt), id);
+
+        <span class="kw">let </span>spawned = <span class="self">self</span>.spawn_task(Task::new(task, is_mandatory), rt);
+        (handle, spawned)
+    }
+
+    <span class="kw">fn </span>spawn_task(<span class="kw-2">&amp;</span><span class="self">self</span>, task: Task, rt: <span class="kw-2">&amp;</span>Handle) -&gt; <span class="prelude-ty">Result</span>&lt;(), SpawnError&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>shared = <span class="self">self</span>.inner.shared.lock();
+
+        <span class="kw">if </span>shared.shutdown {
+            <span class="comment">// Shutdown the task: it&#39;s fine to shutdown this task (even if
+            // mandatory) because it was scheduled after the shutdown of the
+            // runtime began.
+            </span>task.task.shutdown();
+
+            <span class="comment">// no need to even push this task; it would never get picked up
+            </span><span class="kw">return </span><span class="prelude-val">Err</span>(SpawnError::ShuttingDown);
         }
 
-        <span class="ident">shared</span>.<span class="ident">queue</span>.<span class="ident">push_back</span>(<span class="ident">task</span>);
+        shared.queue.push_back(task);
+        <span class="self">self</span>.inner.metrics.inc_queue_depth();
 
-        <span class="kw">if</span> <span class="ident">shared</span>.<span class="ident">num_idle</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="comment">// No threads are able to process the task.</span>
+        <span class="kw">if </span><span class="self">self</span>.inner.metrics.num_idle_threads() == <span class="number">0 </span>{
+            <span class="comment">// No threads are able to process the task.
 
-            <span class="kw">if</span> <span class="ident">shared</span>.<span class="ident">num_th</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">thread_cap</span> {
-                <span class="comment">// At max number of threads</span>
-            } <span class="kw">else</span> {
-                <span class="macro">assert!</span>(<span class="ident">shared</span>.<span class="ident">shutdown_tx</span>.<span class="ident">is_some</span>());
-                <span class="kw">let</span> <span class="ident">shutdown_tx</span> <span class="op">=</span> <span class="ident">shared</span>.<span class="ident">shutdown_tx</span>.<span class="ident">clone</span>();
+            </span><span class="kw">if </span><span class="self">self</span>.inner.metrics.num_threads() == <span class="self">self</span>.inner.thread_cap {
+                <span class="comment">// At max number of threads
+            </span>} <span class="kw">else </span>{
+                <span class="macro">assert!</span>(shared.shutdown_tx.is_some());
+                <span class="kw">let </span>shutdown_tx = shared.shutdown_tx.clone();
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">shutdown_tx</span>) <span class="op">=</span> <span class="ident">shutdown_tx</span> {
-                    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">shared</span>.<span class="ident">worker_thread_index</span>;
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(shutdown_tx) = shutdown_tx {
+                    <span class="kw">let </span>id = shared.worker_thread_index;
 
-                    <span class="kw">match</span> <span class="self">self</span>.<span class="ident">spawn_thread</span>(<span class="ident">shutdown_tx</span>, <span class="ident">rt</span>, <span class="ident">id</span>) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">handle</span>) =&gt; {
-                            <span class="ident">shared</span>.<span class="ident">num_th</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                            <span class="ident">shared</span>.<span class="ident">worker_thread_index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                            <span class="ident">shared</span>.<span class="ident">worker_threads</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">handle</span>);
+                    <span class="kw">match </span><span class="self">self</span>.spawn_thread(shutdown_tx, rt, id) {
+                        <span class="prelude-val">Ok</span>(handle) =&gt; {
+                            <span class="self">self</span>.inner.metrics.inc_num_threads();
+                            shared.worker_thread_index += <span class="number">1</span>;
+                            shared.worker_threads.insert(id, handle);
                         }
-                        <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">is_temporary_os_thread_error</span>(<span class="ident">e</span>) <span class="op">&amp;&amp;</span> <span class="ident">shared</span>.<span class="ident">num_th</span> <span class="op">&gt;</span> <span class="number">0</span> =&gt; {
-                            <span class="comment">// OS temporarily failed to spawn a new thread.</span>
-                            <span class="comment">// The task will be picked up eventually by a currently</span>
-                            <span class="comment">// busy thread.</span>
-                        }
-                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-                            <span class="comment">// The OS refused to spawn the thread and there is no thread</span>
-                            <span class="comment">// to pick up the task that has just been pushed to the queue.</span>
-                            <span class="macro">panic!</span>(<span class="string">&quot;OS can&#39;t spawn worker thread: {}&quot;</span>, <span class="ident">e</span>)
+                        <span class="prelude-val">Err</span>(<span class="kw-2">ref </span>e)
+                            <span class="kw">if </span>is_temporary_os_thread_error(e)
+                                &amp;&amp; <span class="self">self</span>.inner.metrics.num_threads() &gt; <span class="number">0 </span>=&gt;
+                        {
+                            <span class="comment">// OS temporarily failed to spawn a new thread.
+                            // The task will be picked up eventually by a currently
+                            // busy thread.
+                        </span>}
+                        <span class="prelude-val">Err</span>(e) =&gt; {
+                            <span class="comment">// The OS refused to spawn the thread and there is no thread
+                            // to pick up the task that has just been pushed to the queue.
+                            </span><span class="kw">return </span><span class="prelude-val">Err</span>(SpawnError::NoThreads(e));
                         }
                     }
                 }
             }
-        } <span class="kw">else</span> {
-            <span class="comment">// Notify an idle worker thread. The notification counter</span>
-            <span class="comment">// is used to count the needed amount of notifications</span>
-            <span class="comment">// exactly. Thread libraries may generate spurious</span>
-            <span class="comment">// wakeups, this counter is used to keep us in a</span>
-            <span class="comment">// consistent state.</span>
-            <span class="ident">shared</span>.<span class="ident">num_idle</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="ident">shared</span>.<span class="ident">num_notify</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">condvar</span>.<span class="ident">notify_one</span>();
+        } <span class="kw">else </span>{
+            <span class="comment">// Notify an idle worker thread. The notification counter
+            // is used to count the needed amount of notifications
+            // exactly. Thread libraries may generate spurious
+            // wakeups, this counter is used to keep us in a
+            // consistent state.
+            </span><span class="self">self</span>.inner.metrics.dec_num_idle_threads();
+            shared.num_notify += <span class="number">1</span>;
+            <span class="self">self</span>.inner.condvar.notify_one();
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">spawn_thread</span>(
+    <span class="kw">fn </span>spawn_thread(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">shutdown_tx</span>: <span class="ident">shutdown::Sender</span>,
-        <span class="ident">rt</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToHandle</span>,
-        <span class="ident">id</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">std::io::Result</span><span class="op">&lt;</span><span class="ident">thread::JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">thread::Builder::new</span>().<span class="ident">name</span>((<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">thread_name</span>)());
+        shutdown_tx: shutdown::Sender,
+        rt: <span class="kw-2">&amp;</span>Handle,
+        id: usize,
+    ) -&gt; std::io::Result&lt;thread::JoinHandle&lt;()&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>builder = thread::Builder::new().name((<span class="self">self</span>.inner.thread_name)());
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stack_size</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">stack_size</span> {
-            <span class="ident">builder</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">stack_size</span>(<span class="ident">stack_size</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(stack_size) = <span class="self">self</span>.inner.stack_size {
+            builder = builder.stack_size(stack_size);
         }
 
-        <span class="kw">let</span> <span class="ident">rt</span> <span class="op">=</span> <span class="ident">rt</span>.<span class="ident">to_handle</span>();
+        <span class="kw">let </span>rt = rt.clone();
 
-        <span class="ident">builder</span>.<span class="ident">spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-            <span class="comment">// Only the reference should be moved into the closure</span>
-            <span class="kw">let</span> <span class="ident">_enter</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::runtime::context::enter</span>(<span class="ident">rt</span>.<span class="ident">clone</span>());
-            <span class="ident">rt</span>.<span class="ident">as_inner</span>().<span class="ident">blocking_spawner</span>.<span class="ident">inner</span>.<span class="ident">run</span>(<span class="ident">id</span>);
-            <span class="ident">drop</span>(<span class="ident">shutdown_tx</span>);
+        builder.spawn(<span class="kw">move </span>|| {
+            <span class="comment">// Only the reference should be moved into the closure
+            </span><span class="kw">let </span>_enter = rt.enter();
+            rt.inner.blocking_spawner().inner.run(id);
+            drop(shutdown_tx);
         })
     }
 }
 
-<span class="comment">// Tells whether the error when spawning a thread is temporary.</span>
-<span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">fn</span> <span class="ident">is_temporary_os_thread_error</span>(<span class="ident">error</span>: <span class="kw-2">&amp;</span><span class="ident">std::io::Error</span>) -&gt; <span class="ident">bool</span> {
-    <span class="macro">matches!</span>(<span class="ident">error</span>.<span class="ident">kind</span>(), <span class="ident">std::io::ErrorKind::WouldBlock</span>)
-}
-
-<span class="kw">impl</span> <span class="ident">Inner</span> {
-    <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">worker_thread_id</span>: <span class="ident">usize</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">f</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">after_start</span> {
-            <span class="ident">f</span>()
+<span class="macro">cfg_metrics! </span>{
+    <span class="kw">impl </span>Spawner {
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>num_threads(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+            <span class="self">self</span>.inner.metrics.num_threads()
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shared</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">lock</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">join_on_thread</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>num_idle_threads(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+            <span class="self">self</span>.inner.metrics.num_idle_threads()
+        }
 
-        <span class="lifetime">&#39;main</span>: <span class="kw">loop</span> {
-            <span class="comment">// BUSY</span>
-            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">task</span>) <span class="op">=</span> <span class="ident">shared</span>.<span class="ident">queue</span>.<span class="ident">pop_front</span>() {
-                <span class="ident">drop</span>(<span class="ident">shared</span>);
-                <span class="ident">task</span>.<span class="ident">run</span>();
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>queue_depth(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+            <span class="self">self</span>.inner.metrics.queue_depth()
+        }
+    }
+}
 
-                <span class="ident">shared</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">lock</span>();
+<span class="comment">// Tells whether the error when spawning a thread is temporary.
+</span><span class="attribute">#[inline]
+</span><span class="kw">fn </span>is_temporary_os_thread_error(error: <span class="kw-2">&amp;</span>std::io::Error) -&gt; bool {
+    <span class="macro">matches!</span>(error.kind(), std::io::ErrorKind::WouldBlock)
+}
+
+<span class="kw">impl </span>Inner {
+    <span class="kw">fn </span>run(<span class="kw-2">&amp;</span><span class="self">self</span>, worker_thread_id: usize) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(f) = <span class="kw-2">&amp;</span><span class="self">self</span>.after_start {
+            f()
+        }
+
+        <span class="kw">let </span><span class="kw-2">mut </span>shared = <span class="self">self</span>.shared.lock();
+        <span class="kw">let </span><span class="kw-2">mut </span>join_on_thread = <span class="prelude-val">None</span>;
+
+        <span class="lifetime">&#39;main</span>: <span class="kw">loop </span>{
+            <span class="comment">// BUSY
+            </span><span class="kw">while let </span><span class="prelude-val">Some</span>(task) = shared.queue.pop_front() {
+                <span class="self">self</span>.metrics.dec_queue_depth();
+                drop(shared);
+                task.run();
+
+                shared = <span class="self">self</span>.shared.lock();
             }
 
-            <span class="comment">// IDLE</span>
-            <span class="ident">shared</span>.<span class="ident">num_idle</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="comment">// IDLE
+            </span><span class="self">self</span>.metrics.inc_num_idle_threads();
 
-            <span class="kw">while</span> <span class="op">!</span><span class="ident">shared</span>.<span class="ident">shutdown</span> {
-                <span class="kw">let</span> <span class="ident">lock_result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">condvar</span>.<span class="ident">wait_timeout</span>(<span class="ident">shared</span>, <span class="self">self</span>.<span class="ident">keep_alive</span>).<span class="ident">unwrap</span>();
+            <span class="kw">while </span>!shared.shutdown {
+                <span class="kw">let </span>lock_result = <span class="self">self</span>.condvar.wait_timeout(shared, <span class="self">self</span>.keep_alive).unwrap();
 
-                <span class="ident">shared</span> <span class="op">=</span> <span class="ident">lock_result</span>.<span class="number">0</span>;
-                <span class="kw">let</span> <span class="ident">timeout_result</span> <span class="op">=</span> <span class="ident">lock_result</span>.<span class="number">1</span>;
+                shared = lock_result.<span class="number">0</span>;
+                <span class="kw">let </span>timeout_result = lock_result.<span class="number">1</span>;
 
-                <span class="kw">if</span> <span class="ident">shared</span>.<span class="ident">num_notify</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                    <span class="comment">// We have received a legitimate wakeup,</span>
-                    <span class="comment">// acknowledge it by decrementing the counter</span>
-                    <span class="comment">// and transition to the BUSY state.</span>
-                    <span class="ident">shared</span>.<span class="ident">num_notify</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="kw">if </span>shared.num_notify != <span class="number">0 </span>{
+                    <span class="comment">// We have received a legitimate wakeup,
+                    // acknowledge it by decrementing the counter
+                    // and transition to the BUSY state.
+                    </span>shared.num_notify -= <span class="number">1</span>;
                     <span class="kw">break</span>;
                 }
 
-                <span class="comment">// Even if the condvar &quot;timed out&quot;, if the pool is entering the</span>
-                <span class="comment">// shutdown phase, we want to perform the cleanup logic.</span>
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">shared</span>.<span class="ident">shutdown</span> <span class="op">&amp;&amp;</span> <span class="ident">timeout_result</span>.<span class="ident">timed_out</span>() {
-                    <span class="comment">// We&#39;ll join the prior timed-out thread&#39;s JoinHandle after dropping the lock.</span>
-                    <span class="comment">// This isn&#39;t done when shutting down, because the thread calling shutdown will</span>
-                    <span class="comment">// handle joining everything.</span>
-                    <span class="kw">let</span> <span class="ident">my_handle</span> <span class="op">=</span> <span class="ident">shared</span>.<span class="ident">worker_threads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">worker_thread_id</span>);
-                    <span class="ident">join_on_thread</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">shared</span>.<span class="ident">last_exiting_thread</span>, <span class="ident">my_handle</span>);
+                <span class="comment">// Even if the condvar &quot;timed out&quot;, if the pool is entering the
+                // shutdown phase, we want to perform the cleanup logic.
+                </span><span class="kw">if </span>!shared.shutdown &amp;&amp; timeout_result.timed_out() {
+                    <span class="comment">// We&#39;ll join the prior timed-out thread&#39;s JoinHandle after dropping the lock.
+                    // This isn&#39;t done when shutting down, because the thread calling shutdown will
+                    // handle joining everything.
+                    </span><span class="kw">let </span>my_handle = shared.worker_threads.remove(<span class="kw-2">&amp;</span>worker_thread_id);
+                    join_on_thread = std::mem::replace(<span class="kw-2">&amp;mut </span>shared.last_exiting_thread, my_handle);
 
-                    <span class="kw">break</span> <span class="lifetime">&#39;main</span>;
+                    <span class="kw">break </span><span class="lifetime">&#39;main</span>;
                 }
 
-                <span class="comment">// Spurious wakeup detected, go back to sleep.</span>
-            }
+                <span class="comment">// Spurious wakeup detected, go back to sleep.
+            </span>}
 
-            <span class="kw">if</span> <span class="ident">shared</span>.<span class="ident">shutdown</span> {
-                <span class="comment">// Drain the queue</span>
-                <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">task</span>) <span class="op">=</span> <span class="ident">shared</span>.<span class="ident">queue</span>.<span class="ident">pop_front</span>() {
-                    <span class="ident">drop</span>(<span class="ident">shared</span>);
+            <span class="kw">if </span>shared.shutdown {
+                <span class="comment">// Drain the queue
+                </span><span class="kw">while let </span><span class="prelude-val">Some</span>(task) = shared.queue.pop_front() {
+                    <span class="self">self</span>.metrics.dec_queue_depth();
+                    drop(shared);
 
-                    <span class="ident">task</span>.<span class="ident">shutdown_or_run_if_mandatory</span>();
+                    task.shutdown_or_run_if_mandatory();
 
-                    <span class="ident">shared</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">lock</span>();
+                    shared = <span class="self">self</span>.shared.lock();
                 }
 
-                <span class="comment">// Work was produced, and we &quot;took&quot; it (by decrementing num_notify).</span>
-                <span class="comment">// This means that num_idle was decremented once for our wakeup.</span>
-                <span class="comment">// But, since we are exiting, we need to &quot;undo&quot; that, as we&#39;ll stay idle.</span>
-                <span class="ident">shared</span>.<span class="ident">num_idle</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="comment">// NOTE: Technically we should also do num_notify++ and notify again,</span>
-                <span class="comment">// but since we&#39;re shutting down anyway, that won&#39;t be necessary.</span>
-                <span class="kw">break</span>;
+                <span class="comment">// Work was produced, and we &quot;took&quot; it (by decrementing num_notify).
+                // This means that num_idle was decremented once for our wakeup.
+                // But, since we are exiting, we need to &quot;undo&quot; that, as we&#39;ll stay idle.
+                </span><span class="self">self</span>.metrics.inc_num_idle_threads();
+                <span class="comment">// NOTE: Technically we should also do num_notify++ and notify again,
+                // but since we&#39;re shutting down anyway, that won&#39;t be necessary.
+                </span><span class="kw">break</span>;
             }
         }
 
-        <span class="comment">// Thread exit</span>
-        <span class="ident">shared</span>.<span class="ident">num_th</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="comment">// Thread exit
+        </span><span class="self">self</span>.metrics.dec_num_threads();
 
-        <span class="comment">// num_idle should now be tracked exactly, panic</span>
-        <span class="comment">// with a descriptive message if it is not the</span>
-        <span class="comment">// case.</span>
-        <span class="ident">shared</span>.<span class="ident">num_idle</span> <span class="op">=</span> <span class="ident">shared</span>
-            .<span class="ident">num_idle</span>
-            .<span class="ident">checked_sub</span>(<span class="number">1</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;num_idle underflowed on thread exit&quot;</span>);
-
-        <span class="kw">if</span> <span class="ident">shared</span>.<span class="ident">shutdown</span> <span class="op">&amp;&amp;</span> <span class="ident">shared</span>.<span class="ident">num_th</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="self">self</span>.<span class="ident">condvar</span>.<span class="ident">notify_one</span>();
+        <span class="comment">// num_idle should now be tracked exactly, panic
+        // with a descriptive message if it is not the
+        // case.
+        </span><span class="kw">let </span>prev_idle = <span class="self">self</span>.metrics.dec_num_idle_threads();
+        <span class="kw">if </span>prev_idle &lt; <span class="self">self</span>.metrics.num_idle_threads() {
+            <span class="macro">panic!</span>(<span class="string">&quot;num_idle_threads underflowed on thread exit&quot;</span>)
         }
 
-        <span class="ident">drop</span>(<span class="ident">shared</span>);
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">f</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">before_stop</span> {
-            <span class="ident">f</span>()
+        <span class="kw">if </span>shared.shutdown &amp;&amp; <span class="self">self</span>.metrics.num_threads() == <span class="number">0 </span>{
+            <span class="self">self</span>.condvar.notify_one();
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">handle</span>) <span class="op">=</span> <span class="ident">join_on_thread</span> {
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">handle</span>.<span class="ident">join</span>();
+        drop(shared);
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(f) = <span class="kw-2">&amp;</span><span class="self">self</span>.before_stop {
+            f()
+        }
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(handle) = join_on_thread {
+            <span class="kw">let _ </span>= handle.join();
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Spawner</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;blocking::Spawner&quot;</span>).<span class="ident">finish</span>()
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Spawner {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        fmt.debug_struct(<span class="string">&quot;blocking::Spawner&quot;</span>).finish()
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="tokio" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="tokio" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

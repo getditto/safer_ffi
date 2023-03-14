@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/prettyplease-0.1.10/src/item.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>item.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../prettyplease/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../prettyplease/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../prettyplease/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/prettyplease-0.1.24/src/item.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>item.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../prettyplease/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -760,763 +755,920 @@
 <span id="755">755</span>
 <span id="756">756</span>
 <span id="757">757</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::algorithm::Printer</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::iter::IterDelimited</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::INDENT</span>;
-<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span>;
-<span class="kw">use</span> <span class="ident">syn</span>::{
-    <span class="ident">Fields</span>, <span class="ident">FnArg</span>, <span class="ident">ForeignItem</span>, <span class="ident">ForeignItemFn</span>, <span class="ident">ForeignItemMacro</span>, <span class="ident">ForeignItemStatic</span>,
-    <span class="ident">ForeignItemType</span>, <span class="ident">ImplItem</span>, <span class="ident">ImplItemConst</span>, <span class="ident">ImplItemMacro</span>, <span class="ident">ImplItemMethod</span>, <span class="ident">ImplItemType</span>, <span class="ident">Item</span>,
-    <span class="ident">ItemConst</span>, <span class="ident">ItemEnum</span>, <span class="ident">ItemExternCrate</span>, <span class="ident">ItemFn</span>, <span class="ident">ItemForeignMod</span>, <span class="ident">ItemImpl</span>, <span class="ident">ItemMacro</span>, <span class="ident">ItemMacro2</span>,
-    <span class="ident">ItemMod</span>, <span class="ident">ItemStatic</span>, <span class="ident">ItemStruct</span>, <span class="ident">ItemTrait</span>, <span class="ident">ItemTraitAlias</span>, <span class="ident">ItemType</span>, <span class="ident">ItemUnion</span>, <span class="ident">ItemUse</span>, <span class="ident">Pat</span>,
-    <span class="ident">Receiver</span>, <span class="ident">Signature</span>, <span class="ident">Stmt</span>, <span class="ident">TraitItem</span>, <span class="ident">TraitItemConst</span>, <span class="ident">TraitItemMacro</span>, <span class="ident">TraitItemMethod</span>,
-    <span class="ident">TraitItemType</span>, <span class="ident">Type</span>, <span class="ident">UseGlob</span>, <span class="ident">UseGroup</span>, <span class="ident">UseName</span>, <span class="ident">UsePath</span>, <span class="ident">UseRename</span>, <span class="ident">UseTree</span>,
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::algorithm::Printer;
+<span class="kw">use </span><span class="kw">crate</span>::iter::IterDelimited;
+<span class="kw">use </span><span class="kw">crate</span>::INDENT;
+<span class="kw">use </span>proc_macro2::TokenStream;
+<span class="kw">use </span>syn::{
+    Fields, FnArg, ForeignItem, ForeignItemFn, ForeignItemMacro, ForeignItemStatic,
+    ForeignItemType, ImplItem, ImplItemConst, ImplItemMacro, ImplItemMethod, ImplItemType, Item,
+    ItemConst, ItemEnum, ItemExternCrate, ItemFn, ItemForeignMod, ItemImpl, ItemMacro, ItemMacro2,
+    ItemMod, ItemStatic, ItemStruct, ItemTrait, ItemTraitAlias, ItemType, ItemUnion, ItemUse, Pat,
+    Receiver, Signature, Stmt, TraitItem, TraitItemConst, TraitItemMacro, TraitItemMethod,
+    TraitItemType, Type, UseGlob, UseGroup, UseName, UsePath, UseRename, UseTree,
 };
 
-<span class="kw">impl</span> <span class="ident">Printer</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">item</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">Item</span>) {
-        <span class="kw">match</span> <span class="ident">item</span> {
-            <span class="ident">Item::Const</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_const</span>(<span class="ident">item</span>),
-            <span class="ident">Item::Enum</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_enum</span>(<span class="ident">item</span>),
-            <span class="ident">Item::ExternCrate</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_extern_crate</span>(<span class="ident">item</span>),
-            <span class="ident">Item::Fn</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_fn</span>(<span class="ident">item</span>),
-            <span class="ident">Item::ForeignMod</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_foreign_mod</span>(<span class="ident">item</span>),
-            <span class="ident">Item::Impl</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_impl</span>(<span class="ident">item</span>),
-            <span class="ident">Item::Macro</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_macro</span>(<span class="ident">item</span>),
-            <span class="ident">Item::Macro2</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_macro2</span>(<span class="ident">item</span>),
-            <span class="ident">Item::Mod</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_mod</span>(<span class="ident">item</span>),
-            <span class="ident">Item::Static</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_static</span>(<span class="ident">item</span>),
-            <span class="ident">Item::Struct</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_struct</span>(<span class="ident">item</span>),
-            <span class="ident">Item::Trait</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_trait</span>(<span class="ident">item</span>),
-            <span class="ident">Item::TraitAlias</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_trait_alias</span>(<span class="ident">item</span>),
-            <span class="ident">Item::Type</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_type</span>(<span class="ident">item</span>),
-            <span class="ident">Item::Union</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_union</span>(<span class="ident">item</span>),
-            <span class="ident">Item::Use</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_use</span>(<span class="ident">item</span>),
-            <span class="ident">Item::Verbatim</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">item_verbatim</span>(<span class="ident">item</span>),
-            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">exhaustive</span>), <span class="ident">deny</span>(<span class="ident">non_exhaustive_omitted_patterns</span>))]</span>
-            <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;unknown Item&quot;</span>),
+<span class="kw">impl </span>Printer {
+    <span class="kw">pub fn </span>item(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>Item) {
+        <span class="kw">match </span>item {
+            Item::Const(item) =&gt; <span class="self">self</span>.item_const(item),
+            Item::Enum(item) =&gt; <span class="self">self</span>.item_enum(item),
+            Item::ExternCrate(item) =&gt; <span class="self">self</span>.item_extern_crate(item),
+            Item::Fn(item) =&gt; <span class="self">self</span>.item_fn(item),
+            Item::ForeignMod(item) =&gt; <span class="self">self</span>.item_foreign_mod(item),
+            Item::Impl(item) =&gt; <span class="self">self</span>.item_impl(item),
+            Item::Macro(item) =&gt; <span class="self">self</span>.item_macro(item),
+            Item::Macro2(item) =&gt; <span class="self">self</span>.item_macro2(item),
+            Item::Mod(item) =&gt; <span class="self">self</span>.item_mod(item),
+            Item::Static(item) =&gt; <span class="self">self</span>.item_static(item),
+            Item::Struct(item) =&gt; <span class="self">self</span>.item_struct(item),
+            Item::Trait(item) =&gt; <span class="self">self</span>.item_trait(item),
+            Item::TraitAlias(item) =&gt; <span class="self">self</span>.item_trait_alias(item),
+            Item::Type(item) =&gt; <span class="self">self</span>.item_type(item),
+            Item::Union(item) =&gt; <span class="self">self</span>.item_union(item),
+            Item::Use(item) =&gt; <span class="self">self</span>.item_use(item),
+            Item::Verbatim(item) =&gt; <span class="self">self</span>.item_verbatim(item),
+            <span class="attribute">#[cfg_attr(all(test, exhaustive), deny(non_exhaustive_omitted_patterns))]
+            </span><span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;unknown Item&quot;</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">item_const</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemConst</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="number">0</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">vis</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;const &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;: &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">ty</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot; = &quot;</span>);
-        <span class="self">self</span>.<span class="ident">neverbreak</span>();
-        <span class="self">self</span>.<span class="ident">expr</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">expr</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;;&quot;</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+    <span class="kw">fn </span>item_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemConst) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.cbox(<span class="number">0</span>);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>item.vis);
+        <span class="self">self</span>.word(<span class="string">&quot;const &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>item.ident);
+        <span class="self">self</span>.word(<span class="string">&quot;: &quot;</span>);
+        <span class="self">self</span>.ty(<span class="kw-2">&amp;</span>item.ty);
+        <span class="self">self</span>.word(<span class="string">&quot; = &quot;</span>);
+        <span class="self">self</span>.neverbreak();
+        <span class="self">self</span>.expr(<span class="kw-2">&amp;</span>item.expr);
+        <span class="self">self</span>.word(<span class="string">&quot;;&quot;</span>);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_enum</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemEnum</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">vis</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;enum &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">generics</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>);
-        <span class="self">self</span>.<span class="ident">where_clause_for_body</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;{&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak_if_nonempty</span>();
-        <span class="kw">for</span> <span class="ident">variant</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">variants</span> {
-            <span class="self">self</span>.<span class="ident">variant</span>(<span class="ident">variant</span>);
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;,&quot;</span>);
-            <span class="self">self</span>.<span class="ident">hardbreak</span>();
+    <span class="kw">fn </span>item_enum(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemEnum) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>item.vis);
+        <span class="self">self</span>.word(<span class="string">&quot;enum &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>item.ident);
+        <span class="self">self</span>.generics(<span class="kw-2">&amp;</span>item.generics);
+        <span class="self">self</span>.where_clause_for_body(<span class="kw-2">&amp;</span>item.generics.where_clause);
+        <span class="self">self</span>.word(<span class="string">&quot;{&quot;</span>);
+        <span class="self">self</span>.hardbreak_if_nonempty();
+        <span class="kw">for </span>variant <span class="kw">in </span><span class="kw-2">&amp;</span>item.variants {
+            <span class="self">self</span>.variant(variant);
+            <span class="self">self</span>.word(<span class="string">&quot;,&quot;</span>);
+            <span class="self">self</span>.hardbreak();
         }
-        <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;}&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.offset(-INDENT);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.word(<span class="string">&quot;}&quot;</span>);
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_extern_crate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemExternCrate</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">vis</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;extern crate &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">ident</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">_as_token</span>, <span class="ident">rename</span>)) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">rename</span> {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot; as &quot;</span>);
-            <span class="self">self</span>.<span class="ident">ident</span>(<span class="ident">rename</span>);
+    <span class="kw">fn </span>item_extern_crate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemExternCrate) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>item.vis);
+        <span class="self">self</span>.word(<span class="string">&quot;extern crate &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>item.ident);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((_as_token, rename)) = <span class="kw-2">&amp;</span>item.rename {
+            <span class="self">self</span>.word(<span class="string">&quot; as &quot;</span>);
+            <span class="self">self</span>.ident(rename);
         }
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;;&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.word(<span class="string">&quot;;&quot;</span>);
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_fn</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemFn</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">vis</span>);
-        <span class="self">self</span>.<span class="ident">signature</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">sig</span>);
-        <span class="self">self</span>.<span class="ident">where_clause_for_body</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;{&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak_if_nonempty</span>();
-        <span class="self">self</span>.<span class="ident">inner_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="kw">for</span> <span class="ident">stmt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">block</span>.<span class="ident">stmts</span> {
-            <span class="self">self</span>.<span class="ident">stmt</span>(<span class="ident">stmt</span>);
+    <span class="kw">fn </span>item_fn(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemFn) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>item.vis);
+        <span class="self">self</span>.signature(<span class="kw-2">&amp;</span>item.sig);
+        <span class="self">self</span>.where_clause_for_body(<span class="kw-2">&amp;</span>item.sig.generics.where_clause);
+        <span class="self">self</span>.word(<span class="string">&quot;{&quot;</span>);
+        <span class="self">self</span>.hardbreak_if_nonempty();
+        <span class="self">self</span>.inner_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="kw">for </span>stmt <span class="kw">in </span><span class="kw-2">&amp;</span>item.block.stmts {
+            <span class="self">self</span>.stmt(stmt);
         }
-        <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;}&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.offset(-INDENT);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.word(<span class="string">&quot;}&quot;</span>);
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_foreign_mod</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemForeignMod</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">abi</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">abi</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;{&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak_if_nonempty</span>();
-        <span class="self">self</span>.<span class="ident">inner_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="kw">for</span> <span class="ident">foreign_item</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">items</span> {
-            <span class="self">self</span>.<span class="ident">foreign_item</span>(<span class="ident">foreign_item</span>);
+    <span class="kw">fn </span>item_foreign_mod(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemForeignMod) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.abi(<span class="kw-2">&amp;</span>item.abi);
+        <span class="self">self</span>.word(<span class="string">&quot;{&quot;</span>);
+        <span class="self">self</span>.hardbreak_if_nonempty();
+        <span class="self">self</span>.inner_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="kw">for </span>foreign_item <span class="kw">in </span><span class="kw-2">&amp;</span>item.items {
+            <span class="self">self</span>.foreign_item(foreign_item);
         }
-        <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;}&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.offset(-INDENT);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.word(<span class="string">&quot;}&quot;</span>);
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_impl</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemImpl</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">ibox</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="kw">if</span> <span class="ident">item</span>.<span class="ident">defaultness</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;default &quot;</span>);
+    <span class="kw">fn </span>item_impl(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemImpl) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.ibox(-INDENT);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="kw">if </span>item.defaultness.is_some() {
+            <span class="self">self</span>.word(<span class="string">&quot;default &quot;</span>);
         }
-        <span class="kw">if</span> <span class="ident">item</span>.<span class="ident">unsafety</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;unsafe &quot;</span>);
+        <span class="kw">if </span>item.unsafety.is_some() {
+            <span class="self">self</span>.word(<span class="string">&quot;unsafe &quot;</span>);
         }
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;impl&quot;</span>);
-        <span class="self">self</span>.<span class="ident">generics</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">nbsp</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">negative_polarity</span>, <span class="ident">path</span>, <span class="ident">_for_token</span>)) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">trait_</span> {
-            <span class="kw">if</span> <span class="ident">negative_polarity</span>.<span class="ident">is_some</span>() {
-                <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;!&quot;</span>);
+        <span class="self">self</span>.word(<span class="string">&quot;impl&quot;</span>);
+        <span class="self">self</span>.generics(<span class="kw-2">&amp;</span>item.generics);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.nbsp();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((negative_polarity, path, _for_token)) = <span class="kw-2">&amp;</span>item.trait_ {
+            <span class="kw">if </span>negative_polarity.is_some() {
+                <span class="self">self</span>.word(<span class="string">&quot;!&quot;</span>);
             }
-            <span class="self">self</span>.<span class="ident">path</span>(<span class="ident">path</span>);
-            <span class="self">self</span>.<span class="ident">space</span>();
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;for &quot;</span>);
+            <span class="self">self</span>.path(path);
+            <span class="self">self</span>.space();
+            <span class="self">self</span>.word(<span class="string">&quot;for &quot;</span>);
         }
-        <span class="self">self</span>.<span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">self_ty</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">where_clause_for_body</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;{&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak_if_nonempty</span>();
-        <span class="self">self</span>.<span class="ident">inner_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="kw">for</span> <span class="ident">impl_item</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">items</span> {
-            <span class="self">self</span>.<span class="ident">impl_item</span>(<span class="ident">impl_item</span>);
+        <span class="self">self</span>.ty(<span class="kw-2">&amp;</span>item.self_ty);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.where_clause_for_body(<span class="kw-2">&amp;</span>item.generics.where_clause);
+        <span class="self">self</span>.word(<span class="string">&quot;{&quot;</span>);
+        <span class="self">self</span>.hardbreak_if_nonempty();
+        <span class="self">self</span>.inner_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="kw">for </span>impl_item <span class="kw">in </span><span class="kw-2">&amp;</span>item.items {
+            <span class="self">self</span>.impl_item(impl_item);
         }
-        <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;}&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.offset(-INDENT);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.word(<span class="string">&quot;}&quot;</span>);
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_macro</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemMacro</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">mac</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">mac</span>, <span class="ident">item</span>.<span class="ident">ident</span>.<span class="ident">as_ref</span>());
-        <span class="self">self</span>.<span class="ident">mac_semi_if_needed</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">mac</span>.<span class="ident">delimiter</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+    <span class="kw">fn </span>item_macro(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemMacro) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.mac(<span class="kw-2">&amp;</span>item.mac, item.ident.as_ref());
+        <span class="self">self</span>.mac_semi_if_needed(<span class="kw-2">&amp;</span>item.mac.delimiter);
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_macro2</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemMacro2</span>) {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;Item::Macro2 `macro {} {}`&quot;</span>, <span class="ident">item</span>.<span class="ident">ident</span>, <span class="ident">item</span>.<span class="ident">rules</span>);
+    <span class="kw">fn </span>item_macro2(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemMacro2) {
+        <span class="macro">unimplemented!</span>(<span class="string">&quot;Item::Macro2 `macro {} {}`&quot;</span>, item.ident, item.rules);
     }
 
-    <span class="kw">fn</span> <span class="ident">item_mod</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemMod</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">vis</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;mod &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">ident</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">_brace</span>, <span class="ident">items</span>)) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">content</span> {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot; {&quot;</span>);
-            <span class="self">self</span>.<span class="ident">hardbreak_if_nonempty</span>();
-            <span class="self">self</span>.<span class="ident">inner_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-            <span class="kw">for</span> <span class="ident">item</span> <span class="kw">in</span> <span class="ident">items</span> {
-                <span class="self">self</span>.<span class="ident">item</span>(<span class="ident">item</span>);
+    <span class="kw">fn </span>item_mod(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemMod) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>item.vis);
+        <span class="self">self</span>.word(<span class="string">&quot;mod &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>item.ident);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((_brace, items)) = <span class="kw-2">&amp;</span>item.content {
+            <span class="self">self</span>.word(<span class="string">&quot; {&quot;</span>);
+            <span class="self">self</span>.hardbreak_if_nonempty();
+            <span class="self">self</span>.inner_attrs(<span class="kw-2">&amp;</span>item.attrs);
+            <span class="kw">for </span>item <span class="kw">in </span>items {
+                <span class="self">self</span>.item(item);
             }
-            <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-            <span class="self">self</span>.<span class="ident">end</span>();
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;}&quot;</span>);
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;;&quot;</span>);
-            <span class="self">self</span>.<span class="ident">end</span>();
+            <span class="self">self</span>.offset(-INDENT);
+            <span class="self">self</span>.end();
+            <span class="self">self</span>.word(<span class="string">&quot;}&quot;</span>);
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.word(<span class="string">&quot;;&quot;</span>);
+            <span class="self">self</span>.end();
         }
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_static</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemStatic</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="number">0</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">vis</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;static &quot;</span>);
-        <span class="kw">if</span> <span class="ident">item</span>.<span class="ident">mutability</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;mut &quot;</span>);
+    <span class="kw">fn </span>item_static(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemStatic) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.cbox(<span class="number">0</span>);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>item.vis);
+        <span class="self">self</span>.word(<span class="string">&quot;static &quot;</span>);
+        <span class="kw">if </span>item.mutability.is_some() {
+            <span class="self">self</span>.word(<span class="string">&quot;mut &quot;</span>);
         }
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;: &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">ty</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot; = &quot;</span>);
-        <span class="self">self</span>.<span class="ident">neverbreak</span>();
-        <span class="self">self</span>.<span class="ident">expr</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">expr</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;;&quot;</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>item.ident);
+        <span class="self">self</span>.word(<span class="string">&quot;: &quot;</span>);
+        <span class="self">self</span>.ty(<span class="kw-2">&amp;</span>item.ty);
+        <span class="self">self</span>.word(<span class="string">&quot; = &quot;</span>);
+        <span class="self">self</span>.neverbreak();
+        <span class="self">self</span>.expr(<span class="kw-2">&amp;</span>item.expr);
+        <span class="self">self</span>.word(<span class="string">&quot;;&quot;</span>);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_struct</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemStruct</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">vis</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;struct &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">generics</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>);
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">fields</span> {
-            <span class="ident">Fields::Named</span>(<span class="ident">fields</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">where_clause_for_body</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-                <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;{&quot;</span>);
-                <span class="self">self</span>.<span class="ident">hardbreak_if_nonempty</span>();
-                <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">fields</span>.<span class="ident">named</span> {
-                    <span class="self">self</span>.<span class="ident">field</span>(<span class="ident">field</span>);
-                    <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;,&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">hardbreak</span>();
+    <span class="kw">fn </span>item_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemStruct) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>item.vis);
+        <span class="self">self</span>.word(<span class="string">&quot;struct &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>item.ident);
+        <span class="self">self</span>.generics(<span class="kw-2">&amp;</span>item.generics);
+        <span class="kw">match </span><span class="kw-2">&amp;</span>item.fields {
+            Fields::Named(fields) =&gt; {
+                <span class="self">self</span>.where_clause_for_body(<span class="kw-2">&amp;</span>item.generics.where_clause);
+                <span class="self">self</span>.word(<span class="string">&quot;{&quot;</span>);
+                <span class="self">self</span>.hardbreak_if_nonempty();
+                <span class="kw">for </span>field <span class="kw">in </span><span class="kw-2">&amp;</span>fields.named {
+                    <span class="self">self</span>.field(field);
+                    <span class="self">self</span>.word(<span class="string">&quot;,&quot;</span>);
+                    <span class="self">self</span>.hardbreak();
                 }
-                <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-                <span class="self">self</span>.<span class="ident">end</span>();
-                <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;}&quot;</span>);
+                <span class="self">self</span>.offset(-INDENT);
+                <span class="self">self</span>.end();
+                <span class="self">self</span>.word(<span class="string">&quot;}&quot;</span>);
             }
-            <span class="ident">Fields::Unnamed</span>(<span class="ident">fields</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">fields_unnamed</span>(<span class="ident">fields</span>);
-                <span class="self">self</span>.<span class="ident">where_clause_semi</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-                <span class="self">self</span>.<span class="ident">end</span>();
+            Fields::Unnamed(fields) =&gt; {
+                <span class="self">self</span>.fields_unnamed(fields);
+                <span class="self">self</span>.where_clause_semi(<span class="kw-2">&amp;</span>item.generics.where_clause);
+                <span class="self">self</span>.end();
             }
-            <span class="ident">Fields::Unit</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">where_clause_semi</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-                <span class="self">self</span>.<span class="ident">end</span>();
+            Fields::Unit =&gt; {
+                <span class="self">self</span>.where_clause_semi(<span class="kw-2">&amp;</span>item.generics.where_clause);
+                <span class="self">self</span>.end();
             }
         }
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_trait</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemTrait</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">vis</span>);
-        <span class="kw">if</span> <span class="ident">item</span>.<span class="ident">unsafety</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;unsafe &quot;</span>);
+    <span class="kw">fn </span>item_trait(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemTrait) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>item.vis);
+        <span class="kw">if </span>item.unsafety.is_some() {
+            <span class="self">self</span>.word(<span class="string">&quot;unsafe &quot;</span>);
         }
-        <span class="kw">if</span> <span class="ident">item</span>.<span class="ident">auto_token</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;auto &quot;</span>);
+        <span class="kw">if </span>item.auto_token.is_some() {
+            <span class="self">self</span>.word(<span class="string">&quot;auto &quot;</span>);
         }
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;trait &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">generics</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>);
-        <span class="kw">for</span> <span class="ident">supertrait</span> <span class="kw">in</span> <span class="ident">item</span>.<span class="ident">supertraits</span>.<span class="ident">iter</span>().<span class="ident">delimited</span>() {
-            <span class="kw">if</span> <span class="ident">supertrait</span>.<span class="ident">is_first</span> {
-                <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;: &quot;</span>);
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot; + &quot;</span>);
+        <span class="self">self</span>.word(<span class="string">&quot;trait &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>item.ident);
+        <span class="self">self</span>.generics(<span class="kw-2">&amp;</span>item.generics);
+        <span class="kw">for </span>supertrait <span class="kw">in </span>item.supertraits.iter().delimited() {
+            <span class="kw">if </span>supertrait.is_first {
+                <span class="self">self</span>.word(<span class="string">&quot;: &quot;</span>);
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.word(<span class="string">&quot; + &quot;</span>);
             }
-            <span class="self">self</span>.<span class="ident">type_param_bound</span>(<span class="kw-2">&amp;</span><span class="ident">supertrait</span>);
+            <span class="self">self</span>.type_param_bound(<span class="kw-2">&amp;</span>supertrait);
         }
-        <span class="self">self</span>.<span class="ident">where_clause_for_body</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;{&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak_if_nonempty</span>();
-        <span class="self">self</span>.<span class="ident">inner_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="kw">for</span> <span class="ident">trait_item</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">items</span> {
-            <span class="self">self</span>.<span class="ident">trait_item</span>(<span class="ident">trait_item</span>);
+        <span class="self">self</span>.where_clause_for_body(<span class="kw-2">&amp;</span>item.generics.where_clause);
+        <span class="self">self</span>.word(<span class="string">&quot;{&quot;</span>);
+        <span class="self">self</span>.hardbreak_if_nonempty();
+        <span class="self">self</span>.inner_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="kw">for </span>trait_item <span class="kw">in </span><span class="kw-2">&amp;</span>item.items {
+            <span class="self">self</span>.trait_item(trait_item);
         }
-        <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;}&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.offset(-INDENT);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.word(<span class="string">&quot;}&quot;</span>);
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_trait_alias</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemTraitAlias</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">vis</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;trait &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">generics</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot; = &quot;</span>);
-        <span class="self">self</span>.<span class="ident">neverbreak</span>();
-        <span class="kw">for</span> <span class="ident">bound</span> <span class="kw">in</span> <span class="ident">item</span>.<span class="ident">bounds</span>.<span class="ident">iter</span>().<span class="ident">delimited</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">bound</span>.<span class="ident">is_first</span> {
-                <span class="self">self</span>.<span class="ident">space</span>();
-                <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;+ &quot;</span>);
+    <span class="kw">fn </span>item_trait_alias(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemTraitAlias) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>item.vis);
+        <span class="self">self</span>.word(<span class="string">&quot;trait &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>item.ident);
+        <span class="self">self</span>.generics(<span class="kw-2">&amp;</span>item.generics);
+        <span class="self">self</span>.word(<span class="string">&quot; = &quot;</span>);
+        <span class="self">self</span>.neverbreak();
+        <span class="kw">for </span>bound <span class="kw">in </span>item.bounds.iter().delimited() {
+            <span class="kw">if </span>!bound.is_first {
+                <span class="self">self</span>.space();
+                <span class="self">self</span>.word(<span class="string">&quot;+ &quot;</span>);
             }
-            <span class="self">self</span>.<span class="ident">type_param_bound</span>(<span class="kw-2">&amp;</span><span class="ident">bound</span>);
+            <span class="self">self</span>.type_param_bound(<span class="kw-2">&amp;</span>bound);
         }
-        <span class="self">self</span>.<span class="ident">where_clause_semi</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.where_clause_semi(<span class="kw-2">&amp;</span>item.generics.where_clause);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemType</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">vis</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;type &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">generics</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>);
-        <span class="self">self</span>.<span class="ident">where_clause_oneline</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;= &quot;</span>);
-        <span class="self">self</span>.<span class="ident">neverbreak</span>();
-        <span class="self">self</span>.<span class="ident">ibox</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">ty</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;;&quot;</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+    <span class="kw">fn </span>item_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemType) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>item.vis);
+        <span class="self">self</span>.word(<span class="string">&quot;type &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>item.ident);
+        <span class="self">self</span>.generics(<span class="kw-2">&amp;</span>item.generics);
+        <span class="self">self</span>.where_clause_oneline(<span class="kw-2">&amp;</span>item.generics.where_clause);
+        <span class="self">self</span>.word(<span class="string">&quot;= &quot;</span>);
+        <span class="self">self</span>.neverbreak();
+        <span class="self">self</span>.ibox(-INDENT);
+        <span class="self">self</span>.ty(<span class="kw-2">&amp;</span>item.ty);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.word(<span class="string">&quot;;&quot;</span>);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_union</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemUnion</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">vis</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;union &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">generics</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>);
-        <span class="self">self</span>.<span class="ident">where_clause_for_body</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;{&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak_if_nonempty</span>();
-        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">fields</span>.<span class="ident">named</span> {
-            <span class="self">self</span>.<span class="ident">field</span>(<span class="ident">field</span>);
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;,&quot;</span>);
-            <span class="self">self</span>.<span class="ident">hardbreak</span>();
+    <span class="kw">fn </span>item_union(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemUnion) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>item.vis);
+        <span class="self">self</span>.word(<span class="string">&quot;union &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>item.ident);
+        <span class="self">self</span>.generics(<span class="kw-2">&amp;</span>item.generics);
+        <span class="self">self</span>.where_clause_for_body(<span class="kw-2">&amp;</span>item.generics.where_clause);
+        <span class="self">self</span>.word(<span class="string">&quot;{&quot;</span>);
+        <span class="self">self</span>.hardbreak_if_nonempty();
+        <span class="kw">for </span>field <span class="kw">in </span><span class="kw-2">&amp;</span>item.fields.named {
+            <span class="self">self</span>.field(field);
+            <span class="self">self</span>.word(<span class="string">&quot;,&quot;</span>);
+            <span class="self">self</span>.hardbreak();
         }
-        <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;}&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.offset(-INDENT);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.word(<span class="string">&quot;}&quot;</span>);
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_use</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">ItemUse</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">vis</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;use &quot;</span>);
-        <span class="kw">if</span> <span class="ident">item</span>.<span class="ident">leading_colon</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;::&quot;</span>);
+    <span class="kw">fn </span>item_use(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>ItemUse) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>item.vis);
+        <span class="self">self</span>.word(<span class="string">&quot;use &quot;</span>);
+        <span class="kw">if </span>item.leading_colon.is_some() {
+            <span class="self">self</span>.word(<span class="string">&quot;::&quot;</span>);
         }
-        <span class="self">self</span>.<span class="ident">use_tree</span>(<span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">tree</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;;&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.use_tree(<span class="kw-2">&amp;</span>item.tree);
+        <span class="self">self</span>.word(<span class="string">&quot;;&quot;</span>);
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">item_verbatim</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">TokenStream</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_empty</span>() {
-            <span class="macro">unimplemented!</span>(<span class="string">&quot;Item::Verbatim `{}`&quot;</span>, <span class="ident">item</span>);
+    <span class="attribute">#[cfg(not(feature = <span class="string">&quot;verbatim&quot;</span>))]
+    </span><span class="kw">fn </span>item_verbatim(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>TokenStream) {
+        <span class="kw">if </span>!item.is_empty() {
+            <span class="macro">unimplemented!</span>(<span class="string">&quot;Item::Verbatim `{}`&quot;</span>, item);
         }
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">use_tree</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">use_tree</span>: <span class="kw-2">&amp;</span><span class="ident">UseTree</span>) {
-        <span class="kw">match</span> <span class="ident">use_tree</span> {
-            <span class="ident">UseTree::Path</span>(<span class="ident">use_path</span>) =&gt; <span class="self">self</span>.<span class="ident">use_path</span>(<span class="ident">use_path</span>),
-            <span class="ident">UseTree::Name</span>(<span class="ident">use_name</span>) =&gt; <span class="self">self</span>.<span class="ident">use_name</span>(<span class="ident">use_name</span>),
-            <span class="ident">UseTree::Rename</span>(<span class="ident">use_rename</span>) =&gt; <span class="self">self</span>.<span class="ident">use_rename</span>(<span class="ident">use_rename</span>),
-            <span class="ident">UseTree::Glob</span>(<span class="ident">use_glob</span>) =&gt; <span class="self">self</span>.<span class="ident">use_glob</span>(<span class="ident">use_glob</span>),
-            <span class="ident">UseTree::Group</span>(<span class="ident">use_group</span>) =&gt; <span class="self">self</span>.<span class="ident">use_group</span>(<span class="ident">use_group</span>),
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;verbatim&quot;</span>)]
+    </span><span class="kw">fn </span>item_verbatim(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tokens: <span class="kw-2">&amp;</span>TokenStream) {
+        <span class="kw">use </span>syn::parse::{Parse, ParseStream, <span class="prelude-ty">Result</span>};
+        <span class="kw">use </span>syn::{Attribute, Token};
+
+        <span class="kw">enum </span>ItemVerbatim {
+            Empty,
+            UnsafeForeignMod(ItemForeignMod),
         }
-    }
 
-    <span class="kw">fn</span> <span class="ident">use_path</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">use_path</span>: <span class="kw-2">&amp;</span><span class="ident">UsePath</span>) {
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">use_path</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;::&quot;</span>);
-        <span class="self">self</span>.<span class="ident">use_tree</span>(<span class="kw-2">&amp;</span><span class="ident">use_path</span>.<span class="ident">tree</span>);
-    }
-
-    <span class="kw">fn</span> <span class="ident">use_name</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">use_name</span>: <span class="kw-2">&amp;</span><span class="ident">UseName</span>) {
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">use_name</span>.<span class="ident">ident</span>);
-    }
-
-    <span class="kw">fn</span> <span class="ident">use_rename</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">use_rename</span>: <span class="kw-2">&amp;</span><span class="ident">UseRename</span>) {
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">use_rename</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot; as &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">use_rename</span>.<span class="ident">rename</span>);
-    }
-
-    <span class="kw">fn</span> <span class="ident">use_glob</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">use_glob</span>: <span class="kw-2">&amp;</span><span class="ident">UseGlob</span>) {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">use_glob</span>;
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;*&quot;</span>);
-    }
-
-    <span class="kw">fn</span> <span class="ident">use_group</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">use_group</span>: <span class="kw-2">&amp;</span><span class="ident">UseGroup</span>) {
-        <span class="kw">if</span> <span class="ident">use_group</span>.<span class="ident">items</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;{}&quot;</span>);
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">use_group</span>.<span class="ident">items</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-            <span class="self">self</span>.<span class="ident">use_tree</span>(<span class="kw-2">&amp;</span><span class="ident">use_group</span>.<span class="ident">items</span>[<span class="number">0</span>]);
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;{&quot;</span>);
-            <span class="self">self</span>.<span class="ident">zerobreak</span>();
-            <span class="self">self</span>.<span class="ident">ibox</span>(<span class="number">0</span>);
-            <span class="kw">for</span> <span class="ident">use_tree</span> <span class="kw">in</span> <span class="ident">use_group</span>.<span class="ident">items</span>.<span class="ident">iter</span>().<span class="ident">delimited</span>() {
-                <span class="self">self</span>.<span class="ident">use_tree</span>(<span class="kw-2">&amp;</span><span class="ident">use_tree</span>);
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">use_tree</span>.<span class="ident">is_last</span> {
-                    <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;,&quot;</span>);
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">use_tree</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">use_tree</span>;
-                    <span class="kw">while</span> <span class="kw">let</span> <span class="ident">UseTree::Path</span>(<span class="ident">use_path</span>) <span class="op">=</span> <span class="ident">use_tree</span> {
-                        <span class="ident">use_tree</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">use_path</span>.<span class="ident">tree</span>;
-                    }
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">UseTree::Group</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">use_tree</span> {
-                        <span class="self">self</span>.<span class="ident">hardbreak</span>();
-                    } <span class="kw">else</span> {
-                        <span class="self">self</span>.<span class="ident">space</span>();
-                    }
+        <span class="kw">impl </span>Parse <span class="kw">for </span>ItemVerbatim {
+            <span class="kw">fn </span>parse(input: ParseStream) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+                <span class="kw">if </span>input.is_empty() {
+                    <span class="prelude-val">Ok</span>(ItemVerbatim::Empty)
+                } <span class="kw">else </span>{
+                    <span class="kw">let </span>attrs = input.call(Attribute::parse_outer)<span class="question-mark">?</span>;
+                    input.parse::&lt;<span class="macro">Token!</span>[<span class="kw">unsafe</span>]&gt;()<span class="question-mark">?</span>;
+                    <span class="kw">let </span>module: ItemForeignMod = input.parse()<span class="question-mark">?</span>;
+                    <span class="prelude-val">Ok</span>(ItemVerbatim::UnsafeForeignMod(ItemForeignMod {
+                        attrs,
+                        ..module
+                    }))
                 }
             }
-            <span class="self">self</span>.<span class="ident">end</span>();
-            <span class="self">self</span>.<span class="ident">trailing_comma</span>(<span class="bool-val">true</span>);
-            <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;}&quot;</span>);
-            <span class="self">self</span>.<span class="ident">end</span>();
         }
-    }
 
-    <span class="kw">fn</span> <span class="ident">foreign_item</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">foreign_item</span>: <span class="kw-2">&amp;</span><span class="ident">ForeignItem</span>) {
-        <span class="kw">match</span> <span class="ident">foreign_item</span> {
-            <span class="ident">ForeignItem::Fn</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">foreign_item_fn</span>(<span class="ident">item</span>),
-            <span class="ident">ForeignItem::Static</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">foreign_item_static</span>(<span class="ident">item</span>),
-            <span class="ident">ForeignItem::Type</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">foreign_item_type</span>(<span class="ident">item</span>),
-            <span class="ident">ForeignItem::Macro</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">foreign_item_macro</span>(<span class="ident">item</span>),
-            <span class="ident">ForeignItem::Verbatim</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">foreign_item_verbatim</span>(<span class="ident">item</span>),
-            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">exhaustive</span>), <span class="ident">deny</span>(<span class="ident">non_exhaustive_omitted_patterns</span>))]</span>
-            <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;unknown ForeignItem&quot;</span>),
-        }
-    }
+        <span class="kw">let </span>item: ItemVerbatim = <span class="kw">match </span>syn::parse2(tokens.clone()) {
+            <span class="prelude-val">Ok</span>(item) =&gt; item,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Item::Verbatim `{}`&quot;</span>, tokens),
+        };
 
-    <span class="kw">fn</span> <span class="ident">foreign_item_fn</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">foreign_item</span>: <span class="kw-2">&amp;</span><span class="ident">ForeignItemFn</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">foreign_item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">foreign_item</span>.<span class="ident">vis</span>);
-        <span class="self">self</span>.<span class="ident">signature</span>(<span class="kw-2">&amp;</span><span class="ident">foreign_item</span>.<span class="ident">sig</span>);
-        <span class="self">self</span>.<span class="ident">where_clause_semi</span>(<span class="kw-2">&amp;</span><span class="ident">foreign_item</span>.<span class="ident">sig</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
-    }
-
-    <span class="kw">fn</span> <span class="ident">foreign_item_static</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">foreign_item</span>: <span class="kw-2">&amp;</span><span class="ident">ForeignItemStatic</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">foreign_item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="number">0</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">foreign_item</span>.<span class="ident">vis</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;static &quot;</span>);
-        <span class="kw">if</span> <span class="ident">foreign_item</span>.<span class="ident">mutability</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;mut &quot;</span>);
-        }
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">foreign_item</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;: &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="ident">foreign_item</span>.<span class="ident">ty</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;;&quot;</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
-    }
-
-    <span class="kw">fn</span> <span class="ident">foreign_item_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">foreign_item</span>: <span class="kw-2">&amp;</span><span class="ident">ForeignItemType</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">foreign_item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="number">0</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">foreign_item</span>.<span class="ident">vis</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;type &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">foreign_item</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;;&quot;</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
-    }
-
-    <span class="kw">fn</span> <span class="ident">foreign_item_macro</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">foreign_item</span>: <span class="kw-2">&amp;</span><span class="ident">ForeignItemMacro</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">foreign_item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">mac</span>(<span class="kw-2">&amp;</span><span class="ident">foreign_item</span>.<span class="ident">mac</span>, <span class="prelude-val">None</span>);
-        <span class="self">self</span>.<span class="ident">mac_semi_if_needed</span>(<span class="kw-2">&amp;</span><span class="ident">foreign_item</span>.<span class="ident">mac</span>.<span class="ident">delimiter</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
-    }
-
-    <span class="kw">fn</span> <span class="ident">foreign_item_verbatim</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">foreign_item</span>: <span class="kw-2">&amp;</span><span class="ident">TokenStream</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">foreign_item</span>.<span class="ident">is_empty</span>() {
-            <span class="macro">unimplemented!</span>(<span class="string">&quot;ForeignItem::Verbatim `{}`&quot;</span>, <span class="ident">foreign_item</span>);
-        }
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
-    }
-
-    <span class="kw">fn</span> <span class="ident">trait_item</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">trait_item</span>: <span class="kw-2">&amp;</span><span class="ident">TraitItem</span>) {
-        <span class="kw">match</span> <span class="ident">trait_item</span> {
-            <span class="ident">TraitItem::Const</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">trait_item_const</span>(<span class="ident">item</span>),
-            <span class="ident">TraitItem::Method</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">trait_item_method</span>(<span class="ident">item</span>),
-            <span class="ident">TraitItem::Type</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">trait_item_type</span>(<span class="ident">item</span>),
-            <span class="ident">TraitItem::Macro</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">trait_item_macro</span>(<span class="ident">item</span>),
-            <span class="ident">TraitItem::Verbatim</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">trait_item_verbatim</span>(<span class="ident">item</span>),
-            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">exhaustive</span>), <span class="ident">deny</span>(<span class="ident">non_exhaustive_omitted_patterns</span>))]</span>
-            <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;unknown TraitItem&quot;</span>),
-        }
-    }
-
-    <span class="kw">fn</span> <span class="ident">trait_item_const</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">trait_item</span>: <span class="kw-2">&amp;</span><span class="ident">TraitItemConst</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="number">0</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;const &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;: &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">ty</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">_eq_token</span>, <span class="ident">default</span>)) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">default</span> {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot; = &quot;</span>);
-            <span class="self">self</span>.<span class="ident">neverbreak</span>();
-            <span class="self">self</span>.<span class="ident">expr</span>(<span class="ident">default</span>);
-        }
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;;&quot;</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
-    }
-
-    <span class="kw">fn</span> <span class="ident">trait_item_method</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">trait_item</span>: <span class="kw-2">&amp;</span><span class="ident">TraitItemMethod</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">signature</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">sig</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">block</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">default</span> {
-            <span class="self">self</span>.<span class="ident">where_clause_for_body</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">sig</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;{&quot;</span>);
-            <span class="self">self</span>.<span class="ident">hardbreak_if_nonempty</span>();
-            <span class="self">self</span>.<span class="ident">inner_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">attrs</span>);
-            <span class="kw">for</span> <span class="ident">stmt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">block</span>.<span class="ident">stmts</span> {
-                <span class="self">self</span>.<span class="ident">stmt</span>(<span class="ident">stmt</span>);
+        <span class="kw">match </span>item {
+            ItemVerbatim::Empty =&gt; {}
+            ItemVerbatim::UnsafeForeignMod(item) =&gt; {
+                <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>item.attrs);
+                <span class="self">self</span>.cbox(INDENT);
+                <span class="self">self</span>.word(<span class="string">&quot;unsafe &quot;</span>);
+                <span class="self">self</span>.abi(<span class="kw-2">&amp;</span>item.abi);
+                <span class="self">self</span>.word(<span class="string">&quot;{&quot;</span>);
+                <span class="self">self</span>.hardbreak_if_nonempty();
+                <span class="self">self</span>.inner_attrs(<span class="kw-2">&amp;</span>item.attrs);
+                <span class="kw">for </span>foreign_item <span class="kw">in </span><span class="kw-2">&amp;</span>item.items {
+                    <span class="self">self</span>.foreign_item(foreign_item);
+                }
+                <span class="self">self</span>.offset(-INDENT);
+                <span class="self">self</span>.end();
+                <span class="self">self</span>.word(<span class="string">&quot;}&quot;</span>);
             }
-            <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-            <span class="self">self</span>.<span class="ident">end</span>();
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;}&quot;</span>);
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">where_clause_semi</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">sig</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-            <span class="self">self</span>.<span class="ident">end</span>();
         }
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">trait_item_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">trait_item</span>: <span class="kw-2">&amp;</span><span class="ident">TraitItemType</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;type &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">generics</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">generics</span>);
-        <span class="kw">for</span> <span class="ident">bound</span> <span class="kw">in</span> <span class="ident">trait_item</span>.<span class="ident">bounds</span>.<span class="ident">iter</span>().<span class="ident">delimited</span>() {
-            <span class="kw">if</span> <span class="ident">bound</span>.<span class="ident">is_first</span> {
-                <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;: &quot;</span>);
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">space</span>();
-                <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;+ &quot;</span>);
+    <span class="kw">fn </span>use_tree(<span class="kw-2">&amp;mut </span><span class="self">self</span>, use_tree: <span class="kw-2">&amp;</span>UseTree) {
+        <span class="kw">match </span>use_tree {
+            UseTree::Path(use_path) =&gt; <span class="self">self</span>.use_path(use_path),
+            UseTree::Name(use_name) =&gt; <span class="self">self</span>.use_name(use_name),
+            UseTree::Rename(use_rename) =&gt; <span class="self">self</span>.use_rename(use_rename),
+            UseTree::Glob(use_glob) =&gt; <span class="self">self</span>.use_glob(use_glob),
+            UseTree::Group(use_group) =&gt; <span class="self">self</span>.use_group(use_group),
+        }
+    }
+
+    <span class="kw">fn </span>use_path(<span class="kw-2">&amp;mut </span><span class="self">self</span>, use_path: <span class="kw-2">&amp;</span>UsePath) {
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>use_path.ident);
+        <span class="self">self</span>.word(<span class="string">&quot;::&quot;</span>);
+        <span class="self">self</span>.use_tree(<span class="kw-2">&amp;</span>use_path.tree);
+    }
+
+    <span class="kw">fn </span>use_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, use_name: <span class="kw-2">&amp;</span>UseName) {
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>use_name.ident);
+    }
+
+    <span class="kw">fn </span>use_rename(<span class="kw-2">&amp;mut </span><span class="self">self</span>, use_rename: <span class="kw-2">&amp;</span>UseRename) {
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>use_rename.ident);
+        <span class="self">self</span>.word(<span class="string">&quot; as &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>use_rename.rename);
+    }
+
+    <span class="kw">fn </span>use_glob(<span class="kw-2">&amp;mut </span><span class="self">self</span>, use_glob: <span class="kw-2">&amp;</span>UseGlob) {
+        <span class="kw">let _ </span>= use_glob;
+        <span class="self">self</span>.word(<span class="string">&quot;*&quot;</span>);
+    }
+
+    <span class="kw">fn </span>use_group(<span class="kw-2">&amp;mut </span><span class="self">self</span>, use_group: <span class="kw-2">&amp;</span>UseGroup) {
+        <span class="kw">if </span>use_group.items.is_empty() {
+            <span class="self">self</span>.word(<span class="string">&quot;{}&quot;</span>);
+        } <span class="kw">else if </span>use_group.items.len() == <span class="number">1 </span>{
+            <span class="self">self</span>.use_tree(<span class="kw-2">&amp;</span>use_group.items[<span class="number">0</span>]);
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.cbox(INDENT);
+            <span class="self">self</span>.word(<span class="string">&quot;{&quot;</span>);
+            <span class="self">self</span>.zerobreak();
+            <span class="self">self</span>.ibox(<span class="number">0</span>);
+            <span class="kw">for </span>use_tree <span class="kw">in </span>use_group.items.iter().delimited() {
+                <span class="self">self</span>.use_tree(<span class="kw-2">&amp;</span>use_tree);
+                <span class="kw">if </span>!use_tree.is_last {
+                    <span class="self">self</span>.word(<span class="string">&quot;,&quot;</span>);
+                    <span class="kw">let </span><span class="kw-2">mut </span>use_tree = <span class="kw-2">*</span>use_tree;
+                    <span class="kw">while let </span>UseTree::Path(use_path) = use_tree {
+                        use_tree = <span class="kw-2">&amp;</span>use_path.tree;
+                    }
+                    <span class="kw">if let </span>UseTree::Group(<span class="kw">_</span>) = use_tree {
+                        <span class="self">self</span>.hardbreak();
+                    } <span class="kw">else </span>{
+                        <span class="self">self</span>.space();
+                    }
+                }
             }
-            <span class="self">self</span>.<span class="ident">type_param_bound</span>(<span class="kw-2">&amp;</span><span class="ident">bound</span>);
-        }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">_eq_token</span>, <span class="ident">default</span>)) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">default</span> {
-            <span class="self">self</span>.<span class="ident">where_clause_oneline</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;= &quot;</span>);
-            <span class="self">self</span>.<span class="ident">neverbreak</span>();
-            <span class="self">self</span>.<span class="ident">ty</span>(<span class="ident">default</span>);
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">where_clause_oneline_semi</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-        }
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
-    }
-
-    <span class="kw">fn</span> <span class="ident">trait_item_macro</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">trait_item</span>: <span class="kw-2">&amp;</span><span class="ident">TraitItemMacro</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">mac</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">mac</span>, <span class="prelude-val">None</span>);
-        <span class="self">self</span>.<span class="ident">mac_semi_if_needed</span>(<span class="kw-2">&amp;</span><span class="ident">trait_item</span>.<span class="ident">mac</span>.<span class="ident">delimiter</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
-    }
-
-    <span class="kw">fn</span> <span class="ident">trait_item_verbatim</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">trait_item</span>: <span class="kw-2">&amp;</span><span class="ident">TokenStream</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">trait_item</span>.<span class="ident">is_empty</span>() {
-            <span class="macro">unimplemented!</span>(<span class="string">&quot;TraitItem::Verbatim `{}`&quot;</span>, <span class="ident">trait_item</span>);
-        }
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
-    }
-
-    <span class="kw">fn</span> <span class="ident">impl_item</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">impl_item</span>: <span class="kw-2">&amp;</span><span class="ident">ImplItem</span>) {
-        <span class="kw">match</span> <span class="ident">impl_item</span> {
-            <span class="ident">ImplItem::Const</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">impl_item_const</span>(<span class="ident">item</span>),
-            <span class="ident">ImplItem::Method</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">impl_item_method</span>(<span class="ident">item</span>),
-            <span class="ident">ImplItem::Type</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">impl_item_type</span>(<span class="ident">item</span>),
-            <span class="ident">ImplItem::Macro</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">impl_item_macro</span>(<span class="ident">item</span>),
-            <span class="ident">ImplItem::Verbatim</span>(<span class="ident">item</span>) =&gt; <span class="self">self</span>.<span class="ident">impl_item_verbatim</span>(<span class="ident">item</span>),
-            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">exhaustive</span>), <span class="ident">deny</span>(<span class="ident">non_exhaustive_omitted_patterns</span>))]</span>
-            <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;unknown ImplItem&quot;</span>),
+            <span class="self">self</span>.end();
+            <span class="self">self</span>.trailing_comma(<span class="bool-val">true</span>);
+            <span class="self">self</span>.offset(-INDENT);
+            <span class="self">self</span>.word(<span class="string">&quot;}&quot;</span>);
+            <span class="self">self</span>.end();
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">impl_item_const</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">impl_item</span>: <span class="kw-2">&amp;</span><span class="ident">ImplItemConst</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="number">0</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">vis</span>);
-        <span class="kw">if</span> <span class="ident">impl_item</span>.<span class="ident">defaultness</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;default &quot;</span>);
+    <span class="kw">fn </span>foreign_item(<span class="kw-2">&amp;mut </span><span class="self">self</span>, foreign_item: <span class="kw-2">&amp;</span>ForeignItem) {
+        <span class="kw">match </span>foreign_item {
+            ForeignItem::Fn(item) =&gt; <span class="self">self</span>.foreign_item_fn(item),
+            ForeignItem::Static(item) =&gt; <span class="self">self</span>.foreign_item_static(item),
+            ForeignItem::Type(item) =&gt; <span class="self">self</span>.foreign_item_type(item),
+            ForeignItem::Macro(item) =&gt; <span class="self">self</span>.foreign_item_macro(item),
+            ForeignItem::Verbatim(item) =&gt; <span class="self">self</span>.foreign_item_verbatim(item),
+            <span class="attribute">#[cfg_attr(all(test, exhaustive), deny(non_exhaustive_omitted_patterns))]
+            </span><span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;unknown ForeignItem&quot;</span>),
         }
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;const &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;: &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">ty</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot; = &quot;</span>);
-        <span class="self">self</span>.<span class="ident">neverbreak</span>();
-        <span class="self">self</span>.<span class="ident">expr</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">expr</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;;&quot;</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
     }
 
-    <span class="kw">fn</span> <span class="ident">impl_item_method</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">impl_item</span>: <span class="kw-2">&amp;</span><span class="ident">ImplItemMethod</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">vis</span>);
-        <span class="kw">if</span> <span class="ident">impl_item</span>.<span class="ident">defaultness</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;default &quot;</span>);
+    <span class="kw">fn </span>foreign_item_fn(<span class="kw-2">&amp;mut </span><span class="self">self</span>, foreign_item: <span class="kw-2">&amp;</span>ForeignItemFn) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>foreign_item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>foreign_item.vis);
+        <span class="self">self</span>.signature(<span class="kw-2">&amp;</span>foreign_item.sig);
+        <span class="self">self</span>.where_clause_semi(<span class="kw-2">&amp;</span>foreign_item.sig.generics.where_clause);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.hardbreak();
+    }
+
+    <span class="kw">fn </span>foreign_item_static(<span class="kw-2">&amp;mut </span><span class="self">self</span>, foreign_item: <span class="kw-2">&amp;</span>ForeignItemStatic) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>foreign_item.attrs);
+        <span class="self">self</span>.cbox(<span class="number">0</span>);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>foreign_item.vis);
+        <span class="self">self</span>.word(<span class="string">&quot;static &quot;</span>);
+        <span class="kw">if </span>foreign_item.mutability.is_some() {
+            <span class="self">self</span>.word(<span class="string">&quot;mut &quot;</span>);
         }
-        <span class="self">self</span>.<span class="ident">signature</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">sig</span>);
-        <span class="kw">if</span> <span class="ident">impl_item</span>.<span class="ident">block</span>.<span class="ident">stmts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Stmt::Item</span>(<span class="ident">Item::Verbatim</span>(<span class="ident">verbatim</span>)) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">block</span>.<span class="ident">stmts</span>[<span class="number">0</span>] {
-                <span class="kw">if</span> <span class="ident">verbatim</span>.<span class="ident">to_string</span>() <span class="op">==</span> <span class="string">&quot;;&quot;</span> {
-                    <span class="self">self</span>.<span class="ident">where_clause_semi</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">sig</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-                    <span class="self">self</span>.<span class="ident">end</span>();
-                    <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>foreign_item.ident);
+        <span class="self">self</span>.word(<span class="string">&quot;: &quot;</span>);
+        <span class="self">self</span>.ty(<span class="kw-2">&amp;</span>foreign_item.ty);
+        <span class="self">self</span>.word(<span class="string">&quot;;&quot;</span>);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.hardbreak();
+    }
+
+    <span class="kw">fn </span>foreign_item_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, foreign_item: <span class="kw-2">&amp;</span>ForeignItemType) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>foreign_item.attrs);
+        <span class="self">self</span>.cbox(<span class="number">0</span>);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>foreign_item.vis);
+        <span class="self">self</span>.word(<span class="string">&quot;type &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>foreign_item.ident);
+        <span class="self">self</span>.word(<span class="string">&quot;;&quot;</span>);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.hardbreak();
+    }
+
+    <span class="kw">fn </span>foreign_item_macro(<span class="kw-2">&amp;mut </span><span class="self">self</span>, foreign_item: <span class="kw-2">&amp;</span>ForeignItemMacro) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>foreign_item.attrs);
+        <span class="self">self</span>.mac(<span class="kw-2">&amp;</span>foreign_item.mac, <span class="prelude-val">None</span>);
+        <span class="self">self</span>.mac_semi_if_needed(<span class="kw-2">&amp;</span>foreign_item.mac.delimiter);
+        <span class="self">self</span>.hardbreak();
+    }
+
+    <span class="attribute">#[cfg(not(feature = <span class="string">&quot;verbatim&quot;</span>))]
+    </span><span class="kw">fn </span>foreign_item_verbatim(<span class="kw-2">&amp;mut </span><span class="self">self</span>, foreign_item: <span class="kw-2">&amp;</span>TokenStream) {
+        <span class="kw">if </span>!foreign_item.is_empty() {
+            <span class="macro">unimplemented!</span>(<span class="string">&quot;ForeignItem::Verbatim `{}`&quot;</span>, foreign_item);
+        }
+        <span class="self">self</span>.hardbreak();
+    }
+
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;verbatim&quot;</span>)]
+    </span><span class="kw">fn </span>foreign_item_verbatim(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tokens: <span class="kw-2">&amp;</span>TokenStream) {
+        <span class="kw">use </span>syn::parse::{Parse, ParseStream, <span class="prelude-ty">Result</span>};
+
+        <span class="kw">enum </span>ForeignItemVerbatim {
+            TypeAlias(ItemType),
+        }
+
+        <span class="kw">impl </span>Parse <span class="kw">for </span>ForeignItemVerbatim {
+            <span class="kw">fn </span>parse(input: ParseStream) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+                input.parse().map(ForeignItemVerbatim::TypeAlias)
+            }
+        }
+
+        <span class="kw">let </span>foreign_item: ForeignItemVerbatim = <span class="kw">match </span>syn::parse2(tokens.clone()) {
+            <span class="prelude-val">Ok</span>(foreign_item) =&gt; foreign_item,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;ForeignItem::Verbatim `{}`&quot;</span>, tokens),
+        };
+
+        <span class="kw">match </span>foreign_item {
+            ForeignItemVerbatim::TypeAlias(item) =&gt; <span class="self">self</span>.item_type(<span class="kw-2">&amp;</span>item),
+        }
+    }
+
+    <span class="kw">fn </span>trait_item(<span class="kw-2">&amp;mut </span><span class="self">self</span>, trait_item: <span class="kw-2">&amp;</span>TraitItem) {
+        <span class="kw">match </span>trait_item {
+            TraitItem::Const(item) =&gt; <span class="self">self</span>.trait_item_const(item),
+            TraitItem::Method(item) =&gt; <span class="self">self</span>.trait_item_method(item),
+            TraitItem::Type(item) =&gt; <span class="self">self</span>.trait_item_type(item),
+            TraitItem::Macro(item) =&gt; <span class="self">self</span>.trait_item_macro(item),
+            TraitItem::Verbatim(item) =&gt; <span class="self">self</span>.trait_item_verbatim(item),
+            <span class="attribute">#[cfg_attr(all(test, exhaustive), deny(non_exhaustive_omitted_patterns))]
+            </span><span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;unknown TraitItem&quot;</span>),
+        }
+    }
+
+    <span class="kw">fn </span>trait_item_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, trait_item: <span class="kw-2">&amp;</span>TraitItemConst) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>trait_item.attrs);
+        <span class="self">self</span>.cbox(<span class="number">0</span>);
+        <span class="self">self</span>.word(<span class="string">&quot;const &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>trait_item.ident);
+        <span class="self">self</span>.word(<span class="string">&quot;: &quot;</span>);
+        <span class="self">self</span>.ty(<span class="kw-2">&amp;</span>trait_item.ty);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((_eq_token, default)) = <span class="kw-2">&amp;</span>trait_item.default {
+            <span class="self">self</span>.word(<span class="string">&quot; = &quot;</span>);
+            <span class="self">self</span>.neverbreak();
+            <span class="self">self</span>.expr(default);
+        }
+        <span class="self">self</span>.word(<span class="string">&quot;;&quot;</span>);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.hardbreak();
+    }
+
+    <span class="kw">fn </span>trait_item_method(<span class="kw-2">&amp;mut </span><span class="self">self</span>, trait_item: <span class="kw-2">&amp;</span>TraitItemMethod) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>trait_item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.signature(<span class="kw-2">&amp;</span>trait_item.sig);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(block) = <span class="kw-2">&amp;</span>trait_item.default {
+            <span class="self">self</span>.where_clause_for_body(<span class="kw-2">&amp;</span>trait_item.sig.generics.where_clause);
+            <span class="self">self</span>.word(<span class="string">&quot;{&quot;</span>);
+            <span class="self">self</span>.hardbreak_if_nonempty();
+            <span class="self">self</span>.inner_attrs(<span class="kw-2">&amp;</span>trait_item.attrs);
+            <span class="kw">for </span>stmt <span class="kw">in </span><span class="kw-2">&amp;</span>block.stmts {
+                <span class="self">self</span>.stmt(stmt);
+            }
+            <span class="self">self</span>.offset(-INDENT);
+            <span class="self">self</span>.end();
+            <span class="self">self</span>.word(<span class="string">&quot;}&quot;</span>);
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.where_clause_semi(<span class="kw-2">&amp;</span>trait_item.sig.generics.where_clause);
+            <span class="self">self</span>.end();
+        }
+        <span class="self">self</span>.hardbreak();
+    }
+
+    <span class="kw">fn </span>trait_item_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, trait_item: <span class="kw-2">&amp;</span>TraitItemType) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>trait_item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.word(<span class="string">&quot;type &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>trait_item.ident);
+        <span class="self">self</span>.generics(<span class="kw-2">&amp;</span>trait_item.generics);
+        <span class="kw">for </span>bound <span class="kw">in </span>trait_item.bounds.iter().delimited() {
+            <span class="kw">if </span>bound.is_first {
+                <span class="self">self</span>.word(<span class="string">&quot;: &quot;</span>);
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.space();
+                <span class="self">self</span>.word(<span class="string">&quot;+ &quot;</span>);
+            }
+            <span class="self">self</span>.type_param_bound(<span class="kw-2">&amp;</span>bound);
+        }
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((_eq_token, default)) = <span class="kw-2">&amp;</span>trait_item.default {
+            <span class="self">self</span>.word(<span class="string">&quot; = &quot;</span>);
+            <span class="self">self</span>.neverbreak();
+            <span class="self">self</span>.ty(default);
+        }
+        <span class="self">self</span>.where_clause_oneline_semi(<span class="kw-2">&amp;</span>trait_item.generics.where_clause);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.hardbreak();
+    }
+
+    <span class="kw">fn </span>trait_item_macro(<span class="kw-2">&amp;mut </span><span class="self">self</span>, trait_item: <span class="kw-2">&amp;</span>TraitItemMacro) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>trait_item.attrs);
+        <span class="self">self</span>.mac(<span class="kw-2">&amp;</span>trait_item.mac, <span class="prelude-val">None</span>);
+        <span class="self">self</span>.mac_semi_if_needed(<span class="kw-2">&amp;</span>trait_item.mac.delimiter);
+        <span class="self">self</span>.hardbreak();
+    }
+
+    <span class="kw">fn </span>trait_item_verbatim(<span class="kw-2">&amp;mut </span><span class="self">self</span>, trait_item: <span class="kw-2">&amp;</span>TokenStream) {
+        <span class="kw">if </span>!trait_item.is_empty() {
+            <span class="macro">unimplemented!</span>(<span class="string">&quot;TraitItem::Verbatim `{}`&quot;</span>, trait_item);
+        }
+        <span class="self">self</span>.hardbreak();
+    }
+
+    <span class="kw">fn </span>impl_item(<span class="kw-2">&amp;mut </span><span class="self">self</span>, impl_item: <span class="kw-2">&amp;</span>ImplItem) {
+        <span class="kw">match </span>impl_item {
+            ImplItem::Const(item) =&gt; <span class="self">self</span>.impl_item_const(item),
+            ImplItem::Method(item) =&gt; <span class="self">self</span>.impl_item_method(item),
+            ImplItem::Type(item) =&gt; <span class="self">self</span>.impl_item_type(item),
+            ImplItem::Macro(item) =&gt; <span class="self">self</span>.impl_item_macro(item),
+            ImplItem::Verbatim(item) =&gt; <span class="self">self</span>.impl_item_verbatim(item),
+            <span class="attribute">#[cfg_attr(all(test, exhaustive), deny(non_exhaustive_omitted_patterns))]
+            </span><span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;unknown ImplItem&quot;</span>),
+        }
+    }
+
+    <span class="kw">fn </span>impl_item_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, impl_item: <span class="kw-2">&amp;</span>ImplItemConst) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>impl_item.attrs);
+        <span class="self">self</span>.cbox(<span class="number">0</span>);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>impl_item.vis);
+        <span class="kw">if </span>impl_item.defaultness.is_some() {
+            <span class="self">self</span>.word(<span class="string">&quot;default &quot;</span>);
+        }
+        <span class="self">self</span>.word(<span class="string">&quot;const &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>impl_item.ident);
+        <span class="self">self</span>.word(<span class="string">&quot;: &quot;</span>);
+        <span class="self">self</span>.ty(<span class="kw-2">&amp;</span>impl_item.ty);
+        <span class="self">self</span>.word(<span class="string">&quot; = &quot;</span>);
+        <span class="self">self</span>.neverbreak();
+        <span class="self">self</span>.expr(<span class="kw-2">&amp;</span>impl_item.expr);
+        <span class="self">self</span>.word(<span class="string">&quot;;&quot;</span>);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.hardbreak();
+    }
+
+    <span class="kw">fn </span>impl_item_method(<span class="kw-2">&amp;mut </span><span class="self">self</span>, impl_item: <span class="kw-2">&amp;</span>ImplItemMethod) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>impl_item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>impl_item.vis);
+        <span class="kw">if </span>impl_item.defaultness.is_some() {
+            <span class="self">self</span>.word(<span class="string">&quot;default &quot;</span>);
+        }
+        <span class="self">self</span>.signature(<span class="kw-2">&amp;</span>impl_item.sig);
+        <span class="kw">if </span>impl_item.block.stmts.len() == <span class="number">1 </span>{
+            <span class="kw">if let </span>Stmt::Item(Item::Verbatim(verbatim)) = <span class="kw-2">&amp;</span>impl_item.block.stmts[<span class="number">0</span>] {
+                <span class="kw">if </span>verbatim.to_string() == <span class="string">&quot;;&quot; </span>{
+                    <span class="self">self</span>.where_clause_semi(<span class="kw-2">&amp;</span>impl_item.sig.generics.where_clause);
+                    <span class="self">self</span>.end();
+                    <span class="self">self</span>.hardbreak();
                     <span class="kw">return</span>;
                 }
             }
         }
-        <span class="self">self</span>.<span class="ident">where_clause_for_body</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">sig</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;{&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak_if_nonempty</span>();
-        <span class="self">self</span>.<span class="ident">inner_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">attrs</span>);
-        <span class="kw">for</span> <span class="ident">stmt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">block</span>.<span class="ident">stmts</span> {
-            <span class="self">self</span>.<span class="ident">stmt</span>(<span class="ident">stmt</span>);
+        <span class="self">self</span>.where_clause_for_body(<span class="kw-2">&amp;</span>impl_item.sig.generics.where_clause);
+        <span class="self">self</span>.word(<span class="string">&quot;{&quot;</span>);
+        <span class="self">self</span>.hardbreak_if_nonempty();
+        <span class="self">self</span>.inner_attrs(<span class="kw-2">&amp;</span>impl_item.attrs);
+        <span class="kw">for </span>stmt <span class="kw">in </span><span class="kw-2">&amp;</span>impl_item.block.stmts {
+            <span class="self">self</span>.stmt(stmt);
         }
-        <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;}&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.offset(-INDENT);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.word(<span class="string">&quot;}&quot;</span>);
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">impl_item_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">impl_item</span>: <span class="kw-2">&amp;</span><span class="ident">ImplItemType</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">vis</span>);
-        <span class="kw">if</span> <span class="ident">impl_item</span>.<span class="ident">defaultness</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;default &quot;</span>);
+    <span class="kw">fn </span>impl_item_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, impl_item: <span class="kw-2">&amp;</span>ImplItemType) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>impl_item.attrs);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.visibility(<span class="kw-2">&amp;</span>impl_item.vis);
+        <span class="kw">if </span>impl_item.defaultness.is_some() {
+            <span class="self">self</span>.word(<span class="string">&quot;default &quot;</span>);
         }
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;type &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">generics</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">generics</span>);
-        <span class="self">self</span>.<span class="ident">where_clause_oneline</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;= &quot;</span>);
-        <span class="self">self</span>.<span class="ident">neverbreak</span>();
-        <span class="self">self</span>.<span class="ident">ibox</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">ty</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;;&quot;</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.word(<span class="string">&quot;type &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>impl_item.ident);
+        <span class="self">self</span>.generics(<span class="kw-2">&amp;</span>impl_item.generics);
+        <span class="self">self</span>.word(<span class="string">&quot; = &quot;</span>);
+        <span class="self">self</span>.neverbreak();
+        <span class="self">self</span>.ibox(-INDENT);
+        <span class="self">self</span>.ty(<span class="kw-2">&amp;</span>impl_item.ty);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.where_clause_oneline_semi(<span class="kw-2">&amp;</span>impl_item.generics.where_clause);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">impl_item_macro</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">impl_item</span>: <span class="kw-2">&amp;</span><span class="ident">ImplItemMacro</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">attrs</span>);
-        <span class="self">self</span>.<span class="ident">mac</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">mac</span>, <span class="prelude-val">None</span>);
-        <span class="self">self</span>.<span class="ident">mac_semi_if_needed</span>(<span class="kw-2">&amp;</span><span class="ident">impl_item</span>.<span class="ident">mac</span>.<span class="ident">delimiter</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+    <span class="kw">fn </span>impl_item_macro(<span class="kw-2">&amp;mut </span><span class="self">self</span>, impl_item: <span class="kw-2">&amp;</span>ImplItemMacro) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>impl_item.attrs);
+        <span class="self">self</span>.mac(<span class="kw-2">&amp;</span>impl_item.mac, <span class="prelude-val">None</span>);
+        <span class="self">self</span>.mac_semi_if_needed(<span class="kw-2">&amp;</span>impl_item.mac.delimiter);
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">impl_item_verbatim</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">impl_item</span>: <span class="kw-2">&amp;</span><span class="ident">TokenStream</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">impl_item</span>.<span class="ident">is_empty</span>() {
-            <span class="macro">unimplemented!</span>(<span class="string">&quot;ImplItem::Verbatim `{}`&quot;</span>, <span class="ident">impl_item</span>);
+    <span class="kw">fn </span>impl_item_verbatim(<span class="kw-2">&amp;mut </span><span class="self">self</span>, impl_item: <span class="kw-2">&amp;</span>TokenStream) {
+        <span class="kw">if </span>!impl_item.is_empty() {
+            <span class="macro">unimplemented!</span>(<span class="string">&quot;ImplItem::Verbatim `{}`&quot;</span>, impl_item);
         }
-        <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="self">self</span>.hardbreak();
     }
 
-    <span class="kw">fn</span> <span class="ident">maybe_variadic</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">arg</span>: <span class="kw-2">&amp;</span><span class="ident">FnArg</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">pat_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">arg</span> {
-            <span class="ident">FnArg::Typed</span>(<span class="ident">pat_type</span>) =&gt; <span class="ident">pat_type</span>,
-            <span class="ident">FnArg::Receiver</span>(<span class="ident">receiver</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">receiver</span>(<span class="ident">receiver</span>);
-                <span class="kw">return</span> <span class="bool-val">false</span>;
+    <span class="kw">fn </span>maybe_variadic(<span class="kw-2">&amp;mut </span><span class="self">self</span>, arg: <span class="kw-2">&amp;</span>FnArg) -&gt; bool {
+        <span class="kw">let </span>pat_type = <span class="kw">match </span>arg {
+            FnArg::Typed(pat_type) =&gt; pat_type,
+            FnArg::Receiver(receiver) =&gt; {
+                <span class="self">self</span>.receiver(receiver);
+                <span class="kw">return </span><span class="bool-val">false</span>;
             }
         };
 
-        <span class="kw">match</span> <span class="ident">pat_type</span>.<span class="ident">ty</span>.<span class="ident">as_ref</span>() {
-            <span class="ident">Type::Verbatim</span>(<span class="ident">ty</span>) <span class="kw">if</span> <span class="ident">ty</span>.<span class="ident">to_string</span>() <span class="op">==</span> <span class="string">&quot;...&quot;</span> =&gt; {
-                <span class="kw">match</span> <span class="ident">pat_type</span>.<span class="ident">pat</span>.<span class="ident">as_ref</span>() {
-                    <span class="ident">Pat::Verbatim</span>(<span class="ident">pat</span>) <span class="kw">if</span> <span class="ident">pat</span>.<span class="ident">to_string</span>() <span class="op">==</span> <span class="string">&quot;...&quot;</span> =&gt; {
-                        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">pat_type</span>.<span class="ident">attrs</span>);
-                        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;...&quot;</span>);
+        <span class="kw">match </span>pat_type.ty.as_ref() {
+            Type::Verbatim(ty) <span class="kw">if </span>ty.to_string() == <span class="string">&quot;...&quot; </span>=&gt; {
+                <span class="kw">match </span>pat_type.pat.as_ref() {
+                    Pat::Verbatim(pat) <span class="kw">if </span>pat.to_string() == <span class="string">&quot;...&quot; </span>=&gt; {
+                        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>pat_type.attrs);
+                        <span class="self">self</span>.word(<span class="string">&quot;...&quot;</span>);
                     }
-                    <span class="kw">_</span> =&gt; <span class="self">self</span>.<span class="ident">pat_type</span>(<span class="ident">pat_type</span>),
+                    <span class="kw">_ </span>=&gt; <span class="self">self</span>.pat_type(pat_type),
                 }
-                <span class="bool-val">true</span>
-            }
-            <span class="kw">_</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">pat_type</span>(<span class="ident">pat_type</span>);
-                <span class="bool-val">false</span>
-            }
+                <span class="bool-val">true
+            </span>}
+            <span class="kw">_ </span>=&gt; {
+                <span class="self">self</span>.pat_type(pat_type);
+                <span class="bool-val">false
+            </span>}
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">signature</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">signature</span>: <span class="kw-2">&amp;</span><span class="ident">Signature</span>) {
-        <span class="kw">if</span> <span class="ident">signature</span>.<span class="ident">constness</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;const &quot;</span>);
+    <span class="kw">fn </span>signature(<span class="kw-2">&amp;mut </span><span class="self">self</span>, signature: <span class="kw-2">&amp;</span>Signature) {
+        <span class="kw">if </span>signature.constness.is_some() {
+            <span class="self">self</span>.word(<span class="string">&quot;const &quot;</span>);
         }
-        <span class="kw">if</span> <span class="ident">signature</span>.<span class="ident">asyncness</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;async &quot;</span>);
+        <span class="kw">if </span>signature.asyncness.is_some() {
+            <span class="self">self</span>.word(<span class="string">&quot;async &quot;</span>);
         }
-        <span class="kw">if</span> <span class="ident">signature</span>.<span class="ident">unsafety</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;unsafe &quot;</span>);
+        <span class="kw">if </span>signature.unsafety.is_some() {
+            <span class="self">self</span>.word(<span class="string">&quot;unsafe &quot;</span>);
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">abi</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signature</span>.<span class="ident">abi</span> {
-            <span class="self">self</span>.<span class="ident">abi</span>(<span class="ident">abi</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(abi) = <span class="kw-2">&amp;</span>signature.abi {
+            <span class="self">self</span>.abi(abi);
         }
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;fn &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">signature</span>.<span class="ident">ident</span>);
-        <span class="self">self</span>.<span class="ident">generics</span>(<span class="kw-2">&amp;</span><span class="ident">signature</span>.<span class="ident">generics</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;(&quot;</span>);
-        <span class="self">self</span>.<span class="ident">neverbreak</span>();
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="number">0</span>);
-        <span class="self">self</span>.<span class="ident">zerobreak</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_is_variadic</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="ident">signature</span>.<span class="ident">inputs</span>.<span class="ident">iter</span>().<span class="ident">delimited</span>() {
-            <span class="ident">last_is_variadic</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">maybe_variadic</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
-            <span class="kw">if</span> <span class="ident">last_is_variadic</span> {
-                <span class="self">self</span>.<span class="ident">zerobreak</span>();
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">trailing_comma</span>(<span class="ident">input</span>.<span class="ident">is_last</span>);
+        <span class="self">self</span>.word(<span class="string">&quot;fn &quot;</span>);
+        <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>signature.ident);
+        <span class="self">self</span>.generics(<span class="kw-2">&amp;</span>signature.generics);
+        <span class="self">self</span>.word(<span class="string">&quot;(&quot;</span>);
+        <span class="self">self</span>.neverbreak();
+        <span class="self">self</span>.cbox(<span class="number">0</span>);
+        <span class="self">self</span>.zerobreak();
+        <span class="kw">let </span><span class="kw-2">mut </span>last_is_variadic = <span class="bool-val">false</span>;
+        <span class="kw">for </span>input <span class="kw">in </span>signature.inputs.iter().delimited() {
+            last_is_variadic = <span class="self">self</span>.maybe_variadic(<span class="kw-2">&amp;</span>input);
+            <span class="kw">if </span>last_is_variadic {
+                <span class="self">self</span>.zerobreak();
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>is_last = input.is_last &amp;&amp; signature.variadic.is_none();
+                <span class="self">self</span>.trailing_comma(is_last);
             }
         }
-        <span class="kw">if</span> <span class="ident">signature</span>.<span class="ident">variadic</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">last_is_variadic</span> {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;...&quot;</span>);
-            <span class="self">self</span>.<span class="ident">zerobreak</span>();
+        <span class="kw">if </span>signature.variadic.is_some() &amp;&amp; !last_is_variadic {
+            <span class="self">self</span>.word(<span class="string">&quot;...&quot;</span>);
+            <span class="self">self</span>.zerobreak();
         }
-        <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;)&quot;</span>);
-        <span class="self">self</span>.<span class="ident">return_type</span>(<span class="kw-2">&amp;</span><span class="ident">signature</span>.<span class="ident">output</span>);
+        <span class="self">self</span>.offset(-INDENT);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.word(<span class="string">&quot;)&quot;</span>);
+        <span class="self">self</span>.cbox(-INDENT);
+        <span class="self">self</span>.return_type(<span class="kw-2">&amp;</span>signature.output);
+        <span class="self">self</span>.end();
     }
 
-    <span class="kw">fn</span> <span class="ident">receiver</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">receiver</span>: <span class="kw-2">&amp;</span><span class="ident">Receiver</span>) {
-        <span class="self">self</span>.<span class="ident">outer_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">receiver</span>.<span class="ident">attrs</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">_ampersand</span>, <span class="ident">lifetime</span>)) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">receiver</span>.<span class="ident">reference</span> {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;&amp;&quot;</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lifetime</span>) <span class="op">=</span> <span class="ident">lifetime</span> {
-                <span class="self">self</span>.<span class="ident">lifetime</span>(<span class="ident">lifetime</span>);
-                <span class="self">self</span>.<span class="ident">nbsp</span>();
+    <span class="kw">fn </span>receiver(<span class="kw-2">&amp;mut </span><span class="self">self</span>, receiver: <span class="kw-2">&amp;</span>Receiver) {
+        <span class="self">self</span>.outer_attrs(<span class="kw-2">&amp;</span>receiver.attrs);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((_ampersand, lifetime)) = <span class="kw-2">&amp;</span>receiver.reference {
+            <span class="self">self</span>.word(<span class="string">&quot;&amp;&quot;</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(lifetime) = lifetime {
+                <span class="self">self</span>.lifetime(lifetime);
+                <span class="self">self</span>.nbsp();
             }
         }
-        <span class="kw">if</span> <span class="ident">receiver</span>.<span class="ident">mutability</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;mut &quot;</span>);
+        <span class="kw">if </span>receiver.mutability.is_some() {
+            <span class="self">self</span>.word(<span class="string">&quot;mut &quot;</span>);
         }
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;self&quot;</span>);
+        <span class="self">self</span>.word(<span class="string">&quot;self&quot;</span>);
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="prettyplease" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="prettyplease" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

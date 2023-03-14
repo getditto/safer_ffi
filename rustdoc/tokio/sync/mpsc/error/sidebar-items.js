@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["TryRecvError","Error returned by `try_recv`."],["TrySendError","This enumeration is the list of the possible error outcomes for the try_send method."]],"struct":[["SendError","Error returned by the `Sender`."]]});

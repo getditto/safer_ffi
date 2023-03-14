@@ -1,1 +1,1 @@
-initSidebarItems({"type":[["Arc",""]]});
+window.SIDEBAR_ITEMS = {"type":[["Arc",""]]};

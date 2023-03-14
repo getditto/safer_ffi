@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/prettyplease-0.1.10/src/algorithm.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>algorithm.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../prettyplease/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../prettyplease/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../prettyplease/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/prettyplease-0.1.24/src/algorithm.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>algorithm.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../prettyplease/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -379,382 +374,381 @@
 <span id="374">374</span>
 <span id="375">375</span>
 <span id="376">376</span>
-</pre><pre class="rust"><code><span class="comment">// Adapted from https://github.com/rust-lang/rust/blob/1.57.0/compiler/rustc_ast_pretty/src/pp.rs.</span>
-<span class="comment">// See &quot;Algorithm notes&quot; in the crate-level rustdoc.</span>
+</pre><pre class="rust"><code><span class="comment">// Adapted from https://github.com/rust-lang/rust/blob/1.57.0/compiler/rustc_ast_pretty/src/pp.rs.
+// See &quot;Algorithm notes&quot; in the crate-level rustdoc.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ring::RingBuffer</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">MARGIN</span>, <span class="ident">MIN_SPACE</span>};
-<span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
-<span class="kw">use</span> <span class="ident">std::cmp</span>;
-<span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
-<span class="kw">use</span> <span class="ident">std::iter</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::ring::RingBuffer;
+<span class="kw">use crate</span>::{MARGIN, MIN_SPACE};
+<span class="kw">use </span>std::borrow::Cow;
+<span class="kw">use </span>std::cmp;
+<span class="kw">use </span>std::collections::VecDeque;
+<span class="kw">use </span>std::iter;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Breaks</span> {
-    <span class="ident">Consistent</span>,
-    <span class="ident">Inconsistent</span>,
+<span class="attribute">#[derive(Clone, Copy, PartialEq)]
+</span><span class="kw">pub enum </span>Breaks {
+    Consistent,
+    Inconsistent,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BreakToken</span> {
-    <span class="kw">pub</span> <span class="ident">offset</span>: <span class="ident">isize</span>,
-    <span class="kw">pub</span> <span class="ident">blank_space</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">pre_break</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">post_break</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">no_break</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">if_nonempty</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">never_break</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Clone, Copy, Default)]
+</span><span class="kw">pub struct </span>BreakToken {
+    <span class="kw">pub </span>offset: isize,
+    <span class="kw">pub </span>blank_space: usize,
+    <span class="kw">pub </span>pre_break: <span class="prelude-ty">Option</span>&lt;char&gt;,
+    <span class="kw">pub </span>post_break: <span class="prelude-ty">Option</span>&lt;char&gt;,
+    <span class="kw">pub </span>no_break: <span class="prelude-ty">Option</span>&lt;char&gt;,
+    <span class="kw">pub </span>if_nonempty: bool,
+    <span class="kw">pub </span>never_break: bool,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BeginToken</span> {
-    <span class="kw">pub</span> <span class="ident">offset</span>: <span class="ident">isize</span>,
-    <span class="kw">pub</span> <span class="ident">breaks</span>: <span class="ident">Breaks</span>,
+<span class="attribute">#[derive(Clone, Copy)]
+</span><span class="kw">pub struct </span>BeginToken {
+    <span class="kw">pub </span>offset: isize,
+    <span class="kw">pub </span>breaks: Breaks,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Token</span> {
-    <span class="ident">String</span>(<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span>),
-    <span class="ident">Break</span>(<span class="ident">BreakToken</span>),
-    <span class="ident">Begin</span>(<span class="ident">BeginToken</span>),
-    <span class="ident">End</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub enum </span>Token {
+    String(Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;),
+    Break(BreakToken),
+    Begin(BeginToken),
+    End,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">enum</span> <span class="ident">PrintFrame</span> {
-    <span class="ident">Fits</span>(<span class="ident">Breaks</span>),
-    <span class="ident">Broken</span>(<span class="ident">usize</span>, <span class="ident">Breaks</span>),
+<span class="attribute">#[derive(Copy, Clone)]
+</span><span class="kw">enum </span>PrintFrame {
+    Fits(Breaks),
+    Broken(usize, Breaks),
 }
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SIZE_INFINITY</span>: <span class="ident">isize</span> <span class="op">=</span> <span class="number">0xffff</span>;
+<span class="kw">pub const </span>SIZE_INFINITY: isize = <span class="number">0xffff</span>;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Printer</span> {
-    <span class="ident">out</span>: <span class="ident">String</span>,
-    <span class="comment">// Number of spaces left on line</span>
-    <span class="ident">space</span>: <span class="ident">isize</span>,
-    <span class="comment">// Ring-buffer of tokens and calculated sizes</span>
-    <span class="ident">buf</span>: <span class="ident">RingBuffer</span><span class="op">&lt;</span><span class="ident">BufEntry</span><span class="op">&gt;</span>,
-    <span class="comment">// Total size of tokens already printed</span>
-    <span class="ident">left_total</span>: <span class="ident">isize</span>,
-    <span class="comment">// Total size of tokens enqueued, including printed and not yet printed</span>
-    <span class="ident">right_total</span>: <span class="ident">isize</span>,
-    <span class="comment">// Holds the ring-buffer index of the Begin that started the current block,</span>
-    <span class="comment">// possibly with the most recent Break after that Begin (if there is any) on</span>
-    <span class="comment">// top of it. Values are pushed and popped on the back of the queue using it</span>
-    <span class="comment">// like stack, and elsewhere old values are popped from the front of the</span>
-    <span class="comment">// queue as they become irrelevant due to the primary ring-buffer advancing.</span>
-    <span class="ident">scan_stack</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="comment">// Stack of blocks-in-progress being flushed by print</span>
-    <span class="ident">print_stack</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PrintFrame</span><span class="op">&gt;</span>,
-    <span class="comment">// Level of indentation of current line</span>
-    <span class="ident">indent</span>: <span class="ident">usize</span>,
-    <span class="comment">// Buffered indentation to avoid writing trailing whitespace</span>
-    <span class="ident">pending_indentation</span>: <span class="ident">usize</span>,
+<span class="kw">pub struct </span>Printer {
+    out: String,
+    <span class="comment">// Number of spaces left on line
+    </span>space: isize,
+    <span class="comment">// Ring-buffer of tokens and calculated sizes
+    </span>buf: RingBuffer&lt;BufEntry&gt;,
+    <span class="comment">// Total size of tokens already printed
+    </span>left_total: isize,
+    <span class="comment">// Total size of tokens enqueued, including printed and not yet printed
+    </span>right_total: isize,
+    <span class="comment">// Holds the ring-buffer index of the Begin that started the current block,
+    // possibly with the most recent Break after that Begin (if there is any) on
+    // top of it. Values are pushed and popped on the back of the queue using it
+    // like stack, and elsewhere old values are popped from the front of the
+    // queue as they become irrelevant due to the primary ring-buffer advancing.
+    </span>scan_stack: VecDeque&lt;usize&gt;,
+    <span class="comment">// Stack of blocks-in-progress being flushed by print
+    </span>print_stack: Vec&lt;PrintFrame&gt;,
+    <span class="comment">// Level of indentation of current line
+    </span>indent: usize,
+    <span class="comment">// Buffered indentation to avoid writing trailing whitespace
+    </span>pending_indentation: usize,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">BufEntry</span> {
-    <span class="ident">token</span>: <span class="ident">Token</span>,
-    <span class="ident">size</span>: <span class="ident">isize</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">struct </span>BufEntry {
+    token: Token,
+    size: isize,
 }
 
-<span class="kw">impl</span> <span class="ident">Printer</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Printer</span> {
-            <span class="ident">out</span>: <span class="ident">String::new</span>(),
-            <span class="ident">space</span>: <span class="ident">MARGIN</span>,
-            <span class="ident">buf</span>: <span class="ident">RingBuffer::new</span>(),
-            <span class="ident">left_total</span>: <span class="number">0</span>,
-            <span class="ident">right_total</span>: <span class="number">0</span>,
-            <span class="ident">scan_stack</span>: <span class="ident">VecDeque::new</span>(),
-            <span class="ident">print_stack</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">indent</span>: <span class="number">0</span>,
-            <span class="ident">pending_indentation</span>: <span class="number">0</span>,
+<span class="kw">impl </span>Printer {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        Printer {
+            out: String::new(),
+            space: MARGIN,
+            buf: RingBuffer::new(),
+            left_total: <span class="number">0</span>,
+            right_total: <span class="number">0</span>,
+            scan_stack: VecDeque::new(),
+            print_stack: Vec::new(),
+            indent: <span class="number">0</span>,
+            pending_indentation: <span class="number">0</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eof</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">check_stack</span>(<span class="number">0</span>);
-            <span class="self">self</span>.<span class="ident">advance_left</span>();
+    <span class="kw">pub fn </span>eof(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; String {
+        <span class="kw">if </span>!<span class="self">self</span>.scan_stack.is_empty() {
+            <span class="self">self</span>.check_stack(<span class="number">0</span>);
+            <span class="self">self</span>.advance_left();
         }
-        <span class="self">self</span>.<span class="ident">out</span>
+        <span class="self">self</span>.out
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scan_begin</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">token</span>: <span class="ident">BeginToken</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">left_total</span> <span class="op">=</span> <span class="number">1</span>;
-            <span class="self">self</span>.<span class="ident">right_total</span> <span class="op">=</span> <span class="number">1</span>;
-            <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">clear</span>();
+    <span class="kw">pub fn </span>scan_begin(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: BeginToken) {
+        <span class="kw">if </span><span class="self">self</span>.scan_stack.is_empty() {
+            <span class="self">self</span>.left_total = <span class="number">1</span>;
+            <span class="self">self</span>.right_total = <span class="number">1</span>;
+            <span class="self">self</span>.buf.clear();
         }
-        <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">BufEntry</span> {
-            <span class="ident">token</span>: <span class="ident">Token::Begin</span>(<span class="ident">token</span>),
-            <span class="ident">size</span>: <span class="op">-</span><span class="self">self</span>.<span class="ident">right_total</span>,
+        <span class="kw">let </span>right = <span class="self">self</span>.buf.push(BufEntry {
+            token: Token::Begin(token),
+            size: -<span class="self">self</span>.right_total,
         });
-        <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">push_back</span>(<span class="ident">right</span>);
+        <span class="self">self</span>.scan_stack.push_back(right);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scan_end</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">print_end</span>();
-        } <span class="kw">else</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Token::Break</span>(<span class="ident">break_token</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">last</span>().<span class="ident">token</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span> {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Token::Begin</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">second_last</span>().<span class="ident">token</span> {
-                            <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">pop_last</span>();
-                            <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">pop_last</span>();
-                            <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">pop_back</span>();
-                            <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">pop_back</span>();
-                            <span class="self">self</span>.<span class="ident">right_total</span> <span class="op">-</span><span class="op">=</span> <span class="ident">break_token</span>.<span class="ident">blank_space</span> <span class="kw">as</span> <span class="ident">isize</span>;
+    <span class="kw">pub fn </span>scan_end(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if </span><span class="self">self</span>.scan_stack.is_empty() {
+            <span class="self">self</span>.print_end();
+        } <span class="kw">else </span>{
+            <span class="kw">if </span>!<span class="self">self</span>.buf.is_empty() {
+                <span class="kw">if let </span>Token::Break(break_token) = <span class="self">self</span>.buf.last().token {
+                    <span class="kw">if </span><span class="self">self</span>.buf.len() &gt;= <span class="number">2 </span>{
+                        <span class="kw">if let </span>Token::Begin(<span class="kw">_</span>) = <span class="self">self</span>.buf.second_last().token {
+                            <span class="self">self</span>.buf.pop_last();
+                            <span class="self">self</span>.buf.pop_last();
+                            <span class="self">self</span>.scan_stack.pop_back();
+                            <span class="self">self</span>.scan_stack.pop_back();
+                            <span class="self">self</span>.right_total -= break_token.blank_space <span class="kw">as </span>isize;
                             <span class="kw">return</span>;
                         }
                     }
-                    <span class="kw">if</span> <span class="ident">break_token</span>.<span class="ident">if_nonempty</span> {
-                        <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">pop_last</span>();
-                        <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">pop_back</span>();
-                        <span class="self">self</span>.<span class="ident">right_total</span> <span class="op">-</span><span class="op">=</span> <span class="ident">break_token</span>.<span class="ident">blank_space</span> <span class="kw">as</span> <span class="ident">isize</span>;
+                    <span class="kw">if </span>break_token.if_nonempty {
+                        <span class="self">self</span>.buf.pop_last();
+                        <span class="self">self</span>.scan_stack.pop_back();
+                        <span class="self">self</span>.right_total -= break_token.blank_space <span class="kw">as </span>isize;
                     }
                 }
             }
-            <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">BufEntry</span> {
-                <span class="ident">token</span>: <span class="ident">Token::End</span>,
-                <span class="ident">size</span>: <span class="op">-</span><span class="number">1</span>,
+            <span class="kw">let </span>right = <span class="self">self</span>.buf.push(BufEntry {
+                token: Token::End,
+                size: -<span class="number">1</span>,
             });
-            <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">push_back</span>(<span class="ident">right</span>);
+            <span class="self">self</span>.scan_stack.push_back(right);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scan_break</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">token</span>: <span class="ident">BreakToken</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">left_total</span> <span class="op">=</span> <span class="number">1</span>;
-            <span class="self">self</span>.<span class="ident">right_total</span> <span class="op">=</span> <span class="number">1</span>;
-            <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">clear</span>();
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">check_stack</span>(<span class="number">0</span>);
+    <span class="kw">pub fn </span>scan_break(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: BreakToken) {
+        <span class="kw">if </span><span class="self">self</span>.scan_stack.is_empty() {
+            <span class="self">self</span>.left_total = <span class="number">1</span>;
+            <span class="self">self</span>.right_total = <span class="number">1</span>;
+            <span class="self">self</span>.buf.clear();
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.check_stack(<span class="number">0</span>);
         }
-        <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">BufEntry</span> {
-            <span class="ident">token</span>: <span class="ident">Token::Break</span>(<span class="ident">token</span>),
-            <span class="ident">size</span>: <span class="op">-</span><span class="self">self</span>.<span class="ident">right_total</span>,
+        <span class="kw">let </span>right = <span class="self">self</span>.buf.push(BufEntry {
+            token: Token::Break(token),
+            size: -<span class="self">self</span>.right_total,
         });
-        <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">push_back</span>(<span class="ident">right</span>);
-        <span class="self">self</span>.<span class="ident">right_total</span> <span class="op">+</span><span class="op">=</span> <span class="ident">token</span>.<span class="ident">blank_space</span> <span class="kw">as</span> <span class="ident">isize</span>;
+        <span class="self">self</span>.scan_stack.push_back(right);
+        <span class="self">self</span>.right_total += token.blank_space <span class="kw">as </span>isize;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scan_string</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">string</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">print_string</span>(<span class="ident">string</span>);
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">string</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">isize</span>;
-            <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">BufEntry</span> {
-                <span class="ident">token</span>: <span class="ident">Token::String</span>(<span class="ident">string</span>),
-                <span class="ident">size</span>: <span class="ident">len</span>,
+    <span class="kw">pub fn </span>scan_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;) {
+        <span class="kw">if </span><span class="self">self</span>.scan_stack.is_empty() {
+            <span class="self">self</span>.print_string(string);
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>len = string.len() <span class="kw">as </span>isize;
+            <span class="self">self</span>.buf.push(BufEntry {
+                token: Token::String(string),
+                size: len,
             });
-            <span class="self">self</span>.<span class="ident">right_total</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span>;
-            <span class="self">self</span>.<span class="ident">check_stream</span>();
+            <span class="self">self</span>.right_total += len;
+            <span class="self">self</span>.check_stream();
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">isize</span>) {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">last_mut</span>().<span class="ident">token</span> {
-            <span class="ident">Token::Break</span>(<span class="ident">token</span>) =&gt; <span class="ident">token</span>.<span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">offset</span>,
-            <span class="ident">Token::Begin</span>(<span class="kw">_</span>) =&gt; {}
-            <span class="ident">Token::String</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Token::End</span> =&gt; <span class="macro">unreachable!</span>(),
+    <span class="kw">pub fn </span>offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, offset: isize) {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.buf.last_mut().token {
+            Token::Break(token) =&gt; token.offset += offset,
+            Token::Begin(<span class="kw">_</span>) =&gt; {}
+            Token::String(<span class="kw">_</span>) | Token::End =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">end_with_max_width</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">max</span>: <span class="ident">isize</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">depth</span> <span class="op">=</span> <span class="number">1</span>;
-        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">index</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">iter</span>().<span class="ident">rev</span>() {
-            <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buf</span>[<span class="ident">index</span>];
-            <span class="kw">match</span> <span class="ident">entry</span>.<span class="ident">token</span> {
-                <span class="ident">Token::Begin</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="ident">depth</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-                    <span class="kw">if</span> <span class="ident">depth</span> <span class="op">==</span> <span class="number">0</span> {
-                        <span class="kw">if</span> <span class="ident">entry</span>.<span class="ident">size</span> <span class="op">&lt;</span> <span class="number">0</span> {
-                            <span class="kw">let</span> <span class="ident">actual_width</span> <span class="op">=</span> <span class="ident">entry</span>.<span class="ident">size</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">right_total</span>;
-                            <span class="kw">if</span> <span class="ident">actual_width</span> <span class="op">&gt;</span> <span class="ident">max</span> {
-                                <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">BufEntry</span> {
-                                    <span class="ident">token</span>: <span class="ident">Token::String</span>(<span class="ident">Cow::Borrowed</span>(<span class="string">&quot;&quot;</span>)),
-                                    <span class="ident">size</span>: <span class="ident">SIZE_INFINITY</span>,
+    <span class="kw">pub fn </span>end_with_max_width(<span class="kw-2">&amp;mut </span><span class="self">self</span>, max: isize) {
+        <span class="kw">let </span><span class="kw-2">mut </span>depth = <span class="number">1</span>;
+        <span class="kw">for </span><span class="kw-2">&amp;</span>index <span class="kw">in </span><span class="self">self</span>.scan_stack.iter().rev() {
+            <span class="kw">let </span>entry = <span class="kw-2">&amp;</span><span class="self">self</span>.buf[index];
+            <span class="kw">match </span>entry.token {
+                Token::Begin(<span class="kw">_</span>) =&gt; {
+                    depth -= <span class="number">1</span>;
+                    <span class="kw">if </span>depth == <span class="number">0 </span>{
+                        <span class="kw">if </span>entry.size &lt; <span class="number">0 </span>{
+                            <span class="kw">let </span>actual_width = entry.size + <span class="self">self</span>.right_total;
+                            <span class="kw">if </span>actual_width &gt; max {
+                                <span class="self">self</span>.buf.push(BufEntry {
+                                    token: Token::String(Cow::Borrowed(<span class="string">&quot;&quot;</span>)),
+                                    size: SIZE_INFINITY,
                                 });
-                                <span class="self">self</span>.<span class="ident">right_total</span> <span class="op">+</span><span class="op">=</span> <span class="ident">SIZE_INFINITY</span>;
+                                <span class="self">self</span>.right_total += SIZE_INFINITY;
                             }
                         }
                         <span class="kw">break</span>;
                     }
                 }
-                <span class="ident">Token::End</span> =&gt; <span class="ident">depth</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>,
-                <span class="ident">Token::Break</span>(<span class="kw">_</span>) =&gt; {}
-                <span class="ident">Token::String</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+                Token::End =&gt; depth += <span class="number">1</span>,
+                Token::Break(<span class="kw">_</span>) =&gt; {}
+                Token::String(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
             }
         }
-        <span class="self">self</span>.<span class="ident">scan_end</span>();
+        <span class="self">self</span>.scan_end();
     }
 
-    <span class="kw">fn</span> <span class="ident">check_stream</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">while</span> <span class="self">self</span>.<span class="ident">right_total</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">left_total</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">space</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">front</span>().<span class="ident">unwrap</span>() <span class="op">==</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">index_of_first</span>() {
-                <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">pop_front</span>().<span class="ident">unwrap</span>();
-                <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">first_mut</span>().<span class="ident">size</span> <span class="op">=</span> <span class="ident">SIZE_INFINITY</span>;
+    <span class="kw">fn </span>check_stream(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">while </span><span class="self">self</span>.right_total - <span class="self">self</span>.left_total &gt; <span class="self">self</span>.space {
+            <span class="kw">if </span><span class="kw-2">*</span><span class="self">self</span>.scan_stack.front().unwrap() == <span class="self">self</span>.buf.index_of_first() {
+                <span class="self">self</span>.scan_stack.pop_front().unwrap();
+                <span class="self">self</span>.buf.first_mut().size = SIZE_INFINITY;
             }
 
-            <span class="self">self</span>.<span class="ident">advance_left</span>();
+            <span class="self">self</span>.advance_left();
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">if </span><span class="self">self</span>.buf.is_empty() {
                 <span class="kw">break</span>;
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">advance_left</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">while</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">first</span>().<span class="ident">size</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">pop_first</span>();
+    <span class="kw">fn </span>advance_left(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">while </span><span class="self">self</span>.buf.first().size &gt;= <span class="number">0 </span>{
+            <span class="kw">let </span>left = <span class="self">self</span>.buf.pop_first();
 
-            <span class="kw">match</span> <span class="ident">left</span>.<span class="ident">token</span> {
-                <span class="ident">Token::String</span>(<span class="ident">string</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">left_total</span> <span class="op">+</span><span class="op">=</span> <span class="ident">left</span>.<span class="ident">size</span>;
-                    <span class="self">self</span>.<span class="ident">print_string</span>(<span class="ident">string</span>);
+            <span class="kw">match </span>left.token {
+                Token::String(string) =&gt; {
+                    <span class="self">self</span>.left_total += left.size;
+                    <span class="self">self</span>.print_string(string);
                 }
-                <span class="ident">Token::Break</span>(<span class="ident">token</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">left_total</span> <span class="op">+</span><span class="op">=</span> <span class="ident">token</span>.<span class="ident">blank_space</span> <span class="kw">as</span> <span class="ident">isize</span>;
-                    <span class="self">self</span>.<span class="ident">print_break</span>(<span class="ident">token</span>, <span class="ident">left</span>.<span class="ident">size</span>);
+                Token::Break(token) =&gt; {
+                    <span class="self">self</span>.left_total += token.blank_space <span class="kw">as </span>isize;
+                    <span class="self">self</span>.print_break(token, left.size);
                 }
-                <span class="ident">Token::Begin</span>(<span class="ident">token</span>) =&gt; <span class="self">self</span>.<span class="ident">print_begin</span>(<span class="ident">token</span>, <span class="ident">left</span>.<span class="ident">size</span>),
-                <span class="ident">Token::End</span> =&gt; <span class="self">self</span>.<span class="ident">print_end</span>(),
+                Token::Begin(token) =&gt; <span class="self">self</span>.print_begin(token, left.size),
+                Token::End =&gt; <span class="self">self</span>.print_end(),
             }
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">if </span><span class="self">self</span>.buf.is_empty() {
                 <span class="kw">break</span>;
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">check_stack</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">depth</span>: <span class="ident">usize</span>) {
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">index</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">back</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entry</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">buf</span>[<span class="ident">index</span>];
-            <span class="kw">match</span> <span class="ident">entry</span>.<span class="ident">token</span> {
-                <span class="ident">Token::Begin</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="kw">if</span> <span class="ident">depth</span> <span class="op">==</span> <span class="number">0</span> {
+    <span class="kw">fn </span>check_stack(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>depth: usize) {
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>index) = <span class="self">self</span>.scan_stack.back() {
+            <span class="kw">let </span><span class="kw-2">mut </span>entry = <span class="kw-2">&amp;mut </span><span class="self">self</span>.buf[index];
+            <span class="kw">match </span>entry.token {
+                Token::Begin(<span class="kw">_</span>) =&gt; {
+                    <span class="kw">if </span>depth == <span class="number">0 </span>{
                         <span class="kw">break</span>;
                     }
-                    <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">pop_back</span>().<span class="ident">unwrap</span>();
-                    <span class="ident">entry</span>.<span class="ident">size</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">right_total</span>;
-                    <span class="ident">depth</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+                    <span class="self">self</span>.scan_stack.pop_back().unwrap();
+                    entry.size += <span class="self">self</span>.right_total;
+                    depth -= <span class="number">1</span>;
                 }
-                <span class="ident">Token::End</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">pop_back</span>().<span class="ident">unwrap</span>();
-                    <span class="ident">entry</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">1</span>;
-                    <span class="ident">depth</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                Token::End =&gt; {
+                    <span class="self">self</span>.scan_stack.pop_back().unwrap();
+                    entry.size = <span class="number">1</span>;
+                    depth += <span class="number">1</span>;
                 }
-                <span class="ident">Token::Break</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">scan_stack</span>.<span class="ident">pop_back</span>().<span class="ident">unwrap</span>();
-                    <span class="ident">entry</span>.<span class="ident">size</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">right_total</span>;
-                    <span class="kw">if</span> <span class="ident">depth</span> <span class="op">==</span> <span class="number">0</span> {
+                Token::Break(<span class="kw">_</span>) =&gt; {
+                    <span class="self">self</span>.scan_stack.pop_back().unwrap();
+                    entry.size += <span class="self">self</span>.right_total;
+                    <span class="kw">if </span>depth == <span class="number">0 </span>{
                         <span class="kw">break</span>;
                     }
                 }
-                <span class="ident">Token::String</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+                Token::String(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">get_top</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PrintFrame</span> {
-        <span class="kw">const</span> <span class="ident">OUTER</span>: <span class="ident">PrintFrame</span> <span class="op">=</span> <span class="ident">PrintFrame::Broken</span>(<span class="number">0</span>, <span class="ident">Breaks::Inconsistent</span>);
-        <span class="self">self</span>.<span class="ident">print_stack</span>.<span class="ident">last</span>().<span class="ident">map_or</span>(<span class="ident">OUTER</span>, <span class="ident">PrintFrame::clone</span>)
+    <span class="kw">fn </span>get_top(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PrintFrame {
+        <span class="kw">const </span>OUTER: PrintFrame = PrintFrame::Broken(<span class="number">0</span>, Breaks::Inconsistent);
+        <span class="self">self</span>.print_stack.last().map_or(OUTER, PrintFrame::clone)
     }
 
-    <span class="kw">fn</span> <span class="ident">print_begin</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">token</span>: <span class="ident">BeginToken</span>, <span class="ident">size</span>: <span class="ident">isize</span>) {
-        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">prettyplease_debug</span>) {
-            <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">token</span>.<span class="ident">breaks</span> {
-                <span class="ident">Breaks::Consistent</span> =&gt; <span class="string">&#39;«&#39;</span>,
-                <span class="ident">Breaks::Inconsistent</span> =&gt; <span class="string">&#39;‹&#39;</span>,
+    <span class="kw">fn </span>print_begin(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: BeginToken, size: isize) {
+        <span class="kw">if </span><span class="macro">cfg!</span>(prettyplease_debug) {
+            <span class="self">self</span>.out.push(<span class="kw">match </span>token.breaks {
+                Breaks::Consistent =&gt; <span class="string">&#39;«&#39;</span>,
+                Breaks::Inconsistent =&gt; <span class="string">&#39;‹&#39;</span>,
             });
-            <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">prettyplease_debug_indent</span>) {
-                <span class="self">self</span>.<span class="ident">out</span>
-                    .<span class="ident">extend</span>(<span class="ident">token</span>.<span class="ident">offset</span>.<span class="ident">to_string</span>().<span class="ident">chars</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">ch</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ch</span> {
-                        <span class="string">&#39;0&#39;</span>..<span class="op">=</span><span class="string">&#39;9&#39;</span> =&gt; [<span class="string">&#39;₀&#39;</span>, <span class="string">&#39;₁&#39;</span>, <span class="string">&#39;₂&#39;</span>, <span class="string">&#39;₃&#39;</span>, <span class="string">&#39;₄&#39;</span>, <span class="string">&#39;₅&#39;</span>, <span class="string">&#39;₆&#39;</span>, <span class="string">&#39;₇&#39;</span>, <span class="string">&#39;₈&#39;</span>, <span class="string">&#39;₉&#39;</span>]
-                            [(<span class="ident">ch</span> <span class="kw">as</span> <span class="ident">u8</span> <span class="op">-</span> <span class="string">b&#39;0&#39;</span>) <span class="kw">as</span> <span class="ident">usize</span>]
-                            <span class="kw">as</span> <span class="ident">char</span>,
-                        <span class="string">&#39;-&#39;</span> =&gt; <span class="string">&#39;₋&#39;</span>,
-                        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">if </span><span class="macro">cfg!</span>(prettyplease_debug_indent) {
+                <span class="self">self</span>.out
+                    .extend(token.offset.to_string().chars().map(|ch| <span class="kw">match </span>ch {
+                        <span class="string">&#39;0&#39;</span>..=<span class="string">&#39;9&#39; </span>=&gt; [<span class="string">&#39;₀&#39;</span>, <span class="string">&#39;₁&#39;</span>, <span class="string">&#39;₂&#39;</span>, <span class="string">&#39;₃&#39;</span>, <span class="string">&#39;₄&#39;</span>, <span class="string">&#39;₅&#39;</span>, <span class="string">&#39;₆&#39;</span>, <span class="string">&#39;₇&#39;</span>, <span class="string">&#39;₈&#39;</span>, <span class="string">&#39;₉&#39;</span>]
+                            [(ch <span class="kw">as </span>u8 - <span class="string">b&#39;0&#39;</span>) <span class="kw">as </span>usize],
+                        <span class="string">&#39;-&#39; </span>=&gt; <span class="string">&#39;₋&#39;</span>,
+                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                     }));
             }
         }
-        <span class="kw">if</span> <span class="ident">size</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">space</span> {
-            <span class="self">self</span>.<span class="ident">print_stack</span>
-                .<span class="ident">push</span>(<span class="ident">PrintFrame::Broken</span>(<span class="self">self</span>.<span class="ident">indent</span>, <span class="ident">token</span>.<span class="ident">breaks</span>));
-            <span class="self">self</span>.<span class="ident">indent</span> <span class="op">=</span> <span class="ident">usize::try_from</span>(<span class="self">self</span>.<span class="ident">indent</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">+</span> <span class="ident">token</span>.<span class="ident">offset</span>).<span class="ident">unwrap</span>();
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">print_stack</span>.<span class="ident">push</span>(<span class="ident">PrintFrame::Fits</span>(<span class="ident">token</span>.<span class="ident">breaks</span>));
+        <span class="kw">if </span>size &gt; <span class="self">self</span>.space {
+            <span class="self">self</span>.print_stack
+                .push(PrintFrame::Broken(<span class="self">self</span>.indent, token.breaks));
+            <span class="self">self</span>.indent = usize::try_from(<span class="self">self</span>.indent <span class="kw">as </span>isize + token.offset).unwrap();
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.print_stack.push(PrintFrame::Fits(token.breaks));
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">print_end</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="ident">breaks</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">print_stack</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>() {
-            <span class="ident">PrintFrame::Broken</span>(<span class="ident">indent</span>, <span class="ident">breaks</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">indent</span> <span class="op">=</span> <span class="ident">indent</span>;
-                <span class="ident">breaks</span>
+    <span class="kw">fn </span>print_end(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span>breaks = <span class="kw">match </span><span class="self">self</span>.print_stack.pop().unwrap() {
+            PrintFrame::Broken(indent, breaks) =&gt; {
+                <span class="self">self</span>.indent = indent;
+                breaks
             }
-            <span class="ident">PrintFrame::Fits</span>(<span class="ident">breaks</span>) =&gt; <span class="ident">breaks</span>,
+            PrintFrame::Fits(breaks) =&gt; breaks,
         };
-        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">prettyplease_debug</span>) {
-            <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">breaks</span> {
-                <span class="ident">Breaks::Consistent</span> =&gt; <span class="string">&#39;»&#39;</span>,
-                <span class="ident">Breaks::Inconsistent</span> =&gt; <span class="string">&#39;›&#39;</span>,
+        <span class="kw">if </span><span class="macro">cfg!</span>(prettyplease_debug) {
+            <span class="self">self</span>.out.push(<span class="kw">match </span>breaks {
+                Breaks::Consistent =&gt; <span class="string">&#39;»&#39;</span>,
+                Breaks::Inconsistent =&gt; <span class="string">&#39;›&#39;</span>,
             });
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">print_break</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">token</span>: <span class="ident">BreakToken</span>, <span class="ident">size</span>: <span class="ident">isize</span>) {
-        <span class="kw">let</span> <span class="ident">fits</span> <span class="op">=</span> <span class="ident">token</span>.<span class="ident">never_break</span>
-            <span class="op">|</span><span class="op">|</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_top</span>() {
-                <span class="ident">PrintFrame::Fits</span>(..) =&gt; <span class="bool-val">true</span>,
-                <span class="ident">PrintFrame::Broken</span>(.., <span class="ident">Breaks::Consistent</span>) =&gt; <span class="bool-val">false</span>,
-                <span class="ident">PrintFrame::Broken</span>(.., <span class="ident">Breaks::Inconsistent</span>) =&gt; <span class="ident">size</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">space</span>,
+    <span class="kw">fn </span>print_break(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: BreakToken, size: isize) {
+        <span class="kw">let </span>fits = token.never_break
+            || <span class="kw">match </span><span class="self">self</span>.get_top() {
+                PrintFrame::Fits(..) =&gt; <span class="bool-val">true</span>,
+                PrintFrame::Broken(.., Breaks::Consistent) =&gt; <span class="bool-val">false</span>,
+                PrintFrame::Broken(.., Breaks::Inconsistent) =&gt; size &lt;= <span class="self">self</span>.space,
             };
-        <span class="kw">if</span> <span class="ident">fits</span> {
-            <span class="self">self</span>.<span class="ident">pending_indentation</span> <span class="op">+</span><span class="op">=</span> <span class="ident">token</span>.<span class="ident">blank_space</span>;
-            <span class="self">self</span>.<span class="ident">space</span> <span class="op">-</span><span class="op">=</span> <span class="ident">token</span>.<span class="ident">blank_space</span> <span class="kw">as</span> <span class="ident">isize</span>;
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">no_break</span>) <span class="op">=</span> <span class="ident">token</span>.<span class="ident">no_break</span> {
-                <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">push</span>(<span class="ident">no_break</span>);
-                <span class="self">self</span>.<span class="ident">space</span> <span class="op">-</span><span class="op">=</span> <span class="ident">no_break</span>.<span class="ident">len_utf8</span>() <span class="kw">as</span> <span class="ident">isize</span>;
+        <span class="kw">if </span>fits {
+            <span class="self">self</span>.pending_indentation += token.blank_space;
+            <span class="self">self</span>.space -= token.blank_space <span class="kw">as </span>isize;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(no_break) = token.no_break {
+                <span class="self">self</span>.out.push(no_break);
+                <span class="self">self</span>.space -= no_break.len_utf8() <span class="kw">as </span>isize;
             }
-            <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">prettyplease_debug</span>) {
-                <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">push</span>(<span class="string">&#39;·&#39;</span>);
+            <span class="kw">if </span><span class="macro">cfg!</span>(prettyplease_debug) {
+                <span class="self">self</span>.out.push(<span class="string">&#39;·&#39;</span>);
             }
-        } <span class="kw">else</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pre_break</span>) <span class="op">=</span> <span class="ident">token</span>.<span class="ident">pre_break</span> {
-                <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">push</span>(<span class="ident">pre_break</span>);
+        } <span class="kw">else </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(pre_break) = token.pre_break {
+                <span class="self">self</span>.print_indent();
+                <span class="self">self</span>.out.push(pre_break);
             }
-            <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">prettyplease_debug</span>) {
-                <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">push</span>(<span class="string">&#39;·&#39;</span>);
+            <span class="kw">if </span><span class="macro">cfg!</span>(prettyplease_debug) {
+                <span class="self">self</span>.out.push(<span class="string">&#39;·&#39;</span>);
             }
-            <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
-            <span class="kw">let</span> <span class="ident">indent</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">indent</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">+</span> <span class="ident">token</span>.<span class="ident">offset</span>;
-            <span class="self">self</span>.<span class="ident">pending_indentation</span> <span class="op">=</span> <span class="ident">usize::try_from</span>(<span class="ident">indent</span>).<span class="ident">unwrap</span>();
-            <span class="self">self</span>.<span class="ident">space</span> <span class="op">=</span> <span class="ident">cmp::max</span>(<span class="ident">MARGIN</span> <span class="op">-</span> <span class="ident">indent</span>, <span class="ident">MIN_SPACE</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">post_break</span>) <span class="op">=</span> <span class="ident">token</span>.<span class="ident">post_break</span> {
-                <span class="self">self</span>.<span class="ident">print_indent</span>();
-                <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">push</span>(<span class="ident">post_break</span>);
-                <span class="self">self</span>.<span class="ident">space</span> <span class="op">-</span><span class="op">=</span> <span class="ident">post_break</span>.<span class="ident">len_utf8</span>() <span class="kw">as</span> <span class="ident">isize</span>;
+            <span class="self">self</span>.out.push(<span class="string">&#39;\n&#39;</span>);
+            <span class="kw">let </span>indent = <span class="self">self</span>.indent <span class="kw">as </span>isize + token.offset;
+            <span class="self">self</span>.pending_indentation = usize::try_from(indent).unwrap();
+            <span class="self">self</span>.space = cmp::max(MARGIN - indent, MIN_SPACE);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(post_break) = token.post_break {
+                <span class="self">self</span>.print_indent();
+                <span class="self">self</span>.out.push(post_break);
+                <span class="self">self</span>.space -= post_break.len_utf8() <span class="kw">as </span>isize;
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">print_string</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">string</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">print_indent</span>();
-        <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">string</span>);
-        <span class="self">self</span>.<span class="ident">space</span> <span class="op">-</span><span class="op">=</span> <span class="ident">string</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">isize</span>;
+    <span class="kw">fn </span>print_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;) {
+        <span class="self">self</span>.print_indent();
+        <span class="self">self</span>.out.push_str(<span class="kw-2">&amp;</span>string);
+        <span class="self">self</span>.space -= string.len() <span class="kw">as </span>isize;
     }
 
-    <span class="kw">fn</span> <span class="ident">print_indent</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">reserve</span>(<span class="self">self</span>.<span class="ident">pending_indentation</span>);
-        <span class="self">self</span>.<span class="ident">out</span>
-            .<span class="ident">extend</span>(<span class="ident">iter::repeat</span>(<span class="string">&#39; &#39;</span>).<span class="ident">take</span>(<span class="self">self</span>.<span class="ident">pending_indentation</span>));
-        <span class="self">self</span>.<span class="ident">pending_indentation</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">fn </span>print_indent(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.out.reserve(<span class="self">self</span>.pending_indentation);
+        <span class="self">self</span>.out
+            .extend(iter::repeat(<span class="string">&#39; &#39;</span>).take(<span class="self">self</span>.pending_indentation));
+        <span class="self">self</span>.pending_indentation = <span class="number">0</span>;
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="prettyplease" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="prettyplease" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

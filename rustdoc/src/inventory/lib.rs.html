@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/inventory-0.1.10/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../inventory/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../inventory/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../inventory/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/inventory-0.1.11/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../inventory/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -384,387 +379,400 @@
 <span id="379">379</span>
 <span id="380">380</span>
 <span id="381">381</span>
-</pre><pre class="rust"><code><span class="doccomment">//! [![github]](https://github.com/dtolnay/inventory)&amp;ensp;[![crates-io]](https://crates.io/crates/inventory)&amp;ensp;[![docs-rs]](https://docs.rs/inventory)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github</span>
-<span class="doccomment">//! [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust</span>
-<span class="doccomment">//! [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logoColor=white&amp;logo=data:image/svg+xml;base64,PHN2ZyByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDUxMiA1MTIiPjxwYXRoIGZpbGw9IiNmNWY1ZjUiIGQ9Ik00ODguNiAyNTAuMkwzOTIgMjE0VjEwNS41YzAtMTUtOS4zLTI4LjQtMjMuNC0zMy43bC0xMDAtMzcuNWMtOC4xLTMuMS0xNy4xLTMuMS0yNS4zIDBsLTEwMCAzNy41Yy0xNC4xIDUuMy0yMy40IDE4LjctMjMuNCAzMy43VjIxNGwtOTYuNiAzNi4yQzkuMyAyNTUuNSAwIDI2OC45IDAgMjgzLjlWMzk0YzAgMTMuNiA3LjcgMjYuMSAxOS45IDMyLjJsMTAwIDUwYzEwLjEgNS4xIDIyLjEgNS4xIDMyLjIgMGwxMDMuOS01MiAxMDMuOSA1MmMxMC4xIDUuMSAyMi4xIDUuMSAzMi4yIDBsMTAwLTUwYzEyLjItNi4xIDE5LjktMTguNiAxOS45LTMyLjJWMjgzLjljMC0xNS05LjMtMjguNC0yMy40LTMzLjd6TTM1OCAyMTQuOGwtODUgMzEuOXYtNjguMmw4NS0zN3Y3My4zek0xNTQgMTA0LjFsMTAyLTM4LjIgMTAyIDM4LjJ2LjZsLTEwMiA0MS40LTEwMi00MS40di0uNnptODQgMjkxLjFsLTg1IDQyLjV2LTc5LjFsODUtMzguOHY3NS40em0wLTExMmwtMTAyIDQxLjQtMTAyLTQxLjR2LS42bDEwMi0zOC4yIDEwMiAzOC4ydi42em0yNDAgMTEybC04NSA0Mi41di03OS4xbDg1LTM4Ljh2NzUuNHptMC0xMTJsLTEwMiA0MS40LTEwMi00MS40di0uNmwxMDItMzguMiAxMDIgMzguMnYuNnoiPjwvcGF0aD48L3N2Zz4K</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;br&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! **Typed distributed plugin registration.**</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This crate provides a way to set up a plugin registry into which plugins</span>
-<span class="doccomment">//! can be registered from any source file linked into your application. There</span>
-<span class="doccomment">//! does not need to be a central list of all the plugins.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Examples</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Suppose we are writing a command line flags library and want to allow any</span>
-<span class="doccomment">//! source file in the application to register command line flags that are</span>
-<span class="doccomment">//! relevant to it.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This is the flag registration style used by [gflags] and is better suited</span>
-<span class="doccomment">//! for large scale development than maintaining a single central list of flags,</span>
-<span class="doccomment">//! as the central list would become an endless source of merge conflicts in an</span>
-<span class="doccomment">//! application developed simultaneously by thousands of developers.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [gflags]: https://gflags.github.io/gflags/</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Instantiating the plugin registry</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Let&#39;s use a `struct Flag` as the plugin type, which will contain the short</span>
-<span class="doccomment">//! name of the flag like `-v`, the full name like `--verbose`, and maybe other</span>
-<span class="doccomment">//! information like argument type and help text. We instantiate a plugin</span>
-<span class="doccomment">//! registry with an invocation of `inventory::collect!`.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! pub struct Flag {</span>
-<span class="doccomment">//!     short: char,</span>
-<span class="doccomment">//!     name: &amp;&#39;static str,</span>
-<span class="doccomment">//!     /* ... */</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! impl Flag {</span>
-<span class="doccomment">//!     pub fn new(short: char, name: &amp;&#39;static str) -&gt; Self {</span>
-<span class="doccomment">//!         Flag { short, name }</span>
-<span class="doccomment">//!     }</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! inventory::collect!(Flag);</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This `collect!` call must be in the same crate that defines the plugin type.</span>
-<span class="doccomment">//! This macro does not &quot;run&quot; anything so place it outside of any function body.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Registering plugins</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Now any crate with access to the `Flag` type can register flags as a plugin.</span>
-<span class="doccomment">//! Plugins can be registered by the same crate that declares the plugin type,</span>
-<span class="doccomment">//! or by any downstream crate.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! # struct Flag;</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! # impl Flag {</span>
-<span class="doccomment">//! #     fn new(short: char, name: &amp;&#39;static str) -&gt; Self {</span>
-<span class="doccomment">//! #         Flag</span>
-<span class="doccomment">//! #     }</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! # inventory::collect!(Flag);</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! inventory::submit! {</span>
-<span class="doccomment">//!     Flag::new(&#39;v&#39;, &quot;verbose&quot;)</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! # fn main() {}</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The `submit!` macro does not &quot;run&quot; anything so place it outside of any</span>
-<span class="doccomment">//! function body. In particular, note that all `submit!` invocations across all</span>
-<span class="doccomment">//! source files linked into your application all take effect simultaneously. A</span>
-<span class="doccomment">//! `submit!` invocation is not a statement that needs to be called from `main`</span>
-<span class="doccomment">//! in order to execute.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Iterating over plugins</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The value `inventory::iter::&lt;T&gt;` is an iterator with element type `&amp;&#39;static</span>
-<span class="doccomment">//! T` that iterates over all plugins registered of type `T`.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! # struct Flag {</span>
-<span class="doccomment">//! #     short: char,</span>
-<span class="doccomment">//! #     name: &amp;&#39;static str,</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! # inventory::collect!(Flag);</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! for flag in inventory::iter::&lt;Flag&gt; {</span>
-<span class="doccomment">//!     println!(&quot;-{}, --{}&quot;, flag.short, flag.name);</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! There is no guarantee about the order that plugins of the same type are</span>
-<span class="doccomment">//! visited by the iterator. They may be visited in any order.</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+</pre><pre class="rust"><code><span class="doccomment">//! [![github]](https://github.com/dtolnay/inventory)&amp;ensp;[![crates-io]](https://crates.io/crates/inventory)&amp;ensp;[![docs-rs]](https://docs.rs/inventory)
+//!
+//! [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github
+//! [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust
+//! [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logoColor=white&amp;logo=data:image/svg+xml;base64,PHN2ZyByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDUxMiA1MTIiPjxwYXRoIGZpbGw9IiNmNWY1ZjUiIGQ9Ik00ODguNiAyNTAuMkwzOTIgMjE0VjEwNS41YzAtMTUtOS4zLTI4LjQtMjMuNC0zMy43bC0xMDAtMzcuNWMtOC4xLTMuMS0xNy4xLTMuMS0yNS4zIDBsLTEwMCAzNy41Yy0xNC4xIDUuMy0yMy40IDE4LjctMjMuNCAzMy43VjIxNGwtOTYuNiAzNi4yQzkuMyAyNTUuNSAwIDI2OC45IDAgMjgzLjlWMzk0YzAgMTMuNiA3LjcgMjYuMSAxOS45IDMyLjJsMTAwIDUwYzEwLjEgNS4xIDIyLjEgNS4xIDMyLjIgMGwxMDMuOS01MiAxMDMuOSA1MmMxMC4xIDUuMSAyMi4xIDUuMSAzMi4yIDBsMTAwLTUwYzEyLjItNi4xIDE5LjktMTguNiAxOS45LTMyLjJWMjgzLjljMC0xNS05LjMtMjguNC0yMy40LTMzLjd6TTM1OCAyMTQuOGwtODUgMzEuOXYtNjguMmw4NS0zN3Y3My4zek0xNTQgMTA0LjFsMTAyLTM4LjIgMTAyIDM4LjJ2LjZsLTEwMiA0MS40LTEwMi00MS40di0uNnptODQgMjkxLjFsLTg1IDQyLjV2LTc5LjFsODUtMzguOHY3NS40em0wLTExMmwtMTAyIDQxLjQtMTAyLTQxLjR2LS42bDEwMi0zOC4yIDEwMiAzOC4ydi42em0yNDAgMTEybC04NSA0Mi41di03OS4xbDg1LTM4Ljh2NzUuNHptMC0xMTJsLTEwMiA0MS40LTEwMi00MS40di0uNmwxMDItMzguMiAxMDIgMzguMnYuNnoiPjwvcGF0aD48L3N2Zz4K
+//!
+//! &lt;br&gt;
+//!
+//! **Typed distributed plugin registration.**
+//!
+//! This crate provides a way to set up a plugin registry into which plugins
+//! can be registered from any source file linked into your application. There
+//! does not need to be a central list of all the plugins.
+//!
+//! # Examples
+//!
+//! Suppose we are writing a command line flags library and want to allow any
+//! source file in the application to register command line flags that are
+//! relevant to it.
+//!
+//! This is the flag registration style used by [gflags] and is better suited
+//! for large scale development than maintaining a single central list of flags,
+//! as the central list would become an endless source of merge conflicts in an
+//! application developed simultaneously by thousands of developers.
+//!
+//! [gflags]: https://gflags.github.io/gflags/
+//!
+//! ## Instantiating the plugin registry
+//!
+//! Let&#39;s use a `struct Flag` as the plugin type, which will contain the short
+//! name of the flag like `-v`, the full name like `--verbose`, and maybe other
+//! information like argument type and help text. We instantiate a plugin
+//! registry with an invocation of `inventory::collect!`.
+//!
+//! ```
+//! pub struct Flag {
+//!     short: char,
+//!     name: &amp;&#39;static str,
+//!     /* ... */
+//! }
+//!
+//! impl Flag {
+//!     pub fn new(short: char, name: &amp;&#39;static str) -&gt; Self {
+//!         Flag { short, name }
+//!     }
+//! }
+//!
+//! inventory::collect!(Flag);
+//! ```
+//!
+//! This `collect!` call must be in the same crate that defines the plugin type.
+//! This macro does not &quot;run&quot; anything so place it outside of any function body.
+//!
+//! ## Registering plugins
+//!
+//! Now any crate with access to the `Flag` type can register flags as a plugin.
+//! Plugins can be registered by the same crate that declares the plugin type,
+//! or by any downstream crate.
+//!
+//! ```
+//! # struct Flag;
+//! #
+//! # impl Flag {
+//! #     fn new(short: char, name: &amp;&#39;static str) -&gt; Self {
+//! #         Flag
+//! #     }
+//! # }
+//! #
+//! # inventory::collect!(Flag);
+//! #
+//! inventory::submit! {
+//!     Flag::new(&#39;v&#39;, &quot;verbose&quot;)
+//! }
+//! #
+//! # fn main() {}
+//! ```
+//!
+//! The `submit!` macro does not &quot;run&quot; anything so place it outside of any
+//! function body. In particular, note that all `submit!` invocations across all
+//! source files linked into your application all take effect simultaneously. A
+//! `submit!` invocation is not a statement that needs to be called from `main`
+//! in order to execute.
+//!
+//! ## Iterating over plugins
+//!
+//! The value `inventory::iter::&lt;T&gt;` is an iterator with element type `&amp;&#39;static
+//! T` that iterates over all plugins registered of type `T`.
+//!
+//! ```
+//! # struct Flag {
+//! #     short: char,
+//! #     name: &amp;&#39;static str,
+//! # }
+//! #
+//! # inventory::collect!(Flag);
+//! #
+//! for flag in inventory::iter::&lt;Flag&gt; {
+//!     println!(&quot;-{}, --{}&quot;, flag.short, flag.name);
+//! }
+//! ```
+//!
+//! There is no guarantee about the order that plugins of the same type are
+//! visited by the iterator. They may be visited in any order.
 
-<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/inventory/0.1.10&quot;</span>)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">inventory_require_std</span>), <span class="ident">no_std</span>)]</span>
+</span><span class="attribute">#![doc(html_root_url = <span class="string">&quot;https://docs.rs/inventory/0.1.11&quot;</span>)]
+#![cfg_attr(not(inventory_require_std), no_std)]
+#![allow(
+    clippy::doc_markdown,
+    clippy::empty_enum,
+    clippy::expl_impl_clone_on_copy,
+    clippy::let_unit_value,
+    clippy::must_use_candidate,
+    clippy::semicolon_if_nothing_returned, <span class="comment">// https://github.com/rust-lang/rust-clippy/issues/7324
+</span>)]
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">inventory_require_std</span>))]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">inventory_require_std</span>))]</span>
-<span class="kw">use</span> <span class="ident">alloc::boxed::Box</span>;
+#[cfg(not(inventory_require_std))]
+</span><span class="kw">extern crate </span>alloc;
+<span class="attribute">#[cfg(not(inventory_require_std))]
+</span><span class="kw">use </span>alloc::boxed::Box;
 
-<span class="comment">// Not public API.</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ctor::ctor</span>;
+<span class="comment">// Not public API.
+</span><span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub use </span>ctor::ctor;
 
-<span class="comment">// Not public API.</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">inventory_impl</span> <span class="kw">as</span> <span class="ident">r#impl</span>;
+<span class="comment">// Not public API.
+</span><span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub use </span>inventory_impl <span class="kw">as </span>r#impl;
 
-<span class="kw">use</span> <span class="ident">core::ops::Deref</span>;
-<span class="kw">use</span> <span class="ident">core::ptr</span>;
-<span class="kw">use</span> <span class="ident">core::sync::atomic</span>::{<span class="ident">AtomicPtr</span>, <span class="ident">Ordering</span>};
+<span class="kw">use </span>core::ops::Deref;
+<span class="kw">use </span>core::ptr;
+<span class="kw">use </span>core::sync::atomic::{AtomicPtr, Ordering};
 
-<span class="comment">// Not public API. Used by generated code.</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Registry</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
-    <span class="ident">head</span>: <span class="ident">AtomicPtr</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="comment">// Not public API. Used by generated code.
+</span><span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub struct </span>Registry&lt;T: <span class="lifetime">&#39;static</span>&gt; {
+    head: AtomicPtr&lt;Node&lt;T&gt;&gt;,
 }
 
-<span class="kw">struct</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
-    <span class="ident">value</span>: <span class="ident">T</span>,
-    <span class="ident">next</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>Node&lt;T: <span class="lifetime">&#39;static</span>&gt; {
+    value: T,
+    next: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Node&lt;T&gt;&gt;,
 }
 
-<span class="doccomment">/// Trait bound corresponding to types that can be iterated by inventory::iter.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This trait cannot be implemented manually. Instead use the [`collect`] macro</span>
-<span class="doccomment">/// which expands to an implementation of this trait for the given type.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use inventory::Collect;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn count_plugins&lt;T: Collect&gt;() -&gt; usize {</span>
-<span class="doccomment">///     inventory::iter::&lt;T&gt;.into_iter().count()</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Collect</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">registry</span>() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Registry</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
+<span class="doccomment">/// Trait bound corresponding to types that can be iterated by inventory::iter.
+///
+/// This trait cannot be implemented manually. Instead use the [`collect`] macro
+/// which expands to an implementation of this trait for the given type.
+///
+/// # Examples
+///
+/// ```
+/// use inventory::Collect;
+///
+/// fn count_plugins&lt;T: Collect&gt;() -&gt; usize {
+///     inventory::iter::&lt;T&gt;.into_iter().count()
+/// }
+/// ```
+</span><span class="kw">pub trait </span>Collect: Sized + <span class="lifetime">&#39;static </span>{
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>registry() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Registry&lt;<span class="self">Self</span>&gt;;
 }
 
-<span class="comment">// Not public API. Used by generated code.</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">submit</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Collect</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="ident">T</span>) {
-    <span class="comment">// TODO: Avoid allocation by storing node in a static mut Option&lt;Node&lt;T&gt;&gt;</span>
-    <span class="comment">// after existential type is stable. See comment in inventory-impl.</span>
-    <span class="ident">T::registry</span>().<span class="ident">submit</span>(<span class="ident">Box::new</span>(<span class="ident">Node</span> { <span class="ident">value</span>, <span class="ident">next</span>: <span class="prelude-val">None</span> }));
+<span class="comment">// Not public API. Used by generated code.
+</span><span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub fn </span>submit&lt;T: Collect&gt;(value: T) {
+    <span class="comment">// TODO: Avoid allocation by storing node in a static mut Option&lt;Node&lt;T&gt;&gt;
+    // after existential type is stable. See comment in inventory-impl.
+    </span>T::registry().submit(Box::new(Node { value, next: <span class="prelude-val">None </span>}));
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">Registry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="comment">// Not public API. Used by generated code.</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Registry</span> {
-            <span class="ident">head</span>: <span class="ident">AtomicPtr::new</span>(<span class="ident">ptr::null_mut</span>()),
+<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static</span>&gt; Registry&lt;T&gt; {
+    <span class="comment">// Not public API. Used by generated code.
+    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
+        Registry {
+            head: AtomicPtr::new(ptr::null_mut()),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">submit</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="self">self</span>, <span class="ident">new</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">ptr::NonNull::from</span>(<span class="ident">Box::leak</span>(<span class="ident">new</span>));
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">head</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>);
-        <span class="kw">loop</span> {
-            <span class="comment">// `new` is always a valid Node&lt;T&gt;, and is not yet visible through the registry.</span>
-            <span class="comment">// `head` is always null or valid &amp;&#39;static Node&lt;T&gt;.</span>
-            <span class="kw">unsafe</span> { <span class="ident">new</span>.<span class="ident">as_mut</span>().<span class="ident">next</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">as_ref</span>() };
-            <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">head</span>
-                .<span class="ident">compare_and_swap</span>(<span class="ident">head</span>, <span class="ident">new</span>.<span class="ident">as_ptr</span>(), <span class="ident">Ordering::SeqCst</span>);
-            <span class="kw">if</span> <span class="ident">prev</span> <span class="op">==</span> <span class="ident">head</span> {
-                <span class="kw">return</span>;
-            } <span class="kw">else</span> {
-                <span class="ident">head</span> <span class="op">=</span> <span class="ident">prev</span>;
+    <span class="kw">fn </span>submit(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">self</span>, new: Box&lt;Node&lt;T&gt;&gt;) {
+        <span class="kw">let </span><span class="kw-2">mut </span>new = ptr::NonNull::from(Box::leak(new));
+        <span class="kw">let </span><span class="kw-2">mut </span>head = <span class="self">self</span>.head.load(Ordering::SeqCst);
+        <span class="kw">loop </span>{
+            <span class="comment">// `new` is always a valid Node&lt;T&gt;, and is not yet visible through the registry.
+            // `head` is always null or valid &amp;&#39;static Node&lt;T&gt;.
+            </span><span class="kw">unsafe </span>{ new.as_mut().next = head.as_ref() };
+            <span class="kw">match </span><span class="self">self
+                </span>.head
+                .compare_exchange(head, new.as_ptr(), Ordering::SeqCst, Ordering::SeqCst)
+            {
+                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span>,
+                <span class="prelude-val">Err</span>(prev) =&gt; head = prev,
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
-<span class="kw">mod</span> <span class="ident">private</span> {
-    <span class="kw">use</span> <span class="ident">ghost::phantom</span>;
+<span class="attribute">#[allow(non_camel_case_types)]
+</span><span class="kw">mod </span>private {
+    <span class="kw">use </span>ghost::phantom;
 
-    <span class="attribute">#[<span class="ident">phantom</span>]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+    <span class="attribute">#[phantom]
+    </span><span class="kw">pub struct </span>iter&lt;T&gt;;
 }
 
-<span class="doccomment">/// An iterator over plugins registered of a given type.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The value `inventory::iter::&lt;T&gt;` is an iterator with element type `&amp;&#39;static</span>
-<span class="doccomment">/// T`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// There is no guarantee about the order that plugins of the same type are</span>
-<span class="doccomment">/// visited by the iterator. They may be visited in any order.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # struct Flag {</span>
-<span class="doccomment">/// #     short: char,</span>
-<span class="doccomment">/// #     name: &amp;&#39;static str,</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// # inventory::collect!(Flag);</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// # const IGNORE: &amp;str = stringify! {</span>
-<span class="doccomment">/// use my_flags::Flag;</span>
-<span class="doccomment">/// # };</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     for flag in inventory::iter::&lt;Flag&gt; {</span>
-<span class="doccomment">///         println!(&quot;-{}, --{}&quot;, flag.short, flag.name);</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Refer to the [crate level documentation](index.html) for a complete example</span>
-<span class="doccomment">/// of instantiating a plugin registry and submitting plugins.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">private::iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+<span class="doccomment">/// An iterator over plugins registered of a given type.
+///
+/// The value `inventory::iter::&lt;T&gt;` is an iterator with element type `&amp;&#39;static
+/// T`.
+///
+/// There is no guarantee about the order that plugins of the same type are
+/// visited by the iterator. They may be visited in any order.
+///
+/// # Examples
+///
+/// ```
+/// # struct Flag {
+/// #     short: char,
+/// #     name: &amp;&#39;static str,
+/// # }
+/// #
+/// # inventory::collect!(Flag);
+/// #
+/// # const IGNORE: &amp;str = stringify! {
+/// use my_flags::Flag;
+/// # };
+///
+/// fn main() {
+///     for flag in inventory::iter::&lt;Flag&gt; {
+///         println!(&quot;-{}, --{}&quot;, flag.short, flag.name);
+///     }
+/// }
+/// ```
+///
+/// Refer to the [crate level documentation](index.html) for a complete example
+/// of instantiating a plugin registry and submitting plugins.
+</span><span class="attribute">#[allow(non_camel_case_types)]
+</span><span class="kw">pub type </span>iter&lt;T&gt; = private::iter&lt;T&gt;;
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::private</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::private::<span class="kw-2">*</span>;
 
-<span class="kw">const</span> <span class="ident">ITER</span>: () <span class="op">=</span> {
-    <span class="kw">fn</span> <span class="ident">into_iter</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Collect</span><span class="op">&gt;</span>() -&gt; <span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">T::registry</span>().<span class="ident">head</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>);
-        <span class="ident">Iter</span> {
-            <span class="comment">// Head pointer is always null or valid &amp;&#39;static Node&lt;T&gt;.</span>
-            <span class="ident">node</span>: <span class="kw">unsafe</span> { <span class="ident">head</span>.<span class="ident">as_ref</span>() },
+<span class="kw">const </span>ITER: () = {
+    <span class="kw">fn </span>into_iter&lt;T: Collect&gt;() -&gt; Iter&lt;T&gt; {
+        <span class="kw">let </span>head = T::registry().head.load(Ordering::SeqCst);
+        Iter {
+            <span class="comment">// Head pointer is always null or valid &amp;&#39;static Node&lt;T&gt;.
+            </span>node: <span class="kw">unsafe </span>{ head.as_ref() },
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Collect</span><span class="op">&gt;</span> <span class="ident">IntoIterator</span> <span class="kw">for</span> <span class="ident">iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">T</span>;
-        <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+    <span class="kw">impl</span>&lt;T: Collect&gt; IntoIterator <span class="kw">for </span>iter&lt;T&gt; {
+        <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>T;
+        <span class="kw">type </span>IntoIter = Iter&lt;T&gt;;
 
-        <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::IntoIter</span> {
-            <span class="ident">into_iter</span>()
+        <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
+            into_iter()
         }
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Collect</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="kw">fn</span>() -&gt; <span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
-        <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
-            <span class="kw-2">&amp;</span>(<span class="ident">into_iter</span> <span class="kw">as</span> <span class="kw">fn</span>() -&gt; <span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">impl</span>&lt;T: Collect&gt; Deref <span class="kw">for </span>iter&lt;T&gt; {
+        <span class="kw">type </span>Target = <span class="kw">fn</span>() -&gt; Iter&lt;T&gt;;
+        <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+            <span class="kw-2">&amp;</span>(into_iter <span class="kw">as fn</span>() -&gt; Iter&lt;T&gt;)
         }
     }
 
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
-        <span class="ident">node</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="attribute">#[derive(Clone)]
+    </span><span class="kw">pub struct </span>Iter&lt;T: <span class="lifetime">&#39;static</span>&gt; {
+        node: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Node&lt;T&gt;&gt;,
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">T</span>;
+    <span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static</span>&gt; Iterator <span class="kw">for </span>Iter&lt;T&gt; {
+        <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>T;
 
-        <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">node</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">value</span>;
-            <span class="self">self</span>.<span class="ident">node</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">next</span>;
-            <span class="prelude-val">Some</span>(<span class="ident">value</span>)
+        <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+            <span class="kw">let </span>node = <span class="self">self</span>.node<span class="question-mark">?</span>;
+            <span class="kw">let </span>value = <span class="kw-2">&amp;</span>node.value;
+            <span class="self">self</span>.node = node.next;
+            <span class="prelude-val">Some</span>(value)
         }
     }
 };
 
-<span class="doccomment">/// Associate a plugin registry with the specified type.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This call must be in the same crate that defines the plugin type. This macro</span>
-<span class="doccomment">/// does not &quot;run&quot; anything so place it outside of any function body.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Suppose we are writing a command line flags library and want to allow any</span>
-<span class="doccomment">/// source file in the application to register command line flags that are</span>
-<span class="doccomment">/// relevant to it.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is the flag registration style used by [gflags] and is better suited</span>
-<span class="doccomment">/// for large scale development than maintaining a single central list of flags,</span>
-<span class="doccomment">/// as the central list would become an endless source of merge conflicts.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [gflags]: https://gflags.github.io/gflags/</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// pub struct Flag {</span>
-<span class="doccomment">///     short: char,</span>
-<span class="doccomment">///     name: &amp;&#39;static str,</span>
-<span class="doccomment">///     /* ... */</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// inventory::collect!(Flag);</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Refer to the [crate level documentation](index.html) for a complete example</span>
-<span class="doccomment">/// of submitting plugins and iterating a plugin registry.</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">collect</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>) =&gt; {
-        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Collect</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span> {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">registry</span>() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Registry</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-                <span class="kw">static</span> <span class="ident">REGISTRY</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Registry</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Registry::new</span>();
-                <span class="kw-2">&amp;</span><span class="ident">REGISTRY</span>
+<span class="doccomment">/// Associate a plugin registry with the specified type.
+///
+/// This call must be in the same crate that defines the plugin type. This macro
+/// does not &quot;run&quot; anything so place it outside of any function body.
+///
+/// # Examples
+///
+/// Suppose we are writing a command line flags library and want to allow any
+/// source file in the application to register command line flags that are
+/// relevant to it.
+///
+/// This is the flag registration style used by [gflags] and is better suited
+/// for large scale development than maintaining a single central list of flags,
+/// as the central list would become an endless source of merge conflicts.
+///
+/// [gflags]: https://gflags.github.io/gflags/
+///
+/// ```
+/// pub struct Flag {
+///     short: char,
+///     name: &amp;&#39;static str,
+///     /* ... */
+/// }
+///
+/// inventory::collect!(Flag);
+/// ```
+///
+/// Refer to the [crate level documentation](index.html) for a complete example
+/// of submitting plugins and iterating a plugin registry.
+</span><span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>collect {
+    (<span class="macro-nonterminal">$ty</span>:ty) =&gt; {
+        <span class="kw">impl </span><span class="macro-nonterminal">$crate::Collect </span><span class="kw">for </span><span class="macro-nonterminal">$ty </span>{
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>registry() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$crate::Registry</span>&lt;<span class="self">Self</span>&gt; {
+                <span class="kw">static </span>REGISTRY: <span class="macro-nonterminal">$crate::Registry</span>&lt;<span class="macro-nonterminal">$ty</span>&gt; = <span class="macro-nonterminal">$crate::Registry::new</span>();
+                <span class="kw-2">&amp;</span>REGISTRY
             }
         }
     };
 }
 
-<span class="doccomment">/// Enter an element into the plugin registry corresponding to its type.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This call may be in the same crate that defines the type, or downstream in</span>
-<span class="doccomment">/// any crate that depends on that crate.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This macro does not &quot;run&quot; anything so place it outside of any function body.</span>
-<span class="doccomment">/// In particular, note that all `submit!` invocations across all source files</span>
-<span class="doccomment">/// linked into your application all take effect simultaneously. A `submit!`</span>
-<span class="doccomment">/// invocation is not a statement that needs to be called from `main` in order</span>
-<span class="doccomment">/// to execute.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Put `submit!` invocations outside of any function body.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # struct Flag;</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// # impl Flag {</span>
-<span class="doccomment">/// #     fn new(short: char, name: &amp;&#39;static str) -&gt; Self {</span>
-<span class="doccomment">/// #         Flag</span>
-<span class="doccomment">/// #     }</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// # inventory::collect!(Flag);</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// inventory::submit! {</span>
-<span class="doccomment">///     Flag::new(&#39;v&#39;, &quot;verbose&quot;)</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// # fn main() {}</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Do not try to invoke `submit!` from inside of a function body as it does not</span>
-<span class="doccomment">/// do what you want.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```compile_fail</span>
-<span class="doccomment">/// // Do not do this.</span>
-<span class="doccomment">/// fn submit_flags(has_verbose_flag: bool) {</span>
-<span class="doccomment">///     if has_verbose_flag {</span>
-<span class="doccomment">///         inventory::submit! {</span>
-<span class="doccomment">///             Flag::new(&#39;v&#39;, &quot;verbose&quot;)</span>
-<span class="doccomment">///         }</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Refer to the [crate level documentation](index.html) for a complete example</span>
-<span class="doccomment">/// of instantiating and iterating a plugin registry.</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">submit</span> {
-    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="ident">r#impl</span><span class="macro">::submit!</span> {
-            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>)<span class="op">*</span>
+<span class="doccomment">/// Enter an element into the plugin registry corresponding to its type.
+///
+/// This call may be in the same crate that defines the type, or downstream in
+/// any crate that depends on that crate.
+///
+/// This macro does not &quot;run&quot; anything so place it outside of any function body.
+/// In particular, note that all `submit!` invocations across all source files
+/// linked into your application all take effect simultaneously. A `submit!`
+/// invocation is not a statement that needs to be called from `main` in order
+/// to execute.
+///
+/// # Examples
+///
+/// Put `submit!` invocations outside of any function body.
+///
+/// ```
+/// # struct Flag;
+/// #
+/// # impl Flag {
+/// #     fn new(short: char, name: &amp;&#39;static str) -&gt; Self {
+/// #         Flag
+/// #     }
+/// # }
+/// #
+/// # inventory::collect!(Flag);
+/// #
+/// inventory::submit! {
+///     Flag::new(&#39;v&#39;, &quot;verbose&quot;)
+/// }
+/// #
+/// # fn main() {}
+/// ```
+///
+/// Do not try to invoke `submit!` from inside of a function body as it does not
+/// do what you want.
+///
+/// ```compile_fail
+/// // Do not do this.
+/// fn submit_flags(has_verbose_flag: bool) {
+///     if has_verbose_flag {
+///         inventory::submit! {
+///             Flag::new(&#39;v&#39;, &quot;verbose&quot;)
+///         }
+///     }
+/// }
+/// ```
+///
+/// Refer to the [crate level documentation](index.html) for a complete example
+/// of instantiating and iterating a plugin registry.
+</span><span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>submit {
+    ($(<span class="macro-nonterminal">$value</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::r#impl<span class="macro">::submit! </span>{
+            $(<span class="macro-nonterminal">$value</span>)*
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">fn</span> <span class="ident">unused</span>() {
-    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">ITER</span>;
+<span class="attribute">#[allow(dead_code)]
+</span><span class="kw">fn </span>unused() {
+    <span class="kw">let _ </span>= ITER;
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="inventory" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="inventory" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

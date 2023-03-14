@@ -36,6 +36,7 @@
 [ferris-unsafe]: {ROOT_PATH}assets/ferris-unsafe-by-Karen.png
 [ffi-call-you-back]: {ROOT_PATH}assets/ffi-call-you-back.jpg "😝"
 [safer-ffi-banner]: {ROOT_PATH}assets/safer_ffi.jpg
+[one-virtualptr-to-rule-them-all]: {ROOT_PATH}assets/one-virtualptr-to-rule-them-all.jpg
 
 [comments]: <> (
     INTERNAL CHAPTERS OR SECTIONS
@@ -78,3 +79,5 @@
 [`BoxDynFnMutN`]: {ROOT_PATH}rustdoc/safer_ffi/closure/boxed/index.html
 [`ArcDynFnN`]: {ROOT_PATH}rustdoc/safer_ffi/closure/arc/index.html
 [`::safer_ffi::closure`]: {ROOT_PATH}rustdoc/safer_ffi/closure/index.html
+[`VirtualPtr`]: {ROOT_PATH}rustdoc/safer_ffi/dyn_traits/struct.VirtualPtr.html
+[ReprCTrait]: {ROOT_PATH}rustdoc/safer_ffi/dyn_traits/trait.ReprCTrait.html

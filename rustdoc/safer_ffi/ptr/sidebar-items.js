@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["NonNullMut",""],["NonNullOwned",""],["NonNullRef",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["NonNullMut",""],["NonNullOwned",""],["NonNullRef",""]]};

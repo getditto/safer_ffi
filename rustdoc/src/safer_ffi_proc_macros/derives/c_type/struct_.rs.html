@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/proc_macro/derives/c_type/struct_.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>struct_.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../safer_ffi_proc_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../../safer_ffi_proc_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../safer_ffi_proc_macros/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/proc_macro/derives/c_type/struct_.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>struct_.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../safer_ffi_proc_macros/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -194,197 +189,196 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+</span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">crate</span>)
-<span class="kw">fn</span> <span class="ident">derive</span> (
-    <span class="ident">args</span>: <span class="ident">Args</span>,
-    <span class="ident">attrs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> [<span class="ident">Attribute</span>],
-    <span class="ident">pub_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">Visibility</span>,
-    <span class="ident">StructName</span> @ <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">Ident</span>,
-    <span class="ident">generics</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">Generics</span>,
-    <span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">Fields</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TokenStream2</span><span class="op">&gt;</span>
+<span class="kw">pub</span>(<span class="kw">in crate</span>)
+<span class="kw">fn </span>derive (
+    args: Args,
+    attrs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>[Attribute],
+    pub_: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Visibility,
+    StructName @ <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Ident,
+    generics: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Generics,
+    fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Fields,
+) -&gt; <span class="prelude-ty">Result</span>&lt;TokenStream2&gt;
 {
-    <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">fields</span>, <span class="ident">Fields::Unnamed</span> { .. } <span class="op">|</span> <span class="ident">Fields::Unit</span> { .. }) {
+    <span class="kw">if </span><span class="macro">matches!</span>(fields, Fields::Unnamed { .. } | Fields::Unit { .. }) {
         <span class="macro">bail!</span>(<span class="string">&quot;only braced structs are supported&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">apply</span>(<span class="macro">let_quote!</span>)]</span>
-    <span class="kw">use</span> <span class="ident">::safer_ffi</span>::{
-        <span class="ident">ඞ</span>,
-        <span class="ident">headers</span>,
-        <span class="ident">layout</span>::{
-            <span class="ident">CLayoutOf</span>,
-            <span class="ident">CType</span> <span class="kw">as</span> <span class="ident">CType</span>,
-            <span class="ident">OpaqueKind</span>,
-            <span class="ident">ReprC</span>,
+    <span class="attribute">#[apply(<span class="macro">let_quote!</span>)]
+    </span><span class="kw">use </span>::safer_ffi::{
+        ඞ,
+        headers,
+        layout::{
+            CLayoutOf,
+            CType <span class="kw">as </span>CType,
+            OpaqueKind,
+            ReprC,
         },
     };
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="macro">quote!</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="macro">quote!</span>();
 
-    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;js&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">args</span>.<span class="ident">js</span>.<span class="ident">is_some</span>() {
-        <span class="comment">// invoke the legacy `CType!` macro which is the one currently featuring</span>
-        <span class="comment">// the js FFI glue generating logic.</span>
-        <span class="kw">let</span> (<span class="ident">params</span>, <span class="ident">bounds</span>) <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">my_split</span>();
-        <span class="ident">ret</span>.<span class="ident">extend</span>(<span class="macro">quote!</span>(
-            <span class="macro">::safer_ffi::layout::CType!</span> {
-                <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">js</span>)]</span>
-                #<span class="ident">pub_</span>
-                <span class="kw">struct</span> #<span class="ident">StructName</span>
-                    [#<span class="ident">params</span>]
-                <span class="kw">where</span> {
-                    #(#<span class="ident">bounds</span> ,)<span class="op">*</span>
+    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;js&quot;</span>) &amp;&amp; args.js.is_some() {
+        <span class="comment">// invoke the legacy `CType!` macro which is the one currently featuring
+        // the js FFI glue generating logic.
+        </span><span class="kw">let </span>(params, bounds) = generics.my_split();
+        ret.extend(<span class="macro">quote!</span>(
+            <span class="macro">::safer_ffi::layout::CType! </span>{
+                <span class="attribute">#[repr(C, js)]
+                </span>#pub_
+                <span class="kw">struct </span>#StructName
+                    [#params]
+                <span class="kw">where </span>{
+                    #(#bounds ,)*
                 }
-                #<span class="ident">fields</span>
+                #fields
             }
         ))
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">impl_body</span> <span class="op">=</span> <span class="macro">quote!</span>(
-        <span class="kw">type</span> <span class="ident">OPAQUE_KIND</span> <span class="op">=</span> #<span class="ident">OpaqueKind::Concrete</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>impl_body = <span class="macro">quote!</span>(
+        <span class="kw">type </span>OPAQUE_KIND = #OpaqueKind::Concrete;
     );
 
-    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;headers&quot;</span>) {
-        <span class="kw">let</span> <span class="ident">EachGenericTy</span> <span class="op">=</span>
-            <span class="ident">generics</span>.<span class="ident">type_params</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">it</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">it</span>.<span class="ident">ident</span>)
+    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;headers&quot;</span>) {
+        <span class="kw">let </span>EachGenericTy =
+            generics.type_params().map(|it| <span class="kw-2">&amp;</span>it.ident)
         ;
-        <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">EachFieldTy</span> <span class="op">=</span>
-            <span class="ident">fields</span>.<span class="ident">iter</span>().<span class="ident">vmap</span>(<span class="op">|</span><span class="ident">Field</span> { <span class="ident">ty</span>, .. }<span class="op">|</span> <span class="ident">ty</span>)
+        <span class="kw">let </span><span class="kw-2">ref </span>EachFieldTy =
+            fields.iter().vmap(|Field { ty, .. }| ty)
         ;
-        <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">StructName_str</span> <span class="op">=</span>
-            <span class="ident">args</span>.<span class="ident">rename</span>.<span class="ident">map_or_else</span>(
-                <span class="op">|</span><span class="op">|</span> <span class="ident">StructName</span>.<span class="ident">to_string</span>().<span class="ident">into_token_stream</span>(),
-                <span class="ident">ToTokens::into_token_stream</span>,
+        <span class="kw">let </span><span class="kw-2">ref </span>StructName_str =
+            args.rename.map_or_else(
+                || StructName.to_string().into_token_stream(),
+                ToTokens::into_token_stream,
             )
         ;
 
-        <span class="ident">impl_body</span>.<span class="ident">extend</span>(<span class="macro">quote!</span>(
-            <span class="kw">fn</span> <span class="ident">short_name</span> ()
-              -&gt; #<span class="ident">ඞ::String</span>
+        impl_body.extend(<span class="macro">quote!</span>(
+            <span class="kw">fn </span>short_name ()
+              -&gt; #ඞ::String
             {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_ret</span> <span class="op">=</span>
-                    <span class="op">&lt;</span>#<span class="ident">ඞ::String</span> <span class="kw">as</span> #<span class="ident">ඞ::From</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from</span>(#<span class="ident">StructName_str</span>)
+                <span class="kw">let </span><span class="kw-2">mut </span>_ret =
+                    &lt;#ඞ::String <span class="kw">as </span>#ඞ::From&lt;<span class="kw">_</span>&gt;&gt;::from(#StructName_str)
                 ;
                 #(
-                    #<span class="ident">ඞ::fmt::Write::write_fmt</span>(
-                        <span class="kw-2">&amp;mut</span> <span class="ident">_ret</span>,
+                    #ඞ::fmt::Write::write_fmt(
+                        <span class="kw-2">&amp;mut </span>_ret,
                         #<span class="macro">ඞ::format_args!</span>(
                             <span class="string">&quot;_{}&quot;</span>,
-                            <span class="op">&lt;</span>#<span class="ident">CLayoutOf</span><span class="op">&lt;</span>#<span class="ident">EachGenericTy</span><span class="op">&gt;</span> <span class="kw">as</span> #<span class="ident">CType</span><span class="op">&gt;</span><span class="ident">::short_name</span>(),
+                            &lt;#CLayoutOf&lt;#EachGenericTy&gt; <span class="kw">as </span>#CType&gt;::short_name(),
                         ),
-                    ).<span class="ident">unwrap</span>();
-                )<span class="op">*</span>
-                <span class="ident">_ret</span>
+                    ).unwrap();
+                )*
+                _ret
             }
         ));
 
-        <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">struct_docs</span> <span class="op">=</span> <span class="ident">utils::extract_docs</span>(<span class="ident">attrs</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">ref </span>struct_docs = utils::extract_docs(attrs)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">each_field</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="macro">Quote!</span>[ <span class="ident">StructField</span> ]<span class="op">&gt;</span> <span class="op">=</span>
-            (<span class="number">0</span>..).<span class="ident">zip</span>(<span class="ident">fields</span>).<span class="ident">try_vmap</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">f</span>)<span class="op">|</span> <span class="ident">Result::Ok</span>({
-                <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">field_docs</span> <span class="op">=</span> <span class="ident">utils::extract_docs</span>(<span class="kw-2">&amp;</span><span class="ident">f</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">field_name_str</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">ident</span>.<span class="ident">as_ref</span>().<span class="ident">map_or_else</span>(
-                    <span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;_{i}&quot;</span>),
-                    <span class="ident">Ident::to_string</span>,
+        <span class="kw">let </span><span class="kw-2">ref </span>each_field: Vec&lt;<span class="macro">Quote!</span>[ StructField ]&gt; =
+            (<span class="number">0</span>..).zip(fields).try_vmap(|(i, f)| Result::Ok({
+                <span class="kw">let </span><span class="kw-2">ref </span>field_docs = utils::extract_docs(<span class="kw-2">&amp;</span>f.attrs)<span class="question-mark">?</span>;
+                <span class="kw">let </span><span class="kw-2">ref </span>field_name_str = f.ident.as_ref().map_or_else(
+                    || <span class="macro">format!</span>(<span class="string">&quot;_{i}&quot;</span>),
+                    Ident::to_string,
                 );
-                <span class="kw">let</span> <span class="ident">FieldTy</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">f</span>.<span class="ident">ty</span>;
+                <span class="kw">let </span>FieldTy = <span class="kw-2">&amp;</span>f.ty;
                 <span class="macro">quote!</span>(
-                    #<span class="ident">ඞ::StructField</span> {
-                        <span class="ident">docs</span>: <span class="kw-2">&amp;</span>[#(#<span class="ident">field_docs</span>),<span class="kw-2">*</span>],
-                        <span class="ident">name</span>: #<span class="ident">field_name_str</span>,
-                        <span class="ident">ty</span>: <span class="kw-2">&amp;</span>#<span class="ident">ඞ::marker::PhantomData</span>::<span class="op">&lt;</span>#<span class="ident">FieldTy</span><span class="op">&gt;</span>,
+                    #ඞ::StructField {
+                        docs: <span class="kw-2">&amp;</span>[#(#field_docs),<span class="kw-2">*</span>],
+                        name: #field_name_str,
+                        ty: <span class="kw-2">&amp;</span>#ඞ::marker::PhantomData::&lt;#FieldTy&gt;,
                     }
                 )
-            }))<span class="question-mark">?</span>
-        ;
+            }))<span class="question-mark">?
+        </span>;
 
-        <span class="ident">impl_body</span>.<span class="ident">extend</span>(<span class="macro">quote!</span>(
-            <span class="kw">fn</span> <span class="ident">define_self__impl</span> (
-                <span class="ident">language</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw">dyn</span> #<span class="ident">headers::languages::HeaderLanguage</span>,
-                <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> #<span class="ident">headers::Definer</span>,
-            ) -&gt; #<span class="ident">ඞ::io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+        impl_body.extend(<span class="macro">quote!</span>(
+            <span class="kw">fn </span>define_self__impl (
+                language: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw">dyn </span>#headers::languages::HeaderLanguage,
+                definer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span>#headers::Definer,
+            ) -&gt; #ඞ::io::Result&lt;()&gt;
             {
             #(
-                <span class="op">&lt;</span> #<span class="ident">EachFieldTy</span> <span class="kw">as</span> #<span class="ident">CType</span> <span class="op">&gt;</span><span class="ident">::define_self</span>(<span class="ident">language</span>, <span class="ident">definer</span>)<span class="question-mark">?</span>;
-            )<span class="op">*</span>
-                <span class="ident">language</span>.<span class="ident">emit_struct</span>(
-                    <span class="ident">definer</span>,
-                    <span class="kw-2">&amp;</span>[#(#<span class="ident">struct_docs</span>),<span class="kw-2">*</span>],
-                    <span class="kw-2">&amp;</span>#<span class="ident">ඞ::marker::PhantomData</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>,
-                    <span class="kw-2">&amp;</span>[#(#<span class="ident">each_field</span>),<span class="kw-2">*</span>],
+                &lt; #EachFieldTy <span class="kw">as </span>#CType &gt;::define_self(language, definer)<span class="question-mark">?</span>;
+            )*
+                language.emit_struct(
+                    definer,
+                    <span class="kw-2">&amp;</span>[#(#struct_docs),<span class="kw-2">*</span>],
+                    <span class="kw-2">&amp;</span>#ඞ::marker::PhantomData::&lt;<span class="self">Self</span>&gt;,
+                    <span class="kw-2">&amp;</span>[#(#each_field),<span class="kw-2">*</span>],
                 )
             }
         ));
     }
 
-    <span class="ident">ret</span>.<span class="ident">extend</span>({
-        <span class="kw">let</span> (<span class="ident">intro_generics</span>, <span class="ident">fwd_generics</span>, <span class="ident">where_clauses</span>) <span class="op">=</span>
-            <span class="ident">generics</span>.<span class="ident">split_for_impl</span>()
+    ret.extend({
+        <span class="kw">let </span>(intro_generics, fwd_generics, where_clauses) =
+            generics.split_for_impl()
         ;
 
         <span class="macro">quote!</span>(
-            <span class="kw">impl</span> #<span class="ident">intro_generics</span>
-                #<span class="ident">ඞ::Clone</span>
-            <span class="kw">for</span>
-                #<span class="ident">StructName</span> #<span class="ident">fwd_generics</span>
-            #<span class="ident">where_clauses</span>
+            <span class="kw">impl </span>#intro_generics
+                #ඞ::Clone
+            <span class="kw">for
+                </span>#StructName #fwd_generics
+            #where_clauses
             {
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">clone</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">Self</span>)
-                  -&gt; <span class="self">Self</span>
-                {
-                    <span class="kw-2">*</span><span class="self">self</span>
-                }
+                <span class="attribute">#[inline]
+                </span><span class="kw">fn </span>clone (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">Self</span>)
+                  -&gt; <span class="self">Self
+                </span>{
+                    <span class="kw-2">*</span><span class="self">self
+                </span>}
             }
 
-            <span class="kw">impl</span> #<span class="ident">intro_generics</span>
-                #<span class="ident">ඞ::Copy</span>
-            <span class="kw">for</span>
-                #<span class="ident">StructName</span> #<span class="ident">fwd_generics</span>
-            #<span class="ident">where_clauses</span>
+            <span class="kw">impl </span>#intro_generics
+                #ඞ::Copy
+            <span class="kw">for
+                </span>#StructName #fwd_generics
+            #where_clauses
             {}
 
-            <span class="kw">unsafe</span>
-            <span class="kw">impl</span> #<span class="ident">intro_generics</span>
-                #<span class="ident">CType</span>
-            <span class="kw">for</span>
-                #<span class="ident">StructName</span> #<span class="ident">fwd_generics</span>
-            #<span class="ident">where_clauses</span>
+            <span class="kw">unsafe
+            impl </span>#intro_generics
+                #CType
+            <span class="kw">for
+                </span>#StructName #fwd_generics
+            #where_clauses
             {
-                #<span class="ident">impl_body</span>
+                #impl_body
             }
 
-            <span class="comment">// If it is CType, it trivially is ReprC.</span>
-            <span class="kw">unsafe</span>
-            <span class="kw">impl</span> #<span class="ident">intro_generics</span>
-                #<span class="ident">ReprC</span>
-            <span class="kw">for</span>
-                #<span class="ident">StructName</span> #<span class="ident">fwd_generics</span>
-            #<span class="ident">where_clauses</span>
+            <span class="comment">// If it is CType, it trivially is ReprC.
+            </span><span class="kw">unsafe
+            impl </span>#intro_generics
+                #ReprC
+            <span class="kw">for
+                </span>#StructName #fwd_generics
+            #where_clauses
             {
-                <span class="kw">type</span> <span class="ident">CLayout</span> <span class="op">=</span> <span class="self">Self</span>;
+                <span class="kw">type </span>CLayout = <span class="self">Self</span>;
 
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">is_valid</span> (
-                    <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident"><span class="self">Self</span>::CLayout</span>,
-                ) -&gt; #<span class="ident">ඞ::bool</span>
+                <span class="attribute">#[inline]
+                </span><span class="kw">fn </span>is_valid (
+                    <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">Self</span>::CLayout,
+                ) -&gt; #ඞ::bool
                 {
-                    <span class="bool-val">true</span>
-                }
+                    <span class="bool-val">true
+                </span>}
             }
         )
     });
 
-    <span class="comment">// #[cfg(feature = &quot;js&quot;)] {</span>
-    <span class="comment">//     ret.extend(super::js::handle(/* … */)?);</span>
-    <span class="comment">// }</span>
+    <span class="comment">// #[cfg(feature = &quot;js&quot;)] {
+    //     ret.extend(super::js::handle(/* … */)?);
+    // }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">ret</span>)
+    </span><span class="prelude-val">Ok</span>(ret)
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="safer_ffi_proc_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="safer_ffi_proc_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

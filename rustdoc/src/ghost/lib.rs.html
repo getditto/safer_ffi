@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ghost-0.1.6/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ghost/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../ghost/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ghost/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ghost-0.1.8/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../ghost/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -331,334 +326,335 @@
 <span id="326">326</span>
 <span id="327">327</span>
 <span id="328">328</span>
-</pre><pre class="rust"><code><span class="doccomment">//! [![github]](https://github.com/dtolnay/ghost)&amp;ensp;[![crates-io]](https://crates.io/crates/ghost)&amp;ensp;[![docs-rs]](https://docs.rs/ghost)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github</span>
-<span class="doccomment">//! [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust</span>
-<span class="doccomment">//! [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logo=docs.rs</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;br&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! **Define your own PhantomData and similarly behaved unit types.**</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Background</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [`PhantomData`] as defined by the Rust standard library is magical in that</span>
-<span class="doccomment">//! the same type is impossible to define in ordinary Rust code. It is defined</span>
-<span class="doccomment">//! in the standard library like this:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [`PhantomData`]: https://doc.rust-lang.org/std/marker/struct.PhantomData.html</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! # const IGNORE: &amp;str = stringify! {</span>
-<span class="doccomment">//! #[lang = &quot;phantom_data&quot;]</span>
-<span class="doccomment">//! pub struct PhantomData&lt;T: ?Sized&gt;;</span>
-<span class="doccomment">//! # };</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The `#[lang = &quot;...&quot;]` attribute indicates that this is a [lang item], a</span>
-<span class="doccomment">//! special case known to the compiler. It is the only type permitted to carry</span>
-<span class="doccomment">//! an unused type parameter.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [lang item]: https://manishearth.github.io/blog/2017/01/11/rust-tidbits-what-is-a-lang-item/</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! If we try to define an equivalent unit struct with type parameter, the</span>
-<span class="doccomment">//! compiler rejects that.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```compile_fail</span>
-<span class="doccomment">//! struct MyPhantom&lt;T: ?Sized&gt;;</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```text</span>
-<span class="doccomment">//! error[E0392]: parameter `T` is never used</span>
-<span class="doccomment">//!  --&gt; src/main.rs:1:18</span>
-<span class="doccomment">//!   |</span>
-<span class="doccomment">//! 1 | struct MyPhantom&lt;T: ?Sized&gt;;</span>
-<span class="doccomment">//!   |                  ^ unused type parameter</span>
-<span class="doccomment">//!   |</span>
-<span class="doccomment">//!   = help: consider removing `T` or using a marker such as `std::marker::PhantomData`</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This crate provides a `#[phantom]` attribute that makes it possible to</span>
-<span class="doccomment">//! define unit structs with generic parameters.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Examples</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! use ghost::phantom;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! #[phantom]</span>
-<span class="doccomment">//! struct MyPhantom&lt;T: ?Sized&gt;;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! fn main() {</span>
-<span class="doccomment">//!     // Proof that MyPhantom behaves like PhantomData.</span>
-<span class="doccomment">//!     let _: MyPhantom&lt;u8&gt; = MyPhantom::&lt;u8&gt;;</span>
-<span class="doccomment">//!     assert_eq!(0, std::mem::size_of::&lt;MyPhantom&lt;u8&gt;&gt;());</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Proof that MyPhantom is not just a re-export of PhantomData.</span>
-<span class="doccomment">//! // If it were a re-export, these would be conflicting impls.</span>
-<span class="doccomment">//! trait Trait {}</span>
-<span class="doccomment">//! impl&lt;T&gt; Trait for std::marker::PhantomData&lt;T&gt; {}</span>
-<span class="doccomment">//! impl&lt;T&gt; Trait for MyPhantom&lt;T&gt; {}</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Proof that MyPhantom is local to the current crate.</span>
-<span class="doccomment">//! impl&lt;T&gt; MyPhantom&lt;T&gt; {</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The implementation accepts where-clauses, lifetimes, multiple generic</span>
-<span class="doccomment">//! parameters, and derives. Here is a contrived invocation that demonstrates</span>
-<span class="doccomment">//! everything at once:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! use ghost::phantom;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! #[phantom]</span>
-<span class="doccomment">//! #[derive(Copy, Clone, Default, Hash, PartialOrd, Ord, PartialEq, Eq, Debug)]</span>
-<span class="doccomment">//! struct Crazy&lt;&#39;a, V: &#39;a, T&gt; where &amp;&#39;a V: IntoIterator&lt;Item = T&gt;;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! fn main() {</span>
-<span class="doccomment">//!     let _ = Crazy::&lt;&#39;static, Vec&lt;String&gt;, &amp;&#39;static String&gt;;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//!     // Lifetime elision.</span>
-<span class="doccomment">//!     let crazy = Crazy::&lt;Vec&lt;String&gt;, &amp;String&gt;;</span>
-<span class="doccomment">//!     println!(&quot;{:?}&quot;, crazy);</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Variance</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The `#[phantom]` attribute accepts attributes on individual generic</span>
-<span class="doccomment">//! parameters (both lifetime and type parameters) to make them contravariant or</span>
-<span class="doccomment">//! invariant. The default is covariance.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! - `#[contra]` — contravariant generic parameter</span>
-<span class="doccomment">//! - `#[invariant]` — invariant generic parameter</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The implications of variance are explained in more detail by the [Subtyping</span>
-<span class="doccomment">//! chapter] of the Rustonomicon.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [Subtyping chapter]: https://doc.rust-lang.org/nomicon/subtyping.html</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! use ghost::phantom;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! #[phantom]</span>
-<span class="doccomment">//! struct ContravariantLifetime&lt;#[contra] &#39;a&gt;;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! fn f&lt;&#39;a&gt;(arg: ContravariantLifetime&lt;&#39;a&gt;) -&gt; ContravariantLifetime&lt;&#39;static&gt; {</span>
-<span class="doccomment">//!     // This coercion is only legal because the lifetime parameter is</span>
-<span class="doccomment">//!     // contravariant. If it were covariant (the default) or invariant,</span>
-<span class="doccomment">//!     // this would not compile.</span>
-<span class="doccomment">//!     arg</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! #[phantom]</span>
-<span class="doccomment">//! struct Demo&lt;A, #[contra] B, #[invariant] C&gt;;</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! # fn main() {}</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Use cases</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Entirely up to your imagination. Just to name one, how about a typed</span>
-<span class="doccomment">//! registry library that admits the following syntax for iterating over values</span>
-<span class="doccomment">//! registered of a particular type:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```no_run</span>
-<span class="doccomment">//! # use ghost::phantom;</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! # #[phantom]</span>
-<span class="doccomment">//! # struct Registry&lt;T&gt;;</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! # impl&lt;T&gt; IntoIterator for Registry&lt;T&gt; {</span>
-<span class="doccomment">//! #     type Item = T;</span>
-<span class="doccomment">//! #     type IntoIter = Iter&lt;T&gt;;</span>
-<span class="doccomment">//! #     fn into_iter(self) -&gt; Self::IntoIter {</span>
-<span class="doccomment">//! #         unimplemented!()</span>
-<span class="doccomment">//! #     }</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! # struct Iter&lt;T&gt;(T);</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! # impl&lt;T&gt; Iterator for Iter&lt;T&gt; {</span>
-<span class="doccomment">//! #     type Item = T;</span>
-<span class="doccomment">//! #     fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt; {</span>
-<span class="doccomment">//! #         unimplemented!()</span>
-<span class="doccomment">//! #     }</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! # struct Flag;</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! # fn main() {</span>
-<span class="doccomment">//! for flag in Registry::&lt;Flag&gt; {</span>
-<span class="doccomment">//!     /* ... */</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
+<span id="329">329</span>
+</pre><pre class="rust"><code><span class="doccomment">//! [![github]](https://github.com/dtolnay/ghost)&amp;ensp;[![crates-io]](https://crates.io/crates/ghost)&amp;ensp;[![docs-rs]](https://docs.rs/ghost)
+//!
+//! [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github
+//! [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust
+//! [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logo=docs.rs
+//!
+//! &lt;br&gt;
+//!
+//! **Define your own PhantomData and similarly behaved unit types.**
+//!
+//! # Background
+//!
+//! [`PhantomData`] as defined by the Rust standard library is magical in that
+//! the same type is impossible to define in ordinary Rust code. It is defined
+//! in the standard library like this:
+//!
+//! [`PhantomData`]: https://doc.rust-lang.org/std/marker/struct.PhantomData.html
+//!
+//! ```
+//! # const IGNORE: &amp;str = stringify! {
+//! #[lang = &quot;phantom_data&quot;]
+//! pub struct PhantomData&lt;T: ?Sized&gt;;
+//! # };
+//! ```
+//!
+//! The `#[lang = &quot;...&quot;]` attribute indicates that this is a [lang item], a
+//! special case known to the compiler. It is the only type permitted to carry
+//! an unused type parameter.
+//!
+//! [lang item]: https://manishearth.github.io/blog/2017/01/11/rust-tidbits-what-is-a-lang-item/
+//!
+//! If we try to define an equivalent unit struct with type parameter, the
+//! compiler rejects that.
+//!
+//! ```compile_fail
+//! struct MyPhantom&lt;T: ?Sized&gt;;
+//! ```
+//!
+//! ```text
+//! error[E0392]: parameter `T` is never used
+//!  --&gt; src/main.rs:1:18
+//!   |
+//! 1 | struct MyPhantom&lt;T: ?Sized&gt;;
+//!   |                  ^ unused type parameter
+//!   |
+//!   = help: consider removing `T` or using a marker such as `std::marker::PhantomData`
+//! ```
+//!
+//! This crate provides a `#[phantom]` attribute that makes it possible to
+//! define unit structs with generic parameters.
+//!
+//! # Examples
+//!
+//! ```
+//! use ghost::phantom;
+//!
+//! #[phantom]
+//! struct MyPhantom&lt;T: ?Sized&gt;;
+//!
+//! fn main() {
+//!     // Proof that MyPhantom behaves like PhantomData.
+//!     let _: MyPhantom&lt;u8&gt; = MyPhantom::&lt;u8&gt;;
+//!     assert_eq!(0, std::mem::size_of::&lt;MyPhantom&lt;u8&gt;&gt;());
+//! }
+//!
+//! // Proof that MyPhantom is not just a re-export of PhantomData.
+//! // If it were a re-export, these would be conflicting impls.
+//! trait Trait {}
+//! impl&lt;T&gt; Trait for std::marker::PhantomData&lt;T&gt; {}
+//! impl&lt;T&gt; Trait for MyPhantom&lt;T&gt; {}
+//!
+//! // Proof that MyPhantom is local to the current crate.
+//! impl&lt;T&gt; MyPhantom&lt;T&gt; {
+//! }
+//! ```
+//!
+//! The implementation accepts where-clauses, lifetimes, multiple generic
+//! parameters, and derives. Here is a contrived invocation that demonstrates
+//! everything at once:
+//!
+//! ```
+//! use ghost::phantom;
+//!
+//! #[phantom]
+//! #[derive(Copy, Clone, Default, Hash, PartialOrd, Ord, PartialEq, Eq, Debug)]
+//! struct Crazy&lt;&#39;a, V: &#39;a, T&gt; where &amp;&#39;a V: IntoIterator&lt;Item = T&gt;;
+//!
+//! fn main() {
+//!     let _ = Crazy::&lt;&#39;static, Vec&lt;String&gt;, &amp;&#39;static String&gt;;
+//!
+//!     // Lifetime elision.
+//!     let crazy = Crazy::&lt;Vec&lt;String&gt;, &amp;String&gt;;
+//!     println!(&quot;{:?}&quot;, crazy);
+//! }
+//! ```
+//!
+//! # Variance
+//!
+//! The `#[phantom]` attribute accepts attributes on individual generic
+//! parameters (both lifetime and type parameters) to make them contravariant or
+//! invariant. The default is covariance.
+//!
+//! - `#[contra]` — contravariant generic parameter
+//! - `#[invariant]` — invariant generic parameter
+//!
+//! The implications of variance are explained in more detail by the [Subtyping
+//! chapter] of the Rustonomicon.
+//!
+//! [Subtyping chapter]: https://doc.rust-lang.org/nomicon/subtyping.html
+//!
+//! ```
+//! use ghost::phantom;
+//!
+//! #[phantom]
+//! struct ContravariantLifetime&lt;#[contra] &#39;a&gt;;
+//!
+//! fn f&lt;&#39;a&gt;(arg: ContravariantLifetime&lt;&#39;a&gt;) -&gt; ContravariantLifetime&lt;&#39;static&gt; {
+//!     // This coercion is only legal because the lifetime parameter is
+//!     // contravariant. If it were covariant (the default) or invariant,
+//!     // this would not compile.
+//!     arg
+//! }
+//!
+//! #[phantom]
+//! struct Demo&lt;A, #[contra] B, #[invariant] C&gt;;
+//! #
+//! # fn main() {}
+//! ```
+//!
+//! # Use cases
+//!
+//! Entirely up to your imagination. Just to name one, how about a typed
+//! registry library that admits the following syntax for iterating over values
+//! registered of a particular type:
+//!
+//! ```no_run
+//! # use ghost::phantom;
+//! #
+//! # #[phantom]
+//! # struct Registry&lt;T&gt;;
+//! #
+//! # impl&lt;T&gt; IntoIterator for Registry&lt;T&gt; {
+//! #     type Item = T;
+//! #     type IntoIter = Iter&lt;T&gt;;
+//! #     fn into_iter(self) -&gt; Self::IntoIter {
+//! #         unimplemented!()
+//! #     }
+//! # }
+//! #
+//! # struct Iter&lt;T&gt;(T);
+//! #
+//! # impl&lt;T&gt; Iterator for Iter&lt;T&gt; {
+//! #     type Item = T;
+//! #     fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt; {
+//! #         unimplemented!()
+//! #     }
+//! # }
+//! #
+//! # struct Flag;
+//! #
+//! # fn main() {
+//! for flag in Registry::&lt;Flag&gt; {
+//!     /* ... */
+//! }
+//! # }
+//! ```
 
-<span class="attribute">#![<span class="ident">allow</span>(
-    <span class="ident">clippy::doc_markdown</span>,
-    <span class="comment">// https://github.com/rust-lang/rust-clippy/issues/8538</span>
-    <span class="ident">clippy::iter_with_drain</span>,
-    <span class="ident">clippy::needless_doctest_main</span>,
-    <span class="ident">clippy::needless_pass_by_value</span>,
-    <span class="ident">clippy::too_many_lines</span>
-)]</span>
+</span><span class="attribute">#![doc(html_root_url = <span class="string">&quot;https://docs.rs/ghost/0.1.8&quot;</span>)]
+#![allow(
+    clippy::doc_markdown,
+    <span class="comment">// https://github.com/rust-lang/rust-clippy/issues/8538
+    </span>clippy::iter_with_drain,
+    clippy::needless_doctest_main,
+    clippy::needless_pass_by_value,
+    clippy::too_many_lines
+)]
 
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">proc_macro</span>;
+</span><span class="kw">extern crate </span>proc_macro;
 
-<span class="kw">mod</span> <span class="ident">derive</span>;
-<span class="kw">mod</span> <span class="ident">parse</span>;
-<span class="kw">mod</span> <span class="ident">variance</span>;
-<span class="kw">mod</span> <span class="ident">visibility</span>;
+<span class="kw">mod </span>derive;
+<span class="kw">mod </span>parse;
+<span class="kw">mod </span>variance;
+<span class="kw">mod </span>visibility;
 
-<span class="kw">use</span> <span class="ident">proc_macro::TokenStream</span>;
-<span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Ident</span>, <span class="ident">Span</span>};
-<span class="kw">use</span> <span class="ident">quote::quote</span>;
-<span class="kw">use</span> <span class="ident">syn::parse::Nothing</span>;
-<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">parse_macro_input</span>, <span class="ident">Error</span>, <span class="ident">GenericParam</span>, <span class="ident">Token</span>};
+<span class="kw">use </span>proc_macro::TokenStream;
+<span class="kw">use </span>proc_macro2::{Ident, Span};
+<span class="kw">use </span>quote::quote;
+<span class="kw">use </span>syn::parse::Nothing;
+<span class="kw">use </span>syn::{parse_macro_input, Error, GenericParam, Token};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parse::UnitStruct</span>;
+<span class="kw">use </span><span class="kw">crate</span>::parse::UnitStruct;
 
-<span class="doccomment">/// Define your own PhantomData and similarly behaved unit types.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Please refer to the [crate level documentation](index.html) for explanation</span>
-<span class="doccomment">/// and examples.</span>
-<span class="attribute">#[<span class="ident">proc_macro_attribute</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">phantom</span>(<span class="ident">args</span>: <span class="ident">TokenStream</span>, <span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="macro">parse_macro_input!</span>(<span class="ident">args</span> <span class="kw">as</span> <span class="ident">Nothing</span>);
-    <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">parse_macro_input!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">UnitStruct</span>);
+<span class="doccomment">/// Define your own PhantomData and similarly behaved unit types.
+///
+/// Please refer to the [crate level documentation](index.html) for explanation
+/// and examples.
+</span><span class="attribute">#[proc_macro_attribute]
+</span><span class="kw">pub fn </span>phantom(args: TokenStream, input: TokenStream) -&gt; TokenStream {
+    <span class="macro">parse_macro_input!</span>(args <span class="kw">as </span>Nothing);
+    <span class="kw">let </span>input = <span class="macro">parse_macro_input!</span>(input <span class="kw">as </span>UnitStruct);
 
-    <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ident</span>;
-    <span class="kw">let</span> <span class="ident">call_site</span> <span class="op">=</span> <span class="ident">Span::call_site</span>();
-    <span class="kw">let</span> <span class="ident">void_namespace</span> <span class="op">=</span> <span class="ident">Ident::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;__void_{}&quot;</span>, <span class="ident">ident</span>), <span class="ident">call_site</span>);
-    <span class="kw">let</span> <span class="ident">value_namespace</span> <span class="op">=</span> <span class="ident">Ident::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;__value_{}&quot;</span>, <span class="ident">ident</span>), <span class="ident">call_site</span>);
+    <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>input.ident;
+    <span class="kw">let </span>call_site = Span::call_site();
+    <span class="kw">let </span>void_namespace = Ident::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;__void_{}&quot;</span>, ident), call_site);
+    <span class="kw">let </span>value_namespace = Ident::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;__value_{}&quot;</span>, ident), call_site);
 
-    <span class="kw">let</span> <span class="ident">vis</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">vis</span>;
-    <span class="kw">let</span> <span class="ident">vis_super</span> <span class="op">=</span> <span class="ident">visibility::vis_super</span>(<span class="ident">vis</span>);
+    <span class="kw">let </span>vis = <span class="kw-2">&amp;</span>input.vis;
+    <span class="kw">let </span>vis_super = visibility::vis_super(vis);
 
-    <span class="kw">let</span> (<span class="ident">derives</span>, <span class="ident">attrs</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">derive::expand</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">attrs</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">split</span>) =&gt; <span class="ident">split</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="ident">err</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>(),
+    <span class="kw">let </span>(derives, attrs) = <span class="kw">match </span>derive::expand(<span class="kw-2">&amp;</span>input.attrs, <span class="kw-2">&amp;</span>input) {
+        <span class="prelude-val">Ok</span>(split) =&gt; split,
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span>err.to_compile_error().into(),
     };
 
-    <span class="kw">let</span> <span class="ident">void</span> <span class="op">=</span> <span class="ident">Ident::new</span>(
-        <span class="kw">if</span> <span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;Void&quot;</span> { <span class="string">&quot;__Void&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;Void&quot;</span> },
-        <span class="ident">Span::call_site</span>(),
+    <span class="kw">let </span>void = Ident::new(
+        <span class="kw">if </span>ident == <span class="string">&quot;Void&quot; </span>{ <span class="string">&quot;__Void&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;Void&quot; </span>},
+        Span::call_site(),
     );
 
-    <span class="kw">let</span> <span class="ident">type_param</span> <span class="op">=</span> <span class="ident">Ident::new</span>(
-        <span class="kw">if</span> <span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;TypeParam&quot;</span> {
-            <span class="string">&quot;__TypeParam&quot;</span>
-        } <span class="kw">else</span> {
-            <span class="string">&quot;TypeParam&quot;</span>
-        },
-        <span class="ident">Span::call_site</span>(),
+    <span class="kw">let </span>type_param = Ident::new(
+        <span class="kw">if </span>ident == <span class="string">&quot;TypeParam&quot; </span>{
+            <span class="string">&quot;__TypeParam&quot;
+        </span>} <span class="kw">else </span>{
+            <span class="string">&quot;TypeParam&quot;
+        </span>},
+        Span::call_site(),
     );
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">generics</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">generics</span>;
-    <span class="kw">let</span> <span class="ident">where_clause</span> <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">where_clause</span>.<span class="ident">take</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">impl_generics</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ty_generics</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">phantoms</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">param</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">generics</span>.<span class="ident">params</span> {
-        <span class="kw">match</span> <span class="ident">param</span> {
-            <span class="ident">GenericParam::Type</span>(<span class="ident">param</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">param</span>.<span class="ident">ident</span>;
-                <span class="kw">let</span> <span class="ident">elem</span> <span class="op">=</span> <span class="macro">quote!</span>(#<span class="ident">ident</span>);
-                <span class="ident">impl_generics</span>.<span class="ident">push</span>(<span class="macro">quote!</span>(#<span class="ident">ident</span>: <span class="question-mark">?</span><span class="ident">::core::marker::Sized</span>));
-                <span class="ident">ty_generics</span>.<span class="ident">push</span>(<span class="macro">quote!</span>(#<span class="ident">ident</span>));
-                <span class="ident">phantoms</span>.<span class="ident">push</span>(<span class="ident">variance::apply</span>(<span class="ident">param</span>, <span class="ident">elem</span>, <span class="kw-2">&amp;</span><span class="ident">type_param</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>generics = input.generics;
+    <span class="kw">let </span>where_clause = generics.where_clause.take();
+    <span class="kw">let </span><span class="kw-2">mut </span>impl_generics = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>ty_generics = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>phantoms = Vec::new();
+    <span class="kw">for </span>param <span class="kw">in </span><span class="kw-2">&amp;mut </span>generics.params {
+        <span class="kw">match </span>param {
+            GenericParam::Type(param) =&gt; {
+                <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>param.ident;
+                <span class="kw">let </span>elem = <span class="macro">quote!</span>(#ident);
+                impl_generics.push(<span class="macro">quote!</span>(#ident: <span class="question-mark">?</span>::core::marker::Sized));
+                ty_generics.push(<span class="macro">quote!</span>(#ident));
+                phantoms.push(variance::apply(param, elem, <span class="kw-2">&amp;</span>type_param));
             }
-            <span class="ident">GenericParam::Lifetime</span>(<span class="ident">param</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">lifetime</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">param</span>.<span class="ident">lifetime</span>;
-                <span class="kw">let</span> <span class="ident">elem</span> <span class="op">=</span> <span class="macro">quote!</span>(<span class="kw-2">&amp;</span>#<span class="ident">lifetime</span> ());
-                <span class="ident">impl_generics</span>.<span class="ident">push</span>(<span class="macro">quote!</span>(#<span class="ident">lifetime</span>));
-                <span class="ident">ty_generics</span>.<span class="ident">push</span>(<span class="macro">quote!</span>(#<span class="ident">lifetime</span>));
-                <span class="ident">phantoms</span>.<span class="ident">push</span>(<span class="ident">variance::apply</span>(<span class="ident">param</span>, <span class="ident">elem</span>, <span class="kw-2">&amp;</span><span class="ident">type_param</span>));
+            GenericParam::Lifetime(param) =&gt; {
+                <span class="kw">let </span>lifetime = <span class="kw-2">&amp;</span>param.lifetime;
+                <span class="kw">let </span>elem = <span class="macro">quote!</span>(<span class="kw-2">&amp;</span>#lifetime ());
+                impl_generics.push(<span class="macro">quote!</span>(#lifetime));
+                ty_generics.push(<span class="macro">quote!</span>(#lifetime));
+                phantoms.push(variance::apply(param, elem, <span class="kw-2">&amp;</span>type_param));
             }
-            <span class="ident">GenericParam::Const</span>(<span class="ident">param</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="string">&quot;const generics are not supported&quot;</span>;
-                <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">Error::new_spanned</span>(<span class="ident">param</span>, <span class="ident">msg</span>);
-                <span class="kw">return</span> <span class="ident">err</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>();
+            GenericParam::Const(param) =&gt; {
+                <span class="kw">let </span>msg = <span class="string">&quot;const generics are not supported&quot;</span>;
+                <span class="kw">let </span>err = Error::new_spanned(param, msg);
+                <span class="kw">return </span>err.to_compile_error().into();
             }
         }
     }
 
-    <span class="kw">let</span> <span class="ident">impl_generics</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">impl_generics</span>;
-    <span class="kw">let</span> <span class="ident">ty_generics</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">ty_generics</span>;
-    <span class="kw">let</span> <span class="ident">enum_token</span> <span class="op">=</span> <span class="macro">Token!</span>[<span class="kw">enum</span>](<span class="ident">input</span>.<span class="ident">struct_token</span>.<span class="ident">span</span>);
-    <span class="kw">let</span> <span class="ident">struct_token</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">struct_token</span>;
+    <span class="kw">let </span>impl_generics = <span class="kw-2">&amp;</span>impl_generics;
+    <span class="kw">let </span>ty_generics = <span class="kw-2">&amp;</span>ty_generics;
+    <span class="kw">let </span>enum_token = <span class="macro">Token!</span>[<span class="kw">enum</span>](input.struct_token.span);
+    <span class="kw">let </span>struct_token = input.struct_token;
 
-    <span class="ident">TokenStream::from</span>(<span class="macro">quote!</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">doc</span>))]</span>
-        <span class="kw">mod</span> #<span class="ident">void_namespace</span> {
-            <span class="kw">enum</span> #<span class="ident">void</span> {}
-            <span class="kw">impl</span> <span class="ident">::core::marker::Copy</span> <span class="kw">for</span> #<span class="ident">void</span> {}
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::expl_impl_clone_on_copy</span>)]</span>
-            <span class="kw">impl</span> <span class="ident">::core::clone::Clone</span> <span class="kw">for</span> #<span class="ident">void</span> {
-                <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-                    <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {}
+    TokenStream::from(<span class="macro">quote! </span>{
+        <span class="attribute">#[cfg(not(doc))]
+        </span><span class="kw">mod </span>#void_namespace {
+            <span class="kw">enum </span>#void {}
+            <span class="kw">impl </span>::core::marker::Copy <span class="kw">for </span>#void {}
+            <span class="attribute">#[allow(clippy::expl_impl_clone_on_copy)]
+            </span><span class="kw">impl </span>::core::clone::Clone <span class="kw">for </span>#void {
+                <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+                    <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{}
                 }
             }
 
-            <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>, <span class="ident">packed</span>)]</span>
-            <span class="kw">struct</span> #<span class="ident">type_param</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">::core::marker::Sized</span><span class="op">&gt;</span>([<span class="kw-2">*const</span> <span class="ident">T</span>; <span class="number">0</span>]);
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">::core::marker::Sized</span><span class="op">&gt;</span> <span class="ident">::core::marker::Copy</span> <span class="kw">for</span> #<span class="ident">type_param</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::expl_impl_clone_on_copy</span>)]</span>
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">::core::marker::Sized</span><span class="op">&gt;</span> <span class="ident">::core::clone::Clone</span> <span class="kw">for</span> #<span class="ident">type_param</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-                <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-                    <span class="kw-2">*</span><span class="self">self</span>
-                }
+            <span class="attribute">#[repr(C, packed)]
+            </span><span class="kw">struct </span>#type_param&lt;T: <span class="question-mark">?</span>::core::marker::Sized&gt;([<span class="kw-2">*const </span>T; <span class="number">0</span>]);
+            <span class="kw">impl</span>&lt;T: <span class="question-mark">?</span>::core::marker::Sized&gt; ::core::marker::Copy <span class="kw">for </span>#type_param&lt;T&gt; {}
+            <span class="attribute">#[allow(clippy::expl_impl_clone_on_copy)]
+            </span><span class="kw">impl</span>&lt;T: <span class="question-mark">?</span>::core::marker::Sized&gt; ::core::clone::Clone <span class="kw">for </span>#type_param&lt;T&gt; {
+                <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+                    <span class="kw-2">*</span><span class="self">self
+                </span>}
             }
-            <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">::core::marker::Sized</span> <span class="op">+</span> <span class="ident">::core::marker::Send</span><span class="op">&gt;</span> <span class="ident">::core::marker::Send</span> <span class="kw">for</span> #<span class="ident">type_param</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
-            <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">::core::marker::Sized</span> <span class="op">+</span> <span class="ident">::core::marker::Sync</span><span class="op">&gt;</span> <span class="ident">::core::marker::Sync</span> <span class="kw">for</span> #<span class="ident">type_param</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
+            <span class="kw">unsafe impl</span>&lt;T: <span class="question-mark">?</span>::core::marker::Sized + ::core::marker::Send&gt; ::core::marker::Send <span class="kw">for </span>#type_param&lt;T&gt; {}
+            <span class="kw">unsafe impl</span>&lt;T: <span class="question-mark">?</span>::core::marker::Sized + ::core::marker::Sync&gt; ::core::marker::Sync <span class="kw">for </span>#type_param&lt;T&gt; {}
 
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
-            #<span class="ident">vis_super</span> <span class="kw">struct</span> #<span class="ident">ident</span> <span class="op">&lt;</span>#(#<span class="ident">impl_generics</span>),<span class="kw-2">*</span><span class="op">&gt;</span> (
+            <span class="attribute">#[allow(non_camel_case_types)]
+            </span>#vis_super <span class="kw">struct </span>#ident &lt;#(#impl_generics),<span class="kw-2">*</span>&gt; (
                 #(
-                    <span class="self">self</span>::#<span class="ident">type_param</span><span class="op">&lt;</span>#<span class="ident">phantoms</span><span class="op">&gt;</span>,
-                )<span class="op">*</span>
-                <span class="self">self</span>::#<span class="ident">void</span>,
+                    <span class="self">self</span>::#type_param&lt;#phantoms&gt;,
+                )*
+                <span class="self">self</span>::#void,
             );
 
-            <span class="kw">impl</span> <span class="op">&lt;</span>#(#<span class="ident">impl_generics</span>),<span class="kw-2">*</span><span class="op">&gt;</span> <span class="ident">::core::marker::Copy</span>
-            <span class="kw">for</span> #<span class="ident">ident</span> <span class="op">&lt;</span>#(#<span class="ident">ty_generics</span>),<span class="kw-2">*</span><span class="op">&gt;</span> {}
+            <span class="kw">impl </span>&lt;#(#impl_generics),<span class="kw-2">*</span>&gt; ::core::marker::Copy
+            <span class="kw">for </span>#ident &lt;#(#ty_generics),<span class="kw-2">*</span>&gt; {}
 
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::expl_impl_clone_on_copy</span>)]</span>
-            <span class="kw">impl</span> <span class="op">&lt;</span>#(#<span class="ident">impl_generics</span>),<span class="kw-2">*</span><span class="op">&gt;</span> <span class="ident">::core::clone::Clone</span>
-            <span class="kw">for</span> #<span class="ident">ident</span> <span class="op">&lt;</span>#(#<span class="ident">ty_generics</span>),<span class="kw-2">*</span><span class="op">&gt;</span> {
-                <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-                    <span class="kw-2">*</span><span class="self">self</span>
-                }
+            <span class="attribute">#[allow(clippy::expl_impl_clone_on_copy)]
+            </span><span class="kw">impl </span>&lt;#(#impl_generics),<span class="kw-2">*</span>&gt; ::core::clone::Clone
+            <span class="kw">for </span>#ident &lt;#(#ty_generics),<span class="kw-2">*</span>&gt; {
+                <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+                    <span class="kw-2">*</span><span class="self">self
+                </span>}
             }
         }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">doc</span>))]</span>
-        <span class="kw">mod</span> #<span class="ident">value_namespace</span> {
-            #<span class="ident">vis_super</span> <span class="kw">use</span> <span class="kw">super</span>::#<span class="ident">ident</span>::#<span class="ident">ident</span>;
+        <span class="attribute">#[cfg(not(doc))]
+        </span><span class="kw">mod </span>#value_namespace {
+            #vis_super <span class="kw">use super</span>::#ident::#ident;
         }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">doc</span>))]</span>
-        #(#<span class="ident">attrs</span>)<span class="op">*</span>
-        #<span class="ident">vis</span> #<span class="ident">enum_token</span> #<span class="ident">ident</span> #<span class="ident">generics</span> #<span class="ident">where_clause</span> {
-            <span class="ident">__Phantom</span>(#<span class="ident">void_namespace</span>::#<span class="ident">ident</span> <span class="op">&lt;</span>#(#<span class="ident">ty_generics</span>),<span class="kw-2">*</span><span class="op">&gt;</span>),
-            #<span class="ident">ident</span>,
+        <span class="attribute">#[cfg(not(doc))]
+        </span>#(#attrs)*
+        #vis #enum_token #ident #generics #where_clause {
+            __Phantom(#void_namespace::#ident &lt;#(#ty_generics),<span class="kw-2">*</span>&gt;),
+            #ident,
         }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">doc</span>))]</span>
-        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-        #<span class="ident">vis</span> <span class="kw">use</span> <span class="self">self</span>::#<span class="ident">value_namespace</span>::<span class="kw-2">*</span>;
+        <span class="attribute">#[cfg(not(doc))]
+        #[doc(hidden)]
+        </span>#vis <span class="kw">use </span><span class="self">self</span>::#value_namespace::<span class="kw-2">*</span>;
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
-        #(#<span class="ident">attrs</span>)<span class="op">*</span>
-        #<span class="ident">vis</span> #<span class="ident">struct_token</span> #<span class="ident">ident</span> #<span class="ident">generics</span> #<span class="ident">where_clause</span>;
+        <span class="attribute">#[cfg(doc)]
+        </span>#(#attrs)*
+        #vis #struct_token #ident #generics #where_clause;
 
-        #<span class="ident">derives</span>
+        #derives
     })
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ghost" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ghost" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

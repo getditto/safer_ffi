@@ -1,17 +1,12 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/proc_macro/ffi_export/const_.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>const_.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../safer_ffi_proc_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../safer_ffi_proc_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../safer_ffi_proc_macros/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
-<span id="2"> 2</span>
-<span id="3"> 3</span>
-<span id="4"> 4</span>
-<span id="5"> 5</span>
-<span id="6"> 6</span>
-<span id="7"> 7</span>
-<span id="8"> 8</span>
-<span id="9"> 9</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/proc_macro/ffi_export/const_.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>const_.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../safer_ffi_proc_macros/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
 <span id="10">10</span>
 <span id="11">11</span>
 <span id="12">12</span>
@@ -72,68 +67,68 @@
 <span id="67">67</span>
 <span id="68">68</span>
 <span id="69">69</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+</pre><pre class="rust"><code><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">super</span>)
-<span class="kw">fn</span> <span class="ident">handle</span> (
-    <span class="ident">_args</span>: <span class="ident">parse::Nothing</span>,
-    <span class="ident">input</span>: <span class="ident">ItemConst</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TokenStream2</span><span class="op">&gt;</span>
+<span class="kw">pub</span>(<span class="kw">in super</span>)
+<span class="kw">fn </span>handle (
+    _args: parse::Nothing,
+    input: ItemConst,
+) -&gt; <span class="prelude-ty">Result</span>&lt;TokenStream2&gt;
 {
-    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;headers&quot;</span>).<span class="ident">not</span>() {
-        <span class="prelude-val">Ok</span>(<span class="ident">input</span>.<span class="ident">into_token_stream</span>())
-    } <span class="kw">else</span> {
-        <span class="attribute">#[<span class="ident">apply</span>(<span class="macro">let_quote!</span>)]</span>
-        <span class="kw">use</span> {
-            <span class="ident">::safer_ffi</span>::{
-                <span class="ident">__cfg_headers__</span>,
-                <span class="ident">ඞ</span>,
+    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;headers&quot;</span>).not() {
+        <span class="prelude-val">Ok</span>(input.into_token_stream())
+    } <span class="kw">else </span>{
+        <span class="attribute">#[apply(<span class="macro">let_quote!</span>)]
+        </span><span class="kw">use </span>{
+            ::safer_ffi::{
+                __cfg_headers__,
+                ඞ,
             },
-            <span class="ident">::safer_ffi</span> <span class="kw">as</span> <span class="ident">krate</span>,
+            ::safer_ffi <span class="kw">as </span>krate,
         };
 
 
-        <span class="kw">let</span> <span class="ident">VAR</span> @ <span class="kw">_</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ident</span>;
-        <span class="kw">let</span> <span class="ident">VAR_str</span> @ <span class="kw">_</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">VAR</span>.<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">Ty</span> @ <span class="kw">_</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ty</span>;
-        <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">each_doc</span> <span class="op">=</span> <span class="ident">utils::extract_docs</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>VAR @ <span class="kw">_ </span>= <span class="kw-2">&amp;</span>input.ident;
+        <span class="kw">let </span>VAR_str @ <span class="kw">_ </span>= <span class="kw-2">&amp;</span>VAR.to_string();
+        <span class="kw">let </span>Ty @ <span class="kw">_ </span>= <span class="kw-2">&amp;</span>input.ty;
+        <span class="kw">let </span><span class="kw-2">ref </span>each_doc = utils::extract_docs(<span class="kw-2">&amp;</span>input.attrs)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">inventory_krate</span> <span class="op">=</span> <span class="macro">cfg!</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;inventory-0-3-1&quot;</span>)).<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="macro">quote!</span>( <span class="attribute">#![<span class="kw">crate</span> <span class="op">=</span> #<span class="ident">ඞ</span>]</span> )
+        <span class="kw">let </span>inventory_krate = <span class="macro">cfg!</span>(not(feature = <span class="string">&quot;inventory-0-3-1&quot;</span>)).then(|| {
+            <span class="macro">quote!</span>( <span class="attribute">#![<span class="kw">crate </span>= #ඞ] </span>)
         });
         <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(
-            #<span class="ident">input</span>
+            #input
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-            #<span class="macro">ඞ::inventory::submit!</span> {
-                #<span class="ident">inventory_krate</span>
+            <span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+            </span>#<span class="macro">ඞ::inventory::submit! </span>{
+                #inventory_krate
 
-                #<span class="ident">ඞ::FfiExport</span> {
-                    <span class="ident">name</span>: #<span class="ident">VAR_str</span>,
-                    <span class="ident">gen_def</span>: <span class="op">|</span>
-                        <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> #<span class="ident">ඞ::Definer</span>,
-                        <span class="ident">lang</span>: #<span class="ident">ඞ::Language</span>,
-                    <span class="op">|</span> {
+                #ඞ::FfiExport {
+                    name: #VAR_str,
+                    gen_def: |
+                        definer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span>#ඞ::Definer,
+                        lang: #ඞ::Language,
+                    | {
                         {
-                            <span class="kw">use</span> #<span class="ident">krate::headers</span>::{
-                                <span class="ident">Language</span>,
-                                <span class="ident">languages</span>::{<span class="self">self</span>, <span class="ident">HeaderLanguage</span>},
+                            <span class="kw">use </span>#krate::headers::{
+                                Language,
+                                languages::{<span class="self">self</span>, HeaderLanguage},
                             };
-                            <span class="kw">let</span> <span class="ident">header_builder</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw">dyn</span> <span class="ident">HeaderLanguage</span> <span class="op">=</span>
-                                <span class="kw">match</span> <span class="ident">lang</span> {
-                                    <span class="op">|</span> <span class="ident">Language::C</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">languages::C</span>,
-                                    <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">languages::CSharp</span>,
+                            <span class="kw">let </span>header_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">dyn </span>HeaderLanguage =
+                                <span class="kw">match </span>lang {
+                                    | Language::C =&gt; <span class="kw-2">&amp;</span>languages::C,
+                                    | Language::CSharp =&gt; <span class="kw-2">&amp;</span>languages::CSharp,
                                 }
                             ;
-                            <span class="ident">header_builder</span>
-                        }.<span class="ident">emit_constant</span>(
-                            <span class="ident">definer</span>,
-                            <span class="kw-2">&amp;</span>[ #(#<span class="ident">each_doc</span>),<span class="op">*</span> ],
-                            #<span class="ident">VAR_str</span>,
-                            <span class="kw-2">&amp;</span>#<span class="ident">ඞ::PhantomData</span>::<span class="op">&lt;</span>
-                                #<span class="ident">ඞ::CLayoutOf</span><span class="op">&lt;</span> #<span class="ident">Ty</span> <span class="op">&gt;</span>,
-                            <span class="op">&gt;</span>,
-                            <span class="kw-2">&amp;</span>#<span class="ident">VAR</span>,
+                            header_builder
+                        }.emit_constant(
+                            definer,
+                            <span class="kw-2">&amp;</span>[ #(#each_doc),* ],
+                            #VAR_str,
+                            <span class="kw-2">&amp;</span>#ඞ::PhantomData::&lt;
+                                #ඞ::CLayoutOf&lt; #Ty &gt;,
+                            &gt;,
+                            <span class="kw-2">&amp;</span>#VAR,
                         )
                     },
                 }
@@ -142,5 +137,4 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi_proc_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi_proc_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

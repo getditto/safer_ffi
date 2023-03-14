@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/paste-1.0.7/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../paste/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../paste/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../paste/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/paste-1.0.12/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../paste/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -425,428 +420,491 @@
 <span id="420">420</span>
 <span id="421">421</span>
 <span id="422">422</span>
-</pre><pre class="rust"><code><span class="doccomment">//! [![github]](https://github.com/dtolnay/paste)&amp;ensp;[![crates-io]](https://crates.io/crates/paste)&amp;ensp;[![docs-rs]](https://docs.rs/paste)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github</span>
-<span class="doccomment">//! [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust</span>
-<span class="doccomment">//! [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logoColor=white&amp;logo=data:image/svg+xml;base64,PHN2ZyByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDUxMiA1MTIiPjxwYXRoIGZpbGw9IiNmNWY1ZjUiIGQ9Ik00ODguNiAyNTAuMkwzOTIgMjE0VjEwNS41YzAtMTUtOS4zLTI4LjQtMjMuNC0zMy43bC0xMDAtMzcuNWMtOC4xLTMuMS0xNy4xLTMuMS0yNS4zIDBsLTEwMCAzNy41Yy0xNC4xIDUuMy0yMy40IDE4LjctMjMuNCAzMy43VjIxNGwtOTYuNiAzNi4yQzkuMyAyNTUuNSAwIDI2OC45IDAgMjgzLjlWMzk0YzAgMTMuNiA3LjcgMjYuMSAxOS45IDMyLjJsMTAwIDUwYzEwLjEgNS4xIDIyLjEgNS4xIDMyLjIgMGwxMDMuOS01MiAxMDMuOSA1MmMxMC4xIDUuMSAyMi4xIDUuMSAzMi4yIDBsMTAwLTUwYzEyLjItNi4xIDE5LjktMTguNiAxOS45LTMyLjJWMjgzLjljMC0xNS05LjMtMjguNC0yMy40LTMzLjd6TTM1OCAyMTQuOGwtODUgMzEuOXYtNjguMmw4NS0zN3Y3My4zek0xNTQgMTA0LjFsMTAyLTM4LjIgMTAyIDM4LjJ2LjZsLTEwMiA0MS40LTEwMi00MS40di0uNnptODQgMjkxLjFsLTg1IDQyLjV2LTc5LjFsODUtMzguOHY3NS40em0wLTExMmwtMTAyIDQxLjQtMTAyLTQxLjR2LS42bDEwMi0zOC4yIDEwMiAzOC4ydi42em0yNDAgMTEybC04NSA0Mi41di03OS4xbDg1LTM4Ljh2NzUuNHptMC0xMTJsLTEwMiA0MS40LTEwMi00MS40di0uNmwxMDItMzguMiAxMDIgMzguMnYuNnoiPjwvcGF0aD48L3N2Zz4K</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;br&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The nightly-only [`concat_idents!`] macro in the Rust standard library is</span>
-<span class="doccomment">//! notoriously underpowered in that its concatenated identifiers can only refer to</span>
-<span class="doccomment">//! existing items, they can never be used to define something new.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [`concat_idents!`]: https://doc.rust-lang.org/std/macro.concat_idents.html</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This crate provides a flexible way to paste together identifiers in a macro,</span>
-<span class="doccomment">//! including using pasted identifiers to define new items.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This approach works with any Rust compiler 1.31+.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;br&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Pasting identifiers</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Within the `paste!` macro, identifiers inside `[&lt;`...`&gt;]` are pasted</span>
-<span class="doccomment">//! together to form a single identifier.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! use paste::paste;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! paste! {</span>
-<span class="doccomment">//!     // Defines a const called `QRST`.</span>
-<span class="doccomment">//!     const [&lt;Q R S T&gt;]: &amp;str = &quot;success!&quot;;</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! fn main() {</span>
-<span class="doccomment">//!     assert_eq!(</span>
-<span class="doccomment">//!         paste! { [&lt;Q R S T&gt;].len() },</span>
-<span class="doccomment">//!         8,</span>
-<span class="doccomment">//!     );</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;br&gt;&lt;br&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # More elaborate example</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The next example shows a macro that generates accessor methods for some</span>
-<span class="doccomment">//! struct fields. It demonstrates how you might find it useful to bundle a</span>
-<span class="doccomment">//! paste invocation inside of a macro\_rules macro.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! use paste::paste;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! macro_rules! make_a_struct_and_getters {</span>
-<span class="doccomment">//!     ($name:ident { $($field:ident),* }) =&gt; {</span>
-<span class="doccomment">//!         // Define a struct. This expands to:</span>
-<span class="doccomment">//!         //</span>
-<span class="doccomment">//!         //     pub struct S {</span>
-<span class="doccomment">//!         //         a: String,</span>
-<span class="doccomment">//!         //         b: String,</span>
-<span class="doccomment">//!         //         c: String,</span>
-<span class="doccomment">//!         //     }</span>
-<span class="doccomment">//!         pub struct $name {</span>
-<span class="doccomment">//!             $(</span>
-<span class="doccomment">//!                 $field: String,</span>
-<span class="doccomment">//!             )*</span>
-<span class="doccomment">//!         }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//!         // Build an impl block with getters. This expands to:</span>
-<span class="doccomment">//!         //</span>
-<span class="doccomment">//!         //     impl S {</span>
-<span class="doccomment">//!         //         pub fn get_a(&amp;self) -&gt; &amp;str { &amp;self.a }</span>
-<span class="doccomment">//!         //         pub fn get_b(&amp;self) -&gt; &amp;str { &amp;self.b }</span>
-<span class="doccomment">//!         //         pub fn get_c(&amp;self) -&gt; &amp;str { &amp;self.c }</span>
-<span class="doccomment">//!         //     }</span>
-<span class="doccomment">//!         paste! {</span>
-<span class="doccomment">//!             impl $name {</span>
-<span class="doccomment">//!                 $(</span>
-<span class="doccomment">//!                     pub fn [&lt;get_ $field&gt;](&amp;self) -&gt; &amp;str {</span>
-<span class="doccomment">//!                         &amp;self.$field</span>
-<span class="doccomment">//!                     }</span>
-<span class="doccomment">//!                 )*</span>
-<span class="doccomment">//!             }</span>
-<span class="doccomment">//!         }</span>
-<span class="doccomment">//!     }</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! make_a_struct_and_getters!(S { a, b, c });</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! fn call_some_getters(s: &amp;S) -&gt; bool {</span>
-<span class="doccomment">//!     s.get_a() == s.get_b() &amp;&amp; s.get_c().is_empty()</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! # fn main() {}</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;br&gt;&lt;br&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Case conversion</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Use `$var:lower` or `$var:upper` in the segment list to convert an</span>
-<span class="doccomment">//! interpolated segment to lower- or uppercase as part of the paste. For</span>
-<span class="doccomment">//! example, `[&lt;ld_ $reg:lower _expr&gt;]` would paste to `ld_bc_expr` if invoked</span>
-<span class="doccomment">//! with $reg=`Bc`.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Use `$var:snake` to convert CamelCase input to snake\_case.</span>
-<span class="doccomment">//! Use `$var:camel` to convert snake\_case to CamelCase.</span>
-<span class="doccomment">//! These compose, so for example `$var:snake:upper` would give you SCREAMING\_CASE.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The precise Unicode conversions are as defined by [`str::to_lowercase`] and</span>
-<span class="doccomment">//! [`str::to_uppercase`].</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [`str::to_lowercase`]: https://doc.rust-lang.org/std/primitive.str.html#method.to_lowercase</span>
-<span class="doccomment">//! [`str::to_uppercase`]: https://doc.rust-lang.org/std/primitive.str.html#method.to_uppercase</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;br&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Pasting documentation strings</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Within the `paste!` macro, arguments to a #\[doc ...\] attribute are</span>
-<span class="doccomment">//! implicitly concatenated together to form a coherent documentation string.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! use paste::paste;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! macro_rules! method_new {</span>
-<span class="doccomment">//!     ($ret:ident) =&gt; {</span>
-<span class="doccomment">//!         paste! {</span>
-<span class="doccomment">//!             #[doc = &quot;Create a new `&quot; $ret &quot;` object.&quot;]</span>
-<span class="doccomment">//!             pub fn new() -&gt; $ret { todo!() }</span>
-<span class="doccomment">//!         }</span>
-<span class="doccomment">//!     };</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! pub struct Paste {}</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! method_new!(Paste);  // expands to #[doc = &quot;Create a new `Paste` object&quot;]</span>
-<span class="doccomment">//! ```</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+</pre><pre class="rust"><code><span class="doccomment">//! [![github]](https://github.com/dtolnay/paste)&amp;ensp;[![crates-io]](https://crates.io/crates/paste)&amp;ensp;[![docs-rs]](https://docs.rs/paste)
+//!
+//! [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github
+//! [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust
+//! [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logo=docs.rs
+//!
+//! &lt;br&gt;
+//!
+//! The nightly-only [`concat_idents!`] macro in the Rust standard library is
+//! notoriously underpowered in that its concatenated identifiers can only refer to
+//! existing items, they can never be used to define something new.
+//!
+//! [`concat_idents!`]: https://doc.rust-lang.org/std/macro.concat_idents.html
+//!
+//! This crate provides a flexible way to paste together identifiers in a macro,
+//! including using pasted identifiers to define new items.
+//!
+//! This approach works with any Rust compiler 1.31+.
+//!
+//! &lt;br&gt;
+//!
+//! # Pasting identifiers
+//!
+//! Within the `paste!` macro, identifiers inside `[&lt;`...`&gt;]` are pasted
+//! together to form a single identifier.
+//!
+//! ```
+//! use paste::paste;
+//!
+//! paste! {
+//!     // Defines a const called `QRST`.
+//!     const [&lt;Q R S T&gt;]: &amp;str = &quot;success!&quot;;
+//! }
+//!
+//! fn main() {
+//!     assert_eq!(
+//!         paste! { [&lt;Q R S T&gt;].len() },
+//!         8,
+//!     );
+//! }
+//! ```
+//!
+//! &lt;br&gt;&lt;br&gt;
+//!
+//! # More elaborate example
+//!
+//! The next example shows a macro that generates accessor methods for some
+//! struct fields. It demonstrates how you might find it useful to bundle a
+//! paste invocation inside of a macro\_rules macro.
+//!
+//! ```
+//! use paste::paste;
+//!
+//! macro_rules! make_a_struct_and_getters {
+//!     ($name:ident { $($field:ident),* }) =&gt; {
+//!         // Define a struct. This expands to:
+//!         //
+//!         //     pub struct S {
+//!         //         a: String,
+//!         //         b: String,
+//!         //         c: String,
+//!         //     }
+//!         pub struct $name {
+//!             $(
+//!                 $field: String,
+//!             )*
+//!         }
+//!
+//!         // Build an impl block with getters. This expands to:
+//!         //
+//!         //     impl S {
+//!         //         pub fn get_a(&amp;self) -&gt; &amp;str { &amp;self.a }
+//!         //         pub fn get_b(&amp;self) -&gt; &amp;str { &amp;self.b }
+//!         //         pub fn get_c(&amp;self) -&gt; &amp;str { &amp;self.c }
+//!         //     }
+//!         paste! {
+//!             impl $name {
+//!                 $(
+//!                     pub fn [&lt;get_ $field&gt;](&amp;self) -&gt; &amp;str {
+//!                         &amp;self.$field
+//!                     }
+//!                 )*
+//!             }
+//!         }
+//!     }
+//! }
+//!
+//! make_a_struct_and_getters!(S { a, b, c });
+//!
+//! fn call_some_getters(s: &amp;S) -&gt; bool {
+//!     s.get_a() == s.get_b() &amp;&amp; s.get_c().is_empty()
+//! }
+//! #
+//! # fn main() {}
+//! ```
+//!
+//! &lt;br&gt;&lt;br&gt;
+//!
+//! # Case conversion
+//!
+//! Use `$var:lower` or `$var:upper` in the segment list to convert an
+//! interpolated segment to lower- or uppercase as part of the paste. For
+//! example, `[&lt;ld_ $reg:lower _expr&gt;]` would paste to `ld_bc_expr` if invoked
+//! with $reg=`Bc`.
+//!
+//! Use `$var:snake` to convert CamelCase input to snake\_case.
+//! Use `$var:camel` to convert snake\_case to CamelCase.
+//! These compose, so for example `$var:snake:upper` would give you SCREAMING\_CASE.
+//!
+//! The precise Unicode conversions are as defined by [`str::to_lowercase`] and
+//! [`str::to_uppercase`].
+//!
+//! [`str::to_lowercase`]: https://doc.rust-lang.org/std/primitive.str.html#method.to_lowercase
+//! [`str::to_uppercase`]: https://doc.rust-lang.org/std/primitive.str.html#method.to_uppercase
+//!
+//! &lt;br&gt;
+//!
+//! # Pasting documentation strings
+//!
+//! Within the `paste!` macro, arguments to a #\[doc ...\] attribute are
+//! implicitly concatenated together to form a coherent documentation string.
+//!
+//! ```
+//! use paste::paste;
+//!
+//! macro_rules! method_new {
+//!     ($ret:ident) =&gt; {
+//!         paste! {
+//!             #[doc = &quot;Create a new `&quot; $ret &quot;` object.&quot;]
+//!             pub fn new() -&gt; $ret { todo!() }
+//!         }
+//!     };
+//! }
+//!
+//! pub struct Paste {}
+//!
+//! method_new!(Paste);  // expands to #[doc = &quot;Create a new `Paste` object&quot;]
+//! ```
 
-<span class="attribute">#![<span class="ident">allow</span>(
-    <span class="ident">clippy::doc_markdown</span>,
-    <span class="ident">clippy::match_same_arms</span>,
-    <span class="ident">clippy::module_name_repetitions</span>,
-    <span class="ident">clippy::needless_doctest_main</span>,
-    <span class="ident">clippy::too_many_lines</span>
-)]</span>
+</span><span class="attribute">#![doc(html_root_url = <span class="string">&quot;https://docs.rs/paste/1.0.12&quot;</span>)]
+#![allow(
+    clippy::derive_partial_eq_without_eq,
+    clippy::doc_markdown,
+    clippy::match_same_arms,
+    clippy::module_name_repetitions,
+    clippy::needless_doctest_main,
+    clippy::too_many_lines
+)]
 
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">proc_macro</span>;
+</span><span class="kw">extern crate </span>proc_macro;
 
-<span class="kw">mod</span> <span class="ident">attr</span>;
-<span class="kw">mod</span> <span class="ident">error</span>;
-<span class="kw">mod</span> <span class="ident">segment</span>;
+<span class="kw">mod </span>attr;
+<span class="kw">mod </span>error;
+<span class="kw">mod </span>segment;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::attr::expand_attr</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error</span>::{<span class="ident">Error</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::segment::Segment</span>;
-<span class="kw">use</span> <span class="ident">proc_macro</span>::{<span class="ident">Delimiter</span>, <span class="ident">Group</span>, <span class="ident">Ident</span>, <span class="ident">Punct</span>, <span class="ident">Spacing</span>, <span class="ident">Span</span>, <span class="ident">TokenStream</span>, <span class="ident">TokenTree</span>};
-<span class="kw">use</span> <span class="ident">std::char</span>;
-<span class="kw">use</span> <span class="ident">std::iter</span>;
-<span class="kw">use</span> <span class="ident">std::panic</span>;
+<span class="kw">use </span><span class="kw">crate</span>::attr::expand_attr;
+<span class="kw">use </span><span class="kw">crate</span>::error::{Error, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span><span class="kw">crate</span>::segment::Segment;
+<span class="kw">use </span>proc_macro::{Delimiter, Group, Ident, Punct, Spacing, Span, TokenStream, TokenTree};
+<span class="kw">use </span>std::char;
+<span class="kw">use </span>std::iter;
+<span class="kw">use </span>std::panic;
 
-<span class="attribute">#[<span class="ident">proc_macro</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">paste</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">contains_paste</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="ident">flatten_single_interpolation</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="kw">match</span> <span class="ident">expand</span>(<span class="ident">input</span>, <span class="kw-2">&amp;mut</span> <span class="ident">contains_paste</span>, <span class="ident">flatten_single_interpolation</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">expanded</span>) =&gt; <span class="ident">expanded</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">err</span>.<span class="ident">to_compile_error</span>(),
+<span class="attribute">#[proc_macro]
+</span><span class="kw">pub fn </span>paste(input: TokenStream) -&gt; TokenStream {
+    <span class="kw">let </span><span class="kw-2">mut </span>contains_paste = <span class="bool-val">false</span>;
+    <span class="kw">let </span>flatten_single_interpolation = <span class="bool-val">true</span>;
+    <span class="kw">match </span>expand(
+        input.clone(),
+        <span class="kw-2">&amp;mut </span>contains_paste,
+        flatten_single_interpolation,
+    ) {
+        <span class="prelude-val">Ok</span>(expanded) =&gt; {
+            <span class="kw">if </span>contains_paste {
+                expanded
+            } <span class="kw">else </span>{
+                input
+            }
+        }
+        <span class="prelude-val">Err</span>(err) =&gt; err.to_compile_error(),
     }
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">proc_macro</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">item</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="ident">paste</span>(<span class="ident">input</span>)
+<span class="attribute">#[doc(hidden)]
+#[proc_macro]
+</span><span class="kw">pub fn </span>item(input: TokenStream) -&gt; TokenStream {
+    paste(input)
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">proc_macro</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expr</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="ident">paste</span>(<span class="ident">input</span>)
+<span class="attribute">#[doc(hidden)]
+#[proc_macro]
+</span><span class="kw">pub fn </span>expr(input: TokenStream) -&gt; TokenStream {
+    paste(input)
 }
 
-<span class="kw">fn</span> <span class="ident">expand</span>(
-    <span class="ident">input</span>: <span class="ident">TokenStream</span>,
-    <span class="ident">contains_paste</span>: <span class="kw-2">&amp;mut</span> <span class="ident">bool</span>,
-    <span class="ident">flatten_single_interpolation</span>: <span class="ident">bool</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expanded</span> <span class="op">=</span> <span class="ident">TokenStream::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lookbehind</span> <span class="op">=</span> <span class="ident">Lookbehind::Other</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">prev_none_group</span> <span class="op">=</span> <span class="prelude-val">None</span>::<span class="op">&lt;</span><span class="ident">Group</span><span class="op">&gt;</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">into_iter</span>().<span class="ident">peekable</span>();
-    <span class="kw">loop</span> {
-        <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">tokens</span>.<span class="ident">next</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">group</span>) <span class="op">=</span> <span class="ident">prev_none_group</span>.<span class="ident">take</span>() {
-            <span class="kw">if</span> <span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="ident">token</span>, <span class="ident">tokens</span>.<span class="ident">peek</span>()) {
-                (<span class="prelude-val">Some</span>(<span class="ident">TokenTree::Punct</span>(<span class="ident">fst</span>)), <span class="prelude-val">Some</span>(<span class="ident">TokenTree::Punct</span>(<span class="ident">snd</span>))) =&gt; {
-                    <span class="ident">fst</span>.<span class="ident">as_char</span>() <span class="op">==</span> <span class="string">&#39;:&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">snd</span>.<span class="ident">as_char</span>() <span class="op">==</span> <span class="string">&#39;:&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">fst</span>.<span class="ident">spacing</span>() <span class="op">==</span> <span class="ident">Spacing::Joint</span>
+<span class="kw">fn </span>expand(
+    input: TokenStream,
+    contains_paste: <span class="kw-2">&amp;mut </span>bool,
+    flatten_single_interpolation: bool,
+) -&gt; <span class="prelude-ty">Result</span>&lt;TokenStream&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>expanded = TokenStream::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>lookbehind = Lookbehind::Other;
+    <span class="kw">let </span><span class="kw-2">mut </span>prev_none_group = <span class="prelude-val">None</span>::&lt;Group&gt;;
+    <span class="kw">let </span><span class="kw-2">mut </span>tokens = input.into_iter().peekable();
+    <span class="kw">loop </span>{
+        <span class="kw">let </span>token = tokens.next();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(group) = prev_none_group.take() {
+            <span class="kw">if match </span>(<span class="kw-2">&amp;</span>token, tokens.peek()) {
+                (<span class="prelude-val">Some</span>(TokenTree::Punct(fst)), <span class="prelude-val">Some</span>(TokenTree::Punct(snd))) =&gt; {
+                    fst.as_char() == <span class="string">&#39;:&#39; </span>&amp;&amp; snd.as_char() == <span class="string">&#39;:&#39; </span>&amp;&amp; fst.spacing() == Spacing::Joint
                 }
-                <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+                <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
             } {
-                <span class="ident">expanded</span>.<span class="ident">extend</span>(<span class="ident">group</span>.<span class="ident">stream</span>());
-                <span class="kw-2">*</span><span class="ident">contains_paste</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            } <span class="kw">else</span> {
-                <span class="ident">expanded</span>.<span class="ident">extend</span>(<span class="ident">iter::once</span>(<span class="ident">TokenTree::Group</span>(<span class="ident">group</span>)));
+                expanded.extend(group.stream());
+                <span class="kw-2">*</span>contains_paste = <span class="bool-val">true</span>;
+            } <span class="kw">else </span>{
+                expanded.extend(iter::once(TokenTree::Group(group)));
             }
         }
-        <span class="kw">match</span> <span class="ident">token</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">TokenTree::Group</span>(<span class="ident">group</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">delimiter</span> <span class="op">=</span> <span class="ident">group</span>.<span class="ident">delimiter</span>();
-                <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="ident">group</span>.<span class="ident">stream</span>();
-                <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">group</span>.<span class="ident">span</span>();
-                <span class="kw">if</span> <span class="ident">delimiter</span> <span class="op">==</span> <span class="ident">Delimiter::Bracket</span> <span class="op">&amp;&amp;</span> <span class="ident">is_paste_operation</span>(<span class="kw-2">&amp;</span><span class="ident">content</span>) {
-                    <span class="kw">let</span> <span class="ident">segments</span> <span class="op">=</span> <span class="ident">parse_bracket_as_segments</span>(<span class="ident">content</span>, <span class="ident">span</span>)<span class="question-mark">?</span>;
-                    <span class="kw">let</span> <span class="ident">pasted</span> <span class="op">=</span> <span class="ident">segment::paste</span>(<span class="kw-2">&amp;</span><span class="ident">segments</span>)<span class="question-mark">?</span>;
-                    <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">pasted_to_tokens</span>(<span class="ident">pasted</span>, <span class="ident">span</span>)<span class="question-mark">?</span>;
-                    <span class="ident">expanded</span>.<span class="ident">extend</span>(<span class="ident">tokens</span>);
-                    <span class="kw-2">*</span><span class="ident">contains_paste</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">flatten_single_interpolation</span>
-                    <span class="op">&amp;&amp;</span> <span class="ident">delimiter</span> <span class="op">==</span> <span class="ident">Delimiter::None</span>
-                    <span class="op">&amp;&amp;</span> <span class="ident">is_single_interpolation_group</span>(<span class="kw-2">&amp;</span><span class="ident">content</span>)
+        <span class="kw">match </span>token {
+            <span class="prelude-val">Some</span>(TokenTree::Group(group)) =&gt; {
+                <span class="kw">let </span>delimiter = group.delimiter();
+                <span class="kw">let </span>content = group.stream();
+                <span class="kw">let </span>span = group.span();
+                <span class="kw">if </span>delimiter == Delimiter::Bracket &amp;&amp; is_paste_operation(<span class="kw-2">&amp;</span>content) {
+                    <span class="kw">let </span>segments = parse_bracket_as_segments(content, span)<span class="question-mark">?</span>;
+                    <span class="kw">let </span>pasted = segment::paste(<span class="kw-2">&amp;</span>segments)<span class="question-mark">?</span>;
+                    <span class="kw">let </span>tokens = pasted_to_tokens(pasted, span)<span class="question-mark">?</span>;
+                    expanded.extend(tokens);
+                    <span class="kw-2">*</span>contains_paste = <span class="bool-val">true</span>;
+                } <span class="kw">else if </span>flatten_single_interpolation
+                    &amp;&amp; delimiter == Delimiter::None
+                    &amp;&amp; is_single_interpolation_group(<span class="kw-2">&amp;</span>content)
                 {
-                    <span class="ident">expanded</span>.<span class="ident">extend</span>(<span class="ident">content</span>);
-                    <span class="kw-2">*</span><span class="ident">contains_paste</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                } <span class="kw">else</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">group_contains_paste</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                    <span class="kw">let</span> <span class="ident">is_attribute</span> <span class="op">=</span> <span class="ident">delimiter</span> <span class="op">==</span> <span class="ident">Delimiter::Bracket</span>
-                        <span class="op">&amp;&amp;</span> (<span class="ident">lookbehind</span> <span class="op">==</span> <span class="ident">Lookbehind::Pound</span> <span class="op">|</span><span class="op">|</span> <span class="ident">lookbehind</span> <span class="op">==</span> <span class="ident">Lookbehind::PoundBang</span>);
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nested</span> <span class="op">=</span> <span class="ident">expand</span>(
-                        <span class="ident">content</span>,
-                        <span class="kw-2">&amp;mut</span> <span class="ident">group_contains_paste</span>,
-                        <span class="ident">flatten_single_interpolation</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_attribute</span>,
+                    expanded.extend(content);
+                    <span class="kw-2">*</span>contains_paste = <span class="bool-val">true</span>;
+                } <span class="kw">else </span>{
+                    <span class="kw">let </span><span class="kw-2">mut </span>group_contains_paste = <span class="bool-val">false</span>;
+                    <span class="kw">let </span>is_attribute = delimiter == Delimiter::Bracket
+                        &amp;&amp; (lookbehind == Lookbehind::Pound || lookbehind == Lookbehind::PoundBang);
+                    <span class="kw">let </span><span class="kw-2">mut </span>nested = expand(
+                        content,
+                        <span class="kw-2">&amp;mut </span>group_contains_paste,
+                        flatten_single_interpolation &amp;&amp; !is_attribute,
                     )<span class="question-mark">?</span>;
-                    <span class="kw">if</span> <span class="ident">is_attribute</span> {
-                        <span class="ident">nested</span> <span class="op">=</span> <span class="ident">expand_attr</span>(<span class="ident">nested</span>, <span class="ident">span</span>, <span class="kw-2">&amp;mut</span> <span class="ident">group_contains_paste</span>)<span class="question-mark">?</span>;
+                    <span class="kw">if </span>is_attribute {
+                        nested = expand_attr(nested, span, <span class="kw-2">&amp;mut </span>group_contains_paste)<span class="question-mark">?</span>;
                     }
-                    <span class="kw">let</span> <span class="ident">group</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">group_contains_paste</span> {
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">group</span> <span class="op">=</span> <span class="ident">Group::new</span>(<span class="ident">delimiter</span>, <span class="ident">nested</span>);
-                        <span class="ident">group</span>.<span class="ident">set_span</span>(<span class="ident">span</span>);
-                        <span class="kw-2">*</span><span class="ident">contains_paste</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="ident">group</span>
-                    } <span class="kw">else</span> {
-                        <span class="ident">group</span>.<span class="ident">clone</span>()
+                    <span class="kw">let </span>group = <span class="kw">if </span>group_contains_paste {
+                        <span class="kw">let </span><span class="kw-2">mut </span>group = Group::new(delimiter, nested);
+                        group.set_span(span);
+                        <span class="kw-2">*</span>contains_paste = <span class="bool-val">true</span>;
+                        group
+                    } <span class="kw">else </span>{
+                        group.clone()
                     };
-                    <span class="kw">if</span> <span class="ident">delimiter</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Delimiter::None</span> {
-                        <span class="ident">expanded</span>.<span class="ident">extend</span>(<span class="ident">iter::once</span>(<span class="ident">TokenTree::Group</span>(<span class="ident">group</span>)));
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lookbehind</span> <span class="op">==</span> <span class="ident">Lookbehind::DoubleColon</span> {
-                        <span class="ident">expanded</span>.<span class="ident">extend</span>(<span class="ident">group</span>.<span class="ident">stream</span>());
-                        <span class="kw-2">*</span><span class="ident">contains_paste</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    } <span class="kw">else</span> {
-                        <span class="ident">prev_none_group</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">group</span>);
+                    <span class="kw">if </span>delimiter != Delimiter::None {
+                        expanded.extend(iter::once(TokenTree::Group(group)));
+                    } <span class="kw">else if </span>lookbehind == Lookbehind::DoubleColon {
+                        expanded.extend(group.stream());
+                        <span class="kw-2">*</span>contains_paste = <span class="bool-val">true</span>;
+                    } <span class="kw">else </span>{
+                        prev_none_group = <span class="prelude-val">Some</span>(group);
                     }
                 }
-                <span class="ident">lookbehind</span> <span class="op">=</span> <span class="ident">Lookbehind::Other</span>;
+                lookbehind = Lookbehind::Other;
             }
-            <span class="prelude-val">Some</span>(<span class="ident">TokenTree::Punct</span>(<span class="ident">punct</span>)) =&gt; {
-                <span class="ident">lookbehind</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">punct</span>.<span class="ident">as_char</span>() {
-                    <span class="string">&#39;:&#39;</span> <span class="kw">if</span> <span class="ident">lookbehind</span> <span class="op">==</span> <span class="ident">Lookbehind::JointColon</span> =&gt; <span class="ident">Lookbehind::DoubleColon</span>,
-                    <span class="string">&#39;:&#39;</span> <span class="kw">if</span> <span class="ident">punct</span>.<span class="ident">spacing</span>() <span class="op">==</span> <span class="ident">Spacing::Joint</span> =&gt; <span class="ident">Lookbehind::JointColon</span>,
-                    <span class="string">&#39;#&#39;</span> =&gt; <span class="ident">Lookbehind::Pound</span>,
-                    <span class="string">&#39;!&#39;</span> <span class="kw">if</span> <span class="ident">lookbehind</span> <span class="op">==</span> <span class="ident">Lookbehind::Pound</span> =&gt; <span class="ident">Lookbehind::PoundBang</span>,
-                    <span class="kw">_</span> =&gt; <span class="ident">Lookbehind::Other</span>,
+            <span class="prelude-val">Some</span>(TokenTree::Punct(punct)) =&gt; {
+                lookbehind = <span class="kw">match </span>punct.as_char() {
+                    <span class="string">&#39;:&#39; </span><span class="kw">if </span>lookbehind == Lookbehind::JointColon =&gt; Lookbehind::DoubleColon,
+                    <span class="string">&#39;:&#39; </span><span class="kw">if </span>punct.spacing() == Spacing::Joint =&gt; Lookbehind::JointColon,
+                    <span class="string">&#39;#&#39; </span>=&gt; Lookbehind::Pound,
+                    <span class="string">&#39;!&#39; </span><span class="kw">if </span>lookbehind == Lookbehind::Pound =&gt; Lookbehind::PoundBang,
+                    <span class="kw">_ </span>=&gt; Lookbehind::Other,
                 };
-                <span class="ident">expanded</span>.<span class="ident">extend</span>(<span class="ident">iter::once</span>(<span class="ident">TokenTree::Punct</span>(<span class="ident">punct</span>)));
+                expanded.extend(iter::once(TokenTree::Punct(punct)));
             }
-            <span class="prelude-val">Some</span>(<span class="ident">other</span>) =&gt; {
-                <span class="ident">lookbehind</span> <span class="op">=</span> <span class="ident">Lookbehind::Other</span>;
-                <span class="ident">expanded</span>.<span class="ident">extend</span>(<span class="ident">iter::once</span>(<span class="ident">other</span>));
+            <span class="prelude-val">Some</span>(other) =&gt; {
+                lookbehind = Lookbehind::Other;
+                expanded.extend(iter::once(other));
             }
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">expanded</span>),
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(expanded),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Lookbehind</span> {
-    <span class="ident">JointColon</span>,
-    <span class="ident">DoubleColon</span>,
-    <span class="ident">Pound</span>,
-    <span class="ident">PoundBang</span>,
-    <span class="ident">Other</span>,
+<span class="attribute">#[derive(PartialEq)]
+</span><span class="kw">enum </span>Lookbehind {
+    JointColon,
+    DoubleColon,
+    Pound,
+    PoundBang,
+    Other,
 }
 
-<span class="comment">// https://github.com/dtolnay/paste/issues/26</span>
-<span class="kw">fn</span> <span class="ident">is_single_interpolation_group</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">TokenStream</span>) -&gt; <span class="ident">bool</span> {
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-    <span class="kw">enum</span> <span class="ident">State</span> {
-        <span class="ident">Init</span>,
-        <span class="ident">Ident</span>,
-        <span class="ident">Literal</span>,
-        <span class="ident">Apostrophe</span>,
-        <span class="ident">Lifetime</span>,
-        <span class="ident">Colon1</span>,
-        <span class="ident">Colon2</span>,
+<span class="comment">// https://github.com/dtolnay/paste/issues/26
+</span><span class="kw">fn </span>is_single_interpolation_group(input: <span class="kw-2">&amp;</span>TokenStream) -&gt; bool {
+    <span class="attribute">#[derive(PartialEq)]
+    </span><span class="kw">enum </span>State {
+        Init,
+        Ident,
+        Literal,
+        Apostrophe,
+        Lifetime,
+        Colon1,
+        Colon2,
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::Init</span>;
-    <span class="kw">for</span> <span class="ident">tt</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">clone</span>() {
-        <span class="ident">state</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">tt</span>) {
-            (<span class="ident">State::Init</span>, <span class="ident">TokenTree::Ident</span>(<span class="kw">_</span>)) =&gt; <span class="ident">State::Ident</span>,
-            (<span class="ident">State::Init</span>, <span class="ident">TokenTree::Literal</span>(<span class="kw">_</span>)) =&gt; <span class="ident">State::Literal</span>,
-            (<span class="ident">State::Init</span>, <span class="ident">TokenTree::Punct</span>(<span class="ident">punct</span>)) <span class="kw">if</span> <span class="ident">punct</span>.<span class="ident">as_char</span>() <span class="op">==</span> <span class="string">&#39;\&#39;&#39;</span> =&gt; <span class="ident">State::Apostrophe</span>,
-            (<span class="ident">State::Apostrophe</span>, <span class="ident">TokenTree::Ident</span>(<span class="kw">_</span>)) =&gt; <span class="ident">State::Lifetime</span>,
-            (<span class="ident">State::Ident</span>, <span class="ident">TokenTree::Punct</span>(<span class="ident">punct</span>))
-                <span class="kw">if</span> <span class="ident">punct</span>.<span class="ident">as_char</span>() <span class="op">==</span> <span class="string">&#39;:&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">punct</span>.<span class="ident">spacing</span>() <span class="op">==</span> <span class="ident">Spacing::Joint</span> =&gt;
+    <span class="kw">let </span><span class="kw-2">mut </span>state = State::Init;
+    <span class="kw">for </span>tt <span class="kw">in </span>input.clone() {
+        state = <span class="kw">match </span>(state, <span class="kw-2">&amp;</span>tt) {
+            (State::Init, TokenTree::Ident(<span class="kw">_</span>)) =&gt; State::Ident,
+            (State::Init, TokenTree::Literal(<span class="kw">_</span>)) =&gt; State::Literal,
+            (State::Init, TokenTree::Punct(punct)) <span class="kw">if </span>punct.as_char() == <span class="string">&#39;\&#39;&#39; </span>=&gt; State::Apostrophe,
+            (State::Apostrophe, TokenTree::Ident(<span class="kw">_</span>)) =&gt; State::Lifetime,
+            (State::Ident, TokenTree::Punct(punct))
+                <span class="kw">if </span>punct.as_char() == <span class="string">&#39;:&#39; </span>&amp;&amp; punct.spacing() == Spacing::Joint =&gt;
             {
-                <span class="ident">State::Colon1</span>
+                State::Colon1
             }
-            (<span class="ident">State::Colon1</span>, <span class="ident">TokenTree::Punct</span>(<span class="ident">punct</span>))
-                <span class="kw">if</span> <span class="ident">punct</span>.<span class="ident">as_char</span>() <span class="op">==</span> <span class="string">&#39;:&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">punct</span>.<span class="ident">spacing</span>() <span class="op">==</span> <span class="ident">Spacing::Alone</span> =&gt;
+            (State::Colon1, TokenTree::Punct(punct))
+                <span class="kw">if </span>punct.as_char() == <span class="string">&#39;:&#39; </span>&amp;&amp; punct.spacing() == Spacing::Alone =&gt;
             {
-                <span class="ident">State::Colon2</span>
+                State::Colon2
             }
-            (<span class="ident">State::Colon2</span>, <span class="ident">TokenTree::Ident</span>(<span class="kw">_</span>)) =&gt; <span class="ident">State::Ident</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
+            (State::Colon2, TokenTree::Ident(<span class="kw">_</span>)) =&gt; State::Ident,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
         };
     }
 
-    <span class="ident">state</span> <span class="op">==</span> <span class="ident">State::Ident</span> <span class="op">|</span><span class="op">|</span> <span class="ident">state</span> <span class="op">==</span> <span class="ident">State::Literal</span> <span class="op">|</span><span class="op">|</span> <span class="ident">state</span> <span class="op">==</span> <span class="ident">State::Lifetime</span>
+    state == State::Ident || state == State::Literal || state == State::Lifetime
 }
 
-<span class="kw">fn</span> <span class="ident">is_paste_operation</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">TokenStream</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>();
+<span class="kw">fn </span>is_paste_operation(input: <span class="kw-2">&amp;</span>TokenStream) -&gt; bool {
+    <span class="kw">let </span><span class="kw-2">mut </span>tokens = input.clone().into_iter();
 
-    <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">tokens</span>.<span class="ident">next</span>() {
-        <span class="prelude-val">Some</span>(<span class="ident">TokenTree::Punct</span>(<span class="ident">punct</span>)) <span class="kw">if</span> <span class="ident">punct</span>.<span class="ident">as_char</span>() <span class="op">==</span> <span class="string">&#39;&lt;&#39;</span> =&gt; {}
-        <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
+    <span class="kw">match </span><span class="kw-2">&amp;</span>tokens.next() {
+        <span class="prelude-val">Some</span>(TokenTree::Punct(punct)) <span class="kw">if </span>punct.as_char() == <span class="string">&#39;&lt;&#39; </span>=&gt; {}
+        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_token</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">loop</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">tokens</span>.<span class="ident">next</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">TokenTree::Punct</span>(<span class="ident">punct</span>)) <span class="kw">if</span> <span class="ident">punct</span>.<span class="ident">as_char</span>() <span class="op">==</span> <span class="string">&#39;&gt;&#39;</span> =&gt; {
-                <span class="kw">return</span> <span class="ident">has_token</span> <span class="op">&amp;&amp;</span> <span class="ident">tokens</span>.<span class="ident">next</span>().<span class="ident">is_none</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>has_token = <span class="bool-val">false</span>;
+    <span class="kw">loop </span>{
+        <span class="kw">match </span><span class="kw-2">&amp;</span>tokens.next() {
+            <span class="prelude-val">Some</span>(TokenTree::Punct(punct)) <span class="kw">if </span>punct.as_char() == <span class="string">&#39;&gt;&#39; </span>=&gt; {
+                <span class="kw">return </span>has_token &amp;&amp; tokens.next().is_none();
             }
-            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="ident">has_token</span> <span class="op">=</span> <span class="bool-val">true</span>,
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; has_token = <span class="bool-val">true</span>,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">parse_bracket_as_segments</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>, <span class="ident">scope</span>: <span class="ident">Span</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Segment</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">into_iter</span>().<span class="ident">peekable</span>();
+<span class="kw">fn </span>parse_bracket_as_segments(input: TokenStream, scope: Span) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Segment&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tokens = input.into_iter().peekable();
 
-    <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">tokens</span>.<span class="ident">next</span>() {
-        <span class="prelude-val">Some</span>(<span class="ident">TokenTree::Punct</span>(<span class="ident">punct</span>)) <span class="kw">if</span> <span class="ident">punct</span>.<span class="ident">as_char</span>() <span class="op">==</span> <span class="string">&#39;&lt;&#39;</span> =&gt; {}
-        <span class="prelude-val">Some</span>(<span class="ident">wrong</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">wrong</span>.<span class="ident">span</span>(), <span class="string">&quot;expected `&lt;`&quot;</span>)),
-        <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">scope</span>, <span class="string">&quot;expected `[&lt; ... &gt;]`&quot;</span>)),
+    <span class="kw">match </span><span class="kw-2">&amp;</span>tokens.next() {
+        <span class="prelude-val">Some</span>(TokenTree::Punct(punct)) <span class="kw">if </span>punct.as_char() == <span class="string">&#39;&lt;&#39; </span>=&gt; {}
+        <span class="prelude-val">Some</span>(wrong) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(wrong.span(), <span class="string">&quot;expected `&lt;`&quot;</span>)),
+        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(scope, <span class="string">&quot;expected `[&lt; ... &gt;]`&quot;</span>)),
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">segments</span> <span class="op">=</span> <span class="ident">segment::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tokens</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>segments = segment::parse(<span class="kw-2">&amp;mut </span>tokens)<span class="question-mark">?</span>;
 
-    <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">tokens</span>.<span class="ident">next</span>() {
-        <span class="prelude-val">Some</span>(<span class="ident">TokenTree::Punct</span>(<span class="ident">punct</span>)) <span class="kw">if</span> <span class="ident">punct</span>.<span class="ident">as_char</span>() <span class="op">==</span> <span class="string">&#39;&gt;&#39;</span> =&gt; {}
-        <span class="prelude-val">Some</span>(<span class="ident">wrong</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">wrong</span>.<span class="ident">span</span>(), <span class="string">&quot;expected `&gt;`&quot;</span>)),
-        <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">scope</span>, <span class="string">&quot;expected `[&lt; ... &gt;]`&quot;</span>)),
+    <span class="kw">match </span><span class="kw-2">&amp;</span>tokens.next() {
+        <span class="prelude-val">Some</span>(TokenTree::Punct(punct)) <span class="kw">if </span>punct.as_char() == <span class="string">&#39;&gt;&#39; </span>=&gt; {}
+        <span class="prelude-val">Some</span>(wrong) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(wrong.span(), <span class="string">&quot;expected `&gt;`&quot;</span>)),
+        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(scope, <span class="string">&quot;expected `[&lt; ... &gt;]`&quot;</span>)),
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">unexpected</span>) <span class="op">=</span> <span class="ident">tokens</span>.<span class="ident">next</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-            <span class="ident">unexpected</span>.<span class="ident">span</span>(),
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(unexpected) = tokens.next() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+            unexpected.span(),
             <span class="string">&quot;unexpected input, expected `[&lt; ... &gt;]`&quot;</span>,
         ));
     }
 
-    <span class="kw">for</span> <span class="ident">segment</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">segments</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Segment::String</span>(<span class="ident">string</span>) <span class="op">=</span> <span class="ident">segment</span> {
-            <span class="kw">if</span> <span class="ident">string</span>.<span class="ident">value</span>.<span class="ident">starts_with</span>(<span class="string">&quot;&#39;\\u{&quot;</span>) {
-                <span class="kw">let</span> <span class="ident">hex</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">string</span>.<span class="ident">value</span>[<span class="number">4</span>..<span class="ident">string</span>.<span class="ident">value</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>];
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">unsigned</span>) <span class="op">=</span> <span class="ident">u32::from_str_radix</span>(<span class="ident">hex</span>, <span class="number">16</span>) {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ch</span>) <span class="op">=</span> <span class="ident">char::from_u32</span>(<span class="ident">unsigned</span>) {
-                        <span class="ident">string</span>.<span class="ident">value</span>.<span class="ident">clear</span>();
-                        <span class="ident">string</span>.<span class="ident">value</span>.<span class="ident">push</span>(<span class="ident">ch</span>);
+    <span class="kw">for </span>segment <span class="kw">in </span><span class="kw-2">&amp;mut </span>segments {
+        <span class="kw">if let </span>Segment::String(string) = segment {
+            <span class="kw">if </span>string.value.starts_with(<span class="string">&quot;&#39;\\u{&quot;</span>) {
+                <span class="kw">let </span>hex = <span class="kw-2">&amp;</span>string.value[<span class="number">4</span>..string.value.len() - <span class="number">2</span>];
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(unsigned) = u32::from_str_radix(hex, <span class="number">16</span>) {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(ch) = char::from_u32(unsigned) {
+                        string.value.clear();
+                        string.value.push(ch);
                         <span class="kw">continue</span>;
                     }
                 }
             }
-            <span class="kw">if</span> <span class="ident">string</span>.<span class="ident">value</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span>[<span class="string">&#39;#&#39;</span>, <span class="string">&#39;\\&#39;</span>, <span class="string">&#39;.&#39;</span>, <span class="string">&#39;+&#39;</span>][..])
-                <span class="op">|</span><span class="op">|</span> <span class="ident">string</span>.<span class="ident">value</span>.<span class="ident">starts_with</span>(<span class="string">&quot;b&#39;&quot;</span>)
-                <span class="op">|</span><span class="op">|</span> <span class="ident">string</span>.<span class="ident">value</span>.<span class="ident">starts_with</span>(<span class="string">&quot;b\&quot;&quot;</span>)
-                <span class="op">|</span><span class="op">|</span> <span class="ident">string</span>.<span class="ident">value</span>.<span class="ident">starts_with</span>(<span class="string">&quot;br\&quot;&quot;</span>)
+            <span class="kw">if </span>string.value.contains(<span class="kw-2">&amp;</span>[<span class="string">&#39;#&#39;</span>, <span class="string">&#39;\\&#39;</span>, <span class="string">&#39;.&#39;</span>, <span class="string">&#39;+&#39;</span>][..])
+                || string.value.starts_with(<span class="string">&quot;b&#39;&quot;</span>)
+                || string.value.starts_with(<span class="string">&quot;b\&quot;&quot;</span>)
+                || string.value.starts_with(<span class="string">&quot;br\&quot;&quot;</span>)
             {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">string</span>.<span class="ident">span</span>, <span class="string">&quot;unsupported literal&quot;</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(string.span, <span class="string">&quot;unsupported literal&quot;</span>));
             }
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">range</span> <span class="op">=</span> <span class="number">0</span>..<span class="ident">string</span>.<span class="ident">value</span>.<span class="ident">len</span>();
-            <span class="kw">if</span> <span class="ident">string</span>.<span class="ident">value</span>.<span class="ident">starts_with</span>(<span class="string">&quot;r\&quot;&quot;</span>) {
-                <span class="ident">range</span>.<span class="ident">start</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span>;
-                <span class="ident">range</span>.<span class="ident">end</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">string</span>.<span class="ident">value</span>.<span class="ident">starts_with</span>(<span class="kw-2">&amp;</span>[<span class="string">&#39;&quot;&#39;</span>, <span class="string">&#39;\&#39;&#39;</span>][..]) {
-                <span class="ident">range</span>.<span class="ident">start</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="ident">range</span>.<span class="ident">end</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>range = <span class="number">0</span>..string.value.len();
+            <span class="kw">if </span>string.value.starts_with(<span class="string">&quot;r\&quot;&quot;</span>) {
+                range.start += <span class="number">2</span>;
+                range.end -= <span class="number">1</span>;
+            } <span class="kw">else if </span>string.value.starts_with(<span class="kw-2">&amp;</span>[<span class="string">&#39;&quot;&#39;</span>, <span class="string">&#39;\&#39;&#39;</span>][..]) {
+                range.start += <span class="number">1</span>;
+                range.end -= <span class="number">1</span>;
             }
-            <span class="ident">string</span>.<span class="ident">value</span> <span class="op">=</span> <span class="ident">string</span>.<span class="ident">value</span>[<span class="ident">range</span>].<span class="ident">replace</span>(<span class="string">&#39;-&#39;</span>, <span class="string">&quot;_&quot;</span>);
+            string.value = string.value[range].replace(<span class="string">&#39;-&#39;</span>, <span class="string">&quot;_&quot;</span>);
         }
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">segments</span>)
+    <span class="prelude-val">Ok</span>(segments)
 }
 
-<span class="kw">fn</span> <span class="ident">pasted_to_tokens</span>(<span class="kw-2">mut</span> <span class="ident">pasted</span>: <span class="ident">String</span>, <span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">TokenStream::new</span>();
+<span class="kw">fn </span>pasted_to_tokens(<span class="kw-2">mut </span>pasted: String, span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;TokenStream&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tokens = TokenStream::new();
 
-    <span class="kw">if</span> <span class="ident">pasted</span>.<span class="ident">starts_with</span>(<span class="string">&#39;\&#39;&#39;</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">apostrophe</span> <span class="op">=</span> <span class="ident">TokenTree::Punct</span>(<span class="ident">Punct::new</span>(<span class="string">&#39;\&#39;&#39;</span>, <span class="ident">Spacing::Joint</span>));
-        <span class="ident">apostrophe</span>.<span class="ident">set_span</span>(<span class="ident">span</span>);
-        <span class="ident">tokens</span>.<span class="ident">extend</span>(<span class="ident">iter::once</span>(<span class="ident">apostrophe</span>));
-        <span class="ident">pasted</span>.<span class="ident">remove</span>(<span class="number">0</span>);
+    <span class="attribute">#[cfg(not(no_literal_fromstr))]
+    </span>{
+        <span class="kw">use </span>proc_macro::{LexError, Literal};
+        <span class="kw">use </span>std::str::FromStr;
+
+        <span class="kw">if </span>pasted.starts_with(|ch: char| ch.is_ascii_digit()) {
+            <span class="kw">let </span>literal = <span class="kw">match </span>panic::catch_unwind(|| Literal::from_str(<span class="kw-2">&amp;</span>pasted)) {
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(literal)) =&gt; TokenTree::Literal(literal),
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(LexError { .. })) | <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+                        span,
+                        <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;`{:?}` is not a valid literal&quot;</span>, pasted),
+                    ));
+                }
+            };
+            tokens.extend(iter::once(literal));
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(tokens);
+        }
     }
 
-    <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">panic::catch_unwind</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Ident::new</span>(<span class="kw-2">&amp;</span><span class="ident">pasted</span>, <span class="ident">span</span>)) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ident</span>) =&gt; <span class="ident">TokenTree::Ident</span>(<span class="ident">ident</span>),
+    <span class="kw">if </span>pasted.starts_with(<span class="string">&#39;\&#39;&#39;</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>apostrophe = TokenTree::Punct(Punct::new(<span class="string">&#39;\&#39;&#39;</span>, Spacing::Joint));
+        apostrophe.set_span(span);
+        tokens.extend(iter::once(apostrophe));
+        pasted.remove(<span class="number">0</span>);
+    }
+
+    <span class="kw">let </span>ident = <span class="kw">match </span>panic::catch_unwind(|| Ident::new(<span class="kw-2">&amp;</span>pasted, span)) {
+        <span class="prelude-val">Ok</span>(ident) =&gt; TokenTree::Ident(ident),
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-                <span class="ident">span</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;`{:?}` is not a valid identifier&quot;</span>, <span class="ident">pasted</span>),
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+                span,
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;`{:?}` is not a valid identifier&quot;</span>, pasted),
             ));
         }
     };
 
-    <span class="ident">tokens</span>.<span class="ident">extend</span>(<span class="ident">iter::once</span>(<span class="ident">ident</span>));
-    <span class="prelude-val">Ok</span>(<span class="ident">tokens</span>)
+    tokens.extend(iter::once(ident));
+    <span class="prelude-val">Ok</span>(tokens)
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="paste" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="paste" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

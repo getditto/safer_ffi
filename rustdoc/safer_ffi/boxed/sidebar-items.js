@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Box_","Same as [`Box<T>`][`rust::Box`], (e.g., same `#[repr(C)]` layout), but with no non-aliasing guarantee."]],"trait":[["FitForCArc",""],["FitForCBox",""]],"type":[["Box",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Box_","Same as [`Box<T>`][`rust::Box`], (e.g., same `#[repr(C)]` layout), but with no non-aliasing guarantee."]],"trait":[["FitForCArc",""],["FitForCBox",""]],"type":[["Box",""]]};

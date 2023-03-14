@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/headers/_mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>_mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../safer_ffi/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../safer_ffi/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../safer_ffi/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/headers/_mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>_mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../safer_ffi/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -657,364 +652,352 @@
 <span id="652">652</span>
 <span id="653">653</span>
 <span id="654">654</span>
-<span id="655">655</span>
-<span id="656">656</span>
-<span id="657">657</span>
-<span id="658">658</span>
-<span id="659">659</span>
-<span id="660">660</span>
-<span id="661">661</span>
-<span id="662">662</span>
-<span id="663">663</span>
-<span id="664">664</span>
-<span id="665">665</span>
-<span id="666">666</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
-<span class="doccomment">//! C headers generation.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This module is only enabled when the `&quot;headers&quot;` feature of `::safer_ffi` is</span>
-<span class="doccomment">//! enabled, which is expected to be done through a cargo feature within the</span>
-<span class="doccomment">//! (downstream) crate defining the `#[ffi_export]`ed</span>
-<span class="doccomment">//! functions.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```toml</span>
-<span class="doccomment">//! [dependencies]</span>
-<span class="doccomment">//! safer-ffi = { version = &quot;...&quot;, features = [&quot;proc_macros&quot;] }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [features]</span>
-<span class="doccomment">//! generate-headers = [&quot;safer-ffi/headers&quot;]</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Then, to generate the bindings, just define a</span>
-<span class="doccomment">//! `#[safer_ffi::cfg_headers]`-gated `#[test]` function,</span>
-<span class="doccomment">//! which can then call the [`builder`] to do the work:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use ::std::{io, fs};</span>
-<span class="doccomment">//! use ::safer_ffi::prelude::*;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! /// Concatenate two strings.</span>
-<span class="doccomment">//! ///</span>
-<span class="doccomment">//! /// The returned value must be freed with `rust_free`</span>
-<span class="doccomment">//! #[ffi_export]</span>
-<span class="doccomment">//! fn rust_concat (fst: char_p::Ref&lt;&#39;_&gt;, snd: char_p::Ref&lt;&#39;_&gt;)</span>
-<span class="doccomment">//!   -&gt; char_p::Box</span>
-<span class="doccomment">//! {</span>
-<span class="doccomment">//!     let s: String = format!(&quot;{}{}\0&quot;, fst, snd);</span>
-<span class="doccomment">//!     s   .try_into() // Try to convert to a boxed `char *` pointer</span>
-<span class="doccomment">//!         .unwrap()   // Only fails if there is an inner nul byte.</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! /// Frees a pointer obtained by calling `rust_concat`.</span>
-<span class="doccomment">//! #[ffi_export]</span>
-<span class="doccomment">//! fn rust_free (it: char_p::Box)</span>
-<span class="doccomment">//! {</span>
-<span class="doccomment">//!     drop(it);</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # #[cfg(any())] macro_rules! {</span>
-<span class="doccomment">//! #[::safer_ffi::cfg_headers]</span>
-<span class="doccomment">//! #[test]</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! fn generate_c_header ()</span>
-<span class="doccomment">//!   -&gt; io::Result&lt;()&gt;</span>
-<span class="doccomment">//! {</span>
-<span class="doccomment">//!     ::safer_ffi::headers::builder()</span>
-<span class="doccomment">//!         .with_guard(&quot;__ASGARD__&quot;)</span>
-<span class="doccomment">//!         .to_file(&quot;filename.h&quot;)?</span>
-<span class="doccomment">//!         .generate()</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! # generate_c_header().unwrap();</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! so that</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```shell</span>
-<span class="doccomment">//! cargo test --features generate-headers -- \</span>
-<span class="doccomment">//!     --exact generate_c_header \</span>
-<span class="doccomment">//!     --nocapture</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! generates a `&quot;filename.h&quot;` file (⚠️ overwriting it if it exists ⚠️) with</span>
-<span class="doccomment">//! the following contents:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;pre style=&quot;color:#000020;background:#f6f8ff;&quot;&gt;&lt;span style=&quot;color:#3f7f8f; &quot;&gt;/*! \file */&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;/*******************************************&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  File auto-generated by `::safer_ffi`.  *&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  Do not manually edit this file.        *&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*******************************************/&lt;/span&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#004a43; &quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color:#004a43; &quot;&gt;ifndef&lt;/span&gt;&lt;span style=&quot;color:#004a43; &quot;&gt; __ASGARD__&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#004a43; &quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color:#004a43; &quot;&gt;define&lt;/span&gt;&lt;span style=&quot;color:#004a43; &quot;&gt; __ASGARD__&lt;/span&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;/** \brief&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  Concatenate two strings.&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;* &lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  The returned value must be freed with `rust_free_string`&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*/&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#200080; font-weight:bold; &quot;&gt;char&lt;/span&gt; &lt;span style=&quot;color:#308080; &quot;&gt;*&lt;/span&gt; rust_concat &lt;span style=&quot;color:#308080; &quot;&gt;(&lt;/span&gt;</span>
-<span class="doccomment">//!     &lt;span style=&quot;color:#200080; font-weight:bold; &quot;&gt;char&lt;/span&gt; &lt;span style=&quot;color:#200080; font-weight:bold; &quot;&gt;const&lt;/span&gt; &lt;span style=&quot;color:#308080; &quot;&gt;*&lt;/span&gt; fst&lt;span style=&quot;color:#308080; &quot;&gt;,&lt;/span&gt;</span>
-<span class="doccomment">//!     &lt;span style=&quot;color:#200080; font-weight:bold; &quot;&gt;char&lt;/span&gt; &lt;span style=&quot;color:#200080; font-weight:bold; &quot;&gt;const&lt;/span&gt; &lt;span style=&quot;color:#308080; &quot;&gt;*&lt;/span&gt; snd&lt;span style=&quot;color:#308080; &quot;&gt;)&lt;/span&gt;&lt;span style=&quot;color:#406080; &quot;&gt;;&lt;/span&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;/** \brief&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  Frees a pointer obtained by calling `rust_concat`.&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*/&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#200080; font-weight:bold; &quot;&gt;void&lt;/span&gt; rust_free_string &lt;span style=&quot;color:#308080; &quot;&gt;(&lt;/span&gt;</span>
-<span class="doccomment">//!     &lt;span style=&quot;color:#200080; font-weight:bold; &quot;&gt;char&lt;/span&gt; &lt;span style=&quot;color:#308080; &quot;&gt;*&lt;/span&gt; it&lt;span style=&quot;color:#308080; &quot;&gt;)&lt;/span&gt;&lt;span style=&quot;color:#406080; &quot;&gt;;&lt;/span&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;span style=&quot;color:#004a43; &quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color:#004a43; &quot;&gt;endif&lt;/span&gt;&lt;span style=&quot;color:#004a43; &quot;&gt; &lt;/span&gt;&lt;span style=&quot;color:#595979; &quot;&gt;/* __ASGARD__ */&lt;/span&gt;</span>
-<span class="doccomment">//! &lt;/pre&gt;</span>
+</pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
+</span><span class="doccomment">//! C headers generation.
+//!
+//! This module is only enabled when the `&quot;headers&quot;` feature of `::safer_ffi` is
+//! enabled, which is expected to be done through a cargo feature within the
+//! (downstream) crate defining the `#[ffi_export]`ed
+//! functions.
+//!
+//! ```toml
+//! [dependencies]
+//! safer-ffi = { version = &quot;...&quot;, features = [&quot;proc_macros&quot;] }
+//!
+//! [features]
+//! generate-headers = [&quot;safer-ffi/headers&quot;]
+//! ```
+//!
+//! Then, to generate the bindings, just define a
+//! `#[safer_ffi::cfg_headers]`-gated `#[test]` function,
+//! which can then call the [`builder`] to do the work:
+//!
+//! ```rust
+//! use ::std::{io, fs};
+//! use ::safer_ffi::prelude::*;
+//!
+//! /// Concatenate two strings.
+//! ///
+//! /// The returned value must be freed with `rust_free`
+//! #[ffi_export]
+//! fn rust_concat (fst: char_p::Ref&lt;&#39;_&gt;, snd: char_p::Ref&lt;&#39;_&gt;)
+//!   -&gt; char_p::Box
+//! {
+//!     let s: String = format!(&quot;{}{}\0&quot;, fst, snd);
+//!     s   .try_into() // Try to convert to a boxed `char *` pointer
+//!         .unwrap()   // Only fails if there is an inner nul byte.
+//! }
+//!
+//! /// Frees a pointer obtained by calling `rust_concat`.
+//! #[ffi_export]
+//! fn rust_free (it: char_p::Box)
+//! {
+//!     drop(it);
+//! }
+//!
+//! # #[cfg(any())] macro_rules! {
+//! #[::safer_ffi::cfg_headers]
+//! #[test]
+//! # }
+//! fn generate_c_header ()
+//!   -&gt; io::Result&lt;()&gt;
+//! {
+//!     ::safer_ffi::headers::builder()
+//!         .with_guard(&quot;__ASGARD__&quot;)
+//!         .to_file(&quot;filename.h&quot;)?
+//!         .generate()
+//! }
+//! # generate_c_header().unwrap();
+//! ```
+//!
+//! so that
+//!
+//! ```shell
+//! cargo test --features generate-headers -- \
+//!     --exact generate_c_header \
+//!     --nocapture
+//! ```
+//!
+//! generates a `&quot;filename.h&quot;` file (⚠️ overwriting it if it exists ⚠️) with
+//! the following contents:
+//!
+//! &lt;pre style=&quot;color:#000020;background:#f6f8ff;&quot;&gt;&lt;span style=&quot;color:#3f7f8f; &quot;&gt;/*! \file */&lt;/span&gt;
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;/*******************************************&lt;/span&gt;
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  File auto-generated by `::safer_ffi`.  *&lt;/span&gt;
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  Do not manually edit this file.        *&lt;/span&gt;
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*******************************************/&lt;/span&gt;
+//!
+//! &lt;span style=&quot;color:#004a43; &quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color:#004a43; &quot;&gt;ifndef&lt;/span&gt;&lt;span style=&quot;color:#004a43; &quot;&gt; __ASGARD__&lt;/span&gt;
+//! &lt;span style=&quot;color:#004a43; &quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color:#004a43; &quot;&gt;define&lt;/span&gt;&lt;span style=&quot;color:#004a43; &quot;&gt; __ASGARD__&lt;/span&gt;
+//!
+//!
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;/** \brief&lt;/span&gt;
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  Concatenate two strings.&lt;/span&gt;
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;* &lt;/span&gt;
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  The returned value must be freed with `rust_free_string`&lt;/span&gt;
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*/&lt;/span&gt;
+//! &lt;span style=&quot;color:#200080; font-weight:bold; &quot;&gt;char&lt;/span&gt; &lt;span style=&quot;color:#308080; &quot;&gt;*&lt;/span&gt; rust_concat &lt;span style=&quot;color:#308080; &quot;&gt;(&lt;/span&gt;
+//!     &lt;span style=&quot;color:#200080; font-weight:bold; &quot;&gt;char&lt;/span&gt; &lt;span style=&quot;color:#200080; font-weight:bold; &quot;&gt;const&lt;/span&gt; &lt;span style=&quot;color:#308080; &quot;&gt;*&lt;/span&gt; fst&lt;span style=&quot;color:#308080; &quot;&gt;,&lt;/span&gt;
+//!     &lt;span style=&quot;color:#200080; font-weight:bold; &quot;&gt;char&lt;/span&gt; &lt;span style=&quot;color:#200080; font-weight:bold; &quot;&gt;const&lt;/span&gt; &lt;span style=&quot;color:#308080; &quot;&gt;*&lt;/span&gt; snd&lt;span style=&quot;color:#308080; &quot;&gt;)&lt;/span&gt;&lt;span style=&quot;color:#406080; &quot;&gt;;&lt;/span&gt;
+//!
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;/** \brief&lt;/span&gt;
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  Frees a pointer obtained by calling `rust_concat`.&lt;/span&gt;
+//! &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*/&lt;/span&gt;
+//! &lt;span style=&quot;color:#200080; font-weight:bold; &quot;&gt;void&lt;/span&gt; rust_free_string &lt;span style=&quot;color:#308080; &quot;&gt;(&lt;/span&gt;
+//!     &lt;span style=&quot;color:#200080; font-weight:bold; &quot;&gt;char&lt;/span&gt; &lt;span style=&quot;color:#308080; &quot;&gt;*&lt;/span&gt; it&lt;span style=&quot;color:#308080; &quot;&gt;)&lt;/span&gt;&lt;span style=&quot;color:#406080; &quot;&gt;;&lt;/span&gt;
+//!
+//!
+//! &lt;span style=&quot;color:#004a43; &quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color:#004a43; &quot;&gt;endif&lt;/span&gt;&lt;span style=&quot;color:#004a43; &quot;&gt; &lt;/span&gt;&lt;span style=&quot;color:#595979; &quot;&gt;/* __ASGARD__ */&lt;/span&gt;
+//! &lt;/pre&gt;
 
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">missing_copy_implementations</span>, <span class="ident">missing_debug_implementations</span>)]</span>
+</span><span class="attribute">#![allow(missing_copy_implementations, missing_debug_implementations)]
 
-<span class="kw">use</span> <span class="ident">::std</span>::{
-    <span class="ident">collections::HashSet</span>,
-    <span class="ident">fs</span>,
-    <span class="ident">io</span>,
-    <span class="ident">path::Path</span>,
+</span><span class="kw">use </span>::std::{
+    collections::HashSet,
+    fs,
+    io,
+    path::Path,
 };
 
 <span class="macro">use_prelude!</span>();
-<span class="kw">use</span> <span class="ident">rust</span>::{<span class="ident">String</span>};
+<span class="kw">use </span>rust::{String};
 
-<span class="kw">pub</span> <span class="comment">// (in crate)</span>
-<span class="kw">mod</span> <span class="ident">languages</span>;
+<span class="kw">pub </span><span class="comment">// (in crate)
+</span><span class="kw">mod </span>languages;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">definer</span>::{<span class="ident">Definer</span>, <span class="ident">HashSetDefiner</span>};
-<span class="kw">mod</span> <span class="ident">definer</span>;
+<span class="kw">pub use </span>definer::{Definer, HashSetDefiner};
+<span class="kw">mod </span>definer;
 
 
 
-<span class="macro">match_!</span> {(
-    <span class="doccomment">/// Sets up the name of the `ifndef` guard of the header file.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It defaults to:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,ignore</span>
-    <span class="doccomment">/// format!(&quot;__RUST_{}__&quot;, env::var(&quot;CARGO_CRATE_NAME&quot;)?.replace(&quot;-&quot;, &quot;_&quot;).to_ascii_uppercase())</span>
-    <span class="doccomment">/// ```</span>
-    <span class="ident">guard</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;__</span> <span class="ident">str</span>,
+<span class="macro">match_! </span>{(
+    <span class="doccomment">/// Sets up the name of the `ifndef` guard of the header file.
+    ///
+    /// It defaults to:
+    ///
+    /// ```rust,ignore
+    /// format!(&quot;__RUST_{}__&quot;, env::var(&quot;CARGO_CRATE_NAME&quot;)?.replace(&quot;-&quot;, &quot;_&quot;).to_ascii_uppercase())
+    /// ```
+    </span>guard: <span class="kw-2">&amp;</span><span class="lifetime">&#39;__ </span>str,
 
-    <span class="doccomment">/// Sets up the banner of the generated C header file.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It defaults to:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,ignore</span>
-    <span class="doccomment">/// concat!(</span>
-    <span class="doccomment">///     &quot;/*! \\file */\n&quot;,</span>
-    <span class="doccomment">///     &quot;/*******************************************\n&quot;,</span>
-    <span class="doccomment">///     &quot; *                                         *\n&quot;,</span>
-    <span class="doccomment">///     &quot; *  File auto-generated by `::safer_ffi`.  *\n&quot;,</span>
-    <span class="doccomment">///     &quot; *                                         *\n&quot;,</span>
-    <span class="doccomment">///     &quot; *  Do not manually edit this file.        *\n&quot;,</span>
-    <span class="doccomment">///     &quot; *                                         *\n&quot;,</span>
-    <span class="doccomment">///     &quot; *******************************************/\n&quot;,</span>
-    <span class="doccomment">/// )</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// &lt;pre style=&quot;color:#000020;background:#f6f8ff;&quot;&gt;&lt;span style=&quot;color:#3f7f8f; &quot;&gt;/*! \file */&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;/*******************************************&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  File auto-generated by `::safer_ffi`.  *&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  Do not manually edit this file.        *&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*******************************************/&lt;/span&gt;</span>
-    <span class="doccomment">/// &lt;/pre&gt;</span>
-    <span class="ident">banner</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;__</span> <span class="ident">str</span>,
+    <span class="doccomment">/// Sets up the banner of the generated C header file.
+    ///
+    /// It defaults to:
+    ///
+    /// ```rust,ignore
+    /// concat!(
+    ///     &quot;/*! \\file */\n&quot;,
+    ///     &quot;/*******************************************\n&quot;,
+    ///     &quot; *                                         *\n&quot;,
+    ///     &quot; *  File auto-generated by `::safer_ffi`.  *\n&quot;,
+    ///     &quot; *                                         *\n&quot;,
+    ///     &quot; *  Do not manually edit this file.        *\n&quot;,
+    ///     &quot; *                                         *\n&quot;,
+    ///     &quot; *******************************************/\n&quot;,
+    /// )
+    /// ```
+    ///
+    /// &lt;pre style=&quot;color:#000020;background:#f6f8ff;&quot;&gt;&lt;span style=&quot;color:#3f7f8f; &quot;&gt;/*! \file */&lt;/span&gt;
+    /// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;/*******************************************&lt;/span&gt;
+    /// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;
+    /// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  File auto-generated by `::safer_ffi`.  *&lt;/span&gt;
+    /// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;
+    /// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*  Do not manually edit this file.        *&lt;/span&gt;
+    /// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*                                         *&lt;/span&gt;
+    /// &lt;span style=&quot;color:#3f7f8f; &quot;&gt;&amp;nbsp;*******************************************/&lt;/span&gt;
+    /// &lt;/pre&gt;
+    </span>banner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;__ </span>str,
 
-    <span class="doccomment">/// Sets the [`Language`] of the generated headers.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It defaults to [`Language::C`].</span>
-    <span class="ident">language</span>: <span class="ident">Language</span>,
+    <span class="doccomment">/// Sets the [`Language`] of the generated headers.
+    ///
+    /// It defaults to [`Language::C`].
+    </span>language: Language,
 
-    <span class="doccomment">/// Sets prefix for generated functions, structs &amp; enums</span>
-    <span class="ident">naming_convention</span>: <span class="ident">NamingConvention</span>,
+    <span class="doccomment">/// Sets prefix for generated functions, structs &amp; enums
+    </span>naming_convention: NamingConvention,
 
-    <span class="doccomment">/// Whether to yield a stable header or not (order of defined items guaranteed</span>
-    <span class="doccomment">/// not to change provided the source code doesn&#39;t change either).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It defaults to `true`.</span>
-    <span class="ident">stable_header</span>: <span class="ident">bool</span>,
-) <span class="comment">/* as */</span> {(
+    <span class="doccomment">/// Whether to yield a stable header or not (order of defined items guaranteed
+    /// not to change provided the source code doesn&#39;t change either).
+    ///
+    /// It defaults to `true`.
+    </span>stable_header: bool,
+) <span class="comment">/* as */ </span>{(
     $(
-        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_meta</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>:<span class="ident">ident</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_ty</span>:<span class="ident">ty</span>
-    ),<span class="op">*</span> $(,)<span class="question-mark">?</span>
-) =&gt; (
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
-    <span class="kw">pub</span>
-    <span class="kw">struct</span> <span class="ident">Builder</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-        <span class="ident">target</span>: <span class="ident">W</span>,
+        $(<span class="attribute">#[<span class="macro-nonterminal">$field_meta</span>:meta]</span>)*
+        <span class="macro-nonterminal">$field</span>:ident : <span class="macro-nonterminal">$field_ty</span>:ty
+    ),* $(,)<span class="question-mark">?
+</span>) =&gt; (
+    <span class="attribute">#[derive(Default)]
+    </span><span class="kw">pub
+    struct </span>Builder&lt;<span class="lifetime">&#39;__</span>, W&gt; {
+        target: W,
         $(
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span> : <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_ty</span><span class="op">&gt;</span>,
-        )<span class="op">*</span>
+            <span class="macro-nonterminal">$field </span>: <span class="prelude-ty">Option</span>&lt;<span class="macro-nonterminal">$field_ty</span>&gt;,
+        )*
     }
 
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">builder</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span><span class="op">&gt;</span> ()
-      -&gt; <span class="ident">Builder</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span>, <span class="ident">WhereTo</span><span class="op">&gt;</span>
+    <span class="kw">pub
+    fn </span>builder&lt;<span class="lifetime">&#39;__</span>&gt; ()
+      -&gt; Builder&lt;<span class="lifetime">&#39;__</span>, WhereTo&gt;
     {
-        <span class="ident">Builder::default</span>()
+        Builder::default()
     }
 
-    <span class="kw">use</span> <span class="ident">__::WhereTo</span>;
-    <span class="kw">mod</span> <span class="ident">__</span> {
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
-        <span class="kw">pub</span>
-        <span class="kw">struct</span> <span class="ident">WhereTo</span>;
+    <span class="kw">use </span>__::WhereTo;
+    <span class="kw">mod </span>__ {
+        <span class="attribute">#[derive(Default)]
+        </span><span class="kw">pub
+        struct </span>WhereTo;
     }
 
-    <span class="macro">::paste::item!</span> {
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span>, <span class="ident">W</span><span class="op">&gt;</span> <span class="ident">Builder</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span>, <span class="ident">W</span><span class="op">&gt;</span> {
+    <span class="macro">::paste::item! </span>{
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;__</span>, W&gt; Builder&lt;<span class="lifetime">&#39;__</span>, W&gt; {
             $(
-                $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_meta</span>]</span>)<span class="op">*</span>
-                <span class="kw">pub</span>
-                <span class="kw">fn</span> [<span class="op">&lt;</span><span class="ident">with_</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span><span class="op">&gt;</span>] (<span class="self">self</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_ty</span>)
-                  -&gt; <span class="self">Self</span>
-                {
-                    <span class="kw">let</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>);
-                    <span class="self">Self</span> {
-                        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>,
-                        .. <span class="self">self</span>
-                    }
+                $(<span class="attribute">#[<span class="macro-nonterminal">$field_meta</span>]</span>)*
+                <span class="kw">pub
+                fn </span>[&lt;with_<span class="macro-nonterminal">$field</span>&gt;] (<span class="self">self</span>, <span class="macro-nonterminal">$field </span>: <span class="macro-nonterminal">$field_ty</span>)
+                  -&gt; <span class="self">Self
+                </span>{
+                    <span class="kw">let </span><span class="macro-nonterminal">$field </span>= <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$field</span>);
+                    <span class="self">Self </span>{
+                        <span class="macro-nonterminal">$field</span>,
+                        .. <span class="self">self
+                    </span>}
                 }
-            )<span class="op">*</span>
+            )*
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span><span class="op">&gt;</span> <span class="ident">Builder</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span>, <span class="ident">WhereTo</span><span class="op">&gt;</span> {
-        <span class="doccomment">/// Specify the path to the file to be generated.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// **⚠️ If it already exists, its contents will be overwritten ⚠️**</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// There is no default value here, either `.to_file()` or [`.to_writer()`]</span>
-        <span class="doccomment">/// need to be called to be able to [`.generate()`] the headers.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// For more fine-grained control over the &quot;output stream&quot; where the</span>
-        <span class="doccomment">/// headers will be written to, use [`.to_writer()`].</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// # Example</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// ```rust,no_run</span>
-        <span class="doccomment">/// # fn main () -&gt; ::std::io::Result&lt;()&gt; { Ok({</span>
-        <span class="doccomment">/// ::safer_ffi::headers::builder()</span>
-        <span class="doccomment">///     .to_file(&quot;my_header.h&quot;)?</span>
-        <span class="doccomment">///     .generate()?</span>
-        <span class="doccomment">/// # })}</span>
-        <span class="doccomment">/// ```</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// [`.to_writer()`]: `Builder::to_writer`</span>
-        <span class="doccomment">/// [`.generate()`]: `Builder::generate`</span>
-        <span class="kw">pub</span>
-        <span class="kw">fn</span> <span class="ident">to_file</span> (
+    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;__</span>&gt; Builder&lt;<span class="lifetime">&#39;__</span>, WhereTo&gt; {
+        <span class="doccomment">/// Specify the path to the file to be generated.
+        ///
+        /// **⚠️ If it already exists, its contents will be overwritten ⚠️**
+        ///
+        /// There is no default value here, either `.to_file()` or [`.to_writer()`]
+        /// need to be called to be able to [`.generate()`] the headers.
+        ///
+        /// For more fine-grained control over the &quot;output stream&quot; where the
+        /// headers will be written to, use [`.to_writer()`].
+        ///
+        /// # Example
+        ///
+        /// ```rust,no_run
+        /// # fn main () -&gt; ::std::io::Result&lt;()&gt; { Ok({
+        /// ::safer_ffi::headers::builder()
+        ///     .to_file(&quot;my_header.h&quot;)?
+        ///     .generate()?
+        /// # })}
+        /// ```
+        ///
+        /// [`.to_writer()`]: `Builder::to_writer`
+        /// [`.generate()`]: `Builder::generate`
+        </span><span class="kw">pub
+        fn </span>to_file (
             <span class="self">self</span>: <span class="self">Self</span>,
-            <span class="ident">filename</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Builder</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span>, <span class="ident">fs::File</span><span class="op">&gt;</span><span class="op">&gt;</span>
+            filename: <span class="kw">impl </span>AsRef&lt;Path&gt;,
+        ) -&gt; io::Result&lt;Builder&lt;<span class="lifetime">&#39;__</span>, fs::File&gt;&gt;
         {
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">to_writer</span>(
-                <span class="ident">fs::OpenOptions::new</span>()
-                    .<span class="ident">create</span>(<span class="bool-val">true</span>)<span class="comment">/*or*/</span>.<span class="ident">truncate</span>(<span class="bool-val">true</span>)
-                    .<span class="ident">write</span>(<span class="bool-val">true</span>)
-                    .<span class="ident">open</span>(<span class="ident">filename</span>.<span class="ident">as_ref</span>())<span class="question-mark">?</span>
-            ))
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.to_writer(
+                fs::OpenOptions::new()
+                    .create(<span class="bool-val">true</span>)<span class="comment">/*or*/</span>.truncate(<span class="bool-val">true</span>)
+                    .write(<span class="bool-val">true</span>)
+                    .open(filename.as_ref())<span class="question-mark">?
+            </span>))
         }
 
-        <span class="doccomment">/// Specify the [`Write`][`io::Write`] &quot;stream&quot; where the headers will</span>
-        <span class="doccomment">/// be written to.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// # Example</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// ```rust,no_run</span>
-        <span class="doccomment">/// // Display the headers to the standard output</span>
-        <span class="doccomment">/// // (may need the `--nocapture` flag when running the tests)</span>
-        <span class="doccomment">/// # fn main () -&gt; ::std::io::Result&lt;()&gt; { Ok({</span>
-        <span class="doccomment">/// ::safer_ffi::headers::builder()</span>
-        <span class="doccomment">///     .to_writer(::std::io::stdout())</span>
-        <span class="doccomment">///     .generate()?</span>
-        <span class="doccomment">/// # })}</span>
-        <span class="doccomment">/// ```</span>
-        <span class="kw">pub</span>
-        <span class="kw">fn</span> <span class="ident">to_writer</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> (
+        <span class="doccomment">/// Specify the [`Write`][`io::Write`] &quot;stream&quot; where the headers will
+        /// be written to.
+        ///
+        /// # Example
+        ///
+        /// ```rust,no_run
+        /// // Display the headers to the standard output
+        /// // (may need the `--nocapture` flag when running the tests)
+        /// # fn main () -&gt; ::std::io::Result&lt;()&gt; { Ok({
+        /// ::safer_ffi::headers::builder()
+        ///     .to_writer(::std::io::stdout())
+        ///     .generate()?
+        /// # })}
+        /// ```
+        </span><span class="kw">pub
+        fn </span>to_writer&lt;W&gt; (
             <span class="self">self</span>: <span class="self">Self</span>,
-            <span class="ident">out</span>: <span class="ident">W</span>,
-        ) -&gt; <span class="ident">Builder</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span>, <span class="ident">W</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">W</span> : <span class="ident">io::Write</span>
+            out: W,
+        ) -&gt; Builder&lt;<span class="lifetime">&#39;__</span>, W&gt;
+        <span class="kw">where
+            </span>W : io::Write
         {
-            <span class="kw">let</span> <span class="self">Self</span> {
-                <span class="ident">target</span>: <span class="ident">WhereTo</span>, $(
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>, )<span class="op">*</span>
+            <span class="kw">let </span><span class="self">Self </span>{
+                target: WhereTo, $(
+                <span class="macro-nonterminal">$field</span>, )*
                 ..
-            } <span class="op">=</span> <span class="self">self</span>;
-            <span class="ident">Builder</span> {
-                <span class="ident">target</span>: <span class="ident">out</span>,
-                $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span> ,)<span class="op">*</span>
+            } = <span class="self">self</span>;
+            Builder {
+                target: out,
+                $(<span class="macro-nonterminal">$field </span>,)*
             }
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span>, <span class="ident">W</span> : <span class="ident">io::Write</span><span class="op">&gt;</span> <span class="ident">Builder</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-        <span class="doccomment">/// Generate the C header file.</span>
-        <span class="kw">pub</span>
-        <span class="kw">fn</span> <span class="ident">generate</span> (<span class="self">self</span>)
-          -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;__</span>, W : io::Write&gt; Builder&lt;<span class="lifetime">&#39;__</span>, W&gt; {
+        <span class="doccomment">/// Generate the C header file.
+        </span><span class="kw">pub
+        fn </span>generate (<span class="self">self</span>)
+          -&gt; io::Result&lt;()&gt;
         {
-            <span class="kw">let</span> <span class="self">Self</span> { <span class="kw-2">mut</span> <span class="ident">target</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span> ,)<span class="op">*</span> } <span class="op">=</span> <span class="self">self</span>;
-            <span class="ident">Builder</span> {
-                <span class="ident">target</span>: <span class="ident">WhereTo</span>, $(
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>, )<span class="op">*</span>
-            }.<span class="ident">generate_with_definer</span>(<span class="ident">HashSetDefiner</span> {
-                <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> <span class="ident">target</span>,
-                <span class="ident">defines_set</span>: <span class="ident">Default::default</span>(),
+            <span class="kw">let </span><span class="self">Self </span>{ <span class="kw-2">mut </span>target, $(<span class="macro-nonterminal">$field </span>,)* } = <span class="self">self</span>;
+            Builder {
+                target: WhereTo, $(
+                <span class="macro-nonterminal">$field</span>, )*
+            }.generate_with_definer(HashSetDefiner {
+                out: <span class="kw-2">&amp;mut </span>target,
+                defines_set: Default::default(),
             })
         }
 
-        <span class="comment">// pub</span>
-        <span class="comment">// fn as_mut_dyn (self: &amp;&#39;__ mut Self)</span>
-        <span class="comment">//   -&gt; Builder&lt;&#39;__, &amp;&#39;__ mut dyn io::Write&gt;</span>
-        <span class="comment">// where</span>
-        <span class="comment">//     W : &#39;__,</span>
-        <span class="comment">// {</span>
-        <span class="comment">//     let Self { ref mut target, $($field ,)* } = *self;</span>
-        <span class="comment">//     Builder {</span>
-        <span class="comment">//         target, $(</span>
-        <span class="comment">//         $field, )*</span>
-        <span class="comment">//     }</span>
-        <span class="comment">// }</span>
-    }
+        <span class="comment">// pub
+        // fn as_mut_dyn (self: &amp;&#39;__ mut Self)
+        //   -&gt; Builder&lt;&#39;__, &amp;&#39;__ mut dyn io::Write&gt;
+        // where
+        //     W : &#39;__,
+        // {
+        //     let Self { ref mut target, $($field ,)* } = *self;
+        //     Builder {
+        //         target, $(
+        //         $field, )*
+        //     }
+        // }
+    </span>}
 )}}
 
-<span class="kw">impl</span> <span class="ident">Builder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">WhereTo</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// More customizable version of [`.generate()`][Builder::generate].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// With this call, one can provide a custom implementation of a [`Definer`],</span>
-    <span class="doccomment">/// which can be useful for mock tests, mainly.</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">generate_with_definer</span> (<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">definer</span>: <span class="kw">impl</span> <span class="ident">Definer</span>)
-      -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+<span class="kw">impl </span>Builder&lt;<span class="lifetime">&#39;_</span>, WhereTo&gt; {
+    <span class="doccomment">/// More customizable version of [`.generate()`][Builder::generate].
+    ///
+    /// With this call, one can provide a custom implementation of a [`Definer`],
+    /// which can be useful for mock tests, mainly.
+    </span><span class="kw">pub
+    fn </span>generate_with_definer (<span class="self">self</span>, <span class="kw-2">mut </span>definer: <span class="kw">impl </span>Definer)
+      -&gt; io::Result&lt;()&gt;
     {
-        <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="comment">// Banner</span>
-        <span class="ident">config</span>.<span class="ident">write_banner</span>(<span class="kw-2">&amp;mut</span> <span class="ident">definer</span>)<span class="question-mark">?</span>;
-        <span class="comment">// Prelude</span>
-        <span class="ident">config</span>.<span class="ident">write_prelude</span>(<span class="kw-2">&amp;mut</span> <span class="ident">definer</span>)<span class="question-mark">?</span>;
-        <span class="comment">/* User-provided defs! */</span>
-        <span class="ident">config</span>.<span class="ident">write_body</span>(<span class="kw-2">&amp;mut</span> <span class="ident">definer</span>)<span class="question-mark">?</span>;
-        <span class="comment">// Epilogue</span>
-        <span class="ident">config</span>.<span class="ident">write_epilogue</span>(<span class="kw-2">&amp;mut</span> <span class="ident">definer</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>config = <span class="self">self</span>;
+        <span class="comment">// Banner
+        </span>config.write_banner(<span class="kw-2">&amp;mut </span>definer)<span class="question-mark">?</span>;
+        <span class="comment">// Prelude
+        </span>config.write_prelude(<span class="kw-2">&amp;mut </span>definer)<span class="question-mark">?</span>;
+        <span class="comment">/* User-provided defs! */
+        </span>config.write_body(<span class="kw-2">&amp;mut </span>definer)<span class="question-mark">?</span>;
+        <span class="comment">// Epilogue
+        </span>config.write_epilogue(<span class="kw-2">&amp;mut </span>definer)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">write_banner</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">self</span>, <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
-      -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">fn </span>write_banner (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">self</span>, definer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span>Definer)
+      -&gt; io::Result&lt;()&gt;
     {
-        <span class="kw">let</span> <span class="ident">banner</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">banner</span>.<span class="ident">unwrap_or</span>(<span class="macro">concat!</span>(
+        <span class="kw">let </span>banner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>str = <span class="self">self</span>.banner.unwrap_or(<span class="macro">concat!</span>(
             <span class="string">&quot;/*! \\file */\n&quot;</span>,
             <span class="string">&quot;/*******************************************\n&quot;</span>,
             <span class="string">&quot; *                                         *\n&quot;</span>,
@@ -1024,297 +1007,285 @@
             <span class="string">&quot; *                                         *\n&quot;</span>,
             <span class="string">&quot; *******************************************/\n&quot;</span>,
         ));
-        <span class="macro">writeln!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(), <span class="string">&quot;{}&quot;</span>, <span class="ident">banner</span>)
+        <span class="macro">writeln!</span>(definer.out(), <span class="string">&quot;{}&quot;</span>, banner)
     }
 
-    <span class="kw">fn</span> <span class="ident">write_prelude</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">self</span>, <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
-      -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">fn </span>write_prelude (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">self</span>, definer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span>Definer)
+      -&gt; io::Result&lt;()&gt;
     {
-        <span class="kw">let</span> <span class="ident">lang</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">language</span>.<span class="ident">unwrap_or</span>(<span class="ident">Language::C</span>);
+        <span class="kw">let </span>lang = <span class="self">self</span>.language.unwrap_or(Language::C);
 
-        <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">guard</span>();
+        <span class="kw">let </span>guard = <span class="self">self</span>.guard();
 
-        <span class="kw">match</span> <span class="ident">lang</span> {
-            <span class="op">|</span> <span class="ident">Language::C</span> =&gt; <span class="macro">writeln!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
+        <span class="kw">match </span>lang {
+            | Language::C =&gt; <span class="macro">writeln!</span>(definer.out(),
                 <span class="macro">include_str!</span>(<span class="string">&quot;templates/c/_prelude.h&quot;</span>),
-                <span class="ident">guard</span> <span class="op">=</span> <span class="ident">guard</span>,
+                guard = guard,
             ),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
-            <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; <span class="macro">writeln!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
+            | Language::CSharp =&gt; <span class="macro">writeln!</span>(definer.out(),
                 <span class="macro">include_str!</span>(<span class="string">&quot;templates/csharp/_prelude.cs&quot;</span>),
-                <span class="ident">NameSpace</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::pascal_cased_lib_name</span>(),
-                <span class="ident">RustLib</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::lib_name</span>(),
+                NameSpace = <span class="self">Self</span>::pascal_cased_lib_name(),
+                RustLib = <span class="self">Self</span>::lib_name(),
             ),
         }
     }
 
-    <span class="doccomment">/// Heart of safer ffi: write the items in the header</span>
-    <span class="kw">fn</span> <span class="ident">write_body</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">self</span>, <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
-      -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="doccomment">/// Heart of safer ffi: write the items in the header
+    </span><span class="kw">fn </span>write_body (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">self</span>, definer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span>Definer)
+      -&gt; io::Result&lt;()&gt;
     {
-        <span class="kw">let</span> <span class="ident">stable_header</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">stable_header</span>.<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>);
-        <span class="kw">let</span> <span class="ident">lang</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">language</span>.<span class="ident">unwrap_or</span>(<span class="ident">Language::C</span>);
-        <span class="kw">let</span> <span class="ident">_naming_convention</span> <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">naming_convention</span>
-                .<span class="ident">as_ref</span>()
-                .<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">NamingConvention::Default</span>)
+        <span class="kw">let </span>stable_header = <span class="self">self</span>.stable_header.unwrap_or(<span class="bool-val">true</span>);
+        <span class="kw">let </span>lang = <span class="self">self</span>.language.unwrap_or(Language::C);
+        <span class="kw">let </span>_naming_convention =
+            <span class="self">self</span>.naming_convention
+                .as_ref()
+                .unwrap_or(<span class="kw-2">&amp;</span>NamingConvention::Default)
         ;
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">storage0</span>, <span class="kw-2">mut</span> <span class="ident">storage1</span>) <span class="op">=</span> (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
-        <span class="kw">let</span> <span class="ident">gen_defs</span>: <span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">stable_header</span> {
-            <span class="ident">storage0</span>.<span class="ident">get_or_insert</span>(
-                <span class="ident"><span class="kw">crate</span>::inventory::iter</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident"><span class="kw">crate</span>::FfiExport</span> { <span class="ident">name</span>, <span class="ident">gen_def</span> }<span class="op">|</span> (<span class="ident">name</span>, <span class="ident">gen_def</span>))
-                    <span class="comment">// Sort the definitions for a reliable header generation.</span>
-                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">::std::collections::BTreeMap</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">gen_def</span>)<span class="op">|</span> <span class="ident">gen_def</span>)
+        <span class="kw">let </span>(<span class="kw-2">mut </span>storage0, <span class="kw-2">mut </span>storage1) = (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
+        <span class="kw">let </span>gen_defs: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Iterator&lt;Item = <span class="kw">_</span>&gt; = <span class="kw">if </span>stable_header {
+            storage0.get_or_insert(
+                <span class="kw">crate</span>::inventory::iter
+                    .into_iter()
+                    .map(|<span class="kw">crate</span>::FfiExport { name, gen_def }| (name, gen_def))
+                    <span class="comment">// Sort the definitions for a reliable header generation.
+                    </span>.collect::&lt;::std::collections::BTreeMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;()
+                    .into_iter()
+                    .map(|(<span class="kw">_</span>, gen_def)| gen_def)
             )
-        } <span class="kw">else</span> {
-            <span class="ident">storage1</span>.<span class="ident">get_or_insert</span>(
-                <span class="ident"><span class="kw">crate</span>::inventory::iter</span>
-                    .<span class="ident">into_iter</span>()
-                    <span class="comment">// Iterate in reverse fashion to more closely match</span>
-                    <span class="comment">// the Rust definition order.</span>
-                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">rust::Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">into_iter</span>().<span class="ident">rev</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident"><span class="kw">crate</span>::FfiExport</span> { <span class="ident">gen_def</span>, .. }<span class="op">|</span> <span class="ident">gen_def</span>)
+        } <span class="kw">else </span>{
+            storage1.get_or_insert(
+                <span class="kw">crate</span>::inventory::iter
+                    .into_iter()
+                    <span class="comment">// Iterate in reverse fashion to more closely match
+                    // the Rust definition order.
+                    </span>.collect::&lt;rust::Vec&lt;<span class="kw">_</span>&gt;&gt;().into_iter().rev()
+                    .map(|<span class="kw">crate</span>::FfiExport { gen_def, .. }| gen_def)
             )
         };
-        (<span class="kw-2">&amp;mut</span> { <span class="ident">gen_defs</span> }).<span class="ident">try_for_each</span>(<span class="op">|</span><span class="ident">gen_def</span><span class="op">|</span> <span class="ident">gen_def</span>(<span class="ident">definer</span>, <span class="ident">lang</span>))<span class="question-mark">?</span>;
+        (<span class="kw-2">&amp;mut </span>{ gen_defs }).try_for_each(|gen_def| gen_def(definer, lang))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">write_epilogue</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">self</span>, <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>)
-      -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">fn </span>write_epilogue (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">self</span>, definer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span>Definer)
+      -&gt; io::Result&lt;()&gt;
     {
-        <span class="kw">let</span> <span class="ident">lang</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">language</span>.<span class="ident">unwrap_or</span>(<span class="ident">Language::C</span>);
-        <span class="kw">match</span> <span class="ident">lang</span> {
-            <span class="op">|</span> <span class="ident">Language::C</span> =&gt; <span class="macro">write!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
+        <span class="kw">let </span>lang = <span class="self">self</span>.language.unwrap_or(Language::C);
+        <span class="kw">match </span>lang {
+            | Language::C =&gt; <span class="macro">write!</span>(definer.out(),
                 <span class="macro">include_str!</span>(<span class="string">&quot;templates/c/epilogue.h&quot;</span>),
-                <span class="ident">guard</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">guard</span>(),
+                guard = <span class="self">self</span>.guard(),
             ),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
-            <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">pkg_name</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::pascal_cased_lib_name</span>();
-                    <span class="macro">write!</span>(<span class="ident">definer</span>.<span class="ident">out</span>(),
+            | Language::CSharp =&gt; {
+                <span class="kw">let </span>pkg_name = <span class="self">Self</span>::pascal_cased_lib_name();
+                    <span class="macro">write!</span>(definer.out(),
                 <span class="macro">include_str!</span>(<span class="string">&quot;templates/csharp/epilogue.cs&quot;</span>),
-                <span class="ident">PkgName</span> <span class="op">=</span> <span class="ident">pkg_name</span>,
+                PkgName = pkg_name,
             )
             },
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">guard</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">self</span>)
-      -&gt; <span class="ident">String</span>
+    <span class="kw">fn </span>guard (<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">self</span>)
+      -&gt; String
     {
-        <span class="self">self</span>.<span class="ident">guard</span>.<span class="ident">map_or_else</span>(
-            <span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;__RUST_{}__&quot;</span>, <span class="ident"><span class="self">Self</span>::lib_name</span>().<span class="ident">to_ascii_uppercase</span>()),
-            <span class="ident">Into::into</span>,
+        <span class="self">self</span>.guard.map_or_else(
+            || <span class="macro">format!</span>(<span class="string">&quot;__RUST_{}__&quot;</span>, <span class="self">Self</span>::lib_name().to_ascii_uppercase()),
+            Into::into,
         )
     }
 
-    <span class="doccomment">/// Return the library name</span>
-    <span class="kw">fn</span> <span class="ident">lib_name</span> ()
-      -&gt; <span class="ident">String</span>
+    <span class="doccomment">/// Return the library name
+    </span><span class="kw">fn </span>lib_name ()
+      -&gt; String
     {
-        <span class="ident">::std::env::var</span>(<span class="string">&quot;CARGO_CRATE_NAME&quot;</span>)
-            .<span class="ident">or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-                <span class="ident">::std::env::var</span>(<span class="string">&quot;CARGO_PKG_NAME&quot;</span>)
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">replace</span>(<span class="string">&#39;-&#39;</span>, <span class="string">&quot;_&quot;</span>))
+        ::std::env::var(<span class="string">&quot;CARGO_CRATE_NAME&quot;</span>)
+            .or_else(|<span class="kw">_</span>| {
+                ::std::env::var(<span class="string">&quot;CARGO_PKG_NAME&quot;</span>)
+                    .map(|s| s.replace(<span class="string">&#39;-&#39;</span>, <span class="string">&quot;_&quot;</span>))
             })
-            .<span class="ident">expect</span>(<span class="string">&quot;Missing `CARGO_{CRATE,PKG}_NAME` env vars&quot;</span>)
+            .expect(<span class="string">&quot;Missing `CARGO_{CRATE,PKG}_NAME` env vars&quot;</span>)
     }
 
-    <span class="doccomment">/// Return a Pascal Cased (UpperCamelCase) version of the lib name.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">pascal_cased_lib_name</span>() -&gt; <span class="ident">String</span> {
-        <span class="ident"><span class="self">Self</span>::lib_name</span>()
-            .<span class="ident">chars</span>()
-            .<span class="ident">filter_map</span>({
-                <span class="comment">// `true` for PascalCase, `false` for lowerCamelCase.</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">underscore</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="kw">move</span> <span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="ident">c</span> {
-                    <span class="op">|</span> <span class="kw">_</span> <span class="kw">if</span> <span class="ident">underscore</span> =&gt; {
-                        <span class="ident">underscore</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                        <span class="ident">c</span>.<span class="ident">to_ascii_uppercase</span>()
+    <span class="doccomment">/// Return a Pascal Cased (UpperCamelCase) version of the lib name.
+    </span><span class="kw">fn </span>pascal_cased_lib_name() -&gt; String {
+        <span class="self">Self</span>::lib_name()
+            .chars()
+            .filter_map({
+                <span class="comment">// `true` for PascalCase, `false` for lowerCamelCase.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>underscore = <span class="bool-val">true</span>;
+                <span class="kw">move </span>|c| <span class="prelude-val">Some</span>(<span class="kw">match </span>c {
+                    | <span class="kw">_ if </span>underscore =&gt; {
+                        underscore = <span class="bool-val">false</span>;
+                        c.to_ascii_uppercase()
                     },
 
-                    <span class="op">|</span> <span class="string">&#39;_&#39;</span> =&gt; {
-                        <span class="ident">underscore</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="kw">return</span> <span class="prelude-val">None</span>; <span class="comment">// continue</span>
-                    },
+                    | <span class="string">&#39;_&#39; </span>=&gt; {
+                        underscore = <span class="bool-val">true</span>;
+                        <span class="kw">return </span><span class="prelude-val">None</span>; <span class="comment">// continue
+                    </span>},
 
-                    <span class="op">|</span> <span class="kw">_</span> =&gt; {
-                        <span class="ident">c</span>
+                    | <span class="kw">_ </span>=&gt; {
+                        c
                     },
                 })
             })
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>()
+            .collect::&lt;String&gt;()
     }
 }
 
 
-<span class="doccomment">/// Language of the generated headers.</span>
-<span class="attribute">#[<span class="ident">derive</span>(
-    <span class="ident">Debug</span>,
-    <span class="ident">Copy</span>, <span class="ident">Clone</span>,
-    <span class="ident">PartialEq</span>, <span class="ident">Eq</span>,
-)]</span>
-<span class="kw">pub</span>
-<span class="kw">enum</span> <span class="ident">Language</span> {
-    <span class="doccomment">/// C, _lingua franca_ of FFI interop.</span>
-    <span class="ident">C</span>,
+<span class="doccomment">/// Language of the generated headers.
+</span><span class="attribute">#[derive(
+    Debug,
+    Copy, Clone,
+    PartialEq, Eq,
+)]
+</span><span class="kw">pub
+enum </span>Language {
+    <span class="doccomment">/// C, _lingua franca_ of FFI interop.
+    </span>C,
 
-    <span class="doccomment">/// C# (experimental).</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>,
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>))
-    )]</span>
-    <span class="ident">CSharp</span>,
+    <span class="doccomment">/// C#
+    </span>CSharp,
 }
 
-<span class="doccomment">/// Allow user to specify</span>
-<span class="kw">pub</span>
-<span class="kw">enum</span> <span class="ident">NamingConvention</span> {
-    <span class="ident">Default</span>,
-    <span class="ident">Suffix</span>(<span class="ident">String</span>),
-    <span class="ident">Prefix</span>(<span class="ident">String</span>),
-    <span class="ident">Custom</span>(<span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>)-&gt; <span class="ident">String</span>),
+<span class="doccomment">/// Allow user to specify
+</span><span class="kw">pub
+enum </span>NamingConvention {
+    Default,
+    Suffix(String),
+    Prefix(String),
+    Custom(<span class="kw">fn</span>(<span class="kw-2">&amp;</span>str)-&gt; String),
 }
 
-<span class="macro">hidden_export!</span> {
-    <span class="doccomment">/// Invoke the language-specific typedef code for the given type.</span>
-    <span class="kw">fn</span> <span class="ident">__define_self__</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="ident">ReprC</span><span class="op">&gt;</span> (
-        <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>,
-        <span class="ident">lang</span>: <span class="ident">Language</span>,
-    ) -&gt; <span class="ident">::std::io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+<span class="macro">hidden_export! </span>{
+    <span class="doccomment">/// Invoke the language-specific typedef code for the given type.
+    </span><span class="kw">fn </span>__define_self__&lt;T : ReprC&gt; (
+        definer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span>Definer,
+        lang: Language,
+    ) -&gt; ::std::io::Result&lt;()&gt;
     {
-        <span class="kw">match</span> <span class="ident">lang</span> {
-            <span class="op">|</span> <span class="ident">Language::C</span> =&gt; {
-                <span class="op">&lt;</span><span class="ident">T::CLayout</span> <span class="kw">as</span> <span class="ident">CType</span><span class="op">&gt;</span><span class="ident">::define_self</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::headers::languages::C</span>, <span class="ident">definer</span>)
+        <span class="kw">match </span>lang {
+            | Language::C =&gt; {
+                &lt;T::CLayout <span class="kw">as </span>CType&gt;::define_self(<span class="kw-2">&amp;</span><span class="kw">crate</span>::headers::languages::C, definer)
             },
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
-            <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; {
-                <span class="op">&lt;</span><span class="ident">T::CLayout</span> <span class="kw">as</span> <span class="ident">CType</span><span class="op">&gt;</span><span class="ident">::define_self</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::headers::languages::CSharp</span>, <span class="ident">definer</span>)
+            | Language::CSharp =&gt; {
+                &lt;T::CLayout <span class="kw">as </span>CType&gt;::define_self(<span class="kw-2">&amp;</span><span class="kw">crate</span>::headers::languages::CSharp, definer)
             },
         }
     }
 }
 
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::languages</span>::{
-    <span class="ident">FunctionArg</span>,
-    <span class="ident">HeaderLanguage</span>,
-    <span class="ident">PhantomCType</span>,
+<span class="kw">use </span><span class="self">self</span>::languages::{
+    FunctionArg,
+    HeaderLanguage,
+    PhantomCType,
 };
 
-<span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
-<span class="kw">fn</span> <span class="ident">__define_fn__</span> (
-    <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>,
-    <span class="ident">lang</span>: <span class="ident">Language</span>,
-    <span class="ident">docs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> [<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>],
-    <span class="ident">fname</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
-    <span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> [<span class="ident">FunctionArg</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>],
-    <span class="ident">ret_ty</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw">dyn</span> <span class="ident">PhantomCType</span>,
-) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+<span class="attribute">#[apply(hidden_export)]
+</span><span class="kw">fn </span>__define_fn__ (
+    definer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span>Definer,
+    lang: Language,
+    docs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>str],
+    fname: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>str,
+    args: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>[FunctionArg&lt;<span class="lifetime">&#39;_</span>&gt;],
+    ret_ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw">dyn </span>PhantomCType,
+) -&gt; io::Result&lt;()&gt;
 {
-    <span class="kw">let</span> <span class="ident">dyn_lang</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">HeaderLanguage</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">lang</span> {
-        <span class="op">|</span> <span class="ident">Language::C</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">languages::C</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
-        <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">languages::CSharp</span>,
+    <span class="kw">let </span>dyn_lang: <span class="kw-2">&amp;</span><span class="kw">dyn </span>HeaderLanguage = <span class="kw">match </span>lang {
+        | Language::C =&gt; <span class="kw-2">&amp;</span>languages::C,
+        | Language::CSharp =&gt; <span class="kw-2">&amp;</span>languages::CSharp,
     };
-    <span class="ident">dyn_lang</span>.<span class="ident">emit_function</span>(
-        <span class="ident">definer</span>,
-        <span class="ident">docs</span>,
-        <span class="ident">fname</span>,
-        <span class="ident">args</span>,
-        <span class="ident">ret_ty</span>,
+    dyn_lang.emit_function(
+        definer,
+        docs,
+        fname,
+        args,
+        ret_ty,
     )
 }
 
-<span class="macro">hidden_export!</span> {
-    <span class="doccomment">/// Helpers for the generation of FFI-imported function declarations.</span>
-    <span class="kw">mod</span> <span class="ident">__define_fn__</span> {
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-        <span class="kw">use</span> <span class="ident">::std</span>::{
-            <span class="ident">fmt::Write</span> <span class="kw">as</span> <span class="kw">_</span>,
-            <span class="ident">io::Result</span>,
+<span class="macro">hidden_export! </span>{
+    <span class="doccomment">/// Helpers for the generation of FFI-imported function declarations.
+    </span><span class="kw">mod </span>__define_fn__ {
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
+        <span class="kw">use </span>::std::{
+            fmt::Write <span class="kw">as _</span>,
+            io::Result,
         };
 
-        <span class="kw">pub</span>
-        <span class="kw">fn</span> <span class="ident">name</span> (
-            <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">String</span>,
-            <span class="ident">f_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
-            <span class="ident">lang</span>: <span class="ident">Language</span>,
+        <span class="kw">pub
+        fn </span>name (
+            out: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>String,
+            f_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>str,
+            lang: Language,
         )
         {
-            <span class="kw">match</span> <span class="ident">lang</span> {
-                <span class="op">|</span> <span class="ident">Language::C</span> =&gt; <span class="macro">write!</span>(<span class="ident">out</span>,
-                    <span class="string">&quot;{} (&quot;</span>, <span class="ident">f_name</span>.<span class="ident">trim</span>(),
+            <span class="kw">match </span>lang {
+                | Language::C =&gt; <span class="macro">write!</span>(out,
+                    <span class="string">&quot;{} (&quot;</span>, f_name.trim(),
                 ),
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
-                <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; <span class="macro">write!</span>(<span class="ident">out</span>,
-                    <span class="string">&quot;{} (&quot;</span>, <span class="ident">f_name</span>.<span class="ident">trim</span>(),
+                | Language::CSharp =&gt; <span class="macro">write!</span>(out,
+                    <span class="string">&quot;{} (&quot;</span>, f_name.trim(),
                 ),
             }
-            .<span class="ident">expect</span>(<span class="string">&quot;`write!`-ing to a `String` cannot fail&quot;</span>)
+            .expect(<span class="string">&quot;`write!`-ing to a `String` cannot fail&quot;</span>)
         }
 
-        <span class="kw">pub</span>
-        <span class="kw">fn</span> <span class="ident">arg</span><span class="op">&lt;</span><span class="ident">Arg</span> : <span class="ident">ReprC</span><span class="op">&gt;</span> (
-            <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">String</span>,
-            <span class="ident">arg_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
-            <span class="ident">lang</span>: <span class="ident">Language</span>,
+        <span class="kw">pub
+        fn </span>arg&lt;Arg : ReprC&gt; (
+            out: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>String,
+            arg_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>str,
+            lang: Language,
         )
         {
-            <span class="kw">if</span> <span class="ident">out</span>.<span class="ident">ends_with</span>(<span class="string">&quot;(&quot;</span>).<span class="ident">not</span>() {
-                <span class="ident">out</span>.<span class="ident">push_str</span>(<span class="string">&quot;,&quot;</span>);
+            <span class="kw">if </span>out.ends_with(<span class="string">&quot;(&quot;</span>).not() {
+                out.push_str(<span class="string">&quot;,&quot;</span>);
             }
-            <span class="kw">match</span> <span class="ident">lang</span> {
-                <span class="op">|</span> <span class="ident">Language::C</span> =&gt; <span class="macro">write!</span>(<span class="ident">out</span>,
+            <span class="kw">match </span>lang {
+                | Language::C =&gt; <span class="macro">write!</span>(out,
                     <span class="string">&quot;\n    {}&quot;</span>,
-                    <span class="ident">Arg::CLayout::name_wrapping_var</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::headers::languages::C</span>, <span class="ident">arg_name</span>),
+                    Arg::CLayout::name_wrapping_var(<span class="kw-2">&amp;</span><span class="kw">crate</span>::headers::languages::C, arg_name),
                 ),
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
-                <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; <span class="macro">write!</span>(<span class="ident">out</span>,
+                | Language::CSharp =&gt; <span class="macro">write!</span>(out,
                     <span class="string">&quot;\n        {marshaler}{}&quot;</span>,
-                     <span class="ident">Arg::CLayout::name_wrapping_var</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::headers::languages::CSharp</span>, <span class="ident">arg_name</span>),
-                    <span class="ident">marshaler</span> <span class="op">=</span>
-                        <span class="ident">Arg::CLayout::csharp_marshaler</span>()
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;[MarshalAs({})]\n        &quot;</span>, <span class="ident">m</span>))
-                            .<span class="ident">as_deref</span>()
-                            .<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>)
+                     Arg::CLayout::name_wrapping_var(<span class="kw-2">&amp;</span><span class="kw">crate</span>::headers::languages::CSharp, arg_name),
+                    marshaler =
+                        Arg::CLayout::csharp_marshaler()
+                            .map(|m| <span class="macro">format!</span>(<span class="string">&quot;[MarshalAs({})]\n        &quot;</span>, m))
+                            .as_deref()
+                            .unwrap_or(<span class="string">&quot;&quot;</span>)
                     ,
                 ),
             }
-            .<span class="ident">expect</span>(<span class="string">&quot;`write!`-ing to a `String` cannot fail&quot;</span>)
+            .expect(<span class="string">&quot;`write!`-ing to a `String` cannot fail&quot;</span>)
         }
 
-        <span class="kw">pub</span>
-        <span class="kw">fn</span> <span class="ident">ret</span><span class="op">&lt;</span><span class="ident">Ret</span> : <span class="ident">ReprC</span><span class="op">&gt;</span> (
-            <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Definer</span>,
-            <span class="ident">lang</span>: <span class="ident">Language</span>,
-            <span class="kw-2">mut</span> <span class="ident">fname_and_args</span>: <span class="ident">String</span>,
-        ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+        <span class="kw">pub
+        fn </span>ret&lt;Ret : ReprC&gt; (
+            definer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span>Definer,
+            lang: Language,
+            <span class="kw-2">mut </span>fname_and_args: String,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
         {
-            <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">definer</span>.<span class="ident">out</span>();
-            <span class="kw">match</span> <span class="ident">lang</span> {
-                <span class="op">|</span> <span class="ident">Language::C</span> =&gt; {
-                    <span class="kw">if</span> <span class="ident">fname_and_args</span>.<span class="ident">ends_with</span>(<span class="string">&quot;(&quot;</span>) {
-                        <span class="ident">fname_and_args</span>.<span class="ident">push_str</span>(<span class="string">&quot;void&quot;</span>);
+            <span class="kw">let </span>out = definer.out();
+            <span class="kw">match </span>lang {
+                | Language::C =&gt; {
+                    <span class="kw">if </span>fname_and_args.ends_with(<span class="string">&quot;(&quot;</span>) {
+                        fname_and_args.push_str(<span class="string">&quot;void&quot;</span>);
                     }
-                    <span class="macro">writeln!</span>(<span class="ident">out</span>,
+                    <span class="macro">writeln!</span>(out,
                         <span class="string">&quot;{});\n&quot;</span>,
-                        <span class="ident">Ret::CLayout::name_wrapping_var</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::headers::languages::C</span>, <span class="kw-2">&amp;</span><span class="ident">fname_and_args</span>),
+                        Ret::CLayout::name_wrapping_var(<span class="kw-2">&amp;</span><span class="kw">crate</span>::headers::languages::C, <span class="kw-2">&amp;</span>fname_and_args),
                     )
                 },
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
-                <span class="op">|</span> <span class="ident">Language::CSharp</span> =&gt; {
-                    <span class="macro">writeln!</span>(<span class="ident">out</span>,
+                | Language::CSharp =&gt; {
+                    <span class="macro">writeln!</span>(out,
                         <span class="macro">concat!</span>(
                             <span class="string">&quot;public unsafe partial class Ffi {{\n    &quot;</span>,
                             <span class="string">&quot;{mb_marshaler}&quot;</span>,
@@ -1322,12 +1293,12 @@
                             <span class="string">&quot;    {});\n&quot;</span>,
                             <span class="string">&quot;}}\n&quot;</span>,
                         ),
-                        <span class="ident">Ret::CLayout::name_wrapping_var</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::headers::languages::CSharp</span>, <span class="kw-2">&amp;</span><span class="ident">fname_and_args</span>),
-                        <span class="ident">mb_marshaler</span> <span class="op">=</span>
-                            <span class="ident">Ret::CLayout::csharp_marshaler</span>()
-                                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;[return: MarshalAs({})]\n    &quot;</span>, <span class="ident">m</span>))
-                                .<span class="ident">as_deref</span>()
-                                .<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>)
+                        Ret::CLayout::name_wrapping_var(<span class="kw-2">&amp;</span><span class="kw">crate</span>::headers::languages::CSharp, <span class="kw-2">&amp;</span>fname_and_args),
+                        mb_marshaler =
+                            Ret::CLayout::csharp_marshaler()
+                                .map(|m| <span class="macro">format!</span>(<span class="string">&quot;[return: MarshalAs({})]\n    &quot;</span>, m))
+                                .as_deref()
+                                .unwrap_or(<span class="string">&quot;&quot;</span>)
                         ,
                     )
                 },
@@ -1336,5 +1307,4 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

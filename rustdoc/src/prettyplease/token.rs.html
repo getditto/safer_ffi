@@ -1,17 +1,12 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/prettyplease-0.1.10/src/token.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>token.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../prettyplease/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../prettyplease/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../prettyplease/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
-<span id="2"> 2</span>
-<span id="3"> 3</span>
-<span id="4"> 4</span>
-<span id="5"> 5</span>
-<span id="6"> 6</span>
-<span id="7"> 7</span>
-<span id="8"> 8</span>
-<span id="9"> 9</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/prettyplease-0.1.24/src/token.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>token.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../prettyplease/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
 <span id="10">10</span>
 <span id="11">11</span>
 <span id="12">12</span>
@@ -83,86 +78,85 @@
 <span id="78">78</span>
 <span id="79">79</span>
 <span id="80">80</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::algorithm::Printer</span>;
-<span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Delimiter</span>, <span class="ident">Ident</span>, <span class="ident">Literal</span>, <span class="ident">Spacing</span>, <span class="ident">TokenStream</span>, <span class="ident">TokenTree</span>};
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::algorithm::Printer;
+<span class="kw">use </span>proc_macro2::{Delimiter, Ident, Literal, Spacing, TokenStream, TokenTree};
 
-<span class="kw">impl</span> <span class="ident">Printer</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">single_token</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">token</span>: <span class="ident">Token</span>, <span class="ident">group_contents</span>: <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>, <span class="ident">TokenStream</span>)) {
-        <span class="kw">match</span> <span class="ident">token</span> {
-            <span class="ident">Token::Group</span>(<span class="ident">delimiter</span>, <span class="ident">stream</span>) =&gt; <span class="self">self</span>.<span class="ident">token_group</span>(<span class="ident">delimiter</span>, <span class="ident">stream</span>, <span class="ident">group_contents</span>),
-            <span class="ident">Token::Ident</span>(<span class="ident">ident</span>) =&gt; <span class="self">self</span>.<span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="ident">ident</span>),
-            <span class="ident">Token::Punct</span>(<span class="ident">ch</span>, <span class="ident">_spacing</span>) =&gt; <span class="self">self</span>.<span class="ident">token_punct</span>(<span class="ident">ch</span>),
-            <span class="ident">Token::Literal</span>(<span class="ident">literal</span>) =&gt; <span class="self">self</span>.<span class="ident">token_literal</span>(<span class="kw-2">&amp;</span><span class="ident">literal</span>),
+<span class="kw">impl </span>Printer {
+    <span class="kw">pub fn </span>single_token(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: Token, group_contents: <span class="kw">fn</span>(<span class="kw-2">&amp;mut </span><span class="self">Self</span>, TokenStream)) {
+        <span class="kw">match </span>token {
+            Token::Group(delimiter, stream) =&gt; <span class="self">self</span>.token_group(delimiter, stream, group_contents),
+            Token::Ident(ident) =&gt; <span class="self">self</span>.ident(<span class="kw-2">&amp;</span>ident),
+            Token::Punct(ch, _spacing) =&gt; <span class="self">self</span>.token_punct(ch),
+            Token::Literal(literal) =&gt; <span class="self">self</span>.token_literal(<span class="kw-2">&amp;</span>literal),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">token_group</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">delimiter</span>: <span class="ident">Delimiter</span>,
-        <span class="ident">stream</span>: <span class="ident">TokenStream</span>,
-        <span class="ident">group_contents</span>: <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>, <span class="ident">TokenStream</span>),
+    <span class="kw">fn </span>token_group(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        delimiter: Delimiter,
+        stream: TokenStream,
+        group_contents: <span class="kw">fn</span>(<span class="kw-2">&amp;mut </span><span class="self">Self</span>, TokenStream),
     ) {
-        <span class="self">self</span>.<span class="ident">delimiter_open</span>(<span class="ident">delimiter</span>);
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">stream</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">if</span> <span class="ident">delimiter</span> <span class="op">==</span> <span class="ident">Delimiter::Brace</span> {
-                <span class="self">self</span>.<span class="ident">space</span>();
+        <span class="self">self</span>.delimiter_open(delimiter);
+        <span class="kw">if </span>!stream.is_empty() {
+            <span class="kw">if </span>delimiter == Delimiter::Brace {
+                <span class="self">self</span>.space();
             }
-            <span class="ident">group_contents</span>(<span class="self">self</span>, <span class="ident">stream</span>);
-            <span class="kw">if</span> <span class="ident">delimiter</span> <span class="op">==</span> <span class="ident">Delimiter::Brace</span> {
-                <span class="self">self</span>.<span class="ident">space</span>();
+            group_contents(<span class="self">self</span>, stream);
+            <span class="kw">if </span>delimiter == Delimiter::Brace {
+                <span class="self">self</span>.space();
             }
         }
-        <span class="self">self</span>.<span class="ident">delimiter_close</span>(<span class="ident">delimiter</span>);
+        <span class="self">self</span>.delimiter_close(delimiter);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ident</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>) {
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="ident">ident</span>.<span class="ident">to_string</span>());
+    <span class="kw">pub fn </span>ident(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ident: <span class="kw-2">&amp;</span>Ident) {
+        <span class="self">self</span>.word(ident.to_string());
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">token_punct</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ch</span>: <span class="ident">char</span>) {
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="ident">ch</span>.<span class="ident">to_string</span>());
+    <span class="kw">pub fn </span>token_punct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ch: char) {
+        <span class="self">self</span>.word(ch.to_string());
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">token_literal</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">literal</span>: <span class="kw-2">&amp;</span><span class="ident">Literal</span>) {
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="ident">literal</span>.<span class="ident">to_string</span>());
+    <span class="kw">pub fn </span>token_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, literal: <span class="kw-2">&amp;</span>Literal) {
+        <span class="self">self</span>.word(literal.to_string());
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delimiter_open</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">delimiter</span>: <span class="ident">Delimiter</span>) {
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="kw">match</span> <span class="ident">delimiter</span> {
-            <span class="ident">Delimiter::Parenthesis</span> =&gt; <span class="string">&quot;(&quot;</span>,
-            <span class="ident">Delimiter::Brace</span> =&gt; <span class="string">&quot;{&quot;</span>,
-            <span class="ident">Delimiter::Bracket</span> =&gt; <span class="string">&quot;[&quot;</span>,
-            <span class="ident">Delimiter::None</span> =&gt; <span class="kw">return</span>,
+    <span class="kw">pub fn </span>delimiter_open(<span class="kw-2">&amp;mut </span><span class="self">self</span>, delimiter: Delimiter) {
+        <span class="self">self</span>.word(<span class="kw">match </span>delimiter {
+            Delimiter::Parenthesis =&gt; <span class="string">&quot;(&quot;</span>,
+            Delimiter::Brace =&gt; <span class="string">&quot;{&quot;</span>,
+            Delimiter::Bracket =&gt; <span class="string">&quot;[&quot;</span>,
+            Delimiter::None =&gt; <span class="kw">return</span>,
         });
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delimiter_close</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">delimiter</span>: <span class="ident">Delimiter</span>) {
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="kw">match</span> <span class="ident">delimiter</span> {
-            <span class="ident">Delimiter::Parenthesis</span> =&gt; <span class="string">&quot;)&quot;</span>,
-            <span class="ident">Delimiter::Brace</span> =&gt; <span class="string">&quot;}&quot;</span>,
-            <span class="ident">Delimiter::Bracket</span> =&gt; <span class="string">&quot;]&quot;</span>,
-            <span class="ident">Delimiter::None</span> =&gt; <span class="kw">return</span>,
+    <span class="kw">pub fn </span>delimiter_close(<span class="kw-2">&amp;mut </span><span class="self">self</span>, delimiter: Delimiter) {
+        <span class="self">self</span>.word(<span class="kw">match </span>delimiter {
+            Delimiter::Parenthesis =&gt; <span class="string">&quot;)&quot;</span>,
+            Delimiter::Brace =&gt; <span class="string">&quot;}&quot;</span>,
+            Delimiter::Bracket =&gt; <span class="string">&quot;]&quot;</span>,
+            Delimiter::None =&gt; <span class="kw">return</span>,
         });
     }
 }
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Token</span> {
-    <span class="ident">Group</span>(<span class="ident">Delimiter</span>, <span class="ident">TokenStream</span>),
-    <span class="ident">Ident</span>(<span class="ident">Ident</span>),
-    <span class="ident">Punct</span>(<span class="ident">char</span>, <span class="ident">Spacing</span>),
-    <span class="ident">Literal</span>(<span class="ident">Literal</span>),
+<span class="kw">pub enum </span>Token {
+    Group(Delimiter, TokenStream),
+    Ident(Ident),
+    Punct(char, Spacing),
+    Literal(Literal),
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">TokenTree</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Token</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">tt</span>: <span class="ident">TokenTree</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">tt</span> {
-            <span class="ident">TokenTree::Group</span>(<span class="ident">group</span>) =&gt; <span class="ident">Token::Group</span>(<span class="ident">group</span>.<span class="ident">delimiter</span>(), <span class="ident">group</span>.<span class="ident">stream</span>()),
-            <span class="ident">TokenTree::Ident</span>(<span class="ident">ident</span>) =&gt; <span class="ident">Token::Ident</span>(<span class="ident">ident</span>),
-            <span class="ident">TokenTree::Punct</span>(<span class="ident">punct</span>) =&gt; <span class="ident">Token::Punct</span>(<span class="ident">punct</span>.<span class="ident">as_char</span>(), <span class="ident">punct</span>.<span class="ident">spacing</span>()),
-            <span class="ident">TokenTree::Literal</span>(<span class="ident">literal</span>) =&gt; <span class="ident">Token::Literal</span>(<span class="ident">literal</span>),
+<span class="kw">impl </span>From&lt;TokenTree&gt; <span class="kw">for </span>Token {
+    <span class="kw">fn </span>from(tt: TokenTree) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>tt {
+            TokenTree::Group(group) =&gt; Token::Group(group.delimiter(), group.stream()),
+            TokenTree::Ident(ident) =&gt; Token::Ident(ident),
+            TokenTree::Punct(punct) =&gt; Token::Punct(punct.as_char(), punct.spacing()),
+            TokenTree::Literal(literal) =&gt; Token::Literal(literal),
         }
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="prettyplease" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="prettyplease" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

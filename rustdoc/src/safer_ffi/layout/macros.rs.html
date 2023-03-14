@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/layout/macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../safer_ffi/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../safer_ffi/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../safer_ffi/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/layout/macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../safer_ffi/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -423,426 +418,425 @@
 <span id="418">418</span>
 <span id="419">419</span>
 <span id="420">420</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;headers&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span> <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">__cfg_headers__</span> {(
-    $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
+</pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
+#[cfg(feature = <span class="string">&quot;headers&quot;</span>)]
+#[macro_export] #[doc(hidden)]
+</span><span class="macro">macro_rules! </span>__cfg_headers__ {(
+    $(<span class="macro-nonterminal">$item</span>:item)*
 ) =&gt; (
-    $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>)<span class="op">*</span>
+    $(<span class="macro-nonterminal">$item</span>)*
 )}
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;headers&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span> <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">__cfg_headers__</span> {(
-    $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;headers&quot;</span>))]
+#[macro_export] #[doc(hidden)]
+</span><span class="macro">macro_rules! </span>__cfg_headers__ {(
+    $(<span class="macro-nonterminal">$item</span>:item)*
 ) =&gt; (
-    <span class="comment">// nothing</span>
+    <span class="comment">// nothing
+</span>)}
+
+<span class="attribute">#[cfg(feature = <span class="string">&quot;js&quot;</span>)]
+#[macro_export] #[doc(hidden)]
+</span><span class="macro">macro_rules! </span>__cfg_js__ {(
+    $(<span class="macro-nonterminal">$item</span>:item)*
+) =&gt; (
+    $(<span class="macro-nonterminal">$item</span>)*
+)}
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;js&quot;</span>))]
+#[macro_export] #[doc(hidden)]
+</span><span class="macro">macro_rules! </span>__cfg_js__ {(
+    $(<span class="macro-nonterminal">$item</span>:item)*
+) =&gt; (
+    <span class="comment">// nothing
+</span>)}
+
+<span class="attribute">#[cfg(feature = <span class="string">&quot;headers&quot;</span>)]
+#[macro_export] #[doc(hidden)]
+</span><span class="macro">macro_rules! </span>__cfg_csharp__ {(
+    $(<span class="macro-nonterminal">$item</span>:item)*
+) =&gt; (
+    $(<span class="macro-nonterminal">$item</span>)*
 )}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;js&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span> <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">__cfg_js__</span> {(
-    $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;headers&quot;</span>))]
+#[macro_export] #[doc(hidden)]
+</span><span class="macro">macro_rules! </span>__cfg_csharp__ {(
+    $(<span class="macro-nonterminal">$item</span>:item)*
 ) =&gt; (
-    $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>)<span class="op">*</span>
-)}
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;js&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span> <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">__cfg_js__</span> {(
-    $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
-) =&gt; (
-    <span class="comment">// nothing</span>
-)}
+    <span class="comment">// Nothing
+</span>)}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span> <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">__cfg_csharp__</span> {(
-    $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
-) =&gt; (
-    $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>)<span class="op">*</span>
-)}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csharp-headers&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span> <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">__cfg_csharp__</span> {(
-    $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">item</span>)<span class="op">*</span>
-) =&gt; (
-    <span class="comment">// Nothing</span>
-)}
-
-<span class="doccomment">/// Safely implement [`CType`][`trait@crate::layout::LegacyCType`]</span>
-<span class="doccomment">/// for a `#[repr(C)]` struct **when all its fields are `CType`**.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note: you rarely need to call this macro directly. Instead, look for the</span>
-<span class="doccomment">/// [`ReprC!`] macro to safely implement [`ReprC`][`trait@crate::layout::ReprC`].</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">CType</span> {(
+<span class="doccomment">/// Safely implement [`CType`][`trait@crate::layout::LegacyCType`]
+/// for a `#[repr(C)]` struct **when all its fields are `CType`**.
+///
+/// Note: you rarely need to call this macro directly. Instead, look for the
+/// [`ReprC!`] macro to safely implement [`ReprC`][`trait@crate::layout::ReprC`].
+</span><span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>CType {(
     $(
-        @<span class="ident">doc_meta</span>( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc_meta</span>:<span class="ident">tt</span>)<span class="op">*</span> )
-    )<span class="question-mark">?</span>
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span> $(, <span class="ident">js</span> $(@<span class="macro-nonterminal">$</span><span class="macro-nonterminal">js</span>:<span class="ident">tt</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span> $(,)<span class="question-mark">?</span>)]</span>
-    $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">meta</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-    <span class="macro-nonterminal">$</span><span class="kw">pub</span>:<span class="macro-nonterminal">vis</span>
-    <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">StructName</span>:<span class="ident">ident</span> $(
+        @doc_meta( $(<span class="macro-nonterminal">$doc_meta</span>:tt)* )
+    )<span class="question-mark">?
+    </span><span class="attribute">#[repr(C $(, js $(@<span class="macro-nonterminal">$js</span>:tt)<span class="question-mark">?</span>)<span class="question-mark">? </span>$(,)<span class="question-mark">?</span>)]
+    </span>$(<span class="attribute">#[$(<span class="macro-nonterminal">$meta</span>:tt)<span class="kw-2">*</span>]</span>)*
+    <span class="macro-nonterminal">$</span><span class="kw">pub</span>:<span class="macro-nonterminal">vis
+    </span><span class="kw">struct </span><span class="macro-nonterminal">$StructName</span>:ident $(
         [
-            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lt</span>:<span class="ident">lifetime</span> ,)<span class="op">*</span>
-            $($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">ident</span>),<span class="op">+</span> $(,)<span class="question-mark">?</span>)<span class="question-mark">?</span>
-        ]
-            $(<span class="kw">where</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">bounds</span>:<span class="ident">tt</span>)<span class="op">*</span> })<span class="question-mark">?</span>
-    )<span class="question-mark">?</span>
-    {
+            $(<span class="macro-nonterminal">$lt</span>:lifetime ,)*
+            $($(<span class="macro-nonterminal">$generics</span>:ident),+ $(,)<span class="question-mark">?</span>)<span class="question-mark">?
+        </span>]
+            $(<span class="kw">where </span>{ $(<span class="macro-nonterminal">$bounds</span>:tt)* })<span class="question-mark">?
+    </span>)<span class="question-mark">?
+    </span>{
         $(
-            $(<span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_meta</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_pub</span>:<span class="ident">vis</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_name</span>:<span class="ident">ident</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_ty</span>:<span class="ident">ty</span>
-        ),<span class="op">+</span> $(,)<span class="question-mark">?</span>
-    }
+            $(<span class="attribute">#[$(<span class="macro-nonterminal">$field_meta</span>:tt)<span class="kw-2">*</span>]</span>)*
+            <span class="macro-nonterminal">$field_pub</span>:vis
+            <span class="macro-nonterminal">$field_name</span>:ident : <span class="macro-nonterminal">$field_ty</span>:ty
+        ),+ $(,)<span class="question-mark">?
+    </span>}
 ) =&gt; (
-        <span class="kw">impl</span> $(<span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lt</span> ,)<span class="op">*</span> $($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>),<span class="op">+</span>)<span class="question-mark">?</span><span class="op">&gt;</span>)<span class="question-mark">?</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::ReprNapi</span>
-        <span class="kw">for</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">StructName</span> $(<span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lt</span> ,)<span class="op">*</span> $($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>),<span class="op">+</span>)<span class="question-mark">?</span><span class="op">&gt;</span>)<span class="question-mark">?</span>
-        <span class="kw">where</span>
-            <span class="self">Self</span> : <span class="lifetime">&#39;static</span>,
+        <span class="kw">impl </span>$(&lt;$(<span class="macro-nonterminal">$lt </span>,)* $($(<span class="macro-nonterminal">$generics</span>),+)<span class="question-mark">?</span>&gt;)<span class="question-mark">?
+            </span><span class="macro-nonterminal">$crate::js::ReprNapi
+        </span><span class="kw">for
+            </span><span class="macro-nonterminal">$StructName </span>$(&lt;$(<span class="macro-nonterminal">$lt </span>,)* $($(<span class="macro-nonterminal">$generics</span>),+)<span class="question-mark">?</span>&gt;)<span class="question-mark">?
+        </span><span class="kw">where
+            </span><span class="self">Self </span>: <span class="lifetime">&#39;static</span>,
             $(
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_ty</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::ReprC</span>,
-                <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_ty</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::ReprC</span><span class="op">&gt;</span><span class="ident">::CLayout</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::ReprNapi</span>,
-            )<span class="op">*</span>
+                <span class="macro-nonterminal">$field_ty </span>: <span class="macro-nonterminal">$crate::layout::ReprC</span>,
+                &lt;<span class="macro-nonterminal">$field_ty </span><span class="kw">as </span><span class="macro-nonterminal">$crate::layout::ReprC</span>&gt;::CLayout : <span class="macro-nonterminal">$crate::js::ReprNapi</span>,
+            )*
             $(
                 $($(
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::ReprC</span>,
-                    <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::ReprC</span><span class="op">&gt;</span><span class="ident">::CLayout</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::ReprNapi</span>,
-                )<span class="op">+</span>)<span class="question-mark">?</span>
-                $($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">bounds</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>
-            )<span class="question-mark">?</span>
-        {
-            <span class="kw">type</span> <span class="ident">NapiValue</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::JsUnknown</span>;
+                    <span class="macro-nonterminal">$generics </span>: <span class="macro-nonterminal">$crate::layout::ReprC</span>,
+                    &lt;<span class="macro-nonterminal">$generics </span><span class="kw">as </span><span class="macro-nonterminal">$crate::layout::ReprC</span>&gt;::CLayout : <span class="macro-nonterminal">$crate::js::ReprNapi</span>,
+                )+)<span class="question-mark">?
+                </span>$($(<span class="macro-nonterminal">$bounds</span>)<span class="kw-2">*</span>)<span class="question-mark">?
+            </span>)<span class="question-mark">?
+        </span>{
+            <span class="kw">type </span>NapiValue = <span class="macro-nonterminal">$crate::js::JsUnknown</span>;
 
-            <span class="kw">fn</span> <span class="ident">to_napi_value</span> (
+            <span class="kw">fn </span>to_napi_value (
                 <span class="self">self</span>: <span class="self">Self</span>,
-                <span class="ident">env</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Env</span>,
-            ) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Result</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::JsUnknown</span><span class="op">&gt;</span>
+                env: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="macro-nonterminal">$crate::js::Env</span>,
+            ) -&gt; <span class="macro-nonterminal">$crate::js::Result</span>&lt;<span class="macro-nonterminal">$crate::js::JsUnknown</span>&gt;
             {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_obj</span> <span class="op">=</span> <span class="ident">env</span>.<span class="ident">create_object</span>()<span class="question-mark">?</span>;
+                <span class="kw">let </span><span class="kw-2">mut </span>_obj = env.create_object()<span class="question-mark">?</span>;
                 $(
-                    <span class="ident">_obj</span>.<span class="ident">set_named_property</span>(
-                        <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_name</span>),
-                        <span class="op">&lt;</span>
-                            <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_ty</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::ReprC</span><span class="op">&gt;</span><span class="ident">::CLayout</span>
-                            <span class="kw">as</span>
-                            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::ReprNapi</span>
-                        <span class="op">&gt;</span><span class="ident">::to_napi_value</span>(
-                            <span class="kw">unsafe</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::into_raw</span>(<span class="self">self</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_name</span>) },
-                            <span class="ident">env</span>,
+                    _obj.set_named_property(
+                        <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::stringify!</span>(<span class="macro-nonterminal">$field_name</span>),
+                        &lt;
+                            &lt;<span class="macro-nonterminal">$field_ty </span><span class="kw">as </span><span class="macro-nonterminal">$crate::layout::ReprC</span>&gt;::CLayout
+                            <span class="kw">as
+                            </span><span class="macro-nonterminal">$crate::js::ReprNapi
+                        </span>&gt;::to_napi_value(
+                            <span class="kw">unsafe </span>{ <span class="macro-nonterminal">$crate::layout::into_raw</span>(<span class="self">self</span>.<span class="macro-nonterminal">$field_name</span>) },
+                            env,
                         )<span class="question-mark">?</span>,
                     )<span class="question-mark">?</span>;
-                )<span class="op">*</span>
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Result::Ok</span>(<span class="ident">_obj</span>.<span class="ident">into_unknown</span>())
+                )*
+                <span class="macro-nonterminal">$crate::js::Result::Ok</span>(_obj.into_unknown())
             }
 
-            <span class="kw">fn</span> <span class="ident">from_napi_value</span> (
-                <span class="ident">env</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Env</span>,
-                <span class="ident">obj</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::JsUnknown</span>,
-            ) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
+            <span class="kw">fn </span>from_napi_value (
+                env: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="macro-nonterminal">$crate::js::Env</span>,
+                obj: <span class="macro-nonterminal">$crate::js::JsUnknown</span>,
+            ) -&gt; <span class="macro-nonterminal">$crate::js::Result</span>&lt;<span class="self">Self</span>&gt;
             {
-                <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ඞ::convert::TryFrom</span> <span class="kw">as</span> <span class="kw">_</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">is_buffer</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="comment">// Poor man&#39;s specialization.</span>
-                <span class="kw">if</span>  <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ඞ::any::TypeId::of</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>()
-                    <span class="op">==</span>
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ඞ::any::TypeId::of</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::slice::slice_ref_Layout</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-                <span class="op">&amp;&amp;</span>  (
-                        { <span class="ident">is_buffer</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">is_buffer</span>()<span class="question-mark">?</span>; <span class="ident">is_buffer</span> }
-                        <span class="op">|</span><span class="op">|</span>
+                <span class="kw">use </span><span class="macro-nonterminal">$crate::ඞ::convert::TryFrom </span><span class="kw">as _</span>;
+                <span class="kw">let </span><span class="kw-2">mut </span>is_buffer = <span class="bool-val">false</span>;
+                <span class="comment">// Poor man&#39;s specialization.
+                </span><span class="kw">if  </span><span class="macro-nonterminal">$crate::ඞ::any::TypeId::of</span>::&lt;<span class="self">Self</span>&gt;()
+                    ==
+                    <span class="macro-nonterminal">$crate::ඞ::any::TypeId::of</span>::&lt;<span class="macro-nonterminal">$crate::slice::slice_ref_Layout</span>&lt;<span class="lifetime">&#39;_</span>, u8&gt;&gt;()
+                &amp;&amp;  (
+                        { is_buffer = obj.is_buffer()<span class="question-mark">?</span>; is_buffer }
+                        ||
                         <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::matches!</span>(
-                            <span class="macro-nonterminal">obj</span>.<span class="ident">get_type</span>(),
-                            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Result::Ok</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::ValueType::Null</span>)
+                            <span class="macro-nonterminal">obj</span>.get_type(),
+                            <span class="macro-nonterminal">$crate::js::Result::Ok</span>(<span class="macro-nonterminal">$crate::js::ValueType::Null</span>)
                         )
                     )
                 {
-                    <span class="kw">return</span> <span class="kw">if</span> <span class="ident">is_buffer</span> {
-                        <span class="kw">let</span> <span class="ident">js_buffer</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::JsBuffer::try_from</span>(<span class="ident">obj</span>)<span class="question-mark">?</span>;
-                        <span class="kw">let</span> (<span class="ident">buf</span>, <span class="ident">_storage</span>): (<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw">_</span>);
-                        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span> {
-                            <span class="ident">_storage</span> <span class="op">=</span> ();
-                            <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">js_buffer</span>.<span class="ident">into_value</span>()<span class="question-mark">?</span>.<span class="ident">into_boxed_slice</span>();
-                            <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ඞ::boxed::Box::into_raw</span>(<span class="ident">bytes</span>);
-                            <span class="ident">env</span>.<span class="ident">__push_drop_glue</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ඞ::scopeguard::guard</span>(<span class="ident">raw</span>, <span class="op">|</span><span class="ident">raw</span><span class="op">|</span> <span class="kw">unsafe</span> {
-                                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ඞ::mem::drop</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ඞ::boxed::Box::from_raw</span>(<span class="ident">raw</span>))
+                    <span class="kw">return if </span>is_buffer {
+                        <span class="kw">let </span>js_buffer = <span class="macro-nonterminal">$crate::js::JsBuffer::try_from</span>(obj)<span class="question-mark">?</span>;
+                        <span class="kw">let </span>(buf, _storage): (<span class="kw-2">&amp;</span>[u8], <span class="kw">_</span>);
+                        <span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)] </span>{
+                            _storage = ();
+                            <span class="kw">let </span>bytes = js_buffer.into_value()<span class="question-mark">?</span>.into_boxed_slice();
+                            <span class="kw">let </span>raw = <span class="macro-nonterminal">$crate::ඞ::boxed::Box::into_raw</span>(bytes);
+                            env.__push_drop_glue(<span class="macro-nonterminal">$crate::ඞ::scopeguard::guard</span>(raw, |raw| <span class="kw">unsafe </span>{
+                                <span class="macro-nonterminal">$crate::ඞ::mem::drop</span>(<span class="macro-nonterminal">$crate::ඞ::boxed::Box::from_raw</span>(raw))
                             }));
-                            <span class="ident">buf</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">raw</span> };
-                        } <span class="comment">/* else */</span>
-                        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span> {
-                            <span class="ident">_storage</span> <span class="op">=</span> <span class="ident">js_buffer</span>.<span class="ident">into_value</span>()<span class="question-mark">?</span>;
-                            <span class="ident">buf</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">_storage</span>;
+                            buf = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>raw };
+                        } <span class="comment">/* else */
+                        </span><span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))] </span>{
+                            _storage = js_buffer.into_value()<span class="question-mark">?</span>;
+                            buf = <span class="kw-2">&amp;</span>_storage;
                         }
-                        <span class="kw">let</span> <span class="ident">xs</span> <span class="op">=</span> <span class="ident">buf</span>;
-                        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Result::Ok</span>(<span class="kw">unsafe</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ඞ::mem::transmute_copy</span>(<span class="kw-2">&amp;</span>{
-                            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::slice::slice_raw_Layout</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-                                <span class="ident">ptr</span>: <span class="ident">xs</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw">_</span>,
-                                <span class="ident">len</span>: <span class="ident">xs</span>.<span class="ident">len</span>(),
+                        <span class="kw">let </span>xs = buf;
+                        <span class="macro-nonterminal">$crate::js::Result::Ok</span>(<span class="kw">unsafe </span>{ <span class="macro-nonterminal">$crate::ඞ::mem::transmute_copy</span>(<span class="kw-2">&amp;</span>{
+                            <span class="macro-nonterminal">$crate::slice::slice_raw_Layout</span>::&lt;u8&gt; {
+                                ptr: xs.as_ptr() <span class="kw">as _</span>,
+                                len: xs.len(),
                             }
                         })})
-                    } <span class="kw">else</span> { <span class="comment">// it&#39;s NULL</span>
-                        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Result::Ok</span>(<span class="kw">unsafe</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ඞ::mem::transmute_copy</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="self">Self</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span>{
-                            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::slice::slice_raw_Layout</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-                                <span class="ident">ptr</span>: <span class="macro-nonterminal">$</span><span class="macro">crate::NULL!</span>(),
+                    } <span class="kw">else </span>{ <span class="comment">// it&#39;s NULL
+                        </span><span class="macro-nonterminal">$crate::js::Result::Ok</span>(<span class="kw">unsafe </span>{ <span class="macro-nonterminal">$crate::ඞ::mem::transmute_copy</span>::&lt;<span class="kw">_</span>, <span class="self">Self</span>&gt;(<span class="kw-2">&amp;</span>{
+                            <span class="macro-nonterminal">$crate::slice::slice_raw_Layout</span>::&lt;u8&gt; {
+                                ptr: <span class="macro-nonterminal">$</span><span class="macro">crate::NULL!</span>(),
                                 <span class="macro-nonterminal">len</span>: <span class="number">0xbad000</span>,
                             }
                         })})
                     };
                 }
-                <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::JsObject::try_from</span>(<span class="ident">obj</span>)<span class="question-mark">?</span>;
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Result::Ok</span>(<span class="self">Self</span> {
+                <span class="kw">let </span>obj = <span class="macro-nonterminal">$crate::js::JsObject::try_from</span>(obj)<span class="question-mark">?</span>;
+                <span class="macro-nonterminal">$crate::js::Result::Ok</span>(<span class="self">Self </span>{
                     $(
-                        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_name</span>: <span class="kw">unsafe</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::from_raw_unchecked</span>(
-                            <span class="op">&lt;</span>
-                                <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_ty</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::ReprC</span><span class="op">&gt;</span><span class="ident">::CLayout</span>
-                                <span class="kw">as</span>
-                                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::ReprNapi</span>
-                            <span class="op">&gt;</span><span class="ident">::from_napi_value</span>(
-                                <span class="ident">env</span>,
-                                <span class="ident">obj</span>.<span class="ident">get_named_property</span>(<span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field_name</span>))<span class="question-mark">?</span>,
-                            )<span class="question-mark">?</span>
-                        )},
-                    )<span class="op">*</span>
+                        <span class="macro-nonterminal">$field_name</span>: <span class="kw">unsafe </span>{ <span class="macro-nonterminal">$crate::layout::from_raw_unchecked</span>(
+                            &lt;
+                                &lt;<span class="macro-nonterminal">$field_ty </span><span class="kw">as </span><span class="macro-nonterminal">$crate::layout::ReprC</span>&gt;::CLayout
+                                <span class="kw">as
+                                </span><span class="macro-nonterminal">$crate::js::ReprNapi
+                            </span>&gt;::from_napi_value(
+                                env,
+                                obj.get_named_property(<span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::stringify!</span>(<span class="macro-nonterminal">$field_name</span>))<span class="question-mark">?</span>,
+                            )<span class="question-mark">?
+                        </span>)},
+                    )*
                 })
             }
         }
 ); (
-    @<span class="ident">js_enum</span>
-    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Enum_Layout</span>:<span class="ident">ident</span> {
+    @js_enum
+    <span class="macro-nonterminal">$Enum_Layout</span>:ident {
         $(
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span>:<span class="ident">ident</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Discriminant</span>:<span class="ident">expr</span>
-        ),<span class="op">*</span> $(,)<span class="question-mark">?</span>
-    }
+            <span class="macro-nonterminal">$Variant</span>:ident = <span class="macro-nonterminal">$Discriminant</span>:expr
+        ),* $(,)<span class="question-mark">?
+    </span>}
 ) =&gt; (
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">nonstandard_style</span>)]</span>
-    <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Enum_Layout</span> {
+    <span class="attribute">#[allow(nonstandard_style)]
+    </span><span class="kw">const _</span>: () = {
+        <span class="kw">impl </span><span class="macro-nonterminal">$Enum_Layout </span>{
             $(
-                <span class="kw">pub</span> <span class="kw">const</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Enum_Layout</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Discriminant</span>;
-            )<span class="op">*</span>
+                <span class="kw">pub const </span><span class="macro-nonterminal">$Variant</span>: <span class="macro-nonterminal">$Enum_Layout </span>= <span class="macro-nonterminal">$Discriminant</span>;
+            )*
         }
 
-        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::ReprNapi</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Enum_Layout</span> {
-            <span class="kw">type</span> <span class="ident">NapiValue</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::JsString</span>;
+        <span class="kw">impl </span><span class="macro-nonterminal">$crate::js::ReprNapi </span><span class="kw">for </span><span class="macro-nonterminal">$Enum_Layout </span>{
+            <span class="kw">type </span>NapiValue = <span class="macro-nonterminal">$crate::js::JsString</span>;
 
-            <span class="kw">fn</span> <span class="ident">to_napi_value</span> (
+            <span class="kw">fn </span>to_napi_value (
                 <span class="self">self</span>: <span class="self">Self</span>,
-                <span class="ident">env</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Env</span>,
-            ) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Result</span><span class="op">&lt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::JsString</span> <span class="op">&gt;</span>
+                env: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="macro-nonterminal">$crate::js::Env</span>,
+            ) -&gt; <span class="macro-nonterminal">$crate::js::Result</span>&lt; <span class="macro-nonterminal">$crate::js::JsString </span>&gt;
             {
-                <span class="ident">env</span>.<span class="ident">create_string</span>(<span class="kw">match</span> <span class="self">self</span> {
+                env.create_string(<span class="kw">match </span><span class="self">self </span>{
                 $(
-                    <span class="op">|</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Enum_Layout</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span>),
-                )<span class="op">*</span>
-                    <span class="op">|</span> <span class="kw">_</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::panic!</span>(
+                    | <span class="macro-nonterminal">$Enum_Layout</span>::<span class="macro-nonterminal">$Variant </span>=&gt; <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::stringify!</span>(<span class="macro-nonterminal">$Variant</span>),
+                )*
+                    | <span class="kw">_ </span>=&gt; <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::panic!</span>(
                         <span class="string">&quot;ill-formed enum variant ({:?}) for type `{}`&quot;</span>,
-                        <span class="kw-2">&amp;</span><span class="macro-nonterminal">self</span>.<span class="ident">discriminant</span>,
-                        <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">Enum_Layout</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::layout::CType</span><span class="op">&gt;</span><span class="ident">::short_name</span>(),
+                        <span class="kw-2">&amp;</span><span class="macro-nonterminal">self</span>.discriminant,
+                        &lt;<span class="macro-nonterminal">$Enum_Layout </span><span class="kw">as </span><span class="macro-nonterminal">$crate::layout::CType</span>&gt;::short_name(),
                     ),
                 })
             }
 
-            <span class="kw">fn</span> <span class="ident">from_napi_value</span> (
-                <span class="ident">env</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Env</span>,
-                <span class="ident">js_string</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::JsString</span>,
-            ) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
+            <span class="kw">fn </span>from_napi_value (
+                env: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="macro-nonterminal">$crate::js::Env</span>,
+                js_string: <span class="macro-nonterminal">$crate::js::JsString</span>,
+            ) -&gt; <span class="macro-nonterminal">$crate::js::Result</span>&lt;<span class="self">Self</span>&gt;
             {
-                <span class="kw">match</span> <span class="ident">js_string</span>.<span class="ident">into_utf8</span>()<span class="question-mark">?</span>.<span class="ident">as_str</span>()<span class="question-mark">?</span> {
+                <span class="kw">match </span>js_string.into_utf8()<span class="question-mark">?</span>.as_str()<span class="question-mark">? </span>{
                 $(
-                    <span class="op">|</span> <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span>) =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Result::Ok</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Enum_Layout</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span>),
-                )<span class="op">*</span>
-                    <span class="op">|</span> <span class="kw">_</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Result::Err</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Error::new</span>(
-                        <span class="comment">// status</span>
-                        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::js::Status::InvalidArg</span>,
-                        <span class="comment">// reason</span>
-                        <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::concat!</span>(
-                            <span class="string">&quot;Expected one of: &quot;</span>
-                            $(
-                                , <span class="string">&quot;`&quot;</span>, <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Variant</span>), <span class="string">&quot;`&quot;</span>,
-                            )<span class="string">&quot;, &quot;</span><span class="op">*</span>
-                        ).<span class="ident">into</span>(),
-                    ).<span class="ident">into</span>()),
+                    | <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::stringify!</span>(<span class="macro-nonterminal">$Variant</span>) =&gt; <span class="macro-nonterminal">$crate::js::Result::Ok</span>(<span class="macro-nonterminal">$Enum_Layout</span>::<span class="macro-nonterminal">$Variant</span>),
+                )*
+                    | <span class="kw">_ </span>=&gt; <span class="macro-nonterminal">$crate::js::Result::Err</span>(<span class="macro-nonterminal">$crate::js::Error::new</span>(
+                        <span class="comment">// status
+                        </span><span class="macro-nonterminal">$crate::js::Status::InvalidArg</span>,
+                        <span class="comment">// reason
+                        </span><span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::concat!</span>(
+                            <span class="string">&quot;Expected one of: &quot;
+                            </span>$(
+                                , <span class="string">&quot;`&quot;</span>, <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::stringify!</span>(<span class="macro-nonterminal">$Variant</span>), <span class="string">&quot;`&quot;</span>,
+                            )<span class="string">&quot;, &quot;</span>*
+                        ).into(),
+                    ).into()),
                 }
             }
         }
     };
 )}
 
-<span class="doccomment">/// Transitioning helper macro: still uses the old `ReprC!` syntax, but just to</span>
-<span class="doccomment">/// forward to the new `#[derive_ReprC2($(js)?)]` one.</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">ReprC</span> {(
+<span class="doccomment">/// Transitioning helper macro: still uses the old `ReprC!` syntax, but just to
+/// forward to the new `#[derive_ReprC2($(js)?)]` one.
+</span><span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>ReprC {(
     $(
-        @[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">expr</span>]
-    )<span class="question-mark">?</span>
-    $(
-        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc2</span>:<span class="ident">expr</span>]</span>
-    )<span class="op">*</span>
-    <span class="attribute">#[<span class="ident">repr</span>(
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C_or_transparent</span>:<span class="ident">ident</span> $(,
-            $($(@<span class="macro-nonterminal">$</span><span class="macro-nonterminal">if_js</span>:<span class="ident">tt</span>)<span class="question-mark">?</span>
-        <span class="ident">js</span> $(,)<span class="question-mark">?</span>
-            )<span class="question-mark">?</span>
-        )<span class="question-mark">?</span>
-    )]</span>
-    $(
-        <span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span>
-    )<span class="op">*</span>
-    <span class="macro-nonterminal">$</span><span class="kw">pub</span>:<span class="macro-nonterminal">vis</span>
-    <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">StructName</span>:<span class="ident">ident</span> $([$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>])<span class="question-mark">?</span>
-    $(
-        <span class="kw">where</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">wc</span>:<span class="ident">tt</span>)<span class="op">*</span> }
-    )<span class="question-mark">?</span>
-    $({
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    })<span class="question-mark">?</span>
-    $((
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">body2</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    );)<span class="question-mark">?</span>
-) =&gt; (
-    <span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::prelude::derive_ReprC2</span>($($($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">if_js</span>)<span class="question-mark">?</span> <span class="ident">js</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>)]</span>
-    $(
-        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>]</span>
-    )<span class="question-mark">?</span>
-    $(
-        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc2</span>]</span>
-    )<span class="op">*</span>
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">C_or_transparent</span>)]</span>
-    $(
-        <span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>
-    )<span class="op">*</span>
-    <span class="macro-nonterminal">$</span><span class="kw">pub</span>
-    <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">StructName</span> $(<span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>)<span class="kw-2">*</span><span class="op">&gt;</span>)<span class="question-mark">?</span>
-    $(
-        <span class="kw">where</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">wc</span>)<span class="op">*</span>
-    )<span class="question-mark">?</span>
-    $({
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>)<span class="op">*</span>
-    })<span class="question-mark">?</span>
-    $((
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">body2</span>)<span class="op">*</span>
-    );)<span class="question-mark">?</span>
-)}
+        @[doc = <span class="macro-nonterminal">$doc</span>:expr]
+    )<span class="question-mark">?
+    </span>$(
+        <span class="attribute">#[doc = <span class="macro-nonterminal">$doc2</span>:expr]
+    </span>)*
+    <span class="attribute">#[repr(
+        <span class="macro-nonterminal">$C_or_transparent</span>:ident $(,
+            $($(@<span class="macro-nonterminal">$if_js</span>:tt)<span class="question-mark">?
+        </span>js $(,)<span class="question-mark">?
+            </span>)<span class="question-mark">?
+        </span>)<span class="question-mark">?
+    </span>)]
+    </span>$(
+        <span class="attribute">#[<span class="macro-nonterminal">$attr</span>:meta]
+    </span>)*
+    <span class="macro-nonterminal">$</span><span class="kw">pub</span>:<span class="macro-nonterminal">vis
+    </span><span class="kw">struct </span><span class="macro-nonterminal">$StructName</span>:ident $([$(<span class="macro-nonterminal">$generics</span>:tt)<span class="kw-2">*</span>])<span class="question-mark">?
+    </span>$(
+        <span class="kw">where </span>{ $(<span class="macro-nonterminal">$wc</span>:tt)* }
+    )<span class="question-mark">?
+    </span>$({
+        $(<span class="macro-nonterminal">$body</span>:tt)*
+    })<span class="question-mark">?
+    </span>$((
+        $(<span class="macro-nonterminal">$body2</span>:tt)*
+    );)<span class="question-mark">?
+</span>) =&gt; (
+    <span class="attribute">#[<span class="macro-nonterminal">$crate::prelude::derive_ReprC2</span>($($($(<span class="macro-nonterminal">$if_js</span>)<span class="question-mark">? </span>js)<span class="question-mark">?</span>)<span class="question-mark">?</span>)]
+    </span>$(
+        <span class="attribute">#[doc = <span class="macro-nonterminal">$doc</span>]
+    </span>)<span class="question-mark">?
+    </span>$(
+        <span class="attribute">#[doc = <span class="macro-nonterminal">$doc2</span>]
+    </span>)*
+    <span class="attribute">#[repr(<span class="macro-nonterminal">$C_or_transparent</span>)]
+    </span>$(
+        <span class="attribute">#[<span class="macro-nonterminal">$attr</span>]
+    </span>)*
+    <span class="macro-nonterminal">$</span><span class="kw">pub
+    struct </span><span class="macro-nonterminal">$StructName </span>$(&lt;$(<span class="macro-nonterminal">$generics</span>)<span class="kw-2">*</span>&gt;)<span class="question-mark">?
+    </span>$(
+        <span class="kw">where </span>$(<span class="macro-nonterminal">$wc</span>)*
+    )<span class="question-mark">?
+    </span>$({
+        $(<span class="macro-nonterminal">$body</span>)*
+    })<span class="question-mark">?
+    </span>$((
+        $(<span class="macro-nonterminal">$body2</span>)*
+    );)<span class="question-mark">?
+</span>)}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="attribute">#[<span class="ident"><span class="kw">crate</span>::derive_ReprC</span>]</span>
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u8</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="doccomment">/// Some docstring</span>
-<span class="kw">pub</span>
-<span class="kw">enum</span> <span class="ident">MyBool</span> {
-    <span class="doccomment">/// Some variant docstring</span>
-    <span class="ident">False</span> <span class="op">=</span> <span class="number">42</span>,
-    <span class="ident">True</span>, <span class="comment">// = 43</span>
-}
+<span class="attribute">#[cfg(test)]
+#[<span class="kw">crate</span>::derive_ReprC]
+#[repr(u8)]
+#[derive(Debug)]
+</span><span class="doccomment">/// Some docstring
+</span><span class="kw">pub
+enum </span>MyBool {
+    <span class="doccomment">/// Some variant docstring
+    </span>False = <span class="number">42</span>,
+    True, <span class="comment">// = 43
+</span>}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">test</span>, <span class="ident">docs</span>))]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layout::ReprC</span>;
+<span class="attribute">#[cfg(any(test, docs))]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span><span class="kw">crate</span>::layout::ReprC;
 
-    <span class="attribute">#[<span class="ident"><span class="kw">crate</span>::derive_ReprC</span>]</span>
-    <span class="doccomment">/// Some docstring before</span>
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u8</span>)]</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-    <span class="doccomment">/// Some docstring after</span>
-    <span class="kw">pub</span>
-    <span class="kw">enum</span> <span class="ident">MyBool</span> {
-        <span class="ident">False</span> <span class="op">=</span> <span class="number">42</span>,
-        <span class="ident">True</span>, <span class="comment">// = 43</span>
-    }
+    <span class="attribute">#[<span class="kw">crate</span>::derive_ReprC]
+    </span><span class="doccomment">/// Some docstring before
+    </span><span class="attribute">#[repr(u8)]
+    #[derive(Debug)]
+    </span><span class="doccomment">/// Some docstring after
+    </span><span class="kw">pub
+    enum </span>MyBool {
+        False = <span class="number">42</span>,
+        True, <span class="comment">// = 43
+    </span>}
 
-    <span class="macro">ReprC!</span> {
-        <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">opaque</span>)]</span>
-        <span class="kw">struct</span> <span class="ident">Opaque</span>
+    <span class="macro">ReprC! </span>{
+        <span class="attribute">#[repr(opaque)]
+        </span><span class="kw">struct </span>Opaque
         {}
     }
 
-    <span class="macro">ReprC!</span> {
-        <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-        <span class="kw">struct</span> <span class="ident">GenericStruct</span>[<span class="lifetime">&#39;lifetime</span>, <span class="ident">T</span>]
-        <span class="kw">where</span> {
-            <span class="ident">T</span> : <span class="lifetime">&#39;lifetime</span>,
+    <span class="macro">ReprC! </span>{
+        <span class="attribute">#[repr(C)]
+        </span><span class="kw">struct </span>GenericStruct[<span class="lifetime">&#39;lifetime</span>, T]
+        <span class="kw">where </span>{
+            T : <span class="lifetime">&#39;lifetime</span>,
         }
         {
-            <span class="ident">inner</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;lifetime</span> <span class="ident">T</span>,
+            inner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;lifetime </span>T,
         }
     }
 
-    <span class="macro">doc_test!</span> { <span class="ident">derive_ReprC_supports_generics</span>:
-        <span class="kw">fn</span> <span class="ident">main</span> () {}
+    <span class="macro">doc_test! </span>{ derive_ReprC_supports_generics:
+        <span class="kw">fn </span>main () {}
 
-        <span class="kw">use</span> <span class="ident">::safer_ffi::prelude</span>::<span class="kw-2">*</span>;
+        <span class="kw">use </span>::safer_ffi::prelude::<span class="kw-2">*</span>;
 
-        <span class="doccomment">/// Some docstring before</span>
-        <span class="attribute">#[<span class="ident">derive_ReprC</span>]</span>
-        <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u8</span>)]</span>
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-        <span class="doccomment">/// Some docstring after</span>
-        <span class="kw">pub</span>
-        <span class="kw">enum</span> <span class="ident">MyBool</span> {
-            <span class="ident">False</span> <span class="op">=</span> <span class="number">42</span>,
-            <span class="ident">True</span>, <span class="comment">// = 43</span>
-        }
+        <span class="doccomment">/// Some docstring before
+        </span><span class="attribute">#[derive_ReprC]
+        #[repr(u8)]
+        #[derive(Debug)]
+        </span><span class="doccomment">/// Some docstring after
+        </span><span class="kw">pub
+        enum </span>MyBool {
+            False = <span class="number">42</span>,
+            True, <span class="comment">// = 43
+        </span>}
 
-        <span class="attribute">#[<span class="ident">derive_ReprC</span>]</span>
-        <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-        <span class="kw">struct</span> <span class="ident">GenericStruct</span><span class="op">&lt;</span><span class="lifetime">&#39;lifetime</span>, <span class="ident">T</span> : <span class="lifetime">&#39;lifetime</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">T</span> : <span class="ident">ReprC</span>,
+        <span class="attribute">#[derive_ReprC]
+        #[repr(C)]
+        </span><span class="kw">struct </span>GenericStruct&lt;<span class="lifetime">&#39;lifetime</span>, T : <span class="lifetime">&#39;lifetime</span>&gt;
+        <span class="kw">where
+            </span>T : ReprC,
         {
-            <span class="ident">inner</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;lifetime</span> <span class="ident">T</span>,
+            inner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;lifetime </span>T,
         }
     }
 
-    <span class="kw">mod</span> <span class="ident">opaque</span> {
-        <span class="macro">doc_test!</span> { <span class="ident">unused</span>:
-            <span class="kw">fn</span> <span class="ident">main</span> () {}
+    <span class="kw">mod </span>opaque {
+        <span class="macro">doc_test! </span>{ unused:
+            <span class="kw">fn </span>main () {}
 
-            <span class="kw">use</span> <span class="ident">::safer_ffi::prelude</span>::<span class="kw-2">*</span>;
+            <span class="kw">use </span>::safer_ffi::prelude::<span class="kw-2">*</span>;
 
-            <span class="macro">ReprC!</span> {
-                <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">opaque</span>)]</span>
-                <span class="kw">struct</span> <span class="ident">Foo</span> {}
+            <span class="macro">ReprC! </span>{
+                <span class="attribute">#[repr(opaque)]
+                </span><span class="kw">struct </span>Foo {}
             }
         }
 
-        <span class="macro">doc_test!</span> { <span class="ident">with_indirection</span>:
-            <span class="kw">fn</span> <span class="ident">main</span> () {}
+        <span class="macro">doc_test! </span>{ with_indirection:
+            <span class="kw">fn </span>main () {}
 
-            <span class="kw">use</span> <span class="ident">::safer_ffi::prelude</span>::<span class="kw-2">*</span>;
+            <span class="kw">use </span>::safer_ffi::prelude::<span class="kw-2">*</span>;
 
-            <span class="macro">ReprC!</span> {
-                <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">opaque</span>)]</span>
-                <span class="kw">pub</span>
-                <span class="kw">struct</span> <span class="ident">Foo</span> {}
+            <span class="macro">ReprC! </span>{
+                <span class="attribute">#[repr(opaque)]
+                </span><span class="kw">pub
+                struct </span>Foo {}
             }
 
-            <span class="attribute">#[<span class="ident">ffi_export</span>]</span>
-            <span class="kw">fn</span> <span class="ident">foo</span> (<span class="ident">_it</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">Foo</span>)
+            <span class="attribute">#[ffi_export]
+            </span><span class="kw">fn </span>foo (_it: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Foo)
             {}
         }
 
-        <span class="macro">doc_test!</span> { <span class="ident">without_indirection</span>:
-            <span class="attribute">#![<span class="ident">compile_fail</span>]</span>
-            <span class="kw">fn</span> <span class="ident">main</span> () {}
+        <span class="macro">doc_test! </span>{ without_indirection:
+            <span class="attribute">#![compile_fail]
+            </span><span class="kw">fn </span>main () {}
 
-            <span class="kw">use</span> <span class="ident">::safer_ffi::prelude</span>::<span class="kw-2">*</span>;
+            <span class="kw">use </span>::safer_ffi::prelude::<span class="kw-2">*</span>;
 
-            <span class="macro">ReprC!</span> {
-                <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">opaque</span>)]</span>
-                <span class="kw">pub</span>
-                <span class="kw">struct</span> <span class="ident">Foo</span> {}
+            <span class="macro">ReprC! </span>{
+                <span class="attribute">#[repr(opaque)]
+                </span><span class="kw">pub
+                struct </span>Foo {}
             }
 
-            <span class="attribute">#[<span class="ident">ffi_export</span>]</span>
-            <span class="kw">fn</span> <span class="ident">foo</span> (<span class="ident">it</span>: <span class="ident">Foo</span>)
+            <span class="attribute">#[ffi_export]
+            </span><span class="kw">fn </span>foo (it: Foo)
             {}
         }
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

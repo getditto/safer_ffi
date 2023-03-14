@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/proc_macro/derives/repr_c/enum_.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>enum_.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../safer_ffi_proc_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../../safer_ffi_proc_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../safer_ffi_proc_macros/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/proc_macro/derives/repr_c/enum_.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>enum_.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../safer_ffi_proc_macros/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -355,358 +350,357 @@
 <span id="350">350</span>
 <span id="351">351</span>
 <span id="352">352</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+</span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">crate</span>)
-<span class="kw">fn</span> <span class="ident">derive</span> (
-    <span class="ident">args</span>: <span class="ident">Args</span>,
-    <span class="ident">attrs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Attribute</span><span class="op">&gt;</span>,
-    <span class="ident">pub_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">Visibility</span>,
-    <span class="ident">EnumName</span> @ <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">Ident</span>,
-    <span class="ident">generics</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">Generics</span>,
-    <span class="ident">variants</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">Variant</span>, <span class="macro">Token!</span>[,]<span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TokenStream2</span><span class="op">&gt;</span>
+<span class="kw">pub</span>(<span class="kw">in crate</span>)
+<span class="kw">fn </span>derive (
+    args: Args,
+    attrs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>Vec&lt;Attribute&gt;,
+    pub_: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Visibility,
+    EnumName @ <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Ident,
+    generics: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Generics,
+    variants: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Punctuated&lt;Variant, <span class="macro">Token!</span>[,]&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;TokenStream2&gt;
 {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="macro">quote!</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="macro">quote!</span>();
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">payload</span>) <span class="op">=</span>
-        <span class="ident">variants</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">Variant</span> { <span class="ident">fields</span>, .. }<span class="op">|</span> <span class="macro">matches!</span>(
-                <span class="ident">fields</span>,
-                <span class="ident">Fields::Unit</span>,
-            ).<span class="ident">not</span>())
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(payload) =
+        variants
+            .iter()
+            .find(|Variant { fields, .. }| <span class="macro">matches!</span>(
+                fields,
+                Fields::Unit,
+            ).not())
     {
-        <span class="macro">bail!</span> {
-            <span class="string">&quot;Non field-less `enum`s are not supported yet.&quot;</span> =&gt; <span class="ident">payload</span>.<span class="ident">fields</span>,
+        <span class="macro">bail! </span>{
+            <span class="string">&quot;Non field-less `enum`s are not supported yet.&quot; </span>=&gt; payload.fields,
         }
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">param</span>) <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">first</span>() {
-        <span class="macro">bail!</span> {
-            <span class="string">&quot;generic `enum`s are not supported yet.&quot;</span> =&gt; <span class="ident">param</span>,
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(param) = generics.params.first() {
+        <span class="macro">bail! </span>{
+            <span class="string">&quot;generic `enum`s are not supported yet.&quot; </span>=&gt; param,
         }
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">where_clause</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">generics</span>.<span class="ident">where_clause</span> {
-        <span class="macro">bail!</span> {
-            <span class="string">&quot;not supported&quot;</span> =&gt; <span class="ident">where_clause</span>.<span class="ident">where_token</span>,
-        }
-    }
-
-    <span class="kw">if</span> <span class="ident">variants</span>.<span class="ident">is_empty</span>() {
-        <span class="macro">bail!</span> {
-            <span class="string">&quot;C does not support empty enums!&quot;</span>
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(where_clause) = <span class="kw-2">&amp;</span>generics.where_clause {
+        <span class="macro">bail! </span>{
+            <span class="string">&quot;not supported&quot; </span>=&gt; where_clause.where_token,
         }
     }
 
-    <span class="kw">let</span> (<span class="ident">mb_phantom_int</span>, <span class="ident">Int</span> @ <span class="kw">_</span>) <span class="op">=</span> <span class="ident">parse_discriminant_type</span>(<span class="ident">attrs</span>, <span class="kw-2">&amp;mut</span> <span class="ident">ret</span>)<span class="question-mark">?</span>;
+    <span class="kw">if </span>variants.is_empty() {
+        <span class="macro">bail! </span>{
+            <span class="string">&quot;C does not support empty enums!&quot;
+        </span>}
+    }
 
-    <span class="kw">let</span> <span class="ident">EnumName_Layout</span> @ <span class="kw">_</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;{}_Layout&quot;</span>, <span class="ident">EnumName</span>);
+    <span class="kw">let </span>(mb_phantom_int, Int @ <span class="kw">_</span>) = parse_discriminant_type(attrs, <span class="kw-2">&amp;mut </span>ret)<span class="question-mark">?</span>;
 
-    <span class="attribute">#[<span class="ident">apply</span>(<span class="macro">let_quote!</span>)]</span>
-    <span class="kw">use</span> <span class="ident">::safer_ffi</span>::{
-        <span class="ident">ඞ</span>,
-        <span class="ident">ඞ</span>::{
-            <span class="ident">mem</span>,
+    <span class="kw">let </span>EnumName_Layout @ <span class="kw">_ </span>= <span class="macro">format_ident!</span>(<span class="string">&quot;{}_Layout&quot;</span>, EnumName);
+
+    <span class="attribute">#[apply(<span class="macro">let_quote!</span>)]
+    </span><span class="kw">use </span>::safer_ffi::{
+        ඞ,
+        ඞ::{
+            mem,
         },
-        <span class="ident">layout</span>::{
-            <span class="comment">// __HasNiche__,</span>
-            <span class="ident">CLayoutOf</span>,
-            <span class="ident">CType</span>,
-            <span class="ident">OpaqueKind</span>,
-            <span class="ident">ReprC</span>,
+        layout::{
+            <span class="comment">// __HasNiche__,
+            </span>CLayoutOf,
+            CType,
+            OpaqueKind,
+            ReprC,
         },
     };
 
-    <span class="ident">ret</span>.<span class="ident">extend</span>(<span class="macro">quote!</span>(
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">nonstandard_style</span>)]</span>
-        <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
-        <span class="attribute">#[#<span class="ident">ඞ::derive</span>(
-            #<span class="ident">ඞ::Clone</span>, #<span class="ident">ඞ::Copy</span>,
-            <span class="comment">// FIXME: try to skip these for faster compilation.</span>
-            #<span class="ident">ඞ::PartialEq</span>, #<span class="ident">ඞ::Eq</span>,
-        )]</span>
-        #<span class="ident">pub_</span>
-        <span class="kw">struct</span> #<span class="ident">EnumName_Layout</span> {
-            #<span class="ident">pub_</span>
-            <span class="ident">discriminant</span>: #<span class="ident">Int</span>,
+    ret.extend(<span class="macro">quote!</span>(
+        <span class="attribute">#[allow(nonstandard_style)]
+        #[repr(transparent)]
+        #[#ඞ::derive(
+            #ඞ::Clone, #ඞ::Copy,
+            <span class="comment">// FIXME: try to skip these for faster compilation.
+            </span>#ඞ::PartialEq, #ඞ::Eq,
+        )]
+        </span>#pub_
+        <span class="kw">struct </span>#EnumName_Layout {
+            #pub_
+            discriminant: #Int,
         }
 
-        <span class="kw">impl</span>
-            #<span class="ident">ඞ::From</span><span class="op">&lt;</span>#<span class="ident">Int</span><span class="op">&gt;</span>
-        <span class="kw">for</span>
-            #<span class="ident">EnumName_Layout</span>
+        <span class="kw">impl
+            </span>#ඞ::From&lt;#Int&gt;
+        <span class="kw">for
+            </span>#EnumName_Layout
         {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">from</span> (<span class="ident">discriminant</span>: #<span class="ident">Int</span>)
-              -&gt; <span class="self">Self</span>
-            {
-                <span class="self">Self</span> { <span class="ident">discriminant</span> }
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>from (discriminant: #Int)
+              -&gt; <span class="self">Self
+            </span>{
+                <span class="self">Self </span>{ discriminant }
             }
         }
     ));
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">impl_body</span> <span class="op">=</span> <span class="macro">quote!</span>(
-        <span class="kw">type</span> <span class="ident">OPAQUE_KIND</span> <span class="op">=</span> #<span class="ident">OpaqueKind::Concrete</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>impl_body = <span class="macro">quote!</span>(
+        <span class="kw">type </span>OPAQUE_KIND = #OpaqueKind::Concrete;
     );
 
-    <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">each_doc</span> <span class="op">=</span> <span class="ident">utils::extract_docs</span>(<span class="ident">attrs</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">ref </span>each_doc = utils::extract_docs(attrs)<span class="question-mark">?</span>;
 
-    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;headers&quot;</span>) {
-        <span class="attribute">#[<span class="ident">apply</span>(<span class="macro">let_quote!</span>)]</span>
-        <span class="kw">use</span> <span class="ident">::safer_ffi</span>::{
-            <span class="ident">ඞ::fmt</span>,
-            <span class="ident">headers</span>::{
-                <span class="ident">Definer</span>,
-                <span class="ident">languages</span>::{
-                    <span class="ident">HeaderLanguage</span>,
-                    <span class="ident">EnumVariant</span>,
+    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;headers&quot;</span>) {
+        <span class="attribute">#[apply(<span class="macro">let_quote!</span>)]
+        </span><span class="kw">use </span>::safer_ffi::{
+            ඞ::fmt,
+            headers::{
+                Definer,
+                languages::{
+                    HeaderLanguage,
+                    EnumVariant,
                 },
             },
         };
 
-        <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">EnumName_str</span> <span class="op">=</span>
-            <span class="ident">args</span>.<span class="ident">rename</span>.<span class="ident">map_or_else</span>(
-                <span class="op">|</span><span class="op">|</span> <span class="ident">EnumName</span>.<span class="ident">to_string</span>().<span class="ident">into_token_stream</span>(),
-                <span class="ident">ToTokens::into_token_stream</span>,
+        <span class="kw">let </span><span class="kw-2">ref </span>EnumName_str =
+            args.rename.map_or_else(
+                || EnumName.to_string().into_token_stream(),
+                ToTokens::into_token_stream,
             )
         ;
-        <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">each_enum_variant</span> <span class="op">=</span>
-            <span class="ident">variants</span>.<span class="ident">try_vmap</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">Result::Ok</span>({
-                <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">VariantName_str</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">ident</span>.<span class="ident">to_string</span>();
-                <span class="kw">let</span> <span class="ident">discriminant</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">_eq</span>, <span class="ident">disc</span>)) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">discriminant</span> {
+        <span class="kw">let </span><span class="kw-2">ref </span>each_enum_variant =
+            variants.try_vmap(|v| Result::Ok({
+                <span class="kw">let </span><span class="kw-2">ref </span>VariantName_str = v.ident.to_string();
+                <span class="kw">let </span>discriminant = <span class="kw">if let </span><span class="prelude-val">Some</span>((_eq, disc)) = <span class="kw-2">&amp;</span>v.discriminant {
                     <span class="macro">quote!</span>(
-                        #<span class="ident">ඞ::Some</span>(<span class="kw-2">&amp;</span>(#<span class="ident">disc</span>, ).<span class="number">0</span> <span class="kw">as</span> <span class="kw">_</span>)
+                        #ඞ::Some(<span class="kw-2">&amp;</span>(#disc, ).<span class="number">0 </span><span class="kw">as _</span>)
                     )
-                } <span class="kw">else</span> {
+                } <span class="kw">else </span>{
                     <span class="macro">quote!</span>(
-                        #<span class="ident">ඞ::None</span>
+                        #ඞ::None
                     )
                 };
-                <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="ident">utils::extract_docs</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
+                <span class="kw">let </span>docs = utils::extract_docs(<span class="kw-2">&amp;</span>v.attrs)<span class="question-mark">?</span>;
                 <span class="macro">quote!</span>(
-                    #<span class="ident">EnumVariant</span> {
-                        <span class="ident">docs</span>: <span class="kw-2">&amp;</span>[#(#<span class="ident">docs</span>),<span class="kw-2">*</span>],
-                        <span class="ident">name</span>: #<span class="ident">VariantName_str</span>,
-                        <span class="ident">discriminant</span>: #<span class="ident">discriminant</span>,
+                    #EnumVariant {
+                        docs: <span class="kw-2">&amp;</span>[#(#docs),<span class="kw-2">*</span>],
+                        name: #VariantName_str,
+                        discriminant: #discriminant,
                     }
                 )
-            }))<span class="question-mark">?</span>
-        ;
+            }))<span class="question-mark">?
+        </span>;
 
-        <span class="ident">impl_body</span>.<span class="ident">extend</span>(<span class="macro">quote!</span>(
-            <span class="kw">fn</span> <span class="ident">short_name</span> ()
-              -&gt; #<span class="ident">ඞ::String</span>
+        impl_body.extend(<span class="macro">quote!</span>(
+            <span class="kw">fn </span>short_name ()
+              -&gt; #ඞ::String
             {
-                #<span class="ident">EnumName_str</span>.<span class="ident">into</span>()
+                #EnumName_str.into()
             }
 
-            <span class="kw">fn</span> <span class="ident">define_self__impl</span> (
-                <span class="ident">language</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw">dyn</span> #<span class="ident">HeaderLanguage</span>,
-                <span class="ident">definer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> #<span class="ident">Definer</span>,
-            ) -&gt; #<span class="ident">ඞ::io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+            <span class="kw">fn </span>define_self__impl (
+                language: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw">dyn </span>#HeaderLanguage,
+                definer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span>#Definer,
+            ) -&gt; #ඞ::io::Result&lt;()&gt;
             {
-                <span class="op">&lt;</span>#<span class="ident">Int</span> <span class="kw">as</span> #<span class="ident">CType</span><span class="op">&gt;</span><span class="ident">::define_self</span>(<span class="ident">language</span>, <span class="ident">definer</span>)<span class="question-mark">?</span>;
-                <span class="ident">language</span>.<span class="ident">emit_simple_enum</span>(
-                    <span class="ident">definer</span>,
-                    <span class="kw-2">&amp;</span>[#(#<span class="ident">each_doc</span>),<span class="kw-2">*</span>],
-                    <span class="kw-2">&amp;</span>#<span class="ident">ඞ::marker::PhantomData</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>,
-                    #<span class="ident">mb_phantom_int</span>,
-                    <span class="kw-2">&amp;</span>[#(#<span class="ident">each_enum_variant</span>),<span class="kw-2">*</span>],
+                &lt;#Int <span class="kw">as </span>#CType&gt;::define_self(language, definer)<span class="question-mark">?</span>;
+                language.emit_simple_enum(
+                    definer,
+                    <span class="kw-2">&amp;</span>[#(#each_doc),<span class="kw-2">*</span>],
+                    <span class="kw-2">&amp;</span>#ඞ::marker::PhantomData::&lt;<span class="self">Self</span>&gt;,
+                    #mb_phantom_int,
+                    <span class="kw-2">&amp;</span>[#(#each_enum_variant),<span class="kw-2">*</span>],
                 )
             }
         ));
     }
 
-    <span class="ident">ret</span>.<span class="ident">extend</span>(<span class="macro">quote!</span>(
-        <span class="kw">unsafe</span>
-        <span class="kw">impl</span>
-            #<span class="ident">CType</span>
-        <span class="kw">for</span>
-            #<span class="ident">EnumName_Layout</span>
+    ret.extend(<span class="macro">quote!</span>(
+        <span class="kw">unsafe
+        impl
+            </span>#CType
+        <span class="kw">for
+            </span>#EnumName_Layout
         {
-            #<span class="ident">impl_body</span>
+            #impl_body
         }
 
-        <span class="kw">unsafe</span>
-        <span class="kw">impl</span>
-            #<span class="ident">ReprC</span>
-        <span class="kw">for</span>
-            #<span class="ident">EnumName_Layout</span>
+        <span class="kw">unsafe
+        impl
+            </span>#ReprC
+        <span class="kw">for
+            </span>#EnumName_Layout
         {
-            <span class="kw">type</span> <span class="ident">CLayout</span> <span class="op">=</span> <span class="self">Self</span>;
+            <span class="kw">type </span>CLayout = <span class="self">Self</span>;
 
-            <span class="kw">fn</span> <span class="ident">is_valid</span> (
-                <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> #<span class="ident">EnumName_Layout</span>,
-            ) -&gt; #<span class="ident">ඞ::bool</span>
+            <span class="kw">fn </span>is_valid (
+                <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>#EnumName_Layout,
+            ) -&gt; #ඞ::bool
             {
-                <span class="bool-val">true</span>
-            }
+                <span class="bool-val">true
+            </span>}
         }
     ));
 
-    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;js&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">args</span>.<span class="ident">js</span>.<span class="ident">is_some</span>() {
-        <span class="kw">let</span> <span class="ident">EachVariant</span> @ <span class="kw">_</span> <span class="op">=</span>
-            <span class="ident">variants</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">ident</span>)
+    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;js&quot;</span>) &amp;&amp; args.js.is_some() {
+        <span class="kw">let </span>EachVariant @ <span class="kw">_ </span>=
+            variants.iter().map(|v| <span class="kw-2">&amp;</span>v.ident)
         ;
-        <span class="ident">ret</span>.<span class="ident">extend</span>(<span class="macro">quote!</span>(
-            <span class="macro">::safer_ffi::layout::CType!</span> {
-                @<span class="ident">js_enum</span>
-                #<span class="ident">EnumName_Layout</span> {
+        ret.extend(<span class="macro">quote!</span>(
+            <span class="macro">::safer_ffi::layout::CType! </span>{
+                @js_enum
+                #EnumName_Layout {
                     #(
-                        #<span class="ident">EachVariant</span> <span class="op">=</span> #<span class="ident">EnumName_Layout</span> {
-                            <span class="ident">discriminant</span>: #<span class="ident">EnumName</span>::#<span class="ident">EachVariant</span> <span class="kw">as</span> <span class="kw">_</span>,
+                        #EachVariant = #EnumName_Layout {
+                            discriminant: #EnumName::#EachVariant <span class="kw">as _</span>,
                         },
-                    )<span class="op">*</span>
+                    )*
                 }
             }
         ))
     }
 
-    <span class="ident">ret</span>.<span class="ident">extend</span>({
-        <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">EachVariant</span> @ <span class="kw">_</span> <span class="op">=</span> <span class="ident">variants</span>.<span class="ident">iter</span>().<span class="ident">vmap</span>(<span class="op">|</span><span class="ident">it</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">it</span>.<span class="ident">ident</span>);
+    ret.extend({
+        <span class="kw">let </span><span class="kw-2">ref </span>EachVariant @ <span class="kw">_ </span>= variants.iter().vmap(|it| <span class="kw-2">&amp;</span>it.ident);
         <span class="macro">quote!</span>(
-            <span class="kw">unsafe</span>
-            <span class="kw">impl</span> #<span class="ident">ReprC</span> <span class="kw">for</span> #<span class="ident">EnumName</span> {
-                <span class="kw">type</span> <span class="ident">CLayout</span> <span class="op">=</span> #<span class="ident">EnumName_Layout</span>;
+            <span class="kw">unsafe
+            impl </span>#ReprC <span class="kw">for </span>#EnumName {
+                <span class="kw">type </span>CLayout = #EnumName_Layout;
 
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">is_valid</span> (
-                    <span class="kw-2">&amp;</span>#<span class="ident">EnumName_Layout</span> { <span class="ident">discriminant</span> }: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident"><span class="self">Self</span>::CLayout</span>,
-                ) -&gt; #<span class="ident">ඞ::bool</span>
+                <span class="attribute">#[inline]
+                </span><span class="kw">fn </span>is_valid (
+                    <span class="kw-2">&amp;</span>#EnumName_Layout { discriminant }: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">Self</span>::CLayout,
+                ) -&gt; #ඞ::bool
                 {
-                    <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">nonstandard_style</span>)]</span>
-                #(
-                    <span class="kw">const</span> #<span class="ident">EachVariant</span>: #<span class="ident">Int</span> <span class="op">=</span> #<span class="ident">EnumName</span>::#<span class="ident">EachVariant</span> <span class="kw">as</span> <span class="kw">_</span>;
-                )<span class="op">*</span>
-                    #<span class="macro">ඞ::matches!</span>(<span class="ident">discriminant</span>, #( #<span class="ident">EachVariant</span> )<span class="op">|</span><span class="kw-2">*</span>)
+                    <span class="attribute">#![allow(nonstandard_style)]
+                </span>#(
+                    <span class="kw">const </span>#EachVariant: #Int = #EnumName::#EachVariant <span class="kw">as _</span>;
+                )*
+                    #<span class="macro">ඞ::matches!</span>(discriminant, #( #EachVariant )|<span class="kw-2">*</span>)
                 }
             }
         )
     });
 
-    <span class="comment">// ret.extend(quote!(</span>
-    <span class="comment">//     unsafe</span>
-    <span class="comment">//     impl #__HasNiche__</span>
-    <span class="comment">//     for</span>
-    <span class="comment">//         #EnumName</span>
-    <span class="comment">//     {</span>
-    <span class="comment">//         #[inline]</span>
-    <span class="comment">//         fn is_niche (</span>
-    <span class="comment">//             &amp;#EnumName_Layout { discriminant }: &amp;&#39;_ #CLayoutOf&lt;Self&gt;,</span>
-    <span class="comment">//         ) -&gt; #ඞ::bool</span>
-    <span class="comment">//         {</span>
-    <span class="comment">//             /// Safety: should this ever become ill-defined, it would fail to compile.</span>
-    <span class="comment">//             const DISCRIMINANT_OF_NONE: #Int = unsafe {</span>
-    <span class="comment">//                 #ඞ::mem::transmute::&lt;_, #Int&gt;(</span>
-    <span class="comment">//                     #ඞ::None::&lt;#EnumName&gt;</span>
-    <span class="comment">//                 )</span>
-    <span class="comment">//             };</span>
+    <span class="comment">// ret.extend(quote!(
+    //     unsafe
+    //     impl #__HasNiche__
+    //     for
+    //         #EnumName
+    //     {
+    //         #[inline]
+    //         fn is_niche (
+    //             &amp;#EnumName_Layout { discriminant }: &amp;&#39;_ #CLayoutOf&lt;Self&gt;,
+    //         ) -&gt; #ඞ::bool
+    //         {
+    //             /// Safety: should this ever become ill-defined, it would fail to compile.
+    //             const DISCRIMINANT_OF_NONE: #Int = unsafe {
+    //                 #ඞ::mem::transmute::&lt;_, #Int&gt;(
+    //                     #ඞ::None::&lt;#EnumName&gt;
+    //                 )
+    //             };
 
-    <span class="comment">//             #ඞ::matches!(discriminant, DISCRIMINANT_OF_NONE)</span>
-    <span class="comment">//         }</span>
-    <span class="comment">//     }</span>
-    <span class="comment">// ));</span>
+    //             #ඞ::matches!(discriminant, DISCRIMINANT_OF_NONE)
+    //         }
+    //     }
+    // ));
 
-    <span class="prelude-val">Ok</span>(<span class="ident">ret</span>)
+    </span><span class="prelude-val">Ok</span>(ret)
 }
 
-<span class="kw">fn</span> <span class="ident">parse_discriminant_type</span> (
-    <span class="ident">attrs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> [<span class="ident">Attribute</span>],
-    <span class="ident">out_warnings</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream2</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(
-        <span class="macro">Quote!</span>[<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">impl</span> <span class="ident">PhantomCType</span><span class="op">&gt;</span>],
-        <span class="ident">TokenStream2</span>,
-    )<span class="op">&gt;</span>
+<span class="kw">fn </span>parse_discriminant_type (
+    attrs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>[Attribute],
+    out_warnings: <span class="kw-2">&amp;mut </span>TokenStream2,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(
+        <span class="macro">Quote!</span>[<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="kw">impl </span>PhantomCType&gt;],
+        TokenStream2,
+    )&gt;
 {
-    <span class="kw">let</span> <span class="ident">repr_attr</span> <span class="op">=</span>
-        <span class="ident">attrs</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;repr&quot;</span>))
-            .<span class="ident">ok_or</span>(())
-            .<span class="ident">or_else</span>(<span class="op">|</span>()<span class="op">|</span> <span class="macro">bail!</span>(<span class="string">&quot;missing `#[repr(…)]` annotation&quot;</span>))<span class="question-mark">?</span>
-    ;
-    <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">reprs</span> <span class="op">=</span> <span class="ident">repr_attr</span>.<span class="ident">parse_args_with</span>(
-        <span class="ident">Punctuated</span>::<span class="op">&lt;</span><span class="ident">Ident</span>, <span class="macro">Token!</span>[,]<span class="op">&gt;</span><span class="ident">::parse_terminated</span>,
+    <span class="kw">let </span>repr_attr =
+        attrs
+            .iter()
+            .find(|attr| attr.path.is_ident(<span class="string">&quot;repr&quot;</span>))
+            .ok_or(())
+            .or_else(|()| <span class="macro">bail!</span>(<span class="string">&quot;missing `#[repr(…)]` annotation&quot;</span>))<span class="question-mark">?
+    </span>;
+    <span class="kw">let </span><span class="kw-2">ref </span>reprs = repr_attr.parse_args_with(
+        Punctuated::&lt;Ident, <span class="macro">Token!</span>[,]&gt;::parse_terminated,
     )<span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="ident">reprs</span>.<span class="ident">is_empty</span>() {
-        <span class="macro">bail!</span>(<span class="string">&quot;expected an integral `repr` specifier&quot;</span> =&gt; <span class="ident">repr_attr</span>);
+    <span class="kw">if </span>reprs.is_empty() {
+        <span class="macro">bail!</span>(<span class="string">&quot;expected an integral `repr` specifier&quot; </span>=&gt; repr_attr);
     }
-    <span class="kw">let</span> <span class="ident">parsed_reprs</span> <span class="op">=</span> <span class="ident">reprs</span>.<span class="ident">iter</span>().<span class="ident">try_vmap</span>(<span class="ident">Repr::try_from</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> (<span class="ident">c_type</span>, <span class="ident">repr</span>) <span class="op">=</span>
-        <span class="kw">match</span>
-            <span class="ident">::core::iter::zip</span>(<span class="ident">parsed_reprs</span>, <span class="ident">reprs</span>)
-                .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">parsed</span>, <span class="ident">_ident</span>)<span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">parsed</span>, <span class="ident">Repr::C</span>).<span class="ident">not</span>())
+    <span class="kw">let </span>parsed_reprs = reprs.iter().try_vmap(Repr::try_from)<span class="question-mark">?</span>;
+    <span class="kw">let </span>(c_type, repr) =
+        <span class="kw">match
+            </span>::core::iter::zip(parsed_reprs, reprs)
+                .find(|(parsed, _ident)| <span class="macro">matches!</span>(parsed, Repr::C).not())
         {
-            <span class="op">|</span> <span class="prelude-val">Some</span>((<span class="ident">_repr</span>, <span class="ident">ident</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">IntTy</span> <span class="op">=</span> <span class="macro">quote!</span>(
-                    <span class="ident">::safer_ffi::ඞ</span>::#<span class="ident">ident</span>
+            | <span class="prelude-val">Some</span>((_repr, ident)) =&gt; {
+                <span class="kw">let </span>IntTy = <span class="macro">quote!</span>(
+                    ::safer_ffi::ඞ::#ident
                 );
                 (
                     <span class="macro">quote!</span>(
-                        <span class="ident">::safer_ffi::ඞ::Some</span>(
-                            <span class="kw-2">&amp;</span><span class="ident">::safer_ffi::ඞ::marker::PhantomData</span>::<span class="op">&lt;</span>#<span class="ident">IntTy</span><span class="op">&gt;</span>
+                        ::safer_ffi::ඞ::Some(
+                            <span class="kw-2">&amp;</span>::safer_ffi::ඞ::marker::PhantomData::&lt;#IntTy&gt;
                         )
                     ),
-                    <span class="ident">IntTy</span>,
+                    IntTy,
                 )
             },
-            <span class="op">|</span> <span class="prelude-val">None</span> <span class="kw">if</span> <span class="ident">reprs</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">repr</span><span class="op">|</span> <span class="ident">repr</span> <span class="op">==</span> <span class="string">&quot;C&quot;</span>) =&gt; {
-                <span class="ident">out_warnings</span>.<span class="ident">extend</span>(<span class="ident">utils::compile_warning</span>(
-                    <span class="ident">reprs</span>,
+            | <span class="prelude-val">None </span><span class="kw">if </span>reprs.iter().any(|repr| repr == <span class="string">&quot;C&quot;</span>) =&gt; {
+                out_warnings.extend(utils::compile_warning(
+                    reprs,
                     <span class="string">&quot;\
                         `#[repr(C)]` enums are not well-defined in C; \
                         it is thus ill-advised to use them \
                         in a multi-compiler scenario such as FFI\
                     &quot;</span>,
                 ));
-                <span class="kw">let</span> <span class="ident">IntTy</span> <span class="op">=</span> <span class="macro">quote!</span>(
-                    <span class="ident">::safer_ffi::ඞ::os::raw::c_int</span>
+                <span class="kw">let </span>IntTy = <span class="macro">quote!</span>(
+                    ::safer_ffi::ඞ::os::raw::c_int
                 );
                 (
                     <span class="macro">quote!</span>(
-                        <span class="ident">::safer_ffi::ඞ::None</span>
+                        ::safer_ffi::ඞ::None
                     ),
-                    <span class="ident">IntTy</span>,
+                    IntTy,
                 )
             },
-            <span class="op">|</span> <span class="prelude-val">None</span> =&gt; <span class="macro">bail!</span> {
-                <span class="string">&quot;expected an integral `repr` annotation&quot;</span>
-            },
+            | <span class="prelude-val">None </span>=&gt; <span class="macro">bail! </span>{
+                <span class="string">&quot;expected an integral `repr` annotation&quot;
+            </span>},
         }
     ;
 
-    <span class="prelude-val">Ok</span>((<span class="ident">c_type</span>, <span class="ident">repr</span>))
+    <span class="prelude-val">Ok</span>((c_type, repr))
 }
 
-<span class="macro">match_!</span> {(
-    <span class="ident">C</span>,
-    <span class="ident">u8</span>, <span class="ident">u16</span>, <span class="ident">u32</span>, <span class="ident">u64</span>, <span class="ident">u128</span>,
-    <span class="ident">i8</span>, <span class="ident">i16</span>, <span class="ident">i32</span>, <span class="ident">i64</span>, <span class="ident">i128</span>,
+<span class="macro">match_! </span>{(
+    C,
+    u8, u16, u32, u64, u128,
+    i8, i16, i32, i64, i128,
 ) {(
-    $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">repr</span>:<span class="ident">ident</span>),<span class="op">*</span> $(,)<span class="question-mark">?</span>
-) =&gt; (
-    <span class="kw">enum</span> <span class="ident">Repr</span> {
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">repr</span>),<span class="op">*</span>
+    $(<span class="macro-nonterminal">$repr</span>:ident),* $(,)<span class="question-mark">?
+</span>) =&gt; (
+    <span class="kw">enum </span>Repr {
+        $(<span class="macro-nonterminal">$repr</span>),*
     }
 
-    <span class="kw">impl</span> <span class="ident">Repr</span> {
-        <span class="kw">fn</span> <span class="ident">try_from</span> (<span class="ident">ident</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">Ident</span>)
-          -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">impl </span>Repr {
+        <span class="kw">fn </span>try_from (ident: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Ident)
+          -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt;
         {
-            <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">ident</span>.<span class="ident">to_string</span>()[..] {
+            <span class="kw">match </span><span class="kw-2">&amp;</span>ident.to_string()[..] {
             $(
-                <span class="op">|</span> <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">repr</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">repr</span>),
-            )<span class="op">*</span>
-                <span class="op">|</span> <span class="kw">_</span> =&gt; <span class="macro">bail!</span> {
-                    <span class="string">&quot;unsupported `repr` annotation&quot;</span> =&gt; <span class="ident">ident</span>,
+                | <span class="macro">stringify!</span>(<span class="macro-nonterminal">$repr</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="macro-nonterminal">$repr</span>),
+            )*
+                | <span class="kw">_ </span>=&gt; <span class="macro">bail! </span>{
+                    <span class="string">&quot;unsupported `repr` annotation&quot; </span>=&gt; ident,
                 },
             }
         }
     }
 )}}
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="safer_ffi_proc_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="safer_ffi_proc_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

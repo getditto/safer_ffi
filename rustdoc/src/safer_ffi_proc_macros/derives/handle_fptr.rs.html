@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/proc_macro/derives/handle_fptr.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handle_fptr.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../safer_ffi_proc_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../safer_ffi_proc_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../safer_ffi_proc_macros/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/proc_macro/derives/handle_fptr.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handle_fptr.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../safer_ffi_proc_macros/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -448,451 +443,450 @@
 <span id="443">443</span>
 <span id="444">444</span>
 <span id="445">445</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 
-<span class="kw">use</span> {
-    <span class="ident">::syn</span>::{
-        <span class="ident">visit_mut::VisitMut</span>,
+</span><span class="kw">use </span>{
+    ::syn::{
+        visit_mut::VisitMut,
     },
     <span class="kw">super</span>::<span class="kw-2">*</span>,
 };
 
-<span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">super</span>)
-<span class="kw">fn</span> <span class="ident">try_handle_fptr</span> (
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">DeriveInput</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TokenStream2</span><span class="op">&gt;</span> <span class="op">&gt;</span>
+<span class="kw">pub</span>(<span class="kw">in super</span>)
+<span class="kw">fn </span>try_handle_fptr (
+    input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>DeriveInput,
+) -&gt; <span class="prelude-ty">Option</span>&lt; <span class="prelude-ty">Result</span>&lt;TokenStream2&gt; &gt;
 {
-    <span class="macro">macro_rules!</span> <span class="ident">fallback</span> {() =&gt; ({
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="macro">macro_rules! </span>fallback {() =&gt; ({
+        <span class="kw">return </span><span class="prelude-val">None</span>;
     })}
 
-    <span class="macro">macro_rules!</span> <span class="ident">bail</span> {( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span> ) =&gt; (
-        <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="op">|</span><span class="op">|</span> <span class="macro">crate::utils::bail!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="kw-2">*</span>))())
+    <span class="macro">macro_rules! </span>bail {( $(<span class="macro-nonterminal">$tt</span>:tt)* ) =&gt; (
+        <span class="kw">return </span><span class="prelude-val">Some</span>((|| <span class="macro">crate::utils::bail!</span>($(<span class="macro-nonterminal">$tt</span>)<span class="kw-2">*</span>))())
     )}
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span> {
-        <span class="kw-2">ref</span> <span class="ident">attrs</span>,
-        <span class="kw-2">ref</span> <span class="ident">vis</span>,
-        <span class="ident">ident</span>: <span class="kw-2">ref</span> <span class="ident">StructName</span>,
-        <span class="kw-2">ref</span> <span class="ident">generics</span>,
-        <span class="comment">// Check that it is a unit struct with one field</span>
-        <span class="ident">data</span>: <span class="ident">Data::Struct</span>(<span class="ident">DataStruct</span> {
-            <span class="kw-2">ref</span> <span class="ident">struct_token</span>,
-            <span class="ident">fields</span>:
-                <span class="op">|</span> <span class="ident">Fields::Unnamed</span>(<span class="ident">FieldsUnnamed</span> {
-                    <span class="ident">unnamed</span>: <span class="kw-2">ref</span> <span class="ident">fields</span>,
+    <span class="kw">if let </span><span class="kw-2">&amp;</span>DeriveInput {
+        <span class="kw-2">ref </span>attrs,
+        <span class="kw-2">ref </span>vis,
+        ident: <span class="kw-2">ref </span>StructName,
+        <span class="kw-2">ref </span>generics,
+        <span class="comment">// Check that it is a unit struct with one field
+        </span>data: Data::Struct(DataStruct {
+            <span class="kw-2">ref </span>struct_token,
+            fields:
+                | Fields::Unnamed(FieldsUnnamed {
+                    unnamed: <span class="kw-2">ref </span>fields,
                     ..
                 })
-                <span class="op">|</span> <span class="ident">Fields::Named</span>(<span class="ident">FieldsNamed</span> {
-                    <span class="ident">named</span>: <span class="kw-2">ref</span> <span class="ident">fields</span>,
+                | Fields::Named(FieldsNamed {
+                    named: <span class="kw-2">ref </span>fields,
                     ..
                 })
             ,
             ..
         }),
-    } <span class="op">=</span> <span class="ident">input</span>
+    } = input
     {
-        <span class="kw">if</span> <span class="ident">fields</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> { <span class="macro">fallback!</span>(); }
-        <span class="kw">mod</span> <span class="ident">kw</span> {
-            <span class="macro">::syn::custom_keyword!</span>(<span class="ident">transparent</span>);
+        <span class="kw">if </span>fields.len() != <span class="number">1 </span>{ <span class="macro">fallback!</span>(); }
+        <span class="kw">mod </span>kw {
+            <span class="macro">::syn::custom_keyword!</span>(transparent);
         }
-        <span class="kw">match</span> <span class="ident">attrs</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;repr&quot;</span>)) {
-            <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">attr</span>) =&gt; <span class="kw">match</span> <span class="ident">attr</span>.<span class="ident">parse_args</span>::<span class="op">&lt;</span><span class="ident">kw::transparent</span><span class="op">&gt;</span>() {
-                <span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {},
-                <span class="op">|</span> <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">fallback!</span>(),
+        <span class="kw">match </span>attrs.iter().find(|attr| attr.path.is_ident(<span class="string">&quot;repr&quot;</span>)) {
+            | <span class="prelude-val">Some</span>(attr) =&gt; <span class="kw">match </span>attr.parse_args::&lt;kw::transparent&gt;() {
+                | <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {},
+                | <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">fallback!</span>(),
             },
-            <span class="op">|</span> <span class="prelude-val">None</span> =&gt; <span class="macro">bail!</span>(<span class="string">&quot;Missing `#[repr(…)]` annotation&quot;</span>), <span class="comment">// or fallback!() and let the parent handle the error</span>
+            | <span class="prelude-val">None </span>=&gt; <span class="macro">bail!</span>(<span class="string">&quot;Missing `#[repr(…)]` annotation&quot;</span>), <span class="comment">// or fallback!() and let the parent handle the error
+        </span>}
+        <span class="kw">if </span><span class="macro">matches!</span>(vis, Visibility::Public(<span class="kw">_</span>)).not() {
+            <span class="macro">bail!</span>(<span class="string">&quot;Missing `pub`&quot; </span>=&gt; struct_token);
         }
-        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">vis</span>, <span class="ident">Visibility::Public</span>(<span class="kw">_</span>)).<span class="ident">not</span>() {
-            <span class="macro">bail!</span>(<span class="string">&quot;Missing `pub`&quot;</span> =&gt; <span class="ident">struct_token</span>);
-        }
-        <span class="comment">// Check that the given ty is an `fn` pointer type.</span>
-        <span class="kw">let</span> <span class="ident">cb_ty</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">fields</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>() {
-            <span class="op">|</span> <span class="ident">Field</span> { <span class="ident">ty</span>: <span class="ident">Type::BareFn</span>(<span class="kw-2">ref</span> <span class="ident">cb_ty</span>), <span class="kw-2">ref</span> <span class="ident">vis</span>, .. } =&gt; {
-                <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">vis</span>, <span class="ident">Visibility::Public</span>(<span class="kw">_</span>)).<span class="ident">not</span>() {
-                    <span class="macro">bail!</span>(<span class="string">&quot;Missing `pub`&quot;</span> =&gt; <span class="ident">cb_ty</span>);
+        <span class="comment">// Check that the given ty is an `fn` pointer type.
+        </span><span class="kw">let </span>cb_ty = <span class="kw">match </span>fields.iter().next().unwrap() {
+            | Field { ty: Type::BareFn(<span class="kw-2">ref </span>cb_ty), <span class="kw-2">ref </span>vis, .. } =&gt; {
+                <span class="kw">if </span><span class="macro">matches!</span>(vis, Visibility::Public(<span class="kw">_</span>)).not() {
+                    <span class="macro">bail!</span>(<span class="string">&quot;Missing `pub`&quot; </span>=&gt; cb_ty);
                 }
-                <span class="ident">cb_ty</span>
+                cb_ty
             },
-            <span class="op">|</span> <span class="kw">_</span> =&gt; <span class="macro">fallback!</span>(),
+            | <span class="kw">_ </span>=&gt; <span class="macro">fallback!</span>(),
         };
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">v</span>) <span class="op">=</span> <span class="ident">cb_ty</span>.<span class="ident">variadic</span> {
-            <span class="macro">bail!</span>(<span class="string">&quot;`safer-ffi` does not support variadics&quot;</span> =&gt; <span class="ident">v</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>v) = cb_ty.variadic {
+            <span class="macro">bail!</span>(<span class="string">&quot;`safer-ffi` does not support variadics&quot; </span>=&gt; v);
         }
-        <span class="comment">// Check that it is `extern &quot;C&quot;`.</span>
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">cb_ty</span> {
-            <span class="op">|</span> <span class="ident">TypeBareFn</span> {
-                <span class="ident">abi</span>: <span class="prelude-val">Some</span>(<span class="ident">Abi</span> { <span class="ident">name</span>: <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">abi</span>), .. }),
+        <span class="comment">// Check that it is `extern &quot;C&quot;`.
+        </span><span class="kw">match </span><span class="kw-2">*</span>cb_ty {
+            | TypeBareFn {
+                abi: <span class="prelude-val">Some</span>(Abi { name: <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>abi), .. }),
                 ..
             }
-                <span class="kw">if</span> <span class="ident">abi</span>.<span class="ident">value</span>() <span class="op">!</span><span class="op">=</span> <span class="string">&quot;C&quot;</span>
-            =&gt; {
-                <span class="macro">bail!</span>(<span class="string">&quot;Expected `\&quot;C\&quot;`&quot;</span> =&gt; <span class="ident">abi</span>);
+                <span class="kw">if </span>abi.value() != <span class="string">&quot;C&quot;
+            </span>=&gt; {
+                <span class="macro">bail!</span>(<span class="string">&quot;Expected `\&quot;C\&quot;`&quot; </span>=&gt; abi);
             },
 
-            <span class="op">|</span> <span class="ident">TypeBareFn</span> {
-                <span class="ident">abi</span>: <span class="prelude-val">Some</span>(<span class="kw">_</span>),
+            | TypeBareFn {
+                abi: <span class="prelude-val">Some</span>(<span class="kw">_</span>),
                 ..
             }
             =&gt; {}
 
-            <span class="op">|</span> <span class="kw">_</span> =&gt; <span class="macro">bail!</span>(
-                <span class="string">&quot;Missing `extern \&quot;C\&quot;`&quot;</span> =&gt; <span class="ident">cb_ty</span>.<span class="ident">fn_token</span>
+            | <span class="kw">_ </span>=&gt; <span class="macro">bail!</span>(
+                <span class="string">&quot;Missing `extern \&quot;C\&quot;`&quot; </span>=&gt; cb_ty.fn_token
             ),
         }
 
-        <span class="comment">/* == VALIDATION PASSED, TIME TO EXPAND == */</span>
-        <span class="comment">// Fully-qualified paths to be robust to a weird/antagonistic</span>
-        <span class="comment">// namespace (except for `::safer_ffi`; that&#39;s our path-resolution</span>
-        <span class="comment">// keystone).</span>
-        <span class="attribute">#[<span class="ident">apply</span>(<span class="macro">let_quote!</span>)]</span>
-        <span class="kw">use</span> <span class="ident">::safer_ffi</span>::{
-            <span class="ident">__cfg_headers__</span>,
-            <span class="ident">__cfg_csharp__</span>,
-            <span class="ident">ඞ</span>,
-            <span class="ident">ඞ</span>::{
-                <span class="ident">__HasNiche__</span>,
-                <span class="ident">CLayoutOf</span>,
-                <span class="comment">// ConcreteReprC,</span>
-                <span class="ident">CType</span>,
-                <span class="ident">Definer</span>,
-                <span class="ident">LegacyCType</span>,
-                <span class="ident">OpaqueKind</span>,
+        <span class="comment">/* == VALIDATION PASSED, TIME TO EXPAND == */
+        // Fully-qualified paths to be robust to a weird/antagonistic
+        // namespace (except for `::safer_ffi`; that&#39;s our path-resolution
+        // keystone).
+        </span><span class="attribute">#[apply(<span class="macro">let_quote!</span>)]
+        </span><span class="kw">use </span>::safer_ffi::{
+            __cfg_headers__,
+            __cfg_csharp__,
+            ඞ,
+            ඞ::{
+                __HasNiche__,
+                CLayoutOf,
+                <span class="comment">// ConcreteReprC,
+                </span>CType,
+                Definer,
+                LegacyCType,
+                OpaqueKind,
                 <span class="prelude-ty">Option</span>,
-                <span class="ident">PhantomData</span>,
-                <span class="ident">ReprC</span>,
+                PhantomData,
+                ReprC,
 
-                <span class="ident">bool</span>,
-                <span class="ident">core</span>,
-                <span class="ident">fmt</span>,
-                <span class="ident">std</span>,
-                <span class="ident">str</span>,
-                <span class="ident">write</span>,
+                bool,
+                core,
+                fmt,
+                std,
+                str,
+                write,
             },
         };
 
-        <span class="kw">let</span> (<span class="ident">intro</span>, <span class="ident">fwd</span>, <span class="ident">where_</span>) <span class="op">=</span> <span class="ident">input</span>.<span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="macro">quote!</span>(
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">nonstandard_style</span>)]</span>
-            #<span class="ident">input</span>
+        <span class="kw">let </span>(intro, fwd, where_) = input.generics.split_for_impl();
+        <span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="macro">quote!</span>(
+            <span class="attribute">#[allow(nonstandard_style)]
+            </span>#input
 
-            <span class="doccomment">/// Convenience deref impl, so as to have the wrapper type</span>
-            <span class="doccomment">/// behave as if it were a function pointer directly :)</span>
-            <span class="kw">impl</span> #<span class="ident">intro</span>
-                #<span class="ident">ඞ::ops::Deref</span>
-            <span class="kw">for</span>
-                #<span class="ident">StructName</span> #<span class="ident">fwd</span>
-            #<span class="ident">where_</span>
+            <span class="doccomment">/// Convenience deref impl, so as to have the wrapper type
+            /// behave as if it were a function pointer directly :)
+            </span><span class="kw">impl </span>#intro
+                #ඞ::ops::Deref
+            <span class="kw">for
+                </span>#StructName #fwd
+            #where_
             {
-                <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> #<span class="ident">cb_ty</span>;
+                <span class="kw">type </span>Target = #cb_ty;
 
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">deref</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> #<span class="ident">StructName</span> #<span class="ident">fwd</span>)
-                  -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident"><span class="self">Self</span>::Target</span>
+                <span class="attribute">#[inline]
+                </span><span class="kw">fn </span>deref (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>#StructName #fwd)
+                  -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">Self</span>::Target
                 {
-                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
-                }
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+                </span>}
             }
         );
 
-        <span class="kw">let</span> <span class="ident">EachArgCType</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span> <span class="op">=</span>
-            <span class="ident">cb_ty</span>
-                .<span class="ident">inputs</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident">arg</span>.<span class="ident">ty</span>.<span class="ident">clone</span>();
-                    <span class="ident">StripLifetimeParams</span>.<span class="ident">visit_type_mut</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ty</span>);
-                    <span class="ident">ty</span> <span class="op">=</span> <span class="macro">parse_quote!</span>(
-                        #<span class="ident">CLayoutOf</span><span class="op">&lt;</span>#<span class="ident">ty</span><span class="op">&gt;</span>
+        <span class="kw">let </span>EachArgCType: Vec&lt;Type&gt; =
+            cb_ty
+                .inputs
+                .iter()
+                .map(|arg| {
+                    <span class="kw">let </span><span class="kw-2">mut </span>ty = arg.ty.clone();
+                    StripLifetimeParams.visit_type_mut(<span class="kw-2">&amp;mut </span>ty);
+                    ty = <span class="macro">parse_quote!</span>(
+                        #CLayoutOf&lt;#ty&gt;
                     );
-                    <span class="ident">ty</span>
+                    ty
                 })
-                .<span class="ident">collect</span>()
+                .collect()
         ;
-        <span class="kw">let</span> <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">RetCType</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">cb_ty</span>.<span class="ident">output</span> {
-            <span class="op">|</span> <span class="ident">ReturnType::Default</span> =&gt; <span class="macro">parse_quote!</span>( () ),
-            <span class="op">|</span> <span class="ident">ReturnType::Type</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">ty</span>) =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ty</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">ty</span>).<span class="ident">clone</span>();
-                <span class="ident">StripLifetimeParams</span>.<span class="ident">visit_type_mut</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ty</span>);
-                <span class="ident">ty</span>
+        <span class="kw">let </span><span class="kw-2">ref mut </span>RetCType = <span class="kw">match </span>cb_ty.output {
+            | ReturnType::Default =&gt; <span class="macro">parse_quote!</span>( () ),
+            | ReturnType::Type(<span class="kw">_</span>, <span class="kw-2">ref </span>ty) =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>ty = (<span class="kw-2">&amp;**</span>ty).clone();
+                StripLifetimeParams.visit_type_mut(<span class="kw-2">&amp;mut </span>ty);
+                ty
             },
         };
-        <span class="kw-2">*</span><span class="ident">RetCType</span> <span class="op">=</span> <span class="macro">parse_quote!</span>(
-            #<span class="ident">CLayoutOf</span><span class="op">&lt;</span>#<span class="ident">RetCType</span><span class="op">&gt;</span>
+        <span class="kw-2">*</span>RetCType = <span class="macro">parse_quote!</span>(
+            #CLayoutOf&lt;#RetCType&gt;
         );
 
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_Layout</span> <span class="op">=</span> <span class="ident">DeriveInput</span> {
-            <span class="ident">attrs</span>: <span class="macro">vec!</span>[],
-            <span class="ident">vis</span>: <span class="ident">vis</span>.<span class="ident">clone</span>(),
-            <span class="ident">ident</span>: <span class="macro">format_ident!</span>(<span class="string">&quot;{}_Layout&quot;</span>, <span class="ident">StructName</span>),
-            <span class="ident">generics</span>: <span class="ident">generics</span>.<span class="ident">clone</span>(),
-            <span class="ident">data</span>: <span class="ident">input</span>.<span class="ident">data</span>.<span class="ident">clone</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>input_Layout = DeriveInput {
+            attrs: <span class="macro">vec!</span>[],
+            vis: vis.clone(),
+            ident: <span class="macro">format_ident!</span>(<span class="string">&quot;{}_Layout&quot;</span>, StructName),
+            generics: generics.clone(),
+            data: input.data.clone(),
         };
-        <span class="comment">// let ref StructName_Layout = input_Layout.ident;</span>
-        <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">lifetimes</span> <span class="op">=</span>
-            <span class="ident">cb_ty</span>
-                .<span class="ident">lifetimes</span>
-                .<span class="ident">as_ref</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">it</span><span class="op">|</span> <span class="ident">it</span>
-                    .<span class="ident">lifetimes</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">cloned</span>()
-                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+        <span class="comment">// let ref StructName_Layout = input_Layout.ident;
+        </span><span class="kw">let </span><span class="kw-2">ref </span>lifetimes =
+            cb_ty
+                .lifetimes
+                .as_ref()
+                .map(|it| it
+                    .lifetimes
+                    .iter()
+                    .cloned()
+                    .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
                 )
-                .<span class="ident">unwrap_or_default</span>()
+                .unwrap_or_default()
         ;
-        <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">repr_c_clauses</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">WherePredicate</span><span class="op">&gt;</span> <span class="op">=</span>
-            <span class="ident">cb_ty</span>
-                .<span class="ident">inputs</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ty</span>)
-                .<span class="ident">chain</span>(<span class="kw">match</span> <span class="ident">cb_ty</span>.<span class="ident">output</span> {
-                    <span class="op">|</span> <span class="ident">ReturnType::Default</span> =&gt; <span class="prelude-val">None</span>,
-                    <span class="op">|</span> <span class="ident">ReturnType::Type</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">ty</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">ty</span>),
+        <span class="kw">let </span><span class="kw-2">ref </span>repr_c_clauses: Vec&lt;WherePredicate&gt; =
+            cb_ty
+                .inputs
+                .iter()
+                .map(|input| <span class="kw-2">&amp;</span>input.ty)
+                .chain(<span class="kw">match </span>cb_ty.output {
+                    | ReturnType::Default =&gt; <span class="prelude-val">None</span>,
+                    | ReturnType::Type(<span class="kw">_</span>, <span class="kw-2">ref </span>ty) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;**</span>ty),
                 })
-                .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">ty</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident">ty</span>.<span class="ident">clone</span>();
-                    <span class="kw">let</span> <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">lifetimes</span> <span class="op">=</span>
-                        <span class="ident">::std::borrow::Cow</span>::<span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Borrowed</span>(<span class="ident">lifetimes</span>)
+                .flat_map(|ty| {
+                    <span class="kw">let </span><span class="kw-2">ref mut </span>ty = ty.clone();
+                    <span class="kw">let </span><span class="kw-2">ref mut </span>lifetimes =
+                        ::std::borrow::Cow::&lt;<span class="lifetime">&#39;_</span>, Vec&lt;<span class="kw">_</span>&gt;&gt;::Borrowed(lifetimes)
                     ;
-                    <span class="ident">UnelideLifetimes</span> {
-                        <span class="ident">lifetime_params</span>: <span class="ident">lifetimes</span>,
-                        <span class="ident">counter</span>: (<span class="number">0</span> ..),
-                    }.<span class="ident">visit_type_mut</span>(<span class="ident">ty</span>);
-                    <span class="kw">let</span> <span class="ident">is_ReprC</span>: <span class="ident">WherePredicate</span> <span class="op">=</span> <span class="macro">parse_quote!</span>(
-                        <span class="kw">for</span><span class="op">&lt;</span>#(#<span class="ident">lifetimes</span>),<span class="kw-2">*</span><span class="op">&gt;</span>
-                            #<span class="ident">ty</span> : #<span class="ident">ReprC</span>
+                    UnelideLifetimes {
+                        lifetime_params: lifetimes,
+                        counter: (<span class="number">0 </span>..),
+                    }.visit_type_mut(ty);
+                    <span class="kw">let </span>is_ReprC: WherePredicate = <span class="macro">parse_quote!</span>(
+                        <span class="kw">for</span>&lt;#(#lifetimes),<span class="kw-2">*</span>&gt;
+                            #ty : #ReprC
                     );
-                    <span class="comment">// FIXME assert that the types involved are concrete.</span>
-                    <span class="comment">// let ty_no_lt = {</span>
-                    <span class="comment">//     let mut it = ty.clone();</span>
-                    <span class="comment">//     StripLifetimeParams.visit_type_mut(&amp;mut it);</span>
-                    <span class="comment">//     it</span>
-                    <span class="comment">// };</span>
-                    <span class="comment">// let its_CType_is_concrete = parse_quote!(</span>
-                    <span class="comment">//     // for&lt;#(#lifetimes),*&gt; &lt; #ty</span>
-                    <span class="comment">//     &lt;#ty_no_lt as #ReprC&gt;::CLayout</span>
-                    <span class="comment">//     :</span>
-                    <span class="comment">//     #LegacyCType&lt;OPAQUE_KIND = #OpaqueKind::Concrete&gt;</span>
-                    <span class="comment">// );</span>
-                    <span class="comment">// Iterator::chain(</span>
-                        <span class="ident">::core::iter::once</span>(<span class="ident">is_ReprC</span>)
-                    <span class="comment">//     , ::core::iter::once(its_CType_is_concrete)</span>
-                    <span class="comment">// )</span>
-                })
-                .<span class="ident">collect</span>()
+                    <span class="comment">// FIXME assert that the types involved are concrete.
+                    // let ty_no_lt = {
+                    //     let mut it = ty.clone();
+                    //     StripLifetimeParams.visit_type_mut(&amp;mut it);
+                    //     it
+                    // };
+                    // let its_CType_is_concrete = parse_quote!(
+                    //     // for&lt;#(#lifetimes),*&gt; &lt; #ty
+                    //     &lt;#ty_no_lt as #ReprC&gt;::CLayout
+                    //     :
+                    //     #LegacyCType&lt;OPAQUE_KIND = #OpaqueKind::Concrete&gt;
+                    // );
+                    // Iterator::chain(
+                        </span>::core::iter::once(is_ReprC)
+                    <span class="comment">//     , ::core::iter::once(its_CType_is_concrete)
+                    // )
+                </span>})
+                .collect()
         ;
-        <span class="ident">input_Layout</span>
-            .<span class="ident">generics</span>
-            .<span class="ident">make_where_clause</span>()
-            .<span class="ident">predicates</span>
-            .<span class="ident">extend</span>(<span class="ident">repr_c_clauses</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>())
+        input_Layout
+            .generics
+            .make_where_clause()
+            .predicates
+            .extend(repr_c_clauses.iter().cloned())
         ;
-        <span class="kw">let</span> <span class="ident">input_Layout_data</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input_Layout</span>.<span class="ident">data</span> {
-            <span class="op">|</span> <span class="ident">Data::Struct</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">it</span>) =&gt; <span class="ident">it</span>,
-            <span class="op">|</span> <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+        <span class="kw">let </span>input_Layout_data = <span class="kw">match </span>input_Layout.data {
+            | Data::Struct(<span class="kw-2">ref mut </span>it) =&gt; it,
+            | <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         };
-        <span class="kw-2">*</span><span class="ident">input_Layout_data</span>.<span class="ident">fields</span>.<span class="ident">iter_mut</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>() <span class="op">=</span> {
-            <span class="ident">::syn::parse::Parser::parse2</span>(
-                <span class="ident">Field::parse_unnamed</span>,
+        <span class="kw-2">*</span>input_Layout_data.fields.iter_mut().next().unwrap() = {
+            ::syn::parse::Parser::parse2(
+                Field::parse_unnamed,
                 <span class="macro">quote!</span>(
-                    <span class="kw">pub</span>
-                    #<span class="prelude-ty">Option</span><span class="op">&lt;</span>
-                        <span class="kw">unsafe</span>
-                        <span class="kw">extern</span> <span class="string">&quot;C&quot;</span>
-                        <span class="kw">fn</span> (#(#<span class="ident">EachArgCType</span>),<span class="kw-2">*</span>)
-                          -&gt; #<span class="ident">RetCType</span>
-                    <span class="op">&gt;</span>
+                    <span class="kw">pub
+                    </span>#<span class="prelude-ty">Option</span>&lt;
+                        <span class="kw">unsafe
+                        extern </span><span class="string">&quot;C&quot;
+                        </span><span class="kw">fn </span>(#(#EachArgCType),<span class="kw-2">*</span>)
+                          -&gt; #RetCType
+                    &gt;
                 ),
-            ).<span class="ident">unwrap</span>()
+            ).unwrap()
         };
-        <span class="comment">// Add a PhantomData field to account for unused lifetime params.</span>
-        <span class="comment">// (given that we&#39;ve had to strip them to become `LegacyCType`)</span>
-        <span class="kw">if</span> <span class="ident">generics</span>.<span class="ident">lifetimes</span>().<span class="ident">next</span>().<span class="ident">is_some</span>() { <span class="comment">// non-empty.</span>
-            <span class="kw">let</span> <span class="ident">fields_mut</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input_Layout_data</span>.<span class="ident">fields</span> {
-                <span class="op">|</span> <span class="ident">Fields::Unnamed</span>(<span class="ident">FieldsUnnamed</span> {
-                    <span class="ident">unnamed</span>: <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">it</span>,
+        <span class="comment">// Add a PhantomData field to account for unused lifetime params.
+        // (given that we&#39;ve had to strip them to become `LegacyCType`)
+        </span><span class="kw">if </span>generics.lifetimes().next().is_some() { <span class="comment">// non-empty.
+            </span><span class="kw">let </span>fields_mut = <span class="kw">match </span>input_Layout_data.fields {
+                | Fields::Unnamed(FieldsUnnamed {
+                    unnamed: <span class="kw-2">ref mut </span>it,
                     ..
-                }) =&gt; <span class="ident">it</span>,
-                <span class="op">|</span> <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                }) =&gt; it,
+                | <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             };
-            <span class="ident">fields_mut</span>.<span class="ident">push</span>({
-                <span class="kw">let</span> <span class="ident">phantom_tys</span> <span class="op">=</span> <span class="comment">// Iterator::chain(</span>
-                    <span class="ident">generics</span>
-                        .<span class="ident">lifetimes</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">LifetimeDef</span> { <span class="ident">lifetime</span>: <span class="kw-2">ref</span> <span class="ident">lt</span>, .. }<span class="op">|</span> -&gt; <span class="ident">Type</span> {
-                            <span class="macro">parse_quote!</span>( <span class="kw-2">*mut</span> (<span class="kw-2">&amp;</span>#<span class="ident">lt</span> ()) )
+            fields_mut.push({
+                <span class="kw">let </span>phantom_tys = <span class="comment">// Iterator::chain(
+                    </span>generics
+                        .lifetimes()
+                        .map(|<span class="kw-2">&amp;</span>LifetimeDef { lifetime: <span class="kw-2">ref </span>lt, .. }| -&gt; Type {
+                            <span class="macro">parse_quote!</span>( <span class="kw-2">*mut </span>(<span class="kw-2">&amp;</span>#lt ()) )
                         })
-                <span class="comment">//     ,</span>
-                <span class="comment">//     generics</span>
-                <span class="comment">//         .type_params</span>
-                <span class="comment">//         .map(|&amp;TypeParam { ident: ref T, .. }| -&gt; Type {</span>
-                <span class="comment">//             parse_quote!( *mut #T )</span>
-                <span class="comment">//         })</span>
-                <span class="comment">//     ,</span>
-                <span class="comment">// )</span>
-                ;
-                <span class="ident">::syn::parse::Parser::parse2</span>(
-                    <span class="ident">Field::parse_unnamed</span>,
+                <span class="comment">//     ,
+                //     generics
+                //         .type_params
+                //         .map(|&amp;TypeParam { ident: ref T, .. }| -&gt; Type {
+                //             parse_quote!( *mut #T )
+                //         })
+                //     ,
+                // )
+                </span>;
+                ::syn::parse::Parser::parse2(
+                    Field::parse_unnamed,
                     <span class="macro">quote!</span>(
-                        <span class="doccomment">/// Conservatively invariant.</span>
-                        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_parens</span>)]</span>
-                        #<span class="ident">PhantomData</span><span class="op">&lt;</span>(#(#<span class="ident">phantom_tys</span>),<span class="kw-2">*</span>)<span class="op">&gt;</span>
+                        <span class="doccomment">/// Conservatively invariant.
+                        </span><span class="attribute">#[allow(unused_parens)]
+                        </span>#PhantomData&lt;(#(#phantom_tys),<span class="kw-2">*</span>)&gt;
                     ),
-                ).<span class="ident">unwrap</span>()
+                ).unwrap()
             });
         }
-        <span class="kw">let</span> <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">c_sharp_format_args</span> <span class="op">=</span>
-            <span class="ident">EachArgCType</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">&quot;\n        {}{},&quot;</span>)
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>()
+        <span class="kw">let </span><span class="kw-2">ref mut </span>c_sharp_format_args =
+            EachArgCType
+                .iter()
+                .map(|<span class="kw">_</span>| <span class="string">&quot;\n        {}{},&quot;</span>)
+                .collect::&lt;String&gt;()
         ;
-        <span class="kw">let</span> <span class="ident">_trailing_comma</span> <span class="op">=</span> <span class="ident">c_sharp_format_args</span>.<span class="ident">pop</span>();
-        <span class="kw">let</span> (<span class="ident">intro</span>, <span class="ident">fwd</span>, <span class="ident">where_</span>) <span class="op">=</span> <span class="ident">input_Layout</span>.<span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
-        <span class="ident">ret</span>.<span class="ident">extend</span>(<span class="macro">quote!</span>(
-            <span class="kw">unsafe</span>
-            <span class="kw">impl</span> #<span class="ident">intro</span>
-                #<span class="ident">ReprC</span>
-            <span class="kw">for</span>
-                #<span class="ident">StructName</span> #<span class="ident">fwd</span>
-            #<span class="ident">where_</span>
+        <span class="kw">let </span>_trailing_comma = c_sharp_format_args.pop();
+        <span class="kw">let </span>(intro, fwd, where_) = input_Layout.generics.split_for_impl();
+        ret.extend(<span class="macro">quote!</span>(
+            <span class="kw">unsafe
+            impl </span>#intro
+                #ReprC
+            <span class="kw">for
+                </span>#StructName #fwd
+            #where_
             {
-                <span class="kw">type</span> <span class="ident">CLayout</span> <span class="op">=</span>
-                    #<span class="prelude-ty">Option</span><span class="op">&lt;</span>
-                        <span class="kw">unsafe</span>
-                        <span class="kw">extern</span> <span class="string">&quot;C&quot;</span>
-                        <span class="kw">fn</span> (#(#<span class="ident">EachArgCType</span>),<span class="kw-2">*</span>)
-                          -&gt; #<span class="ident">RetCType</span>
-                    <span class="op">&gt;</span>
+                <span class="kw">type </span>CLayout =
+                    #<span class="prelude-ty">Option</span>&lt;
+                        <span class="kw">unsafe
+                        extern </span><span class="string">&quot;C&quot;
+                        </span><span class="kw">fn </span>(#(#EachArgCType),<span class="kw-2">*</span>)
+                          -&gt; #RetCType
+                    &gt;
                 ;
-                <span class="comment">//#StructName_Layout #fwd;</span>
+                <span class="comment">//#StructName_Layout #fwd;
 
-                <span class="kw">fn</span> <span class="ident">is_valid</span> (<span class="ident">it</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident"><span class="self">Self</span>::CLayout</span>)
-                  -&gt; #<span class="ident">bool</span>
+                </span><span class="kw">fn </span>is_valid (it: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">Self</span>::CLayout)
+                  -&gt; #bool
                 {
-                    <span class="ident">it</span>.<span class="ident">is_some</span>()
+                    it.is_some()
                 }
             }
 
-            <span class="kw">unsafe</span>
-            <span class="kw">impl</span> #<span class="ident">intro</span>
-                #<span class="ident">__HasNiche__</span>
-            <span class="kw">for</span>
-                #<span class="ident">StructName</span> #<span class="ident">fwd</span>
-            #<span class="ident">where_</span>
+            <span class="kw">unsafe
+            impl </span>#intro
+                #__HasNiche__
+            <span class="kw">for
+                </span>#StructName #fwd
+            #where_
             {
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">is_niche</span> (<span class="ident">it</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> #<span class="ident">ReprC</span><span class="op">&gt;</span><span class="ident">::CLayout</span>)
-                  -&gt; <span class="ident">bool</span>
+                <span class="attribute">#[inline]
+                </span><span class="kw">fn </span>is_niche (it: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>&lt;<span class="self">Self </span><span class="kw">as </span>#ReprC&gt;::CLayout)
+                  -&gt; bool
                 {
-                    <span class="ident">it</span>.<span class="ident">is_none</span>()
+                    it.is_none()
                 }
             }
         ));
-        <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">ret</span>))
-    } <span class="kw">else</span> {
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(ret))
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>}
 }
 
-<span class="doccomment">/// Convert, for instance, `fn(&amp;i32)` into `fn(&amp;&#39;__elided_0 i32)`, yielding</span>
-<span class="doccomment">/// `&#39;__elided_0`</span>
-<span class="kw">struct</span> <span class="ident">UnelideLifetimes</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span>, <span class="lifetime">&#39;vec</span><span class="op">&gt;</span> {
-    <span class="ident">lifetime_params</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;__</span> <span class="kw-2">mut</span> <span class="ident">::std::borrow::Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;vec</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LifetimeDef</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">counter</span>: <span class="ident">::core::ops::RangeFrom</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Convert, for instance, `fn(&amp;i32)` into `fn(&amp;&#39;__elided_0 i32)`, yielding
+/// `&#39;__elided_0`
+</span><span class="kw">struct </span>UnelideLifetimes&lt;<span class="lifetime">&#39;__</span>, <span class="lifetime">&#39;vec</span>&gt; {
+    lifetime_params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;__ </span><span class="kw-2">mut </span>::std::borrow::Cow&lt;<span class="lifetime">&#39;vec</span>, Vec&lt;LifetimeDef&gt;&gt;,
+    counter: ::core::ops::RangeFrom&lt;usize&gt;,
 }
 
-<span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-    <span class="macro">macro_rules!</span> <span class="ident">ELIDED_LIFETIME_TEMPLATE</span> {() =&gt; (
-        <span class="string">&quot;__elided_{}&quot;</span>
-    )}
-    <span class="kw">impl</span> <span class="ident">::syn::visit_mut::VisitMut</span> <span class="kw">for</span> <span class="ident">UnelideLifetimes</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">visit_lifetime_mut</span> (
-            <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="self">Self</span>,
-            <span class="ident">lifetime</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">Lifetime</span>,
+<span class="kw">const _</span>: () = {
+    <span class="macro">macro_rules! </span>ELIDED_LIFETIME_TEMPLATE {() =&gt; (
+        <span class="string">&quot;__elided_{}&quot;
+    </span>)}
+    <span class="kw">impl </span>::syn::visit_mut::VisitMut <span class="kw">for </span>UnelideLifetimes&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt; {
+        <span class="kw">fn </span>visit_lifetime_mut (
+            <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="self">Self</span>,
+            lifetime: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>Lifetime,
         )
         {
-            <span class="kw">let</span> <span class="self">Self</span> { <span class="ident">lifetime_params</span>, <span class="ident">counter</span> } <span class="op">=</span> <span class="self">self</span>;
-            <span class="kw">if</span> <span class="ident">lifetime</span>.<span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;_&quot;</span> {
-                <span class="ident">lifetime</span>.<span class="ident">ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(
+            <span class="kw">let </span><span class="self">Self </span>{ lifetime_params, counter } = <span class="self">self</span>;
+            <span class="kw">if </span>lifetime.ident == <span class="string">&quot;_&quot; </span>{
+                lifetime.ident = <span class="macro">format_ident!</span>(
                     <span class="macro">ELIDED_LIFETIME_TEMPLATE!</span>(),
-                    <span class="ident">counter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>(),
+                    counter.next().unwrap(),
                 );
-                <span class="ident">lifetime_params</span>.<span class="ident">to_mut</span>().<span class="ident">push</span>(<span class="macro">parse_quote!</span>( #<span class="ident">lifetime</span> ));
+                lifetime_params.to_mut().push(<span class="macro">parse_quote!</span>( #lifetime ));
             }
         }
 
-        <span class="kw">fn</span> <span class="ident">visit_type_mut</span> (
-            <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="self">Self</span>,
-            <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">Type</span>,
+        <span class="kw">fn </span>visit_type_mut (
+            <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="self">Self</span>,
+            ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>Type,
         )
         {
-            <span class="ident">::syn::visit_mut::visit_type_mut</span>(<span class="self">self</span>, <span class="ident">ty</span>);
-            <span class="kw">let</span> <span class="self">Self</span> { <span class="ident">lifetime_params</span>, <span class="ident">counter</span> } <span class="op">=</span> <span class="self">self</span>;
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">ty</span> {
-                <span class="op">|</span> <span class="ident">Type::Reference</span>(<span class="ident">TypeReference</span> {
-                    <span class="ident">lifetime</span>: <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">implicitly_elided_lifetime</span> @ <span class="prelude-val">None</span>,
+            ::syn::visit_mut::visit_type_mut(<span class="self">self</span>, ty);
+            <span class="kw">let </span><span class="self">Self </span>{ lifetime_params, counter } = <span class="self">self</span>;
+            <span class="kw">match </span><span class="kw-2">*</span>ty {
+                | Type::Reference(TypeReference {
+                    lifetime: <span class="kw-2">ref mut </span>implicitly_elided_lifetime @ <span class="prelude-val">None</span>,
                     ..
                 }) =&gt; {
-                    <span class="kw">let</span> <span class="ident">unelided_lifetime</span> <span class="op">=</span>
-                        <span class="ident">implicitly_elided_lifetime</span>
-                            .<span class="ident">get_or_insert</span>(<span class="ident">Lifetime::new</span>(
+                    <span class="kw">let </span>unelided_lifetime =
+                        implicitly_elided_lifetime
+                            .get_or_insert(Lifetime::new(
                                 <span class="kw-2">&amp;</span><span class="macro">format!</span>(
                                     <span class="macro">concat!</span>(
                                         <span class="string">&quot;&#39;&quot;</span>,
                                         <span class="macro">ELIDED_LIFETIME_TEMPLATE!</span>(),
                                     ),
-                                    <span class="ident">counter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>(),
+                                    counter.next().unwrap(),
                                 ),
-                                <span class="ident">Span::call_site</span>(),
+                                Span::call_site(),
                             ))
                     ;
-                    <span class="ident">lifetime_params</span>.<span class="ident">to_mut</span>().<span class="ident">push</span>(<span class="macro">parse_quote!</span>(
-                        #<span class="ident">unelided_lifetime</span>
+                    lifetime_params.to_mut().push(<span class="macro">parse_quote!</span>(
+                        #unelided_lifetime
                     ));
                 },
-                <span class="op">|</span> <span class="kw">_</span> =&gt; {},
+                | <span class="kw">_ </span>=&gt; {},
             }
         }
     }
 };
 
-<span class="doccomment">/// Pretty self-explanatory: we do`&lt;Ty&lt;&#39;static&gt; as Trait&gt;` since we can&#39;t do</span>
-<span class="doccomment">/// `&lt;for&lt;&#39;lt&gt; Ty&lt;&#39;lt&gt; as Trait&gt;::Assoc` (this is because technically the result</span>
-<span class="doccomment">/// value could depend on `&#39;lt`, even if not in our case, since `CType` is</span>
-<span class="doccomment">/// `&#39;static`)</span>
-<span class="kw">struct</span> <span class="ident">StripLifetimeParams</span>;
+<span class="doccomment">/// Pretty self-explanatory: we do`&lt;Ty&lt;&#39;static&gt; as Trait&gt;` since we can&#39;t do
+/// `&lt;for&lt;&#39;lt&gt; Ty&lt;&#39;lt&gt; as Trait&gt;::Assoc` (this is because technically the result
+/// value could depend on `&#39;lt`, even if not in our case, since `CType` is
+/// `&#39;static`)
+</span><span class="kw">struct </span>StripLifetimeParams;
 
-<span class="kw">impl</span> <span class="ident">VisitMut</span> <span class="kw">for</span> <span class="ident">StripLifetimeParams</span> {
-    <span class="kw">fn</span> <span class="ident">visit_lifetime_mut</span> (
-        <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="self">Self</span>,
-        <span class="ident">lifetime</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">Lifetime</span>,
+<span class="kw">impl </span>VisitMut <span class="kw">for </span>StripLifetimeParams {
+    <span class="kw">fn </span>visit_lifetime_mut (
+        <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="self">Self</span>,
+        lifetime: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>Lifetime,
     )
     {
-        <span class="kw-2">*</span><span class="ident">lifetime</span> <span class="op">=</span> <span class="ident">Lifetime::new</span>(<span class="string">&quot;&#39;static&quot;</span>, <span class="ident">Span::call_site</span>());
+        <span class="kw-2">*</span>lifetime = Lifetime::new(<span class="string">&quot;&#39;static&quot;</span>, Span::call_site());
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_type_mut</span> (
-        <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="self">Self</span>,
-        <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">Type</span>,
+    <span class="kw">fn </span>visit_type_mut (
+        <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="self">Self</span>,
+        ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>Type,
     )
     {
-        <span class="ident">::syn::visit_mut::visit_type_mut</span>(<span class="self">self</span>, <span class="ident">ty</span>);
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">ty</span> {
-            <span class="op">|</span> <span class="ident">Type::Reference</span>(<span class="ident">TypeReference</span> {
-                <span class="ident">lifetime</span>: <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">implicitly_elided_lifetime</span> @ <span class="prelude-val">None</span>,
+        ::syn::visit_mut::visit_type_mut(<span class="self">self</span>, ty);
+        <span class="kw">match </span><span class="kw-2">*</span>ty {
+            | Type::Reference(TypeReference {
+                lifetime: <span class="kw-2">ref mut </span>implicitly_elided_lifetime @ <span class="prelude-val">None</span>,
                 ..
             }) =&gt; {
-                <span class="kw-2">*</span><span class="ident">implicitly_elided_lifetime</span> <span class="op">=</span> <span class="prelude-val">Some</span>(
-                    <span class="ident">Lifetime::new</span>(<span class="string">&quot;&#39;static&quot;</span>, <span class="ident">Span::call_site</span>())
+                <span class="kw-2">*</span>implicitly_elided_lifetime = <span class="prelude-val">Some</span>(
+                    Lifetime::new(<span class="string">&quot;&#39;static&quot;</span>, Span::call_site())
                 );
             },
-            <span class="op">|</span> <span class="kw">_</span> =&gt; {},
+            | <span class="kw">_ </span>=&gt; {},
         }
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi_proc_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi_proc_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

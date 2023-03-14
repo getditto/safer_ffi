@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/uninit-0.5.0/src/out_ref.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>out_ref.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../uninit/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../uninit/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../uninit/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/uninit-0.5.1/src/out_ref.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>out_ref.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../uninit/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -922,584 +917,584 @@
 <span id="917">917</span>
 <span id="918">918</span>
 <span id="919">919</span>
-</pre><pre class="rust"><code><span class="doccomment">//! `&amp;out _` references in stable Rust!</span>
+</pre><pre class="rust"><code><span class="doccomment">//! `&amp;out _` references in stable Rust!
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">extension_traits</span>::{<span class="ident">AsOut</span>, <span class="ident">MaybeUninitExt</span>},
+</span><span class="kw">use crate</span>::{
+    extension_traits::{AsOut, MaybeUninitExt},
 };
-<span class="kw">use</span> <span class="ident">::core</span>::{
-    <span class="ident">mem</span>::{<span class="self">self</span>,
-        <span class="ident">ManuallyDrop</span>,
-        <span class="ident">MaybeUninit</span>,
+<span class="kw">use </span>::core::{
+    mem::{<span class="self">self</span>,
+        ManuallyDrop,
+        MaybeUninit,
     },
-    <span class="ident">ptr</span>,
-    <span class="ident">slice</span>,
+    ptr,
+    slice,
 };
 
-<span class="doccomment">/// Wrapper expressing the semantics of `&amp;out T` references</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// In other words, this has the semantics of `&amp;&#39;out mut MaybeUninit&lt;T&gt;` but</span>
-<span class="doccomment">/// for the ability to write garbage (`MaybeUninit::uninit()`) into it</span>
-<span class="doccomment">/// (else [coercing `&amp;mut T` to `&amp;out T = Out&lt;T&gt;` would be</span>
-<span class="doccomment">/// unsound][`Out::as_mut_uninit`]).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This means that the reference may point to uninitialized memory (or not),</span>
-<span class="doccomment">/// and thus that writes to the pointee will not call the `.drop()` destructor.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This type can be [trivially constructed][`crate::AsOut`] from:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///   - a `&amp;&#39;out mut MaybeUninit&lt;T&gt;` (main point of the type),</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///   - a `&amp;&#39;out mut T` (to keep the ergonomics of being able to overwrite an</span>
-<span class="doccomment">///     already initialized value).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///       - To avoid &quot;accidentally&quot; leaking memory in this second case,</span>
-<span class="doccomment">///         either `T` must be `Copy` (sufficient condition to prove there is</span>
-<span class="doccomment">///         no drop glue), or you must first call</span>
-<span class="doccomment">///         [`.manually_drop_mut()`][`crate::ManuallyDropMut`]</span>
-<span class="doccomment">///         before the [`.as_out()`][`crate::AsOut`] &quot;coercion&quot;.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
-<span class="kw">pub</span>
-<span class="kw">struct</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> (
-    <span class="ident">ptr::NonNull</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">::core::marker::PhantomData</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Wrapper expressing the semantics of `&amp;out T` references
+///
+/// In other words, this has the semantics of `&amp;&#39;out mut MaybeUninit&lt;T&gt;` but
+/// for the ability to write garbage (`MaybeUninit::uninit()`) into it
+/// (else [coercing `&amp;mut T` to `&amp;out T = Out&lt;T&gt;` would be
+/// unsound][`Out::as_mut_uninit`]).
+///
+/// This means that the reference may point to uninitialized memory (or not),
+/// and thus that writes to the pointee will not call the `.drop()` destructor.
+///
+/// This type can be [trivially constructed][`crate::AsOut`] from:
+///
+///   - a `&amp;&#39;out mut MaybeUninit&lt;T&gt;` (main point of the type),
+///
+///   - a `&amp;&#39;out mut T` (to keep the ergonomics of being able to overwrite an
+///     already initialized value).
+///
+///       - To avoid &quot;accidentally&quot; leaking memory in this second case,
+///         either `T` must be `Copy` (sufficient condition to prove there is
+///         no drop glue), or you must first call
+///         [`.manually_drop_mut()`][`crate::ManuallyDropMut`]
+///         before the [`.as_out()`][`crate::AsOut`] &quot;coercion&quot;.
+</span><span class="attribute">#[derive(Debug)]
+#[repr(transparent)]
+</span><span class="kw">pub
+struct </span>Out&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out </span>+ <span class="question-mark">?</span>Sized&gt; (
+    ptr::NonNull&lt;T&gt;,
+    ::core::marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>T&gt;,
 );
 
-<span class="comment">// # Safety</span>
-<span class="comment">//</span>
-<span class="comment">// `Send`/`Sync` safety is related to mutation, so in that regard there is no</span>
-<span class="comment">// difference between `Out&lt;&#39;_, T&gt;` and `&amp;&#39;_ mut T` (in other words:</span>
-<span class="comment">// `MaybeUninit` plays no role in that regard).</span>
-<span class="comment">//</span>
-<span class="comment">// Thus `Out` is `{Send,Sync}` if and only if `&amp;mut` is.</span>
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">T</span> : <span class="ident">Send</span>,
+<span class="comment">// # Safety
+//
+// `Send`/`Sync` safety is related to mutation, so in that regard there is no
+// difference between `Out&lt;&#39;_, T&gt;` and `&amp;&#39;_ mut T` (in other words:
+// `MaybeUninit` plays no role in that regard).
+//
+// Thus `Out` is `{Send,Sync}` if and only if `&amp;mut` is.
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="question-mark">?</span>Sized + <span class="lifetime">&#39;out</span>&gt; Send <span class="kw">for </span>Out&lt;<span class="lifetime">&#39;out</span>, T&gt;
+<span class="kw">where
+    </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>T : Send,
 {}
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">T</span> : <span class="ident">Sync</span>,
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="question-mark">?</span>Sized + <span class="lifetime">&#39;out</span>&gt; Sync <span class="kw">for </span>Out&lt;<span class="lifetime">&#39;out</span>, T&gt;
+<span class="kw">where
+    </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>T : Sync,
 {}
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span> (<span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>MaybeUninit&lt;T&gt;&gt; <span class="kw">for </span>Out&lt;<span class="lifetime">&#39;out</span>, T&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from (p: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>MaybeUninit&lt;T&gt;)
+      -&gt; Out&lt;<span class="lifetime">&#39;out</span>, T&gt;
     {
-        <span class="ident">Out</span>(
-            <span class="ident">ptr::NonNull</span>::<span class="op">&lt;</span><span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from</span>(<span class="ident">p</span>).<span class="ident">cast</span>(),
-            <span class="ident">Default::default</span>(),
+        Out(
+            ptr::NonNull::&lt;MaybeUninit&lt;T&gt;&gt;::from(p).cast(),
+            Default::default(),
         )
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span> : <span class="ident">Copy</span>, <span class="comment">// prevent accidentally leaking memory</span>
-{
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span> (<span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">T</span>)
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>T&gt; <span class="kw">for </span>Out&lt;<span class="lifetime">&#39;out</span>, T&gt;
+<span class="kw">where
+    </span>T : Copy, <span class="comment">// prevent accidentally leaking memory
+</span>{
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from (p: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>T)
+      -&gt; Out&lt;<span class="lifetime">&#39;out</span>, T&gt;
     {
-        <span class="kw">unsafe</span> {
-            <span class="comment">// # Safety</span>
-            <span class="comment">//</span>
-            <span class="comment">//   - `T` and `MaybeUninit&lt;T&gt;` have the same layout</span>
-            <span class="comment">//     (`#[repr(transparent)]`)</span>
-            <span class="comment">//</span>
-            <span class="comment">//   - The API does not allow to write `MaybeUninit::uninit()` into</span>
-            <span class="comment">//     the pointee.</span>
-            <span class="ident">mem::transmute</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">p</span>).<span class="ident">into</span>()
+        <span class="kw">unsafe </span>{
+            <span class="comment">// # Safety
+            //
+            //   - `T` and `MaybeUninit&lt;T&gt;` have the same layout
+            //     (`#[repr(transparent)]`)
+            //
+            //   - The API does not allow to write `MaybeUninit::uninit()` into
+            //     the pointee.
+            </span>mem::transmute::&lt;<span class="kw">_</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>MaybeUninit&lt;T&gt;&gt;(p).into()
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::extension_traits::ManuallyDropMut</span>;
+<span class="attribute">#[cfg(doc)]
+</span><span class="kw">use </span><span class="kw">crate</span>::extension_traits::ManuallyDropMut;
 
-<span class="doccomment">/// For non-`Copy` types, explicitely transmuting the `mut` reference into one</span>
-<span class="doccomment">/// that points to a `ManuallyDrop` is required, so as to express how likely it</span>
-<span class="doccomment">/// is that memory be leaked. This can be safely achieved by using the</span>
-<span class="doccomment">/// [`ManuallyDropMut`] helper.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span> (<span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="doccomment">/// For non-`Copy` types, explicitely transmuting the `mut` reference into one
+/// that points to a `ManuallyDrop` is required, so as to express how likely it
+/// is that memory be leaked. This can be safely achieved by using the
+/// [`ManuallyDropMut`] helper.
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>ManuallyDrop&lt;T&gt;&gt; <span class="kw">for </span>Out&lt;<span class="lifetime">&#39;out</span>, T&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from (p: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>ManuallyDrop&lt;T&gt;)
+      -&gt; Out&lt;<span class="lifetime">&#39;out</span>, T&gt;
     {
-        <span class="kw">unsafe</span> {
-            <span class="comment">// # Safety</span>
-            <span class="comment">//</span>
-            <span class="comment">//   - `ManuallyDrop&lt;T&gt;` and `MaybeUninit&lt;T&gt;` have the same layout</span>
-            <span class="comment">//     (`#[repr(transparent)]`)</span>
-            <span class="comment">//</span>
-            <span class="comment">//   - The API does not allow to write `MaybeUninit::uninit()` into</span>
-            <span class="comment">//     the pointee.</span>
-            <span class="ident">mem::transmute</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">p</span>).<span class="ident">into</span>()
+        <span class="kw">unsafe </span>{
+            <span class="comment">// # Safety
+            //
+            //   - `ManuallyDrop&lt;T&gt;` and `MaybeUninit&lt;T&gt;` have the same layout
+            //     (`#[repr(transparent)]`)
+            //
+            //   - The API does not allow to write `MaybeUninit::uninit()` into
+            //     the pointee.
+            </span>mem::transmute::&lt;<span class="kw">_</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>MaybeUninit&lt;T&gt;&gt;(p).into()
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Reborrows the `&amp;out _` reference for a shorter lifetime.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">reborrow</span><span class="op">&lt;</span><span class="lifetime">&#39;reborrow</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;reborrow</span> <span class="kw-2">mut</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>)
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;reborrow</span>, <span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;out</span> : <span class="lifetime">&#39;reborrow</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out </span>+ <span class="question-mark">?</span>Sized&gt; Out&lt;<span class="lifetime">&#39;out</span>, T&gt; {
+    <span class="doccomment">/// Reborrows the `&amp;out _` reference for a shorter lifetime.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    fn </span>reborrow&lt;<span class="lifetime">&#39;reborrow</span>&gt; (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;reborrow </span><span class="kw-2">mut </span>Out&lt;<span class="lifetime">&#39;out</span>, T&gt;)
+      -&gt; Out&lt;<span class="lifetime">&#39;reborrow</span>, T&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;out </span>: <span class="lifetime">&#39;reborrow</span>,
     {
-        <span class="ident">Out</span>(<span class="self">self</span>.<span class="number">0</span>, <span class="ident">Default::default</span>())
+        Out(<span class="self">self</span>.<span class="number">0</span>, Default::default())
     }
 
-    <span class="doccomment">/// Shorthand for [`.reborrow()`][`Out::reborrow`].</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">r</span><span class="op">&lt;</span><span class="lifetime">&#39;reborrow</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;reborrow</span> <span class="kw-2">mut</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>)
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;reborrow</span>, <span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;out</span> : <span class="lifetime">&#39;reborrow</span>,
+    <span class="doccomment">/// Shorthand for [`.reborrow()`][`Out::reborrow`].
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    fn </span>r&lt;<span class="lifetime">&#39;reborrow</span>&gt; (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;reborrow </span><span class="kw-2">mut </span>Out&lt;<span class="lifetime">&#39;out</span>, T&gt;)
+      -&gt; Out&lt;<span class="lifetime">&#39;reborrow</span>, T&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;out </span>: <span class="lifetime">&#39;reborrow</span>,
     {
-        <span class="self">self</span>.<span class="ident">reborrow</span>()
+        <span class="self">self</span>.reborrow()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Write a `value` into the pointee, returning an `.assume_init()`-ed</span>
-    <span class="doccomment">/// reference to it.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Guarantees (that `unsafe` code may rely on)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// After the function returns, the pointee is guaranteed to have been</span>
-    <span class="doccomment">/// initialized; it is thus sound to use that property to manually</span>
-    <span class="doccomment">/// `assume_init()` it or any chunk of such items.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">write</span> (<span class="self">self</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">value</span>: <span class="ident">T</span>)
-      -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">T</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; Out&lt;<span class="lifetime">&#39;out</span>, T&gt; {
+    <span class="doccomment">/// Write a `value` into the pointee, returning an `.assume_init()`-ed
+    /// reference to it.
+    ///
+    /// # Guarantees (that `unsafe` code may rely on)
+    ///
+    /// After the function returns, the pointee is guaranteed to have been
+    /// initialized; it is thus sound to use that property to manually
+    /// `assume_init()` it or any chunk of such items.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    fn </span>write (<span class="self">self</span>: Out&lt;<span class="lifetime">&#39;out</span>, T&gt;, value: T)
+      -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>T
     {
-        <span class="kw">unsafe</span> {
-            <span class="comment">// Safety: this writes a valid (non garbage) value to the pointee</span>
-            <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>().<span class="ident">write</span>(<span class="ident">value</span>);
-            <span class="self">self</span>.<span class="ident">assume_init</span>()
+        <span class="kw">unsafe </span>{
+            <span class="comment">// Safety: this writes a valid (non garbage) value to the pointee
+            </span><span class="self">self</span>.<span class="number">0</span>.as_ptr().write(value);
+            <span class="self">self</span>.assume_init()
         }
     }
 
-    <span class="doccomment">/// Similar to [`.write()`][`Out::write`], but getting the previous value</span>
-    <span class="doccomment">/// back. Such previous value may or may not be initialized.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Guarantees (that `unsafe` code may rely on)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   - After the function returns, the pointee is guaranteed to have been</span>
-    <span class="doccomment">///     initialized; it is thus sound to use that property to manually</span>
-    <span class="doccomment">///     `assume_init()` it or any chunk of such items.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   - there is **no such guarantee** regarding the previous value, which</span>
-    <span class="doccomment">///     is thus only sound to `assume_init()` if the pointee already was</span>
-    <span class="doccomment">///     (before the call to `.replace()`).</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">replace</span> (<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">value</span>: <span class="ident">T</span>)
-      -&gt; (<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">T</span>)
+    <span class="doccomment">/// Similar to [`.write()`][`Out::write`], but getting the previous value
+    /// back. Such previous value may or may not be initialized.
+    ///
+    /// # Guarantees (that `unsafe` code may rely on)
+    ///
+    ///   - After the function returns, the pointee is guaranteed to have been
+    ///     initialized; it is thus sound to use that property to manually
+    ///     `assume_init()` it or any chunk of such items.
+    ///
+    ///   - there is **no such guarantee** regarding the previous value, which
+    ///     is thus only sound to `assume_init()` if the pointee already was
+    ///     (before the call to `.replace()`).
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    fn </span>replace (<span class="kw-2">mut </span><span class="self">self</span>: Out&lt;<span class="lifetime">&#39;out</span>, T&gt;, value: T)
+      -&gt; (MaybeUninit&lt;T&gt;, <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>T)
     {
-        <span class="kw">unsafe</span> {
-            <span class="comment">// # Safety</span>
-            <span class="comment">//</span>
-            <span class="comment">//   - This:</span>
-            <span class="comment">//</span>
-            <span class="comment">//      1. writes a valid value to the pointee,</span>
-            <span class="comment">//</span>
-            <span class="comment">//      2. extracts the previous value as a now owned `MaybeUninit&lt;T&gt;`</span>
-            <span class="comment">//</span>
-            <span class="comment">//     Thus it does not not `assume_init()` the pointee nor write</span>
-            <span class="comment">//     garbage to it.</span>
-            <span class="comment">//</span>
-            <span class="comment">//   - Thanks to write the pointee is known to be initialized.</span>
-            (
-                <span class="ident">mem::replace</span>(<span class="self">self</span>.<span class="ident">r</span>().<span class="ident">as_mut_uninit</span>(), <span class="ident">MaybeUninit::new</span>(<span class="ident">value</span>)),
-                <span class="self">self</span>.<span class="ident">assume_init</span>(),
+        <span class="kw">unsafe </span>{
+            <span class="comment">// # Safety
+            //
+            //   - This:
+            //
+            //      1. writes a valid value to the pointee,
+            //
+            //      2. extracts the previous value as a now owned `MaybeUninit&lt;T&gt;`
+            //
+            //     Thus it does not not `assume_init()` the pointee nor write
+            //     garbage to it.
+            //
+            //   - Thanks to write the pointee is known to be initialized.
+            </span>(
+                mem::replace(<span class="self">self</span>.r().as_mut_uninit(), MaybeUninit::new(value)),
+                <span class="self">self</span>.assume_init(),
             )
         }
     }
 
-    <span class="doccomment">/// Returns a raw mutable pointer to the pointee.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Guarantees (that `unsafe` code may rely on)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   - The returned pointer does point to the pointee, meaning that if</span>
-    <span class="doccomment">///     such returned pointer is used to [`.write()`][`::core::ptr::write`]</span>
-    <span class="doccomment">///     to the pointee, then it is safe to `assume_init()` it.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   - The returned pointer is non null, well-aligned, and writeable.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///     It is also technically readable:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///       - you can read a `MaybeUninit&lt;T&gt;` out of it after `.cast()`ing it,</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///       - otherwise, except when sound to `assume_init()`, the obtained</span>
-    <span class="doccomment">///         pointer cannot be used to read the value `: T` of the pointee!</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">as_mut_ptr</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>)
-      -&gt; <span class="kw-2">*mut</span> <span class="ident">T</span>
+    <span class="doccomment">/// Returns a raw mutable pointer to the pointee.
+    ///
+    /// # Guarantees (that `unsafe` code may rely on)
+    ///
+    ///   - The returned pointer does point to the pointee, meaning that if
+    ///     such returned pointer is used to [`.write()`][`::core::ptr::write`]
+    ///     to the pointee, then it is safe to `assume_init()` it.
+    ///
+    ///   - The returned pointer is non null, well-aligned, and writeable.
+    ///
+    ///     It is also technically readable:
+    ///
+    ///       - you can read a `MaybeUninit&lt;T&gt;` out of it after `.cast()`ing it,
+    ///
+    ///       - otherwise, except when sound to `assume_init()`, the obtained
+    ///         pointer cannot be used to read the value `: T` of the pointee!
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    fn </span>as_mut_ptr (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>Out&lt;<span class="lifetime">&#39;out</span>, T&gt;)
+      -&gt; <span class="kw-2">*mut </span>T
     {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>()
+        <span class="self">self</span>.<span class="number">0</span>.as_ptr()
     }
 
-    <span class="doccomment">/// Upgrades the `&amp;out _` (write-only) reference to a read-writeable</span>
-    <span class="doccomment">/// `&amp;mut _`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Don&#39;t be lured by the `&amp;mut` reference: Rust validity invariants</span>
-    <span class="doccomment">/// imply that an `&amp;mut` reference is only sound to produce if it points</span>
-    <span class="doccomment">/// to an initialized value; it is otherwise instant UB. See</span>
-    <span class="doccomment">/// [`MaybeUninit::assume_init`] for more info about it. Thus:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   - The pointee must have been initialized.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a **validity invariant**, meaning that UB does happen from just</span>
-    <span class="doccomment">/// calling that function to produce an ill-formed reference, even if the</span>
-    <span class="doccomment">/// obtained reference is &quot;never actually used&quot;.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ## Counterexample</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The following program exhibits Undefined Behavior:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,no_run</span>
-    <span class="doccomment">/// use ::uninit::prelude::*;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut x = MaybeUninit::uninit();</span>
-    <span class="doccomment">/// let _unused: &amp;mut u8 = unsafe {</span>
-    <span class="doccomment">///     x   .as_out()</span>
-    <span class="doccomment">///         .assume_init() // UB!</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">unsafe</span>
-    <span class="kw">fn</span> <span class="ident">assume_init</span> (<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>)
-      -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">T</span>
+    <span class="doccomment">/// Upgrades the `&amp;out _` (write-only) reference to a read-writeable
+    /// `&amp;mut _`.
+    ///
+    /// # Safety
+    ///
+    /// Don&#39;t be lured by the `&amp;mut` reference: Rust validity invariants
+    /// imply that an `&amp;mut` reference is only sound to produce if it points
+    /// to an initialized value; it is otherwise instant UB. See
+    /// [`MaybeUninit::assume_init`] for more info about it. Thus:
+    ///
+    ///   - The pointee must have been initialized.
+    ///
+    /// This is a **validity invariant**, meaning that UB does happen from just
+    /// calling that function to produce an ill-formed reference, even if the
+    /// obtained reference is &quot;never actually used&quot;.
+    ///
+    /// ## Counterexample
+    ///
+    /// The following program exhibits Undefined Behavior:
+    ///
+    /// ```rust,no_run
+    /// use ::uninit::prelude::*;
+    ///
+    /// let mut x = MaybeUninit::uninit();
+    /// let _unused: &amp;mut u8 = unsafe {
+    ///     x   .as_out()
+    ///         .assume_init() // UB!
+    /// };
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    unsafe
+    fn </span>assume_init (<span class="kw-2">mut </span><span class="self">self</span>: Out&lt;<span class="lifetime">&#39;out</span>, T&gt;)
+      -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>T
     {
-        <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_mut_ptr</span>()
+        <span class="kw-2">&amp;mut *</span><span class="self">self</span>.as_mut_ptr()
     }
 
-    <span class="doccomment">/// _Upgrades_ the `&amp;out _`  (write-valid-values-only) reference to a</span>
-    <span class="doccomment">/// `&amp;mut MaybeUninit&lt;_&gt;` (write-anything) reference.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   - The obtained reference cannot be used to write garbage</span>
-    <span class="doccomment">///     (`MaybeUninit::uninit()`) into the pointee.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///     This means that it can thus **not be fed to opaque APIs!!**</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   - Exception: if the given `&amp;out` reference has originated from a</span>
-    <span class="doccomment">///     `&amp;mut MaybeUninit&lt;_&gt;`, then calling `.as_mut_uninit()` is a sound</span>
-    <span class="doccomment">///     way to make the trip back.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a **safety invariant** (_i.e._, even if it is never &quot;instant&quot;</span>
-    <span class="doccomment">/// UB to produce such a value, it does break the safety invariant of</span>
-    <span class="doccomment">/// `&amp;mut MaybeUninit&lt;_&gt;` (that of being allowed to write</span>
-    <span class="doccomment">/// `MaybeUninit::uninit()` garbage into the pointee), so UB can happen</span>
-    <span class="doccomment">/// afterwards). This is different than `.assume_init()` soundness relying</span>
-    <span class="doccomment">/// on a validity invariant, meaning that UB does happen from just calling</span>
-    <span class="doccomment">/// that function to produce an ill-formed reference, even if the obtained</span>
-    <span class="doccomment">/// reference is never actually used.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Counter-example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The following code is Undefined Behavior:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,no_run</span>
-    <span class="doccomment">/// use ::uninit::prelude::*;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut my_box = Box::new(42);</span>
-    <span class="doccomment">/// let at_my_box: Out&lt;&#39;_, Box&lt;i32&gt;&gt; =</span>
-    <span class="doccomment">///     my_box</span>
-    <span class="doccomment">///         .manually_drop_mut()</span>
-    <span class="doccomment">///         .as_out()</span>
-    <span class="doccomment">/// ;</span>
-    <span class="doccomment">/// // Overwrite `my_box` with uninitialized bytes / garbage content.</span>
-    <span class="doccomment">/// unsafe {</span>
-    <span class="doccomment">///     *at_my_box.as_mut_uninit() = MaybeUninit::uninit();</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// // Runs the destructor for a `Box&lt;i32&gt;` using a garbage pointer that</span>
-    <span class="doccomment">/// // may thus point anywhere in memory!</span>
-    <span class="doccomment">/// drop(my_box)</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A function from an external library must always be seen as opaque</span>
-    <span class="doccomment">/// (unless its documentation makes implementation-detail guarantees, such</span>
-    <span class="doccomment">/// as this very crate does), so one cannot rely on its implementation</span>
-    <span class="doccomment">/// (unless the lib is open source AND you pin-point to that version of the</span>
-    <span class="doccomment">/// crate, either through `version = &quot;=x.y.z&quot;` or through `git = ...,</span>
-    <span class="doccomment">/// rev = ...` in `Cargo.toml`).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,ignore</span>
-    <span class="doccomment">/// // `fn zeroize (out: &amp;&#39;_ mut MaybeUninit&lt;u8&gt;) -&gt; &amp;&#39;_ mut u8;`</span>
-    <span class="doccomment">/// // The author of the crate says it uses that `out` reference to write</span>
-    <span class="doccomment">/// // `0` to the pointee.</span>
-    <span class="doccomment">/// use ::some_lib::zeroize;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut x = 42;</span>
-    <span class="doccomment">/// let at_x = x.as_out();</span>
-    <span class="doccomment">/// // Unsound! The lib implementation is free to write</span>
-    <span class="doccomment">/// // `MaybeUninit::uninit()` garbage to the pointee!</span>
-    <span class="doccomment">/// zeroize(unsafe { at_x.as_mut_uninit() });</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">unsafe</span>
-    <span class="kw">fn</span> <span class="ident">as_mut_uninit</span> (<span class="self">self</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>)
-      -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="doccomment">/// _Upgrades_ the `&amp;out _`  (write-valid-values-only) reference to a
+    /// `&amp;mut MaybeUninit&lt;_&gt;` (write-anything) reference.
+    ///
+    /// # Safety
+    ///
+    ///   - The obtained reference cannot be used to write garbage
+    ///     (`MaybeUninit::uninit()`) into the pointee.
+    ///
+    ///     This means that it can thus **not be fed to opaque APIs!!**
+    ///
+    ///   - Exception: if the given `&amp;out` reference has originated from a
+    ///     `&amp;mut MaybeUninit&lt;_&gt;`, then calling `.as_mut_uninit()` is a sound
+    ///     way to make the trip back.
+    ///
+    /// This is a **safety invariant** (_i.e._, even if it is never &quot;instant&quot;
+    /// UB to produce such a value, it does break the safety invariant of
+    /// `&amp;mut MaybeUninit&lt;_&gt;` (that of being allowed to write
+    /// `MaybeUninit::uninit()` garbage into the pointee), so UB can happen
+    /// afterwards). This is different than `.assume_init()` soundness relying
+    /// on a validity invariant, meaning that UB does happen from just calling
+    /// that function to produce an ill-formed reference, even if the obtained
+    /// reference is never actually used.
+    ///
+    /// # Counter-example
+    ///
+    /// The following code is Undefined Behavior:
+    ///
+    /// ```rust,no_run
+    /// use ::uninit::prelude::*;
+    ///
+    /// let mut my_box = Box::new(42);
+    /// let at_my_box: Out&lt;&#39;_, Box&lt;i32&gt;&gt; =
+    ///     my_box
+    ///         .manually_drop_mut()
+    ///         .as_out()
+    /// ;
+    /// // Overwrite `my_box` with uninitialized bytes / garbage content.
+    /// unsafe {
+    ///     *at_my_box.as_mut_uninit() = MaybeUninit::uninit();
+    /// }
+    /// // Runs the destructor for a `Box&lt;i32&gt;` using a garbage pointer that
+    /// // may thus point anywhere in memory!
+    /// drop(my_box)
+    /// ```
+    ///
+    /// A function from an external library must always be seen as opaque
+    /// (unless its documentation makes implementation-detail guarantees, such
+    /// as this very crate does), so one cannot rely on its implementation
+    /// (unless the lib is open source AND you pin-point to that version of the
+    /// crate, either through `version = &quot;=x.y.z&quot;` or through `git = ...,
+    /// rev = ...` in `Cargo.toml`).
+    ///
+    /// ```rust,ignore
+    /// // `fn zeroize (out: &amp;&#39;_ mut MaybeUninit&lt;u8&gt;) -&gt; &amp;&#39;_ mut u8;`
+    /// // The author of the crate says it uses that `out` reference to write
+    /// // `0` to the pointee.
+    /// use ::some_lib::zeroize;
+    ///
+    /// let mut x = 42;
+    /// let at_x = x.as_out();
+    /// // Unsound! The lib implementation is free to write
+    /// // `MaybeUninit::uninit()` garbage to the pointee!
+    /// zeroize(unsafe { at_x.as_mut_uninit() });
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    unsafe
+    fn </span>as_mut_uninit (<span class="self">self</span>: Out&lt;<span class="lifetime">&#39;out</span>, T&gt;)
+      -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>MaybeUninit&lt;T&gt;
     {
-        <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span>({<span class="self">self</span>}.<span class="ident">as_mut_ptr</span>().<span class="ident">cast</span>())
-    }
-}
-
-<span class="doccomment">/// This can be useful to get a `Out&lt;&#39;long ...&gt;` out of a</span>
-<span class="doccomment">/// `&amp;&#39;short mut Out&lt;&#39;long ...&gt;` by [`mem::replace`]-ing with a `Out::default()`</span>
-<span class="doccomment">/// (_e.g._, to implement an [`Iterator`]).</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">default</span> ()
-      -&gt; <span class="self">Self</span>
-    {
-        <span class="op">&lt;</span><span class="kw-2">&amp;mut</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>]<span class="op">&gt;</span><span class="ident">::into</span>(<span class="kw-2">&amp;mut</span> [])
+        <span class="kw-2">&amp;mut *</span>({<span class="self">self</span>}.as_mut_ptr().cast())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> [<span class="ident">T</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span> : <span class="ident">Copy</span>,
+<span class="doccomment">/// This can be useful to get a `Out&lt;&#39;long ...&gt;` out of a
+/// `&amp;&#39;short mut Out&lt;&#39;long ...&gt;` by [`mem::replace`]-ing with a `Out::default()`
+/// (_e.g._, to implement an [`Iterator`]).
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; Default <span class="kw">for </span>Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>default ()
+      -&gt; <span class="self">Self
+    </span>{
+        &lt;<span class="kw-2">&amp;mut </span>[MaybeUninit&lt;T&gt;]&gt;::into(<span class="kw-2">&amp;mut </span>[])
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>[T]&gt; <span class="kw">for </span>Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;
+<span class="kw">where
+    </span>T : Copy,
 {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span> (<span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> [<span class="ident">T</span>])
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from (slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>[T])
+      -&gt; Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;
     {
-        <span class="ident">Out</span>(
-            <span class="ident">slice</span>.<span class="ident">into</span>(),
-            <span class="ident">Default::default</span>(),
+        Out(
+            slice.into(),
+            Default::default(),
         )
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> [<span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span> (<span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> [<span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>])
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>[ManuallyDrop&lt;T&gt;]&gt; <span class="kw">for </span>Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from (slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>[ManuallyDrop&lt;T&gt;])
+      -&gt; Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;
     {
-        <span class="kw">unsafe</span> {
-            <span class="comment">// # Safety</span>
-            <span class="comment">//</span>
-            <span class="comment">//   - The API does not allow to write `MaybeUninit::uninit()` into</span>
-            <span class="comment">//     the pointee.</span>
-            <span class="ident">Out</span>(
-                <span class="ident">ptr::NonNull::new_unchecked</span>(
-                    <span class="ident">slice</span> <span class="kw">as</span> <span class="kw-2">*mut</span> [<span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>] <span class="kw">as</span> <span class="kw-2">*mut</span> [<span class="ident">T</span>]
+        <span class="kw">unsafe </span>{
+            <span class="comment">// # Safety
+            //
+            //   - The API does not allow to write `MaybeUninit::uninit()` into
+            //     the pointee.
+            </span>Out(
+                ptr::NonNull::new_unchecked(
+                    slice <span class="kw">as </span><span class="kw-2">*mut </span>[ManuallyDrop&lt;T&gt;] <span class="kw">as </span><span class="kw-2">*mut </span>[T]
                 ),
-                <span class="ident">Default::default</span>(),
+                Default::default(),
             )
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span> (<span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>])
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>[MaybeUninit&lt;T&gt;]&gt; <span class="kw">for </span>Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from (slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>[MaybeUninit&lt;T&gt;])
+      -&gt; Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;
     {
-        <span class="kw">unsafe</span> {
-            <span class="ident">Out</span>(
-                <span class="ident">ptr::NonNull::new_unchecked</span>(
-                    <span class="ident">slice</span> <span class="kw">as</span> <span class="kw-2">*mut</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>] <span class="kw">as</span> <span class="kw-2">*mut</span> [<span class="ident">T</span>]
+        <span class="kw">unsafe </span>{
+            Out(
+                ptr::NonNull::new_unchecked(
+                    slice <span class="kw">as </span><span class="kw-2">*mut </span>[MaybeUninit&lt;T&gt;] <span class="kw">as </span><span class="kw-2">*mut </span>[T]
                 ),
-                <span class="ident">Default::default</span>(),
+                Default::default(),
             )
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span> {
-    <span class="doccomment">/// Converts a single item out reference into a `1`-long out slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is the `&amp;out` version of</span>
-    <span class="doccomment">/// [`slice::from_ref`] and [`slice::from_mut`].</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">from_out</span> (<span class="ident">out</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>)
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt; {
+    <span class="doccomment">/// Converts a single item out reference into a `1`-long out slice.
+    ///
+    /// This is the `&amp;out` version of
+    /// [`slice::from_ref`] and [`slice::from_mut`].
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    fn </span>from_out (out: Out&lt;<span class="lifetime">&#39;out</span>, T&gt;)
+      -&gt; Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;
     {
-        <span class="kw">unsafe</span> {
-            <span class="ident">slice::from_mut</span>(<span class="ident">out</span>.<span class="ident">as_mut_uninit</span>())
-                .<span class="ident">as_out</span>()
+        <span class="kw">unsafe </span>{
+            slice::from_mut(out.as_mut_uninit())
+                .as_out()
         }
     }
 
-    <span class="doccomment">/// Obtains a read-only non-NULL and well-aligned raw pointer to a</span>
-    <span class="doccomment">/// potentially uninitialized `T`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Unless maybe with interior mutability through raw pointers, there is</span>
-    <span class="doccomment">/// no case where using this function is more useful than going through</span>
-    <span class="doccomment">/// [`&lt;[MaybeUninit&lt;_&gt;]&gt;::assume_init_by_ref()`][</span>
-    <span class="doccomment">/// `MaybeUninitExt::assume_init_by_ref`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Worse, the lack of `unsafe`-ty of the method (ignoring the one needed</span>
-    <span class="doccomment">/// to use the pointer) and its &quot;boring&quot; name may lead to code</span>
-    <span class="doccomment">/// read-dereferencing the pointer (which implicitly `assume_init()`s it)</span>
-    <span class="doccomment">/// without having ensured the soundness of such (implicit) `assume_init()`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">as_ptr</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">Self</span>)
-      -&gt; <span class="kw-2">*const</span> <span class="ident">T</span>
+    <span class="doccomment">/// Obtains a read-only non-NULL and well-aligned raw pointer to a
+    /// potentially uninitialized `T`.
+    ///
+    /// Unless maybe with interior mutability through raw pointers, there is
+    /// no case where using this function is more useful than going through
+    /// [`&lt;[MaybeUninit&lt;_&gt;]&gt;::assume_init_by_ref()`][
+    /// `MaybeUninitExt::assume_init_by_ref`].
+    ///
+    /// Worse, the lack of `unsafe`-ty of the method (ignoring the one needed
+    /// to use the pointer) and its &quot;boring&quot; name may lead to code
+    /// read-dereferencing the pointer (which implicitly `assume_init()`s it)
+    /// without having ensured the soundness of such (implicit) `assume_init()`.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    fn </span>as_ptr (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">Self</span>)
+      -&gt; <span class="kw-2">*const </span>T
     {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>().<span class="ident">cast</span>()
+        <span class="self">self</span>.<span class="number">0</span>.as_ptr().cast()
     }
 
-    <span class="doccomment">/// Returns a raw mutable pointer to the pointee.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`Out::as_mut_ptr`] for more info regarding safety and guarantees.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">as_mut_ptr</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="self">Self</span>)
-      -&gt; <span class="kw-2">*mut</span> <span class="ident">T</span>
+    <span class="doccomment">/// Returns a raw mutable pointer to the pointee.
+    ///
+    /// See [`Out::as_mut_ptr`] for more info regarding safety and guarantees.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    fn </span>as_mut_ptr (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="self">Self</span>)
+      -&gt; <span class="kw-2">*mut </span>T
     {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>().<span class="ident">cast</span>()
+        <span class="self">self</span>.<span class="number">0</span>.as_ptr().cast()
     }
 
-    <span class="doccomment">/// _Upgrades_ the `&amp;out _`  (write-valid-values-only) reference to a</span>
-    <span class="doccomment">/// `&amp;mut MaybeUninit&lt;_&gt;` (write-anything) reference.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`Out::as_mut_uninit`] for more info regarding safety.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">unsafe</span>
-    <span class="kw">fn</span> <span class="ident">as_mut_uninit</span> (<span class="self">self</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>)
-      -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>]
+    <span class="doccomment">/// _Upgrades_ the `&amp;out _`  (write-valid-values-only) reference to a
+    /// `&amp;mut MaybeUninit&lt;_&gt;` (write-anything) reference.
+    ///
+    /// See [`Out::as_mut_uninit`] for more info regarding safety.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    unsafe
+    fn </span>as_mut_uninit (<span class="self">self</span>: Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;)
+      -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>[MaybeUninit&lt;T&gt;]
     {
-        <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>])
+        <span class="kw-2">&amp;mut *</span>(<span class="self">self</span>.<span class="number">0</span>.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>[MaybeUninit&lt;T&gt;])
     }
 
-    <span class="doccomment">/// Main indexing operation on an `&amp;out [_]`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The type `Index` of `idx` may be:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   - a `usize`, and then `Index::Output` is a `Out&lt;T&gt;` reference to a</span>
-    <span class="doccomment">///     single element.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   - a `Range&lt;usize&gt;` (_e.g._, `a .. b`), and then `Index::Output` is</span>
-    <span class="doccomment">///     a `Out&lt;[T]&gt;` reference to a subslice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use ::uninit::prelude::*;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let src: &amp;[u8] = b&quot;Hello, World!&quot;;</span>
-    <span class="doccomment">/// // Stack-allocate an uninitialized buffer.</span>
-    <span class="doccomment">/// let mut buf = uninit_array![u8; 256];</span>
-    <span class="doccomment">/// // copy `src` into this stack allocated buffer, effectively initializing it.</span>
-    <span class="doccomment">/// let buf: &amp;mut [u8] =</span>
-    <span class="doccomment">///     // buf[.. src.len()].as_out()</span>
-    <span class="doccomment">///     buf.as_out().get_out(.. src.len()).unwrap()</span>
-    <span class="doccomment">///         .copy_from_slice(src)</span>
-    <span class="doccomment">/// ;</span>
-    <span class="doccomment">/// assert_eq!(buf, b&quot;Hello, World!&quot;);</span>
-    <span class="doccomment">/// buf[7 ..].copy_from_slice(b&quot;Earth!&quot;);</span>
-    <span class="doccomment">/// assert_eq!(buf, b&quot;Hello, Earth!&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">get_out</span><span class="op">&lt;</span><span class="ident">Index</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>, <span class="ident">idx</span>: <span class="ident">Index</span>)
-      -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Index::Output</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">Index</span> : <span class="ident">UsizeOrRange</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>, <span class="comment">// renamed for the documentation</span>
-    {
-        <span class="macro">macro_rules!</span> <span class="ident">impl_SliceIndex</span> {(
-            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Range</span>:<span class="ident">ty</span>),<span class="op">+</span> $(,)<span class="question-mark">?</span>
-        ) =&gt; (
+    <span class="doccomment">/// Main indexing operation on an `&amp;out [_]`.
+    ///
+    /// The type `Index` of `idx` may be:
+    ///
+    ///   - a `usize`, and then `Index::Output` is a `Out&lt;T&gt;` reference to a
+    ///     single element.
+    ///
+    ///   - a `Range&lt;usize&gt;` (_e.g._, `a .. b`), and then `Index::Output` is
+    ///     a `Out&lt;[T]&gt;` reference to a subslice.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use ::uninit::prelude::*;
+    ///
+    /// let src: &amp;[u8] = b&quot;Hello, World!&quot;;
+    /// // Stack-allocate an uninitialized buffer.
+    /// let mut buf = uninit_array![u8; 256];
+    /// // copy `src` into this stack allocated buffer, effectively initializing it.
+    /// let buf: &amp;mut [u8] =
+    ///     // buf[.. src.len()].as_out()
+    ///     buf.as_out().get_out(.. src.len()).unwrap()
+    ///         .copy_from_slice(src)
+    /// ;
+    /// assert_eq!(buf, b&quot;Hello, World!&quot;);
+    /// buf[7 ..].copy_from_slice(b&quot;Earth!&quot;);
+    /// assert_eq!(buf, b&quot;Hello, Earth!&quot;);
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    fn </span>get_out&lt;Index&gt; (<span class="self">self</span>: Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;, idx: Index)
+      -&gt; <span class="prelude-ty">Option</span>&lt;Index::Output&gt;
+    <span class="kw">where
+        </span>Index : UsizeOrRange&lt;<span class="lifetime">&#39;out</span>, T&gt;, <span class="comment">// renamed for the documentation
+    </span>{
+        <span class="macro">macro_rules! </span>impl_SliceIndex {(
+            $(<span class="macro-nonterminal">$Range</span>:ty),+ $(,)<span class="question-mark">?
+        </span>) =&gt; (
             $(
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">SliceIndex</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Range</span> {
-                    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>;
+                <span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; SliceIndex&lt;<span class="lifetime">&#39;out</span>, T&gt; <span class="kw">for </span><span class="macro-nonterminal">$Range </span>{
+                    <span class="kw">type </span>Output = Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;;
 
-                    <span class="attribute">#[<span class="ident">inline</span>]</span>
-                    <span class="kw">fn</span> <span class="ident">idx</span> (<span class="self">self</span>: <span class="self">Self</span>, <span class="ident">slice</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>)
-                      -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span><span class="op">&gt;</span>
+                    <span class="attribute">#[inline]
+                    </span><span class="kw">fn </span>idx (<span class="self">self</span>: <span class="self">Self</span>, slice: Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;)
+                      -&gt; <span class="prelude-ty">Option</span>&lt;Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;&gt;
                     {
-                        <span class="kw">unsafe</span> {
-                            <span class="comment">// Safety: this goes through an ephemeral</span>
-                            <span class="comment">// `&amp;mut [MaybeUninit&lt;_&gt;]` reference to be able to</span>
-                            <span class="comment">// use slice indexing, but immediately downgrades</span>
-                            <span class="comment">// it back to an `Out` reference, so no danger</span>
-                            <span class="comment">// of writing garbage data.</span>
-                            <span class="ident">slice</span>.<span class="ident">as_mut_uninit</span>()
-                                .<span class="ident">get_mut</span>(<span class="self">self</span>)
-                                .<span class="ident">map</span>(<span class="ident">Out::from</span>)
+                        <span class="kw">unsafe </span>{
+                            <span class="comment">// Safety: this goes through an ephemeral
+                            // `&amp;mut [MaybeUninit&lt;_&gt;]` reference to be able to
+                            // use slice indexing, but immediately downgrades
+                            // it back to an `Out` reference, so no danger
+                            // of writing garbage data.
+                            </span>slice.as_mut_uninit()
+                                .get_mut(<span class="self">self</span>)
+                                .map(Out::from)
                         }
                     }
                 }
-            )<span class="op">*</span>
+            )*
         )}
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">SliceIndex</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">usize</span> {
-            <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>;
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; SliceIndex&lt;<span class="lifetime">&#39;out</span>, T&gt; <span class="kw">for </span>usize {
+            <span class="kw">type </span>Output = Out&lt;<span class="lifetime">&#39;out</span>, T&gt;;
 
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">idx</span> (<span class="self">self</span>: <span class="ident">usize</span>, <span class="ident">slice</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>)
-              -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>idx (<span class="self">self</span>: usize, slice: Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;)
+              -&gt; <span class="prelude-ty">Option</span>&lt;Out&lt;<span class="lifetime">&#39;out</span>, T&gt;&gt;
             {
-                <span class="kw">unsafe</span> {
-                    <span class="comment">// Safety: ditto</span>
-                    <span class="ident">slice</span>.<span class="ident">as_mut_uninit</span>()
-                        .<span class="ident">get_mut</span>(<span class="self">self</span>)
-                        .<span class="ident">map</span>(<span class="ident">Out::from</span>)
+                <span class="kw">unsafe </span>{
+                    <span class="comment">// Safety: ditto
+                    </span>slice.as_mut_uninit()
+                        .get_mut(<span class="self">self</span>)
+                        .map(Out::from)
                 }
             }
         }
-        <span class="macro">impl_SliceIndex!</span> {
-            <span class="comment">// a .. b</span>
-            <span class="ident">::core::ops::Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-            <span class="comment">// a ..= b</span>
-            <span class="ident">::core::ops::RangeInclusive</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-            <span class="comment">// a ..</span>
-            <span class="ident">::core::ops::RangeFrom</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-            <span class="comment">// .. b</span>
-            <span class="ident">::core::ops::RangeTo</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-            <span class="comment">// ..= b</span>
-            <span class="ident">::core::ops::RangeToInclusive</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-            <span class="comment">// ..</span>
-            <span class="ident">::core::ops::RangeFull</span>,
+        <span class="macro">impl_SliceIndex! </span>{
+            <span class="comment">// a .. b
+            </span>::core::ops::Range&lt;usize&gt;,
+            <span class="comment">// a ..= b
+            </span>::core::ops::RangeInclusive&lt;usize&gt;,
+            <span class="comment">// a ..
+            </span>::core::ops::RangeFrom&lt;usize&gt;,
+            <span class="comment">// .. b
+            </span>::core::ops::RangeTo&lt;usize&gt;,
+            <span class="comment">// ..= b
+            </span>::core::ops::RangeToInclusive&lt;usize&gt;,
+            <span class="comment">// ..
+            </span>::core::ops::RangeFull,
         }
 
-        <span class="ident">idx</span>.<span class="ident">idx</span>(<span class="self">self</span>)
+        idx.idx(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Same as `.get_out()`, but with the bound check being elided.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The given `idx` mut be in bounds:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   - if `idx: usize`, then `idx` must be `&lt; self.len()`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   - if `idx` is an upper-bounded range (_e.g._, `.. b`, `a ..= b`),</span>
-    <span class="doccomment">///     then the upper bound (`b` in the example) must be `&lt; self.len()`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   - _etc_.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`.get_unchecked_mut()`](</span>
-    <span class="doccomment">/// https://doc.rust-lang.org/std/primitive.slice.html#method.get_unchecked_mut)</span>
-    <span class="doccomment">/// for more info about the safety of such call.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">unsafe</span>
-    <span class="kw">fn</span> <span class="ident">get_unchecked_out</span><span class="op">&lt;</span><span class="ident">Index</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>, <span class="ident">idx</span>: <span class="ident">Index</span>)
-      -&gt; <span class="ident">Index::Output</span>
-    <span class="kw">where</span>
-        <span class="ident">Index</span> : <span class="ident">UsizeOrRange</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>, <span class="comment">// renamed for the documentation</span>
-    {
-        <span class="self">self</span>.<span class="ident">get_out</span>(<span class="ident">idx</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">debug_assertions</span>) {
+    <span class="doccomment">/// Same as `.get_out()`, but with the bound check being elided.
+    ///
+    /// # Safety
+    ///
+    /// The given `idx` mut be in bounds:
+    ///
+    ///   - if `idx: usize`, then `idx` must be `&lt; self.len()`.
+    ///
+    ///   - if `idx` is an upper-bounded range (_e.g._, `.. b`, `a ..= b`),
+    ///     then the upper bound (`b` in the example) must be `&lt; self.len()`.
+    ///
+    ///   - _etc_.
+    ///
+    /// See [`.get_unchecked_mut()`](
+    /// https://doc.rust-lang.org/std/primitive.slice.html#method.get_unchecked_mut)
+    /// for more info about the safety of such call.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    unsafe
+    fn </span>get_unchecked_out&lt;Index&gt; (<span class="self">self</span>: Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;, idx: Index)
+      -&gt; Index::Output
+    <span class="kw">where
+        </span>Index : UsizeOrRange&lt;<span class="lifetime">&#39;out</span>, T&gt;, <span class="comment">// renamed for the documentation
+    </span>{
+        <span class="self">self</span>.get_out(idx)
+            .unwrap_or_else(|| <span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) {
                 <span class="macro">panic!</span>(<span class="macro">concat!</span>(
                     <span class="string">&quot;Attempted to index out of bounds through unchecked &quot;</span>,
                     <span class="string">&quot;indexing (this was detected thanks to a check still &quot;</span>,
@@ -1507,340 +1502,339 @@
                     <span class="string">r&quot;/!\ THIS IS A BUG AND A SOUNDNESS ISSUE /!\&quot;</span>, <span class="string">&quot;\n&quot;</span>,
                     <span class="string">&quot;Please submit an issue ASAP.&quot;</span>,
                 ));
-            } <span class="kw">else</span> {
-                <span class="ident">::core::hint::unreachable_unchecked</span>()
+            } <span class="kw">else </span>{
+                ::core::hint::unreachable_unchecked()
             })
     }
 
-    <span class="doccomment">/// Downgrades the `Out&lt;&#39;_, [T]&gt;` slice into a `&amp;&#39;_ [MaybeUninit&lt;T&gt;]`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This leads to a read-only&lt;sup&gt;1&lt;/sup&gt; &quot;unreadable&quot; slice which is thus</span>
-    <span class="doccomment">/// only useful for accessing `&amp;&#39;_ []` metadata, mainly the length of the</span>
-    <span class="doccomment">/// slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// In practice, calling this function explicitely is not even needed given</span>
-    <span class="doccomment">/// that `Out&lt;&#39;_, [T]&gt; : Deref&lt;Target = [MaybeUninit&lt;T&gt;]`, so one can do:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use ::uninit::prelude::*;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut backing_array = uninit_array![_; 42];</span>
-    <span class="doccomment">/// let buf: Out&lt;&#39;_, [u8]&gt; = backing_array.as_out();</span>
-    <span class="doccomment">/// assert_eq!(buf.len(), 42); // no need to `.r().as_uninit()`</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// &lt;sup&gt;1&lt;/sup&gt; &lt;small&gt;Unless Interior Mutability is involved;</span>
-    <span class="doccomment">/// speaking of which:&lt;/small&gt;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Interior Mutability</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The whole design of `Out` references is to forbid any non-unsafe API</span>
-    <span class="doccomment">/// that would allow writing `MaybeUninit::uninit()` garbage into the</span>
-    <span class="doccomment">/// pointee. So, for instance, this crate does not offer any API like:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use ::core::{cell::Cell, mem::MaybeUninit};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // /!\ This is UNSOUND when combined with the `::uninit` crate!</span>
-    <span class="doccomment">/// fn swap_mb_uninit_and_cell&lt;T&gt; (</span>
-    <span class="doccomment">///     p: &amp;&#39;_ MaybeUninit&lt;Cell&lt;T&gt;&gt;,</span>
-    <span class="doccomment">/// ) -&gt; &amp;&#39;_ Cell&lt;MaybeUninit&lt;T&gt;&gt;</span>
-    <span class="doccomment">/// {</span>
-    <span class="doccomment">///     unsafe {</span>
-    <span class="doccomment">///         // Safety: both `Cell` and `MaybeUninit` are `#[repr(transparent)]`</span>
-    <span class="doccomment">///         ::core::mem::transmute(p)</span>
-    <span class="doccomment">///     }</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Indeed, if both such non-`unsafe` API and the `uninit` crate were</span>
-    <span class="doccomment">/// present, then one could trigger UB with:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,ignore</span>
-    <span class="doccomment">/// let mut x = [Cell::new(42)];</span>
-    <span class="doccomment">/// let at_mb_uninit_cell: &amp;&#39;_ MaybeUninit&lt;Cell&lt;u8&gt;&gt; =</span>
-    <span class="doccomment">///     &amp;x.as_out().as_uninit()[0]</span>
-    <span class="doccomment">/// ;</span>
-    <span class="doccomment">/// swap_mb_uninit_and_cell(at_mb_uninit_cell)</span>
-    <span class="doccomment">///     .set(MaybeUninit::uninit()) // UB!</span>
-    <span class="doccomment">/// ;</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The author of the crate believes that such UB is the responsibility of</span>
-    <span class="doccomment">/// the one who defined `swap_mb_uninit_and_cell`, and that in general that</span>
-    <span class="doccomment">/// function is unsound: **`MaybeUninit`-ness and interior mutability do</span>
-    <span class="doccomment">/// not commute!**</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   - the `Safety` annotation in the given example only justifies that</span>
-    <span class="doccomment">///     it is not breaking any layout-based validity invariants,</span>
-    <span class="doccomment">///     but it is actually impossible to semantically prove that it is safe</span>
-    <span class="doccomment">///     for these properties to commute.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If you are strongly convinced of the opposite, please file an issue (if</span>
-    <span class="doccomment">/// there isn&#39;t already one: since this question is not that clear the</span>
-    <span class="doccomment">/// author is very likely to create an issue themself).</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">as_uninit</span> (<span class="self">self</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>)
-      -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>]
+    <span class="doccomment">/// Downgrades the `Out&lt;&#39;_, [T]&gt;` slice into a `&amp;&#39;_ [MaybeUninit&lt;T&gt;]`.
+    ///
+    /// This leads to a read-only&lt;sup&gt;1&lt;/sup&gt; &quot;unreadable&quot; slice which is thus
+    /// only useful for accessing `&amp;&#39;_ []` metadata, mainly the length of the
+    /// slice.
+    ///
+    /// In practice, calling this function explicitely is not even needed given
+    /// that `Out&lt;&#39;_, [T]&gt; : Deref&lt;Target = [MaybeUninit&lt;T&gt;]`, so one can do:
+    ///
+    /// ```rust
+    /// use ::uninit::prelude::*;
+    ///
+    /// let mut backing_array = uninit_array![_; 42];
+    /// let buf: Out&lt;&#39;_, [u8]&gt; = backing_array.as_out();
+    /// assert_eq!(buf.len(), 42); // no need to `.r().as_uninit()`
+    /// ```
+    ///
+    /// &lt;sup&gt;1&lt;/sup&gt; &lt;small&gt;Unless Interior Mutability is involved;
+    /// speaking of which:&lt;/small&gt;
+    ///
+    /// # Interior Mutability
+    ///
+    /// The whole design of `Out` references is to forbid any non-unsafe API
+    /// that would allow writing `MaybeUninit::uninit()` garbage into the
+    /// pointee. So, for instance, this crate does not offer any API like:
+    ///
+    /// ```rust
+    /// use ::core::{cell::Cell, mem::MaybeUninit};
+    ///
+    /// // /!\ This is UNSOUND when combined with the `::uninit` crate!
+    /// fn swap_mb_uninit_and_cell&lt;T&gt; (
+    ///     p: &amp;&#39;_ MaybeUninit&lt;Cell&lt;T&gt;&gt;,
+    /// ) -&gt; &amp;&#39;_ Cell&lt;MaybeUninit&lt;T&gt;&gt;
+    /// {
+    ///     unsafe {
+    ///         // Safety: both `Cell` and `MaybeUninit` are `#[repr(transparent)]`
+    ///         ::core::mem::transmute(p)
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// Indeed, if both such non-`unsafe` API and the `uninit` crate were
+    /// present, then one could trigger UB with:
+    ///
+    /// ```rust,ignore
+    /// let mut x = [Cell::new(42)];
+    /// let at_mb_uninit_cell: &amp;&#39;_ MaybeUninit&lt;Cell&lt;u8&gt;&gt; =
+    ///     &amp;x.as_out().as_uninit()[0]
+    /// ;
+    /// swap_mb_uninit_and_cell(at_mb_uninit_cell)
+    ///     .set(MaybeUninit::uninit()) // UB!
+    /// ;
+    /// ```
+    ///
+    /// The author of the crate believes that such UB is the responsibility of
+    /// the one who defined `swap_mb_uninit_and_cell`, and that in general that
+    /// function is unsound: **`MaybeUninit`-ness and interior mutability do
+    /// not commute!**
+    ///
+    ///   - the `Safety` annotation in the given example only justifies that
+    ///     it is not breaking any layout-based validity invariants,
+    ///     but it is actually impossible to semantically prove that it is safe
+    ///     for these properties to commute.
+    ///
+    /// If you are strongly convinced of the opposite, please file an issue (if
+    /// there isn&#39;t already one: since this question is not that clear the
+    /// author is very likely to create an issue themself).
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    fn </span>as_uninit (<span class="self">self</span>: Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;)
+      -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span>[MaybeUninit&lt;T&gt;]
     {
-        <span class="kw">unsafe</span> {
-            <span class="comment">// Safety: `swap_mb_uninit_and_cell` is the one considered unsound.</span>
-            <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*const</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>])
+        <span class="kw">unsafe </span>{
+            <span class="comment">// Safety: `swap_mb_uninit_and_cell` is the one considered unsound.
+            </span><span class="kw-2">&amp;*</span>(<span class="self">self</span>.<span class="number">0</span>.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>[MaybeUninit&lt;T&gt;])
         }
     }
 
-    <span class="doccomment">/// Upgrades the `&amp;out [_]` (write-only) reference to a read-writeable</span>
-    <span class="doccomment">/// `&amp;mut [_]`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Don&#39;t be lured by the `&amp;mut` reference: Rust validity invariants</span>
-    <span class="doccomment">/// imply that an `&amp;mut` reference is only sound to produce if it points</span>
-    <span class="doccomment">/// to initialized values; it is otherwise instant UB. See</span>
-    <span class="doccomment">/// [`MaybeUninit::assume_init`] for more info about it. Thus:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   - The pointee(s) must have been initialized.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a **validity invariant**, meaning that UB does happen from just</span>
-    <span class="doccomment">/// calling that function to produce an ill-formed reference, even if the</span>
-    <span class="doccomment">/// obtained reference is &quot;never actually used&quot;.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">unsafe</span>
-    <span class="kw">fn</span> <span class="ident">assume_all_init</span> (<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> [<span class="ident">T</span>]
+    <span class="doccomment">/// Upgrades the `&amp;out [_]` (write-only) reference to a read-writeable
+    /// `&amp;mut [_]`.
+    ///
+    /// # Safety
+    ///
+    /// Don&#39;t be lured by the `&amp;mut` reference: Rust validity invariants
+    /// imply that an `&amp;mut` reference is only sound to produce if it points
+    /// to initialized values; it is otherwise instant UB. See
+    /// [`MaybeUninit::assume_init`] for more info about it. Thus:
+    ///
+    ///   - The pointee(s) must have been initialized.
+    ///
+    /// This is a **validity invariant**, meaning that UB does happen from just
+    /// calling that function to produce an ill-formed reference, even if the
+    /// obtained reference is &quot;never actually used&quot;.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    unsafe
+    fn </span>assume_all_init (<span class="kw-2">mut </span><span class="self">self</span>: Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>[T]
     {
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>();
-        <span class="ident">slice::from_raw_parts_mut</span>(
-            <span class="self">self</span>.<span class="ident">as_mut_ptr</span>(),
-            <span class="ident">len</span>,
+        <span class="kw">let </span>len = <span class="self">self</span>.len();
+        slice::from_raw_parts_mut(
+            <span class="self">self</span>.as_mut_ptr(),
+            len,
         )
     }
 
-    <span class="doccomment">/// Initialize the buffer with a copy from another (already initialized)</span>
-    <span class="doccomment">/// buffer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It returns a read-writable slice to the initialized bytes for</span>
-    <span class="doccomment">/// convenience (automatically</span>
-    <span class="doccomment">/// [`assume_init`][`Out::assume_init`]-ed).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panic</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The function panics if the slices&#39; lengths are not equal.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Guarantees (that `unsafe` code may rely on)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A non-`panic!`king return from this function **guarantees that the input</span>
-    <span class="doccomment">/// slice has been (successfully) initialized**, and that it is thus then</span>
-    <span class="doccomment">/// sound to `.assume_init()`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It also guarantees that the returned slice does correspond to the input</span>
-    <span class="doccomment">/// slice (_e.g._, for [`crate::ReadIntoUninit`]&#39;s safety guarantees).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use ::core::mem::{self, MaybeUninit};</span>
-    <span class="doccomment">/// use ::uninit::prelude::*;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut array = uninit_array![_; 13];</span>
-    <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     array.as_out().copy_from_slice(b&quot;Hello, World!&quot;),</span>
-    <span class="doccomment">///     b&quot;Hello, World!&quot;,</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// // we can thus soundly `assume_init` our array:</span>
-    <span class="doccomment">/// let array = unsafe {</span>
-    <span class="doccomment">///     mem::transmute::&lt;</span>
-    <span class="doccomment">///         [MaybeUninit&lt;u8&gt;; 13],</span>
-    <span class="doccomment">///         [            u8 ; 13],</span>
-    <span class="doccomment">///     &gt;(array)</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     array,</span>
-    <span class="doccomment">///     *b&quot;Hello, World!&quot;,</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">copy_from_slice</span> (
-        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>,
-        <span class="ident">source_slice</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> [<span class="ident">T</span>],
-    ) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> [<span class="ident">T</span>]
-    <span class="kw">where</span>
-        <span class="ident">T</span> : <span class="ident">Copy</span>,
+    <span class="doccomment">/// Initialize the buffer with a copy from another (already initialized)
+    /// buffer.
+    ///
+    /// It returns a read-writable slice to the initialized bytes for
+    /// convenience (automatically
+    /// [`assume_init`][`Out::assume_init`]-ed).
+    ///
+    /// # Panic
+    ///
+    /// The function panics if the slices&#39; lengths are not equal.
+    ///
+    /// # Guarantees (that `unsafe` code may rely on)
+    ///
+    /// A non-`panic!`king return from this function **guarantees that the input
+    /// slice has been (successfully) initialized**, and that it is thus then
+    /// sound to `.assume_init()`.
+    ///
+    /// It also guarantees that the returned slice does correspond to the input
+    /// slice (_e.g._, for [`crate::ReadIntoUninit`]&#39;s safety guarantees).
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use ::core::mem::{self, MaybeUninit};
+    /// use ::uninit::prelude::*;
+    ///
+    /// let mut array = uninit_array![_; 13];
+    /// assert_eq!(
+    ///     array.as_out().copy_from_slice(b&quot;Hello, World!&quot;),
+    ///     b&quot;Hello, World!&quot;,
+    /// );
+    /// // we can thus soundly `assume_init` our array:
+    /// let array = unsafe {
+    ///     mem::transmute::&lt;
+    ///         [MaybeUninit&lt;u8&gt;; 13],
+    ///         [            u8 ; 13],
+    ///     &gt;(array)
+    /// };
+    /// assert_eq!(
+    ///     array,
+    ///     *b&quot;Hello, World!&quot;,
+    /// );
+    /// ```
+    </span><span class="kw">pub
+    fn </span>copy_from_slice (
+        <span class="kw-2">mut </span><span class="self">self</span>: Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;,
+        source_slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>[T],
+    ) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>[T]
+    <span class="kw">where
+        </span>T : Copy,
     {
-        <span class="kw">unsafe</span> {
-            <span class="comment">// # Safety</span>
-            <span class="comment">//</span>
-            <span class="comment">//   - Writing to `self.0` is fine since `source_slice` only</span>
-            <span class="comment">//     contains initialized elements.</span>
-            <span class="comment">//</span>
-            <span class="comment">//   - the `copy_nonoverlapping()` call guarantees that the buffer</span>
-            <span class="comment">//     has been initialized.</span>
-            <span class="self">self</span>.<span class="ident">r</span>()
-                .<span class="ident">as_mut_uninit</span>()
-                .<span class="ident">copy_from_slice</span>(
-                    <span class="op">&lt;</span>[<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>]<span class="op">&gt;</span><span class="ident">::from_ref</span>(<span class="ident">source_slice</span>)
+        <span class="kw">unsafe </span>{
+            <span class="comment">// # Safety
+            //
+            //   - Writing to `self.0` is fine since `source_slice` only
+            //     contains initialized elements.
+            //
+            //   - the `copy_nonoverlapping()` call guarantees that the buffer
+            //     has been initialized.
+            </span><span class="self">self</span>.r()
+                .as_mut_uninit()
+                .copy_from_slice(
+                    &lt;[MaybeUninit&lt;T&gt;]&gt;::from_ref(source_slice)
                 )
             ;
-            <span class="self">self</span>.<span class="ident">assume_all_init</span>()
+            <span class="self">self</span>.assume_all_init()
         }
     }
 
-    <span class="doccomment">/// Fills the buffer with values from up to the first `self.len()` elements</span>
-    <span class="doccomment">/// of an `iterable`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Guarantees (that `unsafe` code may rely on)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A non-panicking return from this function guarantees that the first `k`</span>
-    <span class="doccomment">/// values of the buffer have been initialized and are thus sound to</span>
-    <span class="doccomment">/// `.assume_init()`, where `k`, the numbers of elements that `iterable`</span>
-    <span class="doccomment">/// has yielded (capped at `self.len()`), is the length of the returned</span>
-    <span class="doccomment">/// buffer.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">init_with</span> (
-        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>,
-        <span class="ident">iterable</span>: <span class="kw">impl</span> <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> [<span class="ident">T</span>]
+    <span class="doccomment">/// Fills the buffer with values from up to the first `self.len()` elements
+    /// of an `iterable`.
+    ///
+    /// # Guarantees (that `unsafe` code may rely on)
+    ///
+    /// A non-panicking return from this function guarantees that the first `k`
+    /// values of the buffer have been initialized and are thus sound to
+    /// `.assume_init()`, where `k`, the numbers of elements that `iterable`
+    /// has yielded (capped at `self.len()`), is the length of the returned
+    /// buffer.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    fn </span>init_with (
+        <span class="kw-2">mut </span><span class="self">self</span>: Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;,
+        iterable: <span class="kw">impl </span>IntoIterator&lt;Item = T&gt;,
+    ) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>[T]
     {
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter_out</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">iter_out</span>();
-        <span class="ident">iter_out</span>
-            .<span class="ident">by_ref</span>()
-            .<span class="ident">zip</span>(<span class="ident">iterable</span>)
-            .<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">at_dst</span>, <span class="ident">next</span>)<span class="op">|</span> { <span class="ident">at_dst</span>.<span class="ident">write</span>(<span class="ident">next</span>); })
+        <span class="kw">let </span>len = <span class="self">self</span>.len();
+        <span class="kw">let </span><span class="kw-2">mut </span>iter_out = <span class="self">self</span>.iter_out();
+        iter_out
+            .by_ref()
+            .zip(iterable)
+            .for_each(|(at_dst, next)| { at_dst.write(next); })
         ;
-        <span class="kw">let</span> <span class="ident">init_count</span> <span class="op">=</span> <span class="ident">len</span> <span class="op">-</span> <span class="ident">iter_out</span>.<span class="ident">remaining</span>().<span class="ident">len</span>();
-        <span class="kw">unsafe</span> {
-            <span class="comment">// Safety: `init_count` values of the buffer have been initialized</span>
-            <span class="self">self</span>.<span class="ident">get_unchecked_out</span>(.. <span class="ident">init_count</span>)
-                .<span class="ident">assume_all_init</span>()
+        <span class="kw">let </span>init_count = len - iter_out.remaining().len();
+        <span class="kw">unsafe </span>{
+            <span class="comment">// Safety: `init_count` values of the buffer have been initialized
+            </span><span class="self">self</span>.get_unchecked_out(.. init_count)
+                .assume_all_init()
         }
     }
 
-    <span class="doccomment">/// `.reborrow().into_iter()`</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">iter_out</span><span class="op">&lt;</span><span class="lifetime">&#39;reborrow</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;reborrow</span> <span class="kw-2">mut</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>)
-      -&gt; <span class="ident">iter::IterOut</span><span class="op">&lt;</span><span class="lifetime">&#39;reborrow</span>, <span class="ident">T</span><span class="op">&gt;</span>
+    <span class="doccomment">/// `.reborrow().into_iter()`
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    fn </span>iter_out&lt;<span class="lifetime">&#39;reborrow</span>&gt; (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;reborrow </span><span class="kw-2">mut </span>Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;)
+      -&gt; iter::IterOut&lt;<span class="lifetime">&#39;reborrow</span>, T&gt;
     {
-        <span class="self">self</span>.<span class="ident">into_iter</span>()
+        <span class="self">self</span>.into_iter()
     }
 
-    <span class="doccomment">/// Same as [`.split_at_mut()`](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at_mut</span>
-    <span class="doccomment">/// ), but with `&amp;out [_]` references.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panic</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if `idx &gt; len`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">split_at_out</span> (<span class="self">self</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>, <span class="ident">idx</span>: <span class="ident">usize</span>)
-      -&gt; (<span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>, <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span> )
+    <span class="doccomment">/// Same as [`.split_at_mut()`](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at_mut
+    /// ), but with `&amp;out [_]` references.
+    ///
+    /// # Panic
+    ///
+    /// Panics if `idx &gt; len`.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub
+    fn </span>split_at_out (<span class="self">self</span>: Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;, idx: usize)
+      -&gt; (Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;, Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt; )
     {
-        <span class="kw">let</span> (<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span> <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">as_mut_uninit</span>() }.<span class="ident">split_at_mut</span>(<span class="ident">idx</span>);
-        (<span class="ident">left</span>.<span class="ident">as_out</span>(), <span class="ident">right</span>.<span class="ident">as_out</span>())
+        <span class="kw">let </span>(left, right) = <span class="kw">unsafe </span>{ <span class="self">self</span>.as_mut_uninit() }.split_at_mut(idx);
+        (left.as_out(), right.as_out())
     }
 }
 
-<span class="doccomment">/// `Deref` into `[MaybeUninit&lt;T&gt;]` to get access to the slice length related</span>
-<span class="doccomment">/// getters.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">::core::ops::Deref</span> <span class="kw">for</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>];
+<span class="doccomment">/// `Deref` into `[MaybeUninit&lt;T&gt;]` to get access to the slice length related
+/// getters.
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; ::core::ops::Deref <span class="kw">for </span>Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt; {
+    <span class="kw">type </span>Target = [MaybeUninit&lt;T&gt;];
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deref</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="self">Self</span>)
-      -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>]
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>deref (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">Self</span>)
+      -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>[MaybeUninit&lt;T&gt;]
     {
-        <span class="kw">unsafe</span> {
-            <span class="comment">// Safety: see `fn as_uninit`.</span>
-            <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*const</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>])
+        <span class="kw">unsafe </span>{
+            <span class="comment">// Safety: see `fn as_uninit`.
+            </span><span class="kw-2">&amp;*</span>(<span class="self">self</span>.<span class="number">0</span>.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>[MaybeUninit&lt;T&gt;])
         }
     }
 }
 
-<span class="kw">use</span> <span class="ident">private</span>::{<span class="ident">SliceIndex</span>, <span class="ident">SliceIndex</span> <span class="kw">as</span> <span class="ident">UsizeOrRange</span>};
-<span class="kw">mod</span> <span class="ident">private</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span>private::{SliceIndex, SliceIndex <span class="kw">as </span>UsizeOrRange};
+<span class="kw">mod </span>private {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">pub</span>
-    <span class="kw">trait</span> <span class="ident">SliceIndex</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">Output</span> : <span class="lifetime">&#39;out</span>;
+    <span class="kw">pub
+    trait </span>SliceIndex&lt;<span class="lifetime">&#39;out</span>, T&gt; {
+        <span class="kw">type </span>Output : <span class="lifetime">&#39;out</span>;
 
-        <span class="kw">fn</span> <span class="ident">idx</span> (<span class="self">self</span>: <span class="self">Self</span>, <span class="ident">slice</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>)
-          -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span>
+        <span class="kw">fn </span>idx (<span class="self">self</span>: <span class="self">Self</span>, slice: Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;)
+          -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Output&gt;
         ;
     }
 }
 
-<span class="doccomment">/// `&amp;out [_]` slice iteration logic.</span>
-<span class="kw">pub</span>
-<span class="kw">mod</span> <span class="ident">iter</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="doccomment">/// `&amp;out [_]` slice iteration logic.
+</span><span class="kw">pub
+mod </span>iter {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="doccomment">/// The value obtained when calling `.into_iter()` on a `Out&lt;&#39;out, [T]&gt;`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// An iterator over single value `Out&lt;&#39;out, T&gt;` references.</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_debug_implementations</span>)]</span>
-    <span class="kw">pub</span>
-    <span class="kw">struct</span> <span class="ident">IterOut</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> {
-        <span class="ident">slice</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>,
+    <span class="doccomment">/// The value obtained when calling `.into_iter()` on a `Out&lt;&#39;out, [T]&gt;`.
+    ///
+    /// An iterator over single value `Out&lt;&#39;out, T&gt;` references.
+    </span><span class="attribute">#[allow(missing_debug_implementations)]
+    </span><span class="kw">pub
+    struct </span>IterOut&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; {
+        slice: Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;,
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">IterOut</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="doccomment">/// Extracts an `Out&lt;[T]&gt;` slice reference pointing to the elements not</span>
-        <span class="doccomment">/// yet yielded by the iterator.</span>
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">pub</span>
-        <span class="kw">fn</span> <span class="ident">remaining</span> (<span class="self">self</span>: <span class="ident">IterOut</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>)
-          -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>
+    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; IterOut&lt;<span class="lifetime">&#39;out</span>, T&gt; {
+        <span class="doccomment">/// Extracts an `Out&lt;[T]&gt;` slice reference pointing to the elements not
+        /// yet yielded by the iterator.
+        </span><span class="attribute">#[inline]
+        </span><span class="kw">pub
+        fn </span>remaining (<span class="self">self</span>: IterOut&lt;<span class="lifetime">&#39;out</span>, T&gt;)
+          -&gt; Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;
         {
-            <span class="self">self</span>.<span class="ident">slice</span>
+            <span class="self">self</span>.slice
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">IntoIterator</span> <span class="kw">for</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>;
-        <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">IterOut</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>;
+    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; IntoIterator <span class="kw">for </span>Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt; {
+        <span class="kw">type </span>Item = Out&lt;<span class="lifetime">&#39;out</span>, T&gt;;
+        <span class="kw">type </span>IntoIter = IterOut&lt;<span class="lifetime">&#39;out</span>, T&gt;;
 
-        <span class="kw">fn</span> <span class="ident">into_iter</span> (<span class="self">self</span>: <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>)
-          -&gt; <span class="ident">IterOut</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>
+        <span class="kw">fn </span>into_iter (<span class="self">self</span>: Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;)
+          -&gt; IterOut&lt;<span class="lifetime">&#39;out</span>, T&gt;
         {
-            <span class="ident">IterOut</span> { <span class="ident">slice</span>: <span class="self">self</span> }
+            IterOut { slice: <span class="self">self </span>}
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="lifetime">&#39;inner</span> : <span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;inner</span><span class="op">&gt;</span> <span class="ident">IntoIterator</span>
-        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;inner</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>
+    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, <span class="lifetime">&#39;inner </span>: <span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;inner</span>&gt; IntoIterator
+        <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>Out&lt;<span class="lifetime">&#39;inner</span>, [T]&gt;
     {
-        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>;
-        <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">IterOut</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>;
+        <span class="kw">type </span>Item = Out&lt;<span class="lifetime">&#39;out</span>, T&gt;;
+        <span class="kw">type </span>IntoIter = IterOut&lt;<span class="lifetime">&#39;out</span>, T&gt;;
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">into_iter</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;inner</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>)
-          -&gt; <span class="ident">IterOut</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>into_iter (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>Out&lt;<span class="lifetime">&#39;inner</span>, [T]&gt;)
+          -&gt; IterOut&lt;<span class="lifetime">&#39;out</span>, T&gt;
         {
-            <span class="self">self</span>.<span class="ident">reborrow</span>().<span class="ident">into_iter</span>()
+            <span class="self">self</span>.reborrow().into_iter()
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span> : <span class="lifetime">&#39;out</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">IterOut</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>;
+    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;out</span>, T : <span class="lifetime">&#39;out</span>&gt; Iterator <span class="kw">for </span>IterOut&lt;<span class="lifetime">&#39;out</span>, T&gt; {
+        <span class="kw">type </span>Item = Out&lt;<span class="lifetime">&#39;out</span>, T&gt;;
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">next</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">IterOut</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>)
-          -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>next (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>IterOut&lt;<span class="lifetime">&#39;out</span>, T&gt;)
+          -&gt; <span class="prelude-ty">Option</span>&lt;Out&lt;<span class="lifetime">&#39;out</span>, T&gt;&gt;
         {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">slice</span>.<span class="ident">is_empty</span>() { <span class="kw">return</span> <span class="prelude-val">None</span>; }
-            <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="ident">mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">slice</span>, <span class="ident">Out::default</span>());
-            <span class="kw">let</span> (<span class="ident">first</span>, <span class="ident">rest</span>) <span class="op">=</span> <span class="ident">slice</span>.<span class="ident">split_at_out</span>(<span class="number">1</span>);
-            <span class="self">self</span>.<span class="ident">slice</span> <span class="op">=</span> <span class="ident">rest</span>;
-            <span class="prelude-val">Some</span>(<span class="kw">unsafe</span> {
-                <span class="ident">first</span>.<span class="ident">get_unchecked_out</span>(<span class="number">0</span>)
+            <span class="kw">if </span><span class="self">self</span>.slice.is_empty() { <span class="kw">return </span><span class="prelude-val">None</span>; }
+            <span class="kw">let </span>slice = mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.slice, Out::default());
+            <span class="kw">let </span>(first, rest) = slice.split_at_out(<span class="number">1</span>);
+            <span class="self">self</span>.slice = rest;
+            <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{
+                first.get_unchecked_out(<span class="number">0</span>)
             })
         }
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="uninit" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="uninit" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

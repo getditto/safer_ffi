@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/uninit-0.5.0/src/extension_traits/as_out.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>as_out.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../uninit/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../uninit/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../uninit/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/uninit-0.5.1/src/extension_traits/as_out.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>as_out.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../uninit/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -184,183 +179,182 @@
 <span id="179">179</span>
 </pre><pre class="rust"><code><span class="macro">use_prelude!</span>();
 
-<span class="kw">use</span> <span class="ident">::core::mem::ManuallyDrop</span>;
+<span class="kw">use </span>::core::mem::ManuallyDrop;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::extension_traits::ManuallyDropMut</span>;
+<span class="attribute">#[cfg(doc)]
+</span><span class="kw">use </span><span class="kw">crate</span>::extension_traits::ManuallyDropMut;
 
-<span class="doccomment">/// Extension trait to convert a `&amp;mut _` into a `&amp;out _` by calling</span>
-<span class="doccomment">/// `.as_out()` on it.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// By autoref, this means that you can even just extract a `&amp;out T` reference</span>
-<span class="doccomment">/// out of a `mut` element simply by calling `.as_out()` on it.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// There is, however, one restriction: to be able to call `.as_out()` on</span>
-<span class="doccomment">/// something, it needs to be either `Copy`, or a value wrapped in a</span>
-<span class="doccomment">/// [`MaybeUninit`] / a [`ManuallyDrop`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is by design. Indeed, [`Out`] references do not call the destructor</span>
-<span class="doccomment">/// of the overwritten element (since it may not be initialized).</span>
-<span class="doccomment">/// This could cause memory leaks when there is an initialized element with</span>
-<span class="doccomment">/// [drop glue][`core::mem::needs_drop`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// To solve this limitation, one must explicitly call</span>
-<span class="doccomment">/// [`.manually_drop_mut()`][`ManuallyDropMut::manually_drop_mut`]</span>
-<span class="doccomment">/// to automagically transmute the `&amp;mut _` reference into a</span>
-<span class="doccomment">/// `&amp;mut ManuallyDrop&lt;_&gt;`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use ::uninit::prelude::*;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let mut x = 0;</span>
-<span class="doccomment">/// x.as_out().write(42);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let mut y = ::core::mem::MaybeUninit::uninit();</span>
-<span class="doccomment">/// y.as_out().write(42);</span>
-<span class="doccomment">/// let y = unsafe { y.assume_init() };</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(x, y);</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span>
-<span class="kw">trait</span> <span class="ident">AsOut</span><span class="op">&lt;</span><span class="ident">Pointee</span> : <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">as_out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="self">Self</span>)
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">Pointee</span><span class="op">&gt;</span>
+<span class="doccomment">/// Extension trait to convert a `&amp;mut _` into a `&amp;out _` by calling
+/// `.as_out()` on it.
+///
+/// By autoref, this means that you can even just extract a `&amp;out T` reference
+/// out of a `mut` element simply by calling `.as_out()` on it.
+///
+/// There is, however, one restriction: to be able to call `.as_out()` on
+/// something, it needs to be either `Copy`, or a value wrapped in a
+/// [`MaybeUninit`] / a [`ManuallyDrop`].
+///
+/// This is by design. Indeed, [`Out`] references do not call the destructor
+/// of the overwritten element (since it may not be initialized).
+/// This could cause memory leaks when there is an initialized element with
+/// [drop glue][`core::mem::needs_drop`].
+///
+/// To solve this limitation, one must explicitly call
+/// [`.manually_drop_mut()`][`ManuallyDropMut::manually_drop_mut`]
+/// to automagically transmute the `&amp;mut _` reference into a
+/// `&amp;mut ManuallyDrop&lt;_&gt;`.
+///
+/// # Examples
+///
+/// ```rust
+/// use ::uninit::prelude::*;
+///
+/// let mut x = 0;
+/// x.as_out().write(42);
+///
+/// let mut y = ::core::mem::MaybeUninit::uninit();
+/// y.as_out().write(42);
+/// let y = unsafe { y.assume_init() };
+///
+/// assert_eq!(x, y);
+/// ```
+</span><span class="kw">pub
+trait </span>AsOut&lt;Pointee : <span class="question-mark">?</span>Sized&gt; {
+    <span class="attribute">#[allow(missing_docs)]
+    </span><span class="kw">fn </span>as_out&lt;<span class="lifetime">&#39;out</span>&gt; (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span><span class="self">Self</span>)
+      -&gt; Out&lt;<span class="lifetime">&#39;out</span>, Pointee&gt;
     ;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">AsOut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;T&gt; AsOut&lt;T&gt; <span class="kw">for </span>MaybeUninit&lt;T&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>as_out&lt;<span class="lifetime">&#39;out</span>&gt; (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>MaybeUninit&lt;T&gt;)
+      -&gt; Out&lt;<span class="lifetime">&#39;out</span>, T&gt;
     {
-        <span class="self">self</span>.<span class="ident">into</span>()
+        <span class="self">self</span>.into()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">AsOut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">T</span>
-<span class="kw">where</span>
-    <span class="ident">T</span> : <span class="ident">Copy</span>,
+<span class="kw">impl</span>&lt;T&gt; AsOut&lt;T&gt; <span class="kw">for </span>T
+<span class="kw">where
+    </span>T : Copy,
 {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">T</span>)
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>as_out&lt;<span class="lifetime">&#39;out</span>&gt; (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>T)
+      -&gt; Out&lt;<span class="lifetime">&#39;out</span>, T&gt;
     {
-        <span class="self">self</span>.<span class="ident">into</span>()
+        <span class="self">self</span>.into()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">AsOut</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>] {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>])
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;T&gt; AsOut&lt;[T]&gt; <span class="kw">for </span>[MaybeUninit&lt;T&gt;] {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>as_out&lt;<span class="lifetime">&#39;out</span>&gt; (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>[MaybeUninit&lt;T&gt;])
+      -&gt; Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;
     {
-        <span class="self">self</span>.<span class="ident">into</span>()
+        <span class="self">self</span>.into()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">AsOut</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">T</span>]
-<span class="kw">where</span>
-    <span class="ident">T</span> : <span class="ident">Copy</span>,
+<span class="kw">impl</span>&lt;T&gt; AsOut&lt;[T]&gt; <span class="kw">for </span>[T]
+<span class="kw">where
+    </span>T : Copy,
 {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> [<span class="ident">T</span>])
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>as_out&lt;<span class="lifetime">&#39;out</span>&gt; (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>[T])
+      -&gt; Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;
     {
-        <span class="self">self</span>.<span class="ident">into</span>()
+        <span class="self">self</span>.into()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">AsOut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;T&gt; AsOut&lt;T&gt; <span class="kw">for </span>ManuallyDrop&lt;T&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>as_out&lt;<span class="lifetime">&#39;out</span>&gt; (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>ManuallyDrop&lt;T&gt;)
+      -&gt; Out&lt;<span class="lifetime">&#39;out</span>, T&gt;
     {
-        <span class="self">self</span>.<span class="ident">into</span>()
+        <span class="self">self</span>.into()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">AsOut</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>] {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> [<span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>])
-      -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;T&gt; AsOut&lt;[T]&gt; <span class="kw">for </span>[ManuallyDrop&lt;T&gt;] {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>as_out&lt;<span class="lifetime">&#39;out</span>&gt; (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>[ManuallyDrop&lt;T&gt;])
+      -&gt; Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;
     {
-        <span class="self">self</span>.<span class="ident">into</span>()
+        <span class="self">self</span>.into()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;const_generics&quot;</span>))]</span>
-<span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-    <span class="macro">macro_rules!</span> <span class="ident">impl_arrays</span> {( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">tt</span>)<span class="op">*</span> ) =&gt; ($(
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">AsOut</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>] {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">as_out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="self">Self</span>)
-              -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;const_generics&quot;</span>))]
+</span><span class="kw">const _</span>: () = {
+    <span class="macro">macro_rules! </span>impl_arrays {( $(<span class="macro-nonterminal">$N</span>:tt)* ) =&gt; ($(
+        <span class="kw">impl</span>&lt;T&gt; AsOut&lt;[T]&gt; <span class="kw">for </span>[MaybeUninit&lt;T&gt;; <span class="macro-nonterminal">$N</span>] {
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>as_out&lt;<span class="lifetime">&#39;out</span>&gt; (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span><span class="self">Self</span>)
+              -&gt; Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;
             {
-                <span class="ident">From::from</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>[..])
+                From::from(<span class="kw-2">&amp;mut </span><span class="self">self</span>[..])
             }
         }
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">AsOut</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>]
-        <span class="kw">where</span>
-            <span class="ident">T</span> : <span class="ident">Copy</span>,
+        <span class="kw">impl</span>&lt;T&gt; AsOut&lt;[T]&gt; <span class="kw">for </span>[T; <span class="macro-nonterminal">$N</span>]
+        <span class="kw">where
+            </span>T : Copy,
         {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">as_out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="self">Self</span>)
-              -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>as_out&lt;<span class="lifetime">&#39;out</span>&gt; (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span><span class="self">Self</span>)
+              -&gt; Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;
             {
-                <span class="ident">From::from</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>[..])
+                From::from(<span class="kw-2">&amp;mut </span><span class="self">self</span>[..])
             }
         }
     )<span class="kw-2">*</span>)}
 
-    <span class="macro">impl_arrays!</span> {
-           <span class="number">0</span>  <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span>  <span class="number">4</span>  <span class="number">5</span>  <span class="number">6</span>  <span class="number">7</span>
-           <span class="number">8</span>  <span class="number">9</span> <span class="number">10</span> <span class="number">11</span> <span class="number">12</span> <span class="number">13</span> <span class="number">14</span> <span class="number">15</span>
-          <span class="number">16</span> <span class="number">17</span> <span class="number">18</span> <span class="number">19</span> <span class="number">20</span> <span class="number">21</span> <span class="number">22</span> <span class="number">23</span>
-          <span class="number">24</span> <span class="number">25</span> <span class="number">26</span> <span class="number">27</span> <span class="number">28</span> <span class="number">29</span> <span class="number">30</span> <span class="number">31</span>
-          <span class="number">32</span> <span class="number">33</span> <span class="number">34</span> <span class="number">35</span> <span class="number">36</span> <span class="number">37</span> <span class="number">38</span> <span class="number">39</span>
-          <span class="number">40</span> <span class="number">41</span> <span class="number">42</span> <span class="number">43</span> <span class="number">44</span> <span class="number">45</span> <span class="number">46</span> <span class="number">47</span>
-          <span class="number">48</span> <span class="number">49</span> <span class="number">50</span> <span class="number">51</span> <span class="number">52</span> <span class="number">53</span> <span class="number">54</span> <span class="number">55</span>
-          <span class="number">56</span> <span class="number">57</span> <span class="number">58</span> <span class="number">59</span> <span class="number">60</span> <span class="number">61</span> <span class="number">62</span> <span class="number">63</span>
-          <span class="number">64</span>
-         <span class="number">128</span>
-         <span class="number">256</span>
-         <span class="number">512</span>
-        <span class="number">1024</span>
-    }
+    <span class="macro">impl_arrays! </span>{
+           <span class="number">0  1  2  3  4  5  6  7
+           8  9 10 11 12 13 14 15
+          16 17 18 19 20 21 22 23
+          24 25 26 27 28 29 30 31
+          32 33 34 35 36 37 38 39
+          40 41 42 43 44 45 46 47
+          48 49 50 51 52 53 54 55
+          56 57 58 59 60 61 62 63
+          64
+         128
+         256
+         512
+        1024
+    </span>}
 };
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;const_generics&quot;</span>)]</span>
-<span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;better-docs&quot;</span>,
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;const_generics&quot;</span>)),
-    )]</span>
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">AsOut</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>; <span class="ident">N</span>] {
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">as_out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="self">Self</span>)
-          -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>
+<span class="attribute">#[cfg(feature = <span class="string">&quot;const_generics&quot;</span>)]
+</span><span class="kw">const _</span>: () = {
+    <span class="attribute">#[cfg_attr(feature = <span class="string">&quot;better-docs&quot;</span>,
+        doc(cfg(feature = <span class="string">&quot;const_generics&quot;</span>)),
+    )]
+    </span><span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: usize&gt; AsOut&lt;[T]&gt; <span class="kw">for </span>[MaybeUninit&lt;T&gt;; N] {
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>as_out&lt;<span class="lifetime">&#39;out</span>&gt; (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span><span class="self">Self</span>)
+          -&gt; Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;
         {
-            <span class="ident">From::from</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>[..])
+            From::from(<span class="kw-2">&amp;mut </span><span class="self">self</span>[..])
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;better-docs&quot;</span>,
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;const_generics&quot;</span>)),
-    )]</span>
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">AsOut</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">T</span>; <span class="ident">N</span>]
-    <span class="kw">where</span>
-        <span class="ident">T</span> : <span class="ident">Copy</span>,
+    <span class="attribute">#[cfg_attr(feature = <span class="string">&quot;better-docs&quot;</span>,
+        doc(cfg(feature = <span class="string">&quot;const_generics&quot;</span>)),
+    )]
+    </span><span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: usize&gt; AsOut&lt;[T]&gt; <span class="kw">for </span>[T; N]
+    <span class="kw">where
+        </span>T : Copy,
     {
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">as_out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span><span class="op">&gt;</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="self">Self</span>)
-          -&gt; <span class="ident">Out</span><span class="op">&lt;</span><span class="lifetime">&#39;out</span>, [<span class="ident">T</span>]<span class="op">&gt;</span>
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>as_out&lt;<span class="lifetime">&#39;out</span>&gt; (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span><span class="self">Self</span>)
+          -&gt; Out&lt;<span class="lifetime">&#39;out</span>, [T]&gt;
         {
-            <span class="ident">From::from</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>[..])
+            From::from(<span class="kw-2">&amp;mut </span><span class="self">self</span>[..])
         }
     }
 };
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="uninit" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="uninit" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

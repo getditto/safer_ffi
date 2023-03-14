@@ -1,1 +1,1 @@
-initSidebarItems({"macro":[["paste",""]]});
+window.SIDEBAR_ITEMS = {"macro":[["paste",""]]};

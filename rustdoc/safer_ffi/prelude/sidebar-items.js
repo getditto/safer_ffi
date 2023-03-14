@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["c_slice",""],["char_p",""],["repr_c",""],["str",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["c_slice",""],["char_p",""],["repr_c",""],["str",""]],"struct":[["Out","Wrapper expressing the semantics of `&out T` references"]],"trait":[["AsOut","Extension trait to convert a `&mut _` into a `&out _` by calling `.as_out()` on it."],["ManuallyDropMut","Extension trait providing a cast to the [`ManuallyDrop`] type."]]};

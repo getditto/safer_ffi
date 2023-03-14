@@ -1,1 +1,1 @@
-initSidebarItems({"attr":[["cfg_headers",""],["derive_ReprC",""],["derive_ReprC2",""],["ffi_export",""]],"macro":[["c_str",""]]});
+window.SIDEBAR_ITEMS = {"attr":[["cfg_headers",""],["derive_ReprC",""],["derive_ReprC2",""],["ffi_export",""]],"macro":[["c_str",""]]};

@@ -1,17 +1,12 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/c_char.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>c_char.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../safer_ffi/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../safer_ffi/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../safer_ffi/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
-<span id="2"> 2</span>
-<span id="3"> 3</span>
-<span id="4"> 4</span>
-<span id="5"> 5</span>
-<span id="6"> 6</span>
-<span id="7"> 7</span>
-<span id="8"> 8</span>
-<span id="9"> 9</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/c_char.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>c_char.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../safer_ffi/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
 <span id="10">10</span>
 <span id="11">11</span>
 <span id="12">12</span>
@@ -90,93 +85,92 @@
 <span id="85">85</span>
 <span id="86">86</span>
 <span id="87">87</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
-<span class="macro">use_prelude!</span>();
+</pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
+</span><span class="macro">use_prelude!</span>();
 
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(
-    <span class="ident">Debug</span>,
-    <span class="ident">Clone</span>, <span class="ident">Copy</span>,
-    <span class="ident">Default</span>,
-    <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>,
-    <span class="ident">PartialEq</span>, <span class="ident">Eq</span>,
-    <span class="ident">Hash</span>,
-)]</span>
-<span class="kw">pub</span>
-<span class="kw">struct</span> <span class="ident">c_char</span> <span class="comment">/* = */</span> (
-    <span class="kw">pub</span>
-    <span class="ident">u8</span>,
+<span class="attribute">#[repr(transparent)]
+#[derive(
+    Debug,
+    Clone, Copy,
+    Default,
+    PartialOrd, Ord,
+    PartialEq, Eq,
+    Hash,
+)]
+</span><span class="kw">pub
+struct </span>c_char <span class="comment">/* = */ </span>(
+    <span class="kw">pub
+    </span>u8,
 );
 
-<span class="doccomment">/// Assert that `::libc::c_char` is either `uint8_t` or `int8_t`.</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))))]</span> <span class="comment">// no libc on WASM nor no_std</span>
-<span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-    <span class="kw">trait</span> <span class="ident">IsU8OrI8</span>
+<span class="doccomment">/// Assert that `::libc::c_char` is either `uint8_t` or `int8_t`.
+</span><span class="attribute">#[cfg(not(any(target_arch = <span class="string">&quot;wasm32&quot;</span>, not(feature = <span class="string">&quot;std&quot;</span>))))] </span><span class="comment">// no libc on WASM nor no_std
+</span><span class="kw">const _</span>: () = {
+    <span class="kw">trait </span>IsU8OrI8
     {}
 
-    <span class="kw">impl</span> <span class="ident">IsU8OrI8</span>
-        <span class="kw">for</span> <span class="ident">u8</span>
+    <span class="kw">impl </span>IsU8OrI8
+        <span class="kw">for </span>u8
     {}
-    <span class="kw">impl</span> <span class="ident">IsU8OrI8</span>
-        <span class="kw">for</span> <span class="ident">i8</span>
+    <span class="kw">impl </span>IsU8OrI8
+        <span class="kw">for </span>i8
     {}
 
-    <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-        <span class="kw">fn</span> <span class="ident">is_u8_or_i8</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="kw">where</span>
-            <span class="ident">T</span> : <span class="ident">IsU8OrI8</span>,
+    <span class="kw">const _</span>: () = {
+        <span class="kw">fn </span>is_u8_or_i8&lt;T&gt;() <span class="kw">where
+            </span>T : IsU8OrI8,
         {}
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">is_u8_or_i8</span>::<span class="op">&lt;</span><span class="ident">::libc::c_char</span><span class="op">&gt;</span>;
+        <span class="kw">let _ </span>= is_u8_or_i8::&lt;::libc::c_char&gt;;
     };
 };
 
-<span class="kw">unsafe</span>
-<span class="kw">impl</span> <span class="ident">LegacyCType</span>
-    <span class="kw">for</span> <span class="ident">c_char</span>
-{ <span class="macro">__cfg_headers__!</span> {
-    <span class="kw">fn</span> <span class="ident">c_short_name_fmt</span> (<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
-      -&gt; <span class="ident">fmt::Result</span>
+<span class="kw">unsafe
+impl </span>LegacyCType
+    <span class="kw">for </span>c_char
+{ <span class="macro">__cfg_headers__! </span>{
+    <span class="kw">fn </span>c_short_name_fmt (fmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;)
+      -&gt; fmt::Result
     {
-        <span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="string">&quot;char&quot;</span>)
+        fmt.write_str(<span class="string">&quot;char&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">c_var_fmt</span> (
-        <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">var_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
-    ) -&gt; <span class="ident">fmt::Result</span>
+    <span class="kw">fn </span>c_var_fmt (
+        fmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;,
+        var_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>str,
+    ) -&gt; fmt::Result
     {
-        <span class="macro">write!</span>(<span class="ident">fmt</span>,
+        <span class="macro">write!</span>(fmt,
             <span class="string">&quot;char{sep}{}&quot;</span>,
-            <span class="ident">var_name</span>,
-            <span class="ident">sep</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">var_name</span>.<span class="ident">is_empty</span>() { <span class="string">&quot;&quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> },
+            var_name,
+            sep = <span class="kw">if </span>var_name.is_empty() { <span class="string">&quot;&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot; &quot; </span>},
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">c_define_self</span> (
-        <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident"><span class="kw">crate</span>::headers::Definer</span>,
-    ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">fn </span>c_define_self (
+        <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span><span class="kw">crate</span>::headers::Definer,
+    ) -&gt; io::Result&lt;()&gt;
     {
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="macro">__cfg_csharp__!</span> {
-        <span class="kw">fn</span> <span class="ident">csharp_define_self</span> (
-            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident"><span class="kw">crate</span>::headers::Definer</span>,
-        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="macro">__cfg_csharp__! </span>{
+        <span class="kw">fn </span>csharp_define_self (
+            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span><span class="kw">crate</span>::headers::Definer,
+        ) -&gt; io::Result&lt;()&gt;
         {
             <span class="prelude-val">Ok</span>(())
         }
 
-        <span class="kw">fn</span> <span class="ident">csharp_ty</span> ()
-          -&gt; <span class="ident">rust::String</span>
+        <span class="kw">fn </span>csharp_ty ()
+          -&gt; rust::String
         {
-            <span class="string">&quot;byte&quot;</span>.<span class="ident">into</span>()
+            <span class="string">&quot;byte&quot;</span>.into()
         }
     }
-} <span class="kw">type</span> <span class="ident">OPAQUE_KIND</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::layout::OpaqueKind::Concrete</span>; }
+} <span class="kw">type </span>OPAQUE_KIND = <span class="kw">crate</span>::layout::OpaqueKind::Concrete; }
 
-<span class="macro">from_CType_impl_ReprC!</span> {
-    <span class="ident">c_char</span>
+<span class="macro">from_CType_impl_ReprC! </span>{
+    c_char
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

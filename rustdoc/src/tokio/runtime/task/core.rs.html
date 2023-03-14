@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.18.1/src/runtime/task/core.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>core.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../tokio/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.26.0/src/runtime/task/core.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>core.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../tokio/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -274,277 +269,506 @@
 <span id="269">269</span>
 <span id="270">270</span>
 <span id="271">271</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Core task module.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Safety</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The functions in this module are private to the `task` module. All of them</span>
-<span class="doccomment">//! should be considered `unsafe` to use, but are not marked as such since it</span>
-<span class="doccomment">//! would be too noisy.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Make sure to consult the relevant safety section of each function before</span>
-<span class="doccomment">//! use.</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Core task module.
+//!
+//! # Safety
+//!
+//! The functions in this module are private to the `task` module. All of them
+//! should be considered `unsafe` to use, but are not marked as such since it
+//! would be too noisy.
+//!
+//! Make sure to consult the relevant safety section of each function before
+//! use.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::future::Future</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::loom::cell::UnsafeCell</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime::task::raw</span>::{<span class="self">self</span>, <span class="ident">Vtable</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime::task::state::State</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime::task</span>::{<span class="ident">Id</span>, <span class="ident">Schedule</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::util::linked_list</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::future::Future;
+<span class="kw">use </span><span class="kw">crate</span>::loom::cell::UnsafeCell;
+<span class="kw">use </span><span class="kw">crate</span>::runtime::context;
+<span class="kw">use </span><span class="kw">crate</span>::runtime::task::raw::{<span class="self">self</span>, Vtable};
+<span class="kw">use </span><span class="kw">crate</span>::runtime::task::state::State;
+<span class="kw">use </span><span class="kw">crate</span>::runtime::task::{Id, Schedule};
+<span class="kw">use </span><span class="kw">crate</span>::util::linked_list;
 
-<span class="kw">use</span> <span class="ident">std::pin::Pin</span>;
-<span class="kw">use</span> <span class="ident">std::ptr::NonNull</span>;
-<span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>};
+<span class="kw">use </span>std::pin::Pin;
+<span class="kw">use </span>std::ptr::NonNull;
+<span class="kw">use </span>std::task::{Context, Poll, Waker};
 
-<span class="doccomment">/// The task cell. Contains the components of the task.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// It is critical for `Header` to be the first field as the task structure will</span>
-<span class="doccomment">/// be referenced by both *mut Cell and *mut Header.</span>
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Future</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Hot task state data</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">header</span>: <span class="ident">Header</span>,
+<span class="doccomment">/// The task cell. Contains the components of the task.
+///
+/// It is critical for `Header` to be the first field as the task structure will
+/// be referenced by both *mut Cell and *mut Header.
+///
+/// Any changes to the layout of this struct _must_ also be reflected in the
+/// const fns in raw.rs.
+</span><span class="attribute">#[repr(C)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>Cell&lt;T: Future, S&gt; {
+    <span class="doccomment">/// Hot task state data
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) header: Header,
 
-    <span class="doccomment">/// Either the future or output, depending on the execution stage.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">core</span>: <span class="ident">Core</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Either the future or output, depending on the execution stage.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) core: Core&lt;T, S&gt;,
 
-    <span class="doccomment">/// Cold data</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">trailer</span>: <span class="ident">Trailer</span>,
+    <span class="doccomment">/// Cold data
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) trailer: Trailer,
 }
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">CoreStage</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Future</span><span class="op">&gt;</span> {
-    <span class="ident">stage</span>: <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">Stage</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>CoreStage&lt;T: Future&gt; {
+    stage: UnsafeCell&lt;Stage&lt;T&gt;&gt;,
 }
 
-<span class="doccomment">/// The core of the task.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Holds the future or output, depending on the stage of execution.</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">Core</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Future</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Scheduler used to drive this future.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">scheduler</span>: <span class="ident">S</span>,
+<span class="doccomment">/// The core of the task.
+///
+/// Holds the future or output, depending on the stage of execution.
+///
+/// Any changes to the layout of this struct _must_ also be reflected in the
+/// const fns in raw.rs.
+</span><span class="attribute">#[repr(C)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>Core&lt;T: Future, S&gt; {
+    <span class="doccomment">/// Scheduler used to drive this future.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) scheduler: S,
 
-    <span class="doccomment">/// Either the future or the output.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">stage</span>: <span class="ident">CoreStage</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The task&#39;s ID, used for populating `JoinError`s.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) task_id: Id,
 
-    <span class="doccomment">/// The task&#39;s ID, used for populating `JoinError`s.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">task_id</span>: <span class="ident">Id</span>,
+    <span class="doccomment">/// Either the future or the output.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) stage: CoreStage&lt;T&gt;,
 }
 
-<span class="doccomment">/// Crate public as this is also needed by the pool.</span>
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Header</span> {
-    <span class="doccomment">/// Task state.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">state</span>: <span class="ident">State</span>,
+<span class="doccomment">/// Crate public as this is also needed by the pool.
+</span><span class="attribute">#[repr(C)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Header {
+    <span class="doccomment">/// Task state.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) state: State,
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">owned</span>: <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">linked_list::Pointers</span><span class="op">&lt;</span><span class="ident">Header</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Pointer to next task, used with the injection queue.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) queue_next: UnsafeCell&lt;<span class="prelude-ty">Option</span>&lt;NonNull&lt;Header&gt;&gt;&gt;,
 
-    <span class="doccomment">/// Pointer to next task, used with the injection queue.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">queue_next</span>: <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">Header</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Table of function pointers for executing actions on the task.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) vtable: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Vtable,
 
-    <span class="doccomment">/// Table of function pointers for executing actions on the task.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">vtable</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Vtable</span>,
+    <span class="doccomment">/// This integer contains the id of the OwnedTasks or LocalOwnedTasks that
+    /// this task is stored in. If the task is not in any list, should be the
+    /// id of the list that it was previously in, or zero if it has never been
+    /// in any list.
+    ///
+    /// Once a task has been bound to a list, it can never be bound to another
+    /// list, even if removed from the first list.
+    ///
+    /// The id is not unset when removed from a list because we want to be able
+    /// to read the id without synchronization, even if it is concurrently being
+    /// removed from the list.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) owner_id: UnsafeCell&lt;u64&gt;,
 
-    <span class="doccomment">/// This integer contains the id of the OwnedTasks or LocalOwnedTasks that</span>
-    <span class="doccomment">/// this task is stored in. If the task is not in any list, should be the</span>
-    <span class="doccomment">/// id of the list that it was previously in, or zero if it has never been</span>
-    <span class="doccomment">/// in any list.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Once a task has been bound to a list, it can never be bound to another</span>
-    <span class="doccomment">/// list, even if removed from the first list.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The id is not unset when removed from a list because we want to be able</span>
-    <span class="doccomment">/// to read the id without synchronization, even if it is concurrently being</span>
-    <span class="doccomment">/// removed from the list.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">owner_id</span>: <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
-
-    <span class="doccomment">/// The tracing ID for this instrumented task.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">tokio_unstable</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>))]</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">tracing::Id</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The tracing ID for this instrumented task.
+    </span><span class="attribute">#[cfg(all(tokio_unstable, feature = <span class="string">&quot;tracing&quot;</span>))]
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) tracing_id: <span class="prelude-ty">Option</span>&lt;tracing::Id&gt;,
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">Header</span> {}
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">Header</span> {}
+<span class="kw">unsafe impl </span>Send <span class="kw">for </span>Header {}
+<span class="kw">unsafe impl </span>Sync <span class="kw">for </span>Header {}
 
-<span class="doccomment">/// Cold data is stored after the future.</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">Trailer</span> {
-    <span class="doccomment">/// Consumer task waiting on completion of this task.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">waker</span>: <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waker</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Cold data is stored after the future. Data is considered cold if it is only
+/// used during creation or shutdown of the task.
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>Trailer {
+    <span class="doccomment">/// Pointers for the linked list in the `OwnedTasks` that owns this task.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) owned: linked_list::Pointers&lt;Header&gt;,
+    <span class="doccomment">/// Consumer task waiting on completion of this task.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) waker: UnsafeCell&lt;<span class="prelude-ty">Option</span>&lt;Waker&gt;&gt;,
 }
 
-<span class="doccomment">/// Either the future or the output.</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum</span> <span class="ident">Stage</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Future</span><span class="op">&gt;</span> {
-    <span class="ident">Running</span>(<span class="ident">T</span>),
-    <span class="ident">Finished</span>(<span class="ident"><span class="kw">super</span>::Result</span><span class="op">&lt;</span><span class="ident">T::Output</span><span class="op">&gt;</span>),
-    <span class="ident">Consumed</span>,
+<span class="macro">generate_addr_of_methods! </span>{
+    <span class="kw">impl</span>&lt;&gt; Trailer {
+        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>addr_of_owned(<span class="self">self</span>: NonNull&lt;<span class="self">Self</span>&gt;) -&gt; NonNull&lt;linked_list::Pointers&lt;Header&gt;&gt; {
+            <span class="kw-2">&amp;</span><span class="self">self</span>.owned
+        }
+    }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Future</span>, <span class="ident">S</span>: <span class="ident">Schedule</span><span class="op">&gt;</span> <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Allocates a new task cell, containing the header, trailer, and core</span>
-    <span class="doccomment">/// structures.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">future</span>: <span class="ident">T</span>, <span class="ident">scheduler</span>: <span class="ident">S</span>, <span class="ident">state</span>: <span class="ident">State</span>, <span class="ident">task_id</span>: <span class="ident">Id</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">tokio_unstable</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>))]</span>
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">future</span>.<span class="ident">id</span>();
-        <span class="ident">Box::new</span>(<span class="ident">Cell</span> {
-            <span class="ident">header</span>: <span class="ident">Header</span> {
-                <span class="ident">state</span>,
-                <span class="ident">owned</span>: <span class="ident">UnsafeCell::new</span>(<span class="ident">linked_list::Pointers::new</span>()),
-                <span class="ident">queue_next</span>: <span class="ident">UnsafeCell::new</span>(<span class="prelude-val">None</span>),
-                <span class="ident">vtable</span>: <span class="ident">raw::vtable</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>(),
-                <span class="ident">owner_id</span>: <span class="ident">UnsafeCell::new</span>(<span class="number">0</span>),
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">tokio_unstable</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>))]</span>
-                <span class="ident">id</span>,
+<span class="doccomment">/// Either the future or the output.
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum </span>Stage&lt;T: Future&gt; {
+    Running(T),
+    Finished(<span class="kw">super</span>::Result&lt;T::Output&gt;),
+    Consumed,
+}
+
+<span class="kw">impl</span>&lt;T: Future, S: Schedule&gt; Cell&lt;T, S&gt; {
+    <span class="doccomment">/// Allocates a new task cell, containing the header, trailer, and core
+    /// structures.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(future: T, scheduler: S, state: State, task_id: Id) -&gt; Box&lt;Cell&lt;T, S&gt;&gt; {
+        <span class="attribute">#[cfg(all(tokio_unstable, feature = <span class="string">&quot;tracing&quot;</span>))]
+        </span><span class="kw">let </span>tracing_id = future.id();
+        <span class="kw">let </span>result = Box::new(Cell {
+            header: Header {
+                state,
+                queue_next: UnsafeCell::new(<span class="prelude-val">None</span>),
+                vtable: raw::vtable::&lt;T, S&gt;(),
+                owner_id: UnsafeCell::new(<span class="number">0</span>),
+                <span class="attribute">#[cfg(all(tokio_unstable, feature = <span class="string">&quot;tracing&quot;</span>))]
+                </span>tracing_id,
             },
-            <span class="ident">core</span>: <span class="ident">Core</span> {
-                <span class="ident">scheduler</span>,
-                <span class="ident">stage</span>: <span class="ident">CoreStage</span> {
-                    <span class="ident">stage</span>: <span class="ident">UnsafeCell::new</span>(<span class="ident">Stage::Running</span>(<span class="ident">future</span>)),
+            core: Core {
+                scheduler,
+                stage: CoreStage {
+                    stage: UnsafeCell::new(Stage::Running(future)),
                 },
-                <span class="ident">task_id</span>,
+                task_id,
             },
-            <span class="ident">trailer</span>: <span class="ident">Trailer</span> {
-                <span class="ident">waker</span>: <span class="ident">UnsafeCell::new</span>(<span class="prelude-val">None</span>),
+            trailer: Trailer {
+                waker: UnsafeCell::new(<span class="prelude-val">None</span>),
+                owned: linked_list::Pointers::new(),
             },
-        })
+        });
+
+        <span class="attribute">#[cfg(debug_assertions)]
+        </span>{
+            <span class="kw">let </span>trailer_addr = (<span class="kw-2">&amp;</span>result.trailer) <span class="kw">as </span><span class="kw-2">*const </span>Trailer <span class="kw">as </span>usize;
+            <span class="kw">let </span>trailer_ptr = <span class="kw">unsafe </span>{ Header::get_trailer(NonNull::from(<span class="kw-2">&amp;</span>result.header)) };
+            <span class="macro">assert_eq!</span>(trailer_addr, trailer_ptr.as_ptr() <span class="kw">as </span>usize);
+
+            <span class="kw">let </span>scheduler_addr = (<span class="kw-2">&amp;</span>result.core.scheduler) <span class="kw">as </span><span class="kw-2">*const </span>S <span class="kw">as </span>usize;
+            <span class="kw">let </span>scheduler_ptr =
+                <span class="kw">unsafe </span>{ Header::get_scheduler::&lt;S&gt;(NonNull::from(<span class="kw-2">&amp;</span>result.header)) };
+            <span class="macro">assert_eq!</span>(scheduler_addr, scheduler_ptr.as_ptr() <span class="kw">as </span>usize);
+
+            <span class="kw">let </span>id_addr = (<span class="kw-2">&amp;</span>result.core.task_id) <span class="kw">as </span><span class="kw-2">*const </span>Id <span class="kw">as </span>usize;
+            <span class="kw">let </span>id_ptr = <span class="kw">unsafe </span>{ Header::get_id_ptr(NonNull::from(<span class="kw-2">&amp;</span>result.header)) };
+            <span class="macro">assert_eq!</span>(id_addr, id_ptr.as_ptr() <span class="kw">as </span>usize);
+        }
+
+        result
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Future</span><span class="op">&gt;</span> <span class="ident">CoreStage</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">with_mut</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">FnOnce</span>(<span class="kw-2">*mut</span> <span class="ident">Stage</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">R</span>) -&gt; <span class="ident">R</span> {
-        <span class="self">self</span>.<span class="ident">stage</span>.<span class="ident">with_mut</span>(<span class="ident">f</span>)
+<span class="kw">impl</span>&lt;T: Future&gt; CoreStage&lt;T&gt; {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>with_mut&lt;R&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span>FnOnce(<span class="kw-2">*mut </span>Stage&lt;T&gt;) -&gt; R) -&gt; R {
+        <span class="self">self</span>.stage.with_mut(f)
     }
+}
 
-    <span class="doccomment">/// Polls the future.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The caller must ensure it is safe to mutate the `state` field. This</span>
-    <span class="doccomment">/// requires ensuring mutual exclusion between any concurrent thread that</span>
-    <span class="doccomment">/// might modify the future or output field.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The mutual exclusion is implemented by `Harness` and the `Lifecycle`</span>
-    <span class="doccomment">/// component of the task state.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `self` must also be pinned. This is handled by storing the task on the</span>
-    <span class="doccomment">/// heap.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">cx</span>: <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">T::Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> {
-            <span class="self">self</span>.<span class="ident">stage</span>.<span class="ident">with_mut</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> {
-                <span class="comment">// Safety: The caller ensures mutual exclusion to the field.</span>
-                <span class="kw">let</span> <span class="ident">future</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">ptr</span> } {
-                    <span class="ident">Stage::Running</span>(<span class="ident">future</span>) =&gt; <span class="ident">future</span>,
-                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;unexpected stage&quot;</span>),
+<span class="doccomment">/// Set and clear the task id in the context when the future is executed or
+/// dropped, or when the output produced by the future is dropped.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>TaskIdGuard {
+    parent_task_id: <span class="prelude-ty">Option</span>&lt;Id&gt;,
+}
+
+<span class="kw">impl </span>TaskIdGuard {
+    <span class="kw">fn </span>enter(id: Id) -&gt; <span class="self">Self </span>{
+        TaskIdGuard {
+            parent_task_id: context::set_current_task_id(<span class="prelude-val">Some</span>(id)),
+        }
+    }
+}
+
+<span class="kw">impl </span>Drop <span class="kw">for </span>TaskIdGuard {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        context::set_current_task_id(<span class="self">self</span>.parent_task_id);
+    }
+}
+
+<span class="kw">impl</span>&lt;T: Future, S: Schedule&gt; Core&lt;T, S&gt; {
+    <span class="doccomment">/// Polls the future.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure it is safe to mutate the `state` field. This
+    /// requires ensuring mutual exclusion between any concurrent thread that
+    /// might modify the future or output field.
+    ///
+    /// The mutual exclusion is implemented by `Harness` and the `Lifecycle`
+    /// component of the task state.
+    ///
+    /// `self` must also be pinned. This is handled by storing the task on the
+    /// heap.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>poll(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>cx: Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;T::Output&gt; {
+        <span class="kw">let </span>res = {
+            <span class="self">self</span>.stage.stage.with_mut(|ptr| {
+                <span class="comment">// Safety: The caller ensures mutual exclusion to the field.
+                </span><span class="kw">let </span>future = <span class="kw">match unsafe </span>{ <span class="kw-2">&amp;mut *</span>ptr } {
+                    Stage::Running(future) =&gt; future,
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;unexpected stage&quot;</span>),
                 };
 
-                <span class="comment">// Safety: The caller ensures the future is pinned.</span>
-                <span class="kw">let</span> <span class="ident">future</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">Pin::new_unchecked</span>(<span class="ident">future</span>) };
+                <span class="comment">// Safety: The caller ensures the future is pinned.
+                </span><span class="kw">let </span>future = <span class="kw">unsafe </span>{ Pin::new_unchecked(future) };
 
-                <span class="ident">future</span>.<span class="ident">poll</span>(<span class="kw-2">&amp;mut</span> <span class="ident">cx</span>)
+                <span class="kw">let </span>_guard = TaskIdGuard::enter(<span class="self">self</span>.task_id);
+                future.poll(<span class="kw-2">&amp;mut </span>cx)
             })
         };
 
-        <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">is_ready</span>() {
-            <span class="self">self</span>.<span class="ident">drop_future_or_output</span>();
+        <span class="kw">if </span>res.is_ready() {
+            <span class="self">self</span>.drop_future_or_output();
         }
 
-        <span class="ident">res</span>
+        res
     }
 
-    <span class="doccomment">/// Drops the future.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The caller must ensure it is safe to mutate the `stage` field.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">drop_future_or_output</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="comment">// Safety: the caller ensures mutual exclusion to the field.</span>
-        <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">set_stage</span>(<span class="ident">Stage::Consumed</span>);
-        }
-    }
-
-    <span class="doccomment">/// Stores the task output.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The caller must ensure it is safe to mutate the `stage` field.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">store_output</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="ident"><span class="kw">super</span>::Result</span><span class="op">&lt;</span><span class="ident">T::Output</span><span class="op">&gt;</span>) {
-        <span class="comment">// Safety: the caller ensures mutual exclusion to the field.</span>
-        <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">set_stage</span>(<span class="ident">Stage::Finished</span>(<span class="ident">output</span>));
+    <span class="doccomment">/// Drops the future.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure it is safe to mutate the `stage` field.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>drop_future_or_output(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="comment">// Safety: the caller ensures mutual exclusion to the field.
+        </span><span class="kw">unsafe </span>{
+            <span class="self">self</span>.set_stage(Stage::Consumed);
         }
     }
 
-    <span class="doccomment">/// Takes the task output.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The caller must ensure it is safe to mutate the `stage` field.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">take_output</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">super</span>::Result</span><span class="op">&lt;</span><span class="ident">T::Output</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std::mem</span>;
+    <span class="doccomment">/// Stores the task output.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure it is safe to mutate the `stage` field.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>store_output(<span class="kw-2">&amp;</span><span class="self">self</span>, output: <span class="kw">super</span>::Result&lt;T::Output&gt;) {
+        <span class="comment">// Safety: the caller ensures mutual exclusion to the field.
+        </span><span class="kw">unsafe </span>{
+            <span class="self">self</span>.set_stage(Stage::Finished(output));
+        }
+    }
 
-        <span class="self">self</span>.<span class="ident">stage</span>.<span class="ident">with_mut</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> {
-            <span class="comment">// Safety:: the caller ensures mutual exclusion to the field.</span>
-            <span class="kw">match</span> <span class="ident">mem::replace</span>(<span class="kw">unsafe</span> { <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">ptr</span> }, <span class="ident">Stage::Consumed</span>) {
-                <span class="ident">Stage::Finished</span>(<span class="ident">output</span>) =&gt; <span class="ident">output</span>,
-                <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;JoinHandle polled after completion&quot;</span>),
+    <span class="doccomment">/// Takes the task output.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure it is safe to mutate the `stage` field.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>take_output(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">super</span>::Result&lt;T::Output&gt; {
+        <span class="kw">use </span>std::mem;
+
+        <span class="self">self</span>.stage.stage.with_mut(|ptr| {
+            <span class="comment">// Safety:: the caller ensures mutual exclusion to the field.
+            </span><span class="kw">match </span>mem::replace(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>ptr }, Stage::Consumed) {
+                Stage::Finished(output) =&gt; output,
+                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;JoinHandle polled after completion&quot;</span>),
             }
         })
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set_stage</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stage</span>: <span class="ident">Stage</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">stage</span>.<span class="ident">with_mut</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">ptr</span> <span class="op">=</span> <span class="ident">stage</span>)
+    <span class="kw">unsafe fn </span>set_stage(<span class="kw-2">&amp;</span><span class="self">self</span>, stage: Stage&lt;T&gt;) {
+        <span class="kw">let </span>_guard = TaskIdGuard::enter(<span class="self">self</span>.task_id);
+        <span class="self">self</span>.stage.stage.with_mut(|ptr| <span class="kw-2">*</span>ptr = stage)
     }
 }
 
-<span class="macro">cfg_rt_multi_thread!</span> {
-    <span class="kw">impl</span> <span class="ident">Header</span> {
-        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">next</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">Header</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-            <span class="self">self</span>.<span class="ident">queue_next</span>.<span class="ident">with_mut</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">ptr</span> <span class="op">=</span> <span class="ident">next</span>);
+<span class="macro">cfg_rt_multi_thread! </span>{
+    <span class="kw">impl </span>Header {
+        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>set_next(<span class="kw-2">&amp;</span><span class="self">self</span>, next: <span class="prelude-ty">Option</span>&lt;NonNull&lt;Header&gt;&gt;) {
+            <span class="self">self</span>.queue_next.with_mut(|ptr| <span class="kw-2">*</span>ptr = next);
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Header</span> {
-    <span class="comment">// safety: The caller must guarantee exclusive access to this field, and</span>
-    <span class="comment">// must ensure that the id is either 0 or the id of the OwnedTasks</span>
-    <span class="comment">// containing this task.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set_owner_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">owner</span>: <span class="ident">u64</span>) {
-        <span class="self">self</span>.<span class="ident">owner_id</span>.<span class="ident">with_mut</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">ptr</span> <span class="op">=</span> <span class="ident">owner</span>);
+<span class="kw">impl </span>Header {
+    <span class="comment">// safety: The caller must guarantee exclusive access to this field, and
+    // must ensure that the id is either 0 or the id of the OwnedTasks
+    // containing this task.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>set_owner_id(<span class="kw-2">&amp;</span><span class="self">self</span>, owner: u64) {
+        <span class="self">self</span>.owner_id.with_mut(|ptr| <span class="kw-2">*</span>ptr = owner);
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_owner_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
-        <span class="comment">// safety: If there are concurrent writes, then that write has violated</span>
-        <span class="comment">// the safety requirements on `set_owner_id`.</span>
-        <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">owner_id</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">ptr</span>) }
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>get_owner_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="comment">// safety: If there are concurrent writes, then that write has violated
+        // the safety requirements on `set_owner_id`.
+        </span><span class="kw">unsafe </span>{ <span class="self">self</span>.owner_id.with(|ptr| <span class="kw-2">*</span>ptr) }
+    }
+
+    <span class="doccomment">/// Gets a pointer to the `Trailer` of the task containing this `Header`.
+    ///
+    /// # Safety
+    ///
+    /// The provided raw pointer must point at the header of a task.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>get_trailer(me: NonNull&lt;Header&gt;) -&gt; NonNull&lt;Trailer&gt; {
+        <span class="kw">let </span>offset = me.as_ref().vtable.trailer_offset;
+        <span class="kw">let </span>trailer = me.as_ptr().cast::&lt;u8&gt;().add(offset).cast::&lt;Trailer&gt;();
+        NonNull::new_unchecked(trailer)
+    }
+
+    <span class="doccomment">/// Gets a pointer to the scheduler of the task containing this `Header`.
+    ///
+    /// # Safety
+    ///
+    /// The provided raw pointer must point at the header of a task.
+    ///
+    /// The generic type S must be set to the correct scheduler type for this
+    /// task.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>get_scheduler&lt;S&gt;(me: NonNull&lt;Header&gt;) -&gt; NonNull&lt;S&gt; {
+        <span class="kw">let </span>offset = me.as_ref().vtable.scheduler_offset;
+        <span class="kw">let </span>scheduler = me.as_ptr().cast::&lt;u8&gt;().add(offset).cast::&lt;S&gt;();
+        NonNull::new_unchecked(scheduler)
+    }
+
+    <span class="doccomment">/// Gets a pointer to the id of the task containing this `Header`.
+    ///
+    /// # Safety
+    ///
+    /// The provided raw pointer must point at the header of a task.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>get_id_ptr(me: NonNull&lt;Header&gt;) -&gt; NonNull&lt;Id&gt; {
+        <span class="kw">let </span>offset = me.as_ref().vtable.id_offset;
+        <span class="kw">let </span>id = me.as_ptr().cast::&lt;u8&gt;().add(offset).cast::&lt;Id&gt;();
+        NonNull::new_unchecked(id)
+    }
+
+    <span class="doccomment">/// Gets the id of the task containing this `Header`.
+    ///
+    /// # Safety
+    ///
+    /// The provided raw pointer must point at the header of a task.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>get_id(me: NonNull&lt;Header&gt;) -&gt; Id {
+        <span class="kw">let </span>ptr = Header::get_id_ptr(me).as_ptr();
+        <span class="kw-2">*</span>ptr
+    }
+
+    <span class="doccomment">/// Gets the tracing id of the task containing this `Header`.
+    ///
+    /// # Safety
+    ///
+    /// The provided raw pointer must point at the header of a task.
+    </span><span class="attribute">#[cfg(all(tokio_unstable, feature = <span class="string">&quot;tracing&quot;</span>))]
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>get_tracing_id(me: <span class="kw-2">&amp;</span>NonNull&lt;Header&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>tracing::Id&gt; {
+        me.as_ref().tracing_id.as_ref()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Trailer</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set_waker</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">waker</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waker</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">waker</span>.<span class="ident">with_mut</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> {
-            <span class="kw-2">*</span><span class="ident">ptr</span> <span class="op">=</span> <span class="ident">waker</span>;
+<span class="kw">impl </span>Trailer {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>set_waker(<span class="kw-2">&amp;</span><span class="self">self</span>, waker: <span class="prelude-ty">Option</span>&lt;Waker&gt;) {
+        <span class="self">self</span>.waker.with_mut(|ptr| {
+            <span class="kw-2">*</span>ptr = waker;
         });
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">will_wake</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">waker</span>: <span class="kw-2">&amp;</span><span class="ident">Waker</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">waker</span>
-            .<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> (<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">will_wake</span>(<span class="ident">waker</span>))
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>will_wake(<span class="kw-2">&amp;</span><span class="self">self</span>, waker: <span class="kw-2">&amp;</span>Waker) -&gt; bool {
+        <span class="self">self</span>.waker
+            .with(|ptr| (<span class="kw-2">*</span>ptr).as_ref().unwrap().will_wake(waker))
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">wake_join</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">waker</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw">match</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">ptr</span> } {
-            <span class="prelude-val">Some</span>(<span class="ident">waker</span>) =&gt; <span class="ident">waker</span>.<span class="ident">wake_by_ref</span>(),
-            <span class="prelude-val">None</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;waker missing&quot;</span>),
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>wake_join(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.waker.with(|ptr| <span class="kw">match unsafe </span>{ <span class="kw-2">&amp;*</span>ptr } {
+            <span class="prelude-val">Some</span>(waker) =&gt; waker.wake_by_ref(),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;waker missing&quot;</span>),
         });
     }
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">loom</span>))]</span>
-<span class="kw">fn</span> <span class="ident">header_lte_cache_line</span>() {
-    <span class="kw">use</span> <span class="ident">std::mem::size_of</span>;
+<span class="attribute">#[test]
+#[cfg(not(loom))]
+</span><span class="kw">fn </span>header_lte_cache_line() {
+    <span class="kw">use </span>std::mem::size_of;
 
-    <span class="macro">assert!</span>(<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">Header</span><span class="op">&gt;</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">8</span> <span class="op">*</span> <span class="ident">size_of</span>::<span class="op">&lt;</span><span class="kw-2">*const</span> ()<span class="op">&gt;</span>());
+    <span class="macro">assert!</span>(size_of::&lt;Header&gt;() &lt;= <span class="number">8 </span>* size_of::&lt;<span class="kw-2">*const </span>()&gt;());
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="tokio" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="tokio" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

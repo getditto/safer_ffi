@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":[["dyn_drop",""],["futures","See the dedicated secion of the guide."]],"struct":[["ErasedRef","C Layout"],["ErasedTy",""],["VirtualPtr","C Layout"]],"trait":[["DynClone",""],["ReprCTrait",""],["VirtualPtrFrom",""]]};

@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/prettyplease-0.1.10/src/mac.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mac.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../prettyplease/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../prettyplease/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../prettyplease/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/prettyplease-0.1.24/src/mac.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mac.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../prettyplease/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -223,226 +218,225 @@
 <span id="218">218</span>
 <span id="219">219</span>
 <span id="220">220</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::algorithm::Printer</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::token::Token</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::INDENT</span>;
-<span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Delimiter</span>, <span class="ident">Spacing</span>, <span class="ident">TokenStream</span>};
-<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">Ident</span>, <span class="ident">Macro</span>, <span class="ident">MacroDelimiter</span>, <span class="ident">PathArguments</span>};
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::algorithm::Printer;
+<span class="kw">use </span><span class="kw">crate</span>::token::Token;
+<span class="kw">use </span><span class="kw">crate</span>::INDENT;
+<span class="kw">use </span>proc_macro2::{Delimiter, Spacing, TokenStream};
+<span class="kw">use </span>syn::{Ident, Macro, MacroDelimiter, PathArguments};
 
-<span class="kw">impl</span> <span class="ident">Printer</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mac</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">mac</span>: <span class="kw-2">&amp;</span><span class="ident">Macro</span>, <span class="ident">ident</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Ident</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">is_macro_rules</span> <span class="op">=</span> <span class="ident">mac</span>.<span class="ident">path</span>.<span class="ident">leading_colon</span>.<span class="ident">is_none</span>()
-            <span class="op">&amp;&amp;</span> <span class="ident">mac</span>.<span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span>
-            <span class="op">&amp;&amp;</span> <span class="macro">matches!</span>(<span class="ident">mac</span>.<span class="ident">path</span>.<span class="ident">segments</span>[<span class="number">0</span>].<span class="ident">arguments</span>, <span class="ident">PathArguments::None</span>)
-            <span class="op">&amp;&amp;</span> <span class="ident">mac</span>.<span class="ident">path</span>.<span class="ident">segments</span>[<span class="number">0</span>].<span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;macro_rules&quot;</span>;
-        <span class="kw">if</span> <span class="ident">is_macro_rules</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="ident">ident</span> {
-                <span class="self">self</span>.<span class="ident">macro_rules</span>(<span class="ident">ident</span>, <span class="kw-2">&amp;</span><span class="ident">mac</span>.<span class="ident">tokens</span>);
+<span class="kw">impl </span>Printer {
+    <span class="kw">pub fn </span>mac(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mac: <span class="kw-2">&amp;</span>Macro, ident: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Ident&gt;) {
+        <span class="kw">let </span>is_macro_rules = mac.path.leading_colon.is_none()
+            &amp;&amp; mac.path.segments.len() == <span class="number">1
+            </span>&amp;&amp; <span class="macro">matches!</span>(mac.path.segments[<span class="number">0</span>].arguments, PathArguments::None)
+            &amp;&amp; mac.path.segments[<span class="number">0</span>].ident == <span class="string">&quot;macro_rules&quot;</span>;
+        <span class="kw">if </span>is_macro_rules {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(ident) = ident {
+                <span class="self">self</span>.macro_rules(ident, <span class="kw-2">&amp;</span>mac.tokens);
                 <span class="kw">return</span>;
             }
         }
-        <span class="self">self</span>.<span class="ident">path</span>(<span class="kw-2">&amp;</span><span class="ident">mac</span>.<span class="ident">path</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;!&quot;</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="ident">ident</span> {
-            <span class="self">self</span>.<span class="ident">nbsp</span>();
-            <span class="self">self</span>.<span class="ident">ident</span>(<span class="ident">ident</span>);
+        <span class="self">self</span>.path(<span class="kw-2">&amp;</span>mac.path);
+        <span class="self">self</span>.word(<span class="string">&quot;!&quot;</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(ident) = ident {
+            <span class="self">self</span>.nbsp();
+            <span class="self">self</span>.ident(ident);
         }
-        <span class="kw">let</span> (<span class="ident">open</span>, <span class="ident">close</span>, <span class="ident">delimiter_break</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">mac</span>.<span class="ident">delimiter</span> {
-            <span class="ident">MacroDelimiter::Paren</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="ident"><span class="self">Self</span>::zerobreak</span> <span class="kw">as</span> <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>)),
-            <span class="ident">MacroDelimiter::Brace</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot; {&quot;</span>, <span class="string">&quot;}&quot;</span>, <span class="ident"><span class="self">Self</span>::hardbreak</span> <span class="kw">as</span> <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>)),
-            <span class="ident">MacroDelimiter::Bracket</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;[&quot;</span>, <span class="string">&quot;]&quot;</span>, <span class="ident"><span class="self">Self</span>::zerobreak</span> <span class="kw">as</span> <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>)),
+        <span class="kw">let </span>(open, close, delimiter_break) = <span class="kw">match </span>mac.delimiter {
+            MacroDelimiter::Paren(<span class="kw">_</span>) =&gt; (<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="self">Self</span>::zerobreak <span class="kw">as fn</span>(<span class="kw-2">&amp;mut </span><span class="self">Self</span>)),
+            MacroDelimiter::Brace(<span class="kw">_</span>) =&gt; (<span class="string">&quot; {&quot;</span>, <span class="string">&quot;}&quot;</span>, <span class="self">Self</span>::hardbreak <span class="kw">as fn</span>(<span class="kw-2">&amp;mut </span><span class="self">Self</span>)),
+            MacroDelimiter::Bracket(<span class="kw">_</span>) =&gt; (<span class="string">&quot;[&quot;</span>, <span class="string">&quot;]&quot;</span>, <span class="self">Self</span>::zerobreak <span class="kw">as fn</span>(<span class="kw-2">&amp;mut </span><span class="self">Self</span>)),
         };
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="ident">open</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="ident">delimiter_break</span>(<span class="self">self</span>);
-        <span class="self">self</span>.<span class="ident">ibox</span>(<span class="number">0</span>);
-        <span class="self">self</span>.<span class="ident">macro_rules_tokens</span>(<span class="ident">mac</span>.<span class="ident">tokens</span>.<span class="ident">clone</span>(), <span class="bool-val">false</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="ident">delimiter_break</span>(<span class="self">self</span>);
-        <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="ident">close</span>);
+        <span class="self">self</span>.word(open);
+        <span class="self">self</span>.cbox(INDENT);
+        delimiter_break(<span class="self">self</span>);
+        <span class="self">self</span>.ibox(<span class="number">0</span>);
+        <span class="self">self</span>.macro_rules_tokens(mac.tokens.clone(), <span class="bool-val">false</span>);
+        <span class="self">self</span>.end();
+        delimiter_break(<span class="self">self</span>);
+        <span class="self">self</span>.offset(-INDENT);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.word(close);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mac_semi_if_needed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">delimiter</span>: <span class="kw-2">&amp;</span><span class="ident">MacroDelimiter</span>) {
-        <span class="kw">match</span> <span class="ident">delimiter</span> {
-            <span class="ident">MacroDelimiter::Paren</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">MacroDelimiter::Bracket</span>(<span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;;&quot;</span>),
-            <span class="ident">MacroDelimiter::Brace</span>(<span class="kw">_</span>) =&gt; {}
+    <span class="kw">pub fn </span>mac_semi_if_needed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, delimiter: <span class="kw-2">&amp;</span>MacroDelimiter) {
+        <span class="kw">match </span>delimiter {
+            MacroDelimiter::Paren(<span class="kw">_</span>) | MacroDelimiter::Bracket(<span class="kw">_</span>) =&gt; <span class="self">self</span>.word(<span class="string">&quot;;&quot;</span>),
+            MacroDelimiter::Brace(<span class="kw">_</span>) =&gt; {}
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">macro_rules</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>, <span class="ident">rules</span>: <span class="kw-2">&amp;</span><span class="ident">TokenStream</span>) {
-        <span class="kw">enum</span> <span class="ident">State</span> {
-            <span class="ident">Start</span>,
-            <span class="ident">Matcher</span>,
-            <span class="ident">Equal</span>,
-            <span class="ident">Greater</span>,
-            <span class="ident">Expander</span>,
+    <span class="kw">fn </span>macro_rules(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>Ident, rules: <span class="kw-2">&amp;</span>TokenStream) {
+        <span class="kw">enum </span>State {
+            Start,
+            Matcher,
+            Equal,
+            Greater,
+            Expander,
         }
 
-        <span class="kw">use</span> <span class="ident">State</span>::<span class="kw-2">*</span>;
+        <span class="kw">use </span>State::<span class="kw-2">*</span>;
 
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;macro_rules! &quot;</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>(<span class="ident">name</span>);
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot; {&quot;</span>);
-        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">hardbreak_if_nonempty</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::Start</span>;
-        <span class="kw">for</span> <span class="ident">tt</span> <span class="kw">in</span> <span class="ident">rules</span>.<span class="ident">clone</span>() {
-            <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">Token::from</span>(<span class="ident">tt</span>);
-            <span class="kw">match</span> (<span class="ident">state</span>, <span class="ident">token</span>) {
-                (<span class="ident">Start</span>, <span class="ident">Token::Group</span>(<span class="ident">delimiter</span>, <span class="ident">stream</span>)) =&gt; {
-                    <span class="self">self</span>.<span class="ident">delimiter_open</span>(<span class="ident">delimiter</span>);
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">stream</span>.<span class="ident">is_empty</span>() {
-                        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-                        <span class="self">self</span>.<span class="ident">zerobreak</span>();
-                        <span class="self">self</span>.<span class="ident">ibox</span>(<span class="number">0</span>);
-                        <span class="self">self</span>.<span class="ident">macro_rules_tokens</span>(<span class="ident">stream</span>, <span class="bool-val">true</span>);
-                        <span class="self">self</span>.<span class="ident">end</span>();
-                        <span class="self">self</span>.<span class="ident">zerobreak</span>();
-                        <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-                        <span class="self">self</span>.<span class="ident">end</span>();
+        <span class="self">self</span>.word(<span class="string">&quot;macro_rules! &quot;</span>);
+        <span class="self">self</span>.ident(name);
+        <span class="self">self</span>.word(<span class="string">&quot; {&quot;</span>);
+        <span class="self">self</span>.cbox(INDENT);
+        <span class="self">self</span>.hardbreak_if_nonempty();
+        <span class="kw">let </span><span class="kw-2">mut </span>state = State::Start;
+        <span class="kw">for </span>tt <span class="kw">in </span>rules.clone() {
+            <span class="kw">let </span>token = Token::from(tt);
+            <span class="kw">match </span>(state, token) {
+                (Start, Token::Group(delimiter, stream)) =&gt; {
+                    <span class="self">self</span>.delimiter_open(delimiter);
+                    <span class="kw">if </span>!stream.is_empty() {
+                        <span class="self">self</span>.cbox(INDENT);
+                        <span class="self">self</span>.zerobreak();
+                        <span class="self">self</span>.ibox(<span class="number">0</span>);
+                        <span class="self">self</span>.macro_rules_tokens(stream, <span class="bool-val">true</span>);
+                        <span class="self">self</span>.end();
+                        <span class="self">self</span>.zerobreak();
+                        <span class="self">self</span>.offset(-INDENT);
+                        <span class="self">self</span>.end();
                     }
-                    <span class="self">self</span>.<span class="ident">delimiter_close</span>(<span class="ident">delimiter</span>);
-                    <span class="ident">state</span> <span class="op">=</span> <span class="ident">Matcher</span>;
+                    <span class="self">self</span>.delimiter_close(delimiter);
+                    state = Matcher;
                 }
-                (<span class="ident">Matcher</span>, <span class="ident">Token::Punct</span>(<span class="string">&#39;=&#39;</span>, <span class="ident">Spacing::Joint</span>)) =&gt; {
-                    <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot; =&quot;</span>);
-                    <span class="ident">state</span> <span class="op">=</span> <span class="ident">Equal</span>;
+                (Matcher, Token::Punct(<span class="string">&#39;=&#39;</span>, Spacing::Joint)) =&gt; {
+                    <span class="self">self</span>.word(<span class="string">&quot; =&quot;</span>);
+                    state = Equal;
                 }
-                (<span class="ident">Equal</span>, <span class="ident">Token::Punct</span>(<span class="string">&#39;&gt;&#39;</span>, <span class="ident">Spacing::Alone</span>)) =&gt; {
-                    <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;&gt;&quot;</span>);
-                    <span class="ident">state</span> <span class="op">=</span> <span class="ident">Greater</span>;
+                (Equal, Token::Punct(<span class="string">&#39;&gt;&#39;</span>, Spacing::Alone)) =&gt; {
+                    <span class="self">self</span>.word(<span class="string">&quot;&gt;&quot;</span>);
+                    state = Greater;
                 }
-                (<span class="ident">Greater</span>, <span class="ident">Token::Group</span>(<span class="ident">_delimiter</span>, <span class="ident">stream</span>)) =&gt; {
-                    <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot; {&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">neverbreak</span>();
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">stream</span>.<span class="ident">is_empty</span>() {
-                        <span class="self">self</span>.<span class="ident">cbox</span>(<span class="ident">INDENT</span>);
-                        <span class="self">self</span>.<span class="ident">hardbreak</span>();
-                        <span class="self">self</span>.<span class="ident">ibox</span>(<span class="number">0</span>);
-                        <span class="self">self</span>.<span class="ident">macro_rules_tokens</span>(<span class="ident">stream</span>, <span class="bool-val">false</span>);
-                        <span class="self">self</span>.<span class="ident">end</span>();
-                        <span class="self">self</span>.<span class="ident">hardbreak</span>();
-                        <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-                        <span class="self">self</span>.<span class="ident">end</span>();
+                (Greater, Token::Group(_delimiter, stream)) =&gt; {
+                    <span class="self">self</span>.word(<span class="string">&quot; {&quot;</span>);
+                    <span class="self">self</span>.neverbreak();
+                    <span class="kw">if </span>!stream.is_empty() {
+                        <span class="self">self</span>.cbox(INDENT);
+                        <span class="self">self</span>.hardbreak();
+                        <span class="self">self</span>.ibox(<span class="number">0</span>);
+                        <span class="self">self</span>.macro_rules_tokens(stream, <span class="bool-val">false</span>);
+                        <span class="self">self</span>.end();
+                        <span class="self">self</span>.hardbreak();
+                        <span class="self">self</span>.offset(-INDENT);
+                        <span class="self">self</span>.end();
                     }
-                    <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;}&quot;</span>);
-                    <span class="ident">state</span> <span class="op">=</span> <span class="ident">Expander</span>;
+                    <span class="self">self</span>.word(<span class="string">&quot;}&quot;</span>);
+                    state = Expander;
                 }
-                (<span class="ident">Expander</span>, <span class="ident">Token::Punct</span>(<span class="string">&#39;;&#39;</span>, <span class="ident">Spacing::Alone</span>)) =&gt; {
-                    <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;;&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">hardbreak</span>();
-                    <span class="ident">state</span> <span class="op">=</span> <span class="ident">Start</span>;
+                (Expander, Token::Punct(<span class="string">&#39;;&#39;</span>, Spacing::Alone)) =&gt; {
+                    <span class="self">self</span>.word(<span class="string">&quot;;&quot;</span>);
+                    <span class="self">self</span>.hardbreak();
+                    state = Start;
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;bad macro_rules syntax&quot;</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;bad macro_rules syntax&quot;</span>),
             }
         }
-        <span class="kw">match</span> <span class="ident">state</span> {
-            <span class="ident">Start</span> =&gt; {}
-            <span class="ident">Expander</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;;&quot;</span>);
-                <span class="self">self</span>.<span class="ident">hardbreak</span>();
+        <span class="kw">match </span>state {
+            Start =&gt; {}
+            Expander =&gt; {
+                <span class="self">self</span>.word(<span class="string">&quot;;&quot;</span>);
+                <span class="self">self</span>.hardbreak();
             }
-            <span class="kw">_</span> =&gt; <span class="self">self</span>.<span class="ident">hardbreak</span>(),
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.hardbreak(),
         }
-        <span class="self">self</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">INDENT</span>);
-        <span class="self">self</span>.<span class="ident">end</span>();
-        <span class="self">self</span>.<span class="ident">word</span>(<span class="string">&quot;}&quot;</span>);
+        <span class="self">self</span>.offset(-INDENT);
+        <span class="self">self</span>.end();
+        <span class="self">self</span>.word(<span class="string">&quot;}&quot;</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">macro_rules_tokens</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stream</span>: <span class="ident">TokenStream</span>, <span class="ident">matcher</span>: <span class="ident">bool</span>) {
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-        <span class="kw">enum</span> <span class="ident">State</span> {
-            <span class="ident">Start</span>,
-            <span class="ident">Dollar</span>,
-            <span class="ident">DollarIdent</span>,
-            <span class="ident">DollarIdentColon</span>,
-            <span class="ident">DollarParen</span>,
-            <span class="ident">DollarParenSep</span>,
-            <span class="ident">Pound</span>,
-            <span class="ident">PoundBang</span>,
-            <span class="ident">Dot</span>,
-            <span class="ident">Colon</span>,
-            <span class="ident">Colon2</span>,
-            <span class="ident">Ident</span>,
-            <span class="ident">IdentBang</span>,
-            <span class="ident">Delim</span>,
-            <span class="ident">Other</span>,
+    <span class="kw">fn </span>macro_rules_tokens(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stream: TokenStream, matcher: bool) {
+        <span class="attribute">#[derive(PartialEq)]
+        </span><span class="kw">enum </span>State {
+            Start,
+            Dollar,
+            DollarIdent,
+            DollarIdentColon,
+            DollarParen,
+            DollarParenSep,
+            Pound,
+            PoundBang,
+            Dot,
+            Colon,
+            Colon2,
+            Ident,
+            IdentBang,
+            Delim,
+            Other,
         }
 
-        <span class="kw">use</span> <span class="ident">State</span>::<span class="kw-2">*</span>;
+        <span class="kw">use </span>State::<span class="kw-2">*</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">Start</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">previous_is_joint</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">for</span> <span class="ident">tt</span> <span class="kw">in</span> <span class="ident">stream</span> {
-            <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">Token::from</span>(<span class="ident">tt</span>);
-            <span class="kw">let</span> (<span class="ident">needs_space</span>, <span class="ident">next_state</span>) <span class="op">=</span> <span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">token</span>) {
-                (<span class="ident">Dollar</span>, <span class="ident">Token::Ident</span>(<span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, <span class="kw">if</span> <span class="ident">matcher</span> { <span class="ident">DollarIdent</span> } <span class="kw">else</span> { <span class="ident">Other</span> }),
-                (<span class="ident">DollarIdent</span>, <span class="ident">Token::Punct</span>(<span class="string">&#39;:&#39;</span>, <span class="ident">Spacing::Alone</span>)) =&gt; (<span class="bool-val">false</span>, <span class="ident">DollarIdentColon</span>),
-                (<span class="ident">DollarIdentColon</span>, <span class="ident">Token::Ident</span>(<span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, <span class="ident">Other</span>),
-                (<span class="ident">DollarParen</span>, <span class="ident">Token::Punct</span>(<span class="string">&#39;+&#39;</span> <span class="op">|</span> <span class="string">&#39;*&#39;</span> <span class="op">|</span> <span class="string">&#39;?&#39;</span>, <span class="ident">Spacing::Alone</span>)) =&gt; (<span class="bool-val">false</span>, <span class="ident">Other</span>),
-                (<span class="ident">DollarParen</span>, <span class="ident">Token::Ident</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Token::Literal</span>(<span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, <span class="ident">DollarParenSep</span>),
-                (<span class="ident">DollarParen</span>, <span class="ident">Token::Punct</span>(<span class="kw">_</span>, <span class="ident">Spacing::Joint</span>)) =&gt; (<span class="bool-val">false</span>, <span class="ident">DollarParen</span>),
-                (<span class="ident">DollarParen</span>, <span class="ident">Token::Punct</span>(<span class="kw">_</span>, <span class="ident">Spacing::Alone</span>)) =&gt; (<span class="bool-val">false</span>, <span class="ident">DollarParenSep</span>),
-                (<span class="ident">DollarParenSep</span>, <span class="ident">Token::Punct</span>(<span class="string">&#39;+&#39;</span> <span class="op">|</span> <span class="string">&#39;*&#39;</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, <span class="ident">Other</span>),
-                (<span class="ident">Pound</span>, <span class="ident">Token::Punct</span>(<span class="string">&#39;!&#39;</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, <span class="ident">PoundBang</span>),
-                (<span class="ident">Dollar</span>, <span class="ident">Token::Group</span>(<span class="ident">Delimiter::Parenthesis</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, <span class="ident">DollarParen</span>),
-                (<span class="ident">Pound</span> <span class="op">|</span> <span class="ident">PoundBang</span>, <span class="ident">Token::Group</span>(<span class="ident">Delimiter::Bracket</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, <span class="ident">Other</span>),
-                (<span class="ident">Ident</span>, <span class="ident">Token::Group</span>(<span class="ident">Delimiter::Parenthesis</span> <span class="op">|</span> <span class="ident">Delimiter::Bracket</span>, <span class="kw">_</span>)) =&gt; {
-                    (<span class="bool-val">false</span>, <span class="ident">Delim</span>)
+        <span class="kw">let </span><span class="kw-2">mut </span>state = Start;
+        <span class="kw">let </span><span class="kw-2">mut </span>previous_is_joint = <span class="bool-val">true</span>;
+        <span class="kw">for </span>tt <span class="kw">in </span>stream {
+            <span class="kw">let </span>token = Token::from(tt);
+            <span class="kw">let </span>(needs_space, next_state) = <span class="kw">match </span>(<span class="kw-2">&amp;</span>state, <span class="kw-2">&amp;</span>token) {
+                (Dollar, Token::Ident(<span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, <span class="kw">if </span>matcher { DollarIdent } <span class="kw">else </span>{ Other }),
+                (DollarIdent, Token::Punct(<span class="string">&#39;:&#39;</span>, Spacing::Alone)) =&gt; (<span class="bool-val">false</span>, DollarIdentColon),
+                (DollarIdentColon, Token::Ident(<span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, Other),
+                (DollarParen, Token::Punct(<span class="string">&#39;+&#39; </span>| <span class="string">&#39;*&#39; </span>| <span class="string">&#39;?&#39;</span>, Spacing::Alone)) =&gt; (<span class="bool-val">false</span>, Other),
+                (DollarParen, Token::Ident(<span class="kw">_</span>) | Token::Literal(<span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, DollarParenSep),
+                (DollarParen, Token::Punct(<span class="kw">_</span>, Spacing::Joint)) =&gt; (<span class="bool-val">false</span>, DollarParen),
+                (DollarParen, Token::Punct(<span class="kw">_</span>, Spacing::Alone)) =&gt; (<span class="bool-val">false</span>, DollarParenSep),
+                (DollarParenSep, Token::Punct(<span class="string">&#39;+&#39; </span>| <span class="string">&#39;*&#39;</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, Other),
+                (Pound, Token::Punct(<span class="string">&#39;!&#39;</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, PoundBang),
+                (Dollar, Token::Group(Delimiter::Parenthesis, <span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, DollarParen),
+                (Pound | PoundBang, Token::Group(Delimiter::Bracket, <span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, Other),
+                (Ident, Token::Group(Delimiter::Parenthesis | Delimiter::Bracket, <span class="kw">_</span>)) =&gt; {
+                    (<span class="bool-val">false</span>, Delim)
                 }
-                (<span class="ident">Ident</span>, <span class="ident">Token::Punct</span>(<span class="string">&#39;!&#39;</span>, <span class="ident">Spacing::Alone</span>)) =&gt; (<span class="bool-val">false</span>, <span class="ident">IdentBang</span>),
-                (<span class="ident">IdentBang</span>, <span class="ident">Token::Group</span>(<span class="ident">Delimiter::Parenthesis</span> <span class="op">|</span> <span class="ident">Delimiter::Bracket</span>, <span class="kw">_</span>)) =&gt; {
-                    (<span class="bool-val">false</span>, <span class="ident">Other</span>)
+                (Ident, Token::Punct(<span class="string">&#39;!&#39;</span>, Spacing::Alone)) =&gt; (<span class="bool-val">false</span>, IdentBang),
+                (IdentBang, Token::Group(Delimiter::Parenthesis | Delimiter::Bracket, <span class="kw">_</span>)) =&gt; {
+                    (<span class="bool-val">false</span>, Other)
                 }
-                (<span class="ident">Colon</span>, <span class="ident">Token::Punct</span>(<span class="string">&#39;:&#39;</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, <span class="ident">Colon2</span>),
-                (<span class="kw">_</span>, <span class="ident">Token::Group</span>(<span class="ident">Delimiter::Parenthesis</span> <span class="op">|</span> <span class="ident">Delimiter::Bracket</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">true</span>, <span class="ident">Delim</span>),
-                (<span class="kw">_</span>, <span class="ident">Token::Group</span>(<span class="ident">Delimiter::Brace</span> <span class="op">|</span> <span class="ident">Delimiter::None</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">true</span>, <span class="ident">Other</span>),
-                (<span class="kw">_</span>, <span class="ident">Token::Ident</span>(<span class="ident">ident</span>)) <span class="kw">if</span> <span class="op">!</span><span class="ident">is_keyword</span>(<span class="ident">ident</span>) =&gt; {
-                    (<span class="ident">state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Dot</span> <span class="op">&amp;&amp;</span> <span class="ident">state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Colon2</span>, <span class="ident">Ident</span>)
+                (Colon, Token::Punct(<span class="string">&#39;:&#39;</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, Colon2),
+                (<span class="kw">_</span>, Token::Group(Delimiter::Parenthesis | Delimiter::Bracket, <span class="kw">_</span>)) =&gt; (<span class="bool-val">true</span>, Delim),
+                (<span class="kw">_</span>, Token::Group(Delimiter::Brace | Delimiter::None, <span class="kw">_</span>)) =&gt; (<span class="bool-val">true</span>, Other),
+                (<span class="kw">_</span>, Token::Ident(ident)) <span class="kw">if </span>!is_keyword(ident) =&gt; {
+                    (state != Dot &amp;&amp; state != Colon2, Ident)
                 }
-                (<span class="kw">_</span>, <span class="ident">Token::Literal</span>(<span class="kw">_</span>)) =&gt; (<span class="ident">state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Dot</span>, <span class="ident">Ident</span>),
-                (<span class="kw">_</span>, <span class="ident">Token::Punct</span>(<span class="string">&#39;,&#39;</span> <span class="op">|</span> <span class="string">&#39;;&#39;</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, <span class="ident">Other</span>),
-                (<span class="kw">_</span>, <span class="ident">Token::Punct</span>(<span class="string">&#39;.&#39;</span>, <span class="kw">_</span>)) <span class="kw">if</span> <span class="op">!</span><span class="ident">matcher</span> =&gt; (<span class="ident">state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Ident</span> <span class="op">&amp;&amp;</span> <span class="ident">state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Delim</span>, <span class="ident">Dot</span>),
-                (<span class="kw">_</span>, <span class="ident">Token::Punct</span>(<span class="string">&#39;:&#39;</span>, <span class="ident">Spacing::Joint</span>)) =&gt; (<span class="ident">state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Ident</span>, <span class="ident">Colon</span>),
-                (<span class="kw">_</span>, <span class="ident">Token::Punct</span>(<span class="string">&#39;$&#39;</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">true</span>, <span class="ident">Dollar</span>),
-                (<span class="kw">_</span>, <span class="ident">Token::Punct</span>(<span class="string">&#39;#&#39;</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">true</span>, <span class="ident">Pound</span>),
-                (<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="bool-val">true</span>, <span class="ident">Other</span>),
+                (<span class="kw">_</span>, Token::Literal(<span class="kw">_</span>)) =&gt; (state != Dot, Ident),
+                (<span class="kw">_</span>, Token::Punct(<span class="string">&#39;,&#39; </span>| <span class="string">&#39;;&#39;</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">false</span>, Other),
+                (<span class="kw">_</span>, Token::Punct(<span class="string">&#39;.&#39;</span>, <span class="kw">_</span>)) <span class="kw">if </span>!matcher =&gt; (state != Ident &amp;&amp; state != Delim, Dot),
+                (<span class="kw">_</span>, Token::Punct(<span class="string">&#39;:&#39;</span>, Spacing::Joint)) =&gt; (state != Ident, Colon),
+                (<span class="kw">_</span>, Token::Punct(<span class="string">&#39;$&#39;</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">true</span>, Dollar),
+                (<span class="kw">_</span>, Token::Punct(<span class="string">&#39;#&#39;</span>, <span class="kw">_</span>)) =&gt; (<span class="bool-val">true</span>, Pound),
+                (<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="bool-val">true</span>, Other),
             };
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">previous_is_joint</span> {
-                <span class="kw">if</span> <span class="ident">needs_space</span> {
-                    <span class="self">self</span>.<span class="ident">space</span>();
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Token::Punct</span>(<span class="string">&#39;.&#39;</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">token</span> {
-                    <span class="self">self</span>.<span class="ident">zerobreak</span>();
+            <span class="kw">if </span>!previous_is_joint {
+                <span class="kw">if </span>needs_space {
+                    <span class="self">self</span>.space();
+                } <span class="kw">else if let </span>Token::Punct(<span class="string">&#39;.&#39;</span>, <span class="kw">_</span>) = token {
+                    <span class="self">self</span>.zerobreak();
                 }
             }
-            <span class="ident">previous_is_joint</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">token</span> {
-                <span class="ident">Token::Punct</span>(<span class="kw">_</span>, <span class="ident">Spacing::Joint</span>) <span class="op">|</span> <span class="ident">Token::Punct</span>(<span class="string">&#39;$&#39;</span>, <span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-                <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+            previous_is_joint = <span class="kw">match </span>token {
+                Token::Punct(<span class="kw">_</span>, Spacing::Joint) | Token::Punct(<span class="string">&#39;$&#39;</span>, <span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+                <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
             };
-            <span class="self">self</span>.<span class="ident">single_token</span>(
-                <span class="ident">token</span>,
-                <span class="kw">if</span> <span class="ident">matcher</span> {
-                    <span class="op">|</span><span class="ident">printer</span>, <span class="ident">stream</span><span class="op">|</span> <span class="ident">printer</span>.<span class="ident">macro_rules_tokens</span>(<span class="ident">stream</span>, <span class="bool-val">true</span>)
-                } <span class="kw">else</span> {
-                    <span class="op">|</span><span class="ident">printer</span>, <span class="ident">stream</span><span class="op">|</span> <span class="ident">printer</span>.<span class="ident">macro_rules_tokens</span>(<span class="ident">stream</span>, <span class="bool-val">false</span>)
+            <span class="self">self</span>.single_token(
+                token,
+                <span class="kw">if </span>matcher {
+                    |printer, stream| printer.macro_rules_tokens(stream, <span class="bool-val">true</span>)
+                } <span class="kw">else </span>{
+                    |printer, stream| printer.macro_rules_tokens(stream, <span class="bool-val">false</span>)
                 },
             );
-            <span class="ident">state</span> <span class="op">=</span> <span class="ident">next_state</span>;
+            state = next_state;
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">is_keyword</span>(<span class="ident">ident</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">match</span> <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">as_str</span>() {
-        <span class="string">&quot;as&quot;</span> <span class="op">|</span> <span class="string">&quot;box&quot;</span> <span class="op">|</span> <span class="string">&quot;break&quot;</span> <span class="op">|</span> <span class="string">&quot;const&quot;</span> <span class="op">|</span> <span class="string">&quot;continue&quot;</span> <span class="op">|</span> <span class="string">&quot;crate&quot;</span> <span class="op">|</span> <span class="string">&quot;else&quot;</span> <span class="op">|</span> <span class="string">&quot;enum&quot;</span> <span class="op">|</span> <span class="string">&quot;extern&quot;</span>
-        <span class="op">|</span> <span class="string">&quot;fn&quot;</span> <span class="op">|</span> <span class="string">&quot;for&quot;</span> <span class="op">|</span> <span class="string">&quot;if&quot;</span> <span class="op">|</span> <span class="string">&quot;impl&quot;</span> <span class="op">|</span> <span class="string">&quot;in&quot;</span> <span class="op">|</span> <span class="string">&quot;let&quot;</span> <span class="op">|</span> <span class="string">&quot;loop&quot;</span> <span class="op">|</span> <span class="string">&quot;macro&quot;</span> <span class="op">|</span> <span class="string">&quot;match&quot;</span> <span class="op">|</span> <span class="string">&quot;mod&quot;</span>
-        <span class="op">|</span> <span class="string">&quot;move&quot;</span> <span class="op">|</span> <span class="string">&quot;mut&quot;</span> <span class="op">|</span> <span class="string">&quot;pub&quot;</span> <span class="op">|</span> <span class="string">&quot;ref&quot;</span> <span class="op">|</span> <span class="string">&quot;return&quot;</span> <span class="op">|</span> <span class="string">&quot;static&quot;</span> <span class="op">|</span> <span class="string">&quot;struct&quot;</span> <span class="op">|</span> <span class="string">&quot;trait&quot;</span> <span class="op">|</span> <span class="string">&quot;type&quot;</span>
-        <span class="op">|</span> <span class="string">&quot;unsafe&quot;</span> <span class="op">|</span> <span class="string">&quot;use&quot;</span> <span class="op">|</span> <span class="string">&quot;where&quot;</span> <span class="op">|</span> <span class="string">&quot;while&quot;</span> <span class="op">|</span> <span class="string">&quot;yield&quot;</span> =&gt; <span class="bool-val">true</span>,
-        <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+<span class="kw">fn </span>is_keyword(ident: <span class="kw-2">&amp;</span>Ident) -&gt; bool {
+    <span class="kw">match </span>ident.to_string().as_str() {
+        <span class="string">&quot;as&quot; </span>| <span class="string">&quot;box&quot; </span>| <span class="string">&quot;break&quot; </span>| <span class="string">&quot;const&quot; </span>| <span class="string">&quot;continue&quot; </span>| <span class="string">&quot;crate&quot; </span>| <span class="string">&quot;else&quot; </span>| <span class="string">&quot;enum&quot; </span>| <span class="string">&quot;extern&quot;
+        </span>| <span class="string">&quot;fn&quot; </span>| <span class="string">&quot;for&quot; </span>| <span class="string">&quot;if&quot; </span>| <span class="string">&quot;impl&quot; </span>| <span class="string">&quot;in&quot; </span>| <span class="string">&quot;let&quot; </span>| <span class="string">&quot;loop&quot; </span>| <span class="string">&quot;macro&quot; </span>| <span class="string">&quot;match&quot; </span>| <span class="string">&quot;mod&quot;
+        </span>| <span class="string">&quot;move&quot; </span>| <span class="string">&quot;mut&quot; </span>| <span class="string">&quot;pub&quot; </span>| <span class="string">&quot;ref&quot; </span>| <span class="string">&quot;return&quot; </span>| <span class="string">&quot;static&quot; </span>| <span class="string">&quot;struct&quot; </span>| <span class="string">&quot;trait&quot; </span>| <span class="string">&quot;type&quot;
+        </span>| <span class="string">&quot;unsafe&quot; </span>| <span class="string">&quot;use&quot; </span>| <span class="string">&quot;where&quot; </span>| <span class="string">&quot;while&quot; </span>| <span class="string">&quot;yield&quot; </span>=&gt; <span class="bool-val">true</span>,
+        <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="prettyplease" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="prettyplease" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

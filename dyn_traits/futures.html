@@ -1,0 +1,568 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+
+<head>
+    <!-- Book generated using mdBook -->
+    <meta charset="UTF-8">
+    <title>Example: FFI-safe &lt;code&gt;Future&lt;/code&gt;s and executors - `safer_ffi` User Guide</title>
+    
+
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff" />
+
+    <link rel="shortcut icon" href="../">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/general.css">
+    <link rel="stylesheet" href="../css/chrome.css">
+    <link rel="stylesheet" href="../css/print.css" media="print">
+
+    <!-- Fonts -->
+    <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"
+        rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+    <!-- Highlight.js Stylesheets -->
+    <link rel="stylesheet" href="../highlight.css">
+    <link rel="stylesheet" href="../tomorrow-night.css">
+    <link rel="stylesheet" href="../ayu-highlight.css">
+
+    <!-- Custom theme stylesheets -->
+    
+    <link rel="stylesheet" href="../theme/book.css">
+    
+
+    
+</head>
+
+<body>
+    <!-- Provide site root to javascript -->
+    <script type="text/javascript">
+        var path_to_root = "../";
+        var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+    </script>
+
+    <!-- Work around some values being stored in localStorage wrapped in quotes -->
+    <script type="text/javascript">
+        try {
+            var theme = localStorage.getItem('mdbook-theme');
+            var sidebar = localStorage.getItem('mdbook-sidebar');
+
+            if (theme.startsWith('"') && theme.endsWith('"')) {
+                localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+            }
+
+            if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+            }
+        } catch (e) { }
+    </script>
+
+    <!-- Set the theme before any content is loaded, prevents flash -->
+    <script type="text/javascript">
+        var theme;
+        try { theme = localStorage.getItem('mdbook-theme'); } catch (e) { }
+        if (theme === null || theme === undefined) { theme = default_theme; }
+        var html = document.querySelector('html');
+        html.classList.remove('no-js')
+        html.classList.remove('light')
+        html.classList.add(theme);
+        html.classList.add('js');
+    </script>
+
+    <!-- Hide / unhide sidebar before it is displayed -->
+    <script type="text/javascript">
+        var html = document.querySelector('html');
+        var sidebar = 'hidden';
+        if (document.body.clientWidth >= 1080) {
+            try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch (e) { }
+            sidebar = sidebar || 'visible';
+        }
+        html.classList.remove('sidebar-visible');
+        html.classList.add("sidebar-" + sidebar);
+    </script>
+
+    <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+        <div class="sidebar-scrollbox">
+            <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction/_.html"><strong aria-hidden="true">1.</strong> Introduction</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../introduction/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li></ol></li><li class="chapter-item expanded "><a href="../usage/_.html"><strong aria-hidden="true">2.</strong> Detailed usage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../usage/cargo-toml.html"><strong aria-hidden="true">2.1.</strong> <code>Cargo.toml</code></a></li><li class="chapter-item expanded "><a href="../usage/lib-rs.html"><strong aria-hidden="true">2.2.</strong> <code>src/lib.rs</code> and header generation</a></li><li class="chapter-item expanded "><a href="../usage/custom-types.html"><strong aria-hidden="true">2.3.</strong> Custom types</a></li></ol></li><li class="chapter-item expanded "><a href="../motivation/_.html"><strong aria-hidden="true">3.</strong> Motivation: safer types across FFI</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../motivation/traditional-ffi.html"><strong aria-hidden="true">3.1.</strong> The limits of traditional FFI</a></li><li class="chapter-item expanded "><a href="../motivation/repr-c-forall.html"><strong aria-hidden="true">3.2.</strong> Defined layout for Rust's pervasive types</a></li></ol></li><li class="chapter-item expanded "><a href="../simple-examples/_.html"><strong aria-hidden="true">4.</strong> Simple examples</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../simple-examples/string_concat.html"><strong aria-hidden="true">4.1.</strong> <code>string_concat</code></a></li><li class="chapter-item expanded "><a href="../simple-examples/max.html"><strong aria-hidden="true">4.2.</strong> Maximum member of an array</a></li></ol></li><li class="chapter-item expanded "><a href="../derive-reprc/_.html"><strong aria-hidden="true">5.</strong> <code>ReprC</code> and <code>#[derive_ReprC]</code></a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../derive-reprc/struct.html"><strong aria-hidden="true">5.1.</strong> On a <code>struct</code></a></li><li class="chapter-item expanded "><a href="../derive-reprc/enum.html"><strong aria-hidden="true">5.2.</strong> On an <code>enum</code></a></li></ol></li><li class="chapter-item expanded "><a href="../ffi-export/_.html"><strong aria-hidden="true">6.</strong> <code>#[ffi_export]</code></a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ffi-export/sanity-checks.html"><strong aria-hidden="true">6.1.</strong> Auto-generated checks</a></li><li class="chapter-item expanded "><a href="../ffi-export/attributes.html"><strong aria-hidden="true">6.2.</strong> Attributes</a></li></ol></li><li class="chapter-item expanded "><a href="../callbacks/_.html"><strong aria-hidden="true">7.</strong> Callbacks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../callbacks/fn_pointers.html"><strong aria-hidden="true">7.1.</strong> Function pointers</a></li><li class="chapter-item expanded "><a href="../callbacks/closures.html"><strong aria-hidden="true">7.2.</strong> Closures</a></li></ol></li><li class="chapter-item expanded "><a href="../dyn_traits/_.html"><strong aria-hidden="true">8.</strong> <code>dyn Trait</code>s / Virtual objects</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../dyn_traits/virtual_ptr.html"><strong aria-hidden="true">8.1.</strong> <code>VirtualPtr&lt;dyn Trait&gt;</code></a></li><li class="chapter-item expanded "><a href="../dyn_traits/derive_reprc_dyn.html"><strong aria-hidden="true">8.2.</strong> <code>#[derive_ReprC(dyn, …)]</code></a></li><li class="chapter-item expanded "><a href="../dyn_traits/futures.html" class="active"><strong aria-hidden="true">8.3.</strong> Example: FFI-safe <code>Future</code>s and executors</a></li></ol></li><li class="chapter-item expanded "><a href="../example-ditto/_.html"><strong aria-hidden="true">9.</strong> Example: Real-world use case at Ditto</a></li><li class="chapter-item expanded "><a href="../example-hashmap/_.html"><strong aria-hidden="true">10.</strong> Example: our own <code>hashmap</code> in C</a></li><li class="chapter-item expanded affix "><a href="../appendix/c-compilation.html">Appendix: FFI and C compilation</a></li><li class="chapter-item expanded affix "><a href="../appendix/how-does-safer_ffi-work.html">Appendix: how does <code>safer_ffi</code> work</a></li></ol>
+            <span id="sponsored">
+                Sponsored by<br/>
+                <a href="https://www.ditto.live"><img src="../assets/ditto-logo-with-title-small.png" /></a>
+            </span>
+        </div>
+        <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+    </nav>
+
+    <div id="page-wrapper" class="page-wrapper">
+
+        <div class="page">
+            
+            <div id="menu-bar-hover-placeholder"></div>
+            <div id="menu-bar" class="menu-bar sticky bordered">
+                <div class="left-buttons">
+                    <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents"
+                        aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <button id="theme-toggle" class="icon-button" type="button" title="Change theme"
+                        aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                        <i class="fa fa-paint-brush"></i>
+                    </button>
+                    <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                        <li role="none"><button role="menuitem" class="theme"
+                                id="light">Light (default)</button></li>
+                        <li role="none"><button role="menuitem" class="theme"
+                                id="rust">Rust</button></li>
+                        <li role="none"><button role="menuitem" class="theme"
+                                id="coal">Coal</button></li>
+                        <li role="none"><button role="menuitem" class="theme"
+                                id="navy">Navy</button></li>
+                        <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button>
+                        </li>
+                    </ul>
+                    
+                    <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)"
+                        aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S"
+                        aria-controls="searchbar">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    
+                </div>
+
+                <h1 class="menu-title">`safer_ffi` User Guide</h1>
+
+                <div class="right-buttons">
+                    
+                    <a href="https://github.com/getditto/safer_ffi" title="Git repository" aria-label="Git repository">
+                        <i id="git-repository-button" class="fa fa-github"></i>
+                    </a>
+                    
+                    <a href="../rustdoc/safer_ffi" title="Rust docs" aria-label="Rust docs">
+                        <i id="rust-docs-button" class="fa fa-cubes"></i>
+                    </a>
+                    <a href="../print.html" title="Print this book" aria-label="Print this book">
+                        <i id="print-button" class="fa fa-print"></i>
+                    </a>
+                </div>
+            </div>
+
+            
+            <div id="search-wrapper" class="hidden">
+                <form id="searchbar-outer" class="searchbar-outer">
+                    <input type="search" name="search" id="searchbar" name="searchbar"
+                        placeholder="Search this book ..." aria-controls="searchresults-outer"
+                        aria-describedby="searchresults-header">
+                </form>
+                <div id="searchresults-outer" class="searchresults-outer hidden">
+                    <div id="searchresults-header" class="searchresults-header"></div>
+                    <ul id="searchresults">
+                    </ul>
+                </div>
+            </div>
+            
+
+            <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+            <script type="text/javascript">
+                document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                Array.from(document.querySelectorAll('#sidebar a')).forEach(function (link) {
+                    link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                });
+            </script>
+
+            <div id="content" class="content">
+                <main>
+                    <h1><a class="header" href="#example-ffi-safe-futures-and-executors" id="example-ffi-safe-futures-and-executors">Example: FFI-safe <code>Future</code>s and executors</a></h1>
+<p>By the way, all this is actually already directly featured by <code>safer-ffi</code> itself if you enable the <code>futures</code> or <code>tokio</code> features.</p>
+<h2><a class="header" href="#ffifuture" id="ffifuture"><code>FfiFuture</code></a></h2>
+<ol>
+<li>
+<p><code>Future</code> Trait:</p>
+<pre><code class="language-rust ignore">trait Future {
+    type Output;
+
+    fn poll(self: Pin&lt;&amp;mut Self&gt;, &amp;'_ mut Context&lt;'_&gt;)
+      -&gt; Poll&lt;Self::Output&gt;
+    ;
+}
+</code></pre>
+</li>
+<li>
+<p><em>Simplify</em> it: <code>Future&lt;Output = ()&gt;</code></p>
+<pre><code class="language-rust ignore">trait SimpleFuture {
+    fn dyn_poll(self: Pin&lt;&amp;mut Self&gt;, &amp;'_ mut Context&lt;'_&gt;)
+      -&gt; Poll&lt;()&gt;
+    ;
+}
+</code></pre>
+<ul>
+<li>Renamed to <code>dyn_poll</code> for more readable semantics down the line.</li>
+</ul>
+</li>
+<li>
+<p>Make it FFI-compatible: define an FFI-safe <code>Poll&lt;()&gt;</code> equivalent</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive_ReprC]
+#[repr(u8)]
+enum FfiPoll {
+    Completed,
+    Pending,
+}
+
+#[derive_ReprC(dyn)]
+trait FfiFuture {
+    fn dyn_poll(self: Pin&lt;&amp;mut Self&gt;, &amp;'_ mut Context&lt;'_&gt;)
+      -&gt; FfiPoll
+    ;
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ul>
+<li>
+<p>We have reached a point where <code>#[derive_ReprC(dyn)]</code> can be used!</p>
+</li>
+<li>
+<p>This means we have now gotten the <code>impl -&gt; dyn</code> &quot;coërcions&quot;:</p>
+<ul>
+<li>
+<pre><code class="language-rust ignore">impl&lt;'f, F : 'f + FfiFuture&gt; From&lt;
+    Pin&lt;Box&lt;F&gt;&gt;
+&gt; for // ↓
+    VirtualPtr&lt;dyn 'f + FfiFuture&gt;
+</code></pre>
+</li>
+<li>
+<pre><code class="language-rust ignore">impl&lt;'f, F : 'f + FfiFuture&gt; From&lt;
+    Pin&lt;&amp;'f mut F&gt;
+&gt; for // ↓
+    VirtualPtr&lt;dyn 'f + FfiFuture&gt;
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Convenience conversions to/from Rust Futures.</p>
+<ul>
+<li>
+<p>From:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;F : Future&lt;Output = ()&gt;&gt; FfiFuture for F {
+    fn dyn_poll(self: Pin&lt;&amp;mut Self&gt;, ctx: &amp;'_ mut Context&lt;'_&gt;)
+      -&gt; FfiPoll
+    {
+        match self.poll(ctx) {
+            | Poll::Pending =&gt; FfiPoll::Pending,
+            | Poll::Ready(()) =&gt; FfiPoll::Completed,
+        }
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+<li>
+<p>Into:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;'fut&gt; VirtualPtr&lt;dyn 'fut + FfiFuture&gt; {
+    fn into_future(self)
+      -&gt; impl 'fut + Future&lt;Output = ()&gt;
+    {
+        let mut vptr = self;
+        ::core::future::poll_fn(move /* vptr */ |cx| {
+            match Pin::new(&amp;mut vptr).dyn_poll(cx) {
+                | FfiPoll::Pending =&gt; Poll::Pending,
+                | FfiPoll::Completed =&gt; Poll::Ready(()),
+            }
+        })
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+</ul>
+</li>
+</ol>
+<h2><a class="header" href="#bonus-offering-wake-ups-to-the-ffi" id="bonus-offering-wake-ups-to-the-ffi">Bonus: offering <code>Wake</code> ups to the FFI:</a></h2>
+<p>Remember: <code>Context</code> is an opaque FFI type, which makes it unusable there. FFI users won't be able to provide their own custom <code>dyn FfiFuture</code> objects (other than trivial <code>Future</code>s or <code>Future</code>s busy-looping the polls).</p>
+<p>We can palliate this by exposing virtual methods / accessors specific to the opaque <code>Context</code> type:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[macro_export]
+macro_rules! ffi_export_future_helpers {() =&gt; (
+    const _: () = {
+        use $crate::ඞ::std::{sync::Arc, task::Context, prelude::v1::*};
+
+        #[ffi_export]
+        fn rust_future_task_context_wake (
+            task_context: &amp;'static Context&lt;'static&gt;,
+        )
+        {
+            task_context.waker().wake_by_ref()
+        }
+
+        #[ffi_export]
+        fn rust_future_task_context_get_waker (
+            task_context: &amp;'static Context&lt;'static&gt;,
+        ) -&gt; Arc&lt;dyn 'static + Send + Sync + Fn()&gt;
+        {
+            let waker = task_context.waker().clone();
+            Arc::new(move || waker.wake_by_ref()).into()
+        }
+    };
+)}
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#ffi-safe-executor--runtime-handle" id="ffi-safe-executor--runtime-handle">FFI-safe <code>Executor</code> / <code>Runtime Handle</code></a></h2>
+<p>Note: <code>::tokio</code> does not expose an <code>Executor</code> API, but rather, a <code>Runtime</code>, which packages/bundles both the <code>Executor</code> part<sup class="footnote-reference"><a href="#exec">1</a></sup> as well as the <code>Reactor</code> part<sup class="footnote-reference"><a href="#reac">2</a></sup>. The latter is the reason some of <code>::tokio</code>'s <strong>leaf</strong> <code>Future</code>s (such as File I/O and <code>sleep</code>s) cannot be polled, by default, by other executors… See <a href="https://docs.rs/async-compat">https://docs.rs/async-compat</a> for more info.</p>
+<div class="footnote-definition" id="exec"><sup class="footnote-definition-label">1</sup>
+<p>the <code>block_on()</code> runtime in charge of calling <code>.poll()</code> to make a future progress, with concurrent <code>.poll()</code>s to spawed <code>Future</code>s.</p>
+</div>
+<div class="footnote-definition" id="reac"><sup class="footnote-definition-label">2</sup>
+<p>background thread(s)/threadpool to which certain <code>Waker::wake()</code> calls are scheduled, needed by certain leaf futures.</p>
+</div>
+<ol>
+<li>
+<p>A <code>trait</code> abstraction thereof:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Executor : Send + Sync {
+    fn block_on&lt;T&gt;(
+        self: &amp;'_ Self,
+        future: impl '_ + Future&lt;Output = T&gt;,
+    ) -&gt; T
+    ;
+    fn spawn(
+        self: &amp;'_ Self,
+        future: impl 'static + Send + Future&lt;Output = ()&gt;
+    ) -&gt; Pin&lt;Box&lt;dyn Send + Future&lt;Output = ()&gt;&gt;&gt;
+    ;
+}
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+<li>
+<p>Making it <code>dyn</code>-safe:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Executor : Send + Sync {
+    fn dyn_block_on(
+        self: &amp;'_ Self,
+        future: Pin&lt;Box&lt;dyn '_ + Future&lt;Output = ()&gt;&gt;&gt;,
+    )
+    ;
+    fn dyn_spawn(
+        self: &amp;'_ Self,
+        future: Pin&lt;Box&lt;dyn Send + Future&lt;Output = ()&gt;&gt;&gt;
+    ) -&gt; Pin&lt;Box&lt;dyn Send + Future&lt;Output = ()&gt;&gt;&gt;
+    ;
+}
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+<li>
+<p>Making it FFI-safe:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive_ReprC(dyn, Clone)]
+trait FfiFutureExecutor : Send + Sync {
+    fn dyn_block_on(
+        self: &amp;'_ Self,
+        future: VirtualPtr&lt;dyn '_ + FfiFuture&gt;,
+    )
+    ;
+    fn dyn_spawn(
+        self: &amp;'_ Self,
+        future: VirtualPtr&lt;dyn Send + FfiFuture&gt;
+    ) -&gt; VirtualPtr&lt;dyn Send + FfiFuture&gt;
+    ;
+}
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+<li>
+<p>From a <code>::tokio::Handle</code>:</p>
+<pre><code class="language-rust ignore">impl FfiFutureExecutor for ::tokio::runtime::Handle {
+    fn dyn_block_on (
+        self: &amp;'_ Self,
+        ffi_fut: VirtualPtr&lt;dyn '_ + FfiFuture&gt;,
+    )
+    {
+        self.block_on(ffi_fut.into_future())
+    }
+
+    fn dyn_spawn (
+        self: &amp;'_ Self,
+        future: VirtualPtr&lt;dyn Send + FfiFuture&gt;,
+    ) -&gt; VirtualPtr&lt;dyn Send + FfiFuture&gt;
+    {
+        let handle_result = self.spawn(future.into_future());
+        let handle_unwrapped = async {
+            handle
+                .await
+                .unwrap_or_else(|caught_panic| {
+                    ::std::panic::resume_unwind(caught_panic.into_panic())
+                })
+        };
+        Box::pin(handle_unwrapped)
+            .into()
+    }
+}
+</code></pre>
+</li>
+<li>
+<p>Usable as an <code>Executor</code>:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Notice how we got the generics back!
+impl VirtualPtr&lt;dyn FfiFutureExecutor&gt; {
+    fn block_on&lt;R&gt; (
+        self: &amp;'_ Self,
+        fut: impl Future&lt;Output = R&gt;
+    ) -&gt; R
+    {
+        // We use `Option&lt;R&gt;` as a simple non-`'static` channel
+        // to get the generic payload back.
+        let mut ret = None;
+        self.dyn_block_on(
+            // From&lt; Pin&lt;&amp;mut F&gt; &gt;
+            ::core::pin::pin!(async {
+                ret = Some(fut.await);
+            })
+            .into()
+        );
+        ret.expect(&quot;`.dyn_block_on()` did not complete&quot;)
+    }
+
+    fn spawn&lt;R : 'static + Send&gt; (
+        self: &amp;'_ Self,
+        fut: impl 'static + Send + Future&lt;Output = R&gt;,
+    ) -&gt; impl 'static + Future&lt;Output = R&gt;
+    {
+        // Channel to be able to get the generic payload back.
+        let (tx, rx) = ::futures::channel::oneshot::channel();
+        let ffi_handle = self.dyn_spawn(
+            // From&lt; Pin&lt;Box&lt;F&gt;&gt; &gt;
+            Box::pin(async move {
+                tx.send(fut.await).ok();
+            })
+            .into()
+        );
+        let handle = async move {
+            ffi_handle.into_future().await;
+            rx  .await
+                .expect(&quot;\
+                    executor dropped the `spawn`ed task \
+                    before its completion\
+                &quot;)
+        };
+        handle
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+</ol>
+
+                </main>
+
+                <nav class="nav-wrapper" aria-label="Page navigation">
+                    <!-- Mobile navigation buttons -->
+                    
+                    <a rel="prev" href="../dyn_traits/derive_reprc_dyn.html" class="mobile-nav-chapters previous"
+                        title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    
+
+                    
+                    <a rel="next" href="../example-ditto/_.html" class="mobile-nav-chapters next"
+                        title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                    
+
+                    <div style="clear: both"></div>
+                </nav>
+            </div>
+        </div>
+
+        <nav class="nav-wide-wrapper" aria-label="Page navigation">
+            
+            <a rel="prev" href="../dyn_traits/derive_reprc_dyn.html" class="nav-chapters previous" title="Previous chapter"
+                aria-label="Previous chapter" aria-keyshortcuts="Left">
+                <i class="fa fa-angle-left"></i>
+            </a>
+            
+
+            
+            <a rel="next" href="../example-ditto/_.html" class="nav-chapters next" title="Next chapter"
+                aria-label="Next chapter" aria-keyshortcuts="Right">
+                <i class="fa fa-angle-right"></i>
+            </a>
+            
+        </nav>
+
+    </div>
+
+    
+
+    
+    <!-- Google Analytics Tag -->
+    <script type="text/javascript">
+        var localAddrs = ["localhost", "127.0.0.1", ""];
+
+        // make sure we don't activate google analytics if the developer is
+        // inspecting the book locally...
+        if (localAddrs.indexOf(document.location.hostname) === -1) {
+            (function (i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                    m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+            })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+            ga('create', 'UA-120925501-5', 'auto');
+            ga('send', 'pageview');
+        }
+    </script>
+    
+
+    
+
+    
+
+    
+
+    
+    <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+    
+
+    <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- Custom JS scripts -->
+    
+
+    
+
+</body>
+
+</html>

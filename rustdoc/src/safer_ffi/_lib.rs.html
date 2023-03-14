@@ -1,107 +1,102 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/_lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>_lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../safer_ffi/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../safer_ffi/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../safer_ffi/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
-<span id="2">  2</span>
-<span id="3">  3</span>
-<span id="4">  4</span>
-<span id="5">  5</span>
-<span id="6">  6</span>
-<span id="7">  7</span>
-<span id="8">  8</span>
-<span id="9">  9</span>
-<span id="10"> 10</span>
-<span id="11"> 11</span>
-<span id="12"> 12</span>
-<span id="13"> 13</span>
-<span id="14"> 14</span>
-<span id="15"> 15</span>
-<span id="16"> 16</span>
-<span id="17"> 17</span>
-<span id="18"> 18</span>
-<span id="19"> 19</span>
-<span id="20"> 20</span>
-<span id="21"> 21</span>
-<span id="22"> 22</span>
-<span id="23"> 23</span>
-<span id="24"> 24</span>
-<span id="25"> 25</span>
-<span id="26"> 26</span>
-<span id="27"> 27</span>
-<span id="28"> 28</span>
-<span id="29"> 29</span>
-<span id="30"> 30</span>
-<span id="31"> 31</span>
-<span id="32"> 32</span>
-<span id="33"> 33</span>
-<span id="34"> 34</span>
-<span id="35"> 35</span>
-<span id="36"> 36</span>
-<span id="37"> 37</span>
-<span id="38"> 38</span>
-<span id="39"> 39</span>
-<span id="40"> 40</span>
-<span id="41"> 41</span>
-<span id="42"> 42</span>
-<span id="43"> 43</span>
-<span id="44"> 44</span>
-<span id="45"> 45</span>
-<span id="46"> 46</span>
-<span id="47"> 47</span>
-<span id="48"> 48</span>
-<span id="49"> 49</span>
-<span id="50"> 50</span>
-<span id="51"> 51</span>
-<span id="52"> 52</span>
-<span id="53"> 53</span>
-<span id="54"> 54</span>
-<span id="55"> 55</span>
-<span id="56"> 56</span>
-<span id="57"> 57</span>
-<span id="58"> 58</span>
-<span id="59"> 59</span>
-<span id="60"> 60</span>
-<span id="61"> 61</span>
-<span id="62"> 62</span>
-<span id="63"> 63</span>
-<span id="64"> 64</span>
-<span id="65"> 65</span>
-<span id="66"> 66</span>
-<span id="67"> 67</span>
-<span id="68"> 68</span>
-<span id="69"> 69</span>
-<span id="70"> 70</span>
-<span id="71"> 71</span>
-<span id="72"> 72</span>
-<span id="73"> 73</span>
-<span id="74"> 74</span>
-<span id="75"> 75</span>
-<span id="76"> 76</span>
-<span id="77"> 77</span>
-<span id="78"> 78</span>
-<span id="79"> 79</span>
-<span id="80"> 80</span>
-<span id="81"> 81</span>
-<span id="82"> 82</span>
-<span id="83"> 83</span>
-<span id="84"> 84</span>
-<span id="85"> 85</span>
-<span id="86"> 86</span>
-<span id="87"> 87</span>
-<span id="88"> 88</span>
-<span id="89"> 89</span>
-<span id="90"> 90</span>
-<span id="91"> 91</span>
-<span id="92"> 92</span>
-<span id="93"> 93</span>
-<span id="94"> 94</span>
-<span id="95"> 95</span>
-<span id="96"> 96</span>
-<span id="97"> 97</span>
-<span id="98"> 98</span>
-<span id="99"> 99</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/_lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>_lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../safer_ffi/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
@@ -663,589 +658,605 @@
 <span id="658">658</span>
 <span id="659">659</span>
 <span id="660">660</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">warn</span>(<span class="ident">warnings</span>)]</span> <span class="comment">// Prevent `-Dwarnings` from causing breakage.</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::all</span>)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt::skip</span>)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>,
-    <span class="ident">feature</span>(<span class="ident">doc_cfg</span>, <span class="ident">trivial_bounds</span>)
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>),
-    <span class="ident">no_std</span>,
-)]</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+</pre><pre class="rust"><code><span class="attribute">#![warn(warnings)] </span><span class="comment">// Prevent `-Dwarnings` from causing breakage.
+</span><span class="attribute">#![allow(clippy::all)]
+#![cfg_attr(rustfmt, rustfmt::skip)]
+#![cfg_attr(feature = <span class="string">&quot;nightly&quot;</span>,
+    feature(doc_cfg)
+)]
+#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>),
+    no_std,
+)]
 
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">nonstandard_style</span>, <span class="ident">trivial_bounds</span>, <span class="ident">unused_parens</span>)]</span>
-<span class="attribute">#![<span class="ident">warn</span>(
-    <span class="ident">missing_copy_implementations</span>,
-    <span class="ident">missing_debug_implementations</span>,
-)]</span>
-<span class="attribute">#![<span class="ident">deny</span>(
-    <span class="ident">bare_trait_objects</span>,
-    <span class="ident">elided_lifetimes_in_paths</span>,
-    <span class="ident">unconditional_recursion</span>,
-    <span class="ident">unused_must_use</span>,
-)]</span>
-<span class="attribute">#![<span class="ident">doc</span> <span class="op">=</span> <span class="macro">include_str!</span>(<span class="string">&quot;../README.md&quot;</span>)]</span>
-<span class="attribute">#![<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">rustfmt</span>))]</span>
+#![allow(
+    nonstandard_style,
+    trivial_bounds,
+    unused_parens,
+)]
+#![warn(
+    missing_copy_implementations,
+    missing_debug_implementations,
+)]
+#![deny(
+    bare_trait_objects,
+    elided_lifetimes_in_paths,
+    unconditional_recursion,
+    unused_must_use,
+)]
+#![doc = <span class="macro">include_str!</span>(<span class="string">&quot;../README.md&quot;</span>)]
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">macro_rules_attribute</span>;
+#[macro_use]
+</span><span class="kw">extern crate </span>macro_rules_attribute;
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;utils/_mod.rs&quot;</span>]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="doccomment">/** Not part of the public API **/</span> <span class="kw">pub</span>
-<span class="kw">mod</span> <span class="ident">__utils__</span>;
-<span class="kw">use</span> <span class="ident">__utils__</span> <span class="kw">as</span> <span class="ident">utils</span>;
+<span class="attribute">#[macro_use]
+#[path = <span class="string">&quot;utils/_mod.rs&quot;</span>]
+#[doc(hidden)] </span><span class="doccomment">/** Not part of the public API **/ </span><span class="kw">pub
+mod </span>__utils__;
+<span class="kw">use </span>__utils__ <span class="kw">as </span>utils;
 
-<span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
-<span class="kw">use</span> <span class="ident">::paste</span>;
+<span class="attribute">#[apply(hidden_export)]
+</span><span class="kw">use </span>::paste;
 
-<span class="doccomment">/// Export a function to be callable by C.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use ::safer_ffi::prelude::ffi_export;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[ffi_export]</span>
-<span class="doccomment">/// /// Add two integers together.</span>
-<span class="doccomment">/// fn add (x: i32, y: i32) -&gt; i32</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///     x + y</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///   - ensures that [the generated headers](/safer_ffi/headers/) will include the</span>
-<span class="doccomment">///     following definition:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     ```C</span>
-<span class="doccomment">///     #include &lt;stdint.h&gt;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     /* \brief</span>
-<span class="doccomment">///      * Add two integers together.</span>
-<span class="doccomment">///      */</span>
-<span class="doccomment">///     int32_t add (int32_t x, int32_t y);</span>
-<span class="doccomment">///     ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///   - exports an `add` symbol pointing to the C-ABI compatible</span>
-<span class="doccomment">///     `int32_t (*)(int32_t x, int32_t y)` function.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     (The crate type needs to be `cdylib` or `staticlib` for this to work,</span>
-<span class="doccomment">///     and, of course, the C compiler invocation needs to include</span>
-<span class="doccomment">///     `-L path/to/the/compiled/library -l name_of_your_crate`)</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///       - when in doubt, use `staticlib`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # `ReprC`</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// You can use any Rust types in the singature of an `#[ffi_export]`-</span>
-<span class="doccomment">/// function, provided each of the types involved in the signature is [`ReprC`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Otherwise the layout of the involved types in the C world is **undefined**,</span>
-<span class="doccomment">/// which `#[ffi_export]` will detect, leading to a compilation error.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// To have custom structs implement [`ReprC`], it suffices to annotate the</span>
-<span class="doccomment">/// `struct` definitions with the &lt;code&gt;#\[[derive_ReprC]\]&lt;/code&gt;</span>
-<span class="doccomment">/// (on top of the obviously required `#[repr(C)]`).</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::safer_ffi_proc_macros::ffi_export</span>;
+<span class="doccomment">/// Export a function to be callable by C.
+///
+/// # Example
+///
+/// ```rust
+/// use ::safer_ffi::prelude::ffi_export;
+///
+/// #[ffi_export]
+/// /// Add two integers together.
+/// fn add (x: i32, y: i32) -&gt; i32
+/// {
+///     x + y
+/// }
+/// ```
+///
+///   - ensures that [the generated headers](/safer_ffi/headers/) will include the
+///     following definition:
+///
+///     ```C
+///     #include &lt;stdint.h&gt;
+///
+///     /* \brief
+///      * Add two integers together.
+///      */
+///     int32_t add (int32_t x, int32_t y);
+///     ```
+///
+///   - exports an `add` symbol pointing to the C-ABI compatible
+///     `int32_t (*)(int32_t x, int32_t y)` function.
+///
+///     (The crate type needs to be `cdylib` or `staticlib` for this to work,
+///     and, of course, the C compiler invocation needs to include
+///     `-L path/to/the/compiled/library -l name_of_your_crate`)
+///
+///       - when in doubt, use `staticlib`.
+///
+/// # `ReprC`
+///
+/// You can use any Rust types in the singature of an `#[ffi_export]`-
+/// function, provided each of the types involved in the signature is [`ReprC`].
+///
+/// Otherwise the layout of the involved types in the C world is **undefined**,
+/// which `#[ffi_export]` will detect, leading to a compilation error.
+///
+/// To have custom structs implement [`ReprC`], it suffices to annotate the
+/// `struct` definitions with the &lt;code&gt;#\[[derive_ReprC]\]&lt;/code&gt;
+/// (on top of the obviously required `#[repr(C)]`).
+</span><span class="kw">pub use </span>::safer_ffi_proc_macros::ffi_export;
 
-<span class="doccomment">/// Identity macro when `feature = &quot;headers&quot;` is enabled, otherwise</span>
-<span class="doccomment">/// this macro outputs nothing.</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::safer_ffi_proc_macros::cfg_headers</span>;
+<span class="doccomment">/// Identity macro when `feature = &quot;headers&quot;` is enabled, otherwise
+/// this macro outputs nothing.
+</span><span class="kw">pub use </span>::safer_ffi_proc_macros::cfg_headers;
 
-<span class="doccomment">/// Creates a compile-time checked [`char_p::Ref`]`&lt;&#39;static&gt;` out of a</span>
-<span class="doccomment">/// string literal.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use ::safer_ffi::prelude::*;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[ffi_export]</span>
-<span class="doccomment">/// fn concat (s1: char_p::Ref&lt;&#39;_&gt;, s2: char_p::Ref&lt;&#39;_&gt;)</span>
-<span class="doccomment">///   -&gt; char_p::Box</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///     format!(&quot;{}{}&quot;, s1.to_str(), s2.to_str())</span>
-<span class="doccomment">///         .try_into()</span>
-<span class="doccomment">///         .unwrap() // No inner nulls in our format string</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main ()</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///     assert_eq!(</span>
-<span class="doccomment">///         concat(c!(&quot;Hello, &quot;), c!(&quot;World!&quot;)).as_ref(),</span>
-<span class="doccomment">///         c!(&quot;Hello, World!&quot;),</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the string literal contains an inner null byte, then the macro</span>
-<span class="doccomment">/// will detect it at compile time and thus cause a compile-time error</span>
-<span class="doccomment">/// (allowing to skip the then unnecessary runtime check!):</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,compile_fail</span>
-<span class="doccomment">/// let _ = ::safer_ffi::c!(&quot;Hell\0, World!&quot;); // &lt;- Compile error</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`char_p::Ref`]: `crate::prelude::char_p::Ref`</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::safer_ffi_proc_macros::c_str</span> <span class="kw">as</span> <span class="ident">c</span>;
+<span class="doccomment">/// Creates a compile-time checked [`char_p::Ref`]`&lt;&#39;static&gt;` out of a
+/// string literal.
+///
+/// # Example
+///
+/// ```rust
+/// use ::safer_ffi::prelude::*;
+///
+/// #[ffi_export]
+/// fn concat (s1: char_p::Ref&lt;&#39;_&gt;, s2: char_p::Ref&lt;&#39;_&gt;)
+///   -&gt; char_p::Box
+/// {
+///     format!(&quot;{}{}&quot;, s1.to_str(), s2.to_str())
+///         .try_into()
+///         .unwrap() // No inner nulls in our format string
+/// }
+///
+/// fn main ()
+/// {
+///     assert_eq!(
+///         concat(c!(&quot;Hello, &quot;), c!(&quot;World!&quot;)).as_ref(),
+///         c!(&quot;Hello, World!&quot;),
+///     );
+/// }
+/// ```
+///
+/// If the string literal contains an inner null byte, then the macro
+/// will detect it at compile time and thus cause a compile-time error
+/// (allowing to skip the then unnecessary runtime check!):
+///
+/// ```rust,compile_fail
+/// let _ = ::safer_ffi::c!(&quot;Hell\0, World!&quot;); // &lt;- Compile error
+/// ```
+///
+/// [`char_p::Ref`]: `crate::prelude::char_p::Ref`
+</span><span class="kw">pub use </span>::safer_ffi_proc_macros::c_str <span class="kw">as </span>c;
 
-<span class="doccomment">/// Safely implement [`ReprC`]</span>
-<span class="doccomment">/// for a `#[repr(C)]` struct **when all its fields are [`ReprC`]**.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### Simple `struct`</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use ::safer_ffi::prelude::*;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive_ReprC]</span>
-<span class="doccomment">/// #[repr(C)]</span>
-<span class="doccomment">/// struct Instant {</span>
-<span class="doccomment">///     seconds: u64,</span>
-<span class="doccomment">///     nanos: u32,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///   - corresponding to the following C definition:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     ```C</span>
-<span class="doccomment">///     typedef struct {</span>
-<span class="doccomment">///         uint64_t seconds;</span>
-<span class="doccomment">///         uint32_t nanos;</span>
-<span class="doccomment">///     } Instant_t;</span>
-<span class="doccomment">///     ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### Field-less `enum`</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use ::safer_ffi::prelude::*;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive_ReprC]</span>
-<span class="doccomment">/// #[repr(u8)]</span>
-<span class="doccomment">/// enum Status {</span>
-<span class="doccomment">///     Ok = 0,</span>
-<span class="doccomment">///     Busy,</span>
-<span class="doccomment">///     NotInTheMood,</span>
-<span class="doccomment">///     OnStrike,</span>
-<span class="doccomment">///     OhNo,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///   - corresponding to the following C definition:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     ```C</span>
-<span class="doccomment">///     typedef uint8_t Status_t; enum {</span>
-<span class="doccomment">///         STATUS_OK = 0,</span>
-<span class="doccomment">///         STATUS_BUSY,</span>
-<span class="doccomment">///         STATUS_NOT_IN_THE_MOOD,</span>
-<span class="doccomment">///         STATUS_ON_STRIKE,</span>
-<span class="doccomment">///         STATUS_OH_NO,</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### Generic `struct`</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// In that case, it is required that the struct&#39;s generic types carry a</span>
-<span class="doccomment">/// `: ReprC` bound each:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use ::safer_ffi::prelude::*;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive_ReprC]</span>
-<span class="doccomment">/// #[repr(C)]</span>
-<span class="doccomment">/// struct Point&lt;Coordinate : ReprC&gt; {</span>
-<span class="doccomment">///     x: Coordinate,</span>
-<span class="doccomment">///     y: Coordinate,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// # fn main() {}</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Each monomorphization leads to its own C definition:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///   - **`Point&lt;i32&gt;`**</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     ```C</span>
-<span class="doccomment">///     typedef struct {</span>
-<span class="doccomment">///         int32_t x;</span>
-<span class="doccomment">///         int32_t y;</span>
-<span class="doccomment">///     } Point_int32_t;</span>
-<span class="doccomment">///     ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///   - **`Point&lt;f64&gt;`**</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     ```C</span>
-<span class="doccomment">///     typedef struct {</span>
-<span class="doccomment">///         double x;</span>
-<span class="doccomment">///         double y;</span>
-<span class="doccomment">///     } Point_double_t;</span>
-<span class="doccomment">///     ```</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::safer_ffi_proc_macros::derive_ReprC</span>;
+<span class="doccomment">/// Safely implement [`ReprC`]
+/// for a `#[repr(C)]` struct **when all its fields are [`ReprC`]**.
+///
+/// # Examples
+///
+/// ### Simple `struct`
+///
+/// ```rust
+/// use ::safer_ffi::prelude::*;
+///
+/// #[derive_ReprC]
+/// #[repr(C)]
+/// struct Instant {
+///     seconds: u64,
+///     nanos: u32,
+/// }
+/// ```
+///
+///   - corresponding to the following C definition:
+///
+///     ```C
+///     typedef struct {
+///         uint64_t seconds;
+///         uint32_t nanos;
+///     } Instant_t;
+///     ```
+///
+/// ### Field-less `enum`
+///
+/// ```rust
+/// use ::safer_ffi::prelude::*;
+///
+/// #[derive_ReprC]
+/// #[repr(u8)]
+/// enum Status {
+///     Ok = 0,
+///     Busy,
+///     NotInTheMood,
+///     OnStrike,
+///     OhNo,
+/// }
+/// ```
+///
+///   - corresponding to the following C definition:
+///
+///     ```C
+///     typedef uint8_t Status_t; enum {
+///         STATUS_OK = 0,
+///         STATUS_BUSY,
+///         STATUS_NOT_IN_THE_MOOD,
+///         STATUS_ON_STRIKE,
+///         STATUS_OH_NO,
+///     }
+///     ```
+///
+/// ### Generic `struct`
+///
+/// In that case, it is required that the struct&#39;s generic types carry a
+/// `: ReprC` bound each:
+///
+/// ```rust
+/// use ::safer_ffi::prelude::*;
+///
+/// #[derive_ReprC]
+/// #[repr(C)]
+/// struct Point&lt;Coordinate : ReprC&gt; {
+///     x: Coordinate,
+///     y: Coordinate,
+/// }
+/// #
+/// # fn main() {}
+/// ```
+///
+/// Each monomorphization leads to its own C definition:
+///
+///   - **`Point&lt;i32&gt;`**
+///
+///     ```C
+///     typedef struct {
+///         int32_t x;
+///         int32_t y;
+///     } Point_int32_t;
+///     ```
+///
+///   - **`Point&lt;f64&gt;`**
+///
+///     ```C
+///     typedef struct {
+///         double x;
+///         double y;
+///     } Point_double_t;
+///     ```
+</span><span class="kw">pub use </span>::safer_ffi_proc_macros::derive_ReprC;
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;layout/_mod.rs&quot;</span>]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">layout</span>;
+<span class="attribute">#[macro_use]
+#[path = <span class="string">&quot;layout/_mod.rs&quot;</span>]
+</span><span class="kw">pub mod </span>layout;
 
-<span class="macro">__cfg_headers__!</span> {
-    <span class="macro">cfg_match!</span> {
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;inventory-0-3-1&quot;</span> =&gt; {
-            <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="kw">pub</span>
-            <span class="kw">use</span> <span class="ident">::inventory_0_3_1</span> <span class="kw">as</span> <span class="ident">inventory</span>;
+<span class="macro">__cfg_headers__! </span>{
+    <span class="macro">cfg_match! </span>{
+        feature = <span class="string">&quot;inventory-0-3-1&quot; </span>=&gt; {
+            <span class="attribute">#[doc(hidden)] </span><span class="kw">pub
+            use </span>::inventory_0_3_1 <span class="kw">as </span>inventory;
         },
-        <span class="kw">_</span> =&gt; {
-            <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="kw">pub</span>
-            <span class="kw">use</span> <span class="ident">::inventory</span>;
+        <span class="kw">_ </span>=&gt; {
+            <span class="attribute">#[doc(hidden)] </span><span class="kw">pub
+            use </span>::inventory;
         },
     }
 
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>,
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;headers&quot;</span>)),
-    )]</span>
-    <span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;headers/_mod.rs&quot;</span>]</span>
-    <span class="kw">pub</span>
-    <span class="kw">mod</span> <span class="ident">headers</span>;
+    <span class="attribute">#[cfg_attr(feature = <span class="string">&quot;nightly&quot;</span>,
+        doc(cfg(feature = <span class="string">&quot;headers&quot;</span>)),
+    )]
+    #[path = <span class="string">&quot;headers/_mod.rs&quot;</span>]
+    </span><span class="kw">pub
+    mod </span>headers;
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_copy_implementations</span>, <span class="ident">missing_debug_implementations</span>)]</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="kw">pub</span>
-    <span class="kw">struct</span> <span class="ident">FfiExport</span> {
-        <span class="kw">pub</span>
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
+    <span class="attribute">#[allow(missing_copy_implementations, missing_debug_implementations)]
+    #[doc(hidden)] </span><span class="doccomment">/** Not part of the public API */ </span><span class="kw">pub
+    struct </span>FfiExport {
+        <span class="kw">pub
+        </span>name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
 
-        <span class="kw">pub</span>
-        <span class="ident">gen_def</span>:
-            <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">headers::Definer</span>, <span class="ident">headers::Language</span>)
-              -&gt; <span class="ident">std::io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+        <span class="kw">pub
+        </span>gen_def:
+            <span class="kw">fn</span>(<span class="kw-2">&amp;mut </span><span class="kw">dyn </span>headers::Definer, headers::Language)
+              -&gt; std::io::Result&lt;()&gt;
         ,
     }
 
-    <span class="macro">self::inventory::collect!</span>(<span class="ident">FfiExport</span>);
+    <span class="macro">self::inventory::collect!</span>(FfiExport);
 }
 
-<span class="macro">cfg_alloc!</span> {
-    <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
+<span class="macro">cfg_alloc! </span>{
+    <span class="kw">extern crate </span>alloc;
 }
 
-<span class="macro">cfg_alloc!</span> {
-    <span class="kw">pub</span>
-    <span class="kw">mod</span> <span class="ident">boxed</span>;
+<span class="macro">cfg_alloc! </span>{
+    <span class="kw">pub
+    mod </span>boxed;
 }
 
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::c_char_module::c_char</span>;
-<span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;c_char.rs&quot;</span>]</span>
-<span class="kw">mod</span> <span class="ident">c_char_module</span>;
+<span class="kw">use </span><span class="self">self</span>::c_char_module::c_char;
+<span class="attribute">#[path = <span class="string">&quot;c_char.rs&quot;</span>]
+</span><span class="kw">mod </span>c_char_module;
 
-<span class="kw">pub</span>
-<span class="kw">mod</span> <span class="ident">char_p</span>;
+<span class="kw">pub
+mod </span>char_p;
 
-<span class="kw">pub</span>
-<span class="kw">mod</span> <span class="ident">closure</span>;
+<span class="kw">pub
+mod </span>closure;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dyn-traits&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>,
-    <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dyn-traits&quot;</span>)),
-)]</span>
-<span class="kw">pub</span>
-<span class="kw">mod</span> <span class="ident">dyn_traits</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;dyn-traits&quot;</span>)]
+#[cfg_attr(feature = <span class="string">&quot;nightly&quot;</span>,
+    doc(cfg(feature = <span class="string">&quot;dyn-traits&quot;</span>)),
+)]
+#[path = <span class="string">&quot;dyn_traits/_mod.rs&quot;</span>]
+</span><span class="kw">pub
+mod </span>dyn_traits;
 
-<span class="kw">pub</span>
-<span class="kw">mod</span> <span class="ident">ptr</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;futures&quot;</span>)]
+#[cfg_attr(all(docs, feature = <span class="string">&quot;nightly&quot;</span>),
+    doc(cfg(feature = <span class="string">&quot;futures&quot;</span>))
+)]
+#[doc(no_inline)]
+</span><span class="kw">pub use </span>dyn_traits::futures;
 
-<span class="kw">pub</span>
-<span class="kw">mod</span> <span class="ident">slice</span>;
+<span class="kw">pub
+mod </span>ptr;
 
-<span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;string/_mod.rs&quot;</span>]</span>
-<span class="kw">pub</span>
-<span class="kw">mod</span> <span class="ident">string</span>;
+<span class="kw">pub
+mod </span>slice;
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-<span class="kw">pub</span>
-<span class="kw">use</span> <span class="ident">tuple</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[path = <span class="string">&quot;string/_mod.rs&quot;</span>]
+</span><span class="kw">pub
+mod </span>string;
 
-<span class="kw">pub</span>
-<span class="kw">mod</span> <span class="ident">tuple</span>;
+<span class="attribute">#[doc(no_inline)]
+</span><span class="kw">pub
+use </span>tuple::<span class="kw-2">*</span>;
 
-<span class="macro">cfg_alloc!</span> {
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">string::String</span>;
+<span class="kw">pub
+mod </span>tuple;
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">vec::Vec</span>;
-    <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">vec</span>;
+<span class="macro">cfg_alloc! </span>{
+    <span class="attribute">#[doc(inline)]
+    </span><span class="kw">pub use </span>string::String;
+
+    <span class="attribute">#[doc(inline)]
+    </span><span class="kw">pub use </span>vec::Vec;
+    <span class="kw">pub mod </span>vec;
 }
 
-<span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
-<span class="kw">use</span> <span class="ident">layout::impls::c_int</span>;
+<span class="attribute">#[apply(hidden_export)]
+</span><span class="kw">use </span>layout::impls::c_int;
 
-<span class="kw">pub</span>
-<span class="kw">mod</span> <span class="ident">prelude</span> {
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">ffi_export</span>,
-        <span class="ident">layout::ReprC</span>,
+<span class="kw">pub
+mod </span>prelude {
+    <span class="attribute">#[doc(no_inline)]
+    </span><span class="kw">pub use crate</span>::{
+        ffi_export,
+        layout::ReprC,
     };
-    <span class="kw">pub</span>
-    <span class="kw">mod</span> <span class="ident">char_p</span> {
-        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::char_p</span>::{
-            <span class="ident">char_p_raw</span> <span class="kw">as</span> <span class="ident">Raw</span>,
-            <span class="ident">char_p_ref</span> <span class="kw">as</span> <span class="ident">Ref</span>,
+    <span class="kw">pub
+    mod </span>char_p {
+        <span class="attribute">#[doc(no_inline)]
+        </span><span class="kw">pub use </span><span class="kw">crate</span>::char_p::{
+            char_p_raw <span class="kw">as </span>Raw,
+            char_p_ref <span class="kw">as </span>Ref,
         };
-        <span class="macro">cfg_alloc!</span> {
-            <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::char_p</span>::{
-                <span class="ident">char_p_boxed</span> <span class="kw">as</span> <span class="ident">Box</span>,
-                <span class="ident">new</span>,
+        <span class="macro">cfg_alloc! </span>{
+            <span class="attribute">#[doc(no_inline)]
+            </span><span class="kw">pub use </span><span class="kw">crate</span>::char_p::{
+                char_p_boxed <span class="kw">as </span>Box,
+                new,
             };
         }
     }
-    <span class="kw">pub</span>
-    <span class="kw">mod</span> <span class="ident">c_slice</span> {
-        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::slice</span>::{
-            <span class="ident">slice_mut</span> <span class="kw">as</span> <span class="ident">Mut</span>,
-            <span class="ident">slice_raw</span> <span class="kw">as</span> <span class="ident">Raw</span>,
-            <span class="ident">slice_ref</span> <span class="kw">as</span> <span class="ident">Ref</span>,
+    <span class="kw">pub
+    mod </span>c_slice {
+        <span class="attribute">#[doc(no_inline)]
+        </span><span class="kw">pub use </span><span class="kw">crate</span>::slice::{
+            slice_mut <span class="kw">as </span>Mut,
+            slice_raw <span class="kw">as </span>Raw,
+            slice_ref <span class="kw">as </span>Ref,
         };
-        <span class="macro">cfg_alloc!</span> {
-            <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::slice::slice_boxed</span> <span class="kw">as</span> <span class="ident">Box</span>;
+        <span class="macro">cfg_alloc! </span>{
+            <span class="attribute">#[doc(no_inline)]
+            </span><span class="kw">pub use </span><span class="kw">crate</span>::slice::slice_boxed <span class="kw">as </span>Box;
         }
     }
-    <span class="kw">pub</span>
-    <span class="kw">mod</span> <span class="ident">repr_c</span> {
-        <span class="macro">cfg_alloc!</span> {
-            <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{
-                <span class="ident">boxed::Box</span>,
-                <span class="ident">string::String</span>,
-                <span class="ident">vec::Vec</span>,
+    <span class="kw">pub
+    mod </span>repr_c {
+        <span class="macro">cfg_alloc! </span>{
+            <span class="attribute">#[doc(no_inline)]
+            </span><span class="kw">pub use crate</span>::{
+                boxed::Box,
+                string::String,
+                vec::Vec,
             };
 
-            <span class="kw">pub</span>
-            <span class="kw">type</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident"><span class="kw">crate</span>::boxed::FitForCArc</span><span class="op">&gt;</span><span class="ident">::CArcWrapped</span>;
+            <span class="kw">pub
+            type </span>Arc&lt;T&gt; = &lt;T <span class="kw">as </span><span class="kw">crate</span>::boxed::FitForCArc&gt;::CArcWrapped;
         }
     }
-    <span class="kw">pub</span>
-    <span class="kw">mod</span> <span class="ident">str</span> {
-        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::string</span>::{
-            <span class="comment">// str_raw as Raw,</span>
-            <span class="ident">str_ref</span> <span class="kw">as</span> <span class="ident">Ref</span>,
+    <span class="kw">pub
+    mod </span>str {
+        <span class="attribute">#[doc(no_inline)]
+        </span><span class="kw">pub use </span><span class="kw">crate</span>::string::{
+            <span class="comment">// str_raw as Raw,
+            </span>str_ref <span class="kw">as </span>Ref,
         };
-        <span class="macro">cfg_alloc!</span> {
-            <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::string::str_boxed</span> <span class="kw">as</span> <span class="ident">Box</span>;
+        <span class="macro">cfg_alloc! </span>{
+            <span class="attribute">#[doc(no_inline)]
+            </span><span class="kw">pub use </span><span class="kw">crate</span>::string::str_boxed <span class="kw">as </span>Box;
         }
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> {
-        <span class="ident"><span class="kw">crate</span>::layout::derive_ReprC</span>,
-        <span class="ident">::safer_ffi_proc_macros::derive_ReprC2</span>,
-        <span class="ident"><span class="kw">crate</span>::c</span>,
-        <span class="ident">::core</span>::{
-            <span class="ident">convert</span>::{
-                <span class="ident">TryFrom</span> <span class="kw">as</span> <span class="kw">_</span>,
-                <span class="ident">TryInto</span> <span class="kw">as</span> <span class="kw">_</span>,
+    <span class="attribute">#[doc(no_inline)]
+    </span><span class="kw">pub use </span>{
+        <span class="kw">crate</span>::layout::derive_ReprC,
+        ::safer_ffi_proc_macros::derive_ReprC2,
+        <span class="kw">crate</span>::c,
+        ::core::{
+            convert::{
+                TryFrom <span class="kw">as _</span>,
+                TryInto <span class="kw">as _</span>,
             },
-            <span class="ident">ops::Not</span> <span class="kw">as</span> <span class="kw">_</span>,
+            ops::Not <span class="kw">as _</span>,
         },
     };
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;out-refs&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">docs</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>),
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;out-refs&quot;</span>))
-    )]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::uninit::prelude</span>::{
-        <span class="comment">// Out reference itself</span>
-        <span class="ident">Out</span>,
-        <span class="comment">// Helper trait to go from `&amp;mut T` and `&amp;mut MaybeUninit&lt;T&gt;` to `Out&lt;T&gt;`</span>
-        <span class="ident">AsOut</span>,
-        <span class="comment">// Helper trait to have `AsOut` when `T : !Copy`</span>
-        <span class="ident">ManuallyDropMut</span>,
+    <span class="kw">pub use </span>::uninit::prelude::{
+        <span class="comment">// Out reference itself
+        </span>Out,
+        <span class="comment">// Helper trait to go from `&amp;mut T` and `&amp;mut MaybeUninit&lt;T&gt;` to `Out&lt;T&gt;`
+        </span>AsOut,
+        <span class="comment">// Helper trait to have `AsOut` when `T : !Copy`
+        </span>ManuallyDropMut,
     };
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dyn-traits&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">docs</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>),
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dyn-traits&quot;</span>))
-    )]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::dyn_traits::VirtualPtr</span>;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;dyn-traits&quot;</span>)]
+    #[cfg_attr(all(docs, feature = <span class="string">&quot;nightly&quot;</span>),
+        doc(cfg(feature = <span class="string">&quot;dyn-traits&quot;</span>))
+    )]
+    </span><span class="kw">pub use </span><span class="kw">crate</span>::dyn_traits::VirtualPtr;
 }
 
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">NULL</span> {() =&gt; (
-    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ඞ::ptr::null_mut</span>()
+<span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>NULL {() =&gt; (
+    <span class="macro-nonterminal">$crate::ඞ::ptr::null_mut</span>()
 )}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;log&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
-<span class="kw">use</span> <span class="ident">::log</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;log&quot;</span>)]
+#[apply(hidden_export)]
+</span><span class="kw">use </span>::log;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;js&quot;</span>)]</span>
-<span class="comment">// #[apply(hidden_export)]</span>
-<span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;js/_mod.rs&quot;</span>]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">js</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;js&quot;</span>)]
+</span><span class="comment">// #[apply(hidden_export)]
+</span><span class="attribute">#[path = <span class="string">&quot;js/_mod.rs&quot;</span>]
+</span><span class="kw">pub mod </span>js;
 
-<span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_copy_implementations</span>, <span class="ident">missing_debug_implementations</span>)]</span>
-<span class="kw">struct</span> <span class="ident">__PanicOnDrop__</span> {} <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">__PanicOnDrop__</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="self">Self</span>)
+<span class="attribute">#[apply(hidden_export)]
+#[allow(missing_copy_implementations, missing_debug_implementations)]
+</span><span class="kw">struct </span>__PanicOnDrop__ {} <span class="kw">impl </span>Drop <span class="kw">for </span>__PanicOnDrop__ {
+    <span class="kw">fn </span>drop (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="self">Self</span>)
     {
         <span class="macro">panic!</span>()
     }
 }
 
-<span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">__abort_with_msg__</span> { ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; (
-    <span class="kw">match</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::__PanicOnDrop__</span> {}) { <span class="kw">_</span> =&gt; {
-        <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::__error__!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="kw-2">*</span>);
-        <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::panic!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="kw-2">*</span>);
+<span class="attribute">#[apply(hidden_export)]
+</span><span class="macro">macro_rules! </span>__abort_with_msg__ { ($(<span class="macro-nonterminal">$tt</span>:tt)<span class="kw-2">*</span>) =&gt; (
+    <span class="kw">match </span>(<span class="macro-nonterminal">$crate::__PanicOnDrop__ </span>{}) { <span class="kw">_ </span>=&gt; {
+        <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::__error__!</span>($(<span class="macro-nonterminal">$tt</span>)<span class="kw-2">*</span>);
+        <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::panic!</span>($(<span class="macro-nonterminal">$tt</span>)<span class="kw-2">*</span>);
     }}
 )}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">mod</span> <span class="ident">libc</span> {
-    <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">c_int</span> <span class="op">=</span> <span class="ident">i32</span>;
-    <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">size_t</span> <span class="op">=</span> <span class="ident">u32</span>;
-    <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">uintptr_t</span> <span class="op">=</span> <span class="ident">u32</span>;
+<span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+#[allow(dead_code)]
+</span><span class="kw">mod </span>libc {
+    <span class="kw">pub type </span>c_int = i32;
+    <span class="kw">pub type </span>size_t = u32;
+    <span class="kw">pub type </span>uintptr_t = u32;
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">::libc</span>;
+<span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+</span><span class="kw">use </span>::libc;
 
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="self">self</span> <span class="kw">as</span> <span class="ident">safer_ffi</span>;
+<span class="kw">extern crate </span><span class="self">self </span><span class="kw">as </span>safer_ffi;
 
-<span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
-<span class="kw">use</span> <span class="ident">__</span> <span class="kw">as</span> <span class="ident">ඞ</span>;
+<span class="attribute">#[apply(hidden_export)]
+</span><span class="kw">use </span>__ <span class="kw">as </span>ඞ;
 
-<span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
-<span class="kw">mod</span> <span class="ident">__</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
+<span class="attribute">#[apply(hidden_export)]
+</span><span class="kw">mod </span>__ {
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+    </span><span class="kw">pub extern crate </span>alloc;
 
-    <span class="kw">pub</span> <span class="kw">use</span> {
-        <span class="ident">::core</span>::{
+    <span class="kw">pub use </span>{
+        ::core::{
             <span class="self">self</span>,
-            <span class="ident">marker::PhantomData</span>,
-            <span class="ident">primitive</span>::{
-                <span class="ident">u8</span>, <span class="ident">u16</span>, <span class="ident">u32</span>, <span class="ident">usize</span>, <span class="ident">u64</span>, <span class="ident">u128</span>,
-                <span class="ident">i8</span>, <span class="ident">i16</span>, <span class="ident">i32</span>, <span class="ident">isize</span>, <span class="ident">i64</span>, <span class="ident">i128</span>,
-                <span class="ident">bool</span>,
-                <span class="ident">char</span>,
-                <span class="ident">str</span>,
+            marker::PhantomData,
+            primitive::{
+                u8, u16, u32, usize, u64, u128,
+                i8, i16, i32, isize, i64, i128,
+                bool,
+                char,
+                str,
             },
         },
-        <span class="ident">::scopeguard</span>::{
+        ::scopeguard::{
             <span class="self">self</span>,
         },
         <span class="kw">crate</span>::{
-            <span class="ident">layout</span>::{
-                <span class="ident">CLayoutOf</span>,
-                <span class="ident">ConcreteReprC</span>,
-                <span class="ident">CType</span>,
-                <span class="ident">OpaqueKind</span>,
-                <span class="ident">ReprC</span>,
-                <span class="ident">__HasNiche__</span>,
+            ptr,
+            layout::{
+                CLayoutOf,
+                ConcreteReprC,
+                CType,
+                OpaqueKind,
+                ReprC,
+                __HasNiche__,
             },
-            <span class="ident">prelude</span>::<span class="kw-2">*</span>,
+            prelude::<span class="kw-2">*</span>,
         },
     };
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;headers&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> {
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;headers&quot;</span>)]
+    </span><span class="kw">pub use </span>{
         <span class="kw">crate</span>::{
-            <span class="ident">headers</span>::{
-                <span class="ident">Definer</span>,
-                <span class="ident">Language</span>,
-                <span class="ident">languages</span>::{
+            headers::{
+                Definer,
+                Language,
+                languages::{
                     <span class="self">self</span>,
-                    <span class="ident">EnumVariant</span>,
-                    <span class="ident">FunctionArg</span>,
-                    <span class="ident">HeaderLanguage</span>,
-                    <span class="ident">StructField</span>,
+                    EnumVariant,
+                    FunctionArg,
+                    HeaderLanguage,
+                    StructField,
                 },
             },
-            <span class="ident">inventory</span>,
-            <span class="ident">FfiExport</span>,
+            inventory,
+            FfiExport,
         },
     };
 
-    <span class="macro">cfg_match!</span> {
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span> =&gt; {
-            <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::std</span>::{<span class="kw-2">*</span>,
+    <span class="macro">cfg_match! </span>{
+        feature = <span class="string">&quot;std&quot; </span>=&gt; {
+            <span class="kw">pub use </span>::std::{<span class="kw-2">*</span>,
                 <span class="self">self</span>,
-                <span class="ident">prelude::rust_2021</span>::<span class="kw-2">*</span>,
+                prelude::rust_2021::<span class="kw-2">*</span>,
             };
         },
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span> =&gt; {
-            <span class="kw">pub</span> <span class="kw">use</span> {
-                <span class="ident">::core</span>::{<span class="kw-2">*</span>,
-                    <span class="ident">prelude::rust_2021</span>::<span class="kw-2">*</span>,
+        feature = <span class="string">&quot;alloc&quot; </span>=&gt; {
+            <span class="kw">pub use </span>{
+                ::core::{<span class="kw-2">*</span>,
+                    prelude::rust_2021::<span class="kw-2">*</span>,
                 },
-                <span class="ident">::alloc</span>::{
-                    <span class="ident">boxed::Box</span>,
-                    <span class="ident">string::String</span>,
-                    <span class="ident">vec::Vec</span>,
+                ::alloc::{
+                    boxed::Box,
+                    string::String,
+                    vec::Vec,
                 },
             };
         },
-        <span class="kw">_</span> =&gt; {
-            <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::core</span>::{<span class="kw-2">*</span>,
-                <span class="ident">prelude::rust_2021</span>::<span class="kw-2">*</span>,
+        <span class="kw">_ </span>=&gt; {
+            <span class="kw">pub use </span>::core::{<span class="kw-2">*</span>,
+                prelude::rust_2021::<span class="kw-2">*</span>,
             };
         }
     }
 
-    <span class="doccomment">/// Hack needed to `feature(trivial_bounds)` in stable Rust:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Instead of `where Ty : Bounds…`, it suffices to write:</span>
-    <span class="doccomment">/// `where for&lt;&#39;trivial&gt; Identity&lt;&#39;trivial, Ty&gt; : Bounds…`.</span>
-    <span class="kw">pub</span>
-    <span class="kw">type</span> <span class="ident">Identity</span><span class="op">&lt;</span><span class="lifetime">&#39;hrtb</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">IdentityIgnoring</span><span class="op">&lt;</span><span class="lifetime">&#39;hrtb</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::ItSelf</span>
+    <span class="doccomment">/// Hack needed to `feature(trivial_bounds)` in stable Rust:
+    ///
+    /// Instead of `where Ty : Bounds…`, it suffices to write:
+    /// `where for&lt;&#39;trivial&gt; Identity&lt;&#39;trivial, Ty&gt; : Bounds…`.
+    </span><span class="kw">pub
+    type </span>Identity&lt;<span class="lifetime">&#39;hrtb</span>, T&gt; =
+        &lt;T <span class="kw">as </span>IdentityIgnoring&lt;<span class="lifetime">&#39;hrtb</span>&gt;&gt;::ItSelf
     ;
-    <span class="comment">// where</span>
-    <span class="kw">pub</span>
-    <span class="kw">trait</span> <span class="ident">IdentityIgnoring</span><span class="op">&lt;</span><span class="lifetime">&#39;__</span><span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">ItSelf</span> : <span class="question-mark">?</span><span class="ident">Sized</span>;
+    <span class="comment">// where
+    </span><span class="kw">pub
+    trait </span>IdentityIgnoring&lt;<span class="lifetime">&#39;__</span>&gt; {
+        <span class="kw">type </span>ItSelf : <span class="question-mark">?</span>Sized;
     }
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">IdentityIgnoring</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">T</span> {
-        <span class="kw">type</span> <span class="ident">ItSelf</span> <span class="op">=</span> <span class="self">Self</span>;
+    <span class="kw">impl</span>&lt;T : <span class="question-mark">?</span>Sized&gt; IdentityIgnoring&lt;<span class="lifetime">&#39;_</span>&gt; <span class="kw">for </span>T {
+        <span class="kw">type </span>ItSelf = <span class="self">Self</span>;
     }
 
-    <span class="macro">cfg_match!</span> {
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;log&quot;</span> =&gt; {
-            <span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
-            <span class="macro">macro_rules!</span> <span class="ident">__error__</span> {( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">msg</span>:<span class="ident">tt</span>)<span class="op">*</span> ) =&gt; (
-                <span class="macro-nonterminal">$</span><span class="macro">crate::log::error!</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">msg</span>)<span class="op">*</span> }
+    <span class="macro">cfg_match! </span>{
+        feature = <span class="string">&quot;log&quot; </span>=&gt; {
+            <span class="attribute">#[apply(hidden_export)]
+            </span><span class="macro">macro_rules! </span>__error__ {( $(<span class="macro-nonterminal">$msg</span>:tt)* ) =&gt; (
+                <span class="macro-nonterminal">$</span><span class="macro">crate::log::error! </span>{ $(<span class="macro-nonterminal">$msg</span>)* }
             )}
         },
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span> =&gt; {
-            <span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
-            <span class="macro">macro_rules!</span> <span class="ident">__error__</span> {( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">msg</span>:<span class="ident">tt</span>)<span class="op">*</span> ) =&gt; (
-                <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::eprintln!</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">msg</span>)<span class="op">*</span> }
+        feature = <span class="string">&quot;std&quot; </span>=&gt; {
+            <span class="attribute">#[apply(hidden_export)]
+            </span><span class="macro">macro_rules! </span>__error__ {( $(<span class="macro-nonterminal">$msg</span>:tt)* ) =&gt; (
+                <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::eprintln! </span>{ $(<span class="macro-nonterminal">$msg</span>)* }
             )}
         },
-        <span class="kw">_</span> =&gt; {
-            <span class="attribute">#[<span class="ident">apply</span>(<span class="ident">hidden_export</span>)]</span>
-            <span class="macro">macro_rules!</span> <span class="ident">__error__</span> {( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">msg</span>:<span class="ident">tt</span>)<span class="op">*</span> ) =&gt; (
-                <span class="comment">/* nothing we can do */</span>
-            )}
+        <span class="kw">_ </span>=&gt; {
+            <span class="attribute">#[apply(hidden_export)]
+            </span><span class="macro">macro_rules! </span>__error__ {( $(<span class="macro-nonterminal">$msg</span>:tt)* ) =&gt; (
+                <span class="comment">/* nothing we can do */
+            </span>)}
         },
     }
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">__error__</span>;
+    <span class="kw">pub use </span>__error__;
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_debug_implementations</span>)]</span>
-    <span class="kw">pub</span>
-    <span class="kw">struct</span> <span class="ident">UnwindGuard</span> <span class="comment">/* = */</span> (
-        <span class="kw">pub</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
+    <span class="attribute">#[allow(missing_debug_implementations)]
+    </span><span class="kw">pub
+    struct </span>UnwindGuard <span class="comment">/* = */ </span>(
+        <span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
     );
 
-    <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">UnwindGuard</span> {
-        <span class="kw">fn</span> <span class="ident">drop</span> (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="self">Self</span>)
+    <span class="kw">impl </span>Drop <span class="kw">for </span>UnwindGuard {
+        <span class="kw">fn </span>drop (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="self">Self</span>)
         {
-            <span class="kw">let</span> <span class="kw-2">&amp;mut</span> <span class="self">Self</span>(<span class="ident">fname</span>) <span class="op">=</span> <span class="self">self</span>;
+            <span class="kw">let </span><span class="kw-2">&amp;mut </span><span class="self">Self</span>(fname) = <span class="self">self</span>;
             <span class="macro">__abort_with_msg__!</span>(<span class="string">&quot;\
                 Error, attempted to panic across the FFI \
                 boundary of `{fname}()`, \
@@ -1255,74 +1266,73 @@
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-    <span class="kw">pub</span>
-    <span class="kw">fn</span> <span class="ident">append_unqualified_name</span> (
-        <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">mut</span> <span class="ident">String</span>,
-        <span class="ident">ty_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>,
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+    </span><span class="kw">pub
+    fn </span>append_unqualified_name (
+        out: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>String,
+        ty_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>str,
     )
     {
-        <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">never</span>)]</span>
-        <span class="kw">fn</span> <span class="ident">mb_split_with</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> (
-            <span class="ident">orig</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">str</span>,
-            <span class="ident">splitter</span>: <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">str</span>)<span class="op">&gt;</span>,
-        ) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">str</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">str</span><span class="op">&gt;</span>)
+        <span class="attribute">#[inline(never)]
+        </span><span class="kw">fn </span>mb_split_with&lt;<span class="lifetime">&#39;r</span>&gt; (
+            orig: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str,
+            splitter: <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str)&gt;,
+        ) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str&gt;)
         {
-            <span class="ident">splitter</span>(<span class="ident">orig</span>).<span class="ident">map_or</span>((<span class="ident">orig</span>, <span class="prelude-val">None</span>), <span class="op">|</span>(<span class="ident">l</span>, <span class="ident">r</span>)<span class="op">|</span> (<span class="ident">l</span>, <span class="prelude-val">Some</span>(<span class="ident">r</span>)))
+            splitter(orig).map_or((orig, <span class="prelude-val">None</span>), |(l, r)| (l, <span class="prelude-val">Some</span>(r)))
         }
 
-        <span class="kw">let</span> <span class="ident">ty_name</span> <span class="op">=</span> <span class="ident">ty_name</span>.<span class="ident">trim</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tuple_innards</span>) <span class="op">=</span> <span class="ident">ty_name</span>.<span class="ident">strip_prefix</span>(<span class="string">&#39;(&#39;</span>) {
-            <span class="comment">// Tuple</span>
-            <span class="ident">tuple_innards</span>
-                .<span class="ident">strip_suffix</span>(<span class="string">&#39;)&#39;</span>).<span class="ident">unwrap</span>()
-                .<span class="ident">split</span>(<span class="string">&#39;,&#39;</span>)
-                .<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">generic</span><span class="op">|</span> {
-                    <span class="ident">append_unqualified_name</span>(<span class="ident">out</span>, <span class="ident">generic</span>);
+        <span class="kw">let </span>ty_name = ty_name.trim();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(tuple_innards) = ty_name.strip_prefix(<span class="string">&#39;(&#39;</span>) {
+            <span class="comment">// Tuple
+            </span>tuple_innards
+                .strip_suffix(<span class="string">&#39;)&#39;</span>).unwrap()
+                .split(<span class="string">&#39;,&#39;</span>)
+                .for_each(|generic| {
+                    append_unqualified_name(out, generic);
                 })
             ;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bracketed_innards</span>) <span class="op">=</span> <span class="ident">ty_name</span>.<span class="ident">strip_prefix</span>(<span class="string">&#39;[&#39;</span>) {
-            <span class="comment">// Array or Slice</span>
-            <span class="kw">let</span> (<span class="ident">elem_ty</span>, <span class="ident">mb_len</span>) <span class="op">=</span> <span class="ident">mb_split_with</span>(
-                <span class="ident">bracketed_innards</span>.<span class="ident">strip_suffix</span>(<span class="string">&#39;]&#39;</span>).<span class="ident">unwrap</span>(),
-                <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">rsplit_once</span>(<span class="string">&#39;;&#39;</span>),
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(bracketed_innards) = ty_name.strip_prefix(<span class="string">&#39;[&#39;</span>) {
+            <span class="comment">// Array or Slice
+            </span><span class="kw">let </span>(elem_ty, mb_len) = mb_split_with(
+                bracketed_innards.strip_suffix(<span class="string">&#39;]&#39;</span>).unwrap(),
+                |s| s.rsplit_once(<span class="string">&#39;;&#39;</span>),
             );
-            <span class="ident">append_unqualified_name</span>(<span class="ident">out</span>, <span class="ident">elem_ty</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">mb_len</span> {
-                <span class="ident">append_unqualified_name</span>(<span class="ident">out</span>, <span class="ident">len</span>);
+            append_unqualified_name(out, elem_ty);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(len) = mb_len {
+                append_unqualified_name(out, len);
             }
-        } <span class="kw">else</span> {
-            <span class="comment">// Canonical Type Path</span>
-            <span class="ident">out</span>.<span class="ident">push</span>(<span class="string">&#39;_&#39;</span>);
-            <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">path</span>, <span class="ident">mb_generics</span>) <span class="op">=</span> <span class="ident">mb_split_with</span>(
-                <span class="ident">ty_name</span>,
-                <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">split_once</span>(<span class="string">&#39;&lt;&#39;</span>),
+        } <span class="kw">else </span>{
+            <span class="comment">// Canonical Type Path
+            </span>out.push(<span class="string">&#39;_&#39;</span>);
+            <span class="kw">let </span>(<span class="kw-2">mut </span>path, mb_generics) = mb_split_with(
+                ty_name,
+                |s| s.split_once(<span class="string">&#39;&lt;&#39;</span>),
             );
-            <span class="kw">let</span> <span class="ident">is_valid_for_ident</span> <span class="op">=</span> <span class="op">|</span><span class="ident">c</span>: <span class="ident">char</span><span class="op">|</span> {
-                <span class="ident">c</span>.<span class="ident">is_alphanumeric</span>() <span class="op">|</span><span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">c</span>, <span class="string">&#39;_&#39;</span>)
+            <span class="kw">let </span>is_valid_for_ident = |c: char| {
+                c.is_alphanumeric() || <span class="macro">matches!</span>(c, <span class="string">&#39;_&#39;</span>)
             };
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">trait_path</span>) <span class="op">=</span> <span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;dyn &quot;</span>) {
-                <span class="ident">out</span>.<span class="ident">push_str</span>(<span class="string">&quot;dyn_&quot;</span>);
-                <span class="ident">path</span> <span class="op">=</span> <span class="ident">trait_path</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(trait_path) = path.strip_prefix(<span class="string">&quot;dyn &quot;</span>) {
+                out.push_str(<span class="string">&quot;dyn_&quot;</span>);
+                path = trait_path;
             }
-            <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">chars</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">is_valid_for_ident</span>(<span class="ident">c</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;:&#39;</span>) {
-                <span class="kw">let</span> <span class="ident">unqualified</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">rsplitn</span>(<span class="number">2</span>, <span class="string">&#39;:&#39;</span>).<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">trim</span>();
-                <span class="ident">out</span>.<span class="ident">push_str</span>(<span class="ident">unqualified</span>);
-            } <span class="kw">else</span> {
-                <span class="comment">// Weird type, fall back to replacing non_alphanumerics:</span>
-                <span class="ident">path</span>.<span class="ident">chars</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
-                    <span class="ident">out</span>.<span class="ident">push</span>(<span class="kw">if</span> <span class="ident">is_valid_for_ident</span>(<span class="ident">c</span>) { <span class="ident">c</span> } <span class="kw">else</span> { <span class="string">&#39;_&#39;</span> });
+            <span class="kw">if </span>path.chars().all(|c| is_valid_for_ident(c) || c == <span class="string">&#39;:&#39;</span>) {
+                <span class="kw">let </span>unqualified = path.rsplitn(<span class="number">2</span>, <span class="string">&#39;:&#39;</span>).next().unwrap().trim();
+                out.push_str(unqualified);
+            } <span class="kw">else </span>{
+                <span class="comment">// Weird type, fall back to replacing non_alphanumerics:
+                </span>path.chars().for_each(|c| {
+                    out.push(<span class="kw">if </span>is_valid_for_ident(c) { c } <span class="kw">else </span>{ <span class="string">&#39;_&#39; </span>});
                 });
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">generics</span>) <span class="op">=</span> <span class="ident">mb_generics</span> {
-                <span class="kw">let</span> <span class="ident">generics</span> <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">strip_suffix</span>(<span class="string">&#39;&gt;&#39;</span>).<span class="ident">unwrap</span>();
-                <span class="ident">generics</span>.<span class="ident">split</span>(<span class="string">&#39;,&#39;</span>).<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">generic</span><span class="op">|</span> {
-                    <span class="ident">append_unqualified_name</span>(<span class="ident">out</span>, <span class="ident">generic</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(generics) = mb_generics {
+                <span class="kw">let </span>generics = generics.strip_suffix(<span class="string">&#39;&gt;&#39;</span>).unwrap();
+                generics.split(<span class="string">&#39;,&#39;</span>).for_each(|generic| {
+                    append_unqualified_name(out, generic);
                 });
             }
         }
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>
