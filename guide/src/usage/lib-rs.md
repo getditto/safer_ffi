@@ -67,7 +67,7 @@ file(name), or into the given `Write`-able / "write sink":
     ```
 
     ```rust ,norun
-    //! examples/generate-headers.rs
+    //! src/bin/generate-headers.rs
     fn main() -> ::std::io::Result<()> {
         ::crate_name::generate_headers()
     }
@@ -76,16 +76,16 @@ file(name), or into the given `Write`-able / "write sink":
   - And run:
 
     ```bash
-    cargo run --example generate-headers --features headers
+    cargo run --bin generate-headers --features headers
     ```
 
     to generate the headers.
 
-  - You may also    want to add:
+  - You may also want to add:
 
     ```toml
     # Cargo.toml
-    [[example]]
+    [[bin]]
     name = "generate-headers"
     required-features = ["headers"]
     ```
@@ -115,7 +115,7 @@ fn generate_headers() -> ::std::io::Result<()> {
 and run
 
 ```bash
-cargo run --example generate-headers --features headers -- /path/to/headers.h
+cargo run --bin generate-headers --features headers -- /path/to/headers.h
 ```
 
 </details>

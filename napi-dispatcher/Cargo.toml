@@ -2,8 +2,8 @@
 path = "dispatcher.rs"
 
 [package]
-name = "napi-dispatcher"
-version = "0.1.0"
+name = "cratesio-placeholder-package" # "napi-dispatcher"
+version = "0.0.3"
 authors = [
     "Daniel Henry Mantilla <daniel.henry.mantilla@gmail.com>",
 ]

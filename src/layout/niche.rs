@@ -94,7 +94,6 @@ cfg_alloc! {
     }
 }
 
-#[cfg(feature = "out-refs")]
 unsafe_impls! {
     @for['out, T : 'out + ReprC]
     Out<'out, T> => |it| it.is_null()

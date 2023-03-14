@@ -36,6 +36,9 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
     $(
         impl VirtualPtr<dyn 'static + FfiFutureExecutor + $($SendSync)*> {
             #[cfg(feature = "tokio")]
+            #[cfg_attr(all(docs, feature = "nightly"),
+                doc(cfg(feature = "tokio"))
+            )]
             pub
             fn spawn_within_tokio_reactor<R : 'static + Send> (
                 self: &'_ Self,
@@ -92,7 +95,11 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
                 }
             }
 
+
             #[cfg(feature = "tokio")]
+            #[cfg_attr(all(docs, feature = "nightly"),
+                doc(cfg(feature = "tokio"))
+            )]
             pub
             fn block_on_within_tokio_reactor<R> (
                 self: &'_ Self,
@@ -135,6 +142,9 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
 )}}
 
 cfg_match!(feature = "tokio" => {
+    #[cfg_attr(all(docs, feature = "nightly"),
+        doc(cfg(feature = "tokio"))
+    )]
     impl FfiFutureExecutor for ::tokio::runtime::Handle {
         fn dyn_spawn (
             self: &'_ Self,

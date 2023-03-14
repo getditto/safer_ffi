@@ -3,18 +3,24 @@ path = "src/_lib.rs"
 
 [package]
 name = "safer-ffi"
-version = "0.1.0"  # Keep in sync
-authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
+version = "0.1.0-rc1"  # Keep in sync
+authors = [
+    "Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>",
+]
 edition = "2021"
 
 description = "Write safer FFI code in Rust without polluting it with unsafe code"
-keywords = ["ffi", "no_std", "framework", "safety", "bindings"]
+keywords = [
+    "ffi", "no_std", "framework", "safety", "bindings",
+]
 license = "MIT"
 repository = "https://github.com/getditto/safer_ffi"
 
 readme = "README.md"
 
-exclude = ["/guide"]
+exclude = [
+    "/guide",
+]
 
 [features]
 default = [
@@ -23,11 +29,10 @@ default = [
 
 # Document under the following features: all but for debug or experimental.
 docs = [
-    "csharp-headers",
+    "headers",
     "default",
     "nightly",
     "tokio",
-    "uninit",
 ]
 
 nightly = []
@@ -49,6 +54,8 @@ debug_proc_macros = [
 
 dyn-traits = [
     "safer_ffi-proc_macros/dyn-traits",
+    # FIXME: make this finer-grained
+    "std",
 ]
 
 futures = [
@@ -62,27 +69,22 @@ tokio = [
     "futures",
 ]
 
-out-refs = [
-    "uninit",
-]
-
 headers = [
     "inventory",
     "safer_ffi-proc_macros/headers",
     "std",
-]
-csharp-headers = [
-    "headers",
 ]
 # Tweak the generated `.h` ever so slightly.
 c-headers-with-fn-style = [
     "headers",
 ]
 
+# PRIVATE FEATURE / not part of crates.io package!
 js = [
     "async-fn",
     "headers",
     "inventory",
+    "napi",
     "safer_ffi-proc_macros/js",
     # For convenience
     "std",
@@ -93,15 +95,16 @@ inventory-0-3-1 = [
     "safer_ffi-proc_macros/inventory-0-3-1",
 ]
 
-[dev-dependencies]
-macro_rules_attribute = "0.1.0"
-safer-ffi.path = "."
-safer-ffi.features = [
+internal-tests = [
     "async-fn",
-    "csharp-headers",
+    "headers",
     "dyn-traits",
-    "tokio",
+    "tokio/rt-multi-thread",
 ]
+
+[dev-dependencies]
+safer-ffi.path = "."
+safer-ffi.features = ["internal-tests"]
 
 [dependencies]
 async-compat.optional = true
@@ -120,29 +123,31 @@ inventory-0-3-1.version = "0.3.1"
 log.optional = true
 log.version = "0.4.8"
 
-macro_rules_attribute.version = "0.1.0"
+macro_rules_attribute.version = "0.1.3"
 
-napi.package = "napi-dispatcher"
-napi.path = "napi-dispatcher"
-
-paste.package = "mini_paste"
-paste.version = "0.1.*"
+paste.version = "1.0.12"
 
 scopeguard.version = "1.1.0"
 
 tokio.optional = true
-tokio.version = "1.21.2"
+tokio.version = "1.26.0"
 tokio.features = [
     "rt",
 ]
 
-uninit.optional = true
 uninit.version = "0.5.0"
 uninit.default-features = false
 
 unwind_safe.version = "0.1.0"
 
 with_builtin_macros.version = "0.0.3"
+
+# This dependency is not released to crates.io
+[dependencies.napi]
+optional = true
+path = "napi-dispatcher"
+package = "cratesio-placeholder-package"
+version = "0.0.3"
 
 [dependencies.safer_ffi-proc_macros]
 path = "src/proc_macro"

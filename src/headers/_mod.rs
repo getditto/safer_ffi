@@ -369,7 +369,6 @@ impl Builder<'_, WhereTo> {
                 guard = guard,
             ),
 
-            #[cfg(feature = "csharp-headers")]
             | Language::CSharp => writeln!(definer.out(),
                 include_str!("templates/csharp/_prelude.cs"),
                 NameSpace = Self::pascal_cased_lib_name(),
@@ -424,7 +423,6 @@ impl Builder<'_, WhereTo> {
                 guard = self.guard(),
             ),
 
-            #[cfg(feature = "csharp-headers")]
             | Language::CSharp => {
                 let pkg_name = Self::pascal_cased_lib_name();
                     write!(definer.out(),
@@ -457,7 +455,6 @@ impl Builder<'_, WhereTo> {
     }
 
     /// Return a Pascal Cased (UpperCamelCase) version of the lib name.
-    #[cfg(feature = "csharp-headers")]
     fn pascal_cased_lib_name() -> String {
         Self::lib_name()
             .chars()
@@ -496,11 +493,7 @@ enum Language {
     /// C, _lingua franca_ of FFI interop.
     C,
 
-    /// C# (experimental).
-    #[cfg(feature = "csharp-headers")]
-    #[cfg_attr(feature = "nightly",
-        doc(cfg(feature = "csharp-headers"))
-    )]
+    /// C#
     CSharp,
 }
 
@@ -524,7 +517,6 @@ hidden_export! {
             | Language::C => {
                 <T::CLayout as CType>::define_self(&crate::headers::languages::C, definer)
             },
-            #[cfg(feature = "csharp-headers")]
             | Language::CSharp => {
                 <T::CLayout as CType>::define_self(&crate::headers::languages::CSharp, definer)
             },
@@ -550,7 +542,6 @@ fn __define_fn__ (
 {
     let dyn_lang: &dyn HeaderLanguage = match lang {
         | Language::C => &languages::C,
-        #[cfg(feature = "csharp-headers")]
         | Language::CSharp => &languages::CSharp,
     };
     dyn_lang.emit_function(
@@ -583,7 +574,6 @@ hidden_export! {
                     "{} (", f_name.trim(),
                 ),
 
-                #[cfg(feature = "csharp-headers")]
                 | Language::CSharp => write!(out,
                     "{} (", f_name.trim(),
                 ),
@@ -607,7 +597,6 @@ hidden_export! {
                     Arg::CLayout::name_wrapping_var(&crate::headers::languages::C, arg_name),
                 ),
 
-                #[cfg(feature = "csharp-headers")]
                 | Language::CSharp => write!(out,
                     "\n        {marshaler}{}",
                      Arg::CLayout::name_wrapping_var(&crate::headers::languages::CSharp, arg_name),
@@ -641,7 +630,6 @@ hidden_export! {
                     )
                 },
 
-                #[cfg(feature = "csharp-headers")]
                 | Language::CSharp => {
                     writeln!(out,
                         concat!(

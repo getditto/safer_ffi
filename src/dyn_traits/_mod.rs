@@ -4,8 +4,11 @@
 
 use_prelude!();
 
-#[cfg(feature = "futures")]
 #[path = "futures/_mod.rs"]
+#[cfg(feature = "futures")]
+#[cfg_attr(all(docs, feature = "nightly"),
+    doc(cfg(feature = "futures"))
+)]
 pub mod futures;
 
 #[doc(no_inline)]
