@@ -43,7 +43,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --features proc_macros,log,out-refs
+          args: --features log
 
   releasable-to-crates-io:
     name: Check the crate can be released to crates.io
