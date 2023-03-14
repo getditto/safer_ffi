@@ -22,7 +22,7 @@ jobs:
           - macos-latest
           # - windows-latest
         rust:
-          - 1.60.0
+          - 1.66.1
           - stable
           # - nightly
     steps:
@@ -63,7 +63,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.60.0
+          toolchain: 1.66.1
           override: true
 
       - name: Clone repo
@@ -94,7 +94,7 @@ jobs:
           - macos-latest
           - windows-latest
         rust:
-          # - 1.60.0
+          # - 1.66.1
           - stable
           - nightly
     steps:
@@ -147,7 +147,7 @@ jobs:
         with:
           profile: default
           override: true
-          toolchain: 1.60.0
+          toolchain: 1.66.1
 
       - name: Install `mdbook`
         uses: peaceiris/actions-mdbook@v1
