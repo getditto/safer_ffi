@@ -54,6 +54,8 @@ debug_proc_macros = [
 
 dyn-traits = [
     "safer_ffi-proc_macros/dyn-traits",
+    # FIXME: make this finer-grained
+    "std",
 ]
 
 futures = [
