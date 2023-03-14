@@ -95,15 +95,16 @@ inventory-0-3-1 = [
     "safer_ffi-proc_macros/inventory-0-3-1",
 ]
 
-[dev-dependencies]
-macro_rules_attribute = "0.1.0"
-safer-ffi.path = "."
-safer-ffi.features = [
+internal-tests = [
     "async-fn",
     "headers",
     "dyn-traits",
-    "tokio",
+    "tokio/rt-multi-thread",
 ]
+
+[dev-dependencies]
+safer-ffi.path = "."
+safer-ffi.features = ["internal-tests"]
 
 [dependencies]
 async-compat.optional = true
