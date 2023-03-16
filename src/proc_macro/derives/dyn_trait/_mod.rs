@@ -205,20 +205,45 @@ fn try_handle_trait (
             if mut_ == mutability
         ))
     };
-    let has_pin =
-        each_vtable_entry
+    let (mut has_pin, mut has_non_pin_non_ref) = (None, None);
+    each_vtable_entry
         .iter()
-        .any(|it| matches!(
-            *it,
-            VTableEntry::VirtualMethod {
-                receiver: ReceiverType {
-                    pinned: true,
-                    ..
-                },
+        .filter_map(|it| match *it {
+            | VTableEntry::VirtualMethod {
+                ref receiver,
+                ref src,
                 ..
-            }
-        ))
+            } => {
+                Some((receiver, || src.sig.ident.clone()))
+            },
+        })
+        .for_each(|(receiver, fname)| match receiver {
+            | ReceiverType {
+                pinned: true,
+                ..
+            } => {
+                has_pin.get_or_insert_with(fname);
+            },
+            // Tolerate `&self` refs mixed with `Pin`s:
+            | ReceiverType {
+                kind: ReceiverKind::Reference { mut_: false },
+                ..
+            } => {
+                /* OK */
+            },
+            | _otherwise => {
+                has_non_pin_non_ref.get_or_insert_with(fname);
+            },
+        })
     ;
+    match (&has_pin, has_non_pin_non_ref) {
+        | (Some(pinned_span), Some(non_pin_non_ref_span)) => bail! {
+            "`Pin<>` receivers can only be mixed with `&self` receivers"
+            => quote!(#pinned_span #non_pin_non_ref_span)
+        },
+        | _ => {},
+    }
+    let has_pin = has_pin.is_some();
     let (has_ref, has_mut) = (has_mutability(false), has_mutability(true));
 
     let send_trait = &squote!( #ඞ::marker::Send );

@@ -5,7 +5,7 @@ use super::*;
 pub(in super)
 enum VTableEntry<'trait_> {
     VirtualMethod {
-        src: &'trait_ TraitItemMethod,
+        src: TraitItemMethod,
         name: &'trait_ Ident,
         each_for_lifetime: Vec<&'trait_ Lifetime>,
         receiver: ReceiverType,
@@ -42,7 +42,7 @@ impl<'trait_> VTableEntry<'trait_> {
                 ErasedSelf: _,
                 EachArgTy: _,
                 OutputTy: _,
-                src: &TraitItemMethod {
+                src: TraitItemMethod {
                     sig: ref full_signature,
                     ref attrs,
                     ..
@@ -86,11 +86,11 @@ impl<'trait_> VTableEntry<'trait_> {
     pub(in super)
     fn attrs<'r> (
         self: &'r VTableEntry<'trait_>
-    ) -> &'trait_ Vec<Attribute>
+    ) -> &'r Vec<Attribute>
     {
         match self {
             | Self::VirtualMethod {
-                src: &TraitItemMethod {
+                src: TraitItemMethod {
                     ref attrs,
                     ..
                 },
@@ -254,6 +254,7 @@ fn vtable_entries<'trait_> (
             default: _,
             semi_token: _,
         }) => {
+            let mut trait_item_method = trait_item_method.clone();
             // // Is there a `Self : Sized` opt-out-of-`dyn` clause?
             // if matches!(
             //     generics.where_clause, Some(ref where_clause)
@@ -300,7 +301,7 @@ fn vtable_entries<'trait_> (
             //         )
             //     })
             // };
-            let receiver = if let Some(fn_arg) = sig.receiver() {
+            let receiver = if let Some(fn_arg) = trait_item_method.sig.inputs.iter_mut().next() {
                 match ReceiverType::from_fn_arg(fn_arg) {
                     | Ok(it) => it,
                     | Err(err) => return Some(Err(err)),
