@@ -470,6 +470,7 @@ mod __ {
         ::core::{
             self,
             marker::PhantomData,
+            pin::Pin,
             primitive::{
                 u8, u16, u32, usize, u64, u128,
                 i8, i16, i32, isize, i64, i128,
