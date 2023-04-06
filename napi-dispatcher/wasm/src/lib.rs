@@ -175,8 +175,9 @@ impl From<Error> for JsValue {
     fn from (e: Error)
       -> JsValue
     {
-        JsValue::from_serde(&e)
-            .unwrap_or_else(|err| JsValue::from_str(&format!("{}: {:?}", err, e)))
+        // Does not use `JsValue::from_serde` because that places the error message in a field
+        // `reason` instead of `message`.
+        ::wasm_bindgen::JsError::new(&e.reason).into()
     }
 }
 
