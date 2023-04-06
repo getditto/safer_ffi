@@ -50,8 +50,7 @@ impl JsBigint {
         } else {
             let stringified = to_string(&value);
             stringified.parse().map_err(|_| {
-                Error::new(
-                    Status::InvalidArg,
+                Error::from_reason(
                     format!(
                         "Numeric overflow: \
                         parameter `{}` does not fit into a i64",
@@ -73,8 +72,7 @@ impl JsBigint {
         } else {
             let stringified = to_string(&value);
             stringified.parse().map_err(|_| {
-                Error::new(
-                    Status::InvalidArg,
+                Error::from_reason(
                     format!(
                         "Numeric overflow: \
                         parameter `{}` does not fit into a u64",
@@ -225,8 +223,7 @@ impl JsObject {
         if matches!(unk.get_type()?, Js::Number) {
             Ok(JsNumber::try_into_(unk.unchecked_into()).unwrap())
         } else {
-            Err(Error::new(
-                Status::InvalidArg,
+            Err(Error::from_reason(
                 "Expected an array with thus a numeric `.length` property.".into(),
             ).into())
         }
