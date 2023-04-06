@@ -952,7 +952,7 @@
             Builder {
                 target: WhereTo, $(
                 <span class="macro-nonterminal">$field</span>, )*
-            }.generate_with_definer(HashSetDefiner {
+            }.generate_with_definer(<span class="kw-2">&amp;mut </span>HashSetDefiner {
                 out: <span class="kw-2">&amp;mut </span>target,
                 defines_set: Default::default(),
             })
@@ -979,18 +979,18 @@
     /// With this call, one can provide a custom implementation of a [`Definer`],
     /// which can be useful for mock tests, mainly.
     </span><span class="kw">pub
-    fn </span>generate_with_definer (<span class="self">self</span>, <span class="kw-2">mut </span>definer: <span class="kw">impl </span>Definer)
+    fn </span>generate_with_definer (<span class="self">self</span>, definer: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Definer)
       -&gt; io::Result&lt;()&gt;
     {
         <span class="kw">let </span>config = <span class="self">self</span>;
         <span class="comment">// Banner
-        </span>config.write_banner(<span class="kw-2">&amp;mut </span>definer)<span class="question-mark">?</span>;
+        </span>config.write_banner(definer)<span class="question-mark">?</span>;
         <span class="comment">// Prelude
-        </span>config.write_prelude(<span class="kw-2">&amp;mut </span>definer)<span class="question-mark">?</span>;
+        </span>config.write_prelude(definer)<span class="question-mark">?</span>;
         <span class="comment">/* User-provided defs! */
-        </span>config.write_body(<span class="kw-2">&amp;mut </span>definer)<span class="question-mark">?</span>;
+        </span>config.write_body(definer)<span class="question-mark">?</span>;
         <span class="comment">// Epilogue
-        </span>config.write_epilogue(<span class="kw-2">&amp;mut </span>definer)<span class="question-mark">?</span>;
+        </span>config.write_epilogue(definer)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
