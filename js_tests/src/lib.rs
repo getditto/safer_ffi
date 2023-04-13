@@ -223,6 +223,12 @@ const _: () = {
         ctx .env
             .get_undefined()
     }
+
+    #[napi::derive::js_export(js_name = foo_fails)]
+    fn foo_fails_js () -> napi::Result<napi::JsNumber> {
+        let err = napi::Error::from_reason(42.to_string());
+        Err::<napi::JsNumber, _>(err.into())
+    }
 };
 
 #[ffi_export(js)]

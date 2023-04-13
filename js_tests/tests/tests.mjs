@@ -269,6 +269,21 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
 
     assert.deepEqual(await ffi.long_running_fut(Uint8Array.of(27)), 42 + 27);
 
+    try {
+        ffi.foo_fails()
+    } catch (error) {
+        assert.equal(
+            error.message,
+            "42"
+        )
+
+        // Regression test https://github.com/getditto/ditto/issues/8172
+        assert.equal(
+            error.reason,
+            undefined
+        )
+    }
+
     console.log('Js tests passed successfully ✅');
 }
 
