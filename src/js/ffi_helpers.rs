@@ -23,7 +23,8 @@ fn with_js_string_as_utf8 (
             bytes = s.into_utf8()?.take();
             match bytes.iter().position(|&b| b == b'\0') {
                 | Some(n) if n == bytes.len() - 1 => {},
-                | Some(inner_nul_idx) => return Err(Error::from_reason(
+                | Some(inner_nul_idx) => return Err(Error::new(
+                    Status::InvalidArg,
                     format!(
                         "String `{:?}` contains an inner nul byte at byte-index {}",
                         String::from_utf8_lossy(&bytes),
@@ -37,7 +38,8 @@ fn with_js_string_as_utf8 (
             }
             bytes.as_ptr().cast()
         },
-        | _ => return Err(Error::from_reason(
+        | _ => return Err(Error::new(
+            Status::InvalidArg,
             "First parameter must be `null` or a string".into(),
         ).into()),
     };
@@ -77,7 +79,8 @@ fn with_js_buffer_as_slice_uint8_t_ref (
             ])
         },
         _default => {
-            Err(Error::from_reason(
+            Err(Error::new(
+                Status::InvalidArg,
                 "Expected a `Buffer`".into(),
             ).into())
         },

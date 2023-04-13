@@ -36,7 +36,8 @@ match_! {(
                     let n: $x32 = napi_value.try_into()?;
                     let n_mb_smaller: $xN = n as _;
                     if n_mb_smaller as $x32 != n {
-                        Err(Error::from_reason(
+                        Err(Error::new(
+                            Status::InvalidArg,
                             format!(
                                 "Numeric overflow: parameter `{:?}` does not fit into a `{}`",
                                 n,
@@ -91,7 +92,8 @@ match_! {(
                             if was_lossless {
                                 Ok(value)
                             } else {
-                                Err(Error::from_reason(
+                                Err(Error::new(
+                                    Status::InvalidArg,
                                     format!(
                                         "Numeric overflow: \
                                         parameter does not fit into a `{}`",
@@ -103,7 +105,8 @@ match_! {(
                         | ValueType::Number => {
                             let num: JsNumber = unsafe { napi_value.cast() };
                             let i: i64 = num.try_into()?;
-                            i.try_into().map_err(|_| Error::from_reason(
+                            i.try_into().map_err(|_| Error::new(
+                                Status::InvalidArg,
                                 format!(
                                     "Numeric overflow: \
                                     parameter {} does not fit into a `{}`",
@@ -113,7 +116,8 @@ match_! {(
                             ).into())
                         },
                         | _ => {
-                            Err(Error::from_reason(
+                            Err(Error::new(
+                                Status::InvalidArg,
                                 format!("`BigInt` or `number` expected"),
                             ).into())
                         },
@@ -176,7 +180,8 @@ match_! {(
                     $x64::from_napi_value(env, napi_value)?
                         .try_into()
                         .map_err(|_| {
-                            Error::from_reason(
+                            Error::new(
+                                Status::InvalidArg,
                                 format!(
                                     "Numeric overflow: \
                                     parameter does not fit into a `{}`",
@@ -274,7 +279,8 @@ match_! {( const, mut ) {
                                 buf = &_storage;
                             }
                             let buf = if let Ok(it) = ::core::str::from_utf8(buf) { it } else {
-                                return Err(Error::from_reason(
+                                return Err(Error::new(
+                                    Status::InvalidArg,
                                     format!(
                                         "Expected valid UTF-8 bytes {:#x?} for a string",
                                         buf,
@@ -282,7 +288,8 @@ match_! {( const, mut ) {
                                 ).into());
                             };
                             if buf.bytes().position(|b| b == b'\0') != Some(buf.len() - 1) {
-                                return Err(Error::from_reason(
+                                return Err(Error::new(
+                                    Status::InvalidArg,
                                     format!(
                                         "Invalid null terminator for {:?}",
                                         buf,
@@ -292,7 +299,8 @@ match_! {( const, mut ) {
                             return Ok(buf.as_ptr() as _);
                         },
                         | Js::Object => unsafe { js_val.cast() },
-                        | _ => return Err(Error::from_reason(
+                        | _ => return Err(Error::new(
+                            Status::InvalidArg,
                             "Expected a pointer (`{ addr }` object)".into(),
                         ).into()),
                     };
@@ -311,7 +319,8 @@ match_! {( const, mut ) {
                         actual_ty = &storage;
                     }
                     if actual_ty != expected_ty {
-                        return Err(Error::from_reason(
+                        return Err(Error::new(
+                            Status::InvalidArg,
                             format!(
                                 "Got `{}`, expected a `{}`",
                                 actual_ty, expected_ty,
@@ -380,7 +389,7 @@ impl<const N: usize> ReprNapi for [u8;N] {
         if let Ok(output) = Self::try_from(&val[..]) {
             Ok(output)
         } else {
-            return Err(Error::from_reason(format!("Length mismatch. Expected {}, Got {}", N, val.len())).into())
+            return Err(Error::new(Status::InvalidArg, format!("Length mismatch. Expected {}, Got {}", N, val.len())).into())
         }
     }
 }

@@ -65,7 +65,10 @@ struct Env {
 
 #[derive(Debug, ::serde::Deserialize, ::serde::Serialize)]
 pub
-struct Error ( String );
+struct Error {
+    reason: String,
+    status: Status,
+}
 
 utils::new_type_wrappers! {
     pub type JsBigint = ::wasm_bindgen::JsValue; // ;__;
@@ -87,6 +90,14 @@ pub use ::wasm_bindgen::JsCast as NapiValue;
 
 pub type Result<T, E = JsValue> = ::core::result::Result<T, E>;
 
+#[derive(Debug, PartialEq, Eq, ::serde::Deserialize, ::serde::Serialize)]
+#[non_exhaustive]
+pub
+enum Status {
+    Ok,
+    InvalidArg,
+    GenericFailure,
+}
 
 #[derive(Debug, PartialEq, Eq)]
 #[non_exhaustive]
@@ -139,10 +150,24 @@ impl Env {
 
 impl Error {
     pub
+    fn new (status: Status, reason: String)
+      -> Self
+    {
+        Error { status, reason }
+    }
+
+    pub
+    fn from_status (status: Status)
+      -> Self
+    {
+        Error { status, reason: "".into() }
+    }
+
+    pub
     fn from_reason (reason: String)
       -> Self
     {
-        Error ( reason )
+        Error { reason, status: Status::GenericFailure }
     }
 }
 
@@ -152,7 +177,7 @@ impl From<Error> for JsValue {
     {
         // Does not use `JsValue::from_serde` because that places the error message in a field
         // `reason` instead of `message`.
-        ::wasm_bindgen::JsError::new(&e.0).into()
+        ::wasm_bindgen::JsError::new(&e.reason).into()
     }
 }
 
