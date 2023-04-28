@@ -218,6 +218,10 @@ impl<ResolvesTo> JsPromise<ResolvesTo> {
         )
     }
 
+    /// Spawn a future as a Node.js promise.
+    /// 
+    /// On `wasm32`, this uses `wasm_bindgen` to spawn the future. On other platforms it
+    /// uses `tokio`.
     pub
     fn spawn<Fut> (
         env: &'_ Env,
@@ -228,6 +232,7 @@ impl<ResolvesTo> JsPromise<ResolvesTo> {
         Fut : 'static + Send + Future,
         <Fut as Future>::Output : Send + ReprNapi<NapiValue = ResolvesTo>,
     {
+        // For wasm32, we use `wasm_bindgen_futures` to spawn the future.
         #[cfg(target_arch = "wasm32")]
         let ret = {
             let _ = env;
@@ -240,16 +245,47 @@ impl<ResolvesTo> JsPromise<ResolvesTo> {
             );
             Ok(JsPromise(promise.unchecked_into(), Default::default()))
         };
+
+        // For other targets, we use `tokio` to spawn the future.
+        //
+        // Here, we move any error message that is set by calling `set_thread_local_error_message()`
+        // within `fut` into the thread that runs JavaScript so it can be retrieved there.
+        // 
+        // This is achieved by using `tokio::task_local!` to store the error message on the
+        // task-local storage, which works across threads, and then moving it into the thread-local
+        // storage `ERROR_CHANNEL_JS` in the resolver function below.
         #[cfg(not(target_arch = "wasm32"))]
-        let ret =
-            env .execute_tokio_future(
-                    async { Ok(fut.await) },
-                    |env, fut_output| fut_output.to_napi_value(env),
-                )
-                .map(|promise| JsPromise(promise, Default::default()))
-        ;
+        let ret = env
+            .execute_tokio_future(
+                async {
+                    ERROR_CHANNEL_FUTURES.scope(None.into(), async {
+                        Ok((
+                            fut.await,
+                            ERROR_CHANNEL_FUTURES.with(|it| it.take()),
+                        ))
+                    }).await
+                },
+                |env, (fut_output, mb_err)| {
+                    if let Some(err) = mb_err {
+                        ERROR_CHANNEL_JS.with(|it| it.set(Some(err)));
+                    }
+                    fut_output.to_napi_value(env)
+                },
+            )
+            .map(|promise| JsPromise(promise, Default::default()));
         ret
     }
+}
+
+#[cfg(feature = "js")]
+::tokio::task_local! {
+    /// Task-local storage for the error channel.
+    pub static ERROR_CHANNEL_FUTURES: ::core::cell::Cell<Option<String>>;
+}
+#[cfg(feature = "js")]
+thread_local! {
+    /// Thread-local storage for the error channel.
+    pub static ERROR_CHANNEL_JS: ::core::cell::Cell<Option<String>> = None.into();
 }
 
 cfg_not_wasm! {
