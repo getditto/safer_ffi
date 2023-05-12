@@ -269,7 +269,7 @@ cfg_alloc! {
     mod boxed;
 }
 
-use self::c_char_module::c_char;
+pub use self::c_char_module::c_char;
 #[path = "c_char.rs"]
 mod c_char_module;
 
