@@ -1,6 +1,6 @@
 RELEASE =? 0
 
-HEADERS = generated.h generated.cs
+HEADERS = generated.h generated.cs generated.cffi
 RUST_STATIC_LIB = libffi_tests.a
 RUST_DYNAMIC_LIB = libffi_tests.dylib
 
