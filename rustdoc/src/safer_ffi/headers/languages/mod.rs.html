@@ -373,6 +373,11 @@
 <span id="373">373</span>
 <span id="374">374</span>
 <span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(irrefutable_let_patterns)]
 
@@ -393,6 +398,11 @@
 <span class="macro">__cfg_csharp__! </span>{
     <span class="kw">pub use </span>csharp::CSharp;
     <span class="kw">mod </span>csharp;
+}
+
+<span class="macro">__cfg_python__! </span>{
+    <span class="kw">pub use </span>python::Python;
+    <span class="kw">mod </span>python;
 }
 
 <span class="kw">pub

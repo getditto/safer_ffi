@@ -418,6 +418,22 @@
 <span id="418">418</span>
 <span id="419">419</span>
 <span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 #[cfg(feature = <span class="string">&quot;headers&quot;</span>)]
 #[macro_export] #[doc(hidden)]
@@ -460,6 +476,22 @@
 <span class="attribute">#[cfg(not(feature = <span class="string">&quot;headers&quot;</span>))]
 #[macro_export] #[doc(hidden)]
 </span><span class="macro">macro_rules! </span>__cfg_csharp__ {(
+    $(<span class="macro-nonterminal">$item</span>:item)*
+) =&gt; (
+    <span class="comment">// Nothing
+</span>)}
+
+<span class="attribute">#[cfg(feature = <span class="string">&quot;python-headers&quot;</span>)]
+#[macro_export] #[doc(hidden)]
+</span><span class="macro">macro_rules! </span>__cfg_python__ {(
+    $(<span class="macro-nonterminal">$item</span>:item)*
+) =&gt; (
+    $(<span class="macro-nonterminal">$item</span>)*
+)}
+
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;python-headers&quot;</span>))]
+#[macro_export] #[doc(hidden)]
+</span><span class="macro">macro_rules! </span>__cfg_python__ {(
     $(<span class="macro-nonterminal">$item</span>:item)*
 ) =&gt; (
     <span class="comment">// Nothing
