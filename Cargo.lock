@@ -570,6 +570,7 @@ dependencies = [
  "libc",
  "log",
  "macro_rules_attribute",
+ "once_cell",
  "paste",
  "safer-ffi",
  "safer_ffi-proc_macros",

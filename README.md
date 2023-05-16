@@ -316,3 +316,28 @@ Point { x: 42.0, y: 42.0 }
 [lib-rs]: https://getditto.github.io/safer_ffi/usage/lib-rs.html
 
 </details>
+
+## Development
+
+### Tests
+
+safer-ffi includes three different tests suites that can be run.
+
+```bash
+# In the project root:
+cargo test
+
+# FFI tests
+
+make -C ffi_tests
+
+# JavaScript tests
+
+make -C js_tests
+
+# Running the JS tests also gives you instructions for running browser tests.
+# Run this command in the `js_tests` directory, open a browser and navigate to
+# http://localhost:13337/
+wasm-pack build --target web && python3 -m http.server 13337
+
+```

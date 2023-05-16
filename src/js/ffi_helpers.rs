@@ -110,6 +110,39 @@ fn char_p_boxed_to_js_string (
     }
 })}
 
+#[cfg(not(target_arch = "wasm32"))]
+#[js_export(js_name = getDeadlockTimeout, __skip_napi_import)]
+pub
+fn get_deadlock_timeout_js() -> JsValue
+{
+    let ctx = ::safer_ffi::js::derive::__js_ctx!();
+    let val: u32 = match get_deadlock_timeout() {
+        Some(val) => val.try_into().unwrap(),
+        None => 0u32,
+    };
+    ctx.env.create_uint32(val)
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+#[js_export(js_name = setDeadlockTimeout, __skip_napi_import)]
+pub
+fn set_deadlock_timeout_js(
+    val: JsNumber,
+) -> Result<JsUndefined>
+{
+    let ctx = ::safer_ffi::js::derive::__js_ctx!();
+    let val: Option<std::num::NonZeroU32> = match val.try_into() {
+        // Maps an input 0 to `None` 
+        Ok(val) => std::num::NonZeroU32::new(val),
+        Err(_) => Err(Error::new(
+            Status::InvalidArg,
+            "Expected a positive number".into(),
+        ))?,
+    };
+    // Safe to unwrap because we should always be able to get the `undefined` object.
+    set_deadlock_timeout(val).map(|_| ctx.env.get_undefined().unwrap())
+}
+
 #[js_export(js_name = refCStringToString, __skip_napi_import, __skip_napi_import)]
 pub
 fn char_p_ref_to_js_string (
