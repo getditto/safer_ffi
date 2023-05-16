@@ -563,6 +563,7 @@ dependencies = [
  "inventory",
  "libc",
  "macro_rules_attribute",
+ "once_cell",
  "paste",
  "safer_ffi-proc_macros",
  "scopeguard",

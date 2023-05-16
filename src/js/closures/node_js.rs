@@ -6,7 +6,16 @@ use ::napi::threadsafe_function::*;
 use ::std::{
     os::raw::c_void,
     sync::Arc,
+    time::Duration
 };
+use once_cell::sync::OnceCell;
+
+/// Global configuration for the number of milliseconds to wait for a callback sync. 
+/// Disabled when `None`. Access through `deadlock_timeout()`.
+static DEADLOCK_TIMEOUT_MS: OnceCell<Option<u32>> = OnceCell::new();
+
+/// The default value for `DEADLOCK_TIMEOUT` when it is not set via the environment.
+static DEFAULT_DEADLOCK_TIMEOUT_MS: u32 = 5000;
 
 type_level_enum! {
     /// When calling a cb from js, if done from within a non-main-js-thread,
@@ -687,9 +696,27 @@ macro_rules! impls {(
                     );
                     debug_assert_eq!(status, Status::Ok);
 
-                    ret_receiver
-                        .recv_timeout(::std::time::Duration::from_secs(5))
-                        .expect("Channel closed or timeout (deadlock?)")
+                    let on_channel_closed = || panic!("Failed to receive a return value from a \
+                        callback function (channel closed): missing `wrap_cb_for_ffi` call?");
+
+                    if let Some(timeout) = get_deadlock_timeout() {
+                        let duration = Duration::from_millis(timeout as u64);
+                        match ret_receiver.recv_timeout(duration) {
+                            Ok(ret) => ret,
+                            Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
+                                panic!("Failed to receive a return value from a callback \
+                                function (timeout after {}ms). This can be caused by a deadlock \
+                                or when execution is interrupted by an interactive debugger. \
+                                You can disable this check using \
+                                `Ditto.disableDeadlockDetection()", timeout)
+                            },
+                            Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
+                                on_channel_closed()
+                            },
+                        }
+                    } else {
+                        ret_receiver.recv().unwrap_or_else(|_| on_channel_closed() )
+                    }
                 },
 
                 | Some(ref func) => {
@@ -813,6 +840,30 @@ fn dummy_ret_sender (env: &'_ Env)
                 arg
             }),
         )
+}
+
+/// Returns the configured deadlock timeout, or `None` if the timeout is disabled.
+/// 
+/// The timeout can be set once by calling `set_deadlock_timeout`. If that has not happened,
+/// the default timeout is returned.
+pub fn get_deadlock_timeout() -> Option<u32> {
+    match DEADLOCK_TIMEOUT_MS.get() {
+        Some(timeout) => *timeout,
+        None => Some(DEFAULT_DEADLOCK_TIMEOUT_MS),
+    }
+}
+
+/// Sets the deadlock timeout. Can only be called once and returns an `Error` afterwards.
+pub fn set_deadlock_timeout(
+    timeout: Option<core::num::NonZeroU32>
+) -> Result<()> {
+    DEADLOCK_TIMEOUT_MS
+        .set(timeout.map(|t| t.into()))
+        .map_err(|_| Error::new(
+            Status::GenericFailure,
+            "Deadlock timeout can only be set once".to_owned(),
+        )
+    )
 }
 
 include!("common.rs");
