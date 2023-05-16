@@ -567,7 +567,6 @@ dependencies = [
  "paste",
  "safer_ffi-proc_macros",
  "scopeguard",
- "tokio",
  "uninit",
  "unwind_safe",
  "with_builtin_macros",
