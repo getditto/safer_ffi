@@ -85,7 +85,6 @@ c-headers-with-fn-style = [
 # PRIVATE FEATURE / not part of crates.io package!
 js = [
     "async-fn",
-    "dep:tokio",
     "dep:once_cell",
     "headers",
     "inventory",
