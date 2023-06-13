@@ -298,64 +298,28 @@ const _: () = { macro_rules! impl_CTypes {
                     Ret::define_self(&crate::headers::languages::CSharp, definer)?; $(
                     $An::define_self(&crate::headers::languages::CSharp, definer)?; $(
                     $Ai::define_self(&crate::headers::languages::CSharp, definer)?; )*)?
-                    let ref me = Self::name(&crate::headers::languages::CSharp).to_string();
-                    let ref mut _arg = {
-                        let mut iter = (0 ..).map(|c| format!("_{}", c));
-                        move || iter.next().unwrap()
-                    };
-                    definer.define_once(me, &mut |definer| writeln!(definer.out(),
-                        concat!(
-                            // IIUC,
-                            //   - For 32-bits / x86,
-                            //     Rust's extern "C" is the same as C#'s (default) Winapi:
-                            //     "cdecl" for Linux, and "stdcall" for Windows.
-                            //
-                            //   - For everything else, this is param is ignored.
-                            //     I guess because both OSes agree on the calling convention?
-                            "[UnmanagedFunctionPointer(CallingConvention.Winapi)]\n",
-
-                            "{ret_marshaler}public unsafe /* static */ delegate\n",
-                            "    {Ret}\n",
-                            "    {me} (", $("\n",
-                            "        {}{", stringify!($An), "}", $(",\n",
-                            "        {}{", stringify!($Ai), "}", )*)?
-                            ");\n"
-                        ),$(
-                        $An::csharp_marshaler()
-                            .map(|m| format!("[MarshalAs({})]\n        ", m))
-                            .as_deref()
-                            .unwrap_or("")
-                        , $(
-                        $Ai::csharp_marshaler()
-                            .map(|m| format!("[MarshalAs({})]\n        ", m))
-                            .as_deref()
-                            .unwrap_or("")
-                        , )*)?
-                        me = me,
-                        ret_marshaler =
-                            Ret::csharp_marshaler()
-                                .map(|m| format!("[return: MarshalAs({})]\n", m))
-                                .as_deref()
-                                .unwrap_or("")
-                        ,
-                        Ret = Ret::name(&crate::headers::languages::CSharp), $(
-                        $An = $An::name_wrapping_var(&crate::headers::languages::CSharp, &_arg()), $(
-                        $Ai = $Ai::name_wrapping_var(&crate::headers::languages::CSharp, &_arg()), )*)?
-                    ))
+                    Ok(())
                 }
 
                 fn csharp_ty ()
                   -> rust::String
                 {
-                    Self::c_short_name().to_string()
-                }
-
-                fn legacy_csharp_marshaler ()
-                  -> Option<rust::String>
-                {
-                    // This assumes the calling convention from the above
-                    // `UnmanagedFunctionPointer` attribute.
-                    Some("UnmanagedType.FunctionPtr".into())
+                    use ::std::fmt::Write;
+                    let mut ret = String::new();
+                    let fmt = &mut ret;
+                    // FIXME: `managed`, `unmanaged`, or `unmanaged[…]`? For now, let's go with
+                    // `unmanaged`-that-defaults-to-that-of-the-platform.
+                    //
+                    // Note: in order for C# to feed such a function pointer, it has to declare,
+                    // with an annotation of:
+                    // - `[UnmanagedCallersOnly()]` (for the default case), or
+                    // - `[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]` otherwise,
+                    // a `static unsafe … cb(…) { … }` function, and then feed `&cb`.
+                    fmt.push_str("delegate* unmanaged<"); $(
+                    write!(fmt, "{}, ", $An::name(&crate::headers::languages::CSharp)).unwrap(); $(
+                    write!(fmt, "{}, ", $Ai::name(&crate::headers::languages::CSharp)).unwrap(); )*)?
+                    write!(fmt, "{}>", Ret::name(&crate::headers::languages::CSharp)).unwrap();
+                    ret
                 }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
