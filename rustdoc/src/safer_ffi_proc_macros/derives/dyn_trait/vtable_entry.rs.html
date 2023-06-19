@@ -434,6 +434,7 @@
 <span id="434">434</span>
 <span id="435">435</span>
 <span id="436">436</span>
+<span id="437">437</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -441,7 +442,7 @@
 <span class="kw">pub</span>(<span class="kw">in super</span>)
 <span class="kw">enum </span>VTableEntry&lt;<span class="lifetime">&#39;trait_</span>&gt; {
     VirtualMethod {
-        src: <span class="kw-2">&amp;</span><span class="lifetime">&#39;trait_ </span>TraitItemMethod,
+        src: TraitItemMethod,
         name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;trait_ </span>Ident,
         each_for_lifetime: Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;trait_ </span>Lifetime&gt;,
         receiver: ReceiverType,
@@ -478,7 +479,7 @@
                 ErasedSelf: <span class="kw">_</span>,
                 EachArgTy: <span class="kw">_</span>,
                 OutputTy: <span class="kw">_</span>,
-                src: <span class="kw-2">&amp;</span>TraitItemMethod {
+                src: TraitItemMethod {
                     sig: <span class="kw-2">ref </span>full_signature,
                     <span class="kw-2">ref </span>attrs,
                     ..
@@ -522,11 +523,11 @@
     <span class="kw">pub</span>(<span class="kw">in super</span>)
     <span class="kw">fn </span>attrs&lt;<span class="lifetime">&#39;r</span>&gt; (
         <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>VTableEntry&lt;<span class="lifetime">&#39;trait_</span>&gt;
-    ) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;trait_ </span>Vec&lt;Attribute&gt;
+    ) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>Vec&lt;Attribute&gt;
     {
         <span class="kw">match </span><span class="self">self </span>{
             | <span class="self">Self</span>::VirtualMethod {
-                src: <span class="kw-2">&amp;</span>TraitItemMethod {
+                src: TraitItemMethod {
                     <span class="kw-2">ref </span>attrs,
                     ..
                 },
@@ -690,6 +691,7 @@
             default: <span class="kw">_</span>,
             semi_token: <span class="kw">_</span>,
         }) =&gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>trait_item_method = trait_item_method.clone();
             <span class="comment">// // Is there a `Self : Sized` opt-out-of-`dyn` clause?
             // if matches!(
             //     generics.where_clause, Some(ref where_clause)
@@ -736,7 +738,7 @@
             //         )
             //     })
             // };
-            </span><span class="kw">let </span>receiver = <span class="kw">if let </span><span class="prelude-val">Some</span>(fn_arg) = sig.receiver() {
+            </span><span class="kw">let </span>receiver = <span class="kw">if let </span><span class="prelude-val">Some</span>(fn_arg) = trait_item_method.sig.inputs.iter_mut().next() {
                 <span class="kw">match </span>ReceiverType::from_fn_arg(fn_arg) {
                     | <span class="prelude-val">Ok</span>(it) =&gt; it,
                     | <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)),

@@ -167,6 +167,18 @@
 <span id="167">167</span>
 <span id="168">168</span>
 <span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
 </pre><pre class="rust"><code><span class="attribute">#![allow(dead_code)] </span><span class="comment">// FIXME.
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -190,14 +202,14 @@
 <span class="kw">impl </span>ReceiverType {
     <span class="kw">pub</span>(<span class="kw">crate</span>)
     <span class="kw">fn </span>from_fn_arg(
-        fn_arg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>FnArg,
+        fn_arg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>FnArg,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ReceiverType&gt;
     {
         <span class="kw">let </span>pinned = <span class="bool-val">false</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>storage = <span class="prelude-val">None</span>;
         <span class="self">Self</span>::from_type_of_self(
             <span class="kw">match </span>fn_arg {
-                | <span class="kw-2">&amp;</span>FnArg::Receiver(Receiver {
+                | <span class="kw-2">&amp;mut </span>FnArg::Receiver(Receiver {
                     attrs: <span class="kw">_</span>,
                     reference: <span class="kw-2">ref </span>ref_,
                     mutability: <span class="kw-2">ref </span>mut_,
@@ -232,8 +244,8 @@
         )
     }
 
-    <span class="kw">fn </span>from_type_of_self&lt;<span class="lifetime">&#39;i</span>&gt;(
-        type_of_self: <span class="kw-2">&amp;</span><span class="lifetime">&#39;i </span>Type,
+    <span class="kw">fn </span>from_type_of_self(
+        type_of_self: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>Type,
         pinned: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ReceiverType&gt;
     {
@@ -279,26 +291,28 @@
             <span class="comment">// `: path::to::SomeWrapper&lt;…&gt;`
             </span>| Type::Path(TypePath {
                 qself: <span class="prelude-val">None</span>,
-                path: <span class="kw-2">ref </span>ty_path,
+                path: <span class="kw-2">ref mut </span>ty_path,
             }) =&gt; {
                 <span class="kw">use </span>AngleBracketedGenericArguments <span class="kw">as </span>Generic;
-                <span class="kw">let </span>extract_generic_ty = |args: <span class="kw-2">&amp;</span><span class="lifetime">&#39;i </span>syn::PathArguments| -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Type&gt; {
+                <span class="kw">fn </span>extract_generic_ty(args: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>syn::PathArguments)
+                  -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span>Type&gt;
+                {
                     <span class="kw">match </span>args {
                         | PathArguments::AngleBracketed(AngleBracketedGenericArguments {
                             args, ..
                         })
                             <span class="kw">if </span>args.len() == <span class="number">1
                         </span>=&gt; <span class="kw">match </span>args[<span class="number">0</span>] {
-                            | GenericArgument::Type(<span class="kw-2">ref </span>inner) =&gt; <span class="prelude-val">Some</span>(inner),
+                            | GenericArgument::Type(<span class="kw-2">ref mut </span>inner) =&gt; <span class="prelude-val">Some</span>(inner),
                             | <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
                         },
                         | <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
                     }
-                };
+                }
 
                 <span class="comment">// `SomeWrapper&lt;inner&gt;`
-                </span><span class="kw">let </span>last = ty_path.segments.last().unwrap();
-                <span class="kw">match </span>(<span class="kw-2">&amp;</span>last.ident.to_string()[..], extract_generic_ty(<span class="kw-2">&amp;</span>last.arguments)) {
+                </span><span class="kw">let </span>last = ty_path.segments.last_mut().unwrap();
+                <span class="kw">let </span>ret = <span class="kw">match </span>(<span class="kw-2">&amp;</span>last.ident.to_string()[..], extract_generic_ty(<span class="kw-2">&amp;mut </span>last.arguments)) {
                     <span class="comment">// `Box&lt;Self&gt;`
                     </span>| (<span class="string">&quot;Box&quot;</span>, <span class="prelude-val">Some</span>(inner)) <span class="kw">if </span>is_Self(inner) =&gt; <span class="self">Self </span>{
                         pinned,
@@ -326,7 +340,17 @@
                             (more complex `Self` types are not supported)\
                         &quot; </span>=&gt; last,
                     },
-                }
+                };
+                <span class="comment">// Replace any encountered `Box`,`Arc`,`Pin`, with *our* fully qualified to the
+                // expected item, to guard against silly shadowings.
+                </span>ty_path.leading_colon = <span class="prelude-val">Some</span>(token::Colon2 { spans: [last.span(), last.span() ]});
+                ty_path.segments =
+                    Punctuated::parse_separated_nonempty.parse2(<span class="macro">quote_spanned!</span>(last.span()=&gt;
+                        safer_ffi::ඞ::#last
+                    ))
+                    .unwrap()
+                ;
+                ret
             },
 
             <span class="comment">// `([&lt;Something as Complex&gt;::Assoc; 3], bool)`

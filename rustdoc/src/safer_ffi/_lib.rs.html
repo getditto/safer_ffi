@@ -666,6 +666,7 @@
 <span id="666">666</span>
 <span id="667">667</span>
 <span id="668">668</span>
+<span id="669">669</span>
 </pre><pre class="rust"><code><span class="attribute">#![warn(warnings)] </span><span class="comment">// Prevent `-Dwarnings` from causing breakage.
 </span><span class="attribute">#![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt::skip)]
@@ -1138,6 +1139,7 @@ mod </span>prelude {
         ::core::{
             <span class="self">self</span>,
             marker::PhantomData,
+            pin::Pin,
             primitive::{
                 u8, u16, u32, usize, u64, u128,
                 i8, i16, i32, isize, i64, i128,

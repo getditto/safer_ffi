@@ -429,6 +429,31 @@
 <span id="429">429</span>
 <span id="430">430</span>
 <span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 
 </span><span class="kw">use </span>{
@@ -636,20 +661,45 @@
             <span class="kw">if </span>mut_ == mutability
         ))
     };
-    <span class="kw">let </span>has_pin =
-        each_vtable_entry
+    <span class="kw">let </span>(<span class="kw-2">mut </span>has_pin, <span class="kw-2">mut </span>has_non_pin_non_ref) = (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
+    each_vtable_entry
         .iter()
-        .any(|it| <span class="macro">matches!</span>(
-            <span class="kw-2">*</span>it,
-            VTableEntry::VirtualMethod {
-                receiver: ReceiverType {
-                    pinned: <span class="bool-val">true</span>,
-                    ..
-                },
+        .filter_map(|it| <span class="kw">match </span><span class="kw-2">*</span>it {
+            | VTableEntry::VirtualMethod {
+                <span class="kw-2">ref </span>receiver,
+                <span class="kw-2">ref </span>src,
                 ..
-            }
-        ))
+            } =&gt; {
+                <span class="prelude-val">Some</span>((receiver, || src.sig.ident.clone()))
+            },
+        })
+        .for_each(|(receiver, fname)| <span class="kw">match </span>receiver {
+            | ReceiverType {
+                pinned: <span class="bool-val">true</span>,
+                ..
+            } =&gt; {
+                has_pin.get_or_insert_with(fname);
+            },
+            <span class="comment">// Tolerate `&amp;self` refs mixed with `Pin`s:
+            </span>| ReceiverType {
+                kind: ReceiverKind::Reference { mut_: <span class="bool-val">false </span>},
+                ..
+            } =&gt; {
+                <span class="comment">/* OK */
+            </span>},
+            | _otherwise =&gt; {
+                has_non_pin_non_ref.get_or_insert_with(fname);
+            },
+        })
     ;
+    <span class="kw">match </span>(<span class="kw-2">&amp;</span>has_pin, has_non_pin_non_ref) {
+        | (<span class="prelude-val">Some</span>(pinned_span), <span class="prelude-val">Some</span>(non_pin_non_ref_span)) =&gt; <span class="macro">bail! </span>{
+            <span class="string">&quot;`Pin&lt;&gt;` receivers can only be mixed with `&amp;self` receivers&quot;
+            </span>=&gt; <span class="macro">quote!</span>(#pinned_span #non_pin_non_ref_span)
+        },
+        | <span class="kw">_ </span>=&gt; {},
+    }
+    <span class="kw">let </span>has_pin = has_pin.is_some();
     <span class="kw">let </span>(has_ref, has_mut) = (has_mutability(<span class="bool-val">false</span>), has_mutability(<span class="bool-val">true</span>));
 
     <span class="kw">let </span>send_trait = <span class="kw-2">&amp;</span><span class="macro">squote!</span>( #ඞ::marker::Send );
