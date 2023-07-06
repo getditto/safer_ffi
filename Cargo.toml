@@ -3,7 +3,7 @@ path = "src/_lib.rs"
 
 [package]
 name = "safer-ffi"
-version = "0.1.0"  # Keep in sync
+version = "0.1.1"  # Keep in sync
 authors = [
     "Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>",
 ]
@@ -40,6 +40,7 @@ nightly = []
 alloc = []
 std = [
     "alloc",
+    "scopeguard/use_std",
 ]
 
 proc_macros = [] # Deprecated
@@ -136,6 +137,7 @@ once_cell.version = "1.17.1"
 paste.version = "1.0.12"
 
 scopeguard.version = "1.1.0"
+scopeguard.default-features = false
 
 tokio.optional = true
 tokio.version = "1.26.0"
@@ -159,7 +161,7 @@ version = "0.0.3"
 
 [dependencies.safer_ffi-proc_macros]
 path = "src/proc_macro"
-version = "=0.1.0"  # Keep in sync
+version = "=0.1.1"  # Keep in sync
 
 [target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
 libc.version = "0.2.66"

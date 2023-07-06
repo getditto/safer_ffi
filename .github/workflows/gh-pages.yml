@@ -6,10 +6,46 @@ on:
       - master
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
 env:
   URL_ROOT_PATH: /safer_ffi/
 
 jobs:
+  # Check no_std #
+  check-nostd:
+    name: 'Check `#![no_std]`'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly-2023-06-30
+          override: true
+          components: rust-src
+
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - uses: actions-rs/cargo@v1
+        name: '`cargo +nightly check` without `std` nor `alloc`'
+        with:
+          command: check
+          args: |
+            --no-default-features
+            --target x86_64-unknown-linux-gnu -Zbuild-std=core
+
+      - uses: actions-rs/cargo@v1
+        name: '`cargo +nightly check` without `std` '
+        with:
+          command: check
+          args: |
+            --no-default-features --features alloc
+            --target x86_64-unknown-linux-gnu -Zbuild-std=core,alloc
+
   # == CHECK == #
   check:
     name: Check nightly stable and MSRV
@@ -156,6 +192,7 @@ jobs:
   all-good:
     name: All the required checks
     needs:
+      - check-nostd
       - check
       - check-features
       - build-and-test
