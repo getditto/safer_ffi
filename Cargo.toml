@@ -40,6 +40,7 @@ nightly = []
 alloc = []
 std = [
     "alloc",
+    "scopeguard/use_std",
 ]
 
 proc_macros = [] # Deprecated
@@ -136,6 +137,7 @@ once_cell.version = "1.17.1"
 paste.version = "1.0.12"
 
 scopeguard.version = "1.1.0"
+scopeguard.default-features = false
 
 tokio.optional = true
 tokio.version = "1.26.0"
