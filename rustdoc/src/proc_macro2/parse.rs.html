@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.52/src/parse.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../proc_macro2/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.63/src/parse.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../proc_macro2/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -874,6 +874,122 @@
 <span id="874">874</span>
 <span id="875">875</span>
 <span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
+<span id="980">980</span>
+<span id="981">981</span>
+<span id="982">982</span>
+<span id="983">983</span>
+<span id="984">984</span>
+<span id="985">985</span>
+<span id="986">986</span>
+<span id="987">987</span>
+<span id="988">988</span>
+<span id="989">989</span>
+<span id="990">990</span>
+<span id="991">991</span>
+<span id="992">992</span>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::fallback::{
     is_ident_continue, is_ident_start, Group, LexError, Literal, Span, TokenStream,
     TokenStreamBuilder,
@@ -903,7 +1019,18 @@
         <span class="self">self</span>.rest.starts_with(s)
     }
 
-    <span class="kw">fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    <span class="kw">pub fn </span>starts_with_char(<span class="kw-2">&amp;</span><span class="self">self</span>, ch: char) -&gt; bool {
+        <span class="self">self</span>.rest.starts_with(ch)
+    }
+
+    <span class="kw">pub fn </span>starts_with_fn&lt;Pattern&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, f: Pattern) -&gt; bool
+    <span class="kw">where
+        </span>Pattern: FnMut(char) -&gt; bool,
+    {
+        <span class="self">self</span>.rest.starts_with(f)
+    }
+
+    <span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.rest.is_empty()
     }
 
@@ -969,8 +1096,12 @@
             }
         }
         <span class="kw">match </span>byte {
-            <span class="string">b&#39; &#39; </span>| <span class="number">0x09</span>..=<span class="number">0x0d </span>=&gt; {
+            <span class="string">b&#39; &#39; </span>| <span class="number">0x09</span>..=<span class="number">0x0c </span>=&gt; {
                 s = s.advance(<span class="number">1</span>);
+                <span class="kw">continue</span>;
+            }
+            <span class="string">b&#39;\r&#39; </span><span class="kw">if </span>s.as_bytes().get(<span class="number">1</span>) == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;\n&#39;</span>) =&gt; {
+                s = s.advance(<span class="number">2</span>);
                 <span class="kw">continue</span>;
             }
             b <span class="kw">if </span>b &lt;= <span class="number">0x7f </span>=&gt; {}
@@ -1138,9 +1269,11 @@
 }
 
 <span class="kw">fn </span>ident(input: Cursor) -&gt; PResult&lt;<span class="kw">crate</span>::Ident&gt; {
-    <span class="kw">if </span>[<span class="string">&quot;r\&quot;&quot;</span>, <span class="string">&quot;r#\&quot;&quot;</span>, <span class="string">&quot;r##&quot;</span>, <span class="string">&quot;b\&quot;&quot;</span>, <span class="string">&quot;b\&#39;&quot;</span>, <span class="string">&quot;br\&quot;&quot;</span>, <span class="string">&quot;br#&quot;</span>]
-        .iter()
-        .any(|prefix| input.starts_with(prefix))
+    <span class="kw">if </span>[
+        <span class="string">&quot;r\&quot;&quot;</span>, <span class="string">&quot;r#\&quot;&quot;</span>, <span class="string">&quot;r##&quot;</span>, <span class="string">&quot;b\&quot;&quot;</span>, <span class="string">&quot;b\&#39;&quot;</span>, <span class="string">&quot;br\&quot;&quot;</span>, <span class="string">&quot;br#&quot;</span>, <span class="string">&quot;c\&quot;&quot;</span>, <span class="string">&quot;cr\&quot;&quot;</span>, <span class="string">&quot;cr#&quot;</span>,
+    ]
+    .iter()
+    .any(|prefix| input.starts_with(prefix))
     {
         <span class="prelude-val">Err</span>(Reject)
     } <span class="kw">else </span>{
@@ -1198,6 +1331,8 @@
         <span class="prelude-val">Ok</span>(ok)
     } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(ok) = byte_string(input) {
         <span class="prelude-val">Ok</span>(ok)
+    } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(ok) = c_string(input) {
+        <span class="prelude-val">Ok</span>(ok)
     } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(ok) = byte(input) {
         <span class="prelude-val">Ok</span>(ok)
     } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(ok) = character(input) {
@@ -1228,8 +1363,8 @@
     }
 }
 
-<span class="kw">fn </span>cooked_string(input: Cursor) -&gt; <span class="prelude-ty">Result</span>&lt;Cursor, Reject&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>chars = input.char_indices().peekable();
+<span class="kw">fn </span>cooked_string(<span class="kw-2">mut </span>input: Cursor) -&gt; <span class="prelude-ty">Result</span>&lt;Cursor, Reject&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>chars = input.char_indices();
 
     <span class="kw">while let </span><span class="prelude-val">Some</span>((i, ch)) = chars.next() {
         <span class="kw">match </span>ch {
@@ -1243,31 +1378,17 @@
             },
             <span class="string">&#39;\\&#39; </span>=&gt; <span class="kw">match </span>chars.next() {
                 <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;x&#39;</span>)) =&gt; {
-                    <span class="kw">if </span>!backslash_x_char(<span class="kw-2">&amp;mut </span>chars) {
-                        <span class="kw">break</span>;
-                    }
+                    backslash_x_char(<span class="kw-2">&amp;mut </span>chars)<span class="question-mark">?</span>;
                 }
                 <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;n&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;r&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;t&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;\\&#39;</span>))
                 | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;\&#39;&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;&quot;&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;0&#39;</span>)) =&gt; {}
                 <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;u&#39;</span>)) =&gt; {
-                    <span class="kw">if </span>!backslash_u(<span class="kw-2">&amp;mut </span>chars) {
-                        <span class="kw">break</span>;
-                    }
+                    backslash_u(<span class="kw-2">&amp;mut </span>chars)<span class="question-mark">?</span>;
                 }
-                <span class="prelude-val">Some</span>((<span class="kw">_</span>, ch @ <span class="string">&#39;\n&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, ch @ <span class="string">&#39;\r&#39;</span>)) =&gt; {
-                    <span class="kw">let </span><span class="kw-2">mut </span>last = ch;
-                    <span class="kw">loop </span>{
-                        <span class="kw">if </span>last == <span class="string">&#39;\r&#39; </span>&amp;&amp; chars.next().map_or(<span class="bool-val">true</span>, |(<span class="kw">_</span>, ch)| ch != <span class="string">&#39;\n&#39;</span>) {
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(Reject);
-                        }
-                        <span class="kw">match </span>chars.peek() {
-                            <span class="prelude-val">Some</span>((<span class="kw">_</span>, ch)) <span class="kw">if </span>ch.is_whitespace() =&gt; {
-                                last = <span class="kw-2">*</span>ch;
-                                chars.next();
-                            }
-                            <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
-                        }
-                    }
+                <span class="prelude-val">Some</span>((newline, ch @ <span class="string">&#39;\n&#39;</span>)) | <span class="prelude-val">Some</span>((newline, ch @ <span class="string">&#39;\r&#39;</span>)) =&gt; {
+                    input = input.advance(newline + <span class="number">1</span>);
+                    trailing_backslash(<span class="kw-2">&amp;mut </span>input, ch <span class="kw">as </span>u8)<span class="question-mark">?</span>;
+                    chars = input.char_indices();
                 }
                 <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
             },
@@ -1277,11 +1398,30 @@
     <span class="prelude-val">Err</span>(Reject)
 }
 
+<span class="kw">fn </span>raw_string(input: Cursor) -&gt; <span class="prelude-ty">Result</span>&lt;Cursor, Reject&gt; {
+    <span class="kw">let </span>(input, delimiter) = delimiter_of_raw_string(input)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>bytes = input.bytes().enumerate();
+    <span class="kw">while let </span><span class="prelude-val">Some</span>((i, byte)) = bytes.next() {
+        <span class="kw">match </span>byte {
+            <span class="string">b&#39;&quot;&#39; </span><span class="kw">if </span>input.rest[i + <span class="number">1</span>..].starts_with(delimiter) =&gt; {
+                <span class="kw">let </span>rest = input.advance(i + <span class="number">1 </span>+ delimiter.len());
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(literal_suffix(rest));
+            }
+            <span class="string">b&#39;\r&#39; </span>=&gt; <span class="kw">match </span>bytes.next() {
+                <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">b&#39;\n&#39;</span>)) =&gt; {}
+                <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
+            },
+            <span class="kw">_ </span>=&gt; {}
+        }
+    }
+    <span class="prelude-val">Err</span>(Reject)
+}
+
 <span class="kw">fn </span>byte_string(input: Cursor) -&gt; <span class="prelude-ty">Result</span>&lt;Cursor, Reject&gt; {
     <span class="kw">if let </span><span class="prelude-val">Ok</span>(input) = input.parse(<span class="string">&quot;b\&quot;&quot;</span>) {
         cooked_byte_string(input)
     } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(input) = input.parse(<span class="string">&quot;br&quot;</span>) {
-        raw_string(input)
+        raw_byte_string(input)
     } <span class="kw">else </span>{
         <span class="prelude-val">Err</span>(Reject)
     }
@@ -1301,30 +1441,14 @@
             },
             <span class="string">b&#39;\\&#39; </span>=&gt; <span class="kw">match </span>bytes.next() {
                 <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">b&#39;x&#39;</span>)) =&gt; {
-                    <span class="kw">if </span>!backslash_x_byte(<span class="kw-2">&amp;mut </span>bytes) {
-                        <span class="kw">break</span>;
-                    }
+                    backslash_x_byte(<span class="kw-2">&amp;mut </span>bytes)<span class="question-mark">?</span>;
                 }
                 <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">b&#39;n&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">b&#39;r&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">b&#39;t&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">b&#39;\\&#39;</span>))
                 | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">b&#39;0&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">b&#39;\&#39;&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">b&#39;&quot;&#39;</span>)) =&gt; {}
                 <span class="prelude-val">Some</span>((newline, b @ <span class="string">b&#39;\n&#39;</span>)) | <span class="prelude-val">Some</span>((newline, b @ <span class="string">b&#39;\r&#39;</span>)) =&gt; {
-                    <span class="kw">let </span><span class="kw-2">mut </span>last = b <span class="kw">as </span>char;
-                    <span class="kw">let </span>rest = input.advance(newline + <span class="number">1</span>);
-                    <span class="kw">let </span><span class="kw-2">mut </span>chars = rest.char_indices();
-                    <span class="kw">loop </span>{
-                        <span class="kw">if </span>last == <span class="string">&#39;\r&#39; </span>&amp;&amp; chars.next().map_or(<span class="bool-val">true</span>, |(<span class="kw">_</span>, ch)| ch != <span class="string">&#39;\n&#39;</span>) {
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(Reject);
-                        }
-                        <span class="kw">match </span>chars.next() {
-                            <span class="prelude-val">Some</span>((<span class="kw">_</span>, ch)) <span class="kw">if </span>ch.is_whitespace() =&gt; last = ch,
-                            <span class="prelude-val">Some</span>((offset, <span class="kw">_</span>)) =&gt; {
-                                input = rest.advance(offset);
-                                bytes = input.bytes().enumerate();
-                                <span class="kw">break</span>;
-                            }
-                            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Reject),
-                        }
-                    }
+                    input = input.advance(newline + <span class="number">1</span>);
+                    trailing_backslash(<span class="kw-2">&amp;mut </span>input, b)<span class="question-mark">?</span>;
+                    bytes = input.bytes().enumerate();
                 }
                 <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
             },
@@ -1335,34 +1459,109 @@
     <span class="prelude-val">Err</span>(Reject)
 }
 
-<span class="kw">fn </span>raw_string(input: Cursor) -&gt; <span class="prelude-ty">Result</span>&lt;Cursor, Reject&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>chars = input.char_indices();
-    <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="number">0</span>;
-    <span class="kw">for </span>(i, ch) <span class="kw">in </span><span class="kw-2">&amp;mut </span>chars {
-        <span class="kw">match </span>ch {
-            <span class="string">&#39;&quot;&#39; </span>=&gt; {
-                n = i;
-                <span class="kw">break</span>;
+<span class="kw">fn </span>delimiter_of_raw_string(input: Cursor) -&gt; PResult&lt;<span class="kw-2">&amp;</span>str&gt; {
+    <span class="kw">for </span>(i, byte) <span class="kw">in </span>input.bytes().enumerate() {
+        <span class="kw">match </span>byte {
+            <span class="string">b&#39;&quot;&#39; </span>=&gt; {
+                <span class="kw">if </span>i &gt; <span class="number">255 </span>{
+                    <span class="comment">// https://github.com/rust-lang/rust/pull/95251
+                    </span><span class="kw">return </span><span class="prelude-val">Err</span>(Reject);
+                }
+                <span class="kw">return </span><span class="prelude-val">Ok</span>((input.advance(i + <span class="number">1</span>), <span class="kw-2">&amp;</span>input.rest[..i]));
             }
-            <span class="string">&#39;#&#39; </span>=&gt; {}
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Reject),
+            <span class="string">b&#39;#&#39; </span>=&gt; {}
+            <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
         }
     }
-    <span class="kw">if </span>n &gt; <span class="number">255 </span>{
-        <span class="comment">// https://github.com/rust-lang/rust/pull/95251
-        </span><span class="kw">return </span><span class="prelude-val">Err</span>(Reject);
+    <span class="prelude-val">Err</span>(Reject)
+}
+
+<span class="kw">fn </span>raw_byte_string(input: Cursor) -&gt; <span class="prelude-ty">Result</span>&lt;Cursor, Reject&gt; {
+    <span class="kw">let </span>(input, delimiter) = delimiter_of_raw_string(input)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>bytes = input.bytes().enumerate();
+    <span class="kw">while let </span><span class="prelude-val">Some</span>((i, byte)) = bytes.next() {
+        <span class="kw">match </span>byte {
+            <span class="string">b&#39;&quot;&#39; </span><span class="kw">if </span>input.rest[i + <span class="number">1</span>..].starts_with(delimiter) =&gt; {
+                <span class="kw">let </span>rest = input.advance(i + <span class="number">1 </span>+ delimiter.len());
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(literal_suffix(rest));
+            }
+            <span class="string">b&#39;\r&#39; </span>=&gt; <span class="kw">match </span>bytes.next() {
+                <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">b&#39;\n&#39;</span>)) =&gt; {}
+                <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
+            },
+            other =&gt; {
+                <span class="kw">if </span>!other.is_ascii() {
+                    <span class="kw">break</span>;
+                }
+            }
+        }
     }
+    <span class="prelude-val">Err</span>(Reject)
+}
+
+<span class="kw">fn </span>c_string(input: Cursor) -&gt; <span class="prelude-ty">Result</span>&lt;Cursor, Reject&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(input) = input.parse(<span class="string">&quot;c\&quot;&quot;</span>) {
+        cooked_c_string(input)
+    } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(input) = input.parse(<span class="string">&quot;cr&quot;</span>) {
+        raw_c_string(input)
+    } <span class="kw">else </span>{
+        <span class="prelude-val">Err</span>(Reject)
+    }
+}
+
+<span class="kw">fn </span>raw_c_string(input: Cursor) -&gt; <span class="prelude-ty">Result</span>&lt;Cursor, Reject&gt; {
+    <span class="kw">let </span>(input, delimiter) = delimiter_of_raw_string(input)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>bytes = input.bytes().enumerate();
+    <span class="kw">while let </span><span class="prelude-val">Some</span>((i, byte)) = bytes.next() {
+        <span class="kw">match </span>byte {
+            <span class="string">b&#39;&quot;&#39; </span><span class="kw">if </span>input.rest[i + <span class="number">1</span>..].starts_with(delimiter) =&gt; {
+                <span class="kw">let </span>rest = input.advance(i + <span class="number">1 </span>+ delimiter.len());
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(literal_suffix(rest));
+            }
+            <span class="string">b&#39;\r&#39; </span>=&gt; <span class="kw">match </span>bytes.next() {
+                <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">b&#39;\n&#39;</span>)) =&gt; {}
+                <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
+            },
+            <span class="string">b&#39;\0&#39; </span>=&gt; <span class="kw">break</span>,
+            <span class="kw">_ </span>=&gt; {}
+        }
+    }
+    <span class="prelude-val">Err</span>(Reject)
+}
+
+<span class="kw">fn </span>cooked_c_string(<span class="kw-2">mut </span>input: Cursor) -&gt; <span class="prelude-ty">Result</span>&lt;Cursor, Reject&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>chars = input.char_indices();
+
     <span class="kw">while let </span><span class="prelude-val">Some</span>((i, ch)) = chars.next() {
         <span class="kw">match </span>ch {
-            <span class="string">&#39;&quot;&#39; </span><span class="kw">if </span>input.rest[i + <span class="number">1</span>..].starts_with(<span class="kw-2">&amp;</span>input.rest[..n]) =&gt; {
-                <span class="kw">let </span>rest = input.advance(i + <span class="number">1 </span>+ n);
-                <span class="kw">return </span><span class="prelude-val">Ok</span>(literal_suffix(rest));
+            <span class="string">&#39;&quot;&#39; </span>=&gt; {
+                <span class="kw">let </span>input = input.advance(i + <span class="number">1</span>);
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(literal_suffix(input));
             }
             <span class="string">&#39;\r&#39; </span>=&gt; <span class="kw">match </span>chars.next() {
                 <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;\n&#39;</span>)) =&gt; {}
                 <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
             },
-            <span class="kw">_ </span>=&gt; {}
+            <span class="string">&#39;\\&#39; </span>=&gt; <span class="kw">match </span>chars.next() {
+                <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;x&#39;</span>)) =&gt; {
+                    backslash_x_nonzero(<span class="kw-2">&amp;mut </span>chars)<span class="question-mark">?</span>;
+                }
+                <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;n&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;r&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;t&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;\\&#39;</span>))
+                | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;\&#39;&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;&quot;&#39;</span>)) =&gt; {}
+                <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="string">&#39;u&#39;</span>)) =&gt; {
+                    <span class="kw">if </span>backslash_u(<span class="kw-2">&amp;mut </span>chars)<span class="question-mark">? </span>== <span class="string">&#39;\0&#39; </span>{
+                        <span class="kw">break</span>;
+                    }
+                }
+                <span class="prelude-val">Some</span>((newline, ch @ <span class="string">&#39;\n&#39;</span>)) | <span class="prelude-val">Some</span>((newline, ch @ <span class="string">&#39;\r&#39;</span>)) =&gt; {
+                    input = input.advance(newline + <span class="number">1</span>);
+                    trailing_backslash(<span class="kw-2">&amp;mut </span>input, ch <span class="kw">as </span>u8)<span class="question-mark">?</span>;
+                    chars = input.char_indices();
+                }
+                <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
+            },
+            <span class="string">&#39;\0&#39; </span>=&gt; <span class="kw">break</span>,
+            _ch =&gt; {}
         }
     }
     <span class="prelude-val">Err</span>(Reject)
@@ -1373,7 +1572,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>bytes = input.bytes().enumerate();
     <span class="kw">let </span>ok = <span class="kw">match </span>bytes.next().map(|(<span class="kw">_</span>, b)| b) {
         <span class="prelude-val">Some</span>(<span class="string">b&#39;\\&#39;</span>) =&gt; <span class="kw">match </span>bytes.next().map(|(<span class="kw">_</span>, b)| b) {
-            <span class="prelude-val">Some</span>(<span class="string">b&#39;x&#39;</span>) =&gt; backslash_x_byte(<span class="kw-2">&amp;mut </span>bytes),
+            <span class="prelude-val">Some</span>(<span class="string">b&#39;x&#39;</span>) =&gt; backslash_x_byte(<span class="kw-2">&amp;mut </span>bytes).is_ok(),
             <span class="prelude-val">Some</span>(<span class="string">b&#39;n&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">b&#39;r&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">b&#39;t&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">b&#39;\\&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">b&#39;0&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">b&#39;\&#39;&#39;</span>)
             | <span class="prelude-val">Some</span>(<span class="string">b&#39;&quot;&#39;</span>) =&gt; <span class="bool-val">true</span>,
             <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
@@ -1396,8 +1595,8 @@
     <span class="kw">let </span><span class="kw-2">mut </span>chars = input.char_indices();
     <span class="kw">let </span>ok = <span class="kw">match </span>chars.next().map(|(<span class="kw">_</span>, ch)| ch) {
         <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>) =&gt; <span class="kw">match </span>chars.next().map(|(<span class="kw">_</span>, ch)| ch) {
-            <span class="prelude-val">Some</span>(<span class="string">&#39;x&#39;</span>) =&gt; backslash_x_char(<span class="kw-2">&amp;mut </span>chars),
-            <span class="prelude-val">Some</span>(<span class="string">&#39;u&#39;</span>) =&gt; backslash_u(<span class="kw-2">&amp;mut </span>chars),
+            <span class="prelude-val">Some</span>(<span class="string">&#39;x&#39;</span>) =&gt; backslash_x_char(<span class="kw-2">&amp;mut </span>chars).is_ok(),
+            <span class="prelude-val">Some</span>(<span class="string">&#39;u&#39;</span>) =&gt; backslash_u(<span class="kw-2">&amp;mut </span>chars).is_ok(),
             <span class="prelude-val">Some</span>(<span class="string">&#39;n&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">&#39;r&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">&#39;t&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">&#39;0&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">&#39;\&#39;&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">&#39;&quot;&#39;</span>) =&gt; {
                 <span class="bool-val">true
             </span>}
@@ -1418,32 +1617,45 @@
         <span class="kw">match </span><span class="macro-nonterminal">$chars</span>.next() {
             <span class="prelude-val">Some</span>((<span class="kw">_</span>, ch)) =&gt; <span class="kw">match </span>ch {
                 <span class="macro-nonterminal">$pat </span>$(| <span class="macro-nonterminal">$rest</span>)* =&gt; ch,
-                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
+                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Reject),
             },
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Reject),
         }
     };
 }
 
-<span class="kw">fn </span>backslash_x_char&lt;I&gt;(chars: <span class="kw-2">&amp;mut </span>I) -&gt; bool
+<span class="kw">fn </span>backslash_x_char&lt;I&gt;(chars: <span class="kw-2">&amp;mut </span>I) -&gt; <span class="prelude-ty">Result</span>&lt;(), Reject&gt;
 <span class="kw">where
     </span>I: Iterator&lt;Item = (usize, char)&gt;,
 {
     <span class="macro">next_ch!</span>(chars @ <span class="string">&#39;0&#39;</span>..=<span class="string">&#39;7&#39;</span>);
     <span class="macro">next_ch!</span>(chars @ <span class="string">&#39;0&#39;</span>..=<span class="string">&#39;9&#39; </span>| <span class="string">&#39;a&#39;</span>..=<span class="string">&#39;f&#39; </span>| <span class="string">&#39;A&#39;</span>..=<span class="string">&#39;F&#39;</span>);
-    <span class="bool-val">true
-</span>}
+    <span class="prelude-val">Ok</span>(())
+}
 
-<span class="kw">fn </span>backslash_x_byte&lt;I&gt;(chars: <span class="kw-2">&amp;mut </span>I) -&gt; bool
+<span class="kw">fn </span>backslash_x_byte&lt;I&gt;(chars: <span class="kw-2">&amp;mut </span>I) -&gt; <span class="prelude-ty">Result</span>&lt;(), Reject&gt;
 <span class="kw">where
     </span>I: Iterator&lt;Item = (usize, u8)&gt;,
 {
     <span class="macro">next_ch!</span>(chars @ <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>| <span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;f&#39; </span>| <span class="string">b&#39;A&#39;</span>..=<span class="string">b&#39;F&#39;</span>);
     <span class="macro">next_ch!</span>(chars @ <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>| <span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;f&#39; </span>| <span class="string">b&#39;A&#39;</span>..=<span class="string">b&#39;F&#39;</span>);
-    <span class="bool-val">true
-</span>}
+    <span class="prelude-val">Ok</span>(())
+}
 
-<span class="kw">fn </span>backslash_u&lt;I&gt;(chars: <span class="kw-2">&amp;mut </span>I) -&gt; bool
+<span class="kw">fn </span>backslash_x_nonzero&lt;I&gt;(chars: <span class="kw-2">&amp;mut </span>I) -&gt; <span class="prelude-ty">Result</span>&lt;(), Reject&gt;
+<span class="kw">where
+    </span>I: Iterator&lt;Item = (usize, char)&gt;,
+{
+    <span class="kw">let </span>first = <span class="macro">next_ch!</span>(chars @ <span class="string">&#39;0&#39;</span>..=<span class="string">&#39;9&#39; </span>| <span class="string">&#39;a&#39;</span>..=<span class="string">&#39;f&#39; </span>| <span class="string">&#39;A&#39;</span>..=<span class="string">&#39;F&#39;</span>);
+    <span class="kw">let </span>second = <span class="macro">next_ch!</span>(chars @ <span class="string">&#39;0&#39;</span>..=<span class="string">&#39;9&#39; </span>| <span class="string">&#39;a&#39;</span>..=<span class="string">&#39;f&#39; </span>| <span class="string">&#39;A&#39;</span>..=<span class="string">&#39;F&#39;</span>);
+    <span class="kw">if </span>first == <span class="string">&#39;0&#39; </span>&amp;&amp; second == <span class="string">&#39;0&#39; </span>{
+        <span class="prelude-val">Err</span>(Reject)
+    } <span class="kw">else </span>{
+        <span class="prelude-val">Ok</span>(())
+    }
+}
+
+<span class="kw">fn </span>backslash_u&lt;I&gt;(chars: <span class="kw-2">&amp;mut </span>I) -&gt; <span class="prelude-ty">Result</span>&lt;char, Reject&gt;
 <span class="kw">where
     </span>I: Iterator&lt;Item = (usize, char)&gt;,
 {
@@ -1456,18 +1668,38 @@
             <span class="string">&#39;a&#39;</span>..=<span class="string">&#39;f&#39; </span>=&gt; <span class="number">10 </span>+ ch <span class="kw">as </span>u8 - <span class="string">b&#39;a&#39;</span>,
             <span class="string">&#39;A&#39;</span>..=<span class="string">&#39;F&#39; </span>=&gt; <span class="number">10 </span>+ ch <span class="kw">as </span>u8 - <span class="string">b&#39;A&#39;</span>,
             <span class="string">&#39;_&#39; </span><span class="kw">if </span>len &gt; <span class="number">0 </span>=&gt; <span class="kw">continue</span>,
-            <span class="string">&#39;}&#39; </span><span class="kw">if </span>len &gt; <span class="number">0 </span>=&gt; <span class="kw">return </span>char::from_u32(value).is_some(),
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
+            <span class="string">&#39;}&#39; </span><span class="kw">if </span>len &gt; <span class="number">0 </span>=&gt; <span class="kw">return </span>char::from_u32(value).ok_or(Reject),
+            <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
         };
         <span class="kw">if </span>len == <span class="number">6 </span>{
-            <span class="kw">return </span><span class="bool-val">false</span>;
+            <span class="kw">break</span>;
         }
         value <span class="kw-2">*</span>= <span class="number">0x10</span>;
         value += u32::from(digit);
         len += <span class="number">1</span>;
     }
-    <span class="bool-val">false
-</span>}
+    <span class="prelude-val">Err</span>(Reject)
+}
+
+<span class="kw">fn </span>trailing_backslash(input: <span class="kw-2">&amp;mut </span>Cursor, <span class="kw-2">mut </span>last: u8) -&gt; <span class="prelude-ty">Result</span>&lt;(), Reject&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>whitespace = input.bytes().enumerate();
+    <span class="kw">loop </span>{
+        <span class="kw">if </span>last == <span class="string">b&#39;\r&#39; </span>&amp;&amp; whitespace.next().map_or(<span class="bool-val">true</span>, |(<span class="kw">_</span>, b)| b != <span class="string">b&#39;\n&#39;</span>) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Reject);
+        }
+        <span class="kw">match </span>whitespace.next() {
+            <span class="prelude-val">Some</span>((<span class="kw">_</span>, b @ <span class="string">b&#39; &#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, b @ <span class="string">b&#39;\t&#39;</span>)) | <span class="prelude-val">Some</span>((<span class="kw">_</span>, b @ <span class="string">b&#39;\n&#39;</span>))
+            | <span class="prelude-val">Some</span>((<span class="kw">_</span>, b @ <span class="string">b&#39;\r&#39;</span>)) =&gt; {
+                last = b;
+            }
+            <span class="prelude-val">Some</span>((offset, <span class="kw">_</span>)) =&gt; {
+                <span class="kw-2">*</span>input = input.advance(offset);
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+            }
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Reject),
+        }
+    }
+}
 
 <span class="kw">fn </span>float(input: Cursor) -&gt; <span class="prelude-ty">Result</span>&lt;Cursor, Reject&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>rest = float_digits(input)<span class="question-mark">?</span>;
@@ -1632,7 +1864,7 @@
 <span class="kw">fn </span>punct(input: Cursor) -&gt; PResult&lt;Punct&gt; {
     <span class="kw">let </span>(rest, ch) = punct_char(input)<span class="question-mark">?</span>;
     <span class="kw">if </span>ch == <span class="string">&#39;\&#39;&#39; </span>{
-        <span class="kw">if </span>ident_any(rest)<span class="question-mark">?</span>.<span class="number">0</span>.starts_with(<span class="string">&quot;&#39;&quot;</span>) {
+        <span class="kw">if </span>ident_any(rest)<span class="question-mark">?</span>.<span class="number">0</span>.starts_with_char(<span class="string">&#39;\&#39;&#39;</span>) {
             <span class="prelude-val">Err</span>(Reject)
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>((rest, Punct::new(<span class="string">&#39;\&#39;&#39;</span>, Spacing::Joint)))
@@ -1724,7 +1956,7 @@
         <span class="prelude-val">Ok</span>((input, (<span class="kw-2">&amp;</span>s[<span class="number">3</span>..s.len() - <span class="number">2</span>], <span class="bool-val">true</span>)))
     } <span class="kw">else if </span>input.starts_with(<span class="string">&quot;///&quot;</span>) {
         <span class="kw">let </span>input = input.advance(<span class="number">3</span>);
-        <span class="kw">if </span>input.starts_with(<span class="string">&quot;/&quot;</span>) {
+        <span class="kw">if </span>input.starts_with_char(<span class="string">&#39;/&#39;</span>) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Reject);
         }
         <span class="kw">let </span>(input, s) = take_until_newline_or_eof(input);
