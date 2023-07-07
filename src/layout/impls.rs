@@ -913,6 +913,14 @@ unsafe
     }
 from_CType_impl_ReprC! { Bool }
 
+/// A `ReprC` _standalone_ type with the same layout and ABI as
+/// [`::libc::c_int`][crate::libc::c_int].
+///
+/// By _standalone_, the idea is that this is defined as a (`transparent`) _newtype_ `struct`,
+/// rather than as a _`type` alias_, which is error-prone and yields less-portable headers (since
+/// the header generation will resolve the type alias and emit, for instance, `int32_t`, ⚠️).
+///
+/// By using this type, you guarantee that the C `int` type be used in the headers.
 #[repr(transparent)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub

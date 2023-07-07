@@ -126,6 +126,9 @@ inventory-0-3-1.optional = true
 inventory-0-3-1.package = "inventory"
 inventory-0-3-1.version = "0.3.1"
 
+libc.version = "0.2.66"
+libc.default-features = false
+
 log.optional = true
 log.version = "0.4.8"
 
@@ -162,10 +165,6 @@ version = "0.0.3"
 [dependencies.safer_ffi-proc_macros]
 path = "src/proc_macro"
 version = "=0.1.1"  # Keep in sync
-
-[target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
-libc.version = "0.2.66"
-libc.default-features = false
 
 [workspace]
 members = [
