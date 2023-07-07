@@ -269,6 +269,7 @@ cfg_alloc! {
     mod boxed;
 }
 
+#[doc(inline)]
 pub use self::c_char_module::c_char;
 #[path = "c_char.rs"]
 mod c_char_module;
@@ -293,6 +294,9 @@ mod dyn_traits;
 )]
 #[doc(no_inline)]
 pub use dyn_traits::futures;
+
+pub
+mod libc;
 
 pub
 mod ptr;
@@ -320,8 +324,8 @@ cfg_alloc! {
     pub mod vec;
 }
 
-#[apply(hidden_export)]
-use layout::impls::c_int;
+#[doc(inline)]
+pub use layout::impls::c_int;
 
 pub
 mod prelude {
@@ -445,16 +449,6 @@ macro_rules! __abort_with_msg__ { ($($tt:tt)*) => (
         $crate::ඞ::panic!($($tt)*);
     }}
 )}
-
-#[cfg(target_arch = "wasm32")]
-#[allow(dead_code)]
-mod libc {
-    pub type c_int = i32;
-    pub type size_t = u32;
-    pub type uintptr_t = u32;
-}
-#[cfg(not(target_arch = "wasm32"))]
-use ::libc;
 
 extern crate self as safer_ffi;
 

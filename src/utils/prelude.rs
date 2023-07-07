@@ -27,7 +27,7 @@ cfg_match! {
         pub(in crate) type size_t = u32;
     },
     _ => {
-        pub(in crate) use ::libc::size_t;
+        pub(in crate) use crate::libc::size_t;
     },
 }
 
