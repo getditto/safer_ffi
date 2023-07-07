@@ -661,12 +661,6 @@
 <span id="661">661</span>
 <span id="662">662</span>
 <span id="663">663</span>
-<span id="664">664</span>
-<span id="665">665</span>
-<span id="666">666</span>
-<span id="667">667</span>
-<span id="668">668</span>
-<span id="669">669</span>
 </pre><pre class="rust"><code><span class="attribute">#![warn(warnings)] </span><span class="comment">// Prevent `-Dwarnings` from causing breakage.
 </span><span class="attribute">#![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt::skip)]
@@ -938,7 +932,8 @@ mod </span>__utils__;
     mod </span>boxed;
 }
 
-<span class="kw">pub use </span><span class="self">self</span>::c_char_module::c_char;
+<span class="attribute">#[doc(inline)]
+</span><span class="kw">pub use </span><span class="self">self</span>::c_char_module::c_char;
 <span class="attribute">#[path = <span class="string">&quot;c_char.rs&quot;</span>]
 </span><span class="kw">mod </span>c_char_module;
 
@@ -962,6 +957,9 @@ mod </span>dyn_traits;
 )]
 #[doc(no_inline)]
 </span><span class="kw">pub use </span>dyn_traits::futures;
+
+<span class="kw">pub
+mod </span>libc;
 
 <span class="kw">pub
 mod </span>ptr;
@@ -989,8 +987,8 @@ mod </span>tuple;
     <span class="kw">pub mod </span>vec;
 }
 
-<span class="attribute">#[apply(hidden_export)]
-</span><span class="kw">use </span>layout::impls::c_int;
+<span class="attribute">#[doc(inline)]
+</span><span class="kw">pub use </span>layout::impls::c_int;
 
 <span class="kw">pub
 mod </span>prelude {
@@ -1114,16 +1112,6 @@ mod </span>prelude {
         <span class="macro-nonterminal">$</span><span class="macro">crate::ඞ::panic!</span>($(<span class="macro-nonterminal">$tt</span>)<span class="kw-2">*</span>);
     }}
 )}
-
-<span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
-#[allow(dead_code)]
-</span><span class="kw">mod </span>libc {
-    <span class="kw">pub type </span>c_int = i32;
-    <span class="kw">pub type </span>size_t = u32;
-    <span class="kw">pub type </span>uintptr_t = u32;
-}
-<span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
-</span><span class="kw">use </span>::libc;
 
 <span class="kw">extern crate </span><span class="self">self </span><span class="kw">as </span>safer_ffi;
 

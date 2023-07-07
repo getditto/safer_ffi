@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"type":[["c_char","A `type` alias to [`::libc::c_char`]."],["c_int","A `type` alias to [`::libc::c_int`]."],["size_t","A `type` alias to [`::libc::size_t`]."],["uintptr_t","A `type` alias to [`::libc::uintptr_t`]."]]};

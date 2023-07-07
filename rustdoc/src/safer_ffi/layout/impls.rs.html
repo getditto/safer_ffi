@@ -1193,6 +1193,14 @@
 <span id="1193">1193</span>
 <span id="1194">1194</span>
 <span id="1195">1195</span>
+<span id="1196">1196</span>
+<span id="1197">1197</span>
+<span id="1198">1198</span>
+<span id="1199">1199</span>
+<span id="1200">1200</span>
+<span id="1201">1201</span>
+<span id="1202">1202</span>
+<span id="1203">1203</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
@@ -2108,7 +2116,15 @@ struct </span>Bool(u8);
     }
 <span class="macro">from_CType_impl_ReprC! </span>{ Bool }
 
-<span class="attribute">#[repr(transparent)]
+<span class="doccomment">/// A `ReprC` _standalone_ type with the same layout and ABI as
+/// [`::libc::c_int`][crate::libc::c_int].
+///
+/// By _standalone_, the idea is that this is defined as a (`transparent`) _newtype_ `struct`,
+/// rather than as a _`type` alias_, which is error-prone and yields less-portable headers (since
+/// the header generation will resolve the type alias and emit, for instance, `int32_t`, ⚠️).
+///
+/// By using this type, you guarantee that the C `int` type be used in the headers.
+</span><span class="attribute">#[repr(transparent)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 </span><span class="kw">pub
 struct </span>c_int(<span class="kw">pub </span><span class="kw">crate</span>::libc::c_int);
