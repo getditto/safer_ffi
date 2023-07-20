@@ -60,7 +60,7 @@ edition = "2021"
 crate-type = [
     "staticlib",  # Ensure it gets compiled as a (static) C library
   # "cdylib",     # If you want a shared/dynamic C library (advanced)
-    "lib",        # For downstream Rust dependents: `examples/`, `tests/` etc.
+    "lib",        # For `generate-headers`, `examples/`, `tests/` etc.
 ]
 
 [dependencies]
