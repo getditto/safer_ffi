@@ -446,18 +446,28 @@
 <span id="446">446</span>
 <span id="447">447</span>
 <span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 
-</span><span class="macro">macro_rules! </span>spanned {( <span class="macro-nonterminal">$span</span>:expr $(,)<span class="question-mark">? </span>) =&gt; (
-    ::proc_macro2::Ident::new(<span class="string">&quot;__&quot;</span>, <span class="macro-nonterminal">$span</span>)
-)} <span class="kw">pub</span>(<span class="kw">in crate</span>) <span class="kw">use </span>spanned;
+</span><span class="kw">pub</span>(<span class="kw">in crate</span>)
+<span class="kw">fn </span>reified_span(span: <span class="kw">impl </span>Into&lt;<span class="prelude-ty">Option</span>&lt;::proc_macro2::Span&gt;&gt;)
+  -&gt; <span class="kw">impl </span>::quote::ToTokens
+{
+    ::proc_macro2::Ident::new(<span class="string">&quot;__&quot;</span>, span.into().unwrap_or_else(
+        ::proc_macro2::Span::call_site
+    ))
+}
 
 <span class="macro">macro_rules! </span>bail {
     (
         <span class="macro-nonterminal">$err_msg</span>:expr $(,)<span class="question-mark">?
     </span>) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::utils::bail! </span>{
-            <span class="macro-nonterminal">$err_msg </span>=&gt; <span class="macro-nonterminal">$</span><span class="macro">crate::utils::spanned!</span>(<span class="macro-nonterminal">::proc_macro2::Span::call_site</span>())
+            <span class="macro-nonterminal">$err_msg </span>=&gt; <span class="macro-nonterminal">$crate::utils::reified_span</span>(::core::prelude::v1::None)
         }
     );
 

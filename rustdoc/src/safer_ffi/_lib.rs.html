@@ -661,6 +661,12 @@
 <span id="661">661</span>
 <span id="662">662</span>
 <span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
 </pre><pre class="rust"><code><span class="attribute">#![warn(warnings)] </span><span class="comment">// Prevent `-Dwarnings` from causing breakage.
 </span><span class="attribute">#![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt::skip)]
@@ -1323,6 +1329,12 @@ mod </span>prelude {
             }
         }
     }
+
+    <span class="attribute">#[doc(hidden)] </span><span class="doccomment">/** Not part of the public API! */
+    </span><span class="attribute">#[macro_export]
+    </span><span class="macro">macro_rules! </span>ඞassert_expr {( <span class="macro-nonterminal">$e</span>:expr $(,)<span class="question-mark">? </span>) =&gt; ( <span class="macro-nonterminal">$e </span>)}
+    <span class="attribute">#[doc(inline)]
+    </span><span class="kw">pub use </span>ඞassert_expr <span class="kw">as </span>assert_expr;
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>
