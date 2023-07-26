@@ -660,4 +660,10 @@ mod __ {
             }
         }
     }
+
+    #[doc(hidden)] /** Not part of the public API! */
+    #[macro_export]
+    macro_rules! ඞassert_expr {( $e:expr $(,)? ) => ( $e )}
+    #[doc(inline)]
+    pub use ඞassert_expr as assert_expr;
 }

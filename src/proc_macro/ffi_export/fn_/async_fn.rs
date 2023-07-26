@@ -44,54 +44,88 @@ fn export (
     // ```
     // where the `<stmts>` make up a prelude that allow to make `<a future>` be
     // `'static`.
-    let (ref prelude, (ffi_await, ref async_body)): (Vec<Stmt>, (_, Expr)) = {
+    let (ref prelude, ffi_await, ref async_body): (Vec<Stmt>, _, Expr) = {
         let mut stmts = fun.block.stmts.clone();
-        let mut async_body = None;
-        if let Some(err_span) = (|| match stmts.pop() {
+        let ill_formed_ffi_await_at = |problematic_tts: &dyn ToTokens| bail! {
+            "\
+                `#[ffi_export(…, executor = …)]` expects the last \
+                expression/statement to be an expression of the form: \
+                `ffi_await!(<some future>)` such as:\n    \
+                ffi_await!(async move {\n        …\n    })\n\
+            " => problematic_tts
+        };
+        match stmts.pop() {
+            // no trailing expression case (block ending with a `;`):
             | Some(Stmt::Local(Local { semi_token, .. }))
             | Some(Stmt::Semi(_, semi_token))
             | Some(Stmt::Item(
-                Item::Macro(ItemMacro { semi_token: Some(semi_token), .. })
+                Item::Macro(ItemMacro {
+                    semi_token: Some(semi_token),
+                    ..
+                })
             )) => {
-                Some(semi_token.span())
+                return ill_formed_ffi_await_at(&semi_token);
             },
-            | Some(Stmt::Item(ref item)) => {
-                Some(item.span())
-            },
-            | None => Some(Span::call_site()),
 
-            | Some(Stmt::Expr(expr)) => {
-                let span = expr.span();
-                match expr {
-                    | Expr::Macro(ExprMacro {
-                        attrs: _,
-                        mac: Macro {
-                            path: ffi_await,
-                            tokens,
-                            ..
-                        },
-                    }) => if ffi_await.is_ident("ffi_await") {
-                        if let Ok(expr) = parse2(tokens) {
-                            async_body = Some((ffi_await.span(), expr));
-                            return None;
-                        }
+            // `ffi_await!( tokens… )` or `ffi_await! { tokens… }` cases:
+            | Some(Stmt::Expr(Expr::Macro(ExprMacro {
+                mac: Macro {
+                    path: ffi_await,
+                    tokens,
+                    ..
+                },
+                ..
+            })))
+            | Some(Stmt::Item(
+                Item::Macro(ItemMacro {
+                    semi_token: None,
+                    mac: Macro {
+                        path: ffi_await,
+                        tokens,
+                        ..
                     },
-                    | _ => {},
-                }
-                Some(span)
+                    ..
+                })
+            ))
+                if ffi_await.is_ident("ffi_await")
+            => {
+                // In order to guarantee good UX when using this fake
+                // macro, we want to assert that these `tokens…`
+                // represent a valid expression.
+                //
+                // While we could let `syn` parse them and produce its
+                // own syntactic error when ill-formed, since we don't
+                // need to, ourselves, inspect that expression in and of
+                // itself (we just treat it as an opaque expression
+                // which we trust to be an `impl Future`), we will
+                // similarly trust its syntactic well-formedness and let
+                // Rust complain at the final expansion.
+                //
+                // However, since things such as `let x = #expr;` can
+                // actually succeed when `expr` is not an expression but
+                // e.g. `42; let x = 27`, we still would like some
+                // safeguard against that. We could use `(#expr)`, but then:
+                //   - we need to disable the `unused_parens` lint…
+                //   - in case of `cargo expand` people will see the parens.
+                //
+                // We instead use `identity_expr_macro!(#expr)`, which
+                // achieves the same safeguard, but with invis parens.
+                //
+                // At that point, we may as well have a well-typed
+                // `Expr` rather than a raw `TokenStream2`, which we can
+                // cheaply achieve with the `Verbatim` variant.
+                let expr = Expr::Verbatim(quote!(
+                    ::safer_ffi::ඞ::assert_expr!(#tokens)
+                ));
+                (stmts, ffi_await.span(), expr)
             },
-        })()
-        {
-            bail!(
-                "\
-                    `#[ffi_export(…, executor = …)]` expects the last \
-                    expression/statement to be an expression of the form: \
-                    `ffi_await!(<some future>)` such as:\n    \
-                    ffi_await!(async move {\n        …\n    })\n\
-                " => spanned!(err_span)
-            );
+            // Other trailing stmt case, _e.g._, `mod some_item { … }`
+            | Some(other_trailing_stmt) => {
+                return ill_formed_ffi_await_at(&other_trailing_stmt)
+            },
+            // completely empty fn body!
+            | None => return ill_formed_ffi_await_at(&reified_span(None)),
         }
-        (stmts, async_body.unwrap())
     };
 
     let block_on = respan(fun.block.span(), block_on.into_token_stream());
@@ -198,7 +232,7 @@ fn export (
                 );
                 let ret: #RetTy =
                     match ::core::marker::PhantomData::<#RetTy> { _ => {
-                        { #async_body }.await
+                        #async_body.await
                     }}
                 ;
                 unsafe {
