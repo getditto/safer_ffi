@@ -1,15 +1,20 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 
-macro_rules! spanned {( $span:expr $(,)? ) => (
-    ::proc_macro2::Ident::new("__", $span)
-)} pub(in crate) use spanned;
+pub(in crate)
+fn reified_span(span: impl Into<Option<::proc_macro2::Span>>)
+  -> impl ::quote::ToTokens
+{
+    ::proc_macro2::Ident::new("__", span.into().unwrap_or_else(
+        ::proc_macro2::Span::call_site
+    ))
+}
 
 macro_rules! bail {
     (
         $err_msg:expr $(,)?
     ) => (
         $crate::utils::bail! {
-            $err_msg => $crate::utils::spanned!(::proc_macro2::Span::call_site())
+            $err_msg => $crate::utils::reified_span(::core::prelude::v1::None)
         }
     );
 
