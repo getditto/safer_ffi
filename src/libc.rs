@@ -12,9 +12,9 @@
 
 use_libc_or_else! {
     pub use ::libc::{
-        /// Note: your should probably be using [`crate::c_char`] instead.
+        /// Note: you should probably be using [`crate::c_char`] instead.
         c_char else u8,
-        /// Note: your should probably be using [`crate::c_int`] instead.
+        /// Note: you should probably be using [`crate::c_int`] instead.
         c_int else ::core::ffi::c_int,
         ///
         size_t else usize,
