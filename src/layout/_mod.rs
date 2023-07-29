@@ -127,6 +127,9 @@ impl<T : LegacyCType> CType for T {
                 | _case if language.is::<CSharp>() => {
                     <Self as LegacyCType>::csharp_define_self(definer)
                 },
+                | _case if language.is::<Lua>() => {
+                    <Self as LegacyCType>::lua_define_self(definer)
+                },
                 #[cfg(feature = "python-headers")]
                 | _case if language.is::<Python>() => {
                     <Self as LegacyCType>::c_define_self(definer)
@@ -156,6 +159,9 @@ impl<T : LegacyCType> CType for T {
                 | _case if language.is::<CSharp>() => {
                     let sep = if var_name.is_empty() { "" } else { " " };
                     format!("{}{sep}{var_name}", Self::csharp_ty())
+                },
+                | _case if language.is::<Lua>() => {
+                    <Self as LegacyCType>::lua_var(var_name)
                 },
                 #[cfg(feature = "python-headers")]
                 | _case if language.is::<Python>() => {
@@ -567,6 +573,21 @@ unsafe trait LegacyCType
                     Self::csharp_ty(), var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
                 )
+            }
+        }
+
+
+        __cfg_lua__! {
+            /// Extra typedef code (_e.g._ `[LayoutKind.Sequential] struct ...`)
+            fn lua_define_self (definer: &'_ mut dyn Definer)
+              -> io::Result<()>
+            ;
+
+            /// Convenience function for formatting `{ty} {var}` in Lua.
+            fn lua_var (var_name: &'_ str)
+              -> rust::String
+            {
+                Self::c_var(var_name).to_string()
             }
         }
     }
