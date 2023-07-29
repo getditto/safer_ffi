@@ -81,3 +81,20 @@ fn test_csharp_code ()
             .success()
     );
 }
+
+#[test]
+fn test_lua_code()
+{
+    let output = ::std::process::Command::new("luajit")
+        .current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/lua"))
+        .arg("tests.lua")
+        .output()
+        .expect("Failed to run Lua tests");
+
+    assert!(
+        output.status.success(),
+        "Lua tests failed with output:\n\nSTDOUT:\n{}\n\nSTDERR:\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+}

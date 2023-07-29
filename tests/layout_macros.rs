@@ -320,6 +320,7 @@ fn generate_headers ()
         in  &[
                 C,
                 CSharp,
+                Lua,
             ]
     {
         ::safer_ffi::headers::builder()

@@ -77,6 +77,9 @@ fn derive (
         let EachGenericTy =
             generics.type_params().map(|it| &it.ident)
         ;
+        let EachConstParam =
+            generics.const_params().map(|param| &param.ident)
+        ;
         let ref EachFieldTy =
             fields.iter().vmap(|Field { ty, .. }| ty)
         ;
@@ -91,17 +94,12 @@ fn derive (
             fn short_name ()
               -> #ඞ::String
             {
-                let mut _ret =
-                    <#ඞ::String as #ඞ::From<_>>::from(#StructName_str)
-                ;
+                let mut _ret = #ඞ::format!("{}", #StructName_str);
                 #(
-                    #ඞ::fmt::Write::write_fmt(
-                        &mut _ret,
-                        #ඞ::format_args!(
-                            "_{}",
-                            <#CLayoutOf<#EachGenericTy> as #CType>::short_name(),
-                        ),
-                    ).unwrap();
+                    _ret.push_str(&#ඞ::format!("_{}", <#CLayoutOf<#EachGenericTy> as #CType>::short_name()));
+                )*
+                #(
+                    _ret.push_str(&#ඞ::format!("_{}", #EachConstParam));
                 )*
                 _ret
             }
