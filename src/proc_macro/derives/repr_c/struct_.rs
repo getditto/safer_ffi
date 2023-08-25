@@ -473,7 +473,7 @@ fn derive_opaque (
                 fn clone (self: &'_ Self)
                   -> Self
                 {
-                    match self._void {}
+                    *self
                 }
             }
 
