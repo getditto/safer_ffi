@@ -20,7 +20,7 @@ crate-type = [
     "cdylib",     # If you want a shared/dynamic C library (advanced)
                   # `target/{debug,release}/libcrate_name.{so,dylib}`
 
-    "lib",        # For downstream Rust dependents: `examples/`, `tests/` etc.
+    "lib",        # For `generate-headers`, `examples/`, `tests/` etc.
 ]
 ```
 
