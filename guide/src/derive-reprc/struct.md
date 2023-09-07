@@ -105,7 +105,7 @@ and function abstraction:
 
 ```rust,noplaypen
 #[derive_ReprC]
-#[ReprC::opaque] // <-- instead of `#[repr(C)]`
+#[repr(opaque)] // <-- instead of `#[repr(C)]`
 pub
 struct ComplicatedStruct {
     path: PathBuf,
@@ -132,7 +132,7 @@ use ::std::{
 use ::safer_ffi::prelude::*;
 
 #[derive_ReprC]
-#[ReprC::opaque]
+#[repr(opaque)]
 pub
 struct ComplicatedStruct {
     path: PathBuf,
