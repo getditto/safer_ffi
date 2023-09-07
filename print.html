@@ -1177,7 +1177,7 @@ declaration: <code>typedef struct MyOpaque MyOpaque_t;</code></p>
 <pre><code class="language-rust noplaypen">use ::safer_ffi::prelude::*;
 
 #[derive_ReprC]
-#[ReprC::opaque]
+#[repr(opaque)]
 struct MyOpaque {
     /* anything goes here */
 }
@@ -1289,7 +1289,7 @@ through the hassle of recusrively changing each field to make it <a href="derive
 which will make it usable by C but only through a layer of pointer indirection
 and function abstraction:</p>
 <pre><code class="language-rust noplaypen">#[derive_ReprC]
-#[ReprC::opaque] // &lt;-- instead of `#[repr(C)]`
+#[repr(opaque)] // &lt;-- instead of `#[repr(C)]`
 pub
 struct ComplicatedStruct {
     path: PathBuf,
@@ -1310,7 +1310,7 @@ struct ComplicatedStruct {
 use ::safer_ffi::prelude::*;
 
 #[derive_ReprC]
-#[ReprC::opaque]
+#[repr(opaque)]
 pub
 struct ComplicatedStruct {
     path: PathBuf,
