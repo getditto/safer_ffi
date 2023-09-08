@@ -1171,17 +1171,40 @@ impl<T> ReprC for Opaque<T> {
     }
 }
 
-match_! {(
-    ['c] ::core::task::Context<'c> => "core_task_Context",
-) {(
+opaque_impls! {
+    @for['c] ::core::task::Context<'c>,
+    @for['r] &'r str,
+    @for['r, T] &'r [T],
+    @for['r, T] &'r mut [T],
+    @for[T] ::core::cell::RefCell<T>,
+}
+
+#[cfg(feature = "alloc")]
+opaque_impls! {
+    rust::String,
+    @for[T] rust::Box<T>,
+    @for[T] ::alloc::rc::Rc<T>,
+    @for[T] rust::Vec<T>,
+    @for[K, V] ::alloc::collections::BTreeMap<K, V>,
+}
+
+#[cfg(feature = "std")]
+opaque_impls! {
+    @for[K, V] ::std::collections::HashMap<K, V>,
+    @for[T] ::std::sync::Arc<T>,
+    @for[T] ::std::sync::Mutex<T>,
+    @for[T] ::std::sync::RwLock<T>,
+}
+
+// where
+macro_rules! opaque_impls {(
     $(
-        $(#[doc = $docs:expr])*
-        [$($generics:tt)*] $T:ty => $short_name:expr
+        $(@for[$($generics:tt)*])? $T:ty
     ),* $(,)?
 ) => (
     $(
         unsafe
-        impl<$($generics)*>
+        impl<$($($generics)*)?>
             ReprC
         for
             $T
@@ -1200,4 +1223,4 @@ match_! {(
             }
         }
     )*
-)}}
+)} use opaque_impls;
