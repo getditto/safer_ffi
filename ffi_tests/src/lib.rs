@@ -248,6 +248,20 @@ async fn async_get_ft ()
 #[ffi_export]
 pub const FOO: i32 = 42;
 
+#[ffi_export]
+fn _some_opaque_std_lib_type() -> repr_c::Box<String> {
+    Box::new(String::from("…")).into()
+}
+
+#[derive_ReprC]
+#[repr(opaque)]
+enum Enum { A(String) }
+
+#[ffi_export]
+fn _my_enum_is_opaque() -> repr_c::Box<Enum> {
+    Box::new(Enum::A("…".into())).into()
+}
+
 mod futures {
     pub
     mod executor {
