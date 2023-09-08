@@ -106,7 +106,8 @@ fn derive (
             }))?
         ;
 
-        impl_body.extend(quote!(
+        impl_body.extend(quote_spanned!(Span::mixed_site()=>
+            #[allow(nonstandard_style)]
             fn define_self__impl (
                 language: &'_ dyn #headers::languages::HeaderLanguage,
                 definer: &'_ mut dyn #headers::Definer,

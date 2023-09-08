@@ -146,6 +146,7 @@ fn derive (
                 #EnumName_str.into()
             }
 
+            #[allow(nonstandard_style)]
             fn define_self__impl (
                 language: &'_ dyn #HeaderLanguage,
                 definer: &'_ mut dyn #Definer,

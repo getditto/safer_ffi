@@ -433,6 +433,7 @@ fn derive_opaque (
                     #short_name
                 }
 
+                #[allow(nonstandard_style)]
                 fn define_self__impl (
                     language: &'_ dyn #ඞ::HeaderLanguage,
                     definer: &'_ mut dyn #ඞ::Definer,
