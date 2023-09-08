@@ -43,7 +43,6 @@ fn derive (
                 pub_,
                 StructName,
                 generics,
-                fields,
             ),
 
             | "C" => {},
@@ -349,7 +348,6 @@ fn derive_opaque (
     pub_: &'_ Visibility,
     StructName @ _: &'_ Ident,
     generics: &'_ Generics,
-    _: &'_ Fields,
 ) -> Result<TokenStream2>
 {
     #[apply(let_quote)]
