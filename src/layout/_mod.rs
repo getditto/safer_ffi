@@ -10,7 +10,7 @@ __cfg_headers__! {
     };
 }
 
-#[macro_use]
+pub(in crate)
 mod macros;
 
 #[doc(inline)]

@@ -1,65 +1,89 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
-#[cfg(feature = "headers")]
-#[macro_export] #[doc(hidden)]
-macro_rules! __cfg_headers__ {(
-    $($item:item)*
-) => (
-    $($item)*
-)}
-#[cfg(not(feature = "headers"))]
-#[macro_export] #[doc(hidden)]
-macro_rules! __cfg_headers__ {(
-    $($item:item)*
-) => (
-    // nothing
-)}
 
-#[cfg(feature = "js")]
-#[macro_export] #[doc(hidden)]
-macro_rules! __cfg_js__ {(
-    $($item:item)*
+export_cfgs! {$
+    "headers" => __cfg_headers__!,
+    "headers" => __cfg_csharp__!,
+    "js" => __cfg_js__!,
+    "python-headers" => __cfg_python__!,
+}
+/// Generates convenience `__cfg_xxx__! { … }` macros with the semantics of
+/// `#[cfg(feature = "xxx")] emit! { … }`, but usable by downstream code, such
+/// as the one emitted by our own derive macros and whatnot.
+macro_rules! export_cfgs {(
+    $_:tt
+    $(
+        $feature:tt => $macro_name:ident !
+    ),* $(,)?
 ) => (
-    $($item)*
-)}
-#[cfg(not(feature = "js"))]
-#[macro_export] #[doc(hidden)]
-macro_rules! __cfg_js__ {(
-    $($item:item)*
-) => (
-    // nothing
-)}
+    $(
+        cfg_match! {
+            feature = $feature => {
+                #[doc(hidden)] /** not part of the public API */ #[macro_export]
+                macro_rules! $macro_name {(
+                    $_($item:item)*
+                ) => (
+                    $_($item)*
+                )}
+            },
+            _ => {
+                #[doc(hidden)] /** not part of the public API */ #[macro_export]
+                macro_rules! $macro_name {(
+                    $_($item:item)*
+                ) => (
+                    // nothing
+                )}
+            },
+        }
+        #[allow(unused)]
+        pub(in crate) use $macro_name;
+    )*
+)} use export_cfgs;
 
-#[cfg(feature = "headers")]
-#[macro_export] #[doc(hidden)]
-macro_rules! __cfg_csharp__ {(
-    $($item:item)*
-) => (
-    $($item)*
-)}
-
-#[cfg(not(feature = "headers"))]
-#[macro_export] #[doc(hidden)]
-macro_rules! __cfg_csharp__ {(
-    $($item:item)*
-) => (
-    // Nothing
-)}
-
-#[cfg(feature = "python-headers")]
-#[macro_export] #[doc(hidden)]
-macro_rules! __cfg_python__ {(
-    $($item:item)*
-) => (
-    $($item)*
-)}
-
-#[cfg(not(feature = "python-headers"))]
-#[macro_export] #[doc(hidden)]
-macro_rules! __cfg_python__ {(
-    $($item:item)*
-) => (
-    // Nothing
-)}
+// Defines a special `__with_cfg_python__!` for-downstream-code, based on the
+// usable-everywhere `$($($if_cfg_python)? … )?` conditional expansion trick:
+//
+// ```rust
+// __with_cfg_python__!(|$if_cfg_python| {
+//     match … {
+//         Language::C => …,
+//         $($($if_cfg_python)?
+//             Language::Python => …,
+//         )?
+//     }
+// })
+// ```
+cfg_match! {
+    feature = "python-headers" => {
+        #[doc(hidden)] /** Not part of the public API */ #[macro_export]
+        macro_rules! __with_cfg_python__ {(
+            |$_:tt $if_python:ident $(, $__:tt $dol:ident)?| $body:tt
+        ) => ({
+            macro_rules! __emit__ {
+                (
+                    [$( $__ $dol : tt )? $_($__rest:tt)*]
+                    $_(true $_($_ $if_python:tt)?)?
+                    $_(false)?
+                ) => $body
+            }
+            __emit__! { [$] true }
+        })}
+    },
+    _ => {
+        #[doc(hidden)] /** Not part of the public API */ #[macro_export]
+        macro_rules! __with_cfg_python__ {(
+            |$_:tt $if_python:ident $(, $__:tt $dol:ident)?| $body:tt
+        ) => ({
+            macro_rules! __emit__ {
+                (
+                    [$( $__ $dol : tt )? $_($__rest:tt)*]
+                    $_(true $_($_ $if_python:tt)?)?
+                    $_(false)?
+                ) => $body
+            }
+            __emit__! { [$] false }
+        })}
+    },
+}
 
 /// Safely implement [`CType`][`trait@crate::layout::LegacyCType`]
 /// for a `#[repr(C)]` struct **when all its fields are `CType`**.

@@ -60,14 +60,14 @@ impl ::core::fmt::Display for Indentation {
     }
 }
 
-#[::safer_ffi_proc_macros::derive_ReprC2]
-#[repr(u8)]
-enum Foo { A, B = 12, C }
-
 type Docs<'lt> = &'lt [&'lt str];
 
 pub
 trait HeaderLanguage : UpcastAny {
+    fn language_name(&self) -> &'static str {
+        ::core::any::type_name::<Self>()
+    }
+
     fn emit_simple_enum (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
