@@ -117,6 +117,7 @@ impl<T> Deref
         }
     }
 }
+
 impl<T> DerefMut
     for Vec<T>
 {
@@ -168,6 +169,17 @@ impl<T> Vec<T> {
                     at_c_vec.write(rust_vec.into());
                 })
         }
+    }
+}
+
+impl<T : Clone + ReprC> Clone
+    for Vec<T>
+{
+    #[inline]
+    fn clone(self: &'_ Self)
+      -> Self
+    {
+        Self::from(self[..].to_owned())
     }
 }
 

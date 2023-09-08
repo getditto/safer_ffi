@@ -190,3 +190,11 @@ impl fmt::Debug
         <str as fmt::Debug>::fmt(self, fmt)
     }
 }
+
+impl<'r> From<str_ref<'r>> for rust::String {
+    fn from(s: str_ref<'r>)
+      -> rust::String
+    {
+        s.as_str().into()
+    }
+}

@@ -27,11 +27,20 @@ impl char_p_ref<'static> {
     pub
     const EMPTY: Self = unsafe {
         Self::from_ptr_unchecked(ptr::NonNull::new_unchecked({
-            const IT: u8 = NUL;
-            &IT as *const u8 as *mut u8
+            const IT: &u8 = &NUL;
+            IT as *const u8 as *mut u8
         }))
     };
+
+    /// Poor-man's specialization of `ToString::to_string()`
+    pub
+    fn to_string(&self)
+      -> String
+    {
+        self.to_str().to_owned()
+    }
 }
+
 impl<'lt> char_p_ref<'lt> {
     pub
     const
@@ -55,6 +64,7 @@ impl fmt::Debug
         fmt::Debug::fmt(self.to_str(), fmt)
     }
 }
+
 impl fmt::Display
     for char_p_ref<'_>
 {
@@ -244,9 +254,7 @@ impl<'lt> char_p_ref<'lt> {
         fn to_owned (self: char_p_ref<'lt>)
           -> char_p_boxed
         {
-            self.to_str_with_null()
-                .to_owned()
-                .try_into().unwrap()
+            char_p::new(self.to_str())
         }
     }
 }
@@ -324,6 +332,13 @@ impl fmt::Debug
 }
 
 cfg_alloc! {
+    /// Constructs a new `char_p::Box` off a stringy input.
+    ///
+    /// ## Panics
+    ///
+    /// Panics if the stringy input:
+    ///   - contains an interior (non-last) `NUL` byte (for `str`-y types);
+    ///   - is not UTF-8 (for `CStr`-y types).
     #[inline]
     pub
     fn new<Str> (s: Str)
@@ -380,12 +395,6 @@ cfg_alloc! {
         }
     }
 
-    /// We use a `static` rather than a `const` for the empty string case
-    /// as its address serves as a sentinel value for a fake-boxed string.
-    /// (Otherwise empty `char_p_boxed` would need to allocate to hold the
-    /// `NUL` terminator).
-    static EMPTY_SENTINEL: u8 = NUL;
-
     impl char_p_boxed {
         #[inline]
         pub
@@ -440,7 +449,7 @@ cfg_alloc! {
     )*)}
     derive_MyFrom_from! {
         @for['lt] &'lt str => rust::String,
-        // @for['lt] str::Ref<'lt> => rust::String,
+        @for['lt] str::Ref<'lt> => rust::String,
         rust::String => rust::String,
         repr_c::String => rust::String,
     }
@@ -451,6 +460,12 @@ cfg_alloc! {
         }
     }
 
+    /// We use a `static` rather than a `const` for the empty string case
+    /// as its address serves as a sentinel value for a fake-boxed string.
+    /// (Otherwise empty `char_p_boxed` would need to allocate to hold the
+    /// `NUL` terminator).
+    static EMPTY_SENTINEL: u8 = NUL;
+
     impl TryFrom<rust::String> for char_p_boxed {
         type Error = InvalidNulTerminator<rust::String>;
 
@@ -460,27 +475,28 @@ cfg_alloc! {
                 InvalidNulTerminator<rust::String>,
             >
         {
-            Ok(if let Some(len_minus_one) = s.len().checked_sub(1) {
-                unsafe {
-                    if s.as_bytes()[.. len_minus_one].contains(&NUL) {
-                        return Err(InvalidNulTerminator(s));
-                    }
-                    let mut s = s;
-                    if s.as_bytes()[len_minus_one] != NUL {
-                        s.reserve_exact(1);
-                        s.push(NUL as _);
-                    }
-                    let s: rust::Box<[u8]> = s.into_boxed_str().into();
-                    Self::from_ptr_unchecked(
-                        ptr::NonNull::new(rust::Box::leak(s).as_mut_ptr())
-                            .unwrap()
-                    )
-                }
-            } else {
+            Ok(if let ("" | "\0") = &*s {
                 unsafe {
                     Self::from_ptr_unchecked(ptr::NonNull::new_unchecked(
                         (&EMPTY_SENTINEL) as *const _ as *mut _
                     ))
+                }
+            } else {
+                let len_minus_one = s.len() - 1;
+                if s.as_bytes()[.. len_minus_one].contains(&NUL) {
+                    return Err(InvalidNulTerminator(s));
+                }
+                let mut s = s;
+                if s.as_bytes()[len_minus_one] != NUL {
+                    s.reserve_exact(1);
+                    s.push(NUL as _);
+                }
+                let s: rust::Box<[u8]> = s.into_boxed_str().into();
+                unsafe {
+                    Self::from_ptr_unchecked(
+                        ptr::NonNull::new(rust::Box::into_raw(s) as *mut u8)
+                            .unwrap()
+                    )
                 }
             })
         }

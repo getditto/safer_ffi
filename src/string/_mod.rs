@@ -58,13 +58,43 @@ cfg_alloc! {
         }
     }
 
+    /// ```rust
+    /// use ::safer_ffi::prelude::*;
+    ///
+    /// let s: repr_c::String = "".into();
+    /// assert_eq!(format!("{s:?}"), "\"\"");
+    /// ```
     impl fmt::Debug
         for String
     {
         fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
-        -> fmt::Result
+          -> fmt::Result
         {
-            <str as fmt::Debug>::fmt(self, fmt)
+            str::fmt(self, fmt)
+        }
+    }
+
+    /// ```rust
+    /// use ::safer_ffi::prelude::*;
+    ///
+    /// let s: repr_c::String = "".into();
+    /// assert_eq!(format!("{s}"), "");
+    /// ```
+    impl fmt::Display
+        for String
+    {
+        fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
+          -> fmt::Result
+        {
+            str::fmt(self, fmt)
+        }
+    }
+
+    impl From<&str> for repr_c::String {
+        fn from(s: &str)
+          -> repr_c::String
+        {
+            Self::from(rust::String::from(s))
         }
     }
 
@@ -82,6 +112,15 @@ cfg_alloc! {
                 let s: &'_ mut rust::String = unsafe { mem::transmute(v) };
                 f(s)
             })
+        }
+    }
+
+    impl Clone for String {
+        fn clone (
+            self: &'_ Self,
+        ) -> Self
+        {
+            Self(self.0.clone())
         }
     }
 }
