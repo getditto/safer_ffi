@@ -560,7 +560,7 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 
 [[package]]
 name = "safer-ffi"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "async-compat",
  "cratesio-placeholder-package",
@@ -590,7 +590,7 @@ dependencies = [
 
 [[package]]
 name = "safer_ffi-proc_macros"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "macro_rules_attribute",
  "prettyplease",
