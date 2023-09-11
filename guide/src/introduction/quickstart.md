@@ -32,6 +32,10 @@ crate-type = [
     "lib",        # For `generate-headers`, `examples/`, `tests/` etc.
 ]
 
+[[bin]]
+name = "generate-headers"
+required-features = ["headers"]  # Do not build unless generating headers.
+
 [dependencies]
 # Use `cargo add` or `cargo search` to find the latest values of x.y.z.
 # For instance:

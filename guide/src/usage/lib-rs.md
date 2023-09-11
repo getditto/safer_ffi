@@ -81,18 +81,6 @@ file(name), or into the given `Write`-able / "write sink":
 
     to generate the headers.
 
-  - You may also want to add:
-
-    ```toml
-    # Cargo.toml
-    [[bin]]
-    name = "generate-headers"
-    required-features = ["headers"]
-    ```
-
-    to your `Cargo.toml` to improve the error messages when the feature is
-    missing.
-
 <details>
 <summary>More advanced example (runtime-dependent header output)</summary>
 

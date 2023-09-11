@@ -64,6 +64,10 @@ crate-type = [
                   # such as integration `tests/`, doctests, and `examples/`
 ]
 
+[[bin]]
+name = "generate-headers"
+required-features = ["headers"]  # Do not build unless generating headers.
+
 [dependencies]
 # Use `cargo add` or `cargo search` to find the latest values of x.y.z.
 # For instance:
