@@ -31,14 +31,6 @@ impl char_p_ref<'static> {
             IT as *const u8 as *mut u8
         }))
     };
-
-    /// Poor-man's specialization of `ToString::to_string()`
-    pub
-    fn to_string(&self)
-      -> String
-    {
-        self.to_str().to_owned()
-    }
 }
 
 impl<'lt> char_p_ref<'lt> {
@@ -249,6 +241,15 @@ impl<'lt> char_p_ref<'lt> {
     }
 
     cfg_alloc! {
+        #[inline]
+        /// Poor-man's specialization of `ToString::to_string()`
+        pub
+        fn to_string(&self)
+          -> rust::String
+        {
+            self.to_str().to_owned()
+        }
+
         #[inline]
         pub
         fn to_owned (self: char_p_ref<'lt>)
