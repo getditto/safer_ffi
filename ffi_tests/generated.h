@@ -104,6 +104,22 @@ _issue_45 (
     int32_t __arg_0);
 
 /** <No documentation available> */
+typedef struct Enum Enum_t;
+
+/** <No documentation available> */
+Enum_t *
+_my_enum_is_opaque (void);
+
+/** \brief
+ *  The layout of `alloc::string::String` is opaque/subject to changes.
+ */
+typedef struct Opaque_String Opaque_String_t;
+
+/** <No documentation available> */
+Opaque_String_t *
+_some_opaque_std_lib_type (void);
+
+/** <No documentation available> */
 int32_t
 async_get_ft (void);
 

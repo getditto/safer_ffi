@@ -43,7 +43,6 @@ fn derive (
                 pub_,
                 StructName,
                 generics,
-                fields,
             ),
 
             | "C" => {},
@@ -349,7 +348,6 @@ fn derive_opaque (
     pub_: &'_ Visibility,
     StructName @ _: &'_ Ident,
     generics: &'_ Generics,
-    _: &'_ Fields,
 ) -> Result<TokenStream2>
 {
     #[apply(let_quote)]
@@ -433,6 +431,7 @@ fn derive_opaque (
                     #short_name
                 }
 
+                #[allow(nonstandard_style)]
                 fn define_self__impl (
                     language: &'_ dyn #ඞ::HeaderLanguage,
                     definer: &'_ mut dyn #ඞ::Definer,
@@ -473,7 +472,7 @@ fn derive_opaque (
                 fn clone (self: &'_ Self)
                   -> Self
                 {
-                    match self._void {}
+                    *self
                 }
             }
 

@@ -84,6 +84,31 @@ public unsafe partial class Ffi {
         Int32 __arg_0);
 }
 
+public struct Enum_t {
+    #pragma warning disable 0169
+    private byte OPAQUE;
+    #pragma warning restore 0169
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    Enum_t * _my_enum_is_opaque ();
+}
+
+/// <summary>
+/// The layout of <c>alloc::string::String</c> is opaque/subject to changes.
+/// </summary>
+public struct Opaque_String_t {
+    #pragma warning disable 0169
+    private byte OPAQUE;
+    #pragma warning restore 0169
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    Opaque_String_t * _some_opaque_std_lib_type ();
+}
+
 public unsafe partial class Ffi {
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     Int32 async_get_ft ();

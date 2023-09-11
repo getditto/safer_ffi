@@ -10,7 +10,7 @@ __cfg_headers__! {
     };
 }
 
-#[macro_use]
+pub(in crate)
 mod macros;
 
 #[doc(inline)]
@@ -28,6 +28,8 @@ type_level_enum! {
     }
 }
 
+/// Safety (non-exhaustive list at the moment):
+///   - `::core::mem::zeroed::<Self>()` must be sound to use.
 pub
 unsafe
 trait CType
@@ -36,6 +38,12 @@ trait CType
     Copy +
 {
     type OPAQUE_KIND : OpaqueKind::T;
+
+    fn zeroed() -> Self {
+        unsafe {
+            ::core::mem::zeroed()
+        }
+    }
 
     __cfg_headers__! {
         fn short_name ()

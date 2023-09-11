@@ -12,6 +12,25 @@ fn derive (
     variants: &'_ Punctuated<Variant, Token![,]>,
 ) -> Result<TokenStream2>
 {
+    if matches!(
+        attrs.iter().find_map(|attr| {
+            bool::then(
+                attr.path.is_ident("repr"),
+                || attr.parse_args::<Ident>().ok()
+            ).flatten()
+        }),
+        Some(repr) if repr.to_string() == "opaque"
+    )
+    {
+        return super::struct_::derive_opaque(
+            args,
+            attrs,
+            pub_,
+            EnumName,
+            generics,
+        );
+    }
+
     let mut ret = quote!();
 
     if let Some(payload) =
@@ -146,6 +165,7 @@ fn derive (
                 #EnumName_str.into()
             }
 
+            #[allow(nonstandard_style)]
             fn define_self__impl (
                 language: &'_ dyn #HeaderLanguage,
                 definer: &'_ mut dyn #Definer,

@@ -103,6 +103,17 @@ where
     rust::Box<T> : Sync,
 {}
 
+impl<T : Clone> Clone
+    for Box_<T>
+{
+    #[inline]
+    fn clone(self: &'_ Self)
+      -> Self
+    {
+        Self::new(T::clone(self))
+    }
+}
+
 impl<T : fmt::Debug> fmt::Debug
     for Box_<T>
 {

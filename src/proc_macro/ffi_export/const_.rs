@@ -40,20 +40,24 @@ fn handle (
                         definer: &'_ mut dyn #ඞ::Definer,
                         lang: #ඞ::Language,
                     | {
-                        {
+                        #krate::__with_cfg_python__!(|$if_cfg_python| {
                             use #krate::headers::{
                                 Language,
                                 languages::{self, HeaderLanguage},
                             };
-                            let header_builder: &'static dyn HeaderLanguage =
+
+                            let header_builder: &'static dyn HeaderLanguage = {
                                 match lang {
                                     | Language::C => &languages::C,
                                     | Language::CSharp => &languages::CSharp,
+                                $($($if_cfg_python)?
                                     | Language::Python => &languages::Python,
+                                )?
                                 }
-                            ;
+                            };
+
                             header_builder
-                        }.emit_constant(
+                        }).emit_constant(
                             definer,
                             &[ #(#each_doc),* ],
                             #VAR_str,
