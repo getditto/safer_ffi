@@ -1201,6 +1201,29 @@
 <span id="1201">1201</span>
 <span id="1202">1202</span>
 <span id="1203">1203</span>
+<span id="1204">1204</span>
+<span id="1205">1205</span>
+<span id="1206">1206</span>
+<span id="1207">1207</span>
+<span id="1208">1208</span>
+<span id="1209">1209</span>
+<span id="1210">1210</span>
+<span id="1211">1211</span>
+<span id="1212">1212</span>
+<span id="1213">1213</span>
+<span id="1214">1214</span>
+<span id="1215">1215</span>
+<span id="1216">1216</span>
+<span id="1217">1217</span>
+<span id="1218">1218</span>
+<span id="1219">1219</span>
+<span id="1220">1220</span>
+<span id="1221">1221</span>
+<span id="1222">1222</span>
+<span id="1223">1223</span>
+<span id="1224">1224</span>
+<span id="1225">1225</span>
+<span id="1226">1226</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
@@ -2374,17 +2397,40 @@ impl</span>&lt;T&gt; ReprC <span class="kw">for </span>Opaque&lt;T&gt; {
     }
 }
 
-<span class="macro">match_! </span>{(
-    [<span class="lifetime">&#39;c</span>] ::core::task::Context&lt;<span class="lifetime">&#39;c</span>&gt; =&gt; <span class="string">&quot;core_task_Context&quot;</span>,
-) {(
+<span class="macro">opaque_impls! </span>{
+    @<span class="kw">for</span>[<span class="lifetime">&#39;c</span>] ::core::task::Context&lt;<span class="lifetime">&#39;c</span>&gt;,
+    @<span class="kw">for</span>[<span class="lifetime">&#39;r</span>] <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str,
+    @<span class="kw">for</span>[<span class="lifetime">&#39;r</span>, T] <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[T],
+    @<span class="kw">for</span>[<span class="lifetime">&#39;r</span>, T] <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="kw-2">mut </span>[T],
+    @<span class="kw">for</span>[T] ::core::cell::RefCell&lt;T&gt;,
+}
+
+<span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="macro">opaque_impls! </span>{
+    rust::String,
+    @<span class="kw">for</span>[T] rust::Box&lt;T&gt;,
+    @<span class="kw">for</span>[T] ::alloc::rc::Rc&lt;T&gt;,
+    @<span class="kw">for</span>[T] rust::Vec&lt;T&gt;,
+    @<span class="kw">for</span>[K, V] ::alloc::collections::BTreeMap&lt;K, V&gt;,
+}
+
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="macro">opaque_impls! </span>{
+    @<span class="kw">for</span>[K, V] ::std::collections::HashMap&lt;K, V&gt;,
+    @<span class="kw">for</span>[T] ::std::sync::Arc&lt;T&gt;,
+    @<span class="kw">for</span>[T] ::std::sync::Mutex&lt;T&gt;,
+    @<span class="kw">for</span>[T] ::std::sync::RwLock&lt;T&gt;,
+}
+
+<span class="comment">// where
+</span><span class="macro">macro_rules! </span>opaque_impls {(
     $(
-        $(<span class="attribute">#[doc = <span class="macro-nonterminal">$docs</span>:expr]</span>)*
-        [$(<span class="macro-nonterminal">$generics</span>:tt)<span class="kw-2">*</span>] <span class="macro-nonterminal">$T</span>:ty =&gt; <span class="macro-nonterminal">$short_name</span>:expr
+        $(@<span class="kw">for</span>[$(<span class="macro-nonterminal">$generics</span>:tt)<span class="kw-2">*</span>])<span class="question-mark">? </span><span class="macro-nonterminal">$T</span>:ty
     ),* $(,)<span class="question-mark">?
 </span>) =&gt; (
     $(
         <span class="kw">unsafe
-        impl</span>&lt;$(<span class="macro-nonterminal">$generics</span>)<span class="kw-2">*</span>&gt;
+        impl</span>&lt;$($(<span class="macro-nonterminal">$generics</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>&gt;
             ReprC
         <span class="kw">for
             </span><span class="macro-nonterminal">$T
@@ -2403,6 +2449,6 @@ impl</span>&lt;T&gt; ReprC <span class="kw">for </span>Opaque&lt;T&gt; {
             }
         }
     )*
-)}}
+)} <span class="kw">use </span>opaque_impls;
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="safer_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

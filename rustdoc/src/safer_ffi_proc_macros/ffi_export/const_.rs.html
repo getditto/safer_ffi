@@ -68,6 +68,10 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
 </pre><pre class="rust"><code><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span>(<span class="kw">in super</span>)
@@ -110,20 +114,24 @@
                         definer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span>#ඞ::Definer,
                         lang: #ඞ::Language,
                     | {
-                        {
+                        #<span class="macro">krate::__with_cfg_python__!</span>(|<span class="macro-nonterminal">$if_cfg_python</span>| {
                             <span class="kw">use </span>#krate::headers::{
                                 Language,
                                 languages::{<span class="self">self</span>, HeaderLanguage},
                             };
-                            <span class="kw">let </span>header_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">dyn </span>HeaderLanguage =
+
+                            <span class="kw">let </span>header_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">dyn </span>HeaderLanguage = {
                                 <span class="kw">match </span>lang {
                                     | Language::C =&gt; <span class="kw-2">&amp;</span>languages::C,
                                     | Language::CSharp =&gt; <span class="kw-2">&amp;</span>languages::CSharp,
-                                    | Language::Python =&gt; <span class="kw-2">&amp;</span>languages::Python,
-                                }
-                            ;
+                                $($(<span class="macro-nonterminal">$if_cfg_python</span>)<span class="question-mark">?
+                                    </span>| Language::Python =&gt; <span class="kw-2">&amp;</span>languages::Python,
+                                )<span class="question-mark">?
+                                </span>}
+                            };
+
                             header_builder
-                        }.emit_constant(
+                        }).emit_constant(
                             definer,
                             <span class="kw-2">&amp;</span>[ #(#each_doc),* ],
                             #VAR_str,

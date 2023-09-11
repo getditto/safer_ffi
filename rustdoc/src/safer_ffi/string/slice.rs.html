@@ -190,6 +190,16 @@
 <span id="190">190</span>
 <span id="191">191</span>
 <span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 </span><span class="macro">use_prelude!</span>();
 <span class="kw">use </span>::core::slice;
@@ -380,6 +390,16 @@
       -&gt; fmt::Result
     {
         &lt;str <span class="kw">as </span>fmt::Debug&gt;::fmt(<span class="self">self</span>, fmt)
+    }
+}
+
+<span class="macro">cfg_alloc! </span>{
+    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>&gt; From&lt;str_ref&lt;<span class="lifetime">&#39;r</span>&gt;&gt; <span class="kw">for </span>rust::String {
+        <span class="kw">fn </span>from(s: str_ref&lt;<span class="lifetime">&#39;r</span>&gt;)
+          -&gt; rust::String
+        {
+            s.as_str().into()
+        }
     }
 }
 </code></pre></div>

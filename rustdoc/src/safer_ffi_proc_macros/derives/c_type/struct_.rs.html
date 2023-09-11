@@ -189,6 +189,7 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
+<span id="192">192</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -297,8 +298,9 @@
             }))<span class="question-mark">?
         </span>;
 
-        impl_body.extend(<span class="macro">quote!</span>(
-            <span class="kw">fn </span>define_self__impl (
+        impl_body.extend(<span class="macro">quote_spanned!</span>(Span::mixed_site()=&gt;
+            <span class="attribute">#[allow(nonstandard_style)]
+            </span><span class="kw">fn </span>define_self__impl (
                 language: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw">dyn </span>#headers::languages::HeaderLanguage,
                 definer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span>#headers::Definer,
             ) -&gt; #ඞ::io::Result&lt;()&gt;

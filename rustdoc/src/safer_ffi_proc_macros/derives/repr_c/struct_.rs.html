@@ -511,7 +511,6 @@
 <span id="511">511</span>
 <span id="512">512</span>
 <span id="513">513</span>
-<span id="514">514</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -557,7 +556,6 @@
                 pub_,
                 StructName,
                 generics,
-                fields,
             ),
 
             | <span class="string">&quot;C&quot; </span>=&gt; {},
@@ -863,7 +861,6 @@
     pub_: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Visibility,
     StructName @ <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Ident,
     generics: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Generics,
-    <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Fields,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;TokenStream2&gt;
 {
     <span class="attribute">#[apply(let_quote)]
@@ -947,7 +944,8 @@
                     #short_name
                 }
 
-                <span class="kw">fn </span>define_self__impl (
+                <span class="attribute">#[allow(nonstandard_style)]
+                </span><span class="kw">fn </span>define_self__impl (
                     language: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw">dyn </span>#ඞ::HeaderLanguage,
                     definer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="kw">dyn </span>#ඞ::Definer,
                 ) -&gt; #ඞ::io::Result&lt;()&gt;
@@ -987,8 +985,8 @@
                 <span class="kw">fn </span>clone (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">Self</span>)
                   -&gt; <span class="self">Self
                 </span>{
-                    <span class="kw">match </span><span class="self">self</span>._void {}
-                }
+                    <span class="kw-2">*</span><span class="self">self
+                </span>}
             }
 
             <span class="kw">unsafe

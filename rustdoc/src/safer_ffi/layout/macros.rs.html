@@ -434,68 +434,116 @@
 <span id="434">434</span>
 <span id="435">435</span>
 <span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
-#[cfg(feature = <span class="string">&quot;headers&quot;</span>)]
-#[macro_export] #[doc(hidden)]
-</span><span class="macro">macro_rules! </span>__cfg_headers__ {(
-    $(<span class="macro-nonterminal">$item</span>:item)*
-) =&gt; (
-    $(<span class="macro-nonterminal">$item</span>)*
-)}
-<span class="attribute">#[cfg(not(feature = <span class="string">&quot;headers&quot;</span>))]
-#[macro_export] #[doc(hidden)]
-</span><span class="macro">macro_rules! </span>__cfg_headers__ {(
-    $(<span class="macro-nonterminal">$item</span>:item)*
-) =&gt; (
-    <span class="comment">// nothing
-</span>)}
 
-<span class="attribute">#[cfg(feature = <span class="string">&quot;js&quot;</span>)]
-#[macro_export] #[doc(hidden)]
-</span><span class="macro">macro_rules! </span>__cfg_js__ {(
-    $(<span class="macro-nonterminal">$item</span>:item)*
-) =&gt; (
-    $(<span class="macro-nonterminal">$item</span>)*
-)}
-<span class="attribute">#[cfg(not(feature = <span class="string">&quot;js&quot;</span>))]
-#[macro_export] #[doc(hidden)]
-</span><span class="macro">macro_rules! </span>__cfg_js__ {(
-    $(<span class="macro-nonterminal">$item</span>:item)*
-) =&gt; (
-    <span class="comment">// nothing
-</span>)}
+</span><span class="macro">export_cfgs! </span>{$
+    <span class="string">&quot;headers&quot; </span>=&gt; <span class="macro">__cfg_headers__!</span>,
+    <span class="string">&quot;headers&quot; </span>=&gt; <span class="macro">__cfg_csharp__!</span>,
+    <span class="string">&quot;js&quot; </span>=&gt; <span class="macro">__cfg_js__!</span>,
+    <span class="string">&quot;python-headers&quot; </span>=&gt; <span class="macro">__cfg_python__!</span>,
+}
+<span class="doccomment">/// Generates convenience `__cfg_xxx__! { … }` macros with the semantics of
+/// `#[cfg(feature = &quot;xxx&quot;)] emit! { … }`, but usable by downstream code, such
+/// as the one emitted by our own derive macros and whatnot.
+</span><span class="macro">macro_rules! </span>export_cfgs {(
+    <span class="macro-nonterminal">$</span><span class="kw">_</span>:<span class="macro-nonterminal">tt
+    </span>$(
+        <span class="macro-nonterminal">$feature</span>:tt =&gt; <span class="macro-nonterminal">$macro_name</span>:ident !
+    ),* $(,)<span class="question-mark">?
+</span>) =&gt; (
+    $(
+        <span class="macro">cfg_match! </span>{
+            feature = <span class="macro-nonterminal">$feature </span>=&gt; {
+                <span class="attribute">#[doc(hidden)] </span><span class="doccomment">/** not part of the public API */ </span><span class="attribute">#[macro_export]
+                </span><span class="macro">macro_rules! </span><span class="macro-nonterminal">$macro_name </span>{(
+                    <span class="macro-nonterminal">$</span><span class="kw">_</span>(<span class="macro-nonterminal">$item</span>:item)*
+                ) =&gt; (
+                    <span class="macro-nonterminal">$</span><span class="kw">_</span>(<span class="macro-nonterminal">$item</span>)*
+                )}
+            },
+            <span class="kw">_ </span>=&gt; {
+                <span class="attribute">#[doc(hidden)] </span><span class="doccomment">/** not part of the public API */ </span><span class="attribute">#[macro_export]
+                </span><span class="macro">macro_rules! </span><span class="macro-nonterminal">$macro_name </span>{(
+                    <span class="macro-nonterminal">$</span><span class="kw">_</span>(<span class="macro-nonterminal">$item</span>:item)*
+                ) =&gt; (
+                    <span class="comment">// nothing
+                </span>)}
+            },
+        }
+        <span class="attribute">#[allow(unused)]
+        </span><span class="kw">pub</span>(<span class="kw">in crate</span>) <span class="kw">use </span><span class="macro-nonterminal">$macro_name</span>;
+    )*
+)} <span class="kw">use </span>export_cfgs;
 
-<span class="attribute">#[cfg(feature = <span class="string">&quot;headers&quot;</span>)]
-#[macro_export] #[doc(hidden)]
-</span><span class="macro">macro_rules! </span>__cfg_csharp__ {(
-    $(<span class="macro-nonterminal">$item</span>:item)*
-) =&gt; (
-    $(<span class="macro-nonterminal">$item</span>)*
-)}
-
-<span class="attribute">#[cfg(not(feature = <span class="string">&quot;headers&quot;</span>))]
-#[macro_export] #[doc(hidden)]
-</span><span class="macro">macro_rules! </span>__cfg_csharp__ {(
-    $(<span class="macro-nonterminal">$item</span>:item)*
-) =&gt; (
-    <span class="comment">// Nothing
-</span>)}
-
-<span class="attribute">#[cfg(feature = <span class="string">&quot;python-headers&quot;</span>)]
-#[macro_export] #[doc(hidden)]
-</span><span class="macro">macro_rules! </span>__cfg_python__ {(
-    $(<span class="macro-nonterminal">$item</span>:item)*
-) =&gt; (
-    $(<span class="macro-nonterminal">$item</span>)*
-)}
-
-<span class="attribute">#[cfg(not(feature = <span class="string">&quot;python-headers&quot;</span>))]
-#[macro_export] #[doc(hidden)]
-</span><span class="macro">macro_rules! </span>__cfg_python__ {(
-    $(<span class="macro-nonterminal">$item</span>:item)*
-) =&gt; (
-    <span class="comment">// Nothing
-</span>)}
+<span class="comment">// Defines a special `__with_cfg_python__!` for-downstream-code, based on the
+// usable-everywhere `$($($if_cfg_python)? … )?` conditional expansion trick:
+//
+// ```rust
+// __with_cfg_python__!(|$if_cfg_python| {
+//     match … {
+//         Language::C =&gt; …,
+//         $($($if_cfg_python)?
+//             Language::Python =&gt; …,
+//         )?
+//     }
+// })
+// ```
+</span><span class="macro">cfg_match! </span>{
+    feature = <span class="string">&quot;python-headers&quot; </span>=&gt; {
+        <span class="attribute">#[doc(hidden)] </span><span class="doccomment">/** Not part of the public API */ </span><span class="attribute">#[macro_export]
+        </span><span class="macro">macro_rules! </span>__with_cfg_python__ {(
+            |<span class="macro-nonterminal">$</span><span class="kw">_</span>:<span class="macro-nonterminal">tt $if_python</span>:ident $(, <span class="macro-nonterminal">$__</span>:tt <span class="macro-nonterminal">$dol</span>:ident)<span class="question-mark">?</span>| <span class="macro-nonterminal">$body</span>:tt
+        ) =&gt; ({
+            <span class="macro">macro_rules! </span>__emit__ {
+                (
+                    [$( <span class="macro-nonterminal">$__ $dol </span>: tt )<span class="question-mark">? </span><span class="macro-nonterminal">$</span><span class="kw">_</span>(<span class="macro-nonterminal">$__rest</span>:tt)<span class="kw-2">*</span>]
+                    <span class="macro-nonterminal">$</span><span class="kw">_</span>(<span class="bool-val">true </span><span class="macro-nonterminal">$</span><span class="kw">_</span>(<span class="macro-nonterminal">$</span><span class="kw">_ </span><span class="macro-nonterminal">$if_python</span>:tt)<span class="question-mark">?</span>)<span class="question-mark">?
+                    </span><span class="macro-nonterminal">$</span><span class="kw">_</span>(<span class="bool-val">false</span>)<span class="question-mark">?
+                </span>) =&gt; <span class="macro-nonterminal">$body
+            </span>}
+            <span class="macro">__emit__! </span>{ [$] <span class="bool-val">true </span>}
+        })}
+    },
+    <span class="kw">_ </span>=&gt; {
+        <span class="attribute">#[doc(hidden)] </span><span class="doccomment">/** Not part of the public API */ </span><span class="attribute">#[macro_export]
+        </span><span class="macro">macro_rules! </span>__with_cfg_python__ {(
+            |<span class="macro-nonterminal">$</span><span class="kw">_</span>:<span class="macro-nonterminal">tt $if_python</span>:ident $(, <span class="macro-nonterminal">$__</span>:tt <span class="macro-nonterminal">$dol</span>:ident)<span class="question-mark">?</span>| <span class="macro-nonterminal">$body</span>:tt
+        ) =&gt; ({
+            <span class="macro">macro_rules! </span>__emit__ {
+                (
+                    [$( <span class="macro-nonterminal">$__ $dol </span>: tt )<span class="question-mark">? </span><span class="macro-nonterminal">$</span><span class="kw">_</span>(<span class="macro-nonterminal">$__rest</span>:tt)<span class="kw-2">*</span>]
+                    <span class="macro-nonterminal">$</span><span class="kw">_</span>(<span class="bool-val">true </span><span class="macro-nonterminal">$</span><span class="kw">_</span>(<span class="macro-nonterminal">$</span><span class="kw">_ </span><span class="macro-nonterminal">$if_python</span>:tt)<span class="question-mark">?</span>)<span class="question-mark">?
+                    </span><span class="macro-nonterminal">$</span><span class="kw">_</span>(<span class="bool-val">false</span>)<span class="question-mark">?
+                </span>) =&gt; <span class="macro-nonterminal">$body
+            </span>}
+            <span class="macro">__emit__! </span>{ [$] <span class="bool-val">false </span>}
+        })}
+    },
+}
 
 <span class="doccomment">/// Safely implement [`CType`][`trait@crate::layout::LegacyCType`]
 /// for a `#[repr(C)]` struct **when all its fields are `CType`**.

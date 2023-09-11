@@ -239,16 +239,6 @@ fn main() -&gt; ::std::io::Result&lt;()&gt; {
 </code></pre>
 <p>to generate the headers.</p>
 </li>
-<li>
-<p>You may also want to add:</p>
-<pre><code class="language-toml"># Cargo.toml
-[[bin]]
-name = &quot;generate-headers&quot;
-required-features = [&quot;headers&quot;]
-</code></pre>
-<p>to your <code>Cargo.toml</code> to improve the error messages when the feature is
-missing.</p>
-</li>
 </ul>
 <details>
 <summary>More advanced example (runtime-dependent header output)</summary>

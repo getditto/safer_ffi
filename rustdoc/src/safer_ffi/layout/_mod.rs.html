@@ -929,6 +929,14 @@
 <span id="929">929</span>
 <span id="930">930</span>
 <span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 </span><span class="doccomment">//! Trait abstractions describing the semantics of &quot;being `#[repr(C)]`&quot;
 
@@ -941,8 +949,8 @@
     };
 }
 
-<span class="attribute">#[macro_use]
-</span><span class="kw">mod </span>macros;
+<span class="kw">pub</span>(<span class="kw">in crate</span>)
+<span class="kw">mod </span>macros;
 
 <span class="attribute">#[doc(inline)]
 </span><span class="kw">pub use crate</span>::{from_CType_impl_ReprC, ReprC, CType};
@@ -959,7 +967,9 @@
     }
 }
 
-<span class="kw">pub
+<span class="doccomment">/// Safety (non-exhaustive list at the moment):
+///   - `::core::mem::zeroed::&lt;Self&gt;()` must be sound to use.
+</span><span class="kw">pub
 unsafe
 trait </span>CType
 :
@@ -967,6 +977,12 @@ trait </span>CType
     Copy +
 {
     <span class="kw">type </span>OPAQUE_KIND : OpaqueKind::T;
+
+    <span class="kw">fn </span>zeroed() -&gt; <span class="self">Self </span>{
+        <span class="kw">unsafe </span>{
+            ::core::mem::zeroed()
+        }
+    }
 
     <span class="macro">__cfg_headers__! </span>{
         <span class="kw">fn </span>short_name ()

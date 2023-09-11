@@ -230,6 +230,10 @@ crate-type = [
     &quot;lib&quot;,        # For `generate-headers`, `examples/`, `tests/` etc.
 ]
 
+[[bin]]
+name = &quot;generate-headers&quot;
+required-features = [&quot;headers&quot;]  # Do not build unless generating headers.
+
 [dependencies]
 # Use `cargo add` or `cargo search` to find the latest values of x.y.z.
 # For instance:
@@ -625,16 +629,6 @@ fn main() -&gt; ::std::io::Result&lt;()&gt; {
 <pre><code class="language-bash">cargo run --bin generate-headers --features headers
 </code></pre>
 <p>to generate the headers.</p>
-</li>
-<li>
-<p>You may also want to add:</p>
-<pre><code class="language-toml"># Cargo.toml
-[[bin]]
-name = &quot;generate-headers&quot;
-required-features = [&quot;headers&quot;]
-</code></pre>
-<p>to your <code>Cargo.toml</code> to improve the error messages when the feature is
-missing.</p>
 </li>
 </ul>
 <details>

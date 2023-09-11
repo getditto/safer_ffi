@@ -139,6 +139,17 @@
 <span id="139">139</span>
 <span id="140">140</span>
 <span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 </span><span class="doccomment">//! `#[repr(C)]` [`Box`][`rust::Box`]ed types.
 
@@ -243,6 +254,17 @@
 <span class="kw">where
     </span>rust::Box&lt;T&gt; : Sync,
 {}
+
+<span class="kw">impl</span>&lt;T : Clone&gt; Clone
+    <span class="kw">for </span>Box_&lt;T&gt;
+{
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>clone(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">Self</span>)
+      -&gt; <span class="self">Self
+    </span>{
+        <span class="self">Self</span>::new(T::clone(<span class="self">self</span>))
+    }
+}
 
 <span class="kw">impl</span>&lt;T : fmt::Debug&gt; fmt::Debug
     <span class="kw">for </span>Box_&lt;T&gt;
