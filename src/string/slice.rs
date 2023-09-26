@@ -155,6 +155,15 @@ impl<'lt> str_ref<'lt> {
             )
         }
     }
+
+    #[inline]
+    pub
+    fn try_as_str(self: str_ref<'lt>) -> Result<&'lt str, core::str::Utf8Error> {
+        core::str::from_utf8(unsafe { slice::from_raw_parts(
+            self.0.as_ptr(),
+            self.0.len(),
+        )})
+    }
 }
 
 impl<'lt> Deref
