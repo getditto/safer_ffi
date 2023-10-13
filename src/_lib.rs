@@ -226,7 +226,7 @@ pub use ::safer_ffi_proc_macros::derive_ReprC;
 pub mod layout;
 
 __cfg_headers__! {
-    cfg_match! {
+    match_cfg! {
         feature = "inventory-0-3-1" => {
             #[doc(hidden)] pub
             use ::inventory_0_3_1 as inventory;
@@ -509,7 +509,7 @@ mod __ {
         },
     };
 
-    cfg_match! {
+    match_cfg! {
         feature = "std" => {
             pub use ::std::{*,
                 self,
@@ -552,7 +552,7 @@ mod __ {
         type ItSelf = Self;
     }
 
-    cfg_match! {
+    match_cfg! {
         feature = "log" => {
             #[apply(hidden_export)]
             macro_rules! __error__ {( $($msg:tt)* ) => (

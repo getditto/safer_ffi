@@ -141,7 +141,7 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
     )*
 )}}
 
-cfg_match!(feature = "tokio" => {
+match_cfg!(feature = "tokio" => {
     #[cfg_attr(all(docs, feature = "nightly"),
         doc(cfg(feature = "tokio"))
     )]

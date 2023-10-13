@@ -2,3 +2,7 @@
 **/*.rs.bk
 .DS_Store
 *.code-workspace
+filename.h
+generated.cffi
+generated.cs
+generated.h

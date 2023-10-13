@@ -7,7 +7,7 @@ macro_rules! use_prelude { () => (
 )}
 
 /// I really don't get the complexity of `cfg_if!`…
-macro_rules! cfg_match {
+macro_rules! match_cfg {
     (
         _ => { $($expansion:tt)* } $(,)?
     ) => (
@@ -19,21 +19,21 @@ macro_rules! cfg_match {
         $($($rest:tt)+)? )?
     ) => (
         #[cfg($cfg)]
-        cfg_match! { _ => $expansion } $($(
+        match_cfg! { _ => $expansion } $($(
 
         #[cfg(not($cfg))]
-        cfg_match! { $($rest)+ } )?)?
+        match_cfg! { $($rest)+ } )?)?
     );
 
-    // Bonus: expression-friendly syntax: `cfg_match!({ … })`
+    // Bonus: expression-friendly syntax: `match_cfg!({ … })`
     ({
         $($input:tt)*
     }) => ({
-        cfg_match! { $($input)* }
+        match_cfg! { $($input)* }
     });
 }
 
-cfg_match! {
+match_cfg! {
     feature = "alloc" => {
         macro_rules! cfg_alloc {(
             $($item:item)*
@@ -53,7 +53,7 @@ cfg_match! {
     },
 }
 
-cfg_match! {
+match_cfg! {
     feature = "std" => {
         macro_rules! cfg_std {(
             $($item:item)*
