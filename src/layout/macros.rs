@@ -16,7 +16,7 @@ macro_rules! export_cfgs {(
     ),* $(,)?
 ) => (
     $(
-        cfg_match! {
+        match_cfg! {
             feature = $feature => {
                 #[doc(hidden)] /** not part of the public API */ #[macro_export]
                 macro_rules! $macro_name {(
@@ -52,7 +52,7 @@ macro_rules! export_cfgs {(
 //     }
 // })
 // ```
-cfg_match! {
+match_cfg! {
     feature = "python-headers" => {
         #[doc(hidden)] /** Not part of the public API */ #[macro_export]
         macro_rules! __with_cfg_python__ {(

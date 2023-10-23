@@ -21,7 +21,7 @@ pub(in crate) use ::core::{
     },
 };
 
-cfg_match! {
+match_cfg! {
     target_arch = "wasm32" => {
         #[allow(bad_style, dead_code)]
         pub(in crate) type size_t = u32;
