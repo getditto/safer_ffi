@@ -304,7 +304,7 @@
 )}
 
 <span class="doccomment">/// I really don&#39;t get the complexity of `cfg_if!`…
-</span><span class="macro">macro_rules! </span>cfg_match {
+</span><span class="macro">macro_rules! </span>match_cfg {
     (
         <span class="kw">_ </span>=&gt; { $(<span class="macro-nonterminal">$expansion</span>:tt)* } $(,)<span class="question-mark">?
     </span>) =&gt; (
@@ -316,21 +316,21 @@
         $($(<span class="macro-nonterminal">$rest</span>:tt)+)<span class="question-mark">? </span>)<span class="question-mark">?
     </span>) =&gt; (
         <span class="attribute">#[cfg(<span class="macro-nonterminal">$cfg</span>)]
-        </span><span class="macro">cfg_match! </span>{ <span class="kw">_ </span>=&gt; <span class="macro-nonterminal">$expansion </span>} $($(
+        </span><span class="macro">match_cfg! </span>{ <span class="kw">_ </span>=&gt; <span class="macro-nonterminal">$expansion </span>} $($(
 
         <span class="attribute">#[cfg(not(<span class="macro-nonterminal">$cfg</span>))]
-        </span><span class="macro">cfg_match! </span>{ $(<span class="macro-nonterminal">$rest</span>)+ } )<span class="question-mark">?</span>)<span class="question-mark">?
+        </span><span class="macro">match_cfg! </span>{ $(<span class="macro-nonterminal">$rest</span>)+ } )<span class="question-mark">?</span>)<span class="question-mark">?
     </span>);
 
-    <span class="comment">// Bonus: expression-friendly syntax: `cfg_match!({ … })`
+    <span class="comment">// Bonus: expression-friendly syntax: `match_cfg!({ … })`
     </span>({
         $(<span class="macro-nonterminal">$input</span>:tt)*
     }) =&gt; ({
-        <span class="macro">cfg_match! </span>{ $(<span class="macro-nonterminal">$input</span>)* }
+        <span class="macro">match_cfg! </span>{ $(<span class="macro-nonterminal">$input</span>)* }
     });
 }
 
-<span class="macro">cfg_match! </span>{
+<span class="macro">match_cfg! </span>{
     feature = <span class="string">&quot;alloc&quot; </span>=&gt; {
         <span class="macro">macro_rules! </span>cfg_alloc {(
             $(<span class="macro-nonterminal">$item</span>:item)*
@@ -350,7 +350,7 @@
     },
 }
 
-<span class="macro">cfg_match! </span>{
+<span class="macro">match_cfg! </span>{
     feature = <span class="string">&quot;std&quot; </span>=&gt; {
         <span class="macro">macro_rules! </span>cfg_std {(
             $(<span class="macro-nonterminal">$item</span>:item)*

@@ -476,7 +476,7 @@
     ),* $(,)<span class="question-mark">?
 </span>) =&gt; (
     $(
-        <span class="macro">cfg_match! </span>{
+        <span class="macro">match_cfg! </span>{
             feature = <span class="macro-nonterminal">$feature </span>=&gt; {
                 <span class="attribute">#[doc(hidden)] </span><span class="doccomment">/** not part of the public API */ </span><span class="attribute">#[macro_export]
                 </span><span class="macro">macro_rules! </span><span class="macro-nonterminal">$macro_name </span>{(
@@ -512,7 +512,7 @@
 //     }
 // })
 // ```
-</span><span class="macro">cfg_match! </span>{
+</span><span class="macro">match_cfg! </span>{
     feature = <span class="string">&quot;python-headers&quot; </span>=&gt; {
         <span class="attribute">#[doc(hidden)] </span><span class="doccomment">/** Not part of the public API */ </span><span class="attribute">#[macro_export]
         </span><span class="macro">macro_rules! </span>__with_cfg_python__ {(

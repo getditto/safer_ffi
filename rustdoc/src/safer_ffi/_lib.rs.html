@@ -895,7 +895,7 @@ mod </span>__utils__;
 </span><span class="kw">pub mod </span>layout;
 
 <span class="macro">__cfg_headers__! </span>{
-    <span class="macro">cfg_match! </span>{
+    <span class="macro">match_cfg! </span>{
         feature = <span class="string">&quot;inventory-0-3-1&quot; </span>=&gt; {
             <span class="attribute">#[doc(hidden)] </span><span class="kw">pub
             use </span>::inventory_0_3_1 <span class="kw">as </span>inventory;
@@ -1178,7 +1178,7 @@ mod </span>prelude {
         },
     };
 
-    <span class="macro">cfg_match! </span>{
+    <span class="macro">match_cfg! </span>{
         feature = <span class="string">&quot;std&quot; </span>=&gt; {
             <span class="kw">pub use </span>::std::{<span class="kw-2">*</span>,
                 <span class="self">self</span>,
@@ -1221,7 +1221,7 @@ mod </span>prelude {
         <span class="kw">type </span>ItSelf = <span class="self">Self</span>;
     }
 
-    <span class="macro">cfg_match! </span>{
+    <span class="macro">match_cfg! </span>{
         feature = <span class="string">&quot;log&quot; </span>=&gt; {
             <span class="attribute">#[apply(hidden_export)]
             </span><span class="macro">macro_rules! </span>__error__ {( $(<span class="macro-nonterminal">$msg</span>:tt)* ) =&gt; (

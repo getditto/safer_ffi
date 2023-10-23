@@ -361,7 +361,7 @@ trait </span>FfiFutureExecutor : Send + Sync {
     )*
 )}}
 
-<span class="macro">cfg_match!</span>(feature = <span class="string">&quot;tokio&quot; </span>=&gt; {
+<span class="macro">match_cfg!</span>(feature = <span class="string">&quot;tokio&quot; </span>=&gt; {
     <span class="attribute">#[cfg_attr(all(docs, feature = <span class="string">&quot;nightly&quot;</span>),
         doc(cfg(feature = <span class="string">&quot;tokio&quot;</span>))
     )]
