@@ -133,8 +133,6 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -252,10 +250,8 @@
             <span class="comment">// `repr(C, js)` case.
             // Are we targetting js *right now*?
             </span><span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;js&quot;</span>) {
-                <span class="comment">// Legacy mode.
-                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(tt) = TokenStream2::from(args).into_iter().next() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new_spanned(tt, <span class="string">&quot;Unexpected parameter&quot;</span>));
-                }
+                <span class="comment">// Legacy mode: let&#39;s tolerate but ignore attribute args:
+                </span><span class="kw">let </span>repr_c::Args { .. } = parse2(args)<span class="question-mark">?</span>;
 
                 input = <span class="macro">quote!</span>(#(#attrs)* #rest);
                 <span class="kw">return </span>feed_to_macro_rules(input, <span class="macro">parse_quote!</span>(ReprC)); <span class="comment">// .map(utils::mb_file_expanded);

@@ -9,7 +9,7 @@
     </span><span class="kw">struct </span><span class="macro-nonterminal">$StructName</span>:ident $(
         [
             $(<span class="macro-nonterminal">$lt</span>:lifetime ,)*
-            $($(<span class="macro-nonterminal">$generics</span>:ident),+ $(,)<span class="question-mark">?</span>)<span class="question-mark">?
+            $($(<span class="macro-nonterminal">$generics</span>:ident $(= <span class="macro-nonterminal">$Default</span>:ty)<span class="question-mark">?</span>),+ $(,)<span class="question-mark">?</span>)<span class="question-mark">?
         </span>]
             $(<span class="kw">where </span>{ $(<span class="macro-nonterminal">$bounds</span>:tt)* })<span class="question-mark">?
     </span>)<span class="question-mark">?
