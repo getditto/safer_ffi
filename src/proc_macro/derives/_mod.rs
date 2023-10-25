@@ -115,10 +115,8 @@ fn derive_ReprC (
             // `repr(C, js)` case.
             // Are we targetting js *right now*?
             if cfg!(feature = "js") {
-                // Legacy mode.
-                if let Some(tt) = TokenStream2::from(args).into_iter().next() {
-                    return Err(Error::new_spanned(tt, "Unexpected parameter"));
-                }
+                // Legacy mode: let's tolerate but ignore attribute args:
+                let repr_c::Args { .. } = parse2(args)?;
 
                 input = quote!(#(#attrs)* #rest);
                 return feed_to_macro_rules(input, parse_quote!(ReprC)); // .map(utils::mb_file_expanded);

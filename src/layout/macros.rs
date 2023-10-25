@@ -101,7 +101,7 @@ macro_rules! CType {(
     struct $StructName:ident $(
         [
             $($lt:lifetime ,)*
-            $($($generics:ident),+ $(,)?)?
+            $($($generics:ident $(= $Default:ty)?),+ $(,)?)?
         ]
             $(where { $($bounds:tt)* })?
     )?

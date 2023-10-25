@@ -215,6 +215,9 @@ match_! {( const, mut ) {
                 fn to_napi_value (self: *$mut T, env: &'_ Env)
                   -> Result<JsUnknown>
                 {
+                    if self.is_null() {
+                        return Ok(env.get_null()?.into_unknown());
+                    }
                     let addr = (self as usize).to_napi_value(env)?;
                     let ty: JsString =
                         env.create_string_from_std(format!(
