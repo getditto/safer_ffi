@@ -11,5 +11,9 @@ using System;
 using System.Runtime.InteropServices;
 
 public unsafe partial class Ffi {{
+#if IOS
+    private const string RustLib = "{RustLib}.framework/{RustLib}";
+#else 
     private const string RustLib = "{RustLib}";
+#endif
 }}
