@@ -129,6 +129,11 @@ match_! {(
     /// ```
     guard: &'__ str,
 
+    ///  Text included after the include guard of the header file
+    ///
+    /// It defaults to an empty string
+    text_after_guard: &'__ str,
+
     /// Sets up the banner of the generated C header file.
     ///
     /// It defaults to:
@@ -362,11 +367,13 @@ impl Builder<'_, WhereTo> {
         let lang = self.language.unwrap_or(Language::C);
 
         let guard = self.guard();
+        let text_after_guard = self.text_after_guard();
 
         match lang {
             | Language::C => writeln!(definer.out(),
-                include_str!("templates/c/_prelude.h"),
-                guard = guard,
+                  include_str!("templates/c/_prelude.h"),
+                  guard = guard,
+                  text_after_guard = text_after_guard,
             ),
 
             | Language::CSharp => writeln!(definer.out(),
@@ -447,6 +454,15 @@ impl Builder<'_, WhereTo> {
             || format!("__RUST_{}__", Self::lib_name().to_ascii_uppercase()),
             Into::into,
         )
+    }
+
+    fn text_after_guard(&'_ self)
+                        -> String
+    {
+        match self.text_after_guard {
+            None => String::new(),
+            Some(s) => format!("\n\n{}\n", s)
+        }
     }
 
     /// Return the library name
