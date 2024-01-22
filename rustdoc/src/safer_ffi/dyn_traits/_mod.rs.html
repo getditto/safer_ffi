@@ -208,6 +208,24 @@
 <span id="208">208</span>
 <span id="209">209</span>
 <span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
 </pre><pre class="rust"><code>
 <span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 </span><span class="doccomment">//! See [the dedicated section of the guide](https://getditto.github.io/safer_ffi/dyn_traits/_.html).
@@ -325,6 +343,8 @@ trait </span>DynClone : ReprCTrait {
 
 <span class="kw">use </span>hack::VirtualPtr_;
 <span class="kw">mod </span>hack {
+    <span class="kw">use </span>::safer_ffi::layout;
+
     <span class="attribute">#[<span class="kw">super</span>::derive_ReprC]
     #[repr(C)]
     #[allow(missing_debug_implementations)]
@@ -332,6 +352,22 @@ trait </span>DynClone : ReprCTrait {
     struct </span>VirtualPtr_&lt;Ptr, VTable&gt; {
         <span class="kw">pub</span>(<span class="kw">in super</span>) ptr: Ptr,
         <span class="kw">pub</span>(<span class="kw">in super</span>) vtable: VTable,
+    }
+
+    <span class="kw">unsafe
+    impl</span>&lt;Ptr, VTable&gt;
+        layout::__HasNiche__
+    <span class="kw">for
+        </span>VirtualPtr_&lt;Ptr, VTable&gt;
+    <span class="kw">where
+        </span>Ptr : layout::ConcreteReprC + layout::__HasNiche__,
+        VTable : layout::ConcreteReprC,
+    {
+        <span class="kw">fn </span>is_niche (it: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>&lt;<span class="self">Self </span><span class="kw">as </span><span class="kw">super</span>::ReprC&gt;::CLayout)
+          -&gt; bool
+        {
+            Ptr::is_niche(<span class="kw-2">&amp;</span>it.ptr)
+        }
     }
 }
 
