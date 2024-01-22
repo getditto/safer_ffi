@@ -115,6 +115,8 @@ impl<DynTrait : ?Sized + DynClone> Clone for VirtualPtr<DynTrait> {
 
 use hack::VirtualPtr_;
 mod hack {
+    use ::safer_ffi::layout;
+
     #[super::derive_ReprC]
     #[repr(C)]
     #[allow(missing_debug_implementations)]
@@ -122,6 +124,22 @@ mod hack {
     struct VirtualPtr_<Ptr, VTable> {
         pub(in super) ptr: Ptr,
         pub(in super) vtable: VTable,
+    }
+
+    unsafe
+    impl<Ptr, VTable>
+        layout::__HasNiche__
+    for
+        VirtualPtr_<Ptr, VTable>
+    where
+        Ptr : layout::ConcreteReprC + layout::__HasNiche__,
+        VTable : layout::ConcreteReprC,
+    {
+        fn is_niche (it: &'_ <Self as super::ReprC>::CLayout)
+          -> bool
+        {
+            Ptr::is_niche(&it.ptr)
+        }
     }
 }
 
