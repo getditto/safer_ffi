@@ -687,6 +687,22 @@
 <span id="687">687</span>
 <span id="688">688</span>
 <span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 </span><span class="doccomment">//! C headers generation.
 //!
@@ -817,6 +833,11 @@
     /// format!(&quot;__RUST_{}__&quot;, env::var(&quot;CARGO_CRATE_NAME&quot;)?.replace(&quot;-&quot;, &quot;_&quot;).to_ascii_uppercase())
     /// ```
     </span>guard: <span class="kw-2">&amp;</span><span class="lifetime">&#39;__ </span>str,
+
+    <span class="doccomment">///  Text included after the include guard of the header file
+    ///
+    /// It defaults to an empty string
+    </span>text_after_guard: <span class="kw-2">&amp;</span><span class="lifetime">&#39;__ </span>str,
 
     <span class="doccomment">/// Sets up the banner of the generated C header file.
     ///
@@ -1051,11 +1072,13 @@
         <span class="kw">let </span>lang = <span class="self">self</span>.language.unwrap_or(Language::C);
 
         <span class="kw">let </span>guard = <span class="self">self</span>.guard();
+        <span class="kw">let </span>text_after_guard = <span class="self">self</span>.text_after_guard();
 
         <span class="kw">match </span>lang {
             | Language::C =&gt; <span class="macro">writeln!</span>(definer.out(),
-                <span class="macro">include_str!</span>(<span class="string">&quot;templates/c/_prelude.h&quot;</span>),
-                guard = guard,
+                  <span class="macro">include_str!</span>(<span class="string">&quot;templates/c/_prelude.h&quot;</span>),
+                  guard = guard,
+                  text_after_guard = text_after_guard,
             ),
 
             | Language::CSharp =&gt; <span class="macro">writeln!</span>(definer.out(),
@@ -1136,6 +1159,15 @@
             || <span class="macro">format!</span>(<span class="string">&quot;__RUST_{}__&quot;</span>, <span class="self">Self</span>::lib_name().to_ascii_uppercase()),
             Into::into,
         )
+    }
+
+    <span class="kw">fn </span>text_after_guard(<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">self</span>)
+                        -&gt; String
+    {
+        <span class="kw">match </span><span class="self">self</span>.text_after_guard {
+            <span class="prelude-val">None </span>=&gt; String::new(),
+            <span class="prelude-val">Some</span>(s) =&gt; <span class="macro">format!</span>(<span class="string">&quot;\n\n{}\n&quot;</span>, s)
+        }
     }
 
     <span class="doccomment">/// Return the library name
