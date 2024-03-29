@@ -260,24 +260,6 @@ fn wrap_ptr (env: &'_ Env, p: *mut (), ty: &'_ str)
     Ok(obj.into_unknown())
 }
 
-#[js_export(js_name = withOutPtr, __skip_napi_import)]
-pub
-fn with_out_ptr (
-    ty: JsString,
-    cb: JsFunction,
-) -> Result<JsUnknown>
-{Ok({
-    let ctx = ::safer_ffi::js::derive::__js_ctx!();
-    let ref ty: String = ty.into_utf8()?.into_owned()?;
-    let mut p: *mut () = NULL!();
-    let out_p = &mut p;
-    cb.call(None, &[
-        wrap_ptr(ctx.env, <*mut _>::cast(out_p), &format!("{} *", ty))?
-    ])?;
-    wrap_ptr(ctx.env, p, ty)?
-        .into_unknown()
-})}
-
 #[js_export(js_name = withOutBoxCBytes, __skip_napi_import)]
 pub
 fn with_out_byte_slice (cb: JsFunction)
@@ -376,7 +358,6 @@ fn vec_char_ptr_to_js_string_array (
 //     "refCStringToString": char_p_ref_to_js_string,
 //     "withCBytes": with_js_buffer_as_slice_uint8_t_ref,
 //     "boxCBytesIntoBuffer": slice_box_uint8_t_to_js_buffer,
-//     "withOutPtr": with_out_ptr,
 //     "withOutBoolean": with_out_bool,
 //     "withOutU64": with_out_u64,
 //     "withOutBoxCBytes": with_out_byte_slice,
