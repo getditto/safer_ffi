@@ -129,10 +129,19 @@ match_! {(
                     env: &'_ Env,
                 ) -> Result<JsUnknown>
                 {
-                    const MIN: i128 = 0 - ((1 << 53) - 1);
-                    const MAX: i128 = 0 + ((1 << 53) - 1);
+                    /// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MIN_SAFE_INTEGER
+                    const MIN_SAFE_INTEGER: i128 = 0 - ((1 << 53) - 1);
+                    /// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
+                    const MAX_SAFE_INTEGER: i128 = 0 + ((1 << 53) - 1);
+                    // Based on https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isSafeInteger#description
+                    // we ought not to use the `number` type for integers
+                    // outside of this range lest we expose js code to
+                    // non-"safe integers", _i.e._, integers which break
+                    // mathematical properties such as `x ≠ x + 1`.
+                    //
+                    // See also: https://nodejs.org/api/n-api.html#napi_create_int64
                     match self as i128 {
-                        | MIN ..= MAX => {
+                        | MIN_SAFE_INTEGER ..= MAX_SAFE_INTEGER => {
                             env .create_int64(
                                     self.try_into()
                                         .expect("Unreachable")
