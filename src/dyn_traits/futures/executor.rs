@@ -74,7 +74,9 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
             fn spawn_blocking<R : 'static + Send> (
                 self: &'_ Self,
                 action: impl 'static + Send + FnOnce() -> R,
-            ) -> impl Future<Output = Result<R, ::futures::channel::oneshot::Canceled>>
+            ) -> impl Future<Output =
+                    Result<R, ::futures::channel::oneshot::Canceled>
+                >
             {
                 let (tx, rx) = ::futures::channel::oneshot::channel();
                 let mut action = Some(move || {
@@ -84,7 +86,8 @@ match_! {([] [Send + Sync]) {( $([ $($SendSync:tt)* ])* ) => (
                     action
                         .take()
                         .expect("\
-                    executor called the `.spawn_blocking()` closure more than once\
+                            executor called the `.spawn_blocking()` closure \
+                            more than once\
                         ")
                         ()
                 };
@@ -170,8 +173,11 @@ match_cfg!(feature = "tokio" => {
             let fut = self.spawn_blocking(|| { action }.call());
             let fut = async {
                 fut .await
-                    .unwrap_or_else(|caught_panic| {
-                        ::std::panic::resume_unwind(caught_panic.into_panic())
+                    .unwrap_or_else(|err| match err.try_into_panic() {
+                        Ok(caught_panic) => {
+                            ::std::panic::resume_unwind(caught_panic);
+                        },
+                        Err(err) => debug_assert!(err.is_cancelled()),
                     })
             };
             Box::pin(fut)
