@@ -218,6 +218,12 @@
 <span id="218">218</span>
 <span id="219">219</span>
 <span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
 </pre><pre class="rust"><code><span class="attribute">#![cfg_attr(rustfmt, rustfmt::skip)]
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -294,7 +300,9 @@ trait </span>FfiFutureExecutor : Send + Sync {
             fn </span>spawn_blocking&lt;R : <span class="lifetime">&#39;static </span>+ Send&gt; (
                 <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">Self</span>,
                 action: <span class="kw">impl </span><span class="lifetime">&#39;static </span>+ Send + FnOnce() -&gt; R,
-            ) -&gt; <span class="kw">impl </span>Future&lt;Output = <span class="prelude-ty">Result</span>&lt;R, ::futures::channel::oneshot::Canceled&gt;&gt;
+            ) -&gt; <span class="kw">impl </span>Future&lt;Output =
+                    <span class="prelude-ty">Result</span>&lt;R, ::futures::channel::oneshot::Canceled&gt;
+                &gt;
             {
                 <span class="kw">let </span>(tx, rx) = ::futures::channel::oneshot::channel();
                 <span class="kw">let </span><span class="kw-2">mut </span>action = <span class="prelude-val">Some</span>(<span class="kw">move </span>|| {
@@ -304,7 +312,8 @@ trait </span>FfiFutureExecutor : Send + Sync {
                     action
                         .take()
                         .expect(<span class="string">&quot;\
-                    executor called the `.spawn_blocking()` closure more than once\
+                            executor called the `.spawn_blocking()` closure \
+                            more than once\
                         &quot;</span>)
                         ()
                 };
@@ -390,8 +399,11 @@ trait </span>FfiFutureExecutor : Send + Sync {
             <span class="kw">let </span>fut = <span class="self">self</span>.spawn_blocking(|| { action }.call());
             <span class="kw">let </span>fut = <span class="kw">async </span>{
                 fut .<span class="kw">await
-                    </span>.unwrap_or_else(|caught_panic| {
-                        ::std::panic::resume_unwind(caught_panic.into_panic())
+                    </span>.unwrap_or_else(|err| <span class="kw">match </span>err.try_into_panic() {
+                        <span class="prelude-val">Ok</span>(caught_panic) =&gt; {
+                            ::std::panic::resume_unwind(caught_panic);
+                        },
+                        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">debug_assert!</span>(err.is_cancelled()),
                     })
             };
             Box::pin(fut)
