@@ -5,6 +5,9 @@ use super::{*,
 use crate::prelude::*;
 use ::core::convert::TryFrom;
 
+type JsOf<T> = <crate::layout::CLayoutOf<T> as ReprNapi>::NapiValue;
+type JsOfCSliceRef<T> = JsOf<c_slice::Ref<'static, T>>;
+
 #[js_export(js_name = withCString, __skip_napi_import)]
 pub
 fn with_js_string_as_utf8 (
@@ -209,6 +212,29 @@ fn slice_box_uint8_t_to_js_buffer (
     }
 })}
 
+#[js_export(js_name = refCBytesIntoBuffer, __skip_napi_import)]
+pub
+fn slice_ref_uint8_t_to_js_buffer (
+    arg: JsOfCSliceRef<u8>,
+) -> Result<JsUnknown>
+{Ok({
+    let ctx = ::safer_ffi::js::derive::__js_ctx!();
+    let fat = crate::slice::slice_ref_Layout::<'_, u8>::from_napi_value(ctx.env, arg)?;
+    if fat.ptr.is_null() {
+        ctx .env
+            .get_null()?
+            .into_unknown()
+    } else {
+        let p: crate::prelude::c_slice::Ref<'_, u8> = unsafe {
+            crate::layout::from_raw_unchecked(fat)
+        };
+        ctx .env
+            .create_buffer_copy(p.as_slice())?
+            .into_unknown()
+    }
+})}
+
+
 #[js_export(js_name = withOutBoolean, __skip_napi_import)]
 pub
 fn with_out_bool (cb: JsFunction)
@@ -259,24 +285,6 @@ fn wrap_ptr (env: &'_ Env, p: *mut (), ty: &'_ str)
     )?;
     Ok(obj.into_unknown())
 }
-
-#[js_export(js_name = withOutPtr, __skip_napi_import)]
-pub
-fn with_out_ptr (
-    ty: JsString,
-    cb: JsFunction,
-) -> Result<JsUnknown>
-{Ok({
-    let ctx = ::safer_ffi::js::derive::__js_ctx!();
-    let ref ty: String = ty.into_utf8()?.into_owned()?;
-    let mut p: *mut () = NULL!();
-    let out_p = &mut p;
-    cb.call(None, &[
-        wrap_ptr(ctx.env, <*mut _>::cast(out_p), &format!("{} *", ty))?
-    ])?;
-    wrap_ptr(ctx.env, p, ty)?
-        .into_unknown()
-})}
 
 #[js_export(js_name = withOutBoxCBytes, __skip_napi_import)]
 pub
@@ -376,7 +384,6 @@ fn vec_char_ptr_to_js_string_array (
 //     "refCStringToString": char_p_ref_to_js_string,
 //     "withCBytes": with_js_buffer_as_slice_uint8_t_ref,
 //     "boxCBytesIntoBuffer": slice_box_uint8_t_to_js_buffer,
-//     "withOutPtr": with_out_ptr,
 //     "withOutBoolean": with_out_bool,
 //     "withOutU64": with_out_u64,
 //     "withOutBoxCBytes": with_out_byte_slice,
