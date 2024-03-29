@@ -3,7 +3,7 @@ path = "src/_lib.rs"
 
 [package]
 name = "safer-ffi"
-version = "0.1.5"  # Keep in sync
+version = "0.1.6"  # Keep in sync
 authors = [
     "Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>",
 ]
@@ -164,7 +164,7 @@ version = "0.0.3"
 
 [dependencies.safer_ffi-proc_macros]
 path = "src/proc_macro"
-version = "=0.1.5"  # Keep in sync
+version = "=0.1.6"  # Keep in sync
 
 [workspace]
 members = [
