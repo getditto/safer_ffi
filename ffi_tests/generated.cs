@@ -20,7 +20,11 @@ using System;
 using System.Runtime.InteropServices;
 
 public unsafe partial class Ffi {
+#if IOS
+    private const string RustLib = "ffi_tests.framework/ffi_tests";
+#else
     private const string RustLib = "ffi_tests";
+#endif
 }
 
 public enum Wow_t : byte {
