@@ -119,7 +119,7 @@ futures.optional = true
 futures.version = "0.3.24"
 
 inventory.optional = true
-inventory.version = "0.3.1"
+inventory.version = "0.3.5"
 
 libc.version = "0.2.66"
 libc.default-features = false
