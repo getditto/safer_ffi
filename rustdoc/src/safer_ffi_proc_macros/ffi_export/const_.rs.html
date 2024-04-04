@@ -67,11 +67,6 @@
 <span id="67">67</span>
 <span id="68">68</span>
 <span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
-<span id="74">74</span>
 </pre><pre class="rust"><code><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span>(<span class="kw">in super</span>)
@@ -98,16 +93,11 @@
         <span class="kw">let </span>Ty @ <span class="kw">_ </span>= <span class="kw-2">&amp;</span>input.ty;
         <span class="kw">let </span><span class="kw-2">ref </span>each_doc = utils::extract_docs(<span class="kw-2">&amp;</span>input.attrs)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>inventory_krate = <span class="macro">cfg!</span>(not(feature = <span class="string">&quot;inventory-0-3-1&quot;</span>)).then(|| {
-            <span class="macro">quote!</span>( <span class="attribute">#![<span class="kw">crate </span>= #ඞ] </span>)
-        });
         <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(
             #input
 
             <span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
             </span>#<span class="macro">ඞ::inventory::submit! </span>{
-                #inventory_krate
-
                 #ඞ::FfiExport {
                     name: #VAR_str,
                     gen_def: |

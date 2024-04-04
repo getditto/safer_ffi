@@ -33,11 +33,6 @@
 <span id="33">33</span>
 <span id="34">34</span>
 <span id="35">35</span>
-<span id="36">36</span>
-<span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
 </pre><pre class="rust"><code><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span>(<span class="kw">in super</span>)
@@ -59,17 +54,12 @@
         }
     }
     <span class="kw">let </span><span class="kw-2">ref </span>Ty_str @ <span class="kw">_ </span>= Ty.to_string();
-    <span class="kw">let </span>inventory_krate = <span class="macro">cfg!</span>(not(feature = <span class="string">&quot;inventory-0-3-1&quot;</span>)).then(|| {
-        <span class="macro">quote!</span>( <span class="attribute">#![<span class="kw">crate </span>= ::safer_ffi] </span>)
-    });
     <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(
         #input
 
         <span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
         </span><span class="macro">::safer_ffi::__cfg_headers__! </span>{
             <span class="macro">::safer_ffi::inventory::submit! </span>{
-                #inventory_krate
-
                 ::safer_ffi::FfiExport {
                     name: #Ty_str,
                     gen_def: ::safer_ffi::headers::__define_self__::&lt;#Ty&gt;,

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/inventory-0.1.11/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../inventory/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/inventory-0.3.5/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../inventory/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -386,11 +386,23 @@
 <span id="386">386</span>
 <span id="387">387</span>
 <span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
 </pre><pre class="rust"><code><span class="doccomment">//! [![github]](https://github.com/dtolnay/inventory)&amp;ensp;[![crates-io]](https://crates.io/crates/inventory)&amp;ensp;[![docs-rs]](https://docs.rs/inventory)
 //!
 //! [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github
 //! [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust
-//! [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logoColor=white&amp;logo=data:image/svg+xml;base64,PHN2ZyByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDUxMiA1MTIiPjxwYXRoIGZpbGw9IiNmNWY1ZjUiIGQ9Ik00ODguNiAyNTAuMkwzOTIgMjE0VjEwNS41YzAtMTUtOS4zLTI4LjQtMjMuNC0zMy43bC0xMDAtMzcuNWMtOC4xLTMuMS0xNy4xLTMuMS0yNS4zIDBsLTEwMCAzNy41Yy0xNC4xIDUuMy0yMy40IDE4LjctMjMuNCAzMy43VjIxNGwtOTYuNiAzNi4yQzkuMyAyNTUuNSAwIDI2OC45IDAgMjgzLjlWMzk0YzAgMTMuNiA3LjcgMjYuMSAxOS45IDMyLjJsMTAwIDUwYzEwLjEgNS4xIDIyLjEgNS4xIDMyLjIgMGwxMDMuOS01MiAxMDMuOSA1MmMxMC4xIDUuMSAyMi4xIDUuMSAzMi4yIDBsMTAwLTUwYzEyLjItNi4xIDE5LjktMTguNiAxOS45LTMyLjJWMjgzLjljMC0xNS05LjMtMjguNC0yMy40LTMzLjd6TTM1OCAyMTQuOGwtODUgMzEuOXYtNjguMmw4NS0zN3Y3My4zek0xNTQgMTA0LjFsMTAyLTM4LjIgMTAyIDM4LjJ2LjZsLTEwMiA0MS40LTEwMi00MS40di0uNnptODQgMjkxLjFsLTg1IDQyLjV2LTc5LjFsODUtMzguOHY3NS40em0wLTExMmwtMTAyIDQxLjQtMTAyLTQxLjR2LS42bDEwMi0zOC4yIDEwMiAzOC4ydi42em0yNDAgMTEybC04NSA0Mi41di03OS4xbDg1LTM4Ljh2NzUuNHptMC0xMTJsLTEwMiA0MS40LTEwMi00MS40di0uNmwxMDItMzguMiAxMDIgMzguMnYuNnoiPjwvcGF0aD48L3N2Zz4K
+//! [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logo=docs.rs
 //!
 //! &lt;br&gt;
 //!
@@ -428,7 +440,7 @@
 //! }
 //!
 //! impl Flag {
-//!     pub fn new(short: char, name: &amp;&#39;static str) -&gt; Self {
+//!     pub const fn new(short: char, name: &amp;&#39;static str) -&gt; Self {
 //!         Flag { short, name }
 //!     }
 //! }
@@ -449,7 +461,7 @@
 //! # struct Flag;
 //! #
 //! # impl Flag {
-//! #     fn new(short: char, name: &amp;&#39;static str) -&gt; Self {
+//! #     const fn new(short: char, name: &amp;&#39;static str) -&gt; Self {
 //! #         Flag
 //! #     }
 //! # }
@@ -490,43 +502,61 @@
 //! There is no guarantee about the order that plugins of the same type are
 //! visited by the iterator. They may be visited in any order.
 
-</span><span class="attribute">#![doc(html_root_url = <span class="string">&quot;https://docs.rs/inventory/0.1.11&quot;</span>)]
-#![cfg_attr(not(inventory_require_std), no_std)]
+</span><span class="attribute">#![doc(html_root_url = <span class="string">&quot;https://docs.rs/inventory/0.3.5&quot;</span>)]
+#![no_std]
 #![allow(
     clippy::doc_markdown,
     clippy::empty_enum,
     clippy::expl_impl_clone_on_copy,
+    clippy::let_underscore_untyped,
     clippy::let_unit_value,
     clippy::must_use_candidate,
     clippy::semicolon_if_nothing_returned, <span class="comment">// https://github.com/rust-lang/rust-clippy/issues/7324
 </span>)]
 
-#[cfg(not(inventory_require_std))]
-</span><span class="kw">extern crate </span>alloc;
-<span class="attribute">#[cfg(not(inventory_require_std))]
-</span><span class="kw">use </span>alloc::boxed::Box;
+</span><span class="comment">// Not public API.
+</span><span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub extern crate </span>core;
 
 <span class="comment">// Not public API.
 </span><span class="attribute">#[doc(hidden)]
 </span><span class="kw">pub use </span>ctor::ctor;
 
-<span class="comment">// Not public API.
-</span><span class="attribute">#[doc(hidden)]
-</span><span class="kw">pub use </span>inventory_impl <span class="kw">as </span>r#impl;
-
+<span class="kw">use </span>core::cell::UnsafeCell;
+<span class="kw">use </span>core::marker::PhantomData;
 <span class="kw">use </span>core::ops::Deref;
 <span class="kw">use </span>core::ptr;
 <span class="kw">use </span>core::sync::atomic::{AtomicPtr, Ordering};
+<span class="kw">use </span>ghost::phantom;
 
 <span class="comment">// Not public API. Used by generated code.
 </span><span class="attribute">#[doc(hidden)]
-</span><span class="kw">pub struct </span>Registry&lt;T: <span class="lifetime">&#39;static</span>&gt; {
-    head: AtomicPtr&lt;Node&lt;T&gt;&gt;,
+</span><span class="kw">pub struct </span>Registry {
+    head: AtomicPtr&lt;Node&gt;,
 }
 
-<span class="kw">struct </span>Node&lt;T: <span class="lifetime">&#39;static</span>&gt; {
-    value: T,
-    next: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Node&lt;T&gt;&gt;,
+<span class="comment">// Not public API. Used by generated code.
+</span><span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub struct </span>Node {
+    <span class="kw">pub </span>value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">dyn </span>ErasedNode,
+    <span class="kw">pub </span>next: UnsafeCell&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Node&gt;&gt;,
+}
+
+<span class="comment">// The `value` is Sync, and `next` is only mutated during submit, which is prior
+// to any reads.
+</span><span class="kw">unsafe impl </span>Sync <span class="kw">for </span>Node {}
+
+<span class="comment">// Not public API. Used by generated code.
+</span><span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub trait </span>ErasedNode: Sync {
+    <span class="comment">// SAFETY: requires *node.value is of type Self.
+    </span><span class="kw">unsafe fn </span>submit(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Node);
+}
+
+<span class="kw">impl</span>&lt;T: Collect&gt; ErasedNode <span class="kw">for </span>T {
+    <span class="kw">unsafe fn </span>submit(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Node) {
+        T::registry().submit(node);
+    }
 }
 
 <span class="doccomment">/// Trait bound corresponding to types that can be iterated by inventory::iter.
@@ -543,20 +573,12 @@
 ///     inventory::iter::&lt;T&gt;.into_iter().count()
 /// }
 /// ```
-</span><span class="kw">pub trait </span>Collect: Sized + <span class="lifetime">&#39;static </span>{
+</span><span class="kw">pub trait </span>Collect: Sync + Sized + <span class="lifetime">&#39;static </span>{
     <span class="attribute">#[doc(hidden)]
-    </span><span class="kw">fn </span>registry() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Registry&lt;<span class="self">Self</span>&gt;;
+    </span><span class="kw">fn </span>registry() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Registry;
 }
 
-<span class="comment">// Not public API. Used by generated code.
-</span><span class="attribute">#[doc(hidden)]
-</span><span class="kw">pub fn </span>submit&lt;T: Collect&gt;(value: T) {
-    <span class="comment">// TODO: Avoid allocation by storing node in a static mut Option&lt;Node&lt;T&gt;&gt;
-    // after existential type is stable. See comment in inventory-impl.
-    </span>T::registry().submit(Box::new(Node { value, next: <span class="prelude-val">None </span>}));
-}
-
-<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static</span>&gt; Registry&lt;T&gt; {
+<span class="kw">impl </span>Registry {
     <span class="comment">// Not public API. Used by generated code.
     </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         Registry {
@@ -564,30 +586,22 @@
         }
     }
 
-    <span class="kw">fn </span>submit(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">self</span>, new: Box&lt;Node&lt;T&gt;&gt;) {
-        <span class="kw">let </span><span class="kw-2">mut </span>new = ptr::NonNull::from(Box::leak(new));
-        <span class="kw">let </span><span class="kw-2">mut </span>head = <span class="self">self</span>.head.load(Ordering::SeqCst);
+    <span class="comment">// SAFETY: requires type of *new.value matches the $ty surrounding the
+    // declaration of this registry in inventory::collect macro.
+    </span><span class="kw">unsafe fn </span>submit(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">self</span>, new: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Node) {
+        <span class="kw">let </span><span class="kw-2">mut </span>head = <span class="self">self</span>.head.load(Ordering::Relaxed);
         <span class="kw">loop </span>{
-            <span class="comment">// `new` is always a valid Node&lt;T&gt;, and is not yet visible through the registry.
-            // `head` is always null or valid &amp;&#39;static Node&lt;T&gt;.
-            </span><span class="kw">unsafe </span>{ new.as_mut().next = head.as_ref() };
+            <span class="kw-2">*</span>new.next.get() = head.as_ref();
+            <span class="kw">let </span>new_ptr = new <span class="kw">as </span><span class="kw-2">*const </span>Node <span class="kw">as </span><span class="kw-2">*mut </span>Node;
             <span class="kw">match </span><span class="self">self
                 </span>.head
-                .compare_exchange(head, new.as_ptr(), Ordering::SeqCst, Ordering::SeqCst)
+                .compare_exchange(head, new_ptr, Ordering::Release, Ordering::Relaxed)
             {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span>,
                 <span class="prelude-val">Err</span>(prev) =&gt; head = prev,
             }
         }
     }
-}
-
-<span class="attribute">#[allow(non_camel_case_types)]
-</span><span class="kw">mod </span>private {
-    <span class="kw">use </span>ghost::phantom;
-
-    <span class="attribute">#[phantom]
-    </span><span class="kw">pub struct </span>iter&lt;T&gt;;
 }
 
 <span class="doccomment">/// An iterator over plugins registered of a given type.
@@ -622,17 +636,16 @@
 /// Refer to the [crate level documentation](index.html) for a complete example
 /// of instantiating a plugin registry and submitting plugins.
 </span><span class="attribute">#[allow(non_camel_case_types)]
-</span><span class="kw">pub type </span>iter&lt;T&gt; = private::iter&lt;T&gt;;
-
-<span class="attribute">#[doc(hidden)]
-</span><span class="kw">pub use </span><span class="kw">crate</span>::private::<span class="kw-2">*</span>;
+#[phantom]
+</span><span class="kw">pub struct </span>iter&lt;T&gt;;
 
 <span class="kw">const </span>ITER: () = {
     <span class="kw">fn </span>into_iter&lt;T: Collect&gt;() -&gt; Iter&lt;T&gt; {
-        <span class="kw">let </span>head = T::registry().head.load(Ordering::SeqCst);
+        <span class="kw">let </span>head = T::registry().head.load(Ordering::Acquire);
         Iter {
-            <span class="comment">// Head pointer is always null or valid &amp;&#39;static Node&lt;T&gt;.
+            <span class="comment">// Head pointer is always null or valid &amp;&#39;static Node.
             </span>node: <span class="kw">unsafe </span>{ head.as_ref() },
+            marker: PhantomData,
         }
     }
 
@@ -655,7 +668,8 @@
 
     <span class="attribute">#[derive(Clone)]
     </span><span class="kw">pub struct </span>Iter&lt;T: <span class="lifetime">&#39;static</span>&gt; {
-        node: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Node&lt;T&gt;&gt;,
+        node: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Node&gt;,
+        marker: PhantomData&lt;T&gt;,
     }
 
     <span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static</span>&gt; Iterator <span class="kw">for </span>Iter&lt;T&gt; {
@@ -663,9 +677,11 @@
 
         <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
             <span class="kw">let </span>node = <span class="self">self</span>.node<span class="question-mark">?</span>;
-            <span class="kw">let </span>value = <span class="kw-2">&amp;</span>node.value;
-            <span class="self">self</span>.node = node.next;
-            <span class="prelude-val">Some</span>(value)
+            <span class="kw">unsafe </span>{
+                <span class="kw">let </span>value_ptr = (node.value <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">dyn </span>ErasedNode).cast::&lt;T&gt;();
+                <span class="self">self</span>.node = <span class="kw-2">*</span>node.next.get();
+                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;*</span>value_ptr)
+            }
         }
     }
 };
@@ -704,8 +720,8 @@
     (<span class="macro-nonterminal">$ty</span>:ty) =&gt; {
         <span class="kw">impl </span><span class="macro-nonterminal">$crate::Collect </span><span class="kw">for </span><span class="macro-nonterminal">$ty </span>{
             <span class="attribute">#[inline]
-            </span><span class="kw">fn </span>registry() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$crate::Registry</span>&lt;<span class="self">Self</span>&gt; {
-                <span class="kw">static </span>REGISTRY: <span class="macro-nonterminal">$crate::Registry</span>&lt;<span class="macro-nonterminal">$ty</span>&gt; = <span class="macro-nonterminal">$crate::Registry::new</span>();
+            </span><span class="kw">fn </span>registry() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$crate::Registry </span>{
+                <span class="kw">static </span>REGISTRY: <span class="macro-nonterminal">$crate::Registry </span>= <span class="macro-nonterminal">$crate::Registry::new</span>();
                 <span class="kw-2">&amp;</span>REGISTRY
             }
         }
@@ -731,7 +747,7 @@
 /// # struct Flag;
 /// #
 /// # impl Flag {
-/// #     fn new(short: char, name: &amp;&#39;static str) -&gt; Self {
+/// #     const fn new(short: char, name: &amp;&#39;static str) -&gt; Self {
 /// #         Flag
 /// #     }
 /// # }
@@ -764,9 +780,17 @@
 </span><span class="attribute">#[macro_export]
 </span><span class="macro">macro_rules! </span>submit {
     ($(<span class="macro-nonterminal">$value</span>:tt)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::r#impl<span class="macro">::submit! </span>{
-            $(<span class="macro-nonterminal">$value</span>)*
-        }
+        <span class="kw">const _</span>: () = {
+            <span class="attribute">#[allow(non_upper_case_globals)]
+            #[<span class="macro-nonterminal">$crate::ctor</span>]
+            </span><span class="kw">fn </span>__init() {
+                <span class="kw">static </span>__INVENTORY: <span class="macro-nonterminal">$crate::Node </span>= <span class="macro-nonterminal">$crate::Node </span>{
+                    value: <span class="kw-2">&amp;</span>{ $(<span class="macro-nonterminal">$value</span>)* },
+                    next: <span class="macro-nonterminal">$crate::core::cell::UnsafeCell::new</span>(<span class="macro-nonterminal">$crate::core::option::Option::None</span>),
+                };
+                <span class="kw">unsafe </span>{ <span class="macro-nonterminal">$crate::ErasedNode::submit</span>(__INVENTORY.value, <span class="kw-2">&amp;</span>__INVENTORY) }
+            }
+        };
     }
 }
 
