@@ -216,7 +216,7 @@ dependencies = [
 
 [[package]]
 name = "safer-ffi"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "futures",
  "inventory",
@@ -232,7 +232,7 @@ dependencies = [
 
 [[package]]
 name = "safer_ffi-proc_macros"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "macro_rules_attribute",
  "prettyplease",
