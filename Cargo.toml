@@ -95,6 +95,10 @@ js = [
     "std",
 ]
 
+# Deprecated: now always enabled, and thus does nothing.
+# TODO: remove in the next semver bump.
+inventory-0-3-1 = []
+
 internal-tests = [
     "async-fn",
     "headers",
