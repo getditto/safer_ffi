@@ -3,7 +3,7 @@ path = "src/_lib.rs"
 
 [package]
 name = "safer-ffi"
-version = "0.1.6"  # Keep in sync
+version = "0.1.7"  # Keep in sync
 authors = [
     "Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>",
 ]
@@ -95,10 +95,9 @@ js = [
     "std",
 ]
 
-inventory-0-3-1 = [
-    "dep:inventory-0-3-1",
-    "safer_ffi-proc_macros/inventory-0-3-1",
-]
+# Deprecated: now always enabled, and thus does nothing.
+# TODO: remove in the next semver bump.
+inventory-0-3-1 = []
 
 internal-tests = [
     "async-fn",
@@ -120,11 +119,7 @@ futures.optional = true
 futures.version = "0.3.24"
 
 inventory.optional = true
-inventory.version = "0.1.6"
-
-inventory-0-3-1.optional = true
-inventory-0-3-1.package = "inventory"
-inventory-0-3-1.version = "0.3.1"
+inventory.version = "0.3.5"
 
 libc.version = "0.2.66"
 libc.default-features = false
@@ -164,7 +159,7 @@ version = "0.0.3"
 
 [dependencies.safer_ffi-proc_macros]
 path = "src/proc_macro"
-version = "=0.1.6"  # Keep in sync
+version = "=0.1.7"  # Keep in sync
 
 [workspace]
 members = [

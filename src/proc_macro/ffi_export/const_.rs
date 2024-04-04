@@ -24,16 +24,11 @@ fn handle (
         let Ty @ _ = &input.ty;
         let ref each_doc = utils::extract_docs(&input.attrs)?;
 
-        let inventory_krate = cfg!(not(feature = "inventory-0-3-1")).then(|| {
-            quote!( #![crate = #ඞ] )
-        });
         Ok(quote!(
             #input
 
             #[cfg(not(target_arch = "wasm32"))]
             #ඞ::inventory::submit! {
-                #inventory_krate
-
                 #ඞ::FfiExport {
                     name: #VAR_str,
                     gen_def: |

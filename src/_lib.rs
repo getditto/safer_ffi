@@ -226,16 +226,8 @@ pub use ::safer_ffi_proc_macros::derive_ReprC;
 pub mod layout;
 
 __cfg_headers__! {
-    match_cfg! {
-        feature = "inventory-0-3-1" => {
-            #[doc(hidden)] pub
-            use ::inventory_0_3_1 as inventory;
-        },
-        _ => {
-            #[doc(hidden)] pub
-            use ::inventory;
-        },
-    }
+    #[doc(hidden)] pub
+    use ::inventory;
 
     #[cfg_attr(feature = "nightly",
         doc(cfg(feature = "headers")),
