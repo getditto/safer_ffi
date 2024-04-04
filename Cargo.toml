@@ -95,11 +95,6 @@ js = [
     "std",
 ]
 
-inventory-0-3-1 = [
-    "dep:inventory-0-3-1",
-    "safer_ffi-proc_macros/inventory-0-3-1",
-]
-
 internal-tests = [
     "async-fn",
     "headers",
@@ -120,11 +115,7 @@ futures.optional = true
 futures.version = "0.3.24"
 
 inventory.optional = true
-inventory.version = "0.1.6"
-
-inventory-0-3-1.optional = true
-inventory-0-3-1.package = "inventory"
-inventory-0-3-1.version = "0.3.1"
+inventory.version = "0.3.1"
 
 libc.version = "0.2.66"
 libc.default-features = false

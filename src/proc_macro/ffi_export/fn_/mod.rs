@@ -358,14 +358,9 @@ fn handle (
         let ref EachArgTy @ _ = arg_tys(&fun).vec();
         let each_doc = utils::extract_docs(&fun.attrs)?;
         let (generics, _, where_clause) = fun.sig.generics.split_for_impl();
-        let inventory_krate = cfg!(not(feature = "inventory-0-3-1")).then(|| {
-            quote!( #![crate = #ඞ] )
-        });
         ret.extend(quote!(
             #[cfg(not(target_arch = "wasm32"))]
             #ඞ::inventory::submit! {
-                #inventory_krate
-
                 #ඞ::FfiExport {
                     name: #export_name_str,
                     gen_def: {
