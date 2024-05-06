@@ -67,7 +67,7 @@ macro_rules! use_libc_or_else {(
 ) => (
     macro_rules! stringified_module_code {() => (
         stringify!($($input)*)
-    )}
+    )} use stringified_module_code;
 
     use_libc_or_else_!($($input)*);
 )} use use_libc_or_else;
