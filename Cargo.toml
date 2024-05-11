@@ -171,6 +171,7 @@ members = [
     "napi-dispatcher/wasm/src/proc_macros",
     "safer-ffi-build",
 ]
+exclude = ["examples/point"]
 
 [package.metadata.docs.rs]
 features = ["docs"]
