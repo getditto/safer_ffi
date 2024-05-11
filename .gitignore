@@ -2,6 +2,7 @@
 *.code-workspace
 .DS_Store
 /target
+examples/point/Cargo.lock
 examples/point/main
 filename.h
 generated.cffi
