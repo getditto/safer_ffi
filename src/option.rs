@@ -1,3 +1,4 @@
+/// An ABI-stable version of `core::option::Option`.
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Option<T> {
