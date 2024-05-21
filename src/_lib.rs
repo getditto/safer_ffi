@@ -307,6 +307,9 @@ use tuple::*;
 pub
 mod tuple;
 
+pub
+mod option;
+
 cfg_alloc! {
     #[doc(inline)]
     pub use string::String;
