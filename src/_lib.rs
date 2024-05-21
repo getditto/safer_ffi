@@ -365,6 +365,7 @@ mod prelude {
                 boxed::Box,
                 string::String,
                 vec::Vec,
+                option::TaggedOption,
             };
 
             pub

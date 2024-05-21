@@ -1,15 +1,31 @@
+use crate::ඞ::ConcreteReprC;
+
 /// An ABI-stable version of `core::option::Option`.
+///
+/// Note that this uses an explicit `bool` flag to store the discriminant.
+///
+/// In a reduced set of cases of "non-nullable types", _i.e._, types
+/// where the null bit-pattern is a niche of the type (which is especially
+/// relevant for `&T`, `&mut T`, and <code>[repr_c::Box]\<T\></code>),
+/// usage of the stdlib [`Option`][core::option::Option] enables
+/// [discriminant elision], wherein the `None` value is represented using
+/// the null bitpattern (_e.g._, the `NULL` pointer).
+///
+/// [repr_c::Box]: crate::repr_c::Box
+/// [discriminant elision]: https://doc.rust-lang.org/1.78.0/core/option/index.html#representation
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Option<T> {
+pub enum TaggedOption<T> {
     None = 0,
     Some(T) = 1,
 }
-unsafe impl<T: crate::layout::ReprC> crate::layout::ReprC for Option<T>
+
+unsafe impl<T: ConcreteReprC> crate::layout::ReprC for TaggedOption<T>
 where
-    crate::tuple::Tuple2<u8, T>: crate::layout::ReprC,
+    crate::tuple::Tuple2<bool, crate::layout::CLayoutOf<T>>: crate::layout::ReprC,
 {
-    type CLayout = crate::layout::CLayoutOf<crate::tuple::Tuple2<u8, T>>;
+    type CLayout =
+        crate::layout::CLayoutOf<crate::tuple::Tuple2<bool, crate::layout::CLayoutOf<T>>>;
     fn is_valid(it: &'_ Self::CLayout) -> bool {
         match unsafe { core::mem::transmute_copy::<_, u8>(it) } {
             0 => true,
@@ -23,7 +39,7 @@ where
     }
 }
 
-impl<T> From<core::option::Option<T>> for Option<T> {
+impl<T> From<core::option::Option<T>> for TaggedOption<T> {
     fn from(value: core::option::Option<T>) -> Self {
         match value {
             Some(v) => Self::Some(v),
@@ -32,16 +48,16 @@ impl<T> From<core::option::Option<T>> for Option<T> {
     }
 }
 
-impl<T> From<Option<T>> for core::option::Option<T> {
-    fn from(value: Option<T>) -> Self {
+impl<T> From<TaggedOption<T>> for core::option::Option<T> {
+    fn from(value: TaggedOption<T>) -> Self {
         match value {
-            Option::Some(v) => Self::Some(v),
-            Option::None => Self::None,
+            TaggedOption::Some(v) => Self::Some(v),
+            TaggedOption::None => Self::None,
         }
     }
 }
 
-impl<T> Option<T> {
+impl<T> TaggedOption<T> {
     /// Returns a reference to `self`'s contents if it is `Some`.
     pub fn as_ref(&self) -> core::option::Option<&T> {
         match self {
@@ -59,19 +75,24 @@ impl<T> Option<T> {
     /// Applies `f` to `self`'s content if it is some, otherwise calls `default`.
     pub fn map_or_else<U, D: FnOnce() -> U, F: FnOnce(T) -> U>(self, default: D, f: F) -> U {
         match self {
-            Option::None => default(),
-            Option::Some(v) => f(v),
+            Self::None => default(),
+            Self::Some(v) => f(v),
         }
     }
     /// Unwraps `self`'s value, producing a new value using `default` if it is `None`.
     pub fn unwrap_or_else<D: FnOnce() -> T>(self, default: D) -> T {
         match self {
-            Option::None => default(),
-            Option::Some(v) => v,
+            Self::None => default(),
+            Self::Some(v) => v,
         }
     }
     /// Applies `f` to `self`'s internals to produce an `Option`, returning `None` if `self` was `None`.
-    pub fn and_then<U, F: FnOnce(T) -> Option<U>>(self, f: F) -> Option<U> {
-        self.map_or_else(|| Option::None, f)
+    pub fn and_then<U, F: FnOnce(T) -> TaggedOption<U>>(self, f: F) -> TaggedOption<U> {
+        self.map_or_else(|| TaggedOption::None, f)
+    }
+
+    /// Converts `self` into a standard Rust [Option](core::option::Option).
+    pub fn into_rust(self) -> core::option::Option<T> {
+        self.into()
     }
 }
