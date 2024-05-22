@@ -1,6 +1,7 @@
 use crate::ඞ::ConcreteReprC;
 
 /// An ABI-stable version of `core::option::Option`.
+/// Its usage is expected to be the same as a standard Option, converting to and from said Option when necessary.
 ///
 /// Note that this uses an explicit `bool` flag to store the discriminant.
 ///
@@ -57,6 +58,12 @@ impl<T> From<TaggedOption<T>> for core::option::Option<T> {
     }
 }
 
+impl<T> From<T> for TaggedOption<T> {
+    fn from(value: T) -> Self {
+        Self::Some(value)
+    }
+}
+
 impl<T> TaggedOption<T> {
     /// Returns a reference to `self`'s contents if it is `Some`.
     pub fn as_ref(&self) -> core::option::Option<&T> {
@@ -95,4 +102,29 @@ impl<T> TaggedOption<T> {
     pub fn into_rust(self) -> core::option::Option<T> {
         self.into()
     }
+}
+
+#[test]
+fn option() {
+    use crate::layout::ReprC;
+    use core::num::NonZeroU8;
+
+    for i in 0..=u8::MAX {
+        let expected = Some(i);
+        let converted = TaggedOption::from(expected);
+        assert!(TaggedOption::<u8>::is_valid(unsafe {
+            &core::mem::transmute(converted)
+        }));
+        assert_eq!(converted, i.into());
+        assert_eq!(expected, converted.into());
+        assert!(TaggedOption::Some(i)
+            .and_then(|_| TaggedOption::<()>::None)
+            .into_rust()
+            .is_none());
+        assert_eq!(unsafe { core::mem::transmute_copy::<_, u8>(&converted) }, 1);
+    }
+    assert_eq!(
+        unsafe { core::mem::transmute_copy::<_, u8>(&TaggedOption::<u8>::None) },
+        0
+    );
 }
