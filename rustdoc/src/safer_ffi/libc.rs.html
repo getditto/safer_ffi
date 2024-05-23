@@ -140,7 +140,7 @@
 ) =&gt; (
     <span class="macro">macro_rules! </span>stringified_module_code {() =&gt; (
         <span class="macro">stringify!</span>($(<span class="macro-nonterminal">$input</span>)<span class="kw-2">*</span>)
-    )}
+    )} <span class="kw">use </span>stringified_module_code;
 
     <span class="macro">use_libc_or_else_!</span>($(<span class="macro-nonterminal">$input</span>)<span class="kw-2">*</span>);
 )} <span class="kw">use </span>use_libc_or_else;
