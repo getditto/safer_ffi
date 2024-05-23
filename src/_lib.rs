@@ -307,6 +307,9 @@ use tuple::*;
 pub
 mod tuple;
 
+pub
+mod option;
+
 cfg_alloc! {
     #[doc(inline)]
     pub use string::String;
@@ -362,6 +365,7 @@ mod prelude {
                 boxed::Box,
                 string::String,
                 vec::Vec,
+                option::TaggedOption,
             };
 
             pub
