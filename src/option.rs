@@ -98,6 +98,11 @@ impl<T> TaggedOption<T> {
         self.map_or_else(|| TaggedOption::None, f)
     }
 
+    /// Takes the current value of `self`, replacing it with `None`
+    pub fn take(&mut self) -> Self {
+        core::mem::replace(self, TaggedOption::None)
+    }
+
     /// Converts `self` into a standard Rust [Option](core::option::Option).
     pub fn into_rust(self) -> core::option::Option<T> {
         self.into()
