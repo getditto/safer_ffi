@@ -5,6 +5,7 @@ use core::{
     ops::{Deref, Not, RangeBounds},
 };
 
+#[cfg(feature = "alloc")]
 use alloc::sync::Arc;
 use safer_ffi_proc_macros::derive_ReprC;
 
@@ -198,6 +199,7 @@ impl<'a> From<&'a [u8]> for Bytes<'a> {
         }
     }
 }
+#[cfg(feature = "alloc")]
 impl From<Arc<[u8]>> for Bytes<'static> {
     fn from(data: Arc<[u8]>) -> Self {
         extern "C" fn retain(this: *const (), capacity: usize) {
@@ -230,6 +232,7 @@ impl From<Arc<[u8]>> for Bytes<'static> {
         }
     }
 }
+#[cfg(feature = "alloc")]
 impl<T: Sized + AsRef<[u8]> + Send + Sync> From<Arc<T>> for Bytes<'static> {
     fn from(value: Arc<T>) -> Self {
         extern "C" fn retain<T: Sized>(this: *const (), _: usize) {
