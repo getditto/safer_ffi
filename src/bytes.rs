@@ -15,7 +15,7 @@ use safer_ffi_proc_macros::derive_ReprC;
 #[derive_ReprC]
 #[repr(C)]
 pub struct Bytes<'a> {
-    start: &'a u8,
+    start: core::ptr::NonNull<u8>,
     len: usize,
     data: *const (),
     capacity: usize,
@@ -39,7 +39,7 @@ impl<'a> Bytes<'a> {
             release: Some(noop),
         };
         Self {
-            start: unsafe { &*data.as_ptr() },
+            start: unsafe { core::ptr::NonNull::new_unchecked(data.as_ptr().cast_mut()) },
             len: data.len(),
             data: data.as_ptr().cast(),
             capacity: data.len(),
@@ -51,12 +51,12 @@ impl<'a> Bytes<'a> {
     /// # use safer_ffi::bytes::Bytes;
     /// let data = b"Hello there".as_slice();
     /// let mut bytes = Bytes::from_static(data);
-    /// bytes.subslice(3..7);
+    /// bytes.shrink_to(3..7);
     /// assert_eq!(&data[3..7], bytes.as_slice());
     /// ```
     /// # Panics
     /// If the range's end is out of bounds, or if the range's start is greater than its end.
-    pub fn subslice<R: RangeBounds<usize>>(&mut self, range: R) {
+    pub fn shrink_to<R: RangeBounds<usize>>(&mut self, range: R) {
         let start = match range.start_bound() {
             core::ops::Bound::Included(i) => *i,
             core::ops::Bound::Excluded(i) => *i + 1,
@@ -70,10 +70,10 @@ impl<'a> Bytes<'a> {
         assert!(start <= end);
         assert!(end <= self.len);
         let len = end - start;
-        self.start = unsafe { &*(self.start as *const u8).add(start) };
+        self.start = unsafe { core::ptr::NonNull::new_unchecked(self.start.as_ptr().add(start)) };
         self.len = len;
     }
-    /// Slices `self` in-place, returning it.
+    /// Convenience around [`Self::shrink_to`] for better method chaining.
     /// ```
     /// # use safer_ffi::bytes::Bytes;
     /// let data = b"Hello there".as_slice();
@@ -83,7 +83,7 @@ impl<'a> Bytes<'a> {
     /// # Panics
     /// If the range's end is out of bounds, or if the range's start is greater than its end.
     pub fn subsliced<R: RangeBounds<usize>>(mut self, range: R) -> Self {
-        self.subslice(range);
+        self.shrink_to(range);
         self
     }
     #[cfg(feature = "alloc")]
@@ -107,7 +107,8 @@ impl<'a> Bytes<'a> {
             let mut right = left.clone();
             left.len = index;
             right.len -= index;
-            right.start = unsafe { &*(self.start as *const u8).add(index) };
+            right.start =
+                unsafe { core::ptr::NonNull::new_unchecked(right.start.as_ptr().add(index)) };
             Ok((left, right))
         } else {
             Err(self)
@@ -115,11 +116,11 @@ impl<'a> Bytes<'a> {
     }
     /// Returns the slice's contents.
     pub const fn as_slice(&self) -> &[u8] {
-        unsafe { core::slice::from_raw_parts(self.start, self.len) }
+        unsafe { core::slice::from_raw_parts(self.start.as_ptr(), self.len) }
     }
     #[cfg(feature = "alloc")]
     /// Proves that the slice can be held onto for arbitrary durations, or copies it into a new one that does.
-    pub fn upgrade(self) -> Bytes<'static> {
+    pub fn upgrade(self: Bytes<'a>) -> Bytes<'static> {
         if !self.vtable.is_borrowed() {
             return unsafe { core::mem::transmute(self) };
         }
@@ -128,7 +129,7 @@ impl<'a> Bytes<'a> {
     /// Attempts to prove that the slice has a static lifetime.
     /// # Errors
     /// Returns the original instance if it couldn't be proven to be `'static`.
-    pub fn noalloc_upgrade(self) -> Result<Bytes<'static>, Self> {
+    pub fn noalloc_upgrade(self: Bytes<'a>) -> Result<Bytes<'static>, Self> {
         if !self.vtable.is_borrowed() {
             Ok(unsafe { core::mem::transmute(self) })
         } else {
@@ -137,8 +138,8 @@ impl<'a> Bytes<'a> {
     }
     /// Only calls [`Clone::clone`] if no reallocation would be necessary for it, returning `None` if it would have been.
     pub fn noalloc_clone(&self) -> Option<Self> {
-        let retain = self.vtable.retain.as_ref()?;
-        retain(self.data, self.capacity);
+        let retain = self.vtable.retain?;
+        unsafe { retain(self.data, self.capacity) };
         Some(Self {
             start: self.start,
             len: self.len,
@@ -204,7 +205,7 @@ impl<'a> From<&'a [u8]> for Bytes<'a> {
             retain: Some(noop),
         };
         Bytes {
-            start: unsafe { &*data.as_ptr() },
+            start: core::ptr::NonNull::from(data).cast(),
             len: data.len(),
             data: data.as_ptr().cast(),
             capacity: data.len(),
@@ -215,21 +216,17 @@ impl<'a> From<&'a [u8]> for Bytes<'a> {
 #[cfg(feature = "alloc")]
 impl From<Arc<[u8]>> for Bytes<'static> {
     fn from(data: Arc<[u8]>) -> Self {
-        extern "C" fn retain(this: *const (), capacity: usize) {
-            unsafe {
-                Arc::increment_strong_count(core::ptr::slice_from_raw_parts(
-                    this.cast::<u8>(),
-                    capacity,
-                ))
-            }
+        unsafe extern "C" fn retain(this: *const (), capacity: usize) {
+            Arc::increment_strong_count(core::ptr::slice_from_raw_parts(
+                this.cast::<u8>(),
+                capacity,
+            ))
         }
-        extern "C" fn release(this: *const (), capacity: usize) {
-            unsafe {
-                Arc::decrement_strong_count(core::ptr::slice_from_raw_parts(
-                    this.cast::<u8>(),
-                    capacity,
-                ))
-            }
+        unsafe extern "C" fn release(this: *const (), capacity: usize) {
+            Arc::decrement_strong_count(core::ptr::slice_from_raw_parts(
+                this.cast::<u8>(),
+                capacity,
+            ))
         }
         static VT: BytesVt = BytesVt {
             release: Some(release),
@@ -237,7 +234,7 @@ impl From<Arc<[u8]>> for Bytes<'static> {
         };
         let capacity = data.len();
         Bytes {
-            start: unsafe { &*data.as_ptr() },
+            start: core::ptr::NonNull::<[u8]>::from(data.as_ref()).cast(),
             len: data.len(),
             data: Arc::into_raw(data) as *const (),
             capacity,
@@ -246,17 +243,17 @@ impl From<Arc<[u8]>> for Bytes<'static> {
     }
 }
 #[cfg(feature = "alloc")]
-impl<T: Sized + AsRef<[u8]> + Send + Sync> From<Arc<T>> for Bytes<'static> {
+impl<'a, T: Sized + AsRef<[u8]> + Send + Sync + 'a> From<Arc<T>> for Bytes<'a> {
     fn from(value: Arc<T>) -> Self {
-        extern "C" fn retain<T: Sized>(this: *const (), _: usize) {
+        unsafe extern "C" fn retain<T: Sized>(this: *const (), _: usize) {
             unsafe { Arc::increment_strong_count(this.cast::<T>()) }
         }
-        extern "C" fn release<T: Sized>(this: *const (), _: usize) {
+        unsafe extern "C" fn release<T: Sized>(this: *const (), _: usize) {
             unsafe { Arc::decrement_strong_count(this.cast::<T>()) }
         }
         let data: &[u8] = value.as_ref().as_ref();
         Bytes {
-            start: unsafe { &*data.as_ptr() },
+            start: core::ptr::NonNull::<[u8]>::from(data.as_ref()).cast(),
             len: data.len(),
             capacity: data.len(),
             data: Arc::into_raw(value) as *const (),
@@ -267,15 +264,27 @@ impl<T: Sized + AsRef<[u8]> + Send + Sync> From<Arc<T>> for Bytes<'static> {
         }
     }
 }
-unsafe impl Send for Bytes<'_> {}
-unsafe impl Sync for Bytes<'_> {}
+unsafe impl<'a> Send for Bytes<'a>
+where
+    &'a [u8]: Send,
+    Arc<[u8]>: Send,
+    Arc<dyn 'a + AsRef<[u8]> + Send + Sync>: Send,
+{
+}
+unsafe impl<'a> Sync for Bytes<'a>
+where
+    &'a [u8]: Send,
+    Arc<[u8]>: Send,
+    Arc<dyn 'a + AsRef<[u8]> + Send + Sync>: Send,
+{
+}
 
 #[derive_ReprC]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct BytesVt {
-    retain: Option<extern "C" fn(*const (), usize)>,
-    release: Option<extern "C" fn(*const (), usize)>,
+    retain: Option<unsafe extern "C" fn(*const (), usize)>,
+    release: Option<unsafe extern "C" fn(*const (), usize)>,
 }
 impl BytesVt {
     const fn is_borrowed(&self) -> bool {
@@ -292,8 +301,8 @@ impl Clone for Bytes<'_> {
 }
 impl Drop for Bytes<'_> {
     fn drop(&mut self) {
-        if let Some(release) = &self.vtable.release {
-            release(self.data, self.capacity)
+        if let Some(release) = self.vtable.release {
+            unsafe { release(self.data, self.capacity) }
         }
     }
 }
