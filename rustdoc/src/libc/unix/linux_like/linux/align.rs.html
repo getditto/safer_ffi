@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/libc-0.2.140/src/unix/linux_like/linux/align.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>align.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../../normalize.css"><link rel="stylesheet" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../../dark.css" disabled><link rel="stylesheet" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../../libc/index.html"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/libc-0.2.155/src/unix/linux_like/linux/align.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>align.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../../normalize.css"><link rel="stylesheet" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../../dark.css" disabled><link rel="stylesheet" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../../libc/index.html"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -179,6 +179,30 @@
 <span id="179">179</span>
 <span id="180">180</span>
 <span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
 </pre><pre class="rust"><code><span class="macro">macro_rules! </span>expand_align {
     () =&gt; {
         <span class="macro">s! </span>{
@@ -186,6 +210,7 @@
                            target_arch = <span class="string">&quot;x86_64&quot;</span>,
                            target_arch = <span class="string">&quot;powerpc64&quot;</span>,
                            target_arch = <span class="string">&quot;mips64&quot;</span>,
+                           target_arch = <span class="string">&quot;mips64r6&quot;</span>,
                            target_arch = <span class="string">&quot;s390x&quot;</span>,
                            target_arch = <span class="string">&quot;sparc64&quot;</span>,
                            target_arch = <span class="string">&quot;aarch64&quot;</span>,
@@ -197,6 +222,7 @@
                                target_arch = <span class="string">&quot;x86_64&quot;</span>,
                                target_arch = <span class="string">&quot;powerpc64&quot;</span>,
                                target_arch = <span class="string">&quot;mips64&quot;</span>,
+                               target_arch = <span class="string">&quot;mips64r6&quot;</span>,
                                target_arch = <span class="string">&quot;s390x&quot;</span>,
                                target_arch = <span class="string">&quot;sparc64&quot;</span>,
                                target_arch = <span class="string">&quot;aarch64&quot;</span>,
@@ -264,9 +290,11 @@
 
             <span class="attribute">#[cfg_attr(all(target_pointer_width = <span class="string">&quot;32&quot;</span>,
                            any(target_arch = <span class="string">&quot;mips&quot;</span>,
+                               target_arch = <span class="string">&quot;mips32r6&quot;</span>,
                                target_arch = <span class="string">&quot;arm&quot;</span>,
                                target_arch = <span class="string">&quot;hexagon&quot;</span>,
                                target_arch = <span class="string">&quot;m68k&quot;</span>,
+                               target_arch = <span class="string">&quot;csky&quot;</span>,
                                target_arch = <span class="string">&quot;powerpc&quot;</span>,
                                target_arch = <span class="string">&quot;sparc&quot;</span>,
                                target_arch = <span class="string">&quot;x86_64&quot;</span>,
@@ -274,9 +302,11 @@
                        repr(align(<span class="number">4</span>)))]
             #[cfg_attr(any(target_pointer_width = <span class="string">&quot;64&quot;</span>,
                            not(any(target_arch = <span class="string">&quot;mips&quot;</span>,
+                                   target_arch = <span class="string">&quot;mips32r6&quot;</span>,
                                    target_arch = <span class="string">&quot;arm&quot;</span>,
                                    target_arch = <span class="string">&quot;hexagon&quot;</span>,
                                    target_arch = <span class="string">&quot;m68k&quot;</span>,
+                                   target_arch = <span class="string">&quot;csky&quot;</span>,
                                    target_arch = <span class="string">&quot;powerpc&quot;</span>,
                                    target_arch = <span class="string">&quot;sparc&quot;</span>,
                                    target_arch = <span class="string">&quot;x86_64&quot;</span>,
@@ -289,9 +319,11 @@
 
             <span class="attribute">#[cfg_attr(all(target_pointer_width = <span class="string">&quot;32&quot;</span>,
                            any(target_arch = <span class="string">&quot;mips&quot;</span>,
+                               target_arch = <span class="string">&quot;mips32r6&quot;</span>,
                                target_arch = <span class="string">&quot;arm&quot;</span>,
                                target_arch = <span class="string">&quot;hexagon&quot;</span>,
                                target_arch = <span class="string">&quot;m68k&quot;</span>,
+                               target_arch = <span class="string">&quot;csky&quot;</span>,
                                target_arch = <span class="string">&quot;powerpc&quot;</span>,
                                target_arch = <span class="string">&quot;sparc&quot;</span>,
                                target_arch = <span class="string">&quot;x86_64&quot;</span>,
@@ -299,6 +331,7 @@
                        repr(align(<span class="number">4</span>)))]
             #[cfg_attr(any(target_pointer_width = <span class="string">&quot;64&quot;</span>,
                            not(any(target_arch = <span class="string">&quot;mips&quot;</span>,
+                                   target_arch = <span class="string">&quot;mips32r6&quot;</span>,
                                    target_arch = <span class="string">&quot;arm&quot;</span>,
                                    target_arch = <span class="string">&quot;hexagon&quot;</span>,
                                    target_arch = <span class="string">&quot;m68k&quot;</span>,
@@ -313,9 +346,11 @@
 
             <span class="attribute">#[cfg_attr(all(target_pointer_width = <span class="string">&quot;32&quot;</span>,
                            any(target_arch = <span class="string">&quot;mips&quot;</span>,
+                               target_arch = <span class="string">&quot;mips32r6&quot;</span>,
                                target_arch = <span class="string">&quot;arm&quot;</span>,
                                target_arch = <span class="string">&quot;hexagon&quot;</span>,
                                target_arch = <span class="string">&quot;m68k&quot;</span>,
+                               target_arch = <span class="string">&quot;csky&quot;</span>,
                                target_arch = <span class="string">&quot;powerpc&quot;</span>,
                                target_arch = <span class="string">&quot;sparc&quot;</span>,
                                target_arch = <span class="string">&quot;x86_64&quot;</span>,
@@ -323,9 +358,11 @@
                        repr(align(<span class="number">4</span>)))]
             #[cfg_attr(any(target_pointer_width = <span class="string">&quot;64&quot;</span>,
                            not(any(target_arch = <span class="string">&quot;mips&quot;</span>,
+                                   target_arch = <span class="string">&quot;mips32r6&quot;</span>,
                                    target_arch = <span class="string">&quot;arm&quot;</span>,
                                    target_arch = <span class="string">&quot;hexagon&quot;</span>,
                                    target_arch = <span class="string">&quot;m68k&quot;</span>,
+                                   target_arch = <span class="string">&quot;csky&quot;</span>,
                                    target_arch = <span class="string">&quot;powerpc&quot;</span>,
                                    target_arch = <span class="string">&quot;sparc&quot;</span>,
                                    target_arch = <span class="string">&quot;x86_64&quot;</span>,
@@ -356,6 +393,17 @@
                 __res0: u8,
                 __res1: u8,
                 <span class="kw">pub </span>data: [u8; CANFD_MAX_DLEN],
+            }
+
+            <span class="attribute">#[repr(align(<span class="number">8</span>))]
+            #[allow(missing_debug_implementations)]
+            </span><span class="kw">pub struct </span>canxl_frame {
+                <span class="kw">pub </span>prio: canid_t,
+                <span class="kw">pub </span>flags: u8,
+                <span class="kw">pub </span>sdt: u8,
+                <span class="kw">pub </span>len: u16,
+                <span class="kw">pub </span>af: u32,
+                <span class="kw">pub </span>data: [u8; CANXL_MAX_DLEN],
             }
         }
     };

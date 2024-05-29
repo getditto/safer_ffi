@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"safer_ffi":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.66.1/core/borrow/trait.Borrow.html\" title=\"trait core::borrow::Borrow\">Borrow</a>&lt;[<a class=\"primitive\" href=\"https://doc.rust-lang.org/1.66.1/std/primitive.u8.html\">u8</a>]&gt; for <a class=\"struct\" href=\"safer_ffi/bytes/struct.Bytes.html\" title=\"struct safer_ffi::bytes::Bytes\">Bytes</a>&lt;'_&gt;"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

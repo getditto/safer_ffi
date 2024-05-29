@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/libc-0.2.140/src/unix/linux_like/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../libc/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/libc-0.2.155/src/unix/linux_like/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../libc/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1857,6 +1857,61 @@
 <span id="1857">1857</span>
 <span id="1858">1858</span>
 <span id="1859">1859</span>
+<span id="1860">1860</span>
+<span id="1861">1861</span>
+<span id="1862">1862</span>
+<span id="1863">1863</span>
+<span id="1864">1864</span>
+<span id="1865">1865</span>
+<span id="1866">1866</span>
+<span id="1867">1867</span>
+<span id="1868">1868</span>
+<span id="1869">1869</span>
+<span id="1870">1870</span>
+<span id="1871">1871</span>
+<span id="1872">1872</span>
+<span id="1873">1873</span>
+<span id="1874">1874</span>
+<span id="1875">1875</span>
+<span id="1876">1876</span>
+<span id="1877">1877</span>
+<span id="1878">1878</span>
+<span id="1879">1879</span>
+<span id="1880">1880</span>
+<span id="1881">1881</span>
+<span id="1882">1882</span>
+<span id="1883">1883</span>
+<span id="1884">1884</span>
+<span id="1885">1885</span>
+<span id="1886">1886</span>
+<span id="1887">1887</span>
+<span id="1888">1888</span>
+<span id="1889">1889</span>
+<span id="1890">1890</span>
+<span id="1891">1891</span>
+<span id="1892">1892</span>
+<span id="1893">1893</span>
+<span id="1894">1894</span>
+<span id="1895">1895</span>
+<span id="1896">1896</span>
+<span id="1897">1897</span>
+<span id="1898">1898</span>
+<span id="1899">1899</span>
+<span id="1900">1900</span>
+<span id="1901">1901</span>
+<span id="1902">1902</span>
+<span id="1903">1903</span>
+<span id="1904">1904</span>
+<span id="1905">1905</span>
+<span id="1906">1906</span>
+<span id="1907">1907</span>
+<span id="1908">1908</span>
+<span id="1909">1909</span>
+<span id="1910">1910</span>
+<span id="1911">1911</span>
+<span id="1912">1912</span>
+<span id="1913">1913</span>
+<span id="1914">1914</span>
 </pre><pre class="rust"><code><span class="kw">pub type </span>sa_family_t = u16;
 <span class="kw">pub type </span>speed_t = ::c_uint;
 <span class="kw">pub type </span>tcflag_t = ::c_uint;
@@ -1865,13 +1920,9 @@
 <span class="kw">pub type </span>key_t = ::c_int;
 <span class="kw">pub type </span>id_t = ::c_uint;
 
-<span class="attribute">#[cfg_attr(feature = <span class="string">&quot;extra_traits&quot;</span>, derive(Debug))]
-</span><span class="kw">pub enum </span>timezone {}
-<span class="kw">impl </span>::Copy <span class="kw">for </span>timezone {}
-<span class="kw">impl </span>::Clone <span class="kw">for </span>timezone {
-    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; timezone {
-        <span class="kw-2">*</span><span class="self">self
-    </span>}
+<span class="macro">missing! </span>{
+    <span class="attribute">#[cfg_attr(feature = <span class="string">&quot;extra_traits&quot;</span>, derive(Debug))]
+    </span><span class="kw">pub enum </span>timezone {}
 }
 
 <span class="macro">s! </span>{
@@ -2416,6 +2467,14 @@
 <span class="kw">pub const </span>XATTR_REPLACE: ::c_int = <span class="number">0x2</span>;
 
 <span class="macro">cfg_if! </span>{
+    <span class="kw">if </span><span class="attribute">#[cfg(target_os = <span class="string">&quot;android&quot;</span>)] </span>{
+        <span class="kw">pub const </span>RLIM64_INFINITY: ::c_ulonglong = !<span class="number">0</span>;
+    } <span class="kw">else </span>{
+        <span class="kw">pub const </span>RLIM64_INFINITY: ::rlim64_t = !<span class="number">0</span>;
+    }
+}
+
+<span class="macro">cfg_if! </span>{
     <span class="kw">if </span><span class="attribute">#[cfg(target_env = <span class="string">&quot;ohos&quot;</span>)] </span>{
         <span class="kw">pub const </span>LC_CTYPE: ::c_int = <span class="number">0</span>;
         <span class="kw">pub const </span>LC_NUMERIC: ::c_int = <span class="number">1</span>;
@@ -2513,7 +2572,18 @@
 <span class="kw">pub const </span>MADV_NOHUGEPAGE: ::c_int = <span class="number">15</span>;
 <span class="kw">pub const </span>MADV_DONTDUMP: ::c_int = <span class="number">16</span>;
 <span class="kw">pub const </span>MADV_DODUMP: ::c_int = <span class="number">17</span>;
+<span class="kw">pub const </span>MADV_WIPEONFORK: ::c_int = <span class="number">18</span>;
+<span class="kw">pub const </span>MADV_KEEPONFORK: ::c_int = <span class="number">19</span>;
+<span class="kw">pub const </span>MADV_COLD: ::c_int = <span class="number">20</span>;
+<span class="kw">pub const </span>MADV_PAGEOUT: ::c_int = <span class="number">21</span>;
 <span class="kw">pub const </span>MADV_HWPOISON: ::c_int = <span class="number">100</span>;
+<span class="macro">cfg_if! </span>{
+    <span class="kw">if </span><span class="attribute">#[cfg(not(target_os = <span class="string">&quot;emscripten&quot;</span>))] </span>{
+        <span class="kw">pub const </span>MADV_POPULATE_READ: ::c_int = <span class="number">22</span>;
+        <span class="kw">pub const </span>MADV_POPULATE_WRITE: ::c_int = <span class="number">23</span>;
+        <span class="kw">pub const </span>MADV_DONTNEED_LOCKED: ::c_int = <span class="number">24</span>;
+    }
+}
 
 <span class="kw">pub const </span>IFF_UP: ::c_int = <span class="number">0x1</span>;
 <span class="kw">pub const </span>IFF_BROADCAST: ::c_int = <span class="number">0x2</span>;
@@ -2756,6 +2826,10 @@
 </span><span class="kw">pub const </span>IPPROTO_RAW: ::c_int = <span class="number">255</span>;
 <span class="kw">pub const </span>IPPROTO_BEETPH: ::c_int = <span class="number">94</span>;
 <span class="kw">pub const </span>IPPROTO_MPLS: ::c_int = <span class="number">137</span>;
+<span class="doccomment">/// Multipath TCP
+</span><span class="kw">pub const </span>IPPROTO_MPTCP: ::c_int = <span class="number">262</span>;
+<span class="doccomment">/// Ethernet-within-IPv6 encapsulation.
+</span><span class="kw">pub const </span>IPPROTO_ETHERNET: ::c_int = <span class="number">143</span>;
 
 <span class="kw">pub const </span>MCAST_EXCLUDE: ::c_int = <span class="number">0</span>;
 <span class="kw">pub const </span>MCAST_INCLUDE: ::c_int = <span class="number">1</span>;
@@ -3395,7 +3469,7 @@
             <span class="kw">as </span>::c_uint
     }
 
-    <span class="kw">pub fn </span>CMSG_LEN(length: ::c_uint) -&gt; ::c_uint {
+    <span class="kw">pub </span>{<span class="kw">const</span>} <span class="kw">fn </span>CMSG_LEN(length: ::c_uint) -&gt; ::c_uint {
         CMSG_ALIGN(::mem::size_of::&lt;cmsghdr&gt;()) <span class="kw">as </span>::c_uint + length
     }
 
@@ -3532,20 +3606,9 @@
     <span class="kw">pub fn </span>setgroups(ngroups: ::size_t, ptr: <span class="kw-2">*const </span>::gid_t) -&gt; ::c_int;
     <span class="kw">pub fn </span>pipe2(fds: <span class="kw-2">*mut </span>::c_int, flags: ::c_int) -&gt; ::c_int;
     <span class="kw">pub fn </span>statfs(path: <span class="kw-2">*const </span>::c_char, buf: <span class="kw-2">*mut </span>statfs) -&gt; ::c_int;
-    <span class="kw">pub fn </span>statfs64(path: <span class="kw-2">*const </span>::c_char, buf: <span class="kw-2">*mut </span>statfs64) -&gt; ::c_int;
     <span class="kw">pub fn </span>fstatfs(fd: ::c_int, buf: <span class="kw-2">*mut </span>statfs) -&gt; ::c_int;
-    <span class="kw">pub fn </span>fstatfs64(fd: ::c_int, buf: <span class="kw-2">*mut </span>statfs64) -&gt; ::c_int;
-    <span class="kw">pub fn </span>statvfs64(path: <span class="kw-2">*const </span>::c_char, buf: <span class="kw-2">*mut </span>statvfs64) -&gt; ::c_int;
-    <span class="kw">pub fn </span>fstatvfs64(fd: ::c_int, buf: <span class="kw-2">*mut </span>statvfs64) -&gt; ::c_int;
     <span class="kw">pub fn </span>memrchr(cx: <span class="kw-2">*const </span>::c_void, c: ::c_int, n: ::size_t) -&gt; <span class="kw-2">*mut </span>::c_void;
-
     <span class="kw">pub fn </span>posix_fadvise(fd: ::c_int, offset: ::off_t, len: ::off_t, advise: ::c_int) -&gt; ::c_int;
-    <span class="kw">pub fn </span>posix_fadvise64(
-        fd: ::c_int,
-        offset: ::off64_t,
-        len: ::off64_t,
-        advise: ::c_int,
-    ) -&gt; ::c_int;
     <span class="kw">pub fn </span>futimens(fd: ::c_int, times: <span class="kw-2">*const </span>::timespec) -&gt; ::c_int;
     <span class="kw">pub fn </span>utimensat(
         dirfd: ::c_int,
@@ -3557,43 +3620,6 @@
     <span class="kw">pub fn </span>freelocale(loc: ::locale_t);
     <span class="kw">pub fn </span>newlocale(mask: ::c_int, locale: <span class="kw-2">*const </span>::c_char, base: ::locale_t) -&gt; ::locale_t;
     <span class="kw">pub fn </span>uselocale(loc: ::locale_t) -&gt; ::locale_t;
-    <span class="kw">pub fn </span>creat64(path: <span class="kw-2">*const </span>c_char, mode: mode_t) -&gt; ::c_int;
-    <span class="kw">pub fn </span>fstat64(fildes: ::c_int, buf: <span class="kw-2">*mut </span>stat64) -&gt; ::c_int;
-    <span class="kw">pub fn </span>fstatat64(
-        dirfd: ::c_int,
-        pathname: <span class="kw-2">*const </span>c_char,
-        buf: <span class="kw-2">*mut </span>stat64,
-        flags: ::c_int,
-    ) -&gt; ::c_int;
-    <span class="kw">pub fn </span>ftruncate64(fd: ::c_int, length: off64_t) -&gt; ::c_int;
-    <span class="kw">pub fn </span>lseek64(fd: ::c_int, offset: off64_t, whence: ::c_int) -&gt; off64_t;
-    <span class="kw">pub fn </span>lstat64(path: <span class="kw-2">*const </span>c_char, buf: <span class="kw-2">*mut </span>stat64) -&gt; ::c_int;
-    <span class="kw">pub fn </span>mmap64(
-        addr: <span class="kw-2">*mut </span>::c_void,
-        len: ::size_t,
-        prot: ::c_int,
-        flags: ::c_int,
-        fd: ::c_int,
-        offset: off64_t,
-    ) -&gt; <span class="kw-2">*mut </span>::c_void;
-    <span class="kw">pub fn </span>open64(path: <span class="kw-2">*const </span>c_char, oflag: ::c_int, ...) -&gt; ::c_int;
-    <span class="kw">pub fn </span>openat64(fd: ::c_int, path: <span class="kw-2">*const </span>c_char, oflag: ::c_int, ...) -&gt; ::c_int;
-    <span class="kw">pub fn </span>pread64(fd: ::c_int, buf: <span class="kw-2">*mut </span>::c_void, count: ::size_t, offset: off64_t) -&gt; ::ssize_t;
-    <span class="kw">pub fn </span>pwrite64(
-        fd: ::c_int,
-        buf: <span class="kw-2">*const </span>::c_void,
-        count: ::size_t,
-        offset: off64_t,
-    ) -&gt; ::ssize_t;
-    <span class="kw">pub fn </span>readdir64(dirp: <span class="kw-2">*mut </span>::DIR) -&gt; <span class="kw-2">*mut </span>::dirent64;
-    <span class="kw">pub fn </span>readdir64_r(
-        dirp: <span class="kw-2">*mut </span>::DIR,
-        entry: <span class="kw-2">*mut </span>::dirent64,
-        result: <span class="kw-2">*mut *mut </span>::dirent64,
-    ) -&gt; ::c_int;
-    <span class="kw">pub fn </span>stat64(path: <span class="kw-2">*const </span>c_char, buf: <span class="kw-2">*mut </span>stat64) -&gt; ::c_int;
-    <span class="kw">pub fn </span>truncate64(path: <span class="kw-2">*const </span>c_char, length: off64_t) -&gt; ::c_int;
-
     <span class="kw">pub fn </span>mknodat(
         dirfd: ::c_int,
         pathname: <span class="kw-2">*const </span>::c_char,
@@ -3663,10 +3689,87 @@
     <span class="kw">pub fn </span>uname(buf: <span class="kw-2">*mut </span>::utsname) -&gt; ::c_int;
 
     <span class="kw">pub fn </span>strchrnul(s: <span class="kw-2">*const </span>::c_char, c: ::c_int) -&gt; <span class="kw-2">*mut </span>::c_char;
+
+    <span class="kw">pub fn </span>strftime(
+        s: <span class="kw-2">*mut </span>::c_char,
+        max: ::size_t,
+        format: <span class="kw-2">*const </span>::c_char,
+        tm: <span class="kw-2">*const </span>::tm,
+    ) -&gt; ::size_t;
+    <span class="kw">pub fn </span>strftime_l(
+        s: <span class="kw-2">*mut </span>::c_char,
+        max: ::size_t,
+        format: <span class="kw-2">*const </span>::c_char,
+        tm: <span class="kw-2">*const </span>::tm,
+        locale: ::locale_t,
+    ) -&gt; ::size_t;
+    <span class="kw">pub fn </span>strptime(s: <span class="kw-2">*const </span>::c_char, format: <span class="kw-2">*const </span>::c_char, tm: <span class="kw-2">*mut </span>::tm) -&gt; <span class="kw-2">*mut </span>::c_char;
+}
+
+<span class="comment">// LFS64 extensions
+//
+// * musl and Emscripten has 64-bit versions only so aliases the LFS64 symbols to the standard ones
+// * ulibc doesn&#39;t have preadv64/pwritev64
+</span><span class="macro">cfg_if! </span>{
+    <span class="kw">if </span><span class="attribute">#[cfg(not(any(target_env = <span class="string">&quot;musl&quot;</span>, target_os = <span class="string">&quot;emscripten&quot;</span>)))] </span>{
+        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+            <span class="kw">pub fn </span>fstatfs64(fd: ::c_int, buf: <span class="kw-2">*mut </span>statfs64) -&gt; ::c_int;
+            <span class="kw">pub fn </span>statvfs64(path: <span class="kw-2">*const </span>::c_char, buf: <span class="kw-2">*mut </span>statvfs64) -&gt; ::c_int;
+            <span class="kw">pub fn </span>fstatvfs64(fd: ::c_int, buf: <span class="kw-2">*mut </span>statvfs64) -&gt; ::c_int;
+            <span class="kw">pub fn </span>statfs64(path: <span class="kw-2">*const </span>::c_char, buf: <span class="kw-2">*mut </span>statfs64) -&gt; ::c_int;
+            <span class="kw">pub fn </span>creat64(path: <span class="kw-2">*const </span>c_char, mode: mode_t) -&gt; ::c_int;
+            <span class="kw">pub fn </span>fstat64(fildes: ::c_int, buf: <span class="kw-2">*mut </span>stat64) -&gt; ::c_int;
+            <span class="kw">pub fn </span>fstatat64(
+                dirfd: ::c_int,
+                pathname: <span class="kw-2">*const </span>c_char,
+                buf: <span class="kw-2">*mut </span>stat64,
+                flags: ::c_int,
+            ) -&gt; ::c_int;
+            <span class="kw">pub fn </span>ftruncate64(fd: ::c_int, length: off64_t) -&gt; ::c_int;
+            <span class="kw">pub fn </span>lseek64(fd: ::c_int, offset: off64_t, whence: ::c_int) -&gt; off64_t;
+            <span class="kw">pub fn </span>lstat64(path: <span class="kw-2">*const </span>c_char, buf: <span class="kw-2">*mut </span>stat64) -&gt; ::c_int;
+            <span class="kw">pub fn </span>mmap64(
+                addr: <span class="kw-2">*mut </span>::c_void,
+                len: ::size_t,
+                prot: ::c_int,
+                flags: ::c_int,
+                fd: ::c_int,
+                offset: off64_t,
+            ) -&gt; <span class="kw-2">*mut </span>::c_void;
+            <span class="kw">pub fn </span>open64(path: <span class="kw-2">*const </span>c_char, oflag: ::c_int, ...) -&gt; ::c_int;
+            <span class="kw">pub fn </span>openat64(fd: ::c_int, path: <span class="kw-2">*const </span>c_char, oflag: ::c_int, ...) -&gt; ::c_int;
+            <span class="kw">pub fn </span>posix_fadvise64(
+                fd: ::c_int,
+                offset: ::off64_t,
+                len: ::off64_t,
+                advise: ::c_int,
+            ) -&gt; ::c_int;
+            <span class="kw">pub fn </span>pread64(
+                fd: ::c_int,
+                buf: <span class="kw-2">*mut </span>::c_void,
+                count: ::size_t,
+                offset: off64_t
+            ) -&gt; ::ssize_t;
+            <span class="kw">pub fn </span>pwrite64(
+                fd: ::c_int,
+                buf: <span class="kw-2">*const </span>::c_void,
+                count: ::size_t,
+                offset: off64_t,
+            ) -&gt; ::ssize_t;
+            <span class="kw">pub fn </span>readdir64(dirp: <span class="kw-2">*mut </span>::DIR) -&gt; <span class="kw-2">*mut </span>::dirent64;
+            <span class="kw">pub fn </span>readdir64_r(
+                dirp: <span class="kw-2">*mut </span>::DIR,
+                entry: <span class="kw-2">*mut </span>::dirent64,
+                result: <span class="kw-2">*mut *mut </span>::dirent64,
+            ) -&gt; ::c_int;
+            <span class="kw">pub fn </span>stat64(path: <span class="kw-2">*const </span>c_char, buf: <span class="kw-2">*mut </span>stat64) -&gt; ::c_int;
+            <span class="kw">pub fn </span>truncate64(path: <span class="kw-2">*const </span>c_char, length: off64_t) -&gt; ::c_int;
+        }
+    }
 }
 
 <span class="macro">cfg_if! </span>{
-    <span class="kw">if </span><span class="attribute">#[cfg(not(target_env = <span class="string">&quot;uclibc&quot;</span>))] </span>{
+    <span class="kw">if </span><span class="attribute">#[cfg(not(any(target_env = <span class="string">&quot;uclibc&quot;</span>, target_env = <span class="string">&quot;musl&quot;</span>, target_os = <span class="string">&quot;emscripten&quot;</span>)))] </span>{
         <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
             <span class="kw">pub fn </span>preadv64(
                 fd: ::c_int,
@@ -3680,6 +3783,13 @@
                 iovcnt: ::c_int,
                 offset: ::off64_t,
             ) -&gt; ::ssize_t;
+        }
+    }
+}
+
+<span class="macro">cfg_if! </span>{
+    <span class="kw">if </span><span class="attribute">#[cfg(not(target_env = <span class="string">&quot;uclibc&quot;</span>))] </span>{
+        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
             <span class="comment">// uclibc has separate non-const version of this function
             </span><span class="kw">pub fn </span>forkpty(
                 amaster: <span class="kw-2">*mut </span>::c_int,
