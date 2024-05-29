@@ -334,6 +334,48 @@
 <span id="334">334</span>
 <span id="335">335</span>
 <span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
 </pre><pre class="rust"><code><span class="kw">use </span>core::{
     borrow::Borrow,
     fmt::Debug,
@@ -534,6 +576,16 @@
     }
 }
 <span class="kw">impl </span>Eq <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;_</span>&gt; {}
+<span class="kw">impl</span>&lt;T: AsRef&lt;[u8]&gt;&gt; PartialOrd&lt;T&gt; <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Option</span>&lt;core::cmp::Ordering&gt; {
+        <span class="self">self</span>.as_slice().partial_cmp(other.as_ref())
+    }
+}
+<span class="kw">impl </span>Ord <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; core::cmp::Ordering {
+        <span class="self">self</span>.as_slice().cmp(other)
+    }
+}
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>from(data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="self">Self </span>{
         <span class="kw">static </span>VT: BytesVt = BytesVt {
@@ -601,19 +653,51 @@
     }
 }
 <span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;alloc::boxed::Box&lt;[u8]&gt;&gt; <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>from(value: alloc::boxed::Box&lt;[u8]&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>release_box_bytes(this: <span class="kw-2">*const </span>(), capacity: usize) {
+            core::mem::drop(alloc::boxed::Box::from_raw(
+                core::ptr::slice_from_raw_parts_mut(this.cast::&lt;u8&gt;().cast_mut(), capacity),
+            ))
+        }
+        <span class="kw">let </span>bytes: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;*</span>value;
+        <span class="kw">let </span>len = bytes.len();
+        <span class="kw">let </span>start = core::ptr::NonNull::&lt;[u8]&gt;::from(bytes).cast();
+        <span class="kw">let </span>data = alloc::boxed::Box::into_raw(value).cast::&lt;()&gt;();
+        Bytes {
+            start,
+            len,
+            capacity: len,
+            data,
+            vtable: <span class="kw-2">&amp;</span>BytesVt {
+                release: <span class="prelude-val">Some</span>(release_box_bytes),
+                retain: <span class="prelude-val">None</span>,
+            },
+        }
+    }
+}
+<span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;alloc::vec::Vec&lt;u8&gt;&gt; <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>from(value: alloc::vec::Vec&lt;u8&gt;) -&gt; <span class="self">Self </span>{
+        alloc::boxed::Box::&lt;[u8]&gt;::from(value).into()
+    }
+}
+<span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Send <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt;
 <span class="kw">where
     </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]: Send,
     Arc&lt;[u8]&gt;: Send,
+    alloc::boxed::Box&lt;[u8]&gt;: Send,
     Arc&lt;<span class="kw">dyn </span><span class="lifetime">&#39;a </span>+ AsRef&lt;[u8]&gt; + Send + Sync&gt;: Send,
 {
 }
 <span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Sync <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt;
 <span class="kw">where
-    </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]: Send,
-    Arc&lt;[u8]&gt;: Send,
-    Arc&lt;<span class="kw">dyn </span><span class="lifetime">&#39;a </span>+ AsRef&lt;[u8]&gt; + Send + Sync&gt;: Send,
+    </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]: Sync,
+    Arc&lt;[u8]&gt;: Sync,
+    alloc::boxed::Box&lt;[u8]&gt;: Sync,
+    Arc&lt;<span class="kw">dyn </span><span class="lifetime">&#39;a </span>+ AsRef&lt;[u8]&gt; + Send + Sync&gt;: Sync,
 {
 }
 
