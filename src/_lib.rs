@@ -261,6 +261,9 @@ cfg_alloc! {
     mod boxed;
 }
 
+pub
+mod bytes;
+
 #[doc(inline)]
 pub use self::c_char_module::c_char;
 #[path = "c_char.rs"]
@@ -291,6 +294,9 @@ pub
 mod libc;
 
 pub
+mod option;
+
+pub
 mod ptr;
 
 pub
@@ -306,9 +312,6 @@ use tuple::*;
 
 pub
 mod tuple;
-
-pub
-mod option;
 
 cfg_alloc! {
     #[doc(inline)]
