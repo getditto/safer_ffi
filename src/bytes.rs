@@ -198,6 +198,16 @@ impl<T: AsRef<[u8]>> PartialEq<T> for Bytes<'_> {
     }
 }
 impl Eq for Bytes<'_> {}
+impl<T: AsRef<[u8]>> PartialOrd<T> for Bytes<'_> {
+    fn partial_cmp(&self, other: &T) -> Option<core::cmp::Ordering> {
+        self.as_slice().partial_cmp(other.as_ref())
+    }
+}
+impl Ord for Bytes<'_> {
+    fn cmp(&self, other: &Self) -> core::cmp::Ordering {
+        self.as_slice().cmp(other)
+    }
+}
 impl<'a> From<&'a [u8]> for Bytes<'a> {
     fn from(data: &'a [u8]) -> Self {
         static VT: BytesVt = BytesVt {
@@ -265,19 +275,51 @@ impl<'a, T: Sized + AsRef<[u8]> + Send + Sync + 'a> From<Arc<T>> for Bytes<'a> {
     }
 }
 #[cfg(feature = "alloc")]
+impl From<alloc::boxed::Box<[u8]>> for Bytes<'_> {
+    fn from(value: alloc::boxed::Box<[u8]>) -> Self {
+        unsafe extern "C" fn release_box_bytes(this: *const (), capacity: usize) {
+            core::mem::drop(alloc::boxed::Box::from_raw(
+                core::ptr::slice_from_raw_parts_mut(this.cast::<u8>().cast_mut(), capacity),
+            ))
+        }
+        let bytes: &[u8] = &*value;
+        let len = bytes.len();
+        let start = core::ptr::NonNull::<[u8]>::from(bytes).cast();
+        let data = alloc::boxed::Box::into_raw(value).cast::<()>();
+        Bytes {
+            start,
+            len,
+            capacity: len,
+            data,
+            vtable: &BytesVt {
+                release: Some(release_box_bytes),
+                retain: None,
+            },
+        }
+    }
+}
+#[cfg(feature = "alloc")]
+impl From<alloc::vec::Vec<u8>> for Bytes<'_> {
+    fn from(value: alloc::vec::Vec<u8>) -> Self {
+        alloc::boxed::Box::<[u8]>::from(value).into()
+    }
+}
+#[cfg(feature = "alloc")]
 unsafe impl<'a> Send for Bytes<'a>
 where
     &'a [u8]: Send,
     Arc<[u8]>: Send,
+    alloc::boxed::Box<[u8]>: Send,
     Arc<dyn 'a + AsRef<[u8]> + Send + Sync>: Send,
 {
 }
 #[cfg(feature = "alloc")]
 unsafe impl<'a> Sync for Bytes<'a>
 where
-    &'a [u8]: Send,
-    Arc<[u8]>: Send,
-    Arc<dyn 'a + AsRef<[u8]> + Send + Sync>: Send,
+    &'a [u8]: Sync,
+    Arc<[u8]>: Sync,
+    alloc::boxed::Box<[u8]>: Sync,
+    Arc<dyn 'a + AsRef<[u8]> + Send + Sync>: Sync,
 {
 }
 
