@@ -113,6 +113,7 @@ impl<'a> Bytes<'a> {
     pub const fn as_slice(&self) -> &[u8] {
         unsafe { core::slice::from_raw_parts(self.start, self.len) }
     }
+    #[cfg(feature = "alloc")]
     /// Proves that the slice can be held onto for arbitrary durations, or copies it into a new one that does.
     pub fn upgrade(self) -> Bytes<'static> {
         if !self.vtable.is_borrowed() {
@@ -132,7 +133,15 @@ impl<'a> Bytes<'a> {
     }
     /// Only calls [`Clone::clone`] if no reallocation would be necessary for it, returning `None` if it would have been.
     pub fn noalloc_clone(&self) -> Option<Self> {
-        self.clone_will_allocate().not().then(|| self.clone())
+        let retain = self.vtable.retain.as_ref()?;
+        retain(self.data, self.capacity);
+        Self {
+            start: self.start,
+            len: self.len,
+            data: self.data,
+            capacity: self.capacity,
+            vtable: self.vtable,
+        }
     }
     /// Returns `true` if a call to [`Self::upgrade`] would cause an allocation.
     pub const fn upgrade_will_allocate(&self) -> bool {
@@ -270,20 +279,10 @@ impl BytesVt {
     }
 }
 
+#[cfg(feature = "alloc")]
 impl Clone for Bytes<'_> {
     fn clone(&self) -> Self {
-        if let Some(retain) = &self.vtable.retain {
-            retain(self.data, self.capacity);
-            Self {
-                start: self.start,
-                len: self.len,
-                data: self.data,
-                capacity: self.capacity,
-                vtable: self.vtable,
-            }
-        } else {
-            Arc::<[u8]>::from(self.as_slice()).into()
-        }
+        self.noalloc_clone().unwrap_or_else(|| Arc::<[u8]>::from(self.as_slice()).into())
     }
 }
 impl Drop for Bytes<'_> {
