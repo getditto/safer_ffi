@@ -264,6 +264,7 @@ impl<'a, T: Sized + AsRef<[u8]> + Send + Sync + 'a> From<Arc<T>> for Bytes<'a> {
         }
     }
 }
+#[cfg(feature = "alloc")]
 unsafe impl<'a> Send for Bytes<'a>
 where
     &'a [u8]: Send,
@@ -271,6 +272,7 @@ where
     Arc<dyn 'a + AsRef<[u8]> + Send + Sync>: Send,
 {
 }
+#[cfg(feature = "alloc")]
 unsafe impl<'a> Sync for Bytes<'a>
 where
     &'a [u8]: Send,
@@ -278,6 +280,11 @@ where
     Arc<dyn 'a + AsRef<[u8]> + Send + Sync>: Send,
 {
 }
+
+#[cfg(not(feature = "alloc"))]
+unsafe impl<'a> Send for Bytes<'a> where &'a [u8]: Send {}
+#[cfg(not(feature = "alloc"))]
+unsafe impl<'a> Sync for Bytes<'a> where &'a [u8]: Send {}
 
 #[derive_ReprC]
 #[repr(C)]
