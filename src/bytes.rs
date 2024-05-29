@@ -2,7 +2,7 @@ use core::{
     borrow::Borrow,
     fmt::Debug,
     hash::Hash,
-    ops::{Deref, Not, RangeBounds},
+    ops::{Deref, RangeBounds},
 };
 
 #[cfg(feature = "alloc")]
@@ -48,8 +48,9 @@ impl<'a> Bytes<'a> {
     }
     /// Slices `self` in-place:
     /// ```
+    /// # use safer_ffi::bytes::Bytes;
     /// let data = b"Hello there".as_slice();
-    /// let bytes = Bytes::from_static(data);
+    /// let mut bytes = Bytes::from_static(data);
     /// bytes.subslice(3..7);
     /// assert_eq!(&data[3..7], bytes.as_slice());
     /// ```
@@ -74,6 +75,7 @@ impl<'a> Bytes<'a> {
     }
     /// Slices `self` in-place, returning it.
     /// ```
+    /// # use safer_ffi::bytes::Bytes;
     /// let data = b"Hello there".as_slice();
     /// let bytes = Bytes::from_static(data);
     /// assert_eq!(&data[3..7], bytes.subsliced(3..7).as_slice());
@@ -87,6 +89,7 @@ impl<'a> Bytes<'a> {
     #[cfg(feature = "alloc")]
     /// Splits the slice at `index`.
     /// ```
+    /// # use safer_ffi::bytes::Bytes;
     /// let data = b"Hello there".as_slice();
     /// let index = 5;
     /// let (l, r) = data.split_at(index);
@@ -283,13 +286,35 @@ impl BytesVt {
 #[cfg(feature = "alloc")]
 impl Clone for Bytes<'_> {
     fn clone(&self) -> Self {
-        self.noalloc_clone().unwrap_or_else(|| Arc::<[u8]>::from(self.as_slice()).into())
+        self.noalloc_clone()
+            .unwrap_or_else(|| Arc::<[u8]>::from(self.as_slice()).into())
     }
 }
 impl Drop for Bytes<'_> {
     fn drop(&mut self) {
         if let Some(release) = &self.vtable.release {
             release(self.data, self.capacity)
+        }
+    }
+}
+
+#[cfg(feature = "alloc")]
+#[test]
+fn fuzz() {
+    use rand::Rng;
+    let mut rng = rand::thread_rng();
+    for _ in 0..1000 {
+        let data = (0..rng.gen_range(10..100))
+            .map(|_| rng.gen())
+            .collect::<Arc<[u8]>>();
+        let bytes: Bytes<'_> = data.clone().into();
+        assert_eq!(bytes.as_slice(), &*data);
+        for _ in 0..100 {
+            let start = rng.gen_range(0..data.len());
+            let end = rng.gen_range(start..=data.len());
+            assert_eq!(bytes.clone().subsliced(start..end), &data[start..end]);
+            let (l, r) = bytes.clone().split_at(start).unwrap();
+            assert_eq!((l.as_slice(), r.as_slice()), data.split_at(start));
         }
     }
 }

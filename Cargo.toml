@@ -3,55 +3,35 @@ path = "src/_lib.rs"
 
 [package]
 name = "safer-ffi"
-version = "0.1.8"  # Keep in sync
-authors = [
-    "Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>",
-]
+version = "0.1.8"                                                     # Keep in sync
+authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2021"
 
 description = "Write safer FFI code in Rust without polluting it with unsafe code"
-keywords = [
-    "ffi", "no_std", "framework", "safety", "bindings",
-]
+keywords = ["ffi", "no_std", "framework", "safety", "bindings"]
 license = "MIT"
 repository = "https://github.com/getditto/safer_ffi"
 
 readme = "README.md"
 
-exclude = [
-    "/guide",
-]
+exclude = ["/guide"]
 
 [features]
-default = [
-    "std",
-]
+default = ["std"]
 
 # Document under the following features: all but for debug or experimental.
-docs = [
-    "headers",
-    "default",
-    "nightly",
-    "tokio",
-]
+docs = ["headers", "default", "nightly", "tokio"]
 
 nightly = []
 
 alloc = []
-std = [
-    "alloc",
-    "scopeguard/use_std",
-]
+std = ["alloc", "scopeguard/use_std"]
 
 proc_macros = [] # Deprecated
 
-async-fn = [
-    "safer_ffi-proc_macros/async-fn",
-]
+async-fn = ["safer_ffi-proc_macros/async-fn"]
 
-debug_proc_macros = [
-    "safer_ffi-proc_macros/verbose-expansions",
-]
+debug_proc_macros = ["safer_ffi-proc_macros/verbose-expansions"]
 
 dyn-traits = [
     "safer_ffi-proc_macros/dyn-traits",
@@ -59,29 +39,14 @@ dyn-traits = [
     "std",
 ]
 
-futures = [
-    "dep:futures",
-    "dyn-traits",
-]
+futures = ["dep:futures", "dyn-traits"]
 
-tokio = [
-    "async-compat",
-    "dep:tokio",
-    "futures",
-]
+tokio = ["async-compat", "dep:tokio", "futures"]
 
-headers = [
-    "inventory",
-    "safer_ffi-proc_macros/headers",
-    "std",
-]
-python-headers = [
-    "headers",
-]
+headers = ["inventory", "safer_ffi-proc_macros/headers", "std"]
+python-headers = ["headers"]
 # Tweak the generated `.h` ever so slightly.
-c-headers-with-fn-style = [
-    "headers",
-]
+c-headers-with-fn-style = ["headers"]
 
 # PRIVATE FEATURE / not part of crates.io package!
 js = [
@@ -110,6 +75,7 @@ internal-tests = [
 [dev-dependencies]
 safer-ffi.path = "."
 safer-ffi.features = ["internal-tests"]
+rand = "0.8.5"
 
 [dependencies]
 async-compat.optional = true
@@ -139,9 +105,7 @@ scopeguard.default-features = false
 
 tokio.optional = true
 tokio.version = "1.26.0"
-tokio.features = [
-    "rt",
-]
+tokio.features = ["rt"]
 
 uninit.version = "0.5.0"
 uninit.default-features = false
@@ -159,7 +123,7 @@ version = "0.0.3"
 
 [dependencies.safer_ffi-proc_macros]
 path = "src/proc_macro"
-version = "=0.1.8"  # Keep in sync
+version = "=0.1.8"      # Keep in sync
 
 [workspace]
 members = [
