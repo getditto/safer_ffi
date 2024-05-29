@@ -277,19 +277,22 @@ impl<'a, T: Sized + AsRef<[u8]> + Send + Sync + 'a> From<Arc<T>> for Bytes<'a> {
 #[cfg(feature = "alloc")]
 impl From<alloc::boxed::Box<[u8]>> for Bytes<'_> {
     fn from(value: alloc::boxed::Box<[u8]>) -> Self {
-        unsafe extern "C" fn release(this: *const (), capacity: usize) {
+        unsafe extern "C" fn release_box_bytes(this: *const (), capacity: usize) {
             core::mem::drop(alloc::boxed::Box::from_raw(
                 core::ptr::slice_from_raw_parts_mut(this.cast::<u8>().cast_mut(), capacity),
             ))
         }
-        let data: &[u8] = value.as_ref();
+        let bytes: &[u8] = &*value;
+        let len = bytes.len();
+        let start = core::ptr::NonNull::<[u8]>::from(bytes).cast();
+        let data = alloc::boxed::Box::into_raw(value).cast::<()>();
         Bytes {
-            start: core::ptr::NonNull::<[u8]>::from(data.as_ref()).cast(),
-            len: data.len(),
-            capacity: data.len(),
-            data: alloc::boxed::Box::into_raw(value) as *const (),
+            start,
+            len,
+            capacity: len,
+            data,
             vtable: &BytesVt {
-                release: Some(release),
+                release: Some(release_box_bytes),
                 retain: None,
             },
         }
@@ -306,7 +309,7 @@ unsafe impl<'a> Send for Bytes<'a>
 where
     &'a [u8]: Send,
     Arc<[u8]>: Send,
-    alloc::boxed::Box<[u8]>: Sync,
+    alloc::boxed::Box<[u8]>: Send,
     Arc<dyn 'a + AsRef<[u8]> + Send + Sync>: Send,
 {
 }
