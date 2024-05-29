@@ -110,6 +110,7 @@ internal-tests = [
 [dev-dependencies]
 safer-ffi.path = "."
 safer-ffi.features = ["internal-tests"]
+rand = "0.8.5"
 
 [dependencies]
 async-compat.optional = true
@@ -160,7 +161,6 @@ version = "0.0.3"
 [dependencies.safer_ffi-proc_macros]
 path = "src/proc_macro"
 version = "=0.1.8"  # Keep in sync
-rand = "0.8.5"
 
 [workspace]
 members = [
