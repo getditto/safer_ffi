@@ -135,13 +135,13 @@ impl<'a> Bytes<'a> {
     pub fn noalloc_clone(&self) -> Option<Self> {
         let retain = self.vtable.retain.as_ref()?;
         retain(self.data, self.capacity);
-        Self {
+        Some(Self {
             start: self.start,
             len: self.len,
             data: self.data,
             capacity: self.capacity,
             vtable: self.vtable,
-        }
+        })
     }
     /// Returns `true` if a call to [`Self::upgrade`] would cause an allocation.
     pub const fn upgrade_will_allocate(&self) -> bool {
