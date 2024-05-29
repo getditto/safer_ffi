@@ -84,6 +84,7 @@ impl<'a> Bytes<'a> {
         self.subslice(range);
         self
     }
+    #[cfg(feature = "alloc")]
     /// Splits the slice at `index`.
     /// ```
     /// let data = b"Hello there".as_slice();
