@@ -310,6 +310,9 @@ mod tuple;
 pub
 mod option;
 
+pub
+mod bytes;
+
 cfg_alloc! {
     #[doc(inline)]
     pub use string::String;
