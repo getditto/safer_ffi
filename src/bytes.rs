@@ -224,31 +224,28 @@ impl<'a> From<&'a [u8]> for Bytes<'a> {
     }
 }
 #[cfg(feature = "alloc")]
+unsafe extern "C" fn retain_arc_bytes(this: *const (), capacity: usize) {
+    Arc::increment_strong_count(core::ptr::slice_from_raw_parts(this.cast::<u8>(), capacity))
+}
+#[cfg(feature = "alloc")]
+unsafe extern "C" fn release_arc_bytes(this: *const (), capacity: usize) {
+    Arc::decrement_strong_count(core::ptr::slice_from_raw_parts(this.cast::<u8>(), capacity))
+}
+#[cfg(feature = "alloc")]
+static ARC_BYTES_VT: BytesVt = BytesVt {
+    release: Some(release_arc_bytes),
+    retain: Some(retain_arc_bytes),
+};
+#[cfg(feature = "alloc")]
 impl From<Arc<[u8]>> for Bytes<'static> {
     fn from(data: Arc<[u8]>) -> Self {
-        unsafe extern "C" fn retain(this: *const (), capacity: usize) {
-            Arc::increment_strong_count(core::ptr::slice_from_raw_parts(
-                this.cast::<u8>(),
-                capacity,
-            ))
-        }
-        unsafe extern "C" fn release(this: *const (), capacity: usize) {
-            Arc::decrement_strong_count(core::ptr::slice_from_raw_parts(
-                this.cast::<u8>(),
-                capacity,
-            ))
-        }
-        static VT: BytesVt = BytesVt {
-            release: Some(release),
-            retain: Some(retain),
-        };
         let capacity = data.len();
         Bytes {
             start: core::ptr::NonNull::<[u8]>::from(data.as_ref()).cast(),
             len: data.len(),
             data: Arc::into_raw(data) as *const (),
             capacity,
-            vtable: &VT,
+            vtable: &ARC_BYTES_VT,
         }
     }
 }
@@ -352,6 +349,25 @@ impl Drop for Bytes<'_> {
     fn drop(&mut self) {
         if let Some(release) = self.vtable.release {
             unsafe { release(self.data, self.capacity) }
+        }
+    }
+}
+
+#[cfg(feature = "alloc")]
+impl<'a> TryFrom<Bytes<'a>> for Arc<[u8]> {
+    type Error = Bytes<'a>;
+    fn try_from(value: Bytes<'a>) -> Result<Self, Self::Error> {
+        let data = value.data.cast();
+        match core::ptr::eq(value.vtable, &ARC_BYTES_VT)
+            && core::ptr::eq(value.start.as_ptr(), data)
+            && value.len == value.capacity
+        {
+            true => unsafe {
+                let arc = Arc::from_raw(core::ptr::slice_from_raw_parts(data, value.capacity));
+                core::mem::forget(value);
+                Ok(arc)
+            },
+            false => Err(value),
         }
     }
 }
