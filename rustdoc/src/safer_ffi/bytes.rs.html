@@ -376,6 +376,22 @@
 <span id="376">376</span>
 <span id="377">377</span>
 <span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
 </pre><pre class="rust"><code><span class="kw">use </span>core::{
     borrow::Borrow,
     fmt::Debug,
@@ -602,31 +618,28 @@
     }
 }
 <span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>retain_arc_bytes(this: <span class="kw-2">*const </span>(), capacity: usize) {
+    Arc::increment_strong_count(core::ptr::slice_from_raw_parts(this.cast::&lt;u8&gt;(), capacity))
+}
+<span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>release_arc_bytes(this: <span class="kw-2">*const </span>(), capacity: usize) {
+    Arc::decrement_strong_count(core::ptr::slice_from_raw_parts(this.cast::&lt;u8&gt;(), capacity))
+}
+<span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">static </span>ARC_BYTES_VT: BytesVt = BytesVt {
+    release: <span class="prelude-val">Some</span>(release_arc_bytes),
+    retain: <span class="prelude-val">Some</span>(retain_arc_bytes),
+};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">impl </span>From&lt;Arc&lt;[u8]&gt;&gt; <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;static</span>&gt; {
     <span class="kw">fn </span>from(data: Arc&lt;[u8]&gt;) -&gt; <span class="self">Self </span>{
-        <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>retain(this: <span class="kw-2">*const </span>(), capacity: usize) {
-            Arc::increment_strong_count(core::ptr::slice_from_raw_parts(
-                this.cast::&lt;u8&gt;(),
-                capacity,
-            ))
-        }
-        <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>release(this: <span class="kw-2">*const </span>(), capacity: usize) {
-            Arc::decrement_strong_count(core::ptr::slice_from_raw_parts(
-                this.cast::&lt;u8&gt;(),
-                capacity,
-            ))
-        }
-        <span class="kw">static </span>VT: BytesVt = BytesVt {
-            release: <span class="prelude-val">Some</span>(release),
-            retain: <span class="prelude-val">Some</span>(retain),
-        };
         <span class="kw">let </span>capacity = data.len();
         Bytes {
             start: core::ptr::NonNull::&lt;[u8]&gt;::from(data.as_ref()).cast(),
             len: data.len(),
             data: Arc::into_raw(data) <span class="kw">as </span><span class="kw-2">*const </span>(),
             capacity,
-            vtable: <span class="kw-2">&amp;</span>VT,
+            vtable: <span class="kw-2">&amp;</span>ARC_BYTES_VT,
         }
     }
 }
@@ -730,6 +743,25 @@
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(release) = <span class="self">self</span>.vtable.release {
             <span class="kw">unsafe </span>{ release(<span class="self">self</span>.data, <span class="self">self</span>.capacity) }
+        }
+    }
+}
+
+<span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;Bytes&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>Arc&lt;[u8]&gt; {
+    <span class="kw">type </span>Error = Bytes&lt;<span class="lifetime">&#39;a</span>&gt;;
+    <span class="kw">fn </span>try_from(value: Bytes&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>data = value.data.cast();
+        <span class="kw">match </span>core::ptr::eq(value.vtable, <span class="kw-2">&amp;</span>ARC_BYTES_VT)
+            &amp;&amp; core::ptr::eq(value.start.as_ptr(), data)
+            &amp;&amp; value.len == value.capacity
+        {
+            <span class="bool-val">true </span>=&gt; <span class="kw">unsafe </span>{
+                <span class="kw">let </span>arc = Arc::from_raw(core::ptr::slice_from_raw_parts(data, value.capacity));
+                core::mem::forget(value);
+                <span class="prelude-val">Ok</span>(arc)
+            },
+            <span class="bool-val">false </span>=&gt; <span class="prelude-val">Err</span>(value),
         }
     }
 }
