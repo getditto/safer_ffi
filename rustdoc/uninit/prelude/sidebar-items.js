@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"union":[["MaybeUninit","A wrapper type to construct uninitialized instances of `T`."]]};
+window.SIDEBAR_ITEMS = {"union":["MaybeUninit"]};

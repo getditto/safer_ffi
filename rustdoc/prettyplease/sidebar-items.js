@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["unparse",""]]};
+window.SIDEBAR_ITEMS = {"fn":["unparse"]};

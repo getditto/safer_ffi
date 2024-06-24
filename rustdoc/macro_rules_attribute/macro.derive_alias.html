@@ -1,25 +1,24 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Convenience macro to define new derive aliases."><meta name="keywords" content="rust, rustlang, rust-lang, derive_alias"><title>derive_alias in macro_rules_attribute - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../normalize.css"><link rel="stylesheet" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../ayu.css" disabled><link rel="stylesheet" href="../dark.css" disabled><link rel="stylesheet" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../macro_rules_attribute/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../macro_rules_attribute/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><div class="sidebar-elems"><h2><a href="index.html">In macro_rules_attribute</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Macro <a href="index.html">macro_rules_attribute</a>::<wbr><a class="macro" href="#">derive_alias</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/macro_rules_attribute/lib.rs.html#395-423">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="item-decl"><div class="example-wrap"><pre class="rust macro"><code><span class="macro">macro_rules! </span>derive_alias {
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Convenience macro to define new derive aliases."><title>derive_alias in macro_rules_attribute - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="macro_rules_attribute" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.1 (d5c2e9c34 2023-09-13)" data-channel="1.72.1" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../macro_rules_attribute/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../macro_rules_attribute/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><div class="sidebar-elems"><h2><a href="index.html">In macro_rules_attribute</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Macro <a href="index.html">macro_rules_attribute</a>::<wbr><a class="macro" href="#">derive_alias</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/macro_rules_attribute/lib.rs.html#395-423">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><span class="macro">macro_rules! </span>derive_alias {
     (
     $(
-        <span class="attribute">#[derive(<span class="macro-nonterminal">$MacroName</span>:ident !)] </span>= <span class="attribute">#[derive($(<span class="macro-nonterminal">$derives</span>:tt)<span class="kw-2">*</span>)]</span>;
+        <span class="attr">#[derive(<span class="macro-nonterminal">$MacroName</span>:ident !)] </span>= <span class="attr">#[derive($(<span class="macro-nonterminal">$derives</span>:tt)<span class="kw-2">*</span>)]</span>;
     )*
 ) =&gt; { ... };
-}</code></pre></div>
-</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Convenience macro to define new derive aliases.</p>
+}</pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Convenience macro to define new derive aliases.</p>
 <p>The so-defined macros are intended to be used by
-<code>#[<a href="attr.macro_rules_derive.html" title="macro_rules_derive">macro_rules_derive</a>]</code> or this crate’s
-<code>#[<a href="attr.derive.html" title="derive">derive</a>]</code>.</p>
+<code>#[<a href="attr.macro_rules_derive.html" title="attr macro_rules_attribute::macro_rules_derive">macro_rules_derive</a>]</code> or this crate’s
+<code>#[<a href="attr.derive.html" title="attr macro_rules_attribute::derive">derive</a>]</code>.</p>
 <h3 id="examples"><a href="#examples">Examples</a></h3>
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[macro_use]
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[macro_use]
 </span><span class="kw">extern crate </span>macro_rules_attribute;
 
 <span class="macro">derive_alias! </span>{
-   <span class="attribute">#[derive(<span class="macro">Copy!</span>)] </span>= <span class="attribute">#[derive(Clone, Copy)]</span>;
-   <span class="attribute">#[derive(<span class="macro">Eq!</span>)] </span>= <span class="attribute">#[derive(PartialEq, Eq)]</span>;
-   <span class="attribute">#[derive(<span class="macro">Ord!</span>)] </span>= <span class="attribute">#[derive(<span class="macro">Eq!</span>, PartialOrd, Ord)]</span>;
+   <span class="attr">#[derive(<span class="macro">Copy!</span>)] </span>= <span class="attr">#[derive(Clone, Copy)]</span>;
+   <span class="attr">#[derive(<span class="macro">Eq!</span>)] </span>= <span class="attr">#[derive(PartialEq, Eq)]</span>;
+   <span class="attr">#[derive(<span class="macro">Ord!</span>)] </span>= <span class="attr">#[derive(<span class="macro">Eq!</span>, PartialOrd, Ord)]</span>;
 }
 
-<span class="attribute">#[derive(Debug, <span class="macro">Copy!</span>, <span class="macro">Ord!</span>)]
+<span class="attr">#[derive(Debug, <span class="macro">Copy!</span>, <span class="macro">Ord!</span>)]
 </span><span class="kw">struct </span>Foo {
    <span class="comment">// …
 </span>}
@@ -29,11 +28,11 @@
 </span><span class="kw">mod </span>example {
    <span class="kw">use </span><span class="kw">super</span>::Copy;
 
-   <span class="attribute">#[derive(<span class="macro">Copy!</span>, <span class="macro">super::Eq!</span>)]
+   <span class="attr">#[derive(<span class="macro">Copy!</span>, <span class="macro">super::Eq!</span>)]
    </span><span class="kw">struct </span>Bar;
 }</code></pre></div>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[macro_use]
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[macro_use]
 </span><span class="kw">extern crate </span>macro_rules_attribute;
 
 <span class="kw">use </span>::core::{fmt::Debug, hash::Hash};
@@ -49,7 +48,7 @@
 {}
 
 <span class="macro">derive_alias! </span>{
-   <span class="attribute">#[derive(<span class="macro">TheUsualSuspects!</span>)] </span>= <span class="attribute">#[derive(
+   <span class="attr">#[derive(<span class="macro">TheUsualSuspects!</span>)] </span>= <span class="attr">#[derive(
        Debug,
        Copy,   Clone,
        Ord,    PartialOrd, Eq, PartialEq,
@@ -57,7 +56,7 @@
    )]</span>;
 }
 
-<span class="attribute">#[derive(<span class="macro">TheUsualSuspects!</span>)]
+<span class="attr">#[derive(<span class="macro">TheUsualSuspects!</span>)]
 </span><span class="kw">struct </span>KeyserSöze;
 
 <span class="kw">const _</span>: () = {
@@ -79,14 +78,14 @@ which represent a <em>semantic</em> aspect of the derive that
 <p>This makes aliasing such derives problematic, <strong>since the <code>derive</code> aliases
 won’t be able to handle the helper attributes</strong>.</p>
 
-<div class="example-wrap compile_fail"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="attribute">#[macro_use]
+<div class="example-wrap compile_fail"><a href="#" class="tooltip" title="This example deliberately fails to compile">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[macro_use]
 </span><span class="kw">extern crate </span>macro_rules_attribute;
 
 <span class="macro">derive_alias! </span>{
-   <span class="attribute">#[derive(<span class="macro">Serde!</span>)] </span>= <span class="attribute">#[derive(::serde::Deserialize, ::serde::Serialize)]</span>;
+   <span class="attr">#[derive(<span class="macro">Serde!</span>)] </span>= <span class="attr">#[derive(::serde::Deserialize, ::serde::Serialize)]</span>;
 }
 
-<span class="attribute">#[derive(<span class="macro">Serde!</span>)]
+<span class="attr">#[derive(<span class="macro">Serde!</span>)]
 #[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>)] </span><span class="comment">// Error, unknown `#[serde]` attribute
 </span><span class="kw">struct </span>Mejrs {
    swaginess: u8,
@@ -96,26 +95,26 @@ won’t be able to handle the helper attributes</strong>.</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code>error: cannot find attribute <span class="string">&quot;serde&quot; </span><span class="kw">in </span>this scope
   --&gt; src/lib.rs:<span class="number">11</span>:<span class="number">3
    </span>|
-<span class="number">11 </span>| <span class="attribute">#[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>)]
+<span class="number">11 </span>| <span class="attr">#[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>)]
    </span>|   ^^^^^
    |
    = note: <span class="string">&quot;serde&quot; </span>is <span class="kw">in </span>scope, but it is a <span class="kw">crate</span>, not an attribute</code></pre></div>
 <p>The only solution is to forgo the niceties of a <code>derive_alias!</code>, and define
-your own <code>#[<a href="attr.apply.html" title="apply">apply</a>]</code>-able <code>macro_rules_attribute</code> that aliases
-the <code>#[derive(…)]</code> attribute as a whole. <a href="macro.attribute_alias.html" title="attribute_alias!"><code>attribute_alias!</code></a> can come in
+your own <code>#[<a href="attr.apply.html" title="attr macro_rules_attribute::apply">apply</a>]</code>-able <code>macro_rules_attribute</code> that aliases
+the <code>#[derive(…)]</code> attribute as a whole. <a href="macro.attribute_alias.html" title="macro macro_rules_attribute::attribute_alias"><code>attribute_alias!</code></a> can come in
 handy in such situations:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[macro_use]
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[macro_use]
 </span><span class="kw">extern crate </span>macro_rules_attribute;
 
 <span class="macro">attribute_alias! </span>{
-   <span class="attribute">#[apply(derive_Serde)] </span>= <span class="attribute">#[derive(::serde::Deserialize, ::serde::Serialize)]</span>;
+   <span class="attr">#[apply(derive_Serde)] </span>= <span class="attr">#[derive(::serde::Deserialize, ::serde::Serialize)]</span>;
 }
 
-<span class="attribute">#[apply(derive_Serde)]
+<span class="attr">#[apply(derive_Serde)]
 #[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>)] </span><span class="comment">// OK
 </span><span class="kw">struct </span>Mejrs {
    swaginess: u8,
 }</code></pre></div>
 <hr />
-</details></div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="macro_rules_attribute" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>
+</details></div></details></section></div></main></body></html>

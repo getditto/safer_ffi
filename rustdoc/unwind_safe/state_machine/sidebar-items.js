@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Runner",""],["RunnerWithTryEval",""]]};
+window.SIDEBAR_ITEMS = {"struct":["Runner","RunnerWithTryEval"]};

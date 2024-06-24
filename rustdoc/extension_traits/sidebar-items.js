@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":[["extension",""]]};
+window.SIDEBAR_ITEMS = {"attr":["extension"]};

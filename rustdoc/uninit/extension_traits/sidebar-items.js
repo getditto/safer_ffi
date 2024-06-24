@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["AsOut","Extension trait to convert a `&mut _` into a `&out _` by calling `.as_out()` on it."],["ManuallyDropMut","Extension trait providing a cast to the [`ManuallyDrop`] type."],["MaybeUninitExt","Extension trait providing tranformations between init and uninit."]]};
+window.SIDEBAR_ITEMS = {"trait":["AsOut","ManuallyDropMut","MaybeUninitExt"]};

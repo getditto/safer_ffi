@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["TaggedOption","An ABI-stable version of `core::option::Option`. Its usage is expected to be the same as a standard Option, converting to and from said Option when necessary."]]};
+window.SIDEBAR_ITEMS = {"enum":["TaggedOption"]};

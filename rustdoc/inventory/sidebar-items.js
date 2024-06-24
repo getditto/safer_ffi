@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["iter","An iterator over plugins registered of a given type."]],"macro":[["collect","Associate a plugin registry with the specified type."],["submit","Enter an element into the plugin registry corresponding to its type."]],"trait":[["Collect","Trait bound corresponding to types that can be iterated by inventory::iter."]]};
+window.SIDEBAR_ITEMS = {"enum":["iter"],"macro":["collect","submit"],"trait":["Collect"]};

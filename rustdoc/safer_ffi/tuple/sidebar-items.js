@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Tuple2","Simplified for lighter documentation, but the actual impls range from `Tuple1` up to `Tuple6`."],["Tuple2_Layout","Simplified for lighter documentation, but the actual impls range from `Tuple1` up to `Tuple6`."]]};
+window.SIDEBAR_ITEMS = {"struct":["Tuple2","Tuple2_Layout"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Bytes","A slice of bytes optimized for sharing ownership of it and its subslices."],["BytesVt","C Layout"],["BytesVt_Layout",""],["Bytes_Layout","A slice of bytes optimized for sharing ownership of it and its subslices."]]};
+window.SIDEBAR_ITEMS = {"struct":["Bytes","BytesVt","BytesVt_Layout","Bytes_Layout"]};

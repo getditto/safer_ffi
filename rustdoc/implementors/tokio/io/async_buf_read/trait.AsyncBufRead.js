@@ -1,4 +1,4 @@
 (function() {var implementors = {
-"async_compat":[["impl&lt;T:&nbsp;<a class=\"trait\" href=\"futures_io/if_std/trait.AsyncBufRead.html\" title=\"trait futures_io::if_std::AsyncBufRead\">AsyncBufRead</a>&gt; <a class=\"trait\" href=\"tokio/io/async_buf_read/trait.AsyncBufRead.html\" title=\"trait tokio::io::async_buf_read::AsyncBufRead\">AsyncBufRead</a> for <a class=\"struct\" href=\"async_compat/struct.Compat.html\" title=\"struct async_compat::Compat\">Compat</a>&lt;T&gt;"]],
+"async_compat":[["impl&lt;T: <a class=\"trait\" href=\"futures_io/if_std/trait.AsyncBufRead.html\" title=\"trait futures_io::if_std::AsyncBufRead\">AsyncBufRead</a>&gt; <a class=\"trait\" href=\"tokio/io/async_buf_read/trait.AsyncBufRead.html\" title=\"trait tokio::io::async_buf_read::AsyncBufRead\">AsyncBufRead</a> for <a class=\"struct\" href=\"async_compat/struct.Compat.html\" title=\"struct async_compat::Compat\">Compat</a>&lt;T&gt;"]],
 "tokio":[]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
