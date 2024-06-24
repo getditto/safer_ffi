@@ -3,7 +3,7 @@ path = "src/_lib.rs"
 
 [package]
 name = "safer-ffi"
-version = "0.1.8"  # Keep in sync
+version = "0.1.9"  # Keep in sync
 authors = [
     "Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>",
 ]
@@ -41,6 +41,7 @@ alloc = []
 std = [
     "alloc",
     "scopeguard/use_std",
+    "stabby?/std",
 ]
 
 proc_macros = [] # Deprecated
@@ -63,6 +64,8 @@ futures = [
     "dep:futures",
     "dyn-traits",
 ]
+
+stabby = ["dep:stabby"]
 
 tokio = [
     "async-compat",
@@ -137,6 +140,11 @@ paste.version = "1.0.12"
 
 scopeguard.version = "1.1.0"
 scopeguard.default-features = false
+
+stabby.version = "5.1.0"
+stabby.optional = true
+stabby.default-features = false
+stabby.features = ["libc"]
 
 tokio.optional = true
 tokio.version = "1.26.0"
