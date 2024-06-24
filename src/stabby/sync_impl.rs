@@ -3,11 +3,13 @@ use crate::{
     ඞ::{ReprC, __HasNiche__},
 };
 pub use stabby::sync::{Arc, ArcSlice, ArcStr, Weak, WeakSlice, WeakStr};
-use stabby::{abi::U1, alloc::IAlloc, IStable};
+use stabby::{alloc::IAlloc, IStable};
+
+type USIZE = <usize as IStable>::Size;
 
 unsafe impl<T: IStable, Alloc: IStable + IAlloc> ReprC for Arc<T, Alloc>
 where
-    Arc<T, Alloc>: IStable<Size = U1>,
+    Arc<T, Alloc>: IStable<Size = USIZE>,
 {
     type CLayout = *const CVoid;
     fn is_valid(it: &'_ Self::CLayout) -> bool {
@@ -16,7 +18,7 @@ where
 }
 unsafe impl<T: IStable, Alloc: IStable + IAlloc> __HasNiche__ for Arc<T, Alloc>
 where
-    Arc<T, Alloc>: IStable<Size = U1>,
+    Arc<T, Alloc>: IStable<Size = USIZE>,
 {
     fn is_niche(it: &'_ <Self as ReprC>::CLayout) -> bool {
         it.is_null()
@@ -25,7 +27,7 @@ where
 
 unsafe impl<T: IStable, Alloc: IStable + IAlloc> ReprC for ArcSlice<T, Alloc>
 where
-    Arc<T, Alloc>: IStable<Size = U1>,
+    Arc<T, Alloc>: IStable<Size = USIZE>,
 {
     type CLayout = Tuple2_Layout<*const CVoid, *const CVoid>;
     fn is_valid(it: &'_ Self::CLayout) -> bool {
@@ -36,7 +38,7 @@ where
 }
 unsafe impl<T: IStable, Alloc: IStable + IAlloc> __HasNiche__ for ArcSlice<T, Alloc>
 where
-    Arc<T, Alloc>: IStable<Size = U1>,
+    Arc<T, Alloc>: IStable<Size = USIZE>,
 {
     fn is_niche(it: &'_ <Self as ReprC>::CLayout) -> bool {
         it._0.is_null() || it._1.is_null()
@@ -62,7 +64,7 @@ where
 
 unsafe impl<T: IStable, Alloc: IStable + IAlloc> ReprC for Weak<T, Alloc>
 where
-    Weak<T, Alloc>: IStable<Size = U1>,
+    Weak<T, Alloc>: IStable<Size = USIZE>,
 {
     type CLayout = *const CVoid;
     fn is_valid(it: &'_ Self::CLayout) -> bool {
@@ -71,7 +73,7 @@ where
 }
 unsafe impl<T: IStable, Alloc: IStable + IAlloc> __HasNiche__ for Weak<T, Alloc>
 where
-    Weak<T, Alloc>: IStable<Size = U1>,
+    Weak<T, Alloc>: IStable<Size = USIZE>,
 {
     fn is_niche(it: &'_ <Self as ReprC>::CLayout) -> bool {
         it.is_null()
@@ -80,7 +82,7 @@ where
 
 unsafe impl<T: IStable, Alloc: IStable + IAlloc> ReprC for WeakSlice<T, Alloc>
 where
-    Weak<T, Alloc>: IStable<Size = U1>,
+    Weak<T, Alloc>: IStable<Size = USIZE>,
 {
     type CLayout = Tuple2_Layout<*const CVoid, *const CVoid>;
     fn is_valid(it: &'_ Self::CLayout) -> bool {
@@ -91,7 +93,7 @@ where
 }
 unsafe impl<T: IStable, Alloc: IStable + IAlloc> __HasNiche__ for WeakSlice<T, Alloc>
 where
-    Weak<T, Alloc>: IStable<Size = U1>,
+    Weak<T, Alloc>: IStable<Size = USIZE>,
 {
     fn is_niche(it: &'_ <Self as ReprC>::CLayout) -> bool {
         it._0.is_null() || it._1.is_null()
