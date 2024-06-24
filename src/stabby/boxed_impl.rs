@@ -3,11 +3,13 @@ use crate::{
     ඞ::{ReprC, __HasNiche__},
 };
 pub use stabby::boxed::{Box, BoxedSlice, BoxedStr};
-use stabby::{abi::U1, alloc::IAlloc, IStable};
+use stabby::{alloc::IAlloc, IStable};
+
+type USIZE = <usize as IStable>::Size;
 
 unsafe impl<T: IStable, Alloc: IStable + IAlloc> ReprC for Box<T, Alloc>
 where
-    Box<T, Alloc>: IStable<Size = U1>,
+    Box<T, Alloc>: IStable<Size = USIZE>,
 {
     type CLayout = *const CVoid;
     fn is_valid(it: &'_ Self::CLayout) -> bool {
@@ -16,7 +18,7 @@ where
 }
 unsafe impl<T: IStable, Alloc: IStable + IAlloc> __HasNiche__ for Box<T, Alloc>
 where
-    Box<T, Alloc>: IStable<Size = U1>,
+    Box<T, Alloc>: IStable<Size = USIZE>,
 {
     fn is_niche(it: &'_ <Self as ReprC>::CLayout) -> bool {
         it.is_null()
@@ -25,7 +27,7 @@ where
 
 unsafe impl<T: IStable, Alloc: IStable + IAlloc> ReprC for BoxedSlice<T, Alloc>
 where
-    Box<T, Alloc>: IStable<Size = U1>,
+    Box<T, Alloc>: IStable<Size = USIZE>,
 {
     type CLayout = Tuple2_Layout<*const CVoid, *const CVoid>;
     fn is_valid(it: &'_ Self::CLayout) -> bool {
@@ -36,7 +38,7 @@ where
 }
 unsafe impl<T: IStable, Alloc: IStable + IAlloc> __HasNiche__ for BoxedSlice<T, Alloc>
 where
-    Box<T, Alloc>: IStable<Size = U1>,
+    Box<T, Alloc>: IStable<Size = USIZE>,
 {
     fn is_niche(it: &'_ <Self as ReprC>::CLayout) -> bool {
         it._0.is_null() || it._1.is_null()
