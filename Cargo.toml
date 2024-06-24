@@ -41,7 +41,7 @@ alloc = []
 std = [
     "alloc",
     "scopeguard/use_std",
-    "stabby/std",
+    "stabby?/std",
 ]
 
 proc_macros = [] # Deprecated
