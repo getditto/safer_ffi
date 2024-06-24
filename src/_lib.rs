@@ -302,6 +302,11 @@ mod ptr;
 pub
 mod slice;
 
+#[cfg(feature = "stabby")]
+#[path = "stabby/_mod.rs"]
+pub
+mod stabby;
+
 #[path = "string/_mod.rs"]
 pub
 mod string;
