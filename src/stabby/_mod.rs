@@ -2,6 +2,8 @@ use stabby::IStable;
 
 use crate::ඞ::{CType, ReprC, __HasNiche__};
 
+/// Coherence wrapper for a blanket `ReprC` implementation off
+/// a [`stabby::IStable`] one, without running into overlapping impls.
 #[stabby::stabby]
 pub struct Stabbied<T>(pub T);
 unsafe impl<T: IStable> ReprC for Stabbied<T>
