@@ -149,7 +149,8 @@
 ///
 /// [repr_c::Box]: crate::repr_c::Box
 /// [discriminant elision]: https://doc.rust-lang.org/1.78.0/core/option/index.html#representation
-</span><span class="attr">#[repr(u8)]
+</span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;stabby&quot;</span>, stabby::stabby)]
+#[repr(C, u8)]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 </span><span class="kw">pub enum </span>TaggedOption&lt;T&gt; {
     <span class="prelude-val">None </span>= <span class="number">0</span>,
@@ -247,7 +248,6 @@
 <span class="attr">#[test]
 </span><span class="kw">fn </span>option() {
     <span class="kw">use </span><span class="kw">crate</span>::layout::ReprC;
-    <span class="kw">use </span>core::num::NonZeroU8;
 
     <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..=u8::MAX {
         <span class="kw">let </span>expected = <span class="prelude-val">Some</span>(i);
