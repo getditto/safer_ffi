@@ -23,6 +23,11 @@ pub struct Bytes<'a> {
     vtable: &'a BytesVt,
 }
 
+#[cfg(feature = "stabby")]
+const _: () = {
+    let _ = <Bytes<'_> as stabby::IStable>::ID;
+};
+
 extern "C" fn noop(_: *const (), _: usize) {}
 impl<'a> Bytes<'a> {
     /// Constructs an empty slice.
@@ -420,6 +425,7 @@ unsafe impl<'a> Send for Bytes<'a> where &'a [u8]: Send {}
 #[cfg(not(feature = "alloc"))]
 unsafe impl<'a> Sync for Bytes<'a> where &'a [u8]: Send {}
 
+#[cfg_attr(feature = "stabby", stabby::stabby)]
 #[derive_ReprC]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
