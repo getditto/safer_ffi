@@ -14,7 +14,8 @@ use crate::ඞ::ConcreteReprC;
 ///
 /// [repr_c::Box]: crate::repr_c::Box
 /// [discriminant elision]: https://doc.rust-lang.org/1.78.0/core/option/index.html#representation
-#[repr(u8)]
+#[cfg_attr(feature = "stabby", stabby::stabby)]
+#[repr(C, u8)]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TaggedOption<T> {
     None = 0,
@@ -112,7 +113,6 @@ impl<T> TaggedOption<T> {
 #[test]
 fn option() {
     use crate::layout::ReprC;
-    use core::num::NonZeroU8;
 
     for i in 0..=u8::MAX {
         let expected = Some(i);

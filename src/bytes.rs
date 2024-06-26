@@ -14,6 +14,7 @@ use safer_ffi_proc_macros::derive_ReprC;
 /// Typically, [`Bytes`] can constructed from `&[u8]`, `Arc<[u8]>` or `Arc<T: AsRef<[u8]>>`.
 #[derive_ReprC]
 #[repr(C)]
+#[cfg_attr(feature = "stabby", stabby::stabby)]
 pub struct Bytes<'a> {
     start: core::ptr::NonNull<u8>,
     len: usize,
@@ -21,6 +22,11 @@ pub struct Bytes<'a> {
     capacity: usize,
     vtable: &'a BytesVt,
 }
+
+#[cfg(feature = "stabby")]
+const _: () = {
+    let _ = <Bytes<'_> as stabby::IStable>::ID;
+};
 
 extern "C" fn noop(_: *const (), _: usize) {}
 impl<'a> Bytes<'a> {
@@ -118,13 +124,28 @@ impl<'a> Bytes<'a> {
     pub const fn as_slice(&self) -> &[u8] {
         unsafe { core::slice::from_raw_parts(self.start.as_ptr(), self.len) }
     }
-    #[cfg(feature = "alloc")]
-    /// Proves that the slice can be held onto for arbitrary durations, or copies it into a new one that does.
+    #[cfg(any(feature = "alloc", feature = "stabby"))]
+    /// Copies the slice into an `stabby::sync::ArcSlice<u8>` if `stabby` is enabled or a `Arc<[u8]>` otherwise before wrapping it in [`Bytes`].
+    pub fn copied_from_slice(slice: &[u8]) -> Bytes<'static> {
+        match_cfg! {
+            feature = "stabby" => {
+                use ::stabby::sync::ArcSlice;
+            },
+            _ => {
+                type ArcSlice<T> = Arc<[T]>;
+            },
+        }
+        ArcSlice::<u8>::from(slice).into()
+    }
+    #[cfg(any(feature = "alloc", feature = "stabby"))]
+    /// Proves that the slice can be held onto for arbitrary durations, or copies it into a new `Arc<[u8]>` that does.
+    ///
+    /// Note that `feature = "stabby"` being enabled will cause a `stabby::sync::ArcSlice<u8>` to be used instead of `Arc<[u8]>`.
     pub fn upgrade(self: Bytes<'a>) -> Bytes<'static> {
         if !self.vtable.is_borrowed() {
             return unsafe { core::mem::transmute(self) };
         }
-        Arc::<[u8]>::from(self.as_slice()).into()
+        Self::copied_from_slice(&self)
     }
     /// Attempts to prove that the slice has a static lifetime.
     /// # Errors
@@ -301,6 +322,93 @@ impl From<alloc::vec::Vec<u8>> for Bytes<'_> {
         alloc::boxed::Box::<[u8]>::from(value).into()
     }
 }
+
+#[cfg(feature = "stabby")]
+unsafe extern "C" fn retain_stabby_arc_bytes(this: *const (), capacity: usize) {
+    let this: stabby::sync::ArcSlice<u8> = unsafe {
+        stabby::sync::ArcSlice::from_raw(stabby::alloc::AllocSlice {
+            start: core::mem::transmute(this),
+            end: core::mem::transmute(capacity),
+        })
+    };
+    // we don't own any `Arc` in this function:
+    let this = &*::core::mem::ManuallyDrop::new(this);
+    // time to do the increment:
+    core::mem::forget(this.clone());
+}
+#[cfg(feature = "stabby")]
+unsafe extern "C" fn release_stabby_arc_bytes(this: *const (), capacity: usize) {
+    let this: stabby::sync::ArcSlice<u8> = unsafe {
+        stabby::sync::ArcSlice::from_raw(stabby::alloc::AllocSlice {
+            start: core::mem::transmute(this),
+            end: core::mem::transmute(capacity),
+        })
+    };
+    core::mem::drop(this);
+}
+#[cfg(feature = "stabby")]
+static STABBY_ARCSLICE_BYTESVT: BytesVt = BytesVt {
+    retain: Some(retain_stabby_arc_bytes),
+    release: Some(release_stabby_arc_bytes),
+};
+#[cfg(feature = "stabby")]
+impl From<stabby::sync::ArcSlice<u8>> for Bytes<'static> {
+    fn from(data: stabby::sync::ArcSlice<u8>) -> Self {
+        let slice = data.as_slice();
+        let start = core::ptr::NonNull::<[u8]>::from(slice).cast();
+        let len = data.len();
+        let data = stabby::sync::ArcSlice::into_raw(data);
+        unsafe {
+            Bytes {
+                start,
+                len,
+                data: core::mem::transmute(data.start),
+                capacity: core::mem::transmute(data.end),
+                vtable: &STABBY_ARCSLICE_BYTESVT,
+            }
+        }
+    }
+}
+#[cfg(feature = "stabby")]
+impl<T: Sized + AsRef<[u8]> + Send + Sync + 'static> From<stabby::sync::Arc<T>> for Bytes<'static> {
+    fn from(value: stabby::sync::Arc<T>) -> Self {
+        unsafe extern "C" fn retain_stabby_arc<T: Sized>(this: *const (), _: usize) {
+            let this: stabby::sync::Arc<T> =
+                unsafe { stabby::sync::Arc::from_raw(core::mem::transmute(this)) };
+            let this = core::mem::ManuallyDrop::new(this);
+            core::mem::forget(this.clone());
+        }
+        unsafe extern "C" fn release_stabby_arc<T: Sized>(this: *const (), _: usize) {
+            let this: stabby::sync::Arc<T> =
+                unsafe { stabby::sync::Arc::from_raw(core::mem::transmute(this)) };
+            core::mem::drop(this)
+        }
+        let data: &[u8] = value.as_ref().as_ref();
+        Bytes {
+            start: core::ptr::NonNull::<[u8]>::from(data.as_ref()).cast(),
+            len: data.len(),
+            capacity: data.len(),
+            data: unsafe { core::mem::transmute(stabby::sync::Arc::into_raw(value)) },
+            vtable: &BytesVt {
+                release: Some(release_stabby_arc::<T>),
+                retain: Some(retain_stabby_arc::<T>),
+            },
+        }
+    }
+}
+#[cfg(feature = "stabby")]
+impl From<stabby::boxed::BoxedSlice<u8>> for Bytes<'_> {
+    fn from(value: stabby::boxed::BoxedSlice<u8>) -> Self {
+        stabby::vec::Vec::<u8>::from(value).into()
+    }
+}
+#[cfg(feature = "stabby")]
+impl From<stabby::vec::Vec<u8>> for Bytes<'_> {
+    fn from(value: stabby::vec::Vec<u8>) -> Self {
+        stabby::sync::ArcSlice::<u8>::from(value).into()
+    }
+}
+
 #[cfg(feature = "alloc")]
 unsafe impl<'a> Send for Bytes<'a>
 where
@@ -325,6 +433,7 @@ unsafe impl<'a> Send for Bytes<'a> where &'a [u8]: Send {}
 #[cfg(not(feature = "alloc"))]
 unsafe impl<'a> Sync for Bytes<'a> where &'a [u8]: Send {}
 
+#[cfg_attr(feature = "stabby", stabby::stabby)]
 #[derive_ReprC]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
@@ -338,11 +447,14 @@ impl BytesVt {
     }
 }
 
-#[cfg(feature = "alloc")]
+#[cfg(any(feature = "alloc", feature = "stabby"))]
+/// Clones `self` by either:
+/// - Performing a reference count increment (or a no-op for references) if possible
+/// - Using [`Bytes::copied_from_slice`]
 impl Clone for Bytes<'_> {
     fn clone(&self) -> Self {
         self.noalloc_clone()
-            .unwrap_or_else(|| Arc::<[u8]>::from(self.as_slice()).into())
+            .unwrap_or_else(|| Self::copied_from_slice(self.as_slice()))
     }
 }
 impl Drop for Bytes<'_> {
@@ -354,6 +466,14 @@ impl Drop for Bytes<'_> {
 }
 
 #[cfg(feature = "alloc")]
+/// Attempts to downcast the [`Bytes`] into its inner `Arc<[u8]>`.
+///
+/// This requires the `value` to be backed by an `Arc<[u8]>`
+/// and not have been shrunk or cloned from a shrunk value.
+///
+/// Note that unless `stabby` support is enabled, cloning or upgrading a [`Bytes`]
+/// that was backed by a type that requires an allocation to do so will result
+/// in an instance where this is guaranteed to succeed.
 impl<'a> TryFrom<Bytes<'a>> for Arc<[u8]> {
     type Error = Bytes<'a>;
     fn try_from(value: Bytes<'a>) -> Result<Self, Self::Error> {
@@ -365,6 +485,35 @@ impl<'a> TryFrom<Bytes<'a>> for Arc<[u8]> {
             true => unsafe {
                 let arc = Arc::from_raw(core::ptr::slice_from_raw_parts(data, value.capacity));
                 core::mem::forget(value);
+                Ok(arc)
+            },
+            false => Err(value),
+        }
+    }
+}
+
+#[cfg(feature = "stabby")]
+/// Attempts to downcast the [`Bytes`] into its inner [`stabby::sync::ArcSlice<u8>`](stabby::sync::ArcSlice).
+///
+/// This requires the `value` to be backed by an [`stabby::sync::ArcSlice<u8>`](stabby::sync::ArcSlice)
+/// and not have been shrunk or cloned from a shrunk value.
+///
+/// Note that cloning or upgrading a [`Bytes`] that was backed by a
+/// type that requires an allocation to do so will result
+/// in an instance where this is guaranteed to succeed.
+impl<'a> TryFrom<Bytes<'a>> for stabby::sync::ArcSlice<u8> {
+    type Error = Bytes<'a>;
+    fn try_from(value: Bytes<'a>) -> Result<Self, Self::Error> {
+        let data = value.data.cast();
+        match core::ptr::eq(value.vtable, &ARC_BYTES_VT)
+            && core::ptr::eq(value.start.as_ptr(), data)
+        {
+            true => unsafe {
+                let value = core::mem::ManuallyDrop::new(value);
+                let arc = stabby::sync::ArcSlice::from_raw(stabby::alloc::AllocSlice {
+                    start: core::mem::transmute(data),
+                    end: core::mem::transmute(data.add(value.len)),
+                });
                 Ok(arc)
             },
             false => Err(value),
@@ -389,6 +538,39 @@ fn fuzz() {
             assert_eq!(bytes.clone().subsliced(start..end), &data[start..end]);
             let (l, r) = bytes.clone().split_at(start).unwrap();
             assert_eq!((l.as_slice(), r.as_slice()), data.split_at(start));
+        }
+    }
+}
+
+#[cfg(feature = "stabby")]
+#[test]
+fn fuzz_stabby() {
+    use rand::Rng;
+    use stabby::{sync::ArcSlice, vec::Vec};
+    let mut rng = rand::thread_rng();
+    for _ in 0..1000 {
+        let data: ArcSlice<u8> = (0..rng.gen_range(10..100))
+            .map(|_| rng.gen())
+            .collect::<Vec<u8>>()
+            .into();
+        println!("{data:?}");
+        let bytes: Bytes<'_> = data.clone().into();
+        assert_eq!(bytes.as_slice(), &*data, "Bytes construction went wrong");
+        for _ in 0..100 {
+            assert_eq!(bytes.clone().as_slice(), bytes.as_slice());
+            let start = rng.gen_range(0..data.len());
+            let end = rng.gen_range(start..=data.len());
+            assert_eq!(
+                bytes.clone().subsliced(start..end),
+                &data[start..end],
+                "subsliced went wrong"
+            );
+            let (l, r) = bytes.clone().split_at(start).unwrap();
+            assert_eq!(
+                (l.as_slice(), r.as_slice()),
+                data.split_at(start),
+                "split went wrong"
+            );
         }
     }
 }
