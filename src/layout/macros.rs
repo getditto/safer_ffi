@@ -90,6 +90,8 @@ match_cfg! {
 ///
 /// Note: you rarely need to call this macro directly. Instead, look for the
 /// [`ReprC!`] macro to safely implement [`ReprC`][`trait@crate::layout::ReprC`].
+///
+/// [`ReprC!`]: crate::ReprC!
 #[macro_export]
 macro_rules! CType {(
     $(

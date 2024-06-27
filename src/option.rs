@@ -1,4 +1,4 @@
-use crate::ඞ::ConcreteReprC;
+use crate::layout::ConcreteReprC;
 
 /// An ABI-stable version of `core::option::Option`.
 /// Its usage is expected to be the same as a standard Option, converting to and from said Option when necessary.
@@ -12,7 +12,7 @@ use crate::ඞ::ConcreteReprC;
 /// [discriminant elision], wherein the `None` value is represented using
 /// the null bitpattern (_e.g._, the `NULL` pointer).
 ///
-/// [repr_c::Box]: crate::repr_c::Box
+/// [repr_c::Box]: crate::prelude::repr_c::Box
 /// [discriminant elision]: https://doc.rust-lang.org/1.78.0/core/option/index.html#representation
 #[cfg_attr(feature = "stabby", stabby::stabby)]
 #[repr(C, u8)]
