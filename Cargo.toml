@@ -8,6 +8,7 @@ authors = [
     "Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>",
 ]
 edition = "2021"
+rust-version = "1.72.1"
 
 description = "Write safer FFI code in Rust without polluting it with unsafe code"
 keywords = [
