@@ -635,7 +635,7 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 
 [[package]]
 name = "safer-ffi"
-version = "0.1.9-rc1"
+version = "0.1.9"
 dependencies = [
  "cratesio-placeholder-package",
  "inventory",
@@ -660,7 +660,7 @@ dependencies = [
 
 [[package]]
 name = "safer_ffi-proc_macros"
-version = "0.1.9-rc1"
+version = "0.1.9"
 dependencies = [
  "macro_rules_attribute",
  "prettyplease",
@@ -1125,18 +1125,3 @@ dependencies = [
  "quote",
  "syn 1.0.109",
 ]
-
-[[patch.unused]]
-name = "tracing"
-version = "0.1.40"
-source = "git+https://github.com/getditto/tracing?branch=sm/some-public-things#021710a269737b3bcf42a26ff1d473bd3211f5a0"
-
-[[patch.unused]]
-name = "tracing-core"
-version = "0.1.32"
-source = "git+https://github.com/getditto/tracing?branch=sm/some-public-things#021710a269737b3bcf42a26ff1d473bd3211f5a0"
-
-[[patch.unused]]
-name = "tracing-subscriber"
-version = "0.3.18"
-source = "git+https://github.com/getditto/tracing?branch=sm/some-public-things#021710a269737b3bcf42a26ff1d473bd3211f5a0"
