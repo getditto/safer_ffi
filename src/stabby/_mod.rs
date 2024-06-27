@@ -28,6 +28,8 @@ use {
 ///
 /// [`::safer-ffi`][crate] waves any responsibility w.r.t. SemVer breakage that
 /// may otherwise ensue.
+///
+/// [`ReprC`]: trait@ReprC
 #[stabby::stabby]
 pub
 struct Stabbied<T> /* = */ (

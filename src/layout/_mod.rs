@@ -232,7 +232,7 @@ unsafe trait LegacyCType
         /// "placeholders" such as when monomorphising generics structs or
         /// arrays.
         ///
-        /// This provides the implementation used by [`CType::c_short_name`]`()`.
+        /// This provides the implementation used by [`LegacyCType::c_short_name`]`()`.
         ///
         /// There are no bad implementations of this method, except,
         /// of course, for the obligation to provide a valid identifier chunk,
@@ -297,7 +297,7 @@ unsafe trait LegacyCType
         /// [`CType`][`trait@CType`].
         ///
         /// The `Display` logic is auto-derived from the implementation of
-        /// [`CType::c_short_name_fmt`]`()`.
+        /// [`LegacyCType::c_short_name_fmt`]`()`.
         #[inline]
         fn c_short_name ()
           -> short_name_impl_display::ImplDisplay<Self>
@@ -305,10 +305,10 @@ unsafe trait LegacyCType
             short_name_impl_display::ImplDisplay { _phantom: PhantomData }
         }
 
-        /// Necessary one-time code for [`CType::c_var`]`()` to make sense.
+        /// Necessary one-time code for [`LegacyCType::c_var`]`()` to make sense.
         ///
         /// Some types, such as `char`, are part of the language, and can be
-        /// used directly by [`CType::c_var`]`()`.
+        /// used directly by [`LegacyCType::c_var`]`()`.
         /// In that case, there is nothing else to _define_, and all is fine.
         ///
         ///   - That is the default implementation of this method: doing
@@ -346,7 +346,7 @@ unsafe trait LegacyCType
         ///
         /// # Safety
         ///
-        /// Given that the defined types may be used by [`CType::c_var_fmt`]`()`,
+        /// Given that the defined types may be used by [`LegacyCType::c_var_fmt`]`()`,
         /// the same safety disclaimers apply.
         ///
         /// ## Examples
@@ -416,9 +416,9 @@ unsafe trait LegacyCType
         // }
 
         /// The core method of the trait: it provides the implementation to be
-        /// used by [`CType::c_var`], by bringing a `Formatter` in scope.
+        /// used by [`LegacyCType::c_var`], by bringing a `Formatter` in scope.
         ///
-        /// This provides the implementation used by [`CType::c_var`]`()`.
+        /// This provides the implementation used by [`LegacyCType::c_var`]`()`.
         ///
         /// The implementations are thus much like any classic `Display` impl,
         /// except that:
@@ -515,10 +515,10 @@ unsafe trait LegacyCType
         ;
 
         /// Convenience function for _callers_ / users of types implementing
-        /// [`CType`][`trait@CType`].
+        /// [`LegacyCType`][`trait@LegacyCType`].
         ///
         /// The `Display` logic is auto-derived from the implementation of
-        /// [`CType::c_var_fmt`]`()`.
+        /// [`LegacyCType::c_var_fmt`]`()`.
         #[inline]
         fn c_var (
             var_name: &'_ str,
