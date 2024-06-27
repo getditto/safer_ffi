@@ -1,8 +1,11 @@
 ﻿using System;
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using FfiTests;
+
 static class Tests
 {
     public unsafe delegate R WithUTF8Continuation<R>(byte * _);
@@ -63,19 +66,29 @@ static class Tests
 
         // test with_concat
         unsafe {
-            string s = null;
+            var s = new List<string>();
+            var handle = GCHandle.Alloc(s);
+
+            [UnmanagedCallersOnly()]
+            static unsafe void cb(void * ctx, byte /*const*/ * p) {
+                GCHandle handle = GCHandle.FromIntPtr((IntPtr) ctx);
+                var s = (List<string>)handle.Target;
+                s.Add(Marshal.PtrToStringUTF8((IntPtr)p));
+            }
+
             s1.WithUTF8(p1 => s2.WithUTF8(p2 => {
                 Ffi.with_concat(
                     p1,
                     p2,
-                    new RefDynFnMut1_void_char_const_ptr_t { env_ptr = (void *) 0xbad00, call = (void * _,
-                    byte * p) => {
-                        s = Marshal.PtrToStringUTF8((IntPtr)p);
-                    },
-                });
+                    new RefDynFnMut1_void_char_const_ptr_t {
+                        env_ptr = (void *)(IntPtr)handle,
+                        call = &cb,
+                    }
+                );
                 return 0;
             }));
-            Trace.Assert(s == s1 + s2);
+            handle.Free();
+            Trace.Assert(s[0] == s1 + s2);
         }
 
         // test max
@@ -110,16 +123,16 @@ static class Tests
             Ffi.free_foo(foo);
             Ffi.free_foo(null);
 
-            bool called = false;
-            Ffi.with_foo((foo_t * foo) => {
+            [UnmanagedCallersOnly()]
+            static unsafe void cb(foo_t * foo) {
                 Trace.Assert(
                     Ffi.read_foo(foo)
                     ==
                     42
                 );
-                called = true;
-            });
-            Trace.Assert(called);
+            }
+
+            Ffi.with_foo(&cb);
         }
 
         // test constant
