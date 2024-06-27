@@ -113,6 +113,7 @@ jobs:
         feature--dyn-traits: ['', '--features dyn-traits', '--features futures', '--features tokio']
         # feature--log: ['', '--features log']
         feature--js: ['', '--features js']
+        feature--stabby: ['', '--features stabby']
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -134,6 +135,7 @@ jobs:
             ${{ matrix.feature--headers }}
             ${{ matrix.feature--dyn-traits }}
             ${{ matrix.feature--js }}
+            ${{ matrix.feature--stabby }}
 
   # == BUILD & TEST == #
   build-and-test:
