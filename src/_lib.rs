@@ -303,6 +303,9 @@ pub
 mod slice;
 
 #[cfg(feature = "stabby")]
+#[cfg_attr(all(docs, feature = "nightly"),
+    doc(cfg(feature = "stabby"))
+)]
 #[path = "stabby/_mod.rs"]
 pub
 mod stabby;

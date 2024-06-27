@@ -10,8 +10,24 @@ use {
     },
 };
 
-/// Coherence wrapper for a blanket `ReprC` implementation off
+/// Coherence wrapper for a blanket [`ReprC`] implementation off
 /// a [`stabby::IStable`] one, without running into overlapping impls.
+///
+/// # A note about SemVer and stability
+///
+/// There is a blanket impl of [`ReprC`] for this type, bounded by
+/// [`::stabby::IStable`]. This, technically, is a public dependency on
+/// `::stabby`, whose major versions could then be technically perceived as
+/// breaking for this crate too.
+///
+/// This crate takes the opinionated stance not to be deterred from publicly
+/// exposing this wrapper nonetheless, trusting the users to know what they're
+/// doing.
+///
+/// If you are unsure, **do not use this wrapper**.
+///
+/// [`::safer-ffi`][crate] waves any responsibility w.r.t. SemVer breakage that
+/// may otherwise ensue.
 #[stabby::stabby]
 pub
 struct Stabbied<T> /* = */ (
