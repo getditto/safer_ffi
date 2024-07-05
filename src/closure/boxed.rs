@@ -30,6 +30,7 @@ macro_rules! with_tuple {(
             ") -> Ret>`",
         )]
         #[repr(C)]
+        #[cfg_attr(feature = "stabby", stabby::stabby)]
         pub
         struct $BoxDynFnMut_N [Ret $(, $A_N $(, $A_k)*)?]
         where {
