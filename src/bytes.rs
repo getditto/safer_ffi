@@ -16,16 +16,38 @@ use safer_ffi_proc_macros::derive_ReprC;
 #[repr(C)]
 #[cfg_attr(feature = "stabby", stabby::stabby)]
 pub struct Bytes<'a> {
-    start: core::ptr::NonNull<u8>,
+    start: *const u8,
     len: usize,
     data: *const (),
     capacity: usize,
     vtable: &'a BytesVt,
 }
-
+#[cfg(not(feature = "stabby"))]
+unsafe impl<'a> crate::layout::__HasNiche__ for Bytes<'a> {
+    fn is_niche(it: &'_ <Self as crate::ඞ::ReprC>::CLayout) -> bool {
+        !it.vtable.is_null()
+    }
+}
 #[cfg(feature = "stabby")]
+unsafe impl<'a> crate::layout::__HasNiche__ for Bytes<'a>
+where
+    Bytes<'a>: stabby::IStable<HasExactlyOneNiche = stabby::abi::B1>,
+{
+    fn is_niche(it: &'_ <Self as crate::ඞ::ReprC>::CLayout) -> bool {
+        !it.vtable.is_null()
+    }
+}
+
 const _: () = {
-    let _ = <Bytes<'_> as stabby::IStable>::ID;
+    #[cfg(feature = "stabby")]
+    const fn check_single_niche<
+        T: stabby::IStable<HasExactlyOneNiche = stabby::abi::B1> + crate::layout::__HasNiche__,
+    >() -> u64 {
+        T::ID
+    }
+    #[cfg(not(feature = "stabby"))]
+    const fn check_single_niche<T: crate::layout::__HasNiche__>() -> () {}
+    let _ = check_single_niche::<Bytes<'static>>();
 };
 
 extern "C" fn noop(_: *const (), _: usize) {}
@@ -45,7 +67,7 @@ impl<'a> Bytes<'a> {
             release: Some(noop),
         };
         Self {
-            start: unsafe { core::ptr::NonNull::new_unchecked(data.as_ptr().cast_mut()) },
+            start: data.as_ptr().cast_mut(),
             len: data.len(),
             data: data.as_ptr().cast(),
             capacity: data.len(),
@@ -76,7 +98,7 @@ impl<'a> Bytes<'a> {
         assert!(start <= end);
         assert!(end <= self.len);
         let len = end - start;
-        self.start = unsafe { core::ptr::NonNull::new_unchecked(self.start.as_ptr().add(start)) };
+        self.start = unsafe { self.start.add(start) };
         self.len = len;
     }
     /// Convenience around [`Self::shrink_to`] for better method chaining.
@@ -113,8 +135,7 @@ impl<'a> Bytes<'a> {
             let mut right = left.clone();
             left.len = index;
             right.len -= index;
-            right.start =
-                unsafe { core::ptr::NonNull::new_unchecked(right.start.as_ptr().add(index)) };
+            right.start = unsafe { right.start.add(index) };
             Ok((left, right))
         } else {
             Err(self)
@@ -122,7 +143,7 @@ impl<'a> Bytes<'a> {
     }
     /// Returns the slice's contents.
     pub const fn as_slice(&self) -> &[u8] {
-        unsafe { core::slice::from_raw_parts(self.start.as_ptr(), self.len) }
+        unsafe { core::slice::from_raw_parts(self.start, self.len) }
     }
     #[cfg(any(feature = "alloc", feature = "stabby"))]
     /// Copies the slice into an `stabby::sync::ArcSlice<u8>` if `stabby` is enabled or a `Arc<[u8]>` otherwise before wrapping it in [`Bytes`].
@@ -236,7 +257,7 @@ impl<'a> From<&'a [u8]> for Bytes<'a> {
             retain: Some(noop),
         };
         Bytes {
-            start: core::ptr::NonNull::from(data).cast(),
+            start: data.as_ptr().cast(),
             len: data.len(),
             data: data.as_ptr().cast(),
             capacity: data.len(),
@@ -262,7 +283,7 @@ impl From<Arc<[u8]>> for Bytes<'static> {
     fn from(data: Arc<[u8]>) -> Self {
         let capacity = data.len();
         Bytes {
-            start: core::ptr::NonNull::<[u8]>::from(data.as_ref()).cast(),
+            start: data.as_ref().as_ptr().cast(),
             len: data.len(),
             data: Arc::into_raw(data) as *const (),
             capacity,
@@ -281,7 +302,7 @@ impl<'a, T: Sized + AsRef<[u8]> + Send + Sync + 'a> From<Arc<T>> for Bytes<'a> {
         }
         let data: &[u8] = value.as_ref().as_ref();
         Bytes {
-            start: core::ptr::NonNull::<[u8]>::from(data.as_ref()).cast(),
+            start: data.as_ptr().cast(),
             len: data.len(),
             capacity: data.len(),
             data: Arc::into_raw(value) as *const (),
@@ -302,7 +323,7 @@ impl From<alloc::boxed::Box<[u8]>> for Bytes<'_> {
         }
         let bytes: &[u8] = &*value;
         let len = bytes.len();
-        let start = core::ptr::NonNull::<[u8]>::from(bytes).cast();
+        let start = bytes.as_ptr().cast();
         let data = alloc::boxed::Box::into_raw(value).cast::<()>();
         Bytes {
             start,
@@ -355,7 +376,7 @@ static STABBY_ARCSLICE_BYTESVT: BytesVt = BytesVt {
 impl From<stabby::sync::ArcSlice<u8>> for Bytes<'static> {
     fn from(data: stabby::sync::ArcSlice<u8>) -> Self {
         let slice = data.as_slice();
-        let start = core::ptr::NonNull::<[u8]>::from(slice).cast();
+        let start = slice.as_ptr().cast();
         let len = data.len();
         let data = stabby::sync::ArcSlice::into_raw(data);
         unsafe {
@@ -385,7 +406,7 @@ impl<T: Sized + AsRef<[u8]> + Send + Sync + 'static> From<stabby::sync::Arc<T>> 
         }
         let data: &[u8] = value.as_ref().as_ref();
         Bytes {
-            start: core::ptr::NonNull::<[u8]>::from(data.as_ref()).cast(),
+            start: data.as_ptr().cast(),
             len: data.len(),
             capacity: data.len(),
             data: unsafe { core::mem::transmute(stabby::sync::Arc::into_raw(value)) },
@@ -479,7 +500,7 @@ impl<'a> TryFrom<Bytes<'a>> for Arc<[u8]> {
     fn try_from(value: Bytes<'a>) -> Result<Self, Self::Error> {
         let data = value.data.cast();
         match core::ptr::eq(value.vtable, &ARC_BYTES_VT)
-            && core::ptr::eq(value.start.as_ptr(), data)
+            && core::ptr::eq(value.start, data)
             && value.len == value.capacity
         {
             true => unsafe {
@@ -505,9 +526,7 @@ impl<'a> TryFrom<Bytes<'a>> for stabby::sync::ArcSlice<u8> {
     type Error = Bytes<'a>;
     fn try_from(value: Bytes<'a>) -> Result<Self, Self::Error> {
         let data = value.data.cast();
-        match core::ptr::eq(value.vtable, &ARC_BYTES_VT)
-            && core::ptr::eq(value.start.as_ptr(), data)
-        {
+        match core::ptr::eq(value.vtable, &ARC_BYTES_VT) && core::ptr::eq(value.start, data) {
             true => unsafe {
                 let value = core::mem::ManuallyDrop::new(value);
                 let arc = stabby::sync::ArcSlice::from_raw(stabby::alloc::AllocSlice {
