@@ -325,6 +325,7 @@ macro_rules! ReprC {(
     $(
         #[doc = $doc2]
     )*
+    #[cfg_attr(feature = "stabby", stabby::stabby)]
     #[repr($C_or_transparent)]
     $(
         #[$attr]
