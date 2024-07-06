@@ -458,6 +458,7 @@
 <a href="#458" id="458">458</a>
 <a href="#459" id="459">459</a>
 <a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(rustfmt, rustfmt::skip)]
 
 </span><span class="macro">export_cfgs! </span>{$
@@ -785,7 +786,8 @@
     </span>$(
         <span class="attr">#[doc = <span class="macro-nonterminal">$doc2</span>]
     </span>)*
-    <span class="attr">#[repr(<span class="macro-nonterminal">$C_or_transparent</span>)]
+    <span class="attr">#[cfg_attr(feature = <span class="string">&quot;stabby&quot;</span>, stabby::stabby)]
+    #[repr(<span class="macro-nonterminal">$C_or_transparent</span>)]
     </span>$(
         <span class="attr">#[<span class="macro-nonterminal">$attr</span>]
     </span>)*

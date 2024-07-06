@@ -226,6 +226,7 @@
 <a href="#226" id="226">226</a>
 <a href="#227" id="227">227</a>
 <a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
 </pre></div><pre class="rust"><code>
 <span class="attr">#![cfg_attr(rustfmt, rustfmt::skip)]
 </span><span class="doccomment">//! See [the dedicated section of the guide](https://getditto.github.io/safer_ffi/dyn_traits/_.html).
@@ -371,7 +372,8 @@ trait </span>DynClone : ReprCTrait {
     }
 }
 
-<span class="attr">#[derive_ReprC]
+<span class="attr">#[cfg_attr(feature = <span class="string">&quot;stabby&quot;</span>, stabby::stabby)]
+#[derive_ReprC]
 #[repr(transparent)]
 </span><span class="kw">pub
 struct </span>VirtualPtr&lt;DynTrait : <span class="question-mark">?</span>Sized + ReprCTrait&gt;(

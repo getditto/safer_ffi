@@ -217,6 +217,9 @@
 <a href="#217" id="217">217</a>
 <a href="#218" id="218">218</a>
 <a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(rustfmt, rustfmt::skip)]
 </span><span class="doccomment">//! Wrappers around `NonNull` to better express the semantics of such pointer.
 //!
@@ -227,14 +230,16 @@
 <span class="attr">#[doc(no_inline)]
 </span><span class="kw">pub use </span>::core::ptr::<span class="kw-2">*</span>;
 
-<span class="attr">#[repr(transparent)]
+<span class="attr">#[cfg_attr(feature = <span class="string">&quot;stabby&quot;</span>, stabby::stabby)]
+#[repr(transparent)]
 </span><span class="kw">pub
 struct </span>NonNullRef&lt;T&gt; (
     <span class="kw">pub
     </span>ptr::NonNull&lt;T&gt;, <span class="comment">// Variance OK because immutable
 </span>);
 
-<span class="attr">#[repr(transparent)]
+<span class="attr">#[cfg_attr(feature = <span class="string">&quot;stabby&quot;</span>, stabby::stabby)]
+#[repr(transparent)]
 </span><span class="kw">pub
 struct </span>NonNullMut&lt;T&gt; (
     <span class="kw">pub
@@ -244,7 +249,8 @@ struct </span>NonNullMut&lt;T&gt; (
     </span>PhantomInvariant&lt;T&gt;, <span class="comment">// Must be invariant because non-owning mutable.
 </span>);
 
-<span class="attr">#[repr(transparent)]
+<span class="attr">#[cfg_attr(feature = <span class="string">&quot;stabby&quot;</span>, stabby::stabby)]
+#[repr(transparent)]
 </span><span class="kw">pub
 struct </span>NonNullOwned&lt;T&gt; (
     <span class="kw">pub

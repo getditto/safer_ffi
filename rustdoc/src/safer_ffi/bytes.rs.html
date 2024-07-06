@@ -574,6 +574,25 @@
 <a href="#574" id="574">574</a>
 <a href="#575" id="575">575</a>
 <a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::{
     borrow::Borrow,
     fmt::Debug,
@@ -592,16 +611,38 @@
 #[repr(C)]
 #[cfg_attr(feature = <span class="string">&quot;stabby&quot;</span>, stabby::stabby)]
 </span><span class="kw">pub struct </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt; {
-    start: core::ptr::NonNull&lt;u8&gt;,
+    start: <span class="kw-2">*const </span>u8,
     len: usize,
     data: <span class="kw-2">*const </span>(),
     capacity: usize,
     vtable: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BytesVt,
 }
-
+<span class="attr">#[cfg(not(feature = <span class="string">&quot;stabby&quot;</span>))]
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">crate</span>::layout::__HasNiche__ <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>is_niche(it: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>&lt;<span class="self">Self </span><span class="kw">as </span><span class="kw">crate</span>::ඞ::ReprC&gt;::CLayout) -&gt; bool {
+        !it.vtable.is_null()
+    }
+}
 <span class="attr">#[cfg(feature = <span class="string">&quot;stabby&quot;</span>)]
-</span><span class="kw">const _</span>: () = {
-    <span class="kw">let _ </span>= &lt;Bytes&lt;<span class="lifetime">&#39;_</span>&gt; <span class="kw">as </span>stabby::IStable&gt;::ID;
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">crate</span>::layout::__HasNiche__ <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt;
+<span class="kw">where
+    </span><span class="self">Self</span>: stabby::IStable&lt;HasExactlyOneNiche = stabby::abi::B1&gt;,
+{
+    <span class="kw">fn </span>is_niche(it: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>&lt;<span class="self">Self </span><span class="kw">as </span><span class="kw">crate</span>::ඞ::ReprC&gt;::CLayout) -&gt; bool {
+        !it.vtable.is_null()
+    }
+}
+
+<span class="kw">const _</span>: () = {
+    <span class="attr">#[cfg(feature = <span class="string">&quot;stabby&quot;</span>)]
+    </span><span class="kw">const fn </span>check_single_niche&lt;
+        T: stabby::IStable&lt;HasExactlyOneNiche = stabby::abi::B1&gt; + <span class="kw">crate</span>::layout::__HasNiche__,
+    &gt;() -&gt; u64 {
+        T::ID
+    }
+    <span class="attr">#[cfg(not(feature = <span class="string">&quot;stabby&quot;</span>))]
+    </span><span class="kw">const fn </span>check_single_niche&lt;T: <span class="kw">crate</span>::layout::__HasNiche__&gt;() -&gt; () {}
+    <span class="kw">_ </span>= check_single_niche::&lt;Bytes&lt;<span class="lifetime">&#39;static</span>&gt;&gt;();
 };
 
 <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>noop(<span class="kw">_</span>: <span class="kw-2">*const </span>(), <span class="kw">_</span>: usize) {}
@@ -621,7 +662,7 @@
             release: <span class="prelude-val">Some</span>(noop),
         };
         <span class="self">Self </span>{
-            start: <span class="kw">unsafe </span>{ core::ptr::NonNull::new_unchecked(data.as_ptr().cast_mut()) },
+            start: data.as_ptr().cast_mut(),
             len: data.len(),
             data: data.as_ptr().cast(),
             capacity: data.len(),
@@ -652,7 +693,7 @@
         <span class="macro">assert!</span>(start &lt;= end);
         <span class="macro">assert!</span>(end &lt;= <span class="self">self</span>.len);
         <span class="kw">let </span>len = end - start;
-        <span class="self">self</span>.start = <span class="kw">unsafe </span>{ core::ptr::NonNull::new_unchecked(<span class="self">self</span>.start.as_ptr().add(start)) };
+        <span class="self">self</span>.start = <span class="kw">unsafe </span>{ <span class="self">self</span>.start.add(start) };
         <span class="self">self</span>.len = len;
     }
     <span class="doccomment">/// Convenience around [`Self::shrink_to`] for better method chaining.
@@ -689,8 +730,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>right = left.clone();
             left.len = index;
             right.len -= index;
-            right.start =
-                <span class="kw">unsafe </span>{ core::ptr::NonNull::new_unchecked(right.start.as_ptr().add(index)) };
+            right.start = <span class="kw">unsafe </span>{ right.start.add(index) };
             <span class="prelude-val">Ok</span>((left, right))
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(<span class="self">self</span>)
@@ -698,7 +738,7 @@
     }
     <span class="doccomment">/// Returns the slice&#39;s contents.
     </span><span class="kw">pub const fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
-        <span class="kw">unsafe </span>{ core::slice::from_raw_parts(<span class="self">self</span>.start.as_ptr(), <span class="self">self</span>.len) }
+        <span class="kw">unsafe </span>{ core::slice::from_raw_parts(<span class="self">self</span>.start, <span class="self">self</span>.len) }
     }
     <span class="attr">#[cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;stabby&quot;</span>))]
     </span><span class="doccomment">/// Copies the slice into an `stabby::sync::ArcSlice&lt;u8&gt;` if `stabby` is enabled or a `Arc&lt;[u8]&gt;` otherwise before wrapping it in [`Bytes`].
@@ -812,7 +852,7 @@
             retain: <span class="prelude-val">Some</span>(noop),
         };
         Bytes {
-            start: core::ptr::NonNull::from(data).cast(),
+            start: data.as_ptr().cast(),
             len: data.len(),
             data: data.as_ptr().cast(),
             capacity: data.len(),
@@ -838,7 +878,7 @@
     <span class="kw">fn </span>from(data: Arc&lt;[u8]&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>capacity = data.len();
         Bytes {
-            start: core::ptr::NonNull::&lt;[u8]&gt;::from(data.as_ref()).cast(),
+            start: data.as_ref().as_ptr().cast(),
             len: data.len(),
             data: Arc::into_raw(data) <span class="kw">as </span><span class="kw-2">*const </span>(),
             capacity,
@@ -857,7 +897,7 @@
         }
         <span class="kw">let </span>data: <span class="kw-2">&amp;</span>[u8] = value.as_ref().as_ref();
         Bytes {
-            start: core::ptr::NonNull::&lt;[u8]&gt;::from(data.as_ref()).cast(),
+            start: data.as_ptr().cast(),
             len: data.len(),
             capacity: data.len(),
             data: Arc::into_raw(value) <span class="kw">as </span><span class="kw-2">*const </span>(),
@@ -878,7 +918,7 @@
         }
         <span class="kw">let </span>bytes: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;*</span>value;
         <span class="kw">let </span>len = bytes.len();
-        <span class="kw">let </span>start = core::ptr::NonNull::&lt;[u8]&gt;::from(bytes).cast();
+        <span class="kw">let </span>start = bytes.as_ptr().cast();
         <span class="kw">let </span>data = alloc::boxed::Box::into_raw(value).cast::&lt;()&gt;();
         Bytes {
             start,
@@ -931,7 +971,7 @@
 </span><span class="kw">impl </span>From&lt;stabby::sync::ArcSlice&lt;u8&gt;&gt; <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;static</span>&gt; {
     <span class="kw">fn </span>from(data: stabby::sync::ArcSlice&lt;u8&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>slice = data.as_slice();
-        <span class="kw">let </span>start = core::ptr::NonNull::&lt;[u8]&gt;::from(slice).cast();
+        <span class="kw">let </span>start = slice.as_ptr().cast();
         <span class="kw">let </span>len = data.len();
         <span class="kw">let </span>data = stabby::sync::ArcSlice::into_raw(data);
         <span class="kw">unsafe </span>{
@@ -961,7 +1001,7 @@
         }
         <span class="kw">let </span>data: <span class="kw-2">&amp;</span>[u8] = value.as_ref().as_ref();
         Bytes {
-            start: core::ptr::NonNull::&lt;[u8]&gt;::from(data.as_ref()).cast(),
+            start: data.as_ptr().cast(),
             len: data.len(),
             capacity: data.len(),
             data: <span class="kw">unsafe </span>{ core::mem::transmute(stabby::sync::Arc::into_raw(value)) },
@@ -1055,7 +1095,7 @@
     <span class="kw">fn </span>try_from(value: Bytes&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>data = value.data.cast();
         <span class="kw">match </span>core::ptr::eq(value.vtable, <span class="kw-2">&amp;</span>ARC_BYTES_VT)
-            &amp;&amp; core::ptr::eq(value.start.as_ptr(), data)
+            &amp;&amp; core::ptr::eq(value.start, data)
             &amp;&amp; value.len == value.capacity
         {
             <span class="bool-val">true </span>=&gt; <span class="kw">unsafe </span>{
@@ -1081,9 +1121,7 @@
     <span class="kw">type </span>Error = Bytes&lt;<span class="lifetime">&#39;a</span>&gt;;
     <span class="kw">fn </span>try_from(value: Bytes&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>data = value.data.cast();
-        <span class="kw">match </span>core::ptr::eq(value.vtable, <span class="kw-2">&amp;</span>ARC_BYTES_VT)
-            &amp;&amp; core::ptr::eq(value.start.as_ptr(), data)
-        {
+        <span class="kw">match </span>core::ptr::eq(value.vtable, <span class="kw-2">&amp;</span>ARC_BYTES_VT) &amp;&amp; core::ptr::eq(value.start, data) {
             <span class="bool-val">true </span>=&gt; <span class="kw">unsafe </span>{
                 <span class="kw">let </span>value = core::mem::ManuallyDrop::new(value);
                 <span class="kw">let </span>arc = stabby::sync::ArcSlice::from_raw(stabby::alloc::AllocSlice {
