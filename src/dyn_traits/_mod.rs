@@ -143,6 +143,7 @@ mod hack {
     }
 }
 
+#[cfg_attr(feature = "stabby", stabby::stabby)]
 #[derive_ReprC]
 #[repr(transparent)]
 pub

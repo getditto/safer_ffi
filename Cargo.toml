@@ -3,7 +3,7 @@ path = "src/_lib.rs"
 
 [package]
 name = "safer-ffi"
-version = "0.1.9"  # Keep in sync
+version = "0.1.9-rc2"  # Keep in sync
 authors = [
     "Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>",
 ]
@@ -141,10 +141,10 @@ paste.version = "1.0.12"
 scopeguard.version = "1.1.0"
 scopeguard.default-features = false
 
-stabby.version = "6.2.1"
+stabby.version = "36.1.1-rc5"
 stabby.optional = true
 stabby.default-features = false
-stabby.features = ["libc"]
+stabby.features = ["experimental-ctypes"]
 
 tokio.optional = true
 tokio.version = "1.26.0"

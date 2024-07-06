@@ -8,6 +8,7 @@ use_prelude!();
 #[doc(no_inline)]
 pub use ::core::ptr::*;
 
+#[cfg_attr(feature = "stabby", stabby::stabby)]
 #[repr(transparent)]
 pub
 struct NonNullRef<T> (
@@ -15,6 +16,7 @@ struct NonNullRef<T> (
     ptr::NonNull<T>, // Variance OK because immutable
 );
 
+#[cfg_attr(feature = "stabby", stabby::stabby)]
 #[repr(transparent)]
 pub
 struct NonNullMut<T> (
@@ -25,6 +27,7 @@ struct NonNullMut<T> (
     PhantomInvariant<T>, // Must be invariant because non-owning mutable.
 );
 
+#[cfg_attr(feature = "stabby", stabby::stabby)]
 #[repr(transparent)]
 pub
 struct NonNullOwned<T> (
