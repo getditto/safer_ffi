@@ -31,7 +31,7 @@ unsafe impl<'a> crate::layout::__HasNiche__ for Bytes<'a> {
 #[cfg(feature = "stabby")]
 unsafe impl<'a> crate::layout::__HasNiche__ for Bytes<'a>
 where
-    Bytes<'a>: stabby::IStable<HasExactlyOneNiche = stabby::abi::B1>,
+    Self: stabby::IStable<HasExactlyOneNiche = stabby::abi::B1>,
 {
     fn is_niche(it: &'_ <Self as crate::ඞ::ReprC>::CLayout) -> bool {
         !it.vtable.is_null()
@@ -47,7 +47,7 @@ const _: () = {
     }
     #[cfg(not(feature = "stabby"))]
     const fn check_single_niche<T: crate::layout::__HasNiche__>() -> () {}
-    let _ = check_single_niche::<Bytes<'static>>();
+    _ = check_single_niche::<Bytes<'static>>();
 };
 
 extern "C" fn noop(_: *const (), _: usize) {}

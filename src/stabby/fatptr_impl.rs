@@ -32,7 +32,7 @@ pub struct StabbyDyn<Ptr, VTable: 'static> {
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VtDrop {
-    pub v_drop: extern "C" fn(*const ()),
+    pub v_drop: unsafe extern "C" fn(*mut ()),
 }
 unsafe impl ReprC for stabby::abi::vtable::VtDrop {
     type CLayout = CLayoutOf<VtDrop>;
