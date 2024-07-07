@@ -325,12 +325,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "lazy_static"
-version = "1.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
-
-[[package]]
 name = "libc"
 version = "0.2.140"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -635,7 +629,7 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 
 [[package]]
 name = "safer-ffi"
-version = "0.1.9"
+version = "0.1.9-rc2"
 dependencies = [
  "cratesio-placeholder-package",
  "inventory",
@@ -660,7 +654,7 @@ dependencies = [
 
 [[package]]
 name = "safer_ffi-proc_macros"
-version = "0.1.9"
+version = "0.1.9-rc2"
 dependencies = [
  "macro_rules_attribute",
  "prettyplease",
@@ -739,22 +733,20 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stabby"
-version = "6.2.1"
+version = "36.1.1-rc6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5cc4130e4b64d914e432a3b67015ee8b43c0d5539537062fae82d1feb893e3ce"
+checksum = "7c9682766f056a3ed1b0a9d1ec42f8ec6f9ba1b37edb5429a534642da88df17f"
 dependencies = [
- "lazy_static",
  "rustversion",
  "stabby-abi",
 ]
 
 [[package]]
 name = "stabby-abi"
-version = "6.2.1"
+version = "36.1.1-rc6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5cead76d087c145190e9cecf3bf2bbab771c7c562d149c85d49713b7cba4894"
+checksum = "d34d170d5185059715b930a8070ec9fb3db0ca4bfe16c5bbf82f98042031bef2"
 dependencies = [
- "libc",
  "rustversion",
  "sha2-const-stable",
  "stabby-macros",
@@ -762,9 +754,9 @@ dependencies = [
 
 [[package]]
 name = "stabby-macros"
-version = "6.2.1"
+version = "36.1.1-rc6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cde33ec9241911a5c6905c9632b84f2b2a13dc0d5c9bf724bbbe160a1f82ca06"
+checksum = "8e1c4bf506d6e7a272dd24e5efa9c838b094a7d39906f8aca3d21f8dea939bc9"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
