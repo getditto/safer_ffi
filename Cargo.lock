@@ -318,12 +318,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "lazy_static"
-version = "1.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
-
-[[package]]
 name = "libc"
 version = "0.2.155"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -628,7 +622,7 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 
 [[package]]
 name = "safer-ffi"
-version = "0.1.9"
+version = "0.1.9-rc2"
 dependencies = [
  "async-compat",
  "cratesio-placeholder-package",
@@ -738,22 +732,20 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stabby"
-version = "6.2.1"
+version = "36.1.1-rc5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5cc4130e4b64d914e432a3b67015ee8b43c0d5539537062fae82d1feb893e3ce"
+checksum = "25054b4ee0b62efb04b726c842de469822e465aea288cee48bfb4d609a31a30b"
 dependencies = [
- "lazy_static",
  "rustversion",
  "stabby-abi",
 ]
 
 [[package]]
 name = "stabby-abi"
-version = "6.2.1"
+version = "36.1.1-rc5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5cead76d087c145190e9cecf3bf2bbab771c7c562d149c85d49713b7cba4894"
+checksum = "5e4a396c54ccfacf796696b1079a3ca73b54f97714e35daa8af5097e652c03d2"
 dependencies = [
- "libc",
  "rustversion",
  "sha2-const-stable",
  "stabby-macros",
@@ -761,9 +753,9 @@ dependencies = [
 
 [[package]]
 name = "stabby-macros"
-version = "6.2.1"
+version = "36.1.1-rc5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cde33ec9241911a5c6905c9632b84f2b2a13dc0d5c9bf724bbbe160a1f82ca06"
+checksum = "ae489fe740ec3780546c24bcb4970c030364e197f9182739c1aa8ec499761d70"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
@@ -1124,3 +1116,18 @@ dependencies = [
  "quote",
  "syn 1.0.109",
 ]
+
+[[patch.unused]]
+name = "tracing"
+version = "0.1.40"
+source = "git+https://github.com/getditto/tracing?branch=ditto#4638ac9c7590a5584cf29c5d1ddb4a249bf48c0d"
+
+[[patch.unused]]
+name = "tracing-core"
+version = "0.1.32"
+source = "git+https://github.com/getditto/tracing?branch=ditto#4638ac9c7590a5584cf29c5d1ddb4a249bf48c0d"
+
+[[patch.unused]]
+name = "tracing-subscriber"
+version = "0.3.18"
+source = "git+https://github.com/getditto/tracing?branch=ditto#4638ac9c7590a5584cf29c5d1ddb4a249bf48c0d"

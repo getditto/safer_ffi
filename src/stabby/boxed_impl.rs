@@ -1,7 +1,8 @@
 use crate::{
-    CVoid, Tuple2_Layout,
-    ඞ::{ReprC, __HasNiche__},
+    CVoid,
+    ඞ::{CLayoutOf, ReprC, __HasNiche__},
 };
+use safer_ffi_proc_macros::derive_ReprC;
 pub use stabby::boxed::{Box, BoxedSlice, BoxedStr};
 use stabby::{alloc::IAlloc, IStable};
 
@@ -25,39 +26,31 @@ where
     }
 }
 
-unsafe impl<T: IStable, Alloc: IStable + IAlloc> ReprC for BoxedSlice<T, Alloc>
+unsafe impl<T: IStable + ReprC, Alloc: IStable + IAlloc> ReprC for BoxedSlice<T, Alloc>
 where
     Box<T, Alloc>: IStable<Size = USIZE>,
 {
-    type CLayout = Tuple2_Layout<*const CVoid, *const CVoid>;
+    type CLayout = CLayoutOf<AllocSlice<T>>;
     fn is_valid(it: &'_ Self::CLayout) -> bool {
-        !Self::is_niche(it)
-            && it._0.align_offset(core::mem::align_of::<T>()) == 0
-            && it._1.align_offset(core::mem::align_of::<T>()) == 0
-    }
-}
-unsafe impl<T: IStable, Alloc: IStable + IAlloc> __HasNiche__ for BoxedSlice<T, Alloc>
-where
-    Box<T, Alloc>: IStable<Size = USIZE>,
-{
-    fn is_niche(it: &'_ <Self as ReprC>::CLayout) -> bool {
-        it._0.is_null() || it._1.is_null()
+        !(it.start.is_null() || it.end.is_null())
+            && it.start.align_offset(core::mem::align_of::<T>()) == 0
+            && it.end.align_offset(core::mem::align_of::<T>()) == 0
     }
 }
 unsafe impl<Alloc: IStable + IAlloc> ReprC for BoxedStr<Alloc>
 where
     BoxedSlice<u8, Alloc>: ReprC,
 {
-    type CLayout = <BoxedSlice<u8, Alloc> as ReprC>::CLayout;
+    type CLayout = CLayoutOf<BoxedSlice<u8, Alloc>>;
     fn is_valid(it: &'_ Self::CLayout) -> bool {
         BoxedSlice::<u8, Alloc>::is_valid(it)
     }
 }
-unsafe impl<Alloc: IStable + IAlloc> __HasNiche__ for BoxedStr<Alloc>
-where
-    BoxedSlice<u8, Alloc>: __HasNiche__,
-{
-    fn is_niche(it: &'_ Self::CLayout) -> bool {
-        BoxedSlice::<u8, Alloc>::is_niche(it)
-    }
+
+#[derive_ReprC]
+#[repr(C)]
+#[derive(Debug)]
+pub struct AllocSlice<T> {
+    pub start: *const T,
+    pub end: *const T,
 }

@@ -1,6 +1,7 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(missing_debug_implementations)]
 
+#[cfg_attr(feature = "stabby", stabby::stabby)]
 #[derive(Default, Clone, Copy)]
 pub
 struct PhantomCovariantLifetime<'lt> (
@@ -10,6 +11,7 @@ struct PhantomCovariantLifetime<'lt> (
     >,
 );
 
+#[cfg_attr(feature = "stabby", stabby::stabby)]
 pub
 struct PhantomInvariant<T : ?Sized> (
     pub
