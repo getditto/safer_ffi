@@ -7,7 +7,11 @@ unsafe
 trait HasNiche : ReprC {
     fn is_niche (it: &'_ <Self as ReprC>::CLayout)
       -> bool
-    ;
+    {
+        // default implementation (the `is_niche()` heuristic does not need to
+        // be 100% accurate, since it's just a sanity check helper):
+        Self::is_valid(it).not()
+    }
 }
 
 unsafe
