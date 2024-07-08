@@ -526,7 +526,7 @@ impl<'a> TryFrom<Bytes<'a>> for stabby::sync::ArcSlice<u8> {
     type Error = Bytes<'a>;
     fn try_from(value: Bytes<'a>) -> Result<Self, Self::Error> {
         let data = value.data.cast();
-        match core::ptr::eq(value.vtable, &ARC_BYTES_VT) && core::ptr::eq(value.start, data) {
+        match core::ptr::eq(value.vtable, &STABBY_ARCSLICE_BYTESVT) && core::ptr::eq(value.start, data) {
             true => unsafe {
                 let value = core::mem::ManuallyDrop::new(value);
                 let arc = stabby::sync::ArcSlice::from_raw(stabby::alloc::AllocSlice {
