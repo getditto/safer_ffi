@@ -6,7 +6,7 @@ Its usage is expected to be the same as a standard Option, converting to and fro
 <p>Note that this uses an explicit <code>bool</code> flag to store the discriminant.</p>
 <p>In a reduced set of cases of “non-nullable types”, <em>i.e.</em>, types
 where the null bit-pattern is a niche of the type (which is especially
-relevant for <code>&amp;T</code>, <code>&amp;mut T</code>, and <code><a href="crate::repr_c::Box">repr_c::Box</a>&lt;T&gt;</code>),
+relevant for <code>&amp;T</code>, <code>&amp;mut T</code>, and <code><a href="../boxed/type.Box.html" title="type safer_ffi::boxed::Box">repr_c::Box</a>&lt;T&gt;</code>),
 usage of the stdlib <a href="https://doc.rust-lang.org/1.72.1/core/option/enum.Option.html" title="enum core::option::Option"><code>Option</code></a> enables
 <a href="https://doc.rust-lang.org/1.78.0/core/option/index.html#representation">discriminant elision</a>, wherein the <code>None</code> value is represented using
 the null bitpattern (<em>e.g.</em>, the <code>NULL</code> pointer).</p>

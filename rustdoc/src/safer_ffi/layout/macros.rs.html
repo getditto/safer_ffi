@@ -459,6 +459,8 @@
 <a href="#459" id="459">459</a>
 <a href="#460" id="460">460</a>
 <a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(rustfmt, rustfmt::skip)]
 
 </span><span class="macro">export_cfgs! </span>{$
@@ -551,6 +553,8 @@
 ///
 /// Note: you rarely need to call this macro directly. Instead, look for the
 /// [`ReprC!`] macro to safely implement [`ReprC`][`trait@crate::layout::ReprC`].
+///
+/// [`ReprC!`]: crate::ReprC!
 </span><span class="attr">#[macro_export]
 </span><span class="macro">macro_rules! </span>CType {(
     $(

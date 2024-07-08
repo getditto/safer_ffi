@@ -98,6 +98,10 @@
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(rustfmt, rustfmt::skip)]
 </span><span class="macro">use_prelude!</span>();
 <span class="kw">use </span><span class="kw">crate</span>::prelude::c_slice;
@@ -107,7 +111,11 @@ unsafe
 trait </span>HasNiche : ReprC {
     <span class="kw">fn </span>is_niche (it: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>&lt;<span class="self">Self </span><span class="kw">as </span>ReprC&gt;::CLayout)
       -&gt; bool
-    ;
+    {
+        <span class="comment">// default implementation (the `is_niche()` heuristic does not need to
+        // be 100% accurate, since it&#39;s just a sanity check helper):
+        </span><span class="self">Self</span>::is_valid(it).not()
+    }
 }
 
 <span class="kw">unsafe

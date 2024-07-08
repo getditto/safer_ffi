@@ -133,7 +133,7 @@
 <a href="#133" id="133">133</a>
 <a href="#134" id="134">134</a>
 <a href="#135" id="135">135</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::ඞ::ConcreteReprC;
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::layout::ConcreteReprC;
 
 <span class="doccomment">/// An ABI-stable version of `core::option::Option`.
 /// Its usage is expected to be the same as a standard Option, converting to and from said Option when necessary.
@@ -147,7 +147,7 @@
 /// [discriminant elision], wherein the `None` value is represented using
 /// the null bitpattern (_e.g._, the `NULL` pointer).
 ///
-/// [repr_c::Box]: crate::repr_c::Box
+/// [repr_c::Box]: crate::prelude::repr_c::Box
 /// [discriminant elision]: https://doc.rust-lang.org/1.78.0/core/option/index.html#representation
 </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;stabby&quot;</span>, stabby::stabby)]
 #[repr(C, u8)]

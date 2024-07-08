@@ -671,6 +671,9 @@
 <a href="#671" id="671">671</a>
 <a href="#672" id="672">672</a>
 <a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
 </pre></div><pre class="rust"><code><span class="attr">#![warn(warnings)] </span><span class="comment">// Prevent `-Dwarnings` from causing breakage.
 </span><span class="attr">#![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt::skip)]
@@ -976,6 +979,9 @@ mod </span>ptr;
 mod </span>slice;
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;stabby&quot;</span>)]
+#[cfg_attr(all(docs, feature = <span class="string">&quot;nightly&quot;</span>),
+    doc(cfg(feature = <span class="string">&quot;stabby&quot;</span>))
+)]
 #[path = <span class="string">&quot;stabby/_mod.rs&quot;</span>]
 </span><span class="kw">pub
 mod </span>stabby;
