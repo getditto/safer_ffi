@@ -629,7 +629,7 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 
 [[package]]
 name = "safer-ffi"
-version = "0.1.9-rc2"
+version = "0.1.9-rc3"
 dependencies = [
  "cratesio-placeholder-package",
  "inventory",
@@ -654,7 +654,7 @@ dependencies = [
 
 [[package]]
 name = "safer_ffi-proc_macros"
-version = "0.1.9-rc2"
+version = "0.1.9-rc3"
 dependencies = [
  "macro_rules_attribute",
  "prettyplease",
@@ -733,9 +733,9 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stabby"
-version = "36.1.1-rc6"
+version = "36.1.1-rc8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c9682766f056a3ed1b0a9d1ec42f8ec6f9ba1b37edb5429a534642da88df17f"
+checksum = "08cc900971922b54e6a2538906ec4bb17ae834d99ff9025741c701edf44006ba"
 dependencies = [
  "rustversion",
  "stabby-abi",
@@ -743,9 +743,9 @@ dependencies = [
 
 [[package]]
 name = "stabby-abi"
-version = "36.1.1-rc6"
+version = "36.1.1-rc8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d34d170d5185059715b930a8070ec9fb3db0ca4bfe16c5bbf82f98042031bef2"
+checksum = "ca372c473f8a01399568c4d6d131e6248d71958e38eb2e574b863feedbddac27"
 dependencies = [
  "rustversion",
  "sha2-const-stable",
@@ -754,9 +754,9 @@ dependencies = [
 
 [[package]]
 name = "stabby-macros"
-version = "36.1.1-rc6"
+version = "36.1.1-rc8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e1c4bf506d6e7a272dd24e5efa9c838b094a7d39906f8aca3d21f8dea939bc9"
+checksum = "80454eabdc8324ded185cd1c91641127f7f7186be3b21ef5a21202affc4544ce"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
