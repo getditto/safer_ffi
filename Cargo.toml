@@ -144,10 +144,10 @@ paste.version = "1.0.12"
 scopeguard.version = "1.1.0"
 scopeguard.default-features = false
 
-stabby.version = "36.1.1-rc5"
+stabby.version = "36.1.1-rc8"
 stabby.optional = true
 stabby.default-features = false
-stabby.features = ["experimental-ctypes"]
+stabby.features = ["experimental-ctypes", "alloc-rs"]
 
 tokio.optional = true
 tokio.version = "1.26.0"
