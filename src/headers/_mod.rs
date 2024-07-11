@@ -364,19 +364,19 @@ impl Builder<'_, WhereTo> {
     fn write_prelude (&'_ self, definer: &'_ mut dyn Definer)
       -> io::Result<()>
     {
-        let lang = self.language.unwrap_or(Language::C);
+        let lang = self.language.unwrap_or_default();
 
         let guard = self.guard();
         let text_after_guard = self.text_after_guard();
 
         match lang {
-            | Language::C => writeln!(definer.out(),
+            | Language::C(_) => writeln!(definer.out(),
                   include_str!("templates/c/_prelude.h"),
                   guard = guard,
                   text_after_guard = text_after_guard,
             ),
 
-            | Language::CSharp => writeln!(definer.out(),
+            | Language::CSharp(_) => writeln!(definer.out(),
                 include_str!("templates/csharp/_prelude.cs"),
                 NameSpace = Self::pascal_cased_lib_name(),
                 RustLib = Self::lib_name(),
@@ -384,7 +384,7 @@ impl Builder<'_, WhereTo> {
 
             #[cfg(feature = "python-headers")]
             // CHECKME
-            | Language::Python => Ok(()),
+            | Language::Python(_) => Ok(()),
         }
     }
 
@@ -393,7 +393,7 @@ impl Builder<'_, WhereTo> {
       -> io::Result<()>
     {
         let stable_header = self.stable_header.unwrap_or(true);
-        let lang = self.language.unwrap_or(Language::C);
+        let lang = self.language.unwrap_or_default();
         let _naming_convention =
             self.naming_convention
                 .as_ref()
@@ -427,14 +427,14 @@ impl Builder<'_, WhereTo> {
     fn write_epilogue (&'_ self, definer: &'_ mut dyn Definer)
       -> io::Result<()>
     {
-        let lang = self.language.unwrap_or(Language::C);
+        let lang = self.language.unwrap_or_default();
         match lang {
-            | Language::C => write!(definer.out(),
+            | Language::C(_) => write!(definer.out(),
                 include_str!("templates/c/epilogue.h"),
                 guard = self.guard(),
             ),
 
-            | Language::CSharp => {
+            | Language::CSharp(_) => {
                 let pkg_name = Self::pascal_cased_lib_name();
                     write!(definer.out(),
                 include_str!("templates/csharp/epilogue.cs"),
@@ -443,7 +443,7 @@ impl Builder<'_, WhereTo> {
             },
             #[cfg(feature = "python-headers")]
             // CHECKME
-            | Language::Python => Ok(()),
+            | Language::Python(_) => Ok(()),
         }
     }
 
@@ -514,13 +514,19 @@ impl Builder<'_, WhereTo> {
 pub
 enum Language {
     /// C, _lingua franca_ of FFI interop.
-    C,
+    C(languages::CLanguageConfig),
 
     /// C#
-    CSharp,
+    CSharp(languages::CSharpLanguageConfig),
     /// Python (experimental).
     #[cfg(feature = "python-headers")]
-    Python,
+    Python(languages::PythonLanguageConfig),
+}
+
+impl Default for Language {
+    fn default() -> Self {
+        Language::C(languages::CLanguageConfig::default())
+    }
 }
 
 /// Allow user to specify
@@ -540,14 +546,14 @@ hidden_export! {
     ) -> ::std::io::Result<()>
     {
         match lang {
-            | Language::C => {
+            | Language::C(_) => {
                 <T::CLayout as CType>::define_self(&crate::headers::languages::C, definer)
             },
-            | Language::CSharp => {
+            | Language::CSharp(_) => {
                 <T::CLayout as CType>::define_self(&crate::headers::languages::CSharp, definer)
             },
             #[cfg(feature = "python-headers")]
-            | Language::Python => {
+            | Language::Python(_) => {
                 <T::CLayout as CType>::define_self(&crate::headers::languages::Python, definer)
             },
         }
@@ -571,10 +577,10 @@ fn __define_fn__ (
 ) -> io::Result<()>
 {
     let dyn_lang: &dyn HeaderLanguage = match lang {
-        | Language::C => &languages::C,
-        | Language::CSharp => &languages::CSharp,
+        | Language::C(_) => &languages::C,
+        | Language::CSharp(_) => &languages::CSharp,
         #[cfg(feature = "python-headers")]
-        | Language::Python => &languages::Python,
+        | Language::Python(_) => &languages::Python,
     };
     dyn_lang.emit_function(
         definer,
@@ -602,15 +608,15 @@ hidden_export! {
         )
         {
             match lang {
-                | Language::C => write!(out,
+                | Language::C(_) => write!(out,
                     "{} (", f_name.trim(),
                 ),
 
-                | Language::CSharp => write!(out,
+                | Language::CSharp(_) => write!(out,
                     "{} (", f_name.trim(),
                 ),
                 #[cfg(feature = "python-headers")]
-                | Language::Python => write!(out,
+                | Language::Python(_) => write!(out,
                     "{} (", f_name.trim(),
                 ),
             }
@@ -628,12 +634,12 @@ hidden_export! {
                 out.push_str(",");
             }
             match lang {
-                | Language::C => write!(out,
+                | Language::C(_) => write!(out,
                     "\n    {}",
                     Arg::CLayout::name_wrapping_var(&crate::headers::languages::C, arg_name),
                 ),
 
-                | Language::CSharp => write!(out,
+                | Language::CSharp(_) => write!(out,
                     "\n        {marshaler}{}",
                      Arg::CLayout::name_wrapping_var(&crate::headers::languages::CSharp, arg_name),
                     marshaler =
@@ -644,7 +650,7 @@ hidden_export! {
                     ,
                 ),
                 #[cfg(feature = "python-headers")]
-                | Language::Python => write!(out,
+                | Language::Python(_) => write!(out,
                     "\n    {}",
                     Arg::CLayout::name_wrapping_var(&crate::headers::languages::Python, arg_name),
                 ),
@@ -661,7 +667,7 @@ hidden_export! {
         {
             let out = definer.out();
             match lang {
-                | Language::C => {
+                | Language::C(_) => {
                     if fname_and_args.ends_with("(") {
                         fname_and_args.push_str("void");
                     }
@@ -671,7 +677,7 @@ hidden_export! {
                     )
                 },
 
-                | Language::CSharp => {
+                | Language::CSharp(_) => {
                     writeln!(out,
                         concat!(
                             "public unsafe partial class Ffi {{\n    ",
@@ -690,7 +696,7 @@ hidden_export! {
                     )
                 },
                 #[cfg(feature = "python-headers")]
-                | Language::Python => {
+                | Language::Python(_) => {
                     if fname_and_args.ends_with("(") {
                         fname_and_args.push_str("void");
                     }

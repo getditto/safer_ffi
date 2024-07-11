@@ -12,16 +12,16 @@ use {
     },
 };
 
-pub use c::C;
+pub use c::{C, CLanguageConfig};
 mod c;
 
 __cfg_csharp__! {
-    pub use csharp::CSharp;
+    pub use csharp::{CSharp, CSharpLanguageConfig};
     mod csharp;
 }
 
 __cfg_python__! {
-    pub use python::Python;
+    pub use python::{Python, PythonLanguageConfig};
     mod python;
 }
 

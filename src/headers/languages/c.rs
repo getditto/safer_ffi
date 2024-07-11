@@ -232,3 +232,13 @@ impl HeaderLanguage for C {
         Ok(())
     }
 }
+
+#[derive(
+    Debug, Default,
+    Copy, Clone,
+    PartialEq, Eq,
+)]
+pub
+struct CLanguageConfig {
+
+}

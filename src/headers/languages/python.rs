@@ -174,3 +174,13 @@ impl HeaderLanguage for Python {
         Ok(())
     }
 }
+
+#[derive(
+    Debug, Default,
+    Copy, Clone,
+    PartialEq, Eq,
+)]
+pub
+struct PythonLanguageConfig {
+
+}
