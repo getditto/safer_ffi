@@ -9,6 +9,7 @@ impl HeaderLanguage for CSharp {
     fn emit_docs (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        _lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         indent: &'_ Indentation,
     ) -> io::Result<()>
@@ -53,6 +54,7 @@ impl HeaderLanguage for CSharp {
     fn emit_simple_enum (
         self: &'_ CSharp,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         backing_integer: Option<&dyn PhantomCType>,
@@ -68,7 +70,7 @@ impl HeaderLanguage for CSharp {
 
         let ref full_ty_name = self_ty.name(self);
 
-        self.emit_docs(ctx, docs, indent)?;
+        self.emit_docs(ctx, lang_config, docs, indent)?;
 
         out!(
             ("public enum {full_ty_name} {super} {{"),
@@ -81,7 +83,7 @@ impl HeaderLanguage for CSharp {
 
         if let _ = indent.scope() {
             for v in variants {
-                self.emit_docs(ctx, v.docs, indent)?;
+                self.emit_docs(ctx, lang_config, v.docs, indent)?;
                 let variant_name = v.name /* ctx.adjust_variant_name(
                     Language::CSharp,
                     enum_name,
@@ -104,6 +106,7 @@ impl HeaderLanguage for CSharp {
     fn emit_struct (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         fields: &'_ [StructField<'_>]
@@ -119,7 +122,7 @@ impl HeaderLanguage for CSharp {
 
         let ref name = self_ty.name(self);
 
-        self.emit_docs(ctx, docs, indent)?;
+        self.emit_docs(ctx, lang_config, docs, indent)?;
         out!((
             "[StructLayout(LayoutKind.Sequential, Size = {size})]"
             "public unsafe struct {name} {{"
@@ -138,7 +141,7 @@ impl HeaderLanguage for CSharp {
                 if mem::take(first).not() {
                     out!("\n");
                 }
-                self.emit_docs(ctx, docs, indent)?;
+                self.emit_docs(ctx, lang_config, docs, indent)?;
                 if let Some(csharp_marshaler) = ty.csharp_marshaler() {
                     out!((
                         "[MarshalAs({csharp_marshaler})]"
@@ -159,6 +162,7 @@ impl HeaderLanguage for CSharp {
     fn emit_opaque_type (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>
@@ -168,7 +172,7 @@ impl HeaderLanguage for CSharp {
 
         let full_ty_name = self_ty.name(self);
 
-        self.emit_docs(ctx, docs, indent)?;
+        self.emit_docs(ctx, lang_config, docs, indent)?;
         out!(("public struct {full_ty_name} {{"));
         if let _ = indent.scope() {
             out!((
@@ -186,6 +190,7 @@ impl HeaderLanguage for CSharp {
     fn emit_function (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
@@ -200,7 +205,7 @@ impl HeaderLanguage for CSharp {
         ));
 
         if let _ = indent.scope() {
-            self.emit_docs(ctx, docs, indent)?;
+            self.emit_docs(ctx, lang_config, docs, indent)?;
 
             if let Some(marshaler) = ret_ty.csharp_marshaler() {
                 out!((
@@ -241,6 +246,7 @@ impl HeaderLanguage for CSharp {
     fn emit_constant (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         name: &'_ str,
         ty: &'_ dyn PhantomCType,
@@ -252,7 +258,7 @@ impl HeaderLanguage for CSharp {
 
         out!(("public unsafe partial class Ffi {{"));
         if let _ = indent.scope() {
-            self.emit_docs(ctx, docs, indent)?;
+            self.emit_docs(ctx, lang_config, docs, indent)?;
             let ty = ty.name(self);
             out!((
                 "public const {ty} {name} = {value:?};"

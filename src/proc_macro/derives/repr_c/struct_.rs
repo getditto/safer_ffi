@@ -435,10 +435,12 @@ fn derive_opaque (
                 fn define_self__impl (
                     language: &'_ dyn #ඞ::HeaderLanguage,
                     definer: &'_ mut dyn #ඞ::Definer,
+                    lang_config: &'_ #ඞ::LanguageConfig,
                 ) -> #ඞ::io::Result<()>
                 {
                     language.emit_opaque_type(
                         definer,
+                        lang_config,
                         &[#(#docs),*],
                         &#ඞ::PhantomData::<Self>,
                     )

@@ -111,13 +111,15 @@ fn derive (
             fn define_self__impl (
                 language: &'_ dyn #headers::languages::HeaderLanguage,
                 definer: &'_ mut dyn #headers::Definer,
+                lang_config: &'_ #headers::LanguageConfig,
             ) -> #ඞ::io::Result<()>
             {
             #(
-                < #EachFieldTy as #CType >::define_self(language, definer)?;
+                < #EachFieldTy as #CType >::define_self(language, definer, lang_config)?;
             )*
                 language.emit_struct(
                     definer,
+                    lang_config,
                     &[#(#struct_docs),*],
                     &#ඞ::marker::PhantomData::<Self>,
                     &[#(#each_field),*],

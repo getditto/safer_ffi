@@ -216,7 +216,7 @@ pub struct AnUnusedStruct {
 fn generate_headers ()
   -> ::std::io::Result<()>
 {
-    use ::safer_ffi::headers::Language::*;
+    use ::safer_ffi::headers::LanguageConfig::*;
     for &(language, ext) in &[(C, "h"), (CSharp, "cs"), (Python, "cffi")] {
         let builder =
             ::safer_ffi::headers::builder()

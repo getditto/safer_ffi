@@ -244,7 +244,7 @@ __cfg_headers__! {
 
         pub
         gen_def:
-            fn(&mut dyn headers::Definer, headers::Language)
+            fn(&mut dyn headers::Definer, &headers::LanguageConfig)
               -> std::io::Result<()>
         ,
     }
@@ -502,7 +502,7 @@ mod __ {
         crate::{
             headers::{
                 Definer,
-                Language,
+                LanguageConfig,
                 languages::{
                     self,
                     EnumVariant,

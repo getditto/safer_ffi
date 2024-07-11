@@ -6,6 +6,7 @@ use_prelude!();
 __cfg_headers__! {
     use crate::headers::{
         Definer,
+        LanguageConfig,
         languages::*,
     };
 }
@@ -54,17 +55,19 @@ trait CType
         fn define_self__impl (
             language: &'_ dyn HeaderLanguage,
             definer: &'_ mut dyn Definer,
+            lang_config: &'_ LanguageConfig,
         ) -> io::Result<()>
         ;
 
         fn define_self (
             language: &'_ dyn HeaderLanguage,
             definer: &'_ mut dyn Definer,
+            lang_config: &'_ LanguageConfig,
         ) -> io::Result<()>
         {
             definer.define_once(
                 &Self::name(language),
-                &mut |definer| Self::define_self__impl(language, definer),
+                &mut |definer| Self::define_self__impl(language, definer, lang_config),
             )
         }
 
@@ -110,6 +113,7 @@ impl<T : LegacyCType> CType for T {
         fn define_self__impl (
             _: &'_ dyn HeaderLanguage,
             _: &'_ mut dyn Definer,
+            _: &'_ LanguageConfig,
         ) -> io::Result<()>
         {
             unimplemented!()
@@ -118,18 +122,19 @@ impl<T : LegacyCType> CType for T {
         fn define_self (
             language: &'_ dyn HeaderLanguage,
             definer: &'_ mut dyn Definer,
+            lang_config: &'_ LanguageConfig,
         ) -> io::Result<()>
         {
             match () {
                 | _case if language.is::<C>() => {
-                    <Self as LegacyCType>::c_define_self(definer)
+                    <Self as LegacyCType>::c_define_self(definer, lang_config)
                 },
                 | _case if language.is::<CSharp>() => {
-                    <Self as LegacyCType>::csharp_define_self(definer)
+                    <Self as LegacyCType>::csharp_define_self(definer, lang_config)
                 },
                 #[cfg(feature = "python-headers")]
                 | _case if language.is::<Python>() => {
-                    <Self as LegacyCType>::c_define_self(definer)
+                    <Self as LegacyCType>::c_define_self(definer, lang_config)
                 },
                 | _ => unimplemented!(),
             }
@@ -137,7 +142,7 @@ impl<T : LegacyCType> CType for T {
 
         #[inline]
         fn name (
-            language: &'_ dyn HeaderLanguage,
+            language: &'_ dyn HeaderLanguage
         ) -> String
         {
             Self::name_wrapping_var(language, "")
@@ -398,20 +403,21 @@ unsafe trait LegacyCType
         ///     // ...
         /// }
         /// ```
-        fn c_define_self (definer: &'_ mut dyn Definer)
+        fn c_define_self (definer: &'_ mut dyn Definer, lang_config: &'_ LanguageConfig)
           -> io::Result<()>
         ;
         // {
-        //     Self::define_self(&C, definer)
+        //     Self::define_self(&C, definer, lang_config)
         // }
 
         // #[inline]
         // fn define_self__impl (
         //     language: &'_ dyn HeaderLanguage,
         //     definer: &'_ mut dyn Definer,
+        //     lang_config: &'_ LanguageConfig,
         // ) -> io::Result<()>
         // {
-        //     let _ = (language, definer);
+        //     let _ = (language, definer, lang_config);
         //     Ok(())
         // }
 
@@ -532,13 +538,14 @@ unsafe trait LegacyCType
 
         __cfg_csharp__! {
             /// Extra typedef code (_e.g._ `[LayoutKind.Sequential] struct ...`)
-            fn csharp_define_self (definer: &'_ mut dyn Definer)
+            fn csharp_define_self (definer: &'_ mut dyn Definer, lang_config: &'_ LanguageConfig)
               -> io::Result<()>
             ;
             // {
             //     Self::define_self(
             //         &CSharp,
             //         definer,
+            //         lang_config
             //     )
             // }
 

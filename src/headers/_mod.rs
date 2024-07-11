@@ -162,10 +162,10 @@ match_! {(
     /// </pre>
     banner: &'__ str,
 
-    /// Sets the [`Language`] of the generated headers.
+    /// Sets the [`LanguageConfig`] of the generated headers.
     ///
-    /// It defaults to [`Language::C`].
-    language: Language,
+    /// It defaults to [`LanguageConfig::C`].
+    language_config: LanguageConfig,
 
     /// Sets prefix for generated functions, structs & enums
     naming_convention: NamingConvention,
@@ -364,27 +364,27 @@ impl Builder<'_, WhereTo> {
     fn write_prelude (&'_ self, definer: &'_ mut dyn Definer)
       -> io::Result<()>
     {
-        let lang = self.language.unwrap_or_default();
+        let lang_config = self.language_config.unwrap_or_default();
 
         let guard = self.guard();
         let text_after_guard = self.text_after_guard();
 
-        match lang {
-            | Language::C(_) => writeln!(definer.out(),
-                  include_str!("templates/c/_prelude.h"),
-                  guard = guard,
-                  text_after_guard = text_after_guard,
+        match lang_config {
+            | LanguageConfig::C(_) => writeln!(definer.out(),
+                                               include_str!("templates/c/_prelude.h"),
+                                               guard = guard,
+                                               text_after_guard = text_after_guard,
             ),
 
-            | Language::CSharp(_) => writeln!(definer.out(),
-                include_str!("templates/csharp/_prelude.cs"),
-                NameSpace = Self::pascal_cased_lib_name(),
-                RustLib = Self::lib_name(),
+            | LanguageConfig::CSharp(_) => writeln!(definer.out(),
+                                                    include_str!("templates/csharp/_prelude.cs"),
+                                                    NameSpace = Self::pascal_cased_lib_name(),
+                                                    RustLib = Self::lib_name(),
             ),
 
             #[cfg(feature = "python-headers")]
             // CHECKME
-            | Language::Python(_) => Ok(()),
+            | LanguageConfig::Python(_) => Ok(()),
         }
     }
 
@@ -393,7 +393,7 @@ impl Builder<'_, WhereTo> {
       -> io::Result<()>
     {
         let stable_header = self.stable_header.unwrap_or(true);
-        let lang = self.language.unwrap_or_default();
+        let lang_config = self.language_config.unwrap_or_default();
         let _naming_convention =
             self.naming_convention
                 .as_ref()
@@ -420,21 +420,21 @@ impl Builder<'_, WhereTo> {
                     .map(|crate::FfiExport { gen_def, .. }| gen_def)
             )
         };
-        (&mut { gen_defs }).try_for_each(|gen_def| gen_def(definer, lang))?;
+        (&mut { gen_defs }).try_for_each(|gen_def| gen_def(definer, &lang_config))?;
         Ok(())
     }
 
     fn write_epilogue (&'_ self, definer: &'_ mut dyn Definer)
       -> io::Result<()>
     {
-        let lang = self.language.unwrap_or_default();
-        match lang {
-            | Language::C(_) => write!(definer.out(),
-                include_str!("templates/c/epilogue.h"),
-                guard = self.guard(),
+        let lang_config = self.language_config.unwrap_or_default();
+        match lang_config {
+            | LanguageConfig::C(_) => write!(definer.out(),
+                                             include_str!("templates/c/epilogue.h"),
+                                             guard = self.guard(),
             ),
 
-            | Language::CSharp(_) => {
+            | LanguageConfig::CSharp(_) => {
                 let pkg_name = Self::pascal_cased_lib_name();
                     write!(definer.out(),
                 include_str!("templates/csharp/epilogue.cs"),
@@ -443,7 +443,7 @@ impl Builder<'_, WhereTo> {
             },
             #[cfg(feature = "python-headers")]
             // CHECKME
-            | Language::Python(_) => Ok(()),
+            | LanguageConfig::Python(_) => Ok(()),
         }
     }
 
@@ -512,7 +512,7 @@ impl Builder<'_, WhereTo> {
     PartialEq, Eq,
 )]
 pub
-enum Language {
+enum LanguageConfig {
     /// C, _lingua franca_ of FFI interop.
     C(languages::CLanguageConfig),
 
@@ -523,9 +523,9 @@ enum Language {
     Python(languages::PythonLanguageConfig),
 }
 
-impl Default for Language {
+impl Default for LanguageConfig {
     fn default() -> Self {
-        Language::C(languages::CLanguageConfig::default())
+        LanguageConfig::C(languages::CLanguageConfig::default())
     }
 }
 
@@ -542,19 +542,19 @@ hidden_export! {
     /// Invoke the language-specific typedef code for the given type.
     fn __define_self__<T : ReprC> (
         definer: &'_ mut dyn Definer,
-        lang: Language,
+        lang_config: &'_ LanguageConfig,
     ) -> ::std::io::Result<()>
     {
-        match lang {
-            | Language::C(_) => {
-                <T::CLayout as CType>::define_self(&crate::headers::languages::C, definer)
+        match lang_config {
+            | LanguageConfig::C(_) => {
+                <T::CLayout as CType>::define_self(&crate::headers::languages::C, definer, lang_config)
             },
-            | Language::CSharp(_) => {
-                <T::CLayout as CType>::define_self(&crate::headers::languages::CSharp, definer)
+            | LanguageConfig::CSharp(_) => {
+                <T::CLayout as CType>::define_self(&crate::headers::languages::CSharp, definer, lang_config)
             },
             #[cfg(feature = "python-headers")]
-            | Language::Python(_) => {
-                <T::CLayout as CType>::define_self(&crate::headers::languages::Python, definer)
+            | LanguageConfig::Python(_) => {
+                <T::CLayout as CType>::define_self(&crate::headers::languages::Python, definer, lang_config)
             },
         }
     }
@@ -569,21 +569,22 @@ use self::languages::{
 #[apply(hidden_export)]
 fn __define_fn__ (
     definer: &'_ mut dyn Definer,
-    lang: Language,
+    lang_config: &'_ LanguageConfig,
     docs: &'_ [&'_ str],
     fname: &'_ str,
     args: &'_ [FunctionArg<'_>],
     ret_ty: &'_ dyn PhantomCType,
 ) -> io::Result<()>
 {
-    let dyn_lang: &dyn HeaderLanguage = match lang {
-        | Language::C(_) => &languages::C,
-        | Language::CSharp(_) => &languages::CSharp,
+    let dyn_lang: &dyn HeaderLanguage = match lang_config {
+        | LanguageConfig::C(_) => &languages::C,
+        | LanguageConfig::CSharp(_) => &languages::CSharp,
         #[cfg(feature = "python-headers")]
-        | Language::Python(_) => &languages::Python,
+        | LanguageConfig::Python(_) => &languages::Python,
     };
     dyn_lang.emit_function(
         definer,
+        lang_config,
         docs,
         fname,
         args,
@@ -604,19 +605,19 @@ hidden_export! {
         fn name (
             out: &'_ mut String,
             f_name: &'_ str,
-            lang: Language,
+            lang_config: &'_ LanguageConfig,
         )
         {
-            match lang {
-                | Language::C(_) => write!(out,
+            match lang_config {
+                | LanguageConfig::C(_) => write!(out,
                     "{} (", f_name.trim(),
                 ),
 
-                | Language::CSharp(_) => write!(out,
+                | LanguageConfig::CSharp(_) => write!(out,
                     "{} (", f_name.trim(),
                 ),
                 #[cfg(feature = "python-headers")]
-                | Language::Python(_) => write!(out,
+                | LanguageConfig::Python(_) => write!(out,
                     "{} (", f_name.trim(),
                 ),
             }
@@ -627,19 +628,19 @@ hidden_export! {
         fn arg<Arg : ReprC> (
             out: &'_ mut String,
             arg_name: &'_ str,
-            lang: Language,
+            lang_config: &'_ LanguageConfig,
         )
         {
             if out.ends_with("(").not() {
                 out.push_str(",");
             }
-            match lang {
-                | Language::C(_) => write!(out,
+            match lang_config {
+                | LanguageConfig::C(_) => write!(out,
                     "\n    {}",
                     Arg::CLayout::name_wrapping_var(&crate::headers::languages::C, arg_name),
                 ),
 
-                | Language::CSharp(_) => write!(out,
+                | LanguageConfig::CSharp(_) => write!(out,
                     "\n        {marshaler}{}",
                      Arg::CLayout::name_wrapping_var(&crate::headers::languages::CSharp, arg_name),
                     marshaler =
@@ -650,7 +651,7 @@ hidden_export! {
                     ,
                 ),
                 #[cfg(feature = "python-headers")]
-                | Language::Python(_) => write!(out,
+                | LanguageConfig::Python(_) => write!(out,
                     "\n    {}",
                     Arg::CLayout::name_wrapping_var(&crate::headers::languages::Python, arg_name),
                 ),
@@ -661,13 +662,13 @@ hidden_export! {
         pub
         fn ret<Ret : ReprC> (
             definer: &'_ mut dyn Definer,
-            lang: Language,
+            lang_config: &'_ LanguageConfig,
             mut fname_and_args: String,
         ) -> Result<()>
         {
             let out = definer.out();
-            match lang {
-                | Language::C(_) => {
+            match lang_config {
+                | LanguageConfig::C(_) => {
                     if fname_and_args.ends_with("(") {
                         fname_and_args.push_str("void");
                     }
@@ -677,7 +678,7 @@ hidden_export! {
                     )
                 },
 
-                | Language::CSharp(_) => {
+                | LanguageConfig::CSharp(_) => {
                     writeln!(out,
                         concat!(
                             "public unsafe partial class Ffi {{\n    ",
@@ -696,7 +697,7 @@ hidden_export! {
                     )
                 },
                 #[cfg(feature = "python-headers")]
-                | Language::Python(_) => {
+                | LanguageConfig::Python(_) => {
                     if fname_and_args.ends_with("(") {
                         fname_and_args.push_str("void");
                     }
