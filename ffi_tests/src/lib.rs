@@ -217,7 +217,13 @@ fn generate_headers ()
   -> ::std::io::Result<()>
 {
     use ::safer_ffi::headers::LanguageConfig::*;
-    for &(language, ext) in &[(C, "h"), (CSharp, "cs"), (Python, "cffi")] {
+    for (language, ext)
+        in  [
+                (C(CLanguageConfig::default()), "h"),
+                (CSharp(CSharpLanguageConfig::default()), "cs"),
+                (Python(PythonLanguageConfig::default()), "cffi")
+            ]
+    {
         let builder =
             ::safer_ffi::headers::builder()
                 .with_language(language)
