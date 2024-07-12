@@ -45,7 +45,7 @@ macro_rules! export_cfgs {(
 // ```rust
 // __with_cfg_python__!(|$if_cfg_python| {
 //     match … {
-//         Language::C => …,
+//         LanguageConfig::C(_) => …,
 //         $($($if_cfg_python)?
 //             Language::Python => …,
 //         )?

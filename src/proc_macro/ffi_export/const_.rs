@@ -37,16 +37,16 @@ fn handle (
                     | {
                         #krate::__with_cfg_python__!(|$if_cfg_python| {
                             use #krate::headers::{
-                                Language,
+                                LanguageConfig,
                                 languages::{self, HeaderLanguage},
                             };
 
                             let header_builder: &'static dyn HeaderLanguage = {
                                 match lang_config {
-                                    | Language::C(_) => &languages::C,
-                                    | Language::CSharp(_) => &languages::CSharp,
+                                    | LanguageConfig::C(_) => &languages::C,
+                                    | LanguageConfig::CSharp(_) => &languages::CSharp,
                                 $($($if_cfg_python)?
-                                    | Language::Python(_) => &languages::Python,
+                                    | LanguageConfig::Python(_) => &languages::Python,
                                 )?
                                 }
                             };

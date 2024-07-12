@@ -2,6 +2,11 @@
 #![allow(unused)]
 
 use ::safer_ffi::prelude::*;
+use ::safer_ffi::headers::languages::{
+    CLanguageConfig,
+    CSharpLanguageConfig,
+    PythonLanguageConfig
+};
 
 /// Concatenate the two input strings into a new one.
 ///
@@ -226,7 +231,7 @@ fn generate_headers ()
     {
         let builder =
             ::safer_ffi::headers::builder()
-                .with_language(language)
+                .with_language_config(language)
         ;
         if  ::std::env::var("HEADERS_TO_STDOUT")
                 .ok()
