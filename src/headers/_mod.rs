@@ -102,6 +102,7 @@
 #![allow(missing_copy_implementations, missing_debug_implementations)]
 
 use ::std::{
+    borrow::Cow,
     collections::HashSet,
     fs,
     io,
@@ -364,7 +365,7 @@ impl Builder<'_, WhereTo> {
     fn write_prelude (&'_ self, definer: &'_ mut dyn Definer)
       -> io::Result<()>
     {
-        let lang_config = self.language_config.unwrap_or_default();
+        let lang_config = self.language_config.clone().unwrap_or_default();
 
         let guard = self.guard();
         let text_after_guard = self.text_after_guard();
@@ -393,7 +394,7 @@ impl Builder<'_, WhereTo> {
       -> io::Result<()>
     {
         let stable_header = self.stable_header.unwrap_or(true);
-        let lang_config = self.language_config.unwrap_or_default();
+        let lang_config = self.language_config.clone().unwrap_or_default();
         let _naming_convention =
             self.naming_convention
                 .as_ref()
@@ -427,7 +428,7 @@ impl Builder<'_, WhereTo> {
     fn write_epilogue (&'_ self, definer: &'_ mut dyn Definer)
       -> io::Result<()>
     {
-        let lang_config = self.language_config.unwrap_or_default();
+        let lang_config = self.language_config.clone().unwrap_or_default();
         match lang_config {
             | LanguageConfig::C(_) => write!(definer.out(),
                                              include_str!("templates/c/epilogue.h"),
@@ -508,7 +509,7 @@ impl Builder<'_, WhereTo> {
 /// Language of the generated headers.
 #[derive(
     Debug,
-    Copy, Clone,
+    Clone,
     PartialEq, Eq,
 )]
 pub
@@ -521,6 +522,30 @@ enum LanguageConfig {
     /// Python (experimental).
     #[cfg(feature = "python-headers")]
     Python(languages::PythonLanguageConfig),
+}
+
+impl LanguageConfig {
+    fn unwrap_as_c_or_default(&self) -> Cow<'_, languages::CLanguageConfig> {
+        match self {
+            LanguageConfig::C(config) => Cow::Borrowed(config),
+            _ => Cow::Owned(languages::CLanguageConfig::default())
+        }
+    }
+
+    fn unwrap_as_csharp_or_default(&self) -> Cow<'_, languages::CSharpLanguageConfig> {
+        match self {
+            LanguageConfig::CSharp(config) => Cow::Borrowed(config),
+            _ => Cow::Owned(languages::CSharpLanguageConfig::default())
+        }
+    }
+
+    #[cfg(feature = "python-headers")]
+    fn unwrap_as_python_or_default(&self) -> Cow<'_, languages::PythonLanguageConfig> {
+        match self {
+            LanguageConfig::Python(config) => Cow::Borrowed(config),
+            _ => Cow::Owned(languages::PythonLanguageConfig::default())
+        }
+    }
 }
 
 impl Default for LanguageConfig {

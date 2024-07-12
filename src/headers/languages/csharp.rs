@@ -271,6 +271,8 @@ impl HeaderLanguage for CSharp {
     }
 }
 
+/// Configuration options for CSharp header generation
+///
 #[derive(
     Debug, Default,
     Copy, Clone,

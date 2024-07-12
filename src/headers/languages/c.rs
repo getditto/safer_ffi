@@ -174,6 +174,7 @@ impl HeaderLanguage for C {
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>
     {
+        let c_config = lang_config.unwrap_as_c_or_default();
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
 
         self.emit_docs(ctx, lang_config, docs, indent)?;
@@ -206,9 +207,14 @@ impl HeaderLanguage for C {
             String::from_utf8(buf).unwrap()
         };
 
+        let function_macro_prepend = match &c_config.function_macro_prepend {
+            Some(s) => format!("{} ", s),
+            _ => String::new()
+        };
+
         mk_out!(indent, ctx.out());
         out!(
-            ("{};"), ret_ty.name_wrapping_var(self, fn_sig_but_for_ret_type)
+            ("{}{};"), function_macro_prepend, ret_ty.name_wrapping_var(self, fn_sig_but_for_ret_type)
         );
 
         out!("\n");
@@ -239,12 +245,16 @@ impl HeaderLanguage for C {
     }
 }
 
+/// Configuration options for C header generation
+///
 #[derive(
     Debug, Default,
-    Copy, Clone,
+    Clone,
     PartialEq, Eq,
 )]
 pub
 struct CLanguageConfig {
-
+    /// Prepends each function definition with the specified macro
+    ///
+    pub function_macro_prepend: Option<String>
 }

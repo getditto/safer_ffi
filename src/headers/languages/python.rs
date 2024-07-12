@@ -181,6 +181,8 @@ impl HeaderLanguage for Python {
     }
 }
 
+/// Configuration options for Python header generation
+///
 #[derive(
     Debug, Default,
     Copy, Clone,
