@@ -2,11 +2,6 @@
 #![allow(unused)]
 
 use ::safer_ffi::prelude::*;
-use ::safer_ffi::headers::languages::{
-    CLanguageConfig,
-    CSharpLanguageConfig,
-    PythonLanguageConfig
-};
 
 /// Concatenate the two input strings into a new one.
 ///
@@ -222,6 +217,11 @@ fn generate_headers ()
   -> ::std::io::Result<()>
 {
     use ::safer_ffi::headers::LanguageConfig::*;
+    use ::safer_ffi::headers::languages::{
+        CLanguageConfig,
+        CSharpLanguageConfig,
+        PythonLanguageConfig
+    };
     for (language, ext)
         in  [
                 (C(CLanguageConfig::default()), "h"),
