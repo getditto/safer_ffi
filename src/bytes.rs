@@ -593,3 +593,17 @@ fn fuzz_stabby() {
         }
     }
 }
+
+#[cfg(feature = "serde")]
+impl<'a> serde::Serialize for Bytes<'a> {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_bytes(self.as_slice())
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'a, 'de: 'a> serde::Deserialize<'de> for Bytes<'a> {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        serde::Deserialize::deserialize(deserializer).map(|x: &[u8]| Bytes::from(x))
+    }
+}

@@ -66,9 +66,7 @@ futures = [
     "dyn-traits",
 ]
 
-stabby = [
-    "dep:stabby",
-]
+serde = ["dep:serde"]
 
 tokio = [
     "async-compat",
@@ -143,6 +141,10 @@ paste.version = "1.0.12"
 
 scopeguard.version = "1.1.0"
 scopeguard.default-features = false
+
+serde.version = "1.0.204"
+serde.optional = true
+serde.default_features = false
 
 stabby.version = "36.1.1-rc8"
 stabby.optional = true
