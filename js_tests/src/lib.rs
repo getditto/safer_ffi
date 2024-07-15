@@ -359,3 +359,18 @@ fn sleep (ms: u32)
         let _ = wasm_bindgen_futures::JsFuture::from(sleep(ms)).await;
     }
 }
+
+#[derive_ReprC(js, rename = "my_renamed_ptr")]
+#[repr(transparent)]
+pub struct MyRenamedPtr {
+    pub foo: ::core::ptr::NonNull<()>,
+    pub bar: (),
+}
+
+#[ffi_export(js)]
+fn my_renamed_ptr_api() -> MyRenamedPtr {
+    MyRenamedPtr {
+        foo: ::core::ptr::NonNull::new(0xbad000 as _).unwrap(),
+        bar: (),
+    }
+}
