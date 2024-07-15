@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["C","CSharp","EnumVariant","FunctionArg","Indentation","StructField"],"trait":["HeaderLanguage","PhantomCType","UpcastAny"]};
+window.SIDEBAR_ITEMS = {"struct":["C","CSharp","EnumVariant","FunctionArg","Indentation","StructField"],"trait":["HeaderLanguage","HeaderLanguageSupportingTypeAliases","PhantomCType","UpcastAny"]};
