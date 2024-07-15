@@ -64,8 +64,14 @@ type Docs<'lt> = &'lt [&'lt str];
 
 pub
 trait HeaderLanguage : UpcastAny {
-    fn language_name(&self) -> &'static str {
+    fn language_name(self: &'_ Self) -> &'static str {
         ::core::any::type_name::<Self>()
+    }
+
+    fn supports_type_aliases(self: &'_ Self)
+      -> Option<&'_ dyn HeaderLanguageSupportingTypeAliases>
+    {
+        None
     }
 
     fn emit_simple_enum (
@@ -126,6 +132,18 @@ trait HeaderLanguage : UpcastAny {
         // it is not directly called by the framework.
         Ok(())
     }
+}
+
+pub
+trait HeaderLanguageSupportingTypeAliases : HeaderLanguage {
+    fn emit_type_alias(
+        self: &'_ Self,
+        ctx: &'_ mut dyn Definer,
+        docs: Docs<'_>,
+        self_ty: &'_ dyn PhantomCType,
+        inner_ty: &'_ dyn PhantomCType,
+    ) -> io::Result<()>
+    ;
 }
 
 pub

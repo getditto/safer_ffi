@@ -132,6 +132,10 @@ static class Tests
             Trace.Assert(Ffi.returns_a_fn_ptr()(0x42) == 0x4200);
         }
 
+        unsafe {
+            Trace.Assert(Ffi.my_renamed_ptr_api() == (void *)0xbad000);
+        }
+
         Console.WriteLine("C#: [ok]");
     }
 }

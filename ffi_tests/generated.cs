@@ -246,6 +246,11 @@ public unsafe partial class Ffi {
 
 public unsafe partial class Ffi {
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    void * my_renamed_ptr_api ();
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     foo_t * new_foo ();
 }
 

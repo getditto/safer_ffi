@@ -284,29 +284,31 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
         )
     }
 
-  if (!is_web) {
-    assert.equal(ffi.getDeadlockTimeout(), 5000);
+    if (!is_web) {
+      assert.equal(ffi.getDeadlockTimeout(), 5000);
 
-    let error;
-    try {
-      ffi.setDeadlockTimeout("huehuehue");
-    } catch (e) {
-      error = e;
+      let error;
+      try {
+        ffi.setDeadlockTimeout("huehuehue");
+      } catch (e) {
+        error = e;
+      }
+      assert.equal(error?.message, "Expected a positive number");
+
+      ffi.setDeadlockTimeout(500);
+
+      assert.equal(ffi.getDeadlockTimeout(), 500);
+
+      error = null;
+      try {
+        ffi.setDeadlockTimeout(0);
+      } catch (e) {
+        error = e;
+      }
+      assert.equal(error?.message, "Deadlock timeout can only be set once");
     }
-    assert.equal(error?.message, "Expected a positive number");
 
-    ffi.setDeadlockTimeout(500);
-
-    assert.equal(ffi.getDeadlockTimeout(), 500);
-
-    error = null;
-    try {
-      ffi.setDeadlockTimeout(0);
-    } catch (e) {
-      error = e;
-    }
-    assert.equal(error?.message, "Deadlock timeout can only be set once");
-  }
+    assert.equal(ffi.my_renamed_ptr_api().addr, 0xbad000);
 
     console.log('Js tests passed successfully ✅');
 }
