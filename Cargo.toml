@@ -66,7 +66,13 @@ futures = [
     "dyn-traits",
 ]
 
-serde = ["dep:serde"]
+serde = [
+    "dep:serde",
+]
+
+stabby = [
+    "dep:stabby",
+]
 
 tokio = [
     "async-compat",
