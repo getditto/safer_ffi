@@ -230,6 +230,13 @@ max (
     slice_ref_int32_t xs);
 
 /** <No documentation available> */
+typedef void * my_renamed_ptr_t;
+
+/** <No documentation available> */
+my_renamed_ptr_t
+my_renamed_ptr_api (void);
+
+/** <No documentation available> */
 foo_t *
 new_foo (void);
 

@@ -115,6 +115,9 @@ int32_t const *
 max (
     slice_ref_int32_t xs);
 
+void *
+my_renamed_ptr_api (void);
+
 foo_t *
 new_foo (void);
 

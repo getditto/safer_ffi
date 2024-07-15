@@ -128,6 +128,8 @@ int main (
     });
     while (X > 0);
 
+    assert(my_renamed_ptr_api() == (void *)0xbad000);
+
     puts("C: [ok]");
 
     return EXIT_SUCCESS;

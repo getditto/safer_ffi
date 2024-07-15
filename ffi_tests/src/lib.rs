@@ -189,6 +189,21 @@ pub struct MyPtr {
     bar: (),
 }
 
+#[derive_ReprC(rename = "my_renamed_ptr")]
+#[repr(transparent)]
+pub struct MyRenamedPtr {
+    foo: ::core::ptr::NonNull<()>,
+    bar: (),
+}
+
+#[ffi_export]
+fn my_renamed_ptr_api() -> MyRenamedPtr {
+    MyRenamedPtr {
+        foo: ::core::ptr::NonNull::new(0xbad000 as _).unwrap(),
+        bar: ()
+    }
+}
+
 macro_rules! docs {() => (
     "Hello, `World`!"
 )}
