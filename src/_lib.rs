@@ -261,6 +261,9 @@ cfg_alloc! {
     mod boxed;
 }
 
+pub
+mod bytes;
+
 #[doc(inline)]
 pub use self::c_char_module::c_char;
 #[path = "c_char.rs"]
@@ -291,10 +294,21 @@ pub
 mod libc;
 
 pub
+mod option;
+
+pub
 mod ptr;
 
 pub
 mod slice;
+
+#[cfg(feature = "stabby")]
+#[cfg_attr(all(docs, feature = "nightly"),
+    doc(cfg(feature = "stabby"))
+)]
+#[path = "stabby/_mod.rs"]
+pub
+mod stabby;
 
 #[path = "string/_mod.rs"]
 pub
@@ -362,6 +376,7 @@ mod prelude {
                 boxed::Box,
                 string::String,
                 vec::Vec,
+                option::TaggedOption,
             };
 
             pub

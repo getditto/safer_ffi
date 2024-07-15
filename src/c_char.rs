@@ -9,6 +9,7 @@ use_prelude!();
 /// the header generation will resolve the type alias and emit, for instance, `int8_t`, ⚠️).
 ///
 /// By using this type, you guarantee that the C `char` type be used in the headers.
+#[cfg_attr(feature = "stabby", stabby::stabby)]
 #[repr(transparent)]
 #[derive(
     Debug,

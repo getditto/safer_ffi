@@ -23,7 +23,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly-2023-06-30
+          toolchain: nightly-2023-09-14
           override: true
           components: rust-src
 
@@ -57,7 +57,7 @@ jobs:
           - macos-latest
           # - windows-latest
         rust:
-          - 1.66.1
+          - 1.72.1
           - stable
           # - nightly
     steps:
@@ -89,7 +89,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.66.1
+          toolchain: 1.72.1
           override: true
 
       - name: Clone repo
@@ -113,12 +113,13 @@ jobs:
         feature--dyn-traits: ['', '--features dyn-traits', '--features futures', '--features tokio']
         # feature--log: ['', '--features log']
         feature--js: ['', '--features js']
+        feature--stabby: ['', '--features stabby']
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.66.1
+          toolchain: 1.72.1
           override: true
 
       - name: Clone repo
@@ -134,6 +135,7 @@ jobs:
             ${{ matrix.feature--headers }}
             ${{ matrix.feature--dyn-traits }}
             ${{ matrix.feature--js }}
+            ${{ matrix.feature--stabby }}
 
   # == BUILD & TEST == #
   build-and-test:
@@ -148,7 +150,7 @@ jobs:
           - macos-latest
           - windows-latest
         rust:
-          - 1.66.1
+          - 1.72.1
           - stable
           # - nightly
     steps:
@@ -221,7 +223,7 @@ jobs:
         with:
           profile: default
           override: true
-          toolchain: 1.66.1
+          toolchain: 1.72.1
 
       - name: Install `mdbook`
         uses: peaceiris/actions-mdbook@v1
