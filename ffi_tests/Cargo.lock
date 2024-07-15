@@ -331,7 +331,7 @@ checksum = "955d28af4278de8121b7ebeb796b6a45735dc01436d898801014aced2773a3d6"
 
 [[package]]
 name = "safer-ffi"
-version = "0.1.9"
+version = "0.1.10-rc1"
 dependencies = [
  "futures",
  "inventory",
@@ -348,7 +348,7 @@ dependencies = [
 
 [[package]]
 name = "safer_ffi-proc_macros"
-version = "0.1.9"
+version = "0.1.10-rc1"
 dependencies = [
  "macro_rules_attribute",
  "prettyplease",
