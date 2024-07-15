@@ -629,7 +629,7 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 
 [[package]]
 name = "safer-ffi"
-version = "0.1.9-rc3"
+version = "0.1.9"
 dependencies = [
  "cratesio-placeholder-package",
  "inventory",
@@ -654,7 +654,7 @@ dependencies = [
 
 [[package]]
 name = "safer_ffi-proc_macros"
-version = "0.1.9-rc3"
+version = "0.1.9"
 dependencies = [
  "macro_rules_attribute",
  "prettyplease",
