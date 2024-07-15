@@ -116,15 +116,12 @@ fn derive (
                         | None => format_ident!("_{}", i),
                     }
                 });
-                let each_docs = fields.iter().map(|f| {
-                    f   .attrs
-                        .iter()
-                        .filter(|attr| attr.path.is_ident("doc"))
-                        .vec()
+                let each_field_docs = fields.iter().map(|f| {
+                    docs_of(&f.attrs).vec()
                 });
                 parse_quote!({
                     #(
-                        #(#each_docs)*
+                        #(#each_field_docs)*
                         pub
                         #each_field_name: #CLayoutOf<#EachFieldTy>
                     ),*
@@ -227,7 +224,7 @@ pub(in crate)
 fn derive_transparent (
     args: Args,
     attrs: &'_ mut Vec<Attribute>,
-    _vis: &'_ Visibility,
+    pub_: &'_ Visibility,
     StructName @ _: &'_ Ident,
     generics: &'_ Generics,
     fields: &'_ Fields,
@@ -237,13 +234,6 @@ fn derive_transparent (
     use ::safer_ffi::ඞ;
 
     let mut ret = quote!();
-
-    if let Some(js) = &args.js {
-        ret.extend(utils::compile_warning(
-            js,
-            "`js` annotation is ignored for `repr(transparent)`",
-        ));
-    }
 
     let FieldTy = match fields.iter().next() {
         | Some(f) => &f.ty,
@@ -261,12 +251,84 @@ fn derive_transparent (
         ;
     });
 
-    // Forward ReprC to point to the `CLayoutOf` its first type.
-    ret.extend({
-        let (intro_generics, fwd_generics, where_clauses) =
-            impl_generics.split_for_impl()
-        ;
-        quote!(
+    let (intro_generics, fwd_generics, where_clauses) =
+        impl_generics.split_for_impl()
+    ;
+
+    let inner;
+    if let Some(rename) = &args.rename {
+        // define the CType
+        ret.extend({
+            let ref StructName_Layout @ _ = format_ident!("{}_Layout", StructName);
+
+            let c_type_def = ItemStruct {
+                attrs:
+                    docs_of(attrs)
+                        .cloned()
+                        .chain([
+                            parse_quote!(
+                                #[repr(transparent)]
+                            ),
+                            parse_quote!(
+                                #[allow(nonstandard_style)]
+                            ),
+                        ])
+                        .collect()
+                ,
+                vis: {
+                    let pub_ = crate::respan(
+                        pub_.span().resolved_at(Span::mixed_site()),
+                        pub_.to_token_stream(),
+                    );
+                    parse_quote!(#pub_)
+                },
+                struct_token: parse_quote!(struct),
+                ident: StructName_Layout.clone(),
+                generics: impl_generics.clone(),
+                fields: Fields::Unnamed(parse_quote!((
+                    #ඞ::CLayoutOf<#FieldTy>
+                ))),
+                semi_token: Some(parse_quote!(
+                    ;
+                )),
+            };
+
+            // allow using `#()*` as `#()?`.
+            let js = args.js.as_ref().map_or(&[][..], ::core::slice::from_ref);
+
+            let derive_output = crate::derives::c_type::derive(
+                quote!(
+                    #(#js, )*
+                    rename = #rename,
+                ),
+                c_type_def.to_token_stream(),
+            )?;
+
+            quote!(
+                #derive_output
+
+                unsafe
+                impl #intro_generics
+                    #ඞ::ReprC
+                for
+                    #StructName #fwd_generics
+                #where_clauses
+                {
+                    type CLayout = #StructName_Layout;
+
+                    #[inline]
+                    fn is_valid (it: &'_ Self::CLayout)
+                      -> #ඞ::bool
+                    {
+                        <#FieldTy as #ඞ::ReprC>::is_valid(&it.0)
+                    }
+                }
+            )
+        });
+        inner = quote!(&it.0);
+    } else {
+        // Forward ReprC to point to the `CLayoutOf` its first type.
+        ret.extend(quote!(
             unsafe
             impl #intro_generics
                 #ඞ::ReprC
@@ -283,8 +345,11 @@ fn derive_transparent (
                     <#FieldTy as #ඞ::ReprC>::is_valid(it)
                 }
             }
-        )
-    });
+        ));
+        inner = quote!(it);
+    }
+
+    // let mut ret = debug_macro(ret);
 
     // add niche where applicable.
     ret.extend({
@@ -315,7 +380,7 @@ fn derive_transparent (
                         #FieldTy
                         as
                         #ඞ::__HasNiche__
-                    >::is_niche(it)
+                    >::is_niche(#inner)
                 }
             }
         )
