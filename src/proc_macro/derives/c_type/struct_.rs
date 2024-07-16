@@ -237,6 +237,7 @@ fn derive_transparent (
                 ) -> #ඞ::io::Result<()>
                 {
                     <#CFieldTy as #ඞ::CType>::define_self(language, definer)?;
+
                     if let #ඞ::Some(language) = language.supports_type_aliases() {
                         language.emit_type_alias(
                             definer,
@@ -247,6 +248,27 @@ fn derive_transparent (
                     }
 
                     Ok(())
+                }
+
+                fn define_self (
+                    language: &'_ dyn #ඞ::HeaderLanguage,
+                    definer: &'_ mut dyn #ඞ::Definer,
+                ) -> #ඞ::io::Result<()>
+                {
+                    // We need to be careful with the default idempotency guard:
+                    // Since the `name` for a type alias happens to be identical to that of the
+                    // inner type, and since `.define_once()`'s implementation eagerly `.insert()`s
+                    // into the map before running the `__impl()`, we have no choice but to use
+                    // a properly unique name here, like the true C (re)name.
+                    let idempotency_definition_id = if language.supports_type_aliases().is_some() {
+                        Self::name(language)
+                    } else {
+                        Self::name(&#ඞ::languages::C)
+                    };
+                    definer.define_once(
+                        &idempotency_definition_id,
+                        &mut |definer| Self::define_self__impl(language, definer),
+                    )
                 }
 
                 fn name (
