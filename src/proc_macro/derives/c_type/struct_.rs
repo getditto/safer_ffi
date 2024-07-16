@@ -291,7 +291,8 @@ fn derive_transparent (
                     napi_value: Self::NapiValue,
                 ) -> #js::Result<Self>
                 {
-                    <#CFieldTy as #js::ReprNapi>::from_napi_value(env, napi_value).map(Self)
+                    let inner = <#CFieldTy as #js::ReprNapi>::from_napi_value(env, napi_value)?;
+                    #js::Result::Ok(unsafe { #ඞ::core::mem::transmute::<#CFieldTy, Self>(inner) })
                 }
             }
         ));
