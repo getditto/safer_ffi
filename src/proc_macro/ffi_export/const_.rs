@@ -51,6 +51,11 @@ fn handle (
                                 }
                             };
 
+                            <#ඞ::CLayoutOf<#Ty> as #ඞ::CType>::define_self(
+                                header_builder,
+                                definer
+                            )?;
+
                             header_builder
                         }).emit_constant(
                             definer,

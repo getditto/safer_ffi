@@ -286,7 +286,8 @@ fn derive_transparent (
                 ident: StructName_Layout.clone(),
                 generics: impl_generics.clone(),
                 fields: Fields::Unnamed(parse_quote!((
-                    #ඞ::CLayoutOf<#FieldTy>
+                    #ඞ::CLayoutOf<#FieldTy>,
+                    #ඞ::CLayoutOf<::core::marker::PhantomData<fn(&()) -> &mut Self>>,
                 ))),
                 semi_token: Some(parse_quote!(
                     ;
@@ -314,7 +315,7 @@ fn derive_transparent (
                     #StructName #fwd_generics
                 #where_clauses
                 {
-                    type CLayout = #StructName_Layout;
+                    type CLayout = #StructName_Layout #fwd_generics;
 
                     #[inline]
                     fn is_valid (it: &'_ Self::CLayout)
