@@ -351,6 +351,7 @@
 <a href="#351" id="351">351</a>
 <a href="#352" id="352">352</a>
 <a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(rustfmt, rustfmt::skip)]
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -644,7 +645,8 @@
                     napi_value: <span class="self">Self</span>::NapiValue,
                 ) -&gt; #js::Result&lt;<span class="self">Self</span>&gt;
                 {
-                    &lt;#CFieldTy <span class="kw">as </span>#js::ReprNapi&gt;::from_napi_value(env, napi_value).map(<span class="self">Self</span>)
+                    <span class="kw">let </span>inner = &lt;#CFieldTy <span class="kw">as </span>#js::ReprNapi&gt;::from_napi_value(env, napi_value)<span class="question-mark">?</span>;
+                    #js::Result::Ok(<span class="kw">unsafe </span>{ #ඞ::core::mem::transmute::&lt;#CFieldTy, <span class="self">Self</span>&gt;(inner) })
                 }
             }
         ));
