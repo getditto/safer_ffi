@@ -396,6 +396,7 @@
 <a href="#396" id="396">396</a>
 <a href="#397" id="397">397</a>
 <a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(irrefutable_let_patterns)]
 
@@ -515,6 +516,7 @@ trait </span>HeaderLanguage : UpcastAny {
         docs: Docs&lt;<span class="lifetime">&#39;_</span>&gt;,
         name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>str,
         ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw">dyn </span>PhantomCType,
+        skip_type: bool,
         value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw">dyn </span>::core::fmt::Debug,
     ) -&gt; io::Result&lt;()&gt;
     ;

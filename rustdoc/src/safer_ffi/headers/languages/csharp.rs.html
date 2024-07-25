@@ -264,6 +264,12 @@
 <a href="#264" id="264">264</a>
 <a href="#265" id="265">265</a>
 <a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(rustfmt, rustfmt::skip)]
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -510,9 +516,15 @@ struct </span>CSharp;
         docs: Docs&lt;<span class="lifetime">&#39;_</span>&gt;,
         name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>str,
         ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw">dyn </span>PhantomCType,
+        skip_type: bool,
         value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw">dyn </span>::core::fmt::Debug,
     ) -&gt; io::Result&lt;()&gt;
     {
+        <span class="kw">if </span>skip_type {
+            <span class="comment">// Skip the whole const for now.
+            // TODO: properly support constants in C#
+            </span><span class="kw">return </span><span class="prelude-val">Ok</span>(());
+        }
         <span class="kw">let </span><span class="kw-2">ref </span>indent = Indentation::new(<span class="number">4 </span><span class="comment">/* ctx.indent_width() */</span>);
         <span class="macro">mk_out!</span>(indent, ctx.out());
 

@@ -261,6 +261,13 @@
 <a href="#261" id="261">261</a>
 <a href="#262" id="262">262</a>
 <a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(rustfmt, rustfmt::skip)]
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -508,6 +515,7 @@ struct </span>C;
         docs: Docs&lt;<span class="lifetime">&#39;_</span>&gt;,
         name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>str,
         ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw">dyn </span>PhantomCType,
+        skip_type: bool,
         value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw">dyn </span>::core::fmt::Debug,
     ) -&gt; io::Result&lt;()&gt;
     {
@@ -515,10 +523,16 @@ struct </span>C;
         <span class="macro">mk_out!</span>(indent, ctx.out());
 
         <span class="self">self</span>.emit_docs(ctx, docs, indent)<span class="question-mark">?</span>;
-        <span class="kw">let </span>ty = ty.name(<span class="self">self</span>);
-        <span class="macro">out!</span>((
-            <span class="string">&quot;#define {name} (({ty}) {value:?})&quot;
-        </span>));
+        <span class="kw">if </span>skip_type {
+            <span class="macro">out!</span>((
+                <span class="string">&quot;#define {name} {value:?}&quot;
+            </span>));
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>ty = ty.name(<span class="self">self</span>);
+            <span class="macro">out!</span>((
+                <span class="string">&quot;#define {name} (({ty}) {value:?})&quot;
+            </span>));
+        }
 
         <span class="macro">out!</span>(<span class="string">&quot;\n&quot;</span>);
         <span class="prelude-val">Ok</span>(())

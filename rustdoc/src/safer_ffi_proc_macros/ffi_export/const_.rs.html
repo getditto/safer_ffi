@@ -72,11 +72,97 @@
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
 </pre></div><pre class="rust"><code><span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+<span class="attr">#[derive(Default)]
+</span><span class="kw">pub</span>(<span class="kw">in crate</span>)
+<span class="kw">struct </span>Args {
+    <span class="kw">pub</span>(<span class="kw">in crate</span>) untyped: <span class="prelude-ty">Option</span>&lt;Untyped&gt;,
+}
+
+<span class="kw">pub</span>(<span class="kw">in crate</span>)
+<span class="kw">struct </span>Untyped {
+    <span class="kw">pub</span>(<span class="kw">in crate</span>) _kw: kw::untyped,
+}
+
+<span class="kw">mod </span>kw {
+    <span class="macro">::syn::custom_keyword!</span>(untyped);
+}
+
+<span class="kw">impl </span>Parse <span class="kw">for </span>Args {
+    <span class="kw">fn </span>parse (
+        input: ParseStream&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Args&gt;
+    {
+        <span class="kw">let </span><span class="kw-2">mut </span>ret = Args::default();
+        <span class="kw">while </span>input.is_empty().not() {
+            <span class="kw">let </span>snoopy = input.lookahead1();
+            <span class="kw">match </span>() {
+                | _case <span class="kw">if </span>snoopy.peek(kw::untyped) =&gt; {
+                    <span class="kw">if </span>ret.untyped.is_some() {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(input.error(<span class="string">&quot;duplicate parameter&quot;</span>));
+                    }
+                    ret.untyped = <span class="prelude-val">Some</span>(Untyped {
+                        _kw: input.parse().unwrap()
+                    });
+                },
+
+                | _default =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(snoopy.error()),
+            }
+            <span class="kw">let _</span>: <span class="prelude-ty">Option</span>&lt;<span class="macro">Token!</span>[,]&gt; = input.parse()<span class="question-mark">?</span>;
+        }
+        <span class="prelude-val">Ok</span>(ret)
+    }
+}
+
 
 <span class="kw">pub</span>(<span class="kw">in super</span>)
 <span class="kw">fn </span>handle (
-    _args: parse::Nothing,
+    Args { untyped }: Args,
     input: ItemConst,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;TokenStream2&gt;
 {
@@ -97,6 +183,7 @@
         <span class="kw">let </span>VAR_str @ <span class="kw">_ </span>= <span class="kw-2">&amp;</span>VAR.to_string();
         <span class="kw">let </span>Ty @ <span class="kw">_ </span>= <span class="kw-2">&amp;</span>input.ty;
         <span class="kw">let </span><span class="kw-2">ref </span>each_doc = utils::extract_docs(<span class="kw-2">&amp;</span>input.attrs)<span class="question-mark">?</span>;
+        <span class="kw">let </span>skip_type = untyped.is_some();
 
         <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(
             #input
@@ -138,6 +225,7 @@
                             <span class="kw-2">&amp;</span>#ඞ::PhantomData::&lt;
                                 #ඞ::CLayoutOf&lt; #Ty &gt;,
                             &gt;,
+                            #skip_type,
                             <span class="kw-2">&amp;</span>#VAR,
                         )
                     },
