@@ -117,6 +117,7 @@ trait HeaderLanguage : UpcastAny {
         docs: Docs<'_>,
         name: &'_ str,
         ty: &'_ dyn PhantomCType,
+        skip_type: bool,
         value: &'_ dyn ::core::fmt::Debug,
     ) -> io::Result<()>
     ;

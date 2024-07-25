@@ -245,6 +245,7 @@ impl HeaderLanguage for C {
         docs: Docs<'_>,
         name: &'_ str,
         ty: &'_ dyn PhantomCType,
+        skip_type: bool,
         value: &'_ dyn ::core::fmt::Debug,
     ) -> io::Result<()>
     {
@@ -252,10 +253,16 @@ impl HeaderLanguage for C {
         mk_out!(indent, ctx.out());
 
         self.emit_docs(ctx, docs, indent)?;
-        let ty = ty.name(self);
-        out!((
-            "#define {name} (({ty}) {value:?})"
-        ));
+        if skip_type {
+            out!((
+                "#define {name} {value:?}"
+            ));
+        } else {
+            let ty = ty.name(self);
+            out!((
+                "#define {name} (({ty}) {value:?})"
+            ));
+        }
 
         out!("\n");
         Ok(())
