@@ -2,7 +2,7 @@ use super::*;
 
 pub(in super)
 fn handle (
-    _args: parse::Nothing,
+    args: super::fn_::Args,
     input: ItemConst,
 ) -> Result<TokenStream2>
 {
@@ -23,6 +23,7 @@ fn handle (
         let VAR_str @ _ = &VAR.to_string();
         let Ty @ _ = &input.ty;
         let ref each_doc = utils::extract_docs(&input.attrs)?;
+        let skip_type =  matches!(args.raw_const, Some(true));
 
         Ok(quote!(
             #input
@@ -64,6 +65,7 @@ fn handle (
                             &#ඞ::PhantomData::<
                                 #ඞ::CLayoutOf< #Ty >,
                             >,
+                            #skip_type,
                             &#VAR,
                         )
                     },
