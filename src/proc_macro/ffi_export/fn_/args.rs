@@ -6,7 +6,6 @@ struct Args {
     pub(in crate) js: Option<Js>,
     pub(in crate) executor: Option<Executor>,
     pub(in crate) rename: Option<Rename>,
-    pub(in crate) raw_const: Option<bool>,
 }
 
 #[cfg_attr(not(feature = "js"),
@@ -35,17 +34,11 @@ struct Rename {
     pub(in crate) new_name: LitStr,
 }
 
-pub(in crate)
-struct RawConst {
-    pub(in crate) _kw: kw::raw_const,
-}
-
 mod kw {
     ::syn::custom_keyword!(async_worker);
     ::syn::custom_keyword!(executor);
     ::syn::custom_keyword!(js);
     ::syn::custom_keyword!(rename);
-    ::syn::custom_keyword!(raw_const);
 }
 
 impl Parse for Args {
@@ -105,16 +98,6 @@ impl Parse for Args {
                             it
                         },
                     });
-                },
-
-                | _case if snoopy.peek(kw::raw_const) => {
-                    if ret.raw_const.is_some() {
-                        return Err(input.error("duplicate parameter"));
-                    }
-                    let _kw = RawConst {
-                        _kw: input.parse().unwrap()
-                    };
-                    ret.raw_const = Some(true);
                 },
 
                 | _default => return Err(snoopy.error()),

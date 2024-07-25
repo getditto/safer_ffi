@@ -263,6 +263,9 @@ async fn async_get_ft ()
 #[ffi_export]
 pub const FOO: i32 = 42;
 
+#[ffi_export(untyped)]
+pub const SOME_NAME: &str = "hello there";
+
 #[ffi_export]
 fn _some_opaque_std_lib_type() -> repr_c::Box<String> {
     Box::new(String::from("…")).into()

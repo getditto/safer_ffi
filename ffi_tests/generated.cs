@@ -71,6 +71,15 @@ public unsafe struct next_generation_t {
 }
 
 /// <summary>
+/// The layout of <c>&str</c> is opaque/subject to changes.
+/// </summary>
+public struct Opaque__str_t {
+    #pragma warning disable 0169
+    private byte OPAQUE;
+    #pragma warning restore 0169
+}
+
+/// <summary>
 /// Hello, <c>World</c>!
 /// </summary>
 public enum triforce_t : byte {

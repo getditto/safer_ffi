@@ -11,7 +11,7 @@ use {
 
 pub(in super)
 fn export (
-    Args { executor, js, rename, raw_const: _ }: Args,
+    Args { executor, js, rename }: Args,
     fun: &'_ ItemFn,
 ) -> Result<TokenStream2>
 {

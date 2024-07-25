@@ -1,8 +1,50 @@
 use super::*;
 
+#[derive(Default)]
+pub(in crate)
+struct Args {
+    pub(in crate) untyped: Option<Untyped>,
+}
+
+pub(in crate)
+struct Untyped {
+    pub(in crate) _kw: kw::untyped,
+}
+
+mod kw {
+    ::syn::custom_keyword!(untyped);
+}
+
+impl Parse for Args {
+    fn parse (
+        input: ParseStream<'_>,
+    ) -> Result<Args>
+    {
+        let mut ret = Args::default();
+        while input.is_empty().not() {
+            let snoopy = input.lookahead1();
+            match () {
+                | _case if snoopy.peek(kw::untyped) => {
+                    if ret.untyped.is_some() {
+                        return Err(input.error("duplicate parameter"));
+                    }
+                    ret.untyped = Some(Untyped {
+                        _kw: input.parse().unwrap()
+                    });
+                },
+
+                | _default => return Err(snoopy.error()),
+            }
+            let _: Option<Token![,]> = input.parse()?;
+        }
+        Ok(ret)
+    }
+}
+
+
 pub(in super)
 fn handle (
-    args: super::fn_::Args,
+    Args { untyped }: Args,
     input: ItemConst,
 ) -> Result<TokenStream2>
 {
@@ -23,7 +65,7 @@ fn handle (
         let VAR_str @ _ = &VAR.to_string();
         let Ty @ _ = &input.ty;
         let ref each_doc = utils::extract_docs(&input.attrs)?;
-        let skip_type =  matches!(args.raw_const, Some(true));
+        let skip_type = untyped.is_some();
 
         Ok(quote!(
             #input

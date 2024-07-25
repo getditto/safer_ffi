@@ -77,6 +77,14 @@ typedef struct next_generation {
 } next_generation_t;
 
 /** \brief
+ *  The layout of `&str` is opaque/subject to changes.
+ */
+typedef struct Opaque__str Opaque__str_t;
+
+/** <No documentation available> */
+#define SOME_NAME "hello there"
+
+/** \brief
  *  Hello, `World`!
  */
 /** \remark Has the same ABI as `uint8_t` **/
