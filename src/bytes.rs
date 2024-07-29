@@ -93,7 +93,7 @@ impl<'a> Bytes<'a> {
         if self.is_inlined() {
             None
         } else {
-            // SAFETY: If the value is not
+            // SAFETY: If the value is not inlined, then we know the vtable to have been initialized to a valid reference.
             unsafe { mem::transmute::<ptr::NonNull<BytesVt>, Option<&'a BytesVt>>(self.vtable) }
         }
     }
