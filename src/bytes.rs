@@ -552,7 +552,7 @@ unsafe extern "C" fn retain_stabby_arc_bytes(this: *const (), capacity: usize) {
         })
     };
     // we don't own any `Arc` in this function:
-    let this = &*::mem::ManuallyDrop::new(this);
+    let this = &*mem::ManuallyDrop::new(this);
     // time to do the increment:
     mem::forget(this.clone());
 }
