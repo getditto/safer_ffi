@@ -2,8 +2,9 @@ use core::{
     borrow::Borrow,
     fmt::Debug,
     hash::Hash,
+    mem,
     ops::{Deref, RangeBounds},
-    ptr::NonNull,
+    ptr,
 };
 
 #[cfg(feature = "alloc")]
@@ -14,7 +15,7 @@ use safer_ffi_proc_macros::derive_ReprC;
 ///
 /// Typically, [`Bytes`] can constructed from `&'static [u8]`, `Arc<[u8]>` or `Arc<T: AsRef<[u8]>>`.
 ///
-/// [`Bytes`] can also "intern" small enough slices: that is, if the slice is more than one byte smaller than
+/// [`Bytes`] can also "inlin" small enough slices: that is, if the slice is more than one byte smaller than
 /// [`Bytes`] memory layout (which is 40 bytes on 64bit architectures), it may be store directly in that memory
 /// instead of through indirection.
 #[derive_ReprC]
@@ -25,7 +26,7 @@ pub struct Bytes<'a> {
     len: usize,
     data: *const (),
     capacity: usize,
-    vtable: NonNull<BytesVt>,
+    vtable: ptr::NonNull<BytesVt>,
     marker: core::marker::PhantomData<&'a [u8]>,
 }
 #[cfg(not(feature = "stabby"))]
@@ -58,6 +59,8 @@ const _: () = {
 
 extern "C" fn noop(_: *const (), _: usize) {}
 
+const IS_LITTLE_ENDIAN: bool = unsafe { mem::transmute::<u16, [bool; 2]>(1)[0] };
+
 impl<'a> Bytes<'a> {
     /// Constructs an empty slice.
     ///
@@ -65,20 +68,33 @@ impl<'a> Bytes<'a> {
     pub const fn empty() -> Self {
         Self::from_static([].as_slice())
     }
-    const fn is_interned(&self) -> bool {
-        (unsafe {
+
+    /// The maximum size of a slice that can be inlined in [`Bytes`].
+    ///
+    /// Most CPUs are little endian, so on 64bit systems, this will be `32`, and `16` on 32bit systems.
+    pub const MAX_INLINE_SIZE: usize = mem::size_of::<Bytes<'static>>()
+        - if IS_LITTLE_ENDIAN {
+            mem::size_of::<usize>()
+        } else {
+            1
+        };
+    const fn read_inline_length_byte(&self) -> u8 {
+        unsafe {
             (self as *const Self)
                 .cast::<u8>()
-                .add(core::mem::size_of::<Self>() - 1)
+                .add(Self::MAX_INLINE_SIZE)
                 .read()
-        } & 1)
-            != 0
+        }
     }
-    fn vtable(&self) -> Option<&'a BytesVt> {
-        if self.is_interned() {
+    const fn is_inlined(&self) -> bool {
+        (self.read_inline_length_byte() & 1) != 0
+    }
+    const fn vtable(&self) -> Option<&'a BytesVt> {
+        if self.is_inlined() {
             None
         } else {
-            unsafe { Some(self.vtable.as_ref()) }
+            // SAFETY: If the value is not
+            unsafe { mem::transmute::<ptr::NonNull<BytesVt>, Option<&'a BytesVt>>(self.vtable) }
         }
     }
 
@@ -87,7 +103,7 @@ impl<'a> Bytes<'a> {
     /// This is equivalent to `<Bytes as From<&'static [u8]>>::from`, guaranteeing that [`Self::upgrade`] won't need to reallocate to recover the `'static` lifetime through [`Bytes::upgrade`].
     /// ```
     /// # use safer_ffi::bytes::Bytes;
-    /// let data = "Hello there, this string is long enough that it'll cross the inline-threshold (core::mem::size_of::<Bytes>() - 1) on all supported platforms";
+    /// let data = "Hello there, this string is long enough that it'll cross the inline-threshold (mem::size_of::<Bytes>() - 1) on all supported platforms";
     /// let mut bytes = Bytes::from_static(data.as_bytes());
     /// assert!(!bytes.upgrade_will_allocate());
     /// ```
@@ -102,7 +118,9 @@ impl<'a> Bytes<'a> {
             data: data.as_ptr().cast(),
             capacity: data.len(),
             vtable: unsafe {
-                NonNull::new_unchecked(&VT as &'static BytesVt as *const BytesVt as *mut BytesVt)
+                ptr::NonNull::new_unchecked(
+                    &VT as &'static BytesVt as *const BytesVt as *mut BytesVt,
+                )
             },
             marker: core::marker::PhantomData,
         }
@@ -113,7 +131,7 @@ impl<'a> Bytes<'a> {
     /// Unlike [`Bytes::from_static`] and `<Bytes as From<&'static ..>>::from` implementations, the resulting [`Bytes`] cannot tell that it's referring to `'static` data even if it is, and will therefore perform a copy when [`Bytes::upgrade`]ing.
     /// ```
     /// # use safer_ffi::bytes::Bytes;
-    /// let data = "Hello there, this string is long enough that it'll cross the inline-threshold (core::mem::size_of::<Bytes>() - 1) on all supported platforms";
+    /// let data = "Hello there, this string is long enough that it'll cross the inline-threshold (mem::size_of::<Bytes>() - 1) on all supported platforms";
     /// let mut bytes = Bytes::from_slice(data.as_bytes());
     /// assert!(bytes.upgrade_will_allocate());
     /// let data = "This string isn't";
@@ -121,46 +139,67 @@ impl<'a> Bytes<'a> {
     /// assert!(!bytes.upgrade_will_allocate());
     /// ```
     ///
-    /// Note that if the slice is small enough to be interned in the [`Bytes`], it'll be, allowing for free upgrades. You may use the [`Bytes::intern_slice`] constructor instead of this one if you want to be able to handle interning not being possible.
-    pub fn from_slice(data: &'a [u8]) -> Self {
-        static VT: BytesVt = BytesVt {
+    /// Note that if the slice is small enough to be inlined in the [`Bytes`], it'll be, allowing for free upgrades. You may use the [`Bytes::inline_slice`] constructor instead of this one if you want to be able to handle inlining not being possible.
+    pub const fn from_slice(data: &'a [u8]) -> Self {
+        const VT: BytesVt = BytesVt {
             release: None,
             retain: Some(noop),
         };
-        Self::intern_slice(data).unwrap_or_else(|| Self {
-            start: data.as_ptr().cast(),
-            len: data.len(),
-            data: data.as_ptr().cast(),
-            capacity: data.len(),
-            vtable: unsafe {
-                NonNull::new_unchecked(&VT as &'static BytesVt as *const BytesVt as *mut BytesVt)
-            },
-            marker: core::marker::PhantomData,
-        })
+        if data.len() <= Self::MAX_INLINE_SIZE {
+            unsafe { Self::inline_unchecked(data) }
+        } else {
+            Self {
+                start: data.as_ptr().cast(),
+                len: data.len(),
+                data: data.as_ptr().cast(),
+                capacity: data.len(),
+                vtable: unsafe {
+                    ptr::NonNull::new_unchecked(
+                        &VT as &'static BytesVt as *const BytesVt as *mut BytesVt,
+                    )
+                },
+                marker: core::marker::PhantomData,
+            }
+        }
     }
 
-    /// Constructs a [`Bytes`] from a short slice by interning it, untying [`Bytes`]'s lifetime from `slice`'s.
+    /// Constructs a [`Bytes`] from a short slice by inlining it, untying [`Bytes`]'s lifetime from `slice`'s.
     ///
-    /// If the slice is too long to be interned, this constructor returns `None` instead.
+    /// If the slice is too long to be inlined, this constructor returns `None` instead.
     ///
-    /// A slice may be interned if it is at least one byte smaller than [`Bytes`], which has the same size as `[usize; 5]`.
-    ///
+    /// A slice may be inlined if its size is `<=` [`Bytes::MAX_INLINE_SIZE`], which depends on your CPU architecture.
     /// ```
     /// # use safer_ffi::bytes::Bytes;
-    /// let interned = Bytes::intern_slice("Hi".as_bytes()).unwrap();
-    /// assert_eq!(interned.as_slice(), "Hi".as_bytes());
-    /// assert!(!interned.clone_will_allocate());
-    /// assert!(!interned.upgrade_will_allocate());
-    /// assert!(Bytes::intern_slice("This slice is too long to intern, even on architectures with 128 bit pointer-size.".as_bytes()).is_none())
+    /// let inlined = Bytes::inline_slice("Hi".as_bytes()).unwrap();
+    /// assert_eq!(inlined.as_slice(), "Hi".as_bytes());
+    /// assert!(!inlined.clone_will_allocate());
+    /// assert!(!inlined.upgrade_will_allocate());
+    /// assert!(Bytes::inline_slice("This slice is too long to inlin, even on architectures with 128 bit pointer-size.".as_bytes()).is_none())
     /// ```
-    pub fn intern_slice(slice: &[u8]) -> Option<Bytes<'static>> {
-        let mut buffer = [0; core::mem::size_of::<Self>()];
-        if slice.len() >= buffer.len() {
+    pub const fn inline_slice(slice: &[u8]) -> Option<Bytes<'static>> {
+        if slice.len() > Self::MAX_INLINE_SIZE {
             return None;
         }
-        buffer[..slice.len()].copy_from_slice(slice);
-        buffer[buffer.len() - 1] = 1 | ((slice.len() as u8) << 1);
-        unsafe { core::mem::transmute(buffer) }
+        // SAFETY: The length has been checked, which is `inline_unchecked`'s only safety requirement
+        Some(unsafe { Self::inline_unchecked(slice) })
+    }
+
+    /// # Safety
+    /// `slice.len() > Self::MAX_INLINE_SIZE` will trigger UB.
+    const unsafe fn inline_unchecked(slice: &[u8]) -> Bytes<'static> {
+        let mut buffer = [0u8; mem::size_of::<Self>()];
+        let mut i = 0;
+        while i < slice.len() {
+            buffer[i] = slice[i];
+            i += 1;
+        }
+        buffer[Self::MAX_INLINE_SIZE] = 1 | ((slice.len() as u8) << 1);
+        // SAFETY: The previous line ensures that the bytes backing
+        // `self.vtable` are not null, so the sole bit-validity invariant
+        // of the type is met, and the transmute thenceforth legal.
+        // It is, moreover, sound, as per the rest of the logic of this module
+        // which checks that last bit to determine the inline/outline logic.
+        unsafe { mem::transmute(buffer) }
     }
 
     /// Slices `self` in-place:
@@ -187,8 +226,9 @@ impl<'a> Bytes<'a> {
         assert!(start <= end);
         assert!(end <= self.len);
         let len = end - start;
-        if len < core::mem::size_of::<Self>() {
-            *self = Self::intern_slice(&self[start..end]).unwrap()
+        if len <= Self::MAX_INLINE_SIZE {
+            // SAFETY: `&self[start..end]` length has been checked, which is `inline_unchecked`'s only safety requirement.
+            *self = unsafe { Self::inline_unchecked(&self[start..end]) }
         } else {
             self.start = unsafe { self.start.add(start) };
             self.len = len;
@@ -226,12 +266,14 @@ impl<'a> Bytes<'a> {
     /// Returns `self` if `index` is out of bounds.
     pub fn split_at(self, index: usize) -> Result<(Self, Self), Self> {
         if index <= self.len() {
-            if index < core::mem::size_of::<Self>() {
-                let left = Self::intern_slice(&self[..index]).unwrap();
+            if index <= Self::MAX_INLINE_SIZE {
+                // SAFETY: `inline_unchecked`'s only safety requirement has just been checked.
+                let left = unsafe { Self::inline_unchecked(&self[..index]) };
                 Ok((left, self.subsliced(index..)))
             } else {
-                if self.len() - index < core::mem::size_of::<Self>() {
-                    let right = Self::intern_slice(&self[index..]).unwrap();
+                if self.len() - index <= Self::MAX_INLINE_SIZE {
+                    // SAFETY: `inline_unchecked`'s only safety requirement has just been checked.
+                    let right = unsafe { Self::inline_unchecked(&self[index..]) };
                     Ok((self.subsliced(..index), right))
                 } else {
                     let mut left = self.clone();
@@ -249,10 +291,8 @@ impl<'a> Bytes<'a> {
 
     /// Returns the length of the slice.
     pub const fn len(&self) -> usize {
-        if self.is_interned() {
-            (unsafe { core::mem::transmute::<_, [u8; core::mem::size_of::<usize>()]>(self.vtable) }
-                [core::mem::size_of::<usize>() - 1] as usize)
-                >> 1
+        if self.is_inlined() {
+            self.read_inline_length_byte() as usize >> 1
         } else {
             self.len
         }
@@ -260,7 +300,7 @@ impl<'a> Bytes<'a> {
 
     /// Returns the slice's contents.
     pub const fn as_slice(&self) -> &[u8] {
-        if self.is_interned() {
+        if self.is_inlined() {
             unsafe { core::slice::from_raw_parts(self as *const Self as *const u8, self.len()) }
         } else {
             unsafe { core::slice::from_raw_parts(self.start, self.len) }
@@ -270,7 +310,7 @@ impl<'a> Bytes<'a> {
     #[cfg(any(feature = "alloc", feature = "stabby"))]
     /// Copies the slice into an `stabby::sync::ArcSlice<u8>` if `stabby` is enabled or a `Arc<[u8]>` otherwise before wrapping it in [`Bytes`].
     ///
-    /// If the slice is small enough to do so, it will be [interned](Bytes::intern_slice) instead, saving the need to allocate.
+    /// If the slice is small enough to do so, it will be [inlined](Bytes::inline_slice) instead, saving the need to allocate.
     pub fn copied_from_slice(slice: &[u8]) -> Bytes<'static> {
         match_cfg! {
             feature = "stabby" => {
@@ -280,7 +320,7 @@ impl<'a> Bytes<'a> {
                 type ArcSlice<T> = Arc<[T]>;
             },
         }
-        Self::intern_slice(slice).unwrap_or_else(|| ArcSlice::<u8>::from(slice).into())
+        Self::inline_slice(slice).unwrap_or_else(|| ArcSlice::<u8>::from(slice).into())
     }
 
     #[cfg(any(feature = "alloc", feature = "stabby"))]
@@ -289,7 +329,7 @@ impl<'a> Bytes<'a> {
     /// Note that `feature = "stabby"` being enabled will cause a `stabby::sync::ArcSlice<u8>` to be used instead of `Arc<[u8]>`.
     pub fn upgrade(self: Bytes<'a>) -> Bytes<'static> {
         if self.vtable().map_or(true, |vt| !vt.is_borrowed()) {
-            return unsafe { core::mem::transmute(self) };
+            return unsafe { mem::transmute(self) };
         }
         Self::copied_from_slice(&self)
     }
@@ -299,16 +339,16 @@ impl<'a> Bytes<'a> {
     /// Returns the original instance if it couldn't be proven to be `'static`.
     pub fn noalloc_upgrade(self: Bytes<'a>) -> Result<Bytes<'static>, Self> {
         if !self.vtable().map_or(true, |vt| !vt.is_borrowed()) {
-            Ok(unsafe { core::mem::transmute(self) })
+            Ok(unsafe { mem::transmute(self) })
         } else {
-            Self::intern_slice(&self).ok_or(self)
+            Self::inline_slice(&self).ok_or(self)
         }
     }
 
     /// Only calls [`Clone::clone`] if no reallocation would be necessary for it, returning `None` if it would have been.
     pub fn noalloc_clone(&self) -> Option<Self> {
         let Some(vtable) = self.vtable() else {
-            // SAFETY: `Bytes` is `Copy` if it is interned.
+            // SAFETY: `Bytes` is `Copy` if it is inlined.
             return Some(unsafe { core::ptr::read(self) });
         };
         let retain = vtable.retain?;
@@ -326,7 +366,7 @@ impl<'a> Bytes<'a> {
     /// Returns `true` if a call to [`Self::upgrade`] would cause an allocation.
     pub fn upgrade_will_allocate(&self) -> bool {
         match self.vtable() {
-            Some(t) => t.is_borrowed() && self.len() >= core::mem::size_of::<Self>(),
+            Some(t) => t.is_borrowed() && self.len() >= mem::size_of::<Self>(),
             None => false,
         }
     }
@@ -334,7 +374,7 @@ impl<'a> Bytes<'a> {
     /// Returns `true` if a call to [`Clone::clone`] would cause an allocation.
     pub fn clone_will_allocate(&self) -> bool {
         match self.vtable() {
-            Some(t) => t.retain.is_none() && self.len() >= core::mem::size_of::<Self>(),
+            Some(t) => t.retain.is_none() && self.len() >= mem::size_of::<Self>(),
             None => false,
         }
     }
@@ -399,7 +439,7 @@ impl Ord for Bytes<'_> {
 #[cfg(feature = "std")]
 impl std::io::Read for Bytes<'_> {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
-        let len = self.len().min(buf.len());
+        let len = usize::min(self.len(), buf.len());
         buf[..len].copy_from_slice(&self[..len]);
         self.shrink_to(len..);
         Ok(len)
@@ -443,11 +483,7 @@ impl From<Arc<[u8]>> for Bytes<'static> {
             len: data.len(),
             data: Arc::into_raw(data) as *const (),
             capacity,
-            vtable: unsafe {
-                NonNull::new_unchecked(
-                    &ARC_BYTES_VT as &'static BytesVt as *const BytesVt as *mut BytesVt,
-                )
-            },
+            vtable: From::<&'static _>::from(&ARC_BYTES_VT),
             marker: core::marker::PhantomData,
         }
     }
@@ -467,13 +503,10 @@ impl<'a, T: Sized + AsRef<[u8]> + Send + Sync + 'a> From<Arc<T>> for Bytes<'a> {
             len: data.len(),
             capacity: data.len(),
             data: Arc::into_raw(value) as *const (),
-            vtable: unsafe {
-                NonNull::new_unchecked(&BytesVt {
-                    release: Some(release::<T>),
-                    retain: Some(retain::<T>),
-                } as &'static BytesVt as *const BytesVt
-                    as *mut BytesVt)
-            },
+            vtable: From::<&'static _>::from(&BytesVt {
+                release: Some(release::<T>),
+                retain: Some(retain::<T>),
+            }),
             marker: core::marker::PhantomData,
         }
     }
@@ -482,7 +515,7 @@ impl<'a, T: Sized + AsRef<[u8]> + Send + Sync + 'a> From<Arc<T>> for Bytes<'a> {
 impl From<alloc::boxed::Box<[u8]>> for Bytes<'_> {
     fn from(value: alloc::boxed::Box<[u8]>) -> Self {
         unsafe extern "C" fn release_box_bytes(this: *const (), capacity: usize) {
-            core::mem::drop(alloc::boxed::Box::from_raw(
+            mem::drop(alloc::boxed::Box::from_raw(
                 core::ptr::slice_from_raw_parts_mut(this.cast::<u8>().cast_mut(), capacity),
             ))
         }
@@ -495,13 +528,10 @@ impl From<alloc::boxed::Box<[u8]>> for Bytes<'_> {
             len,
             capacity: len,
             data,
-            vtable: unsafe {
-                NonNull::new_unchecked(&BytesVt {
-                    release: Some(release_box_bytes),
-                    retain: None,
-                } as &'static BytesVt as *const BytesVt
-                    as *mut BytesVt)
-            },
+            vtable: From::<&'static _>::from(&BytesVt {
+                release: Some(release_box_bytes),
+                retain: None,
+            }),
             marker: core::marker::PhantomData,
         }
     }
@@ -517,24 +547,24 @@ impl From<alloc::vec::Vec<u8>> for Bytes<'_> {
 unsafe extern "C" fn retain_stabby_arc_bytes(this: *const (), capacity: usize) {
     let this: stabby::sync::ArcSlice<u8> = unsafe {
         stabby::sync::ArcSlice::from_raw(stabby::alloc::AllocSlice {
-            start: core::mem::transmute(this),
-            end: core::mem::transmute(capacity),
+            start: mem::transmute(this),
+            end: mem::transmute(capacity),
         })
     };
     // we don't own any `Arc` in this function:
-    let this = &*::core::mem::ManuallyDrop::new(this);
+    let this = &*::mem::ManuallyDrop::new(this);
     // time to do the increment:
-    core::mem::forget(this.clone());
+    mem::forget(this.clone());
 }
 #[cfg(feature = "stabby")]
 unsafe extern "C" fn release_stabby_arc_bytes(this: *const (), capacity: usize) {
     let this: stabby::sync::ArcSlice<u8> = unsafe {
         stabby::sync::ArcSlice::from_raw(stabby::alloc::AllocSlice {
-            start: core::mem::transmute(this),
-            end: core::mem::transmute(capacity),
+            start: mem::transmute(this),
+            end: mem::transmute(capacity),
         })
     };
-    core::mem::drop(this);
+    mem::drop(this);
 }
 #[cfg(feature = "stabby")]
 static STABBY_ARCSLICE_BYTESVT: BytesVt = BytesVt {
@@ -552,11 +582,9 @@ impl From<stabby::sync::ArcSlice<u8>> for Bytes<'static> {
             Bytes {
                 start,
                 len,
-                data: core::mem::transmute(data.start),
-                capacity: core::mem::transmute(data.end),
-                vtable: NonNull::new_unchecked(
-                    &STABBY_ARCSLICE_BYTESVT as &'static BytesVt as *const BytesVt as *mut BytesVt,
-                ),
+                data: mem::transmute(data.start),
+                capacity: mem::transmute(data.end),
+                vtable: From::<&'static _>::from(&STABBY_ARCSLICE_BYTESVT),
                 marker: core::marker::PhantomData,
             }
         }
@@ -567,28 +595,25 @@ impl<T: Sized + AsRef<[u8]> + Send + Sync + 'static> From<stabby::sync::Arc<T>> 
     fn from(value: stabby::sync::Arc<T>) -> Self {
         unsafe extern "C" fn retain_stabby_arc<T: Sized>(this: *const (), _: usize) {
             let this: stabby::sync::Arc<T> =
-                unsafe { stabby::sync::Arc::from_raw(core::mem::transmute(this)) };
-            let this = core::mem::ManuallyDrop::new(this);
-            core::mem::forget(this.clone());
+                unsafe { stabby::sync::Arc::from_raw(mem::transmute(this)) };
+            let this = mem::ManuallyDrop::new(this);
+            mem::forget(this.clone());
         }
         unsafe extern "C" fn release_stabby_arc<T: Sized>(this: *const (), _: usize) {
             let this: stabby::sync::Arc<T> =
-                unsafe { stabby::sync::Arc::from_raw(core::mem::transmute(this)) };
-            core::mem::drop(this)
+                unsafe { stabby::sync::Arc::from_raw(mem::transmute(this)) };
+            mem::drop(this)
         }
         let data: &[u8] = value.as_ref().as_ref();
         Bytes {
             start: data.as_ptr().cast(),
             len: data.len(),
             capacity: data.len(),
-            data: unsafe { core::mem::transmute(stabby::sync::Arc::into_raw(value)) },
-            vtable: unsafe {
-                NonNull::new_unchecked(&BytesVt {
-                    release: Some(release_stabby_arc::<T>),
-                    retain: Some(retain_stabby_arc::<T>),
-                } as &'static BytesVt as *const BytesVt
-                    as *mut BytesVt)
-            },
+            data: unsafe { mem::transmute(stabby::sync::Arc::into_raw(value)) },
+            vtable: From::<&'static _>::from(&BytesVt {
+                release: Some(release_stabby_arc::<T>),
+                retain: Some(retain_stabby_arc::<T>),
+            }),
             marker: core::marker::PhantomData,
         }
     }
@@ -684,7 +709,7 @@ impl<'a> TryFrom<Bytes<'a>> for Arc<[u8]> {
         {
             true => unsafe {
                 let arc = Arc::from_raw(core::ptr::slice_from_raw_parts(data, value.capacity));
-                core::mem::forget(value);
+                mem::forget(value);
                 Ok(arc)
             },
             false => Err(value),
@@ -710,10 +735,10 @@ impl<'a> TryFrom<Bytes<'a>> for stabby::sync::ArcSlice<u8> {
         };
         match core::ptr::eq(vtable, &STABBY_ARCSLICE_BYTESVT) && core::ptr::eq(value.start, data) {
             true => unsafe {
-                let value = core::mem::ManuallyDrop::new(value);
+                let value = mem::ManuallyDrop::new(value);
                 let arc = stabby::sync::ArcSlice::from_raw(stabby::alloc::AllocSlice {
-                    start: core::mem::transmute(data),
-                    end: core::mem::transmute(data.add(value.len)),
+                    start: mem::transmute(data),
+                    end: mem::transmute(data.add(value.len)),
                 });
                 Ok(arc)
             },
