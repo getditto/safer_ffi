@@ -116,6 +116,9 @@ impl<'a> Bytes<'a> {
     /// let data = "Hello there, this string is long enough that it'll cross the inline-threshold (core::mem::size_of::<Bytes>() - 1) on all supported platforms";
     /// let mut bytes = Bytes::from_slice(data.as_bytes());
     /// assert!(bytes.upgrade_will_allocate());
+    /// let data = "This string isn't";
+    /// let mut bytes = Bytes::from_slice(data.as_bytes());
+    /// assert!(!bytes.upgrade_will_allocate());
     /// ```
     ///
     /// Note that if the slice is small enough to be interned in the [`Bytes`], it'll be, allowing for free upgrades. You may use the [`Bytes::intern_slice`] constructor instead of this one if you want to be able to handle interning not being possible.
