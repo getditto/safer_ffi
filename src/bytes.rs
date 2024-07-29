@@ -15,7 +15,7 @@ use safer_ffi_proc_macros::derive_ReprC;
 ///
 /// Typically, [`Bytes`] can constructed from `&'static [u8]`, `Arc<[u8]>` or `Arc<T: AsRef<[u8]>>`.
 ///
-/// [`Bytes`] can also "inlin" small enough slices: that is, if the slice is more than one byte smaller than
+/// [`Bytes`] can also "inline" small enough slices: that is, if the slice is more than one byte smaller than
 /// [`Bytes`] memory layout (which is 40 bytes on 64bit architectures), it may be store directly in that memory
 /// instead of through indirection.
 #[derive_ReprC]
@@ -59,7 +59,7 @@ const _: () = {
 
 extern "C" fn noop(_: *const (), _: usize) {}
 
-const IS_LITTLE_ENDIAN: bool = unsafe { mem::transmute::<u16, [bool; 2]>(1)[0] };
+const IS_LITTLE_ENDIAN: bool = cfg!(target_endian = "little");
 
 impl<'a> Bytes<'a> {
     /// Constructs an empty slice.
@@ -103,7 +103,7 @@ impl<'a> Bytes<'a> {
     /// This is equivalent to `<Bytes as From<&'static [u8]>>::from`, guaranteeing that [`Self::upgrade`] won't need to reallocate to recover the `'static` lifetime through [`Bytes::upgrade`].
     /// ```
     /// # use safer_ffi::bytes::Bytes;
-    /// let data = "Hello there, this string is long enough that it'll cross the inline-threshold (mem::size_of::<Bytes>() - 1) on all supported platforms";
+    /// let data = "Hello there, this string is long enough that it'll cross the inline-threshold (core::mem::size_of::<Bytes>() - 1) on all supported platforms";
     /// let mut bytes = Bytes::from_static(data.as_bytes());
     /// assert!(!bytes.upgrade_will_allocate());
     /// ```
