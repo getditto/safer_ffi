@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Script to bump da `safer-ffi` version of the repo (both in `.toml` and `.lock` files).
+# Script to bump the `safer-ffi` version of the repo (both in `.toml` and `.lock` files).
 
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
