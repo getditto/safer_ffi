@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Script to cargo publish a new version to safer-ffi
+# Script to cargo publish a new version of safer-ffi
 
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
