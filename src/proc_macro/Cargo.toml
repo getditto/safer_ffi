@@ -4,7 +4,7 @@ proc-macro = true
 
 [package]
 name = "safer_ffi-proc_macros"
-version = "0.1.10-rc4"  # Keep in sync
+version = "0.1.10"  # Keep in sync
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2021"
 
