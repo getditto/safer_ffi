@@ -166,6 +166,7 @@ impl HeaderLanguage for Python {
         _docs: Docs<'_>,
         name: &'_ str,
         _ty: &'_ dyn PhantomCType,
+        _skip_type: bool,
         _value: &'_ dyn ::core::fmt::Debug,
     ) -> io::Result<()>
     {

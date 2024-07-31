@@ -36,6 +36,10 @@ typedef struct next_generation {
     void * (*cb)(bool);
 } next_generation_t;
 
+typedef ... Opaque__str_t;
+
+#define SOME_NAME ...
+
 typedef enum triforce {
     TRIFORCE_DIN,
     TRIFORCE_FARORE,
@@ -114,6 +118,9 @@ typedef struct slice_ref_int32 {
 int32_t const *
 max (
     slice_ref_int32_t xs);
+
+void *
+my_renamed_ptr_api (void);
 
 foo_t *
 new_foo (void);

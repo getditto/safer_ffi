@@ -31,6 +31,35 @@ impl HeaderLanguage for C {
         Ok(())
     }
 
+    fn supports_type_aliases(self: &'_ C)
+      -> Option<&'_ dyn HeaderLanguageSupportingTypeAliases>
+    {
+        return Some(self);
+        // where
+        impl HeaderLanguageSupportingTypeAliases for C {
+            fn emit_type_alias(
+                self: &'_ Self,
+                ctx: &'_ mut dyn Definer,
+                docs: Docs<'_>,
+                self_ty: &'_ dyn PhantomCType,
+                inner_ty: &'_ dyn PhantomCType,
+            ) -> io::Result<()>
+            {
+                let ref indent = Indentation::new(4 /* ctx.indent_width() */);
+                mk_out!(indent, ctx.out());
+                self.emit_docs(ctx, docs, indent)?;
+                let ref aliaser = self_ty.name(self);
+                let ref aliasee = inner_ty.name(self);
+                out!((
+                    "typedef {aliasee} {aliaser};"
+                ));
+
+                out!("\n");
+                Ok(())
+            }
+        }
+    }
+
     fn emit_simple_enum (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
@@ -228,17 +257,24 @@ impl HeaderLanguage for C {
         docs: Docs<'_>,
         name: &'_ str,
         ty: &'_ dyn PhantomCType,
+        skip_type: bool,
         value: &'_ dyn ::core::fmt::Debug,
     ) -> io::Result<()>
     {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
-        self.emit_docs(ctx, lang_config, docs, indent)?;
-        let ty = ty.name(self);
-        out!((
-            "#define {name} (({ty}) {value:?})"
-        ));
+        self.emit_docs(ctx, docs, indent)?;
+        if skip_type {
+            out!((
+                "#define {name} {value:?}"
+            ));
+        } else {
+            let ty = ty.name(self);
+            out!((
+                "#define {name} (({ty}) {value:?})"
+            ));
+        }
 
         out!("\n");
         Ok(())

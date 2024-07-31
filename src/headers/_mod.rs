@@ -118,8 +118,6 @@ mod languages;
 pub use definer::{Definer, HashSetDefiner};
 mod definer;
 
-
-
 match_! {(
     /// Sets up the name of the `ifndef` guard of the header file.
     ///

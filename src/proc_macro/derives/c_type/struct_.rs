@@ -12,8 +12,25 @@ fn derive (
     fields: &'_ Fields,
 ) -> Result<TokenStream2>
 {
-    if matches!(fields, Fields::Unnamed { .. } | Fields::Unit { .. }) {
-        bail!("only braced structs are supported");
+    if let Some(repr) = attrs.iter().find_map(|attr| {
+        bool::then(
+            attr.path.is_ident("repr"),
+            || attr.parse_args::<Ident>().ok()
+        ).flatten()
+    })
+    {
+        if repr.to_string() == "transparent" {
+            return derive_transparent(
+                args,
+                attrs,
+                pub_,
+                StructName,
+                generics,
+                fields,
+            );
+        }
+    } else {
+        bail!("Missing `#[repr]`!");
     }
 
     #[apply(let_quote!)]
@@ -29,6 +46,10 @@ fn derive (
     };
 
     let mut ret = quote!();
+
+    if matches!(fields, Fields::Unnamed { .. } | Fields::Unit { .. }) {
+        bail!("only braced structs are supported");
+    }
 
     if cfg!(feature = "js") && args.js.is_some() {
         // invoke the legacy `CType!` macro which is the one currently featuring
@@ -129,32 +150,11 @@ fn derive (
     }
 
     ret.extend({
-        let (intro_generics, fwd_generics, where_clauses) =
-            generics.split_for_impl()
-        ;
+        let (intro_generics, fwd_generics, where_clauses) = &generics.split_for_impl();
+
+        let trivial_impls = trivial_impls(intro_generics, fwd_generics, where_clauses, StructName);
 
         quote!(
-            impl #intro_generics
-                #ඞ::Clone
-            for
-                #StructName #fwd_generics
-            #where_clauses
-            {
-                #[inline]
-                fn clone (self: &'_ Self)
-                  -> Self
-                {
-                    *self
-                }
-            }
-
-            impl #intro_generics
-                #ඞ::Copy
-            for
-                #StructName #fwd_generics
-            #where_clauses
-            {}
-
             unsafe
             impl #intro_generics
                 #CType
@@ -165,24 +165,7 @@ fn derive (
                 #impl_body
             }
 
-            // If it is CType, it trivially is ReprC.
-            unsafe
-            impl #intro_generics
-                #ReprC
-            for
-                #StructName #fwd_generics
-            #where_clauses
-            {
-                type CLayout = Self;
-
-                #[inline]
-                fn is_valid (
-                    _: &'_ Self::CLayout,
-                ) -> #ඞ::bool
-                {
-                    true
-                }
-            }
+            #trivial_impls
         )
     });
 
@@ -191,4 +174,205 @@ fn derive (
     // }
 
     Ok(ret)
+}
+
+pub(in crate)
+fn derive_transparent (
+    args: Args,
+    attrs: &'_ [Attribute],
+    _pub: &'_ Visibility,
+    StructName_Layout @ _: &'_ Ident,
+    generics: &'_ Generics,
+    fields: &'_ Fields,
+) -> Result<TokenStream2>
+{
+    // Example input:
+    #[cfg(any())]
+    #[derive_CType(js, rename = "dittoffi_string")]
+    #[repr(transparent)]
+    struct FfiString_Layout(
+        CLayoutOf<char_p::Box>,
+    )
+    where
+        char_p::Box : ReprC,
+    ;
+
+    #[apply(let_quote)]
+    use ::safer_ffi::ඞ;
+
+    let mut ret = quote!();
+
+    let Args { rename, .. } = &args;
+
+    let docs = utils::extract_docs(attrs)?;
+
+    let CFieldTy @ _ = match fields.iter().next() {
+        | Some(f) => &f.ty,
+        | None => bail! {
+            "`#[repr(transparent)]` requires at least one field" => fields,
+        },
+    };
+
+    let (intro_generics, fwd_generics, where_clauses) = &generics.split_for_impl();
+
+    ret.extend(quote!(
+        unsafe
+        impl #intro_generics
+            #ඞ::CType
+        for
+            #StructName_Layout #fwd_generics
+        #where_clauses
+        {
+            type OPAQUE_KIND = <#CFieldTy as #ඞ::CType>::OPAQUE_KIND;
+
+            ::safer_ffi::__cfg_headers__! {
+                fn short_name ()
+                  -> #ඞ::String
+                {
+                    #ඞ::String::from(#rename)
+                }
+
+                #[allow(nonstandard_style)]
+                fn define_self__impl (
+                    language: &'_ dyn #ඞ::HeaderLanguage,
+                    definer: &'_ mut dyn #ඞ::Definer,
+                ) -> #ඞ::io::Result<()>
+                {
+                    <#CFieldTy as #ඞ::CType>::define_self(language, definer)?;
+
+                    if let #ඞ::Some(language) = language.supports_type_aliases() {
+                        language.emit_type_alias(
+                            definer,
+                            &[#(#docs),*],
+                            &#ඞ::PhantomData::<Self>,
+                            &#ඞ::PhantomData::<#CFieldTy>,
+                        )?;
+                    }
+
+                    Ok(())
+                }
+
+                fn define_self (
+                    language: &'_ dyn #ඞ::HeaderLanguage,
+                    definer: &'_ mut dyn #ඞ::Definer,
+                ) -> #ඞ::io::Result<()>
+                {
+                    // We need to be careful with the default idempotency guard:
+                    // Since the `name` for a type alias happens to be identical to that of the
+                    // inner type, and since `.define_once()`'s implementation eagerly `.insert()`s
+                    // into the map before running the `__impl()`, we have no choice but to use
+                    // a properly unique name here, like the true C (re)name.
+                    let idempotency_definition_id = if language.supports_type_aliases().is_some() {
+                        Self::name(language)
+                    } else {
+                        Self::name(&#ඞ::languages::C)
+                    };
+                    definer.define_once(
+                        &idempotency_definition_id,
+                        &mut |definer| Self::define_self__impl(language, definer),
+                    )
+                }
+
+                fn name (
+                    language: &'_ dyn #ඞ::HeaderLanguage,
+                ) -> String
+                {
+                    if let #ඞ::Some(language) = language.supports_type_aliases() {
+                        #ඞ::std::format!("{}_t", Self::short_name())
+                    } else {
+                        <#CFieldTy as #ඞ::CType>::name(language)
+                    }
+                }
+            }
+        }
+    ));
+
+    ret.extend(trivial_impls(intro_generics, fwd_generics, where_clauses, StructName_Layout));
+
+    if cfg!(feature = "js") && args.js.is_some() {
+        #[apply(let_quote)]
+        use ::safer_ffi::js;
+
+        ret.extend(quote!(
+            impl #intro_generics
+                #js::ReprNapi
+            for
+                #StructName_Layout #fwd_generics
+            #where_clauses
+            {
+                type NapiValue = <#CFieldTy as #js::ReprNapi>::NapiValue;
+
+                fn to_napi_value (
+                    self: Self,
+                    env: &'_ #js::Env,
+                ) -> #js::Result< Self::NapiValue >
+                {
+                    <#CFieldTy as #js::ReprNapi>::to_napi_value(self.0, env)
+                }
+
+                fn from_napi_value (
+                    env: &'_ #js::Env,
+                    napi_value: Self::NapiValue,
+                ) -> #js::Result<Self>
+                {
+                    let inner = <#CFieldTy as #js::ReprNapi>::from_napi_value(env, napi_value)?;
+                    #js::Result::Ok(unsafe { #ඞ::core::mem::transmute::<#CFieldTy, Self>(inner) })
+                }
+            }
+        ));
+    }
+
+    Ok(ret)
+}
+
+fn trivial_impls(
+    intro_generics: &dyn ToTokens,
+    fwd_generics: &dyn ToTokens,
+    where_clauses: &dyn ToTokens,
+    StructName @ _: &dyn ToTokens,
+) -> TokenStream2 {
+    #[apply(let_quote)]
+    use ::safer_ffi::ඞ;
+
+    quote!(
+        impl #intro_generics
+            #ඞ::Clone
+        for
+            #StructName #fwd_generics
+        #where_clauses
+        {
+            #[inline]
+            fn clone (self: &'_ Self)
+              -> Self
+            {
+                *self
+            }
+        }
+
+        impl #intro_generics
+            #ඞ::Copy
+        for
+            #StructName #fwd_generics
+        #where_clauses
+        {}
+
+        // If it is CType, it trivially is ReprC.
+        unsafe
+        impl #intro_generics
+            #ඞ::ReprC
+        for
+            #StructName #fwd_generics
+        #where_clauses
+        {
+            type CLayout = Self;
+
+            #[inline]
+            fn is_valid (
+                _: &'_ Self::CLayout,
+            ) -> #ඞ::bool
+            {
+                true
+            }
+        }
+    )
 }

@@ -250,9 +250,15 @@ impl HeaderLanguage for CSharp {
         docs: Docs<'_>,
         name: &'_ str,
         ty: &'_ dyn PhantomCType,
+        skip_type: bool,
         value: &'_ dyn ::core::fmt::Debug,
     ) -> io::Result<()>
     {
+        if skip_type {
+            // Skip the whole const for now.
+            // TODO: properly support constants in C#
+            return Ok(());
+        }
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 

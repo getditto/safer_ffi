@@ -189,6 +189,21 @@ pub struct MyPtr {
     bar: (),
 }
 
+#[derive_ReprC(rename = "my_renamed_ptr")]
+#[repr(transparent)]
+pub struct MyRenamedPtr {
+    foo: ::core::ptr::NonNull<()>,
+    bar: (),
+}
+
+#[ffi_export]
+fn my_renamed_ptr_api() -> MyRenamedPtr {
+    MyRenamedPtr {
+        foo: ::core::ptr::NonNull::new(0xbad000 as _).unwrap(),
+        bar: ()
+    }
+}
+
 macro_rules! docs {() => (
     "Hello, `World`!"
 )}
@@ -258,6 +273,9 @@ async fn async_get_ft ()
 
 #[ffi_export]
 pub const FOO: i32 = 42;
+
+#[ffi_export(untyped)]
+pub const SOME_NAME: &str = "hello there";
 
 #[ffi_export]
 fn _some_opaque_std_lib_type() -> repr_c::Box<String> {

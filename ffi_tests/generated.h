@@ -77,6 +77,14 @@ typedef struct next_generation {
 } next_generation_t;
 
 /** \brief
+ *  The layout of `&str` is opaque/subject to changes.
+ */
+typedef struct Opaque__str Opaque__str_t;
+
+/** <No documentation available> */
+#define SOME_NAME "hello there"
+
+/** \brief
  *  Hello, `World`!
  */
 /** \remark Has the same ABI as `uint8_t` **/
@@ -228,6 +236,13 @@ typedef struct slice_ref_int32 {
 int32_t const *
 max (
     slice_ref_int32_t xs);
+
+/** <No documentation available> */
+typedef void * my_renamed_ptr_t;
+
+/** <No documentation available> */
+my_renamed_ptr_t
+my_renamed_ptr_api (void);
 
 /** <No documentation available> */
 foo_t *
