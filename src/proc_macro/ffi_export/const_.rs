@@ -96,7 +96,8 @@ fn handle (
 
                             <#ඞ::CLayoutOf<#Ty> as #ඞ::CType>::define_self(
                                 header_builder,
-                                definer
+                                definer,
+                                lang_config
                             )?;
 
                             header_builder

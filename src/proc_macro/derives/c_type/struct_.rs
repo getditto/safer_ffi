@@ -236,13 +236,15 @@ fn derive_transparent (
                 fn define_self__impl (
                     language: &'_ dyn #ඞ::HeaderLanguage,
                     definer: &'_ mut dyn #ඞ::Definer,
+                    lang_config: &'_ #ඞ::LanguageConfig
                 ) -> #ඞ::io::Result<()>
                 {
-                    <#CFieldTy as #ඞ::CType>::define_self(language, definer)?;
+                    <#CFieldTy as #ඞ::CType>::define_self(language, definer, lang_config)?;
 
                     if let #ඞ::Some(language) = language.supports_type_aliases() {
                         language.emit_type_alias(
                             definer,
+                            lang_config,
                             &[#(#docs),*],
                             &#ඞ::PhantomData::<Self>,
                             &#ඞ::PhantomData::<#CFieldTy>,
@@ -255,6 +257,7 @@ fn derive_transparent (
                 fn define_self (
                     language: &'_ dyn #ඞ::HeaderLanguage,
                     definer: &'_ mut dyn #ඞ::Definer,
+                    lang_config: &'_ #ඞ::LanguageConfig
                 ) -> #ඞ::io::Result<()>
                 {
                     // We need to be careful with the default idempotency guard:
@@ -269,7 +272,7 @@ fn derive_transparent (
                     };
                     definer.define_once(
                         &idempotency_definition_id,
-                        &mut |definer| Self::define_self__impl(language, definer),
+                        &mut |definer| Self::define_self__impl(language, definer, lang_config),
                     )
                 }
 

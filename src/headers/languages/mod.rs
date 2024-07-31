@@ -147,6 +147,7 @@ trait HeaderLanguageSupportingTypeAliases : HeaderLanguage {
     fn emit_type_alias(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         inner_ty: &'_ dyn PhantomCType,

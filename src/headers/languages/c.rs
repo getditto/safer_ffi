@@ -40,6 +40,7 @@ impl HeaderLanguage for C {
             fn emit_type_alias(
                 self: &'_ Self,
                 ctx: &'_ mut dyn Definer,
+                lang_config: &'_ LanguageConfig,
                 docs: Docs<'_>,
                 self_ty: &'_ dyn PhantomCType,
                 inner_ty: &'_ dyn PhantomCType,
@@ -47,7 +48,7 @@ impl HeaderLanguage for C {
             {
                 let ref indent = Indentation::new(4 /* ctx.indent_width() */);
                 mk_out!(indent, ctx.out());
-                self.emit_docs(ctx, docs, indent)?;
+                self.emit_docs(ctx, lang_config, docs, indent)?;
                 let ref aliaser = self_ty.name(self);
                 let ref aliasee = inner_ty.name(self);
                 out!((
@@ -264,7 +265,7 @@ impl HeaderLanguage for C {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
-        self.emit_docs(ctx, docs, indent)?;
+        self.emit_docs(ctx, lang_config, docs, indent)?;
         if skip_type {
             out!((
                 "#define {name} {value:?}"
