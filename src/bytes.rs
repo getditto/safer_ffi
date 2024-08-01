@@ -580,7 +580,8 @@ impl From<stabby::sync::ArcSlice<u8>> for Bytes<'static> {
                 len,
                 data: mem::transmute(data.start),
                 capacity: mem::transmute(data.end),
-                vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&STABBY_ARCSLICE_BYTESVT),
+                vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&STABBY_ARCSLICE_BYTESVT)
+                    .cast(),
                 marker: core::marker::PhantomData,
             }
         }
@@ -609,7 +610,8 @@ impl<T: Sized + AsRef<[u8]> + Send + Sync + 'static> From<stabby::sync::Arc<T>> 
             vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&BytesVt {
                 release: Some(release_stabby_arc::<T>),
                 retain: Some(retain_stabby_arc::<T>),
-            }),
+            })
+            .cast(),
             marker: core::marker::PhantomData,
         }
     }
