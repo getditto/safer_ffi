@@ -26,23 +26,15 @@ pub struct Bytes<'a> {
     len: usize,
     data: *const (),
     capacity: usize,
-    vtable: ptr::NonNull<BytesVt>,
+    vtable: ptr::NonNull<u8>,
     marker: core::marker::PhantomData<&'a [u8]>,
 }
 #[cfg(not(feature = "stabby"))]
-unsafe impl<'a> crate::layout::__HasNiche__ for Bytes<'a> {
-    fn is_niche(it: &'_ <Self as crate::ඞ::ReprC>::CLayout) -> bool {
-        !it.vtable.is_null()
-    }
-}
+unsafe impl<'a> crate::layout::__HasNiche__ for Bytes<'a> {}
 #[cfg(feature = "stabby")]
-unsafe impl<'a> crate::layout::__HasNiche__ for Bytes<'a>
-where
-    Self: stabby::IStable<HasExactlyOneNiche = stabby::abi::B1>,
+unsafe impl<'a> crate::layout::__HasNiche__ for Bytes<'a> where
+    Self: stabby::IStable<HasExactlyOneNiche = stabby::abi::B1>
 {
-    fn is_niche(it: &'_ <Self as crate::ඞ::ReprC>::CLayout) -> bool {
-        !it.vtable.is_null()
-    }
 }
 
 const _: () = {
@@ -94,7 +86,7 @@ impl<'a> Bytes<'a> {
             None
         } else {
             // SAFETY: If the value is not inlined, then we know the vtable to have been initialized to a valid reference.
-            unsafe { mem::transmute::<ptr::NonNull<BytesVt>, Option<&'a BytesVt>>(self.vtable) }
+            unsafe { mem::transmute::<ptr::NonNull<u8>, Option<&'a BytesVt>>(self.vtable) }
         }
     }
 
@@ -121,6 +113,7 @@ impl<'a> Bytes<'a> {
                 ptr::NonNull::new_unchecked(
                     &VT as &'static BytesVt as *const BytesVt as *mut BytesVt,
                 )
+                .cast()
             },
             marker: core::marker::PhantomData,
         }
@@ -157,6 +150,7 @@ impl<'a> Bytes<'a> {
                     ptr::NonNull::new_unchecked(
                         &VT as &'static BytesVt as *const BytesVt as *mut BytesVt,
                     )
+                    .cast()
                 },
                 marker: core::marker::PhantomData,
             }
@@ -483,7 +477,7 @@ impl From<Arc<[u8]>> for Bytes<'static> {
             len: data.len(),
             data: Arc::into_raw(data) as *const (),
             capacity,
-            vtable: From::<&'static _>::from(&ARC_BYTES_VT),
+            vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&ARC_BYTES_VT).cast(),
             marker: core::marker::PhantomData,
         }
     }
@@ -503,10 +497,11 @@ impl<'a, T: Sized + AsRef<[u8]> + Send + Sync + 'a> From<Arc<T>> for Bytes<'a> {
             len: data.len(),
             capacity: data.len(),
             data: Arc::into_raw(value) as *const (),
-            vtable: From::<&'static _>::from(&BytesVt {
+            vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&BytesVt {
                 release: Some(release::<T>),
                 retain: Some(retain::<T>),
-            }),
+            })
+            .cast(),
             marker: core::marker::PhantomData,
         }
     }
@@ -528,10 +523,11 @@ impl From<alloc::boxed::Box<[u8]>> for Bytes<'_> {
             len,
             capacity: len,
             data,
-            vtable: From::<&'static _>::from(&BytesVt {
+            vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&BytesVt {
                 release: Some(release_box_bytes),
                 retain: None,
-            }),
+            })
+            .cast(),
             marker: core::marker::PhantomData,
         }
     }
@@ -584,7 +580,7 @@ impl From<stabby::sync::ArcSlice<u8>> for Bytes<'static> {
                 len,
                 data: mem::transmute(data.start),
                 capacity: mem::transmute(data.end),
-                vtable: From::<&'static _>::from(&STABBY_ARCSLICE_BYTESVT),
+                vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&STABBY_ARCSLICE_BYTESVT),
                 marker: core::marker::PhantomData,
             }
         }
@@ -610,7 +606,7 @@ impl<T: Sized + AsRef<[u8]> + Send + Sync + 'static> From<stabby::sync::Arc<T>> 
             len: data.len(),
             capacity: data.len(),
             data: unsafe { mem::transmute(stabby::sync::Arc::into_raw(value)) },
-            vtable: From::<&'static _>::from(&BytesVt {
+            vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&BytesVt {
                 release: Some(release_stabby_arc::<T>),
                 retain: Some(retain_stabby_arc::<T>),
             }),
