@@ -812,8 +812,6 @@
 <a href="#812" id="812">812</a>
 <a href="#813" id="813">813</a>
 <a href="#814" id="814">814</a>
-<a href="#815" id="815">815</a>
-<a href="#816" id="816">816</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::{
     borrow::Borrow,
     fmt::Debug,
@@ -842,23 +840,15 @@
     len: usize,
     data: <span class="kw-2">*const </span>(),
     capacity: usize,
-    vtable: ptr::NonNull&lt;BytesVt&gt;,
+    vtable: ptr::NonNull&lt;u8&gt;,
     marker: core::marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;,
 }
 <span class="attr">#[cfg(not(feature = <span class="string">&quot;stabby&quot;</span>))]
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">crate</span>::layout::__HasNiche__ <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>is_niche(it: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>&lt;<span class="self">Self </span><span class="kw">as </span><span class="kw">crate</span>::ඞ::ReprC&gt;::CLayout) -&gt; bool {
-        !it.vtable.is_null()
-    }
-}
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">crate</span>::layout::__HasNiche__ <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt; {}
 <span class="attr">#[cfg(feature = <span class="string">&quot;stabby&quot;</span>)]
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">crate</span>::layout::__HasNiche__ <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt;
-<span class="kw">where
-    </span><span class="self">Self</span>: stabby::IStable&lt;HasExactlyOneNiche = stabby::abi::B1&gt;,
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">crate</span>::layout::__HasNiche__ <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">where
+    </span><span class="self">Self</span>: stabby::IStable&lt;HasExactlyOneNiche = stabby::abi::B1&gt;
 {
-    <span class="kw">fn </span>is_niche(it: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>&lt;<span class="self">Self </span><span class="kw">as </span><span class="kw">crate</span>::ඞ::ReprC&gt;::CLayout) -&gt; bool {
-        !it.vtable.is_null()
-    }
 }
 
 <span class="kw">const _</span>: () = {
@@ -910,7 +900,7 @@
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
             <span class="comment">// SAFETY: If the value is not inlined, then we know the vtable to have been initialized to a valid reference.
-            </span><span class="kw">unsafe </span>{ mem::transmute::&lt;ptr::NonNull&lt;BytesVt&gt;, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BytesVt&gt;&gt;(<span class="self">self</span>.vtable) }
+            </span><span class="kw">unsafe </span>{ mem::transmute::&lt;ptr::NonNull&lt;u8&gt;, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BytesVt&gt;&gt;(<span class="self">self</span>.vtable) }
         }
     }
 
@@ -937,6 +927,7 @@
                 ptr::NonNull::new_unchecked(
                     <span class="kw-2">&amp;</span>VT <span class="kw">as </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>BytesVt <span class="kw">as </span><span class="kw-2">*const </span>BytesVt <span class="kw">as </span><span class="kw-2">*mut </span>BytesVt,
                 )
+                .cast()
             },
             marker: core::marker::PhantomData,
         }
@@ -973,6 +964,7 @@
                     ptr::NonNull::new_unchecked(
                         <span class="kw-2">&amp;</span>VT <span class="kw">as </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>BytesVt <span class="kw">as </span><span class="kw-2">*const </span>BytesVt <span class="kw">as </span><span class="kw-2">*mut </span>BytesVt,
                     )
+                    .cast()
                 },
                 marker: core::marker::PhantomData,
             }
@@ -1299,7 +1291,7 @@
             len: data.len(),
             data: Arc::into_raw(data) <span class="kw">as </span><span class="kw-2">*const </span>(),
             capacity,
-            vtable: From::&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;::from(<span class="kw-2">&amp;</span>ARC_BYTES_VT),
+            vtable: &lt;ptr::NonNull&lt;BytesVt&gt; <span class="kw">as </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;&gt;::from(<span class="kw-2">&amp;</span>ARC_BYTES_VT).cast(),
             marker: core::marker::PhantomData,
         }
     }
@@ -1319,10 +1311,11 @@
             len: data.len(),
             capacity: data.len(),
             data: Arc::into_raw(value) <span class="kw">as </span><span class="kw-2">*const </span>(),
-            vtable: From::&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;::from(<span class="kw-2">&amp;</span>BytesVt {
+            vtable: &lt;ptr::NonNull&lt;BytesVt&gt; <span class="kw">as </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;&gt;::from(<span class="kw-2">&amp;</span>BytesVt {
                 release: <span class="prelude-val">Some</span>(release::&lt;T&gt;),
                 retain: <span class="prelude-val">Some</span>(retain::&lt;T&gt;),
-            }),
+            })
+            .cast(),
             marker: core::marker::PhantomData,
         }
     }
@@ -1344,10 +1337,11 @@
             len,
             capacity: len,
             data,
-            vtable: From::&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;::from(<span class="kw-2">&amp;</span>BytesVt {
+            vtable: &lt;ptr::NonNull&lt;BytesVt&gt; <span class="kw">as </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;&gt;::from(<span class="kw-2">&amp;</span>BytesVt {
                 release: <span class="prelude-val">Some</span>(release_box_bytes),
                 retain: <span class="prelude-val">None</span>,
-            }),
+            })
+            .cast(),
             marker: core::marker::PhantomData,
         }
     }
@@ -1400,7 +1394,8 @@
                 len,
                 data: mem::transmute(data.start),
                 capacity: mem::transmute(data.end),
-                vtable: From::&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;::from(<span class="kw-2">&amp;</span>STABBY_ARCSLICE_BYTESVT),
+                vtable: &lt;ptr::NonNull&lt;BytesVt&gt; <span class="kw">as </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;&gt;::from(<span class="kw-2">&amp;</span>STABBY_ARCSLICE_BYTESVT)
+                    .cast(),
                 marker: core::marker::PhantomData,
             }
         }
@@ -1426,10 +1421,11 @@
             len: data.len(),
             capacity: data.len(),
             data: <span class="kw">unsafe </span>{ mem::transmute(stabby::sync::Arc::into_raw(value)) },
-            vtable: From::&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;::from(<span class="kw-2">&amp;</span>BytesVt {
+            vtable: &lt;ptr::NonNull&lt;BytesVt&gt; <span class="kw">as </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;&gt;::from(<span class="kw-2">&amp;</span>BytesVt {
                 release: <span class="prelude-val">Some</span>(release_stabby_arc::&lt;T&gt;),
                 retain: <span class="prelude-val">Some</span>(retain_stabby_arc::&lt;T&gt;),
-            }),
+            })
+            .cast(),
             marker: core::marker::PhantomData,
         }
     }
