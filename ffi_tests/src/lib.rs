@@ -231,11 +231,22 @@ pub struct AnUnusedStruct {
 fn generate_headers ()
   -> ::std::io::Result<()>
 {
-    use ::safer_ffi::headers::Language::*;
-    for &(language, ext) in &[(C, "h"), (CSharp, "cs"), (Python, "cffi")] {
+    use ::safer_ffi::headers::LanguageConfig::*;
+    use ::safer_ffi::headers::languages::{
+        CLanguageConfig,
+        CSharpLanguageConfig,
+        PythonLanguageConfig
+    };
+    for (language, ext)
+        in  [
+                (C(CLanguageConfig::default()), "h"),
+                (CSharp(CSharpLanguageConfig::default()), "cs"),
+                (Python(PythonLanguageConfig::default()), "cffi")
+            ]
+    {
         let builder =
             ::safer_ffi::headers::builder()
-                .with_language(language)
+                .with_language_config(language)
         ;
         if  ::std::env::var("HEADERS_TO_STDOUT")
                 .ok()

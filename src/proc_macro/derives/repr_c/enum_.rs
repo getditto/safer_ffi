@@ -126,6 +126,7 @@ fn derive (
                     HeaderLanguage,
                     EnumVariant,
                 },
+                LanguageConfig
             },
         };
 
@@ -169,11 +170,13 @@ fn derive (
             fn define_self__impl (
                 language: &'_ dyn #HeaderLanguage,
                 definer: &'_ mut dyn #Definer,
+                lang_config: &'_ #LanguageConfig,
             ) -> #ඞ::io::Result<()>
             {
-                <#Int as #CType>::define_self(language, definer)?;
+                <#Int as #CType>::define_self(language, definer, lang_config)?;
                 language.emit_simple_enum(
                     definer,
+                    lang_config,
                     &[#(#each_doc),*],
                     &#ඞ::marker::PhantomData::<Self>,
                     #mb_phantom_int,

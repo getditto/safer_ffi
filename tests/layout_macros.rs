@@ -14,6 +14,7 @@ use ::std::{
 };
 use ::safer_ffi::{
     closure::*,
+    headers::languages::{CLanguageConfig, CSharpLanguageConfig},
     prelude::*,
     layout::{
         CType,
@@ -315,15 +316,15 @@ fn test_c_str_macro ()
 fn generate_headers ()
   -> ::std::io::Result<()>
 {Ok({
-    use ::safer_ffi::headers::Language::*;
-    for &language
-        in  &[
-                C,
-                CSharp,
+    use ::safer_ffi::headers::LanguageConfig::*;
+    for language
+        in  [
+                C(CLanguageConfig::default()),
+                CSharp(CSharpLanguageConfig::default()),
             ]
     {
         ::safer_ffi::headers::builder()
-            .with_language(language)
+            .with_language_config(language.clone())
             .to_writer(&mut ::std::io::stderr())
             .generate()?
     }

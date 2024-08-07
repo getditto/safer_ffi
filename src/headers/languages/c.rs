@@ -9,6 +9,7 @@ impl HeaderLanguage for C {
     fn emit_docs (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        _lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         indent: &'_ Indentation,
     ) -> io::Result<()>
@@ -39,6 +40,7 @@ impl HeaderLanguage for C {
             fn emit_type_alias(
                 self: &'_ Self,
                 ctx: &'_ mut dyn Definer,
+                lang_config: &'_ LanguageConfig,
                 docs: Docs<'_>,
                 self_ty: &'_ dyn PhantomCType,
                 inner_ty: &'_ dyn PhantomCType,
@@ -46,7 +48,7 @@ impl HeaderLanguage for C {
             {
                 let ref indent = Indentation::new(4 /* ctx.indent_width() */);
                 mk_out!(indent, ctx.out());
-                self.emit_docs(ctx, docs, indent)?;
+                self.emit_docs(ctx, lang_config, docs, indent)?;
                 let ref aliaser = self_ty.name(self);
                 let ref aliasee = inner_ty.name(self);
                 out!((
@@ -62,6 +64,7 @@ impl HeaderLanguage for C {
     fn emit_simple_enum (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         backing_integer: Option<&dyn PhantomCType>,
@@ -75,7 +78,7 @@ impl HeaderLanguage for C {
             backing_integer.map(|it| it.name(self))
         ;
 
-        self.emit_docs(ctx, docs, indent)?;
+        self.emit_docs(ctx, lang_config, docs, indent)?;
 
         let ref short_name = self_ty.short_name();
         let ref full_ty_name = self_ty.name(self);
@@ -94,7 +97,7 @@ impl HeaderLanguage for C {
 
         if let _ = indent.scope() {
             for v in variants {
-                self.emit_docs(ctx, v.docs, indent)?;
+                self.emit_docs(ctx, lang_config, v.docs, indent)?;
                 let variant_name = crate::utils::screaming_case(short_name, v.name) /* ctx.adjust_variant_name(
                     Language::C,
                     enum_name,
@@ -127,6 +130,7 @@ impl HeaderLanguage for C {
     fn emit_struct (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         fields: &'_ [StructField<'_>]
@@ -141,7 +145,7 @@ impl HeaderLanguage for C {
             panic!("C does not support zero-sized structs!")
         }
 
-        self.emit_docs(ctx, docs, indent)?;
+        self.emit_docs(ctx, lang_config, docs, indent)?;
         out!(("typedef struct {short_name} {{"));
         if let _ = indent.scope() {
             let ref mut first = true;
@@ -157,7 +161,7 @@ impl HeaderLanguage for C {
                 if mem::take(first).not() {
                     out!("\n");
                 }
-                self.emit_docs(ctx, docs, indent)?;
+                self.emit_docs(ctx, lang_config, docs, indent)?;
                 out!(
                     ("{};"),
                     ty.name_wrapping_var(self, name)
@@ -173,6 +177,7 @@ impl HeaderLanguage for C {
     fn emit_opaque_type (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>
@@ -182,7 +187,7 @@ impl HeaderLanguage for C {
         let short_name = self_ty.short_name();
         let full_ty_name = self_ty.name(self);
 
-        self.emit_docs(ctx, docs, indent)?;
+        self.emit_docs(ctx, lang_config, docs, indent)?;
         out!(("typedef struct {short_name} {full_ty_name};"));
 
         out!("\n");
@@ -192,15 +197,17 @@ impl HeaderLanguage for C {
     fn emit_function (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>
     {
+        let c_config = lang_config.unwrap_as_c_or_default();
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
 
-        self.emit_docs(ctx, docs, indent)?;
+        self.emit_docs(ctx, lang_config, docs, indent)?;
 
         let ref fn_sig_but_for_ret_type: String = {
             let mut buf = Vec::<u8>::new();
@@ -230,9 +237,14 @@ impl HeaderLanguage for C {
             String::from_utf8(buf).unwrap()
         };
 
+        let function_macro_prepend = match &c_config.function_macro_prepend {
+            Some(s) => format!("{} ", s),
+            _ => String::new()
+        };
+
         mk_out!(indent, ctx.out());
         out!(
-            ("{};"), ret_ty.name_wrapping_var(self, fn_sig_but_for_ret_type)
+            ("{}{};"), function_macro_prepend, ret_ty.name_wrapping_var(self, fn_sig_but_for_ret_type)
         );
 
         out!("\n");
@@ -242,6 +254,7 @@ impl HeaderLanguage for C {
     fn emit_constant (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         name: &'_ str,
         ty: &'_ dyn PhantomCType,
@@ -252,7 +265,7 @@ impl HeaderLanguage for C {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
-        self.emit_docs(ctx, docs, indent)?;
+        self.emit_docs(ctx, lang_config, docs, indent)?;
         if skip_type {
             out!((
                 "#define {name} {value:?}"
@@ -267,4 +280,18 @@ impl HeaderLanguage for C {
         out!("\n");
         Ok(())
     }
+}
+
+/// Configuration options for C header generation
+///
+#[derive(
+    Debug, Default,
+    Clone,
+    PartialEq, Eq,
+)]
+pub
+struct CLanguageConfig {
+    /// Prepends each function definition with the specified macro
+    ///
+    pub function_macro_prepend: Option<String>
 }

@@ -112,14 +112,14 @@ const _: () = { macro_rules! impl_CTypes {
                 )
             }
 
-            fn c_define_self (definer: &'_ mut dyn Definer)
+            fn c_define_self (definer: &'_ mut dyn Definer, lang_config: &'_ LanguageConfig)
               -> io::Result<()>
             {
                 let ref me = Self::c_var("").to_string();
                 definer.define_once(
                     me,
                     &mut |definer| {
-                        Item::define_self(&crate::headers::languages::C, definer)?;
+                        Item::define_self(&crate::headers::languages::C, definer, lang_config)?;
                         writeln!(definer.out(),
                             concat!(
                                 "typedef struct {{\n",
@@ -150,11 +150,11 @@ const _: () = { macro_rules! impl_CTypes {
             }
 
             __cfg_csharp__! {
-                fn csharp_define_self (definer: &'_ mut dyn Definer)
+                fn csharp_define_self (definer: &'_ mut dyn Definer, lang_config: &'_ LanguageConfig)
                   -> io::Result<()>
                 {
                     let ref me = Self::csharp_ty();
-                    Item::define_self(&crate::headers::languages::CSharp, definer)?;
+                    Item::define_self(&crate::headers::languages::CSharp, definer, lang_config)?;
                     definer.define_once(me, &mut |definer| {
                         let array_items = {
                             // Poor man's specialization to use `fixed` arrays.
@@ -265,12 +265,12 @@ const _: () = { macro_rules! impl_CTypes {
                 fmt.write_str("_fptr")
             }
 
-            fn c_define_self (definer: &'_ mut dyn Definer)
+            fn c_define_self (definer: &'_ mut dyn Definer, lang_config: &'_ LanguageConfig)
               -> io::Result<()>
             {
-                Ret::define_self(&crate::headers::languages::C, definer)?; $(
-                $An::define_self(&crate::headers::languages::C, definer)?; $(
-                $Ai::define_self(&crate::headers::languages::C, definer)?; )*)?
+                Ret::define_self(&crate::headers::languages::C, definer, lang_config)?; $(
+                $An::define_self(&crate::headers::languages::C, definer, lang_config)?; $(
+                $Ai::define_self(&crate::headers::languages::C, definer, lang_config)?; )*)?
                 Ok(())
             }
 
@@ -292,12 +292,12 @@ const _: () = { macro_rules! impl_CTypes {
             }
 
             __cfg_csharp__! {
-                fn csharp_define_self (definer: &'_ mut dyn Definer)
+                fn csharp_define_self (definer: &'_ mut dyn Definer, lang_config: &'_ LanguageConfig)
                   -> io::Result<()>
                 {
-                    Ret::define_self(&crate::headers::languages::CSharp, definer)?; $(
-                    $An::define_self(&crate::headers::languages::CSharp, definer)?; $(
-                    $Ai::define_self(&crate::headers::languages::CSharp, definer)?; )*)?
+                    Ret::define_self(&crate::headers::languages::CSharp, definer, lang_config)?; $(
+                    $An::define_self(&crate::headers::languages::CSharp, definer, lang_config)?; $(
+                    $Ai::define_self(&crate::headers::languages::CSharp, definer, lang_config)?; )*)?
                     let ref me = Self::name(&crate::headers::languages::CSharp).to_string();
                     let ref mut _arg = {
                         let mut iter = (0 ..).map(|c| format!("_{}", c));
@@ -513,7 +513,7 @@ const _: () = { macro_rules! impl_CTypes {
                 fmt.write_str($CInt)
             }
 
-            fn c_define_self (definer: &'_ mut dyn Definer)
+            fn c_define_self (definer: &'_ mut dyn Definer, _lang_config: &'_ LanguageConfig)
               -> io::Result<()>
             {
                 definer.define_once(
@@ -544,6 +544,7 @@ const _: () = { macro_rules! impl_CTypes {
             __cfg_csharp__! {
                 fn csharp_define_self (
                     _: &'_ mut dyn crate::headers::Definer,
+                    _: &'_ crate::headers::LanguageConfig
                 ) -> io::Result<()>
                 {
                     Ok(())
@@ -589,6 +590,7 @@ const _: () = { macro_rules! impl_CTypes {
 
             fn c_define_self (
                 _: &'_ mut dyn crate::headers::Definer,
+                _: &'_ crate::headers::LanguageConfig,
             ) -> io::Result<()>
             {
                 Ok(())
@@ -597,6 +599,7 @@ const _: () = { macro_rules! impl_CTypes {
             __cfg_csharp__! {
                 fn csharp_define_self (
                     _: &'_ mut dyn crate::headers::Definer,
+                    _: &'_ crate::headers::LanguageConfig,
                 ) -> io::Result<()>
                 {
                     Ok(())
@@ -625,10 +628,10 @@ const _: () = { macro_rules! impl_CTypes {
                 write!(fmt, "{}_const_ptr", T::short_name())
             }
 
-            fn c_define_self (definer: &'_ mut dyn Definer)
+            fn c_define_self (definer: &'_ mut dyn Definer, lang_config: &'_ LanguageConfig)
               -> io::Result<()>
             {
-                T::define_self(&crate::headers::languages::C, definer)
+                T::define_self(&crate::headers::languages::C, definer, lang_config)
             }
 
             fn c_var_fmt (
@@ -645,10 +648,10 @@ const _: () = { macro_rules! impl_CTypes {
             }
 
             __cfg_csharp__! {
-                fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
+                fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer, lang_config: &'_ $crate::headers::LanguageConfig)
                   -> $crate::ඞ::io::Result<()>
                 {
-                    T::define_self(&crate::headers::languages::CSharp, definer)?;
+                    T::define_self(&crate::headers::languages::CSharp, definer, lang_config)?;
                     // definer.define_once("Const", &mut |definer| {
                     //     definer.out().write_all(concat!(
                     //         "[StructLayout(LayoutKind.Sequential)]\n",
@@ -692,10 +695,10 @@ const _: () = { macro_rules! impl_CTypes {
                 write!(fmt, "{}_ptr", T::short_name())
             }
 
-            fn c_define_self (definer: &'_ mut dyn Definer)
+            fn c_define_self (definer: &'_ mut dyn Definer, lang_config: &'_ LanguageConfig)
               -> io::Result<()>
             {
-                T::define_self(&crate::headers::languages::C, definer)
+                T::define_self(&crate::headers::languages::C, definer, lang_config)
             }
 
             fn c_var_fmt (
@@ -712,10 +715,10 @@ const _: () = { macro_rules! impl_CTypes {
             }
 
             __cfg_csharp__! {
-                fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
+                fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer, lang_config: &'_ LanguageConfig)
                   -> $crate::ඞ::io::Result<()>
                 {
-                    T::define_self(&crate::headers::languages::CSharp, definer)
+                    T::define_self(&crate::headers::languages::CSharp, definer, lang_config)
                 }
 
                 fn csharp_ty ()
@@ -862,7 +865,7 @@ unsafe
                 fmt.write_str("bool")
             }
 
-            fn c_define_self (definer: &'_ mut dyn Definer)
+            fn c_define_self (definer: &'_ mut dyn Definer, _lang_config: &'_ LanguageConfig)
               -> io::Result<()>
             {
                 definer.define_once(
@@ -890,6 +893,7 @@ unsafe
             __cfg_csharp__! {
                 fn csharp_define_self (
                     _: &'_ mut dyn crate::headers::Definer,
+                    _: &'_ crate::headers::LanguageConfig,
                 ) -> io::Result<()>
                 {
                     Ok(())
@@ -959,6 +963,7 @@ unsafe
 
             fn c_define_self (
                 _: &'_ mut dyn crate::headers::Definer,
+                _: &'_ crate::headers::LanguageConfig
             ) -> io::Result<()>
             {
                 Ok(())
@@ -967,6 +972,7 @@ unsafe
             __cfg_csharp__! {
                 fn csharp_define_self (
                     _: &'_ mut dyn crate::headers::Definer,
+                    _: &'_ crate::headers::LanguageConfig
                 ) -> io::Result<()>
                 {
                     Ok(())
@@ -1076,10 +1082,12 @@ impl<T> CType for OpaqueLayout<T> {
         fn define_self__impl (
             language: &'_ dyn HeaderLanguage,
             definer: &'_ mut dyn Definer,
+            lang_config: &'_ LanguageConfig,
         ) -> io::Result<()>
         {
             language.emit_opaque_type(
                 definer,
+                lang_config,
                 &[
                     &format!(
                         "The layout of `{}` is opaque/subject to changes.",

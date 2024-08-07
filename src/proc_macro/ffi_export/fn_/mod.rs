@@ -366,7 +366,7 @@ fn handle (
                     gen_def: {
                         fn gen_def #generics (
                             definer: &'_ mut dyn #ඞ::Definer,
-                            lang: #headers::Language,
+                            lang_config: &'_ #ඞ::LanguageConfig,
                         ) -> #ඞ::io::Result<()>
                         #where_clause
                         {#ඞ::io::Result::<()>::Ok({
@@ -385,12 +385,12 @@ fn handle (
                                 );
                             }
                         #(
-                            #headers::__define_self__::<#EachArgTy>(definer, lang)?;
+                            #headers::__define_self__::<#EachArgTy>(definer, lang_config)?;
                         )*
-                            #headers::__define_self__::<#RetTy>(definer, lang)?;
+                            #headers::__define_self__::<#RetTy>(definer, lang_config)?;
                             #headers::__define_fn__(
                                 definer,
-                                lang,
+                                lang_config,
                                 &[ #(#each_doc),* ],
                                 #export_name_str,
                                 &[

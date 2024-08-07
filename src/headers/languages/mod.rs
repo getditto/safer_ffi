@@ -9,19 +9,20 @@ use {
     },
     super::{
         Definer,
+        LanguageConfig
     },
 };
 
-pub use c::C;
+pub use c::{C, CLanguageConfig};
 mod c;
 
 __cfg_csharp__! {
-    pub use csharp::CSharp;
+    pub use csharp::{CSharp, CSharpLanguageConfig};
     mod csharp;
 }
 
 __cfg_python__! {
-    pub use python::Python;
+    pub use python::{Python, PythonLanguageConfig};
     mod python;
 }
 
@@ -77,6 +78,7 @@ trait HeaderLanguage : UpcastAny {
     fn emit_simple_enum (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         backing_integer: Option<&'_ dyn PhantomCType>,
@@ -87,6 +89,7 @@ trait HeaderLanguage : UpcastAny {
     fn emit_struct (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         fields: &'_ [StructField<'_>]
@@ -96,6 +99,7 @@ trait HeaderLanguage : UpcastAny {
     fn emit_opaque_type (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>
@@ -104,6 +108,7 @@ trait HeaderLanguage : UpcastAny {
     fn emit_function (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
@@ -114,6 +119,7 @@ trait HeaderLanguage : UpcastAny {
     fn emit_constant (
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         name: &'_ str,
         ty: &'_ dyn PhantomCType,
@@ -125,6 +131,7 @@ trait HeaderLanguage : UpcastAny {
     fn emit_docs (
         self: &'_ Self,
         _ctx: &'_ mut dyn Definer,
+        _lang_config: &'_ LanguageConfig,
         _docs: Docs<'_>,
         _indentation: &'_ Indentation,
     ) -> io::Result<()>
@@ -140,6 +147,7 @@ trait HeaderLanguageSupportingTypeAliases : HeaderLanguage {
     fn emit_type_alias(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
+        lang_config: &'_ LanguageConfig,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         inner_ty: &'_ dyn PhantomCType,
@@ -208,7 +216,7 @@ trait PhantomCType {
 
     fn name (
         self: &'_ Self,
-        language: &'_ dyn HeaderLanguage,
+        language: &'_ dyn HeaderLanguage
     ) -> String
     ;
 
@@ -253,7 +261,7 @@ where
 
     fn name (
         self: &'_ Self,
-        language: &'_ dyn HeaderLanguage,
+        language: &'_ dyn HeaderLanguage
     ) -> String
     {
         T::name(language)

@@ -41,6 +41,7 @@ impl LegacyCType
 
     fn c_define_self (
         _: &'_ mut dyn crate::headers::Definer,
+        _: &'_ crate::headers::LanguageConfig
     ) -> io::Result<()>
     {
         Ok(())
@@ -49,6 +50,7 @@ impl LegacyCType
     __cfg_csharp__! {
         fn csharp_define_self (
             _: &'_ mut dyn crate::headers::Definer,
+            _: &'_ crate::headers::LanguageConfig
         ) -> io::Result<()>
         {
             Ok(())

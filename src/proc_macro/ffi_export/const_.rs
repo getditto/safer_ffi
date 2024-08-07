@@ -76,32 +76,34 @@ fn handle (
                     name: #VAR_str,
                     gen_def: |
                         definer: &'_ mut dyn #ඞ::Definer,
-                        lang: #ඞ::Language,
+                        lang_config: &'_ #ඞ::LanguageConfig
                     | {
                         #krate::__with_cfg_python__!(|$if_cfg_python| {
                             use #krate::headers::{
-                                Language,
+                                LanguageConfig,
                                 languages::{self, HeaderLanguage},
                             };
 
                             let header_builder: &'static dyn HeaderLanguage = {
-                                match lang {
-                                    | Language::C => &languages::C,
-                                    | Language::CSharp => &languages::CSharp,
+                                match lang_config {
+                                    | LanguageConfig::C(_) => &languages::C,
+                                    | LanguageConfig::CSharp(_) => &languages::CSharp,
                                 $($($if_cfg_python)?
-                                    | Language::Python => &languages::Python,
+                                    | LanguageConfig::Python(_) => &languages::Python,
                                 )?
                                 }
                             };
 
                             <#ඞ::CLayoutOf<#Ty> as #ඞ::CType>::define_self(
                                 header_builder,
-                                definer
+                                definer,
+                                lang_config
                             )?;
 
                             header_builder
                         }).emit_constant(
                             definer,
+                            lang_config,
                             &[ #(#each_doc),* ],
                             #VAR_str,
                             &#ඞ::PhantomData::<
