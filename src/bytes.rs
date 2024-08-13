@@ -592,7 +592,7 @@ impl From<stabby::sync::ArcSlice<u8>> for Bytes<'static> {
             Bytes {
                 start,
                 len,
-                data: mem::transmute(data.start),
+                owner: mem::transmute(data.start),
                 capacity: mem::transmute(data.end),
                 vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&STABBY_ARCSLICE_BYTESVT)
                     .cast(),
@@ -620,7 +620,7 @@ impl<T: Sized + AsRef<[u8]> + Send + Sync + 'static> From<stabby::sync::Arc<T>> 
             start: data.as_ptr().cast(),
             len: data.len(),
             capacity: data.len(),
-            data: unsafe { mem::transmute(stabby::sync::Arc::into_raw(value)) },
+            owner: unsafe { mem::transmute(stabby::sync::Arc::into_raw(value)) },
             vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&BytesVt {
                 release: Some(release_stabby_arc::<T>),
                 retain: Some(retain_stabby_arc::<T>),
@@ -746,7 +746,7 @@ impl<'a> TryFrom<Bytes<'a>> for Arc<[u8]> {
 impl<'a> TryFrom<Bytes<'a>> for stabby::sync::ArcSlice<u8> {
     type Error = Bytes<'a>;
     fn try_from(value: Bytes<'a>) -> Result<Self, Self::Error> {
-        let data = value.data.cast();
+        let data = value.owner.cast();
         let Some(vtable) = value.vtable() else {
             return Err(value);
         };
