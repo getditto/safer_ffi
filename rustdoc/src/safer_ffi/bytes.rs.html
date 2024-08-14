@@ -812,6 +812,25 @@
 <a href="#812" id="812">812</a>
 <a href="#813" id="813">813</a>
 <a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::{
     borrow::Borrow,
     fmt::Debug,
@@ -836,11 +855,21 @@
 #[repr(C)]
 #[cfg_attr(feature = <span class="string">&quot;stabby&quot;</span>, stabby::stabby)]
 </span><span class="kw">pub struct </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt; {
-    start: <span class="kw-2">*const </span>u8,
-    len: usize,
-    data: <span class="kw-2">*const </span>(),
-    capacity: usize,
-    vtable: ptr::NonNull&lt;u8&gt;,
+    <span class="doccomment">/// The start of the slice.
+    </span>start: <span class="kw-2">*const </span>u8,
+    <span class="doccomment">/// The length of the slice.
+    </span>len: usize,
+    <span class="doccomment">/// The owner of the slice, see [`Bytes::from_raw_parts`] for details.
+    </span>owner: <span class="kw-2">*const </span>(),
+    <span class="doccomment">/// Named after the field often stored in it, but without actual semantics,
+    /// `capacity` is essentially just addtional memory for `owner` which may sometimes
+    ///  require 2 words to be stored without reallocating. See [`Bytes::from_raw_parts`] for details.
+    </span>capacity: usize,
+    <span class="doccomment">/// If properly aligned (i.e. least significant bit unset), a pointer to an instance of [`BytesVt`].
+    ///
+    /// If not, the slice is actually inlined in [`Bytes`]&#39;s memory: the least significant byte of `vtable`
+    /// then is `(length &lt;&lt; 1) | 1`, and the data starts at the address of this instance of [`Bytes`].
+    </span>vtable: ptr::NonNull&lt;u8&gt;,
     marker: core::marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;,
 }
 <span class="attr">#[cfg(not(feature = <span class="string">&quot;stabby&quot;</span>))]
@@ -904,6 +933,34 @@
         }
     }
 
+    <span class="doccomment">/// Constructs a [`Bytes`] from its raw components, never attempting to inline the data.
+    ///
+    /// # SAFETY
+    /// - If `vtable` has a non-null `release`, then `slice` MUST stay valid _at least_ until `release(owner, capacity)` is called `N + 1` times, where
+    ///   `N` is the number of times `retain` has been called with the same arguments.
+    /// - `owner`, `capacity` and `vtable` must be &quot;compatible&quot;:
+    ///     - If `vtable` has a non-null `retain`, then it MUST be a function that may be safely called with `owner, capacity` as arguments
+    ///       any number of times, and that calling it `N` times ensures `release` may be called _at least_ `N + 1` times safely with the same arguments.
+    ///     - If `vtable` has a non-null `release`, then calling it _at least once_ with `owner, capacity` as arguments is always safe.
+    /// - Note that `capacity`, while often used as that, has no semantic constraints: you may consider it as a second part of `owner`.
+    </span><span class="kw">pub const unsafe fn </span>from_raw_parts(
+        slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+        owner: <span class="kw-2">*const </span>(),
+        capacity: usize,
+        vtable: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>BytesVt,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            start: slice.as_ptr().cast_mut(),
+            len: slice.len(),
+            owner,
+            capacity,
+            vtable: <span class="kw">unsafe </span>{
+                ptr::NonNull::new_unchecked(vtable <span class="kw">as </span><span class="kw-2">*const </span>BytesVt <span class="kw">as </span><span class="kw-2">*mut </span>BytesVt).cast()
+            },
+            marker: core::marker::PhantomData,
+        }
+    }
+
     <span class="doccomment">/// Constructs a [`Bytes`] referring to static data.
     ///
     /// This is equivalent to `&lt;Bytes as From&lt;&amp;&#39;static [u8]&gt;&gt;::from`, guaranteeing that [`Self::upgrade`] won&#39;t need to reallocate to recover the `&#39;static` lifetime through [`Bytes::upgrade`].
@@ -918,19 +975,7 @@
             retain: <span class="prelude-val">Some</span>(noop),
             release: <span class="prelude-val">Some</span>(noop),
         };
-        <span class="self">Self </span>{
-            start: data.as_ptr().cast_mut(),
-            len: data.len(),
-            data: data.as_ptr().cast(),
-            capacity: data.len(),
-            vtable: <span class="kw">unsafe </span>{
-                ptr::NonNull::new_unchecked(
-                    <span class="kw-2">&amp;</span>VT <span class="kw">as </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>BytesVt <span class="kw">as </span><span class="kw-2">*const </span>BytesVt <span class="kw">as </span><span class="kw-2">*mut </span>BytesVt,
-                )
-                .cast()
-            },
-            marker: core::marker::PhantomData,
-        }
+        <span class="kw">unsafe </span>{ <span class="self">Self</span>::from_raw_parts(<span class="kw-2">&amp;</span>data, data.as_ptr().cast(), data.len(), <span class="kw-2">&amp;</span>VT) }
     }
 
     <span class="doccomment">/// Constructs a [`Bytes`] referring to a slice.
@@ -955,19 +1000,7 @@
         <span class="kw">if </span>data.len() &lt;= <span class="self">Self</span>::MAX_INLINE_SIZE {
             <span class="kw">unsafe </span>{ <span class="self">Self</span>::inline_unchecked(data) }
         } <span class="kw">else </span>{
-            <span class="self">Self </span>{
-                start: data.as_ptr().cast(),
-                len: data.len(),
-                data: data.as_ptr().cast(),
-                capacity: data.len(),
-                vtable: <span class="kw">unsafe </span>{
-                    ptr::NonNull::new_unchecked(
-                        <span class="kw-2">&amp;</span>VT <span class="kw">as </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>BytesVt <span class="kw">as </span><span class="kw-2">*const </span>BytesVt <span class="kw">as </span><span class="kw-2">*mut </span>BytesVt,
-                    )
-                    .cast()
-                },
-                marker: core::marker::PhantomData,
-            }
+            <span class="kw">unsafe </span>{ <span class="self">Self</span>::from_raw_parts(data, data.as_ptr().cast(), data.len(), <span class="kw-2">&amp;</span>VT) }
         }
     }
 
@@ -1160,11 +1193,11 @@
             </span><span class="kw">return </span><span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ core::ptr::read(<span class="self">self</span>) });
         };
         <span class="kw">let </span>retain = vtable.retain<span class="question-mark">?</span>;
-        <span class="kw">unsafe </span>{ retain(<span class="self">self</span>.data, <span class="self">self</span>.capacity) };
+        <span class="kw">unsafe </span>{ retain(<span class="self">self</span>.owner, <span class="self">self</span>.capacity) };
         <span class="prelude-val">Some</span>(<span class="self">Self </span>{
             start: <span class="self">self</span>.start,
             len: <span class="self">self</span>.len,
-            data: <span class="self">self</span>.data,
+            owner: <span class="self">self</span>.owner,
             capacity: <span class="self">self</span>.capacity,
             vtable: <span class="self">self</span>.vtable,
             marker: core::marker::PhantomData,
@@ -1289,7 +1322,7 @@
         Bytes {
             start: data.as_ref().as_ptr().cast(),
             len: data.len(),
-            data: Arc::into_raw(data) <span class="kw">as </span><span class="kw-2">*const </span>(),
+            owner: Arc::into_raw(data) <span class="kw">as </span><span class="kw-2">*const </span>(),
             capacity,
             vtable: &lt;ptr::NonNull&lt;BytesVt&gt; <span class="kw">as </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;&gt;::from(<span class="kw-2">&amp;</span>ARC_BYTES_VT).cast(),
             marker: core::marker::PhantomData,
@@ -1297,7 +1330,7 @@
     }
 }
 <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: Sized + AsRef&lt;[u8]&gt; + Send + Sync + <span class="lifetime">&#39;a</span>&gt; From&lt;Arc&lt;T&gt;&gt; <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: Sized + AsRef&lt;[u8]&gt; + Send + Sync + <span class="lifetime">&#39;static</span>&gt; From&lt;Arc&lt;T&gt;&gt; <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;static</span>&gt; {
     <span class="kw">fn </span>from(value: Arc&lt;T&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>retain&lt;T: Sized&gt;(this: <span class="kw-2">*const </span>(), <span class="kw">_</span>: usize) {
             <span class="kw">unsafe </span>{ Arc::increment_strong_count(this.cast::&lt;T&gt;()) }
@@ -1310,7 +1343,7 @@
             start: data.as_ptr().cast(),
             len: data.len(),
             capacity: data.len(),
-            data: Arc::into_raw(value) <span class="kw">as </span><span class="kw-2">*const </span>(),
+            owner: Arc::into_raw(value) <span class="kw">as </span><span class="kw-2">*const </span>(),
             vtable: &lt;ptr::NonNull&lt;BytesVt&gt; <span class="kw">as </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;&gt;::from(<span class="kw-2">&amp;</span>BytesVt {
                 release: <span class="prelude-val">Some</span>(release::&lt;T&gt;),
                 retain: <span class="prelude-val">Some</span>(retain::&lt;T&gt;),
@@ -1336,7 +1369,7 @@
             start,
             len,
             capacity: len,
-            data,
+            owner: data,
             vtable: &lt;ptr::NonNull&lt;BytesVt&gt; <span class="kw">as </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;&gt;::from(<span class="kw-2">&amp;</span>BytesVt {
                 release: <span class="prelude-val">Some</span>(release_box_bytes),
                 retain: <span class="prelude-val">None</span>,
@@ -1392,7 +1425,7 @@
             Bytes {
                 start,
                 len,
-                data: mem::transmute(data.start),
+                owner: mem::transmute(data.start),
                 capacity: mem::transmute(data.end),
                 vtable: &lt;ptr::NonNull&lt;BytesVt&gt; <span class="kw">as </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;&gt;::from(<span class="kw-2">&amp;</span>STABBY_ARCSLICE_BYTESVT)
                     .cast(),
@@ -1420,7 +1453,7 @@
             start: data.as_ptr().cast(),
             len: data.len(),
             capacity: data.len(),
-            data: <span class="kw">unsafe </span>{ mem::transmute(stabby::sync::Arc::into_raw(value)) },
+            owner: <span class="kw">unsafe </span>{ mem::transmute(stabby::sync::Arc::into_raw(value)) },
             vtable: &lt;ptr::NonNull&lt;BytesVt&gt; <span class="kw">as </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">_</span>&gt;&gt;::from(<span class="kw-2">&amp;</span>BytesVt {
                 release: <span class="prelude-val">Some</span>(release_stabby_arc::&lt;T&gt;),
                 retain: <span class="prelude-val">Some</span>(retain_stabby_arc::&lt;T&gt;),
@@ -1467,13 +1500,18 @@
 <span class="attr">#[cfg(not(feature = <span class="string">&quot;alloc&quot;</span>))]
 </span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Sync <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">where </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]: Send {}
 
-<span class="attr">#[cfg_attr(feature = <span class="string">&quot;stabby&quot;</span>, stabby::stabby)]
+<span class="doccomment">/// The vtable for [`Bytes`], allowing it to `retain` and `release` the underlying storage if applicable.
+</span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;stabby&quot;</span>, stabby::stabby)]
 #[derive_ReprC]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 </span><span class="kw">pub struct </span>BytesVt {
-    retain: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>(), usize)&gt;,
-    release: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>(), usize)&gt;,
+    <span class="doccomment">/// If non-null, this function allows shared ownership, and acts as the refcount incrementer.
+    </span><span class="kw">pub </span>retain: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>(), usize)&gt;,
+    <span class="doccomment">/// If non-null, [`Bytes`] is considered to own its data, and calling `release` `N + 1` times (where `N`
+    /// is the number of times `retain` was called if available) will release said data. The [`Bytes`] slice
+    /// is considered valid until that `N + 1`th `release`.
+    </span><span class="kw">pub </span>release: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>(), usize)&gt;,
 }
 <span class="kw">impl </span>BytesVt {
     <span class="kw">const fn </span>is_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -1494,7 +1532,7 @@
 <span class="kw">impl </span>Drop <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(release) = <span class="self">self</span>.vtable().and_then(|vt| vt.release) {
-            <span class="kw">unsafe </span>{ release(<span class="self">self</span>.data, <span class="self">self</span>.capacity) }
+            <span class="kw">unsafe </span>{ release(<span class="self">self</span>.owner, <span class="self">self</span>.capacity) }
         }
     }
 }
@@ -1511,7 +1549,7 @@
 </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;Bytes&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>Arc&lt;[u8]&gt; {
     <span class="kw">type </span>Error = Bytes&lt;<span class="lifetime">&#39;a</span>&gt;;
     <span class="kw">fn </span>try_from(value: Bytes&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">let </span>data = value.data.cast();
+        <span class="kw">let </span>data = value.owner.cast();
         <span class="kw">let </span><span class="prelude-val">Some</span>(vtable) = value.vtable() <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(value);
         };
@@ -1541,7 +1579,7 @@
 </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;Bytes&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>stabby::sync::ArcSlice&lt;u8&gt; {
     <span class="kw">type </span>Error = Bytes&lt;<span class="lifetime">&#39;a</span>&gt;;
     <span class="kw">fn </span>try_from(value: Bytes&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">let </span>data = value.data.cast();
+        <span class="kw">let </span>data = value.owner.cast();
         <span class="kw">let </span><span class="prelude-val">Some</span>(vtable) = value.vtable() <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(value);
         };
