@@ -83,7 +83,7 @@ fn derive (
     };
 
     ret.extend(quote!(
-        #[allow(nonstandard_style)]
+        #[allow(warnings, clippy::all)]
         #[repr(transparent)]
         #[#ඞ::derive(
             #ඞ::Clone, #ඞ::Copy,

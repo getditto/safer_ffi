@@ -22,10 +22,20 @@ use safer_ffi_proc_macros::derive_ReprC;
 #[repr(C)]
 #[cfg_attr(feature = "stabby", stabby::stabby)]
 pub struct Bytes<'a> {
+    /// The start of the slice.
     start: *const u8,
+    /// The length of the slice.
     len: usize,
-    data: *const (),
+    /// The owner of the slice, see [`Bytes::from_raw_parts`] for details.
+    owner: *const (),
+    /// Named after the field often stored in it, but without actual semantics,
+    /// `capacity` is essentially just addtional memory for `owner` which may sometimes
+    ///  require 2 words to be stored without reallocating. See [`Bytes::from_raw_parts`] for details.
     capacity: usize,
+    /// If properly aligned (i.e. least significant bit unset), a pointer to an instance of [`BytesVt`].
+    ///
+    /// If not, the slice is actually inlined in [`Bytes`]'s memory: the least significant byte of `vtable`
+    /// then is `(length << 1) | 1`, and the data starts at the address of this instance of [`Bytes`].
     vtable: ptr::NonNull<u8>,
     marker: core::marker::PhantomData<&'a [u8]>,
 }
@@ -90,6 +100,34 @@ impl<'a> Bytes<'a> {
         }
     }
 
+    /// Constructs a [`Bytes`] from its raw components, never attempting to inline the data.
+    ///
+    /// # SAFETY
+    /// - If `vtable` has a non-null `release`, then `slice` MUST stay valid _at least_ until `release(owner, capacity)` is called `N + 1` times, where
+    ///   `N` is the number of times `retain` has been called with the same arguments.
+    /// - `owner`, `capacity` and `vtable` must be "compatible":
+    ///     - If `vtable` has a non-null `retain`, then it MUST be a function that may be safely called with `owner, capacity` as arguments
+    ///       any number of times, and that calling it `N` times ensures `release` may be called _at least_ `N + 1` times safely with the same arguments.
+    ///     - If `vtable` has a non-null `release`, then calling it _at least once_ with `owner, capacity` as arguments is always safe.
+    /// - Note that `capacity`, while often used as that, has no semantic constraints: you may consider it as a second part of `owner`.
+    pub const unsafe fn from_raw_parts(
+        slice: &'a [u8],
+        owner: *const (),
+        capacity: usize,
+        vtable: &'static BytesVt,
+    ) -> Self {
+        Self {
+            start: slice.as_ptr().cast_mut(),
+            len: slice.len(),
+            owner,
+            capacity,
+            vtable: unsafe {
+                ptr::NonNull::new_unchecked(vtable as *const BytesVt as *mut BytesVt).cast()
+            },
+            marker: core::marker::PhantomData,
+        }
+    }
+
     /// Constructs a [`Bytes`] referring to static data.
     ///
     /// This is equivalent to `<Bytes as From<&'static [u8]>>::from`, guaranteeing that [`Self::upgrade`] won't need to reallocate to recover the `'static` lifetime through [`Bytes::upgrade`].
@@ -104,19 +142,7 @@ impl<'a> Bytes<'a> {
             retain: Some(noop),
             release: Some(noop),
         };
-        Self {
-            start: data.as_ptr().cast_mut(),
-            len: data.len(),
-            data: data.as_ptr().cast(),
-            capacity: data.len(),
-            vtable: unsafe {
-                ptr::NonNull::new_unchecked(
-                    &VT as &'static BytesVt as *const BytesVt as *mut BytesVt,
-                )
-                .cast()
-            },
-            marker: core::marker::PhantomData,
-        }
+        unsafe { Self::from_raw_parts(&data, data.as_ptr().cast(), data.len(), &VT) }
     }
 
     /// Constructs a [`Bytes`] referring to a slice.
@@ -141,19 +167,7 @@ impl<'a> Bytes<'a> {
         if data.len() <= Self::MAX_INLINE_SIZE {
             unsafe { Self::inline_unchecked(data) }
         } else {
-            Self {
-                start: data.as_ptr().cast(),
-                len: data.len(),
-                data: data.as_ptr().cast(),
-                capacity: data.len(),
-                vtable: unsafe {
-                    ptr::NonNull::new_unchecked(
-                        &VT as &'static BytesVt as *const BytesVt as *mut BytesVt,
-                    )
-                    .cast()
-                },
-                marker: core::marker::PhantomData,
-            }
+            unsafe { Self::from_raw_parts(data, data.as_ptr().cast(), data.len(), &VT) }
         }
     }
 
@@ -346,11 +360,11 @@ impl<'a> Bytes<'a> {
             return Some(unsafe { core::ptr::read(self) });
         };
         let retain = vtable.retain?;
-        unsafe { retain(self.data, self.capacity) };
+        unsafe { retain(self.owner, self.capacity) };
         Some(Self {
             start: self.start,
             len: self.len,
-            data: self.data,
+            owner: self.owner,
             capacity: self.capacity,
             vtable: self.vtable,
             marker: core::marker::PhantomData,
@@ -475,7 +489,7 @@ impl From<Arc<[u8]>> for Bytes<'static> {
         Bytes {
             start: data.as_ref().as_ptr().cast(),
             len: data.len(),
-            data: Arc::into_raw(data) as *const (),
+            owner: Arc::into_raw(data) as *const (),
             capacity,
             vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&ARC_BYTES_VT).cast(),
             marker: core::marker::PhantomData,
@@ -483,7 +497,7 @@ impl From<Arc<[u8]>> for Bytes<'static> {
     }
 }
 #[cfg(feature = "alloc")]
-impl<'a, T: Sized + AsRef<[u8]> + Send + Sync + 'a> From<Arc<T>> for Bytes<'a> {
+impl<'a, T: Sized + AsRef<[u8]> + Send + Sync + 'static> From<Arc<T>> for Bytes<'static> {
     fn from(value: Arc<T>) -> Self {
         unsafe extern "C" fn retain<T: Sized>(this: *const (), _: usize) {
             unsafe { Arc::increment_strong_count(this.cast::<T>()) }
@@ -496,7 +510,7 @@ impl<'a, T: Sized + AsRef<[u8]> + Send + Sync + 'a> From<Arc<T>> for Bytes<'a> {
             start: data.as_ptr().cast(),
             len: data.len(),
             capacity: data.len(),
-            data: Arc::into_raw(value) as *const (),
+            owner: Arc::into_raw(value) as *const (),
             vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&BytesVt {
                 release: Some(release::<T>),
                 retain: Some(retain::<T>),
@@ -522,7 +536,7 @@ impl From<alloc::boxed::Box<[u8]>> for Bytes<'_> {
             start,
             len,
             capacity: len,
-            data,
+            owner: data,
             vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&BytesVt {
                 release: Some(release_box_bytes),
                 retain: None,
@@ -578,7 +592,7 @@ impl From<stabby::sync::ArcSlice<u8>> for Bytes<'static> {
             Bytes {
                 start,
                 len,
-                data: mem::transmute(data.start),
+                owner: mem::transmute(data.start),
                 capacity: mem::transmute(data.end),
                 vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&STABBY_ARCSLICE_BYTESVT)
                     .cast(),
@@ -606,7 +620,7 @@ impl<T: Sized + AsRef<[u8]> + Send + Sync + 'static> From<stabby::sync::Arc<T>> 
             start: data.as_ptr().cast(),
             len: data.len(),
             capacity: data.len(),
-            data: unsafe { mem::transmute(stabby::sync::Arc::into_raw(value)) },
+            owner: unsafe { mem::transmute(stabby::sync::Arc::into_raw(value)) },
             vtable: <ptr::NonNull<BytesVt> as From<&'static _>>::from(&BytesVt {
                 release: Some(release_stabby_arc::<T>),
                 retain: Some(retain_stabby_arc::<T>),
@@ -653,13 +667,18 @@ unsafe impl<'a> Send for Bytes<'a> where &'a [u8]: Send {}
 #[cfg(not(feature = "alloc"))]
 unsafe impl<'a> Sync for Bytes<'a> where &'a [u8]: Send {}
 
+/// The vtable for [`Bytes`], allowing it to `retain` and `release` the underlying storage if applicable.
 #[cfg_attr(feature = "stabby", stabby::stabby)]
 #[derive_ReprC]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct BytesVt {
-    retain: Option<unsafe extern "C" fn(*const (), usize)>,
-    release: Option<unsafe extern "C" fn(*const (), usize)>,
+    /// If non-null, this function allows shared ownership, and acts as the refcount incrementer.
+    pub retain: Option<unsafe extern "C" fn(*const (), usize)>,
+    /// If non-null, [`Bytes`] is considered to own its data, and calling `release` `N + 1` times (where `N`
+    /// is the number of times `retain` was called if available) will release said data. The [`Bytes`] slice
+    /// is considered valid until that `N + 1`th `release`.
+    pub release: Option<unsafe extern "C" fn(*const (), usize)>,
 }
 impl BytesVt {
     const fn is_borrowed(&self) -> bool {
@@ -680,7 +699,7 @@ impl Clone for Bytes<'_> {
 impl Drop for Bytes<'_> {
     fn drop(&mut self) {
         if let Some(release) = self.vtable().and_then(|vt| vt.release) {
-            unsafe { release(self.data, self.capacity) }
+            unsafe { release(self.owner, self.capacity) }
         }
     }
 }
@@ -697,7 +716,7 @@ impl Drop for Bytes<'_> {
 impl<'a> TryFrom<Bytes<'a>> for Arc<[u8]> {
     type Error = Bytes<'a>;
     fn try_from(value: Bytes<'a>) -> Result<Self, Self::Error> {
-        let data = value.data.cast();
+        let data = value.owner.cast();
         let Some(vtable) = value.vtable() else {
             return Err(value);
         };
@@ -727,7 +746,7 @@ impl<'a> TryFrom<Bytes<'a>> for Arc<[u8]> {
 impl<'a> TryFrom<Bytes<'a>> for stabby::sync::ArcSlice<u8> {
     type Error = Bytes<'a>;
     fn try_from(value: Bytes<'a>) -> Result<Self, Self::Error> {
-        let data = value.data.cast();
+        let data = value.owner.cast();
         let Some(vtable) = value.vtable() else {
             return Err(value);
         };
