@@ -77,6 +77,9 @@ internal-tests = [
     "tokio/rt-multi-thread",
 ]
 
+[lints.rust]
+unexpected_cfgs = { level = "allow", check-cfg = ['cfg(docs)'] }
+
 [dev-dependencies]
 safer-ffi.path = "."
 safer-ffi.features = ["internal-tests"]
