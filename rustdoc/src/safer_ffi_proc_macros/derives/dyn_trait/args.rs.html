@@ -71,6 +71,7 @@
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
 </pre></div><pre class="rust"><code><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
 <span class="macro">macro_rules! </span>define_kws {(
@@ -101,7 +102,8 @@
 
 <span class="kw">pub
 struct </span>Args {
-    <span class="kw">pub </span>dyn_: <span class="macro">sym!</span>[<span class="kw">dyn</span>],
+    <span class="attr">#[allow(dead_code)]
+    </span><span class="kw">pub </span>dyn_: <span class="macro">sym!</span>[<span class="kw">dyn</span>],
     <span class="kw">pub </span>clone: <span class="prelude-ty">Option</span>&lt;<span class="macro">sym!</span>[Clone]&gt;,
 }
 

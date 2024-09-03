@@ -374,11 +374,13 @@
 <a href="#374" id="374">374</a>
 <a href="#375" id="375">375</a>
 <a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(rustfmt, rustfmt::skip)]
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span>(<span class="kw">in crate</span>)
+<span class="attr">#[allow(unexpected_cfgs)]
+</span><span class="kw">pub</span>(<span class="kw">in crate</span>)
 <span class="kw">fn </span>derive (
     args: Args,
     attrs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>[Attribute],
