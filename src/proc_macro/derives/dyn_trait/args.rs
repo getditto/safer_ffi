@@ -28,6 +28,7 @@ define_kws! {$
 
 pub
 struct Args {
+    #[allow(dead_code)]
     pub dyn_: sym![dyn],
     pub clone: Option<sym![Clone]>,
 }

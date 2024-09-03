@@ -2,6 +2,7 @@
 
 use super::*;
 
+#[allow(unexpected_cfgs)]
 pub(in crate)
 fn derive (
     args: Args,

@@ -77,6 +77,9 @@ internal-tests = [
     "tokio/rt-multi-thread",
 ]
 
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(docs)'] }
+
 [dev-dependencies]
 safer-ffi.path = "."
 safer-ffi.features = ["internal-tests"]
@@ -110,7 +113,7 @@ scopeguard.default-features = false
 
 serde.version = "1.0.204"
 serde.optional = true
-serde.default_features = false
+serde.default-features = false
 
 stabby.version = "36.1.1"
 stabby.optional = true
