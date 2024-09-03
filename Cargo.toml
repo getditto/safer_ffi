@@ -78,7 +78,7 @@ internal-tests = [
 ]
 
 [lints.rust]
-unexpected_cfgs = { level = "allow", check-cfg = ['cfg(docs)'] }
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(docs)'] }
 
 [dev-dependencies]
 safer-ffi.path = "."
