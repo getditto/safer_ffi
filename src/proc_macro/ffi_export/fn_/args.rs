@@ -21,7 +21,7 @@ pub(in crate)
 struct Executor {
     pub(in crate) kw: kw::executor,
     pub(in crate) _eq: Token![=],
-    #[cfg_attr(not(feature = "async_fn"),
+    #[cfg_attr(not(feature = "async-fn"),
         allow(dead_code),
     )]
     pub(in crate) block_on: Expr,
