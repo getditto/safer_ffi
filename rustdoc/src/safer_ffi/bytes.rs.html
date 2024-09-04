@@ -831,6 +831,89 @@
 <a href="#831" id="831">831</a>
 <a href="#832" id="832">832</a>
 <a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::{
     borrow::Borrow,
     fmt::Debug,
@@ -1659,9 +1742,92 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">struct </span>BytesVisitor;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>BytesVisitor {
+    <span class="kw">type </span>Value = Bytes&lt;<span class="lifetime">&#39;de</span>&gt;;
+
+    <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
+        formatter.write_str(<span class="string">&quot;a byte array&quot;</span>)
+    }
+
+    <span class="kw">fn </span>visit_borrowed_bytes&lt;E&gt;(<span class="self">self</span>, v: <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt; {
+        <span class="prelude-val">Ok</span>(Bytes::from_slice(v))
+    }
+
+    <span class="kw">fn </span>visit_bytes&lt;E&gt;(<span class="self">self</span>, v: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt; {
+        <span class="prelude-val">Ok</span>(Bytes::from_slice(v).upgrade())
+    }
+
+    <span class="kw">fn </span>visit_byte_buf&lt;E&gt;(<span class="self">self</span>, v: Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt; {
+        <span class="prelude-val">Ok</span>(Bytes::from(v))
+    }
+
+    <span class="kw">fn </span>visit_seq&lt;A&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>seq: A) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, A::Error&gt;
+    <span class="kw">where
+        </span>A: serde::de::SeqAccess&lt;<span class="lifetime">&#39;de</span>&gt;,
+    {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::with_capacity(seq.size_hint().unwrap_or(<span class="number">64</span>));
+
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(c) = seq.next_element::&lt;u8&gt;()<span class="question-mark">? </span>{
+            buf.push(c);
+        }
+
+        <span class="prelude-val">Ok</span>(Bytes::from(buf))
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Bytes&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>deserialize&lt;D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
-        serde::Deserialize::deserialize(deserializer).map(|x: <span class="kw-2">&amp;</span>[u8]| Bytes::from(x))
+        deserializer.deserialize_byte_buf(BytesVisitor)
+    }
+}
+
+<span class="attr">#[cfg(all(feature = <span class="string">&quot;serde&quot;</span>, test))]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>serde_test::{assert_de_tokens, assert_tokens, Token};
+
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>serde() {
+        <span class="kw">let </span>bytes: Bytes&lt;<span class="lifetime">&#39;static</span>&gt; = Bytes::from_static(<span class="string">b&quot;Hello there&quot;</span>);
+
+        assert_tokens(<span class="kw-2">&amp;</span>bytes, <span class="kw-2">&amp;</span>[Token::BorrowedBytes(<span class="string">b&quot;Hello there&quot;</span>)]);
+
+        <span class="kw">let </span>data = <span class="string">b&quot;Hello there&quot;</span>;
+        <span class="kw">let </span>bytes: Bytes&lt;<span class="lifetime">&#39;_</span>&gt; = Bytes::from(data);
+
+        assert_tokens(<span class="kw-2">&amp;</span>bytes, <span class="kw-2">&amp;</span>[Token::BorrowedBytes(<span class="string">b&quot;Hello there&quot;</span>)]);
+
+        <span class="comment">// deserialize from a sequence (like we get with serde_cbor)
+        </span>assert_de_tokens(
+            <span class="kw-2">&amp;</span>Bytes::from(<span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>]),
+            <span class="kw-2">&amp;</span>[
+                Token::Seq { len: <span class="prelude-val">Some</span>(<span class="number">3</span>) },
+                Token::U8(<span class="number">0</span>),
+                Token::U8(<span class="number">1</span>),
+                Token::U8(<span class="number">2</span>),
+                Token::SeqEnd,
+            ],
+        );
+
+        assert_de_tokens(
+            <span class="kw-2">&amp;</span>Bytes::from(<span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>]),
+            <span class="kw-2">&amp;</span>[
+                Token::Seq { len: <span class="prelude-val">None </span>},
+                Token::U8(<span class="number">0</span>),
+                Token::U8(<span class="number">1</span>),
+                Token::U8(<span class="number">2</span>),
+                Token::SeqEnd,
+            ],
+        );
+
+        assert_de_tokens(<span class="kw-2">&amp;</span>Bytes::from(<span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>]), <span class="kw-2">&amp;</span>[Token::Bytes(<span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>])]);
+
+        assert_de_tokens(<span class="kw-2">&amp;</span>Bytes::from(<span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>]), <span class="kw-2">&amp;</span>[Token::ByteBuf(<span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>])]);
     }
 }
 </code></pre></div></section></main></body></html>
