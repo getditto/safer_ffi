@@ -826,8 +826,91 @@ impl<'a> serde::Serialize for Bytes<'a> {
 }
 
 #[cfg(feature = "serde")]
-impl<'a, 'de: 'a> serde::Deserialize<'de> for Bytes<'a> {
+struct BytesVisitor;
+
+#[cfg(feature = "serde")]
+impl<'de> serde::de::Visitor<'de> for BytesVisitor {
+    type Value = Bytes<'de>;
+
+    fn expecting(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        formatter.write_str("a byte array")
+    }
+
+    fn visit_borrowed_bytes<E>(self, v: &'de [u8]) -> Result<Self::Value, E> {
+        Ok(Bytes::from_slice(v))
+    }
+
+    fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E> {
+        Ok(Bytes::from_slice(v).upgrade())
+    }
+
+    fn visit_byte_buf<E>(self, v: Vec<u8>) -> Result<Self::Value, E> {
+        Ok(Bytes::from(v))
+    }
+
+    fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+    where
+        A: serde::de::SeqAccess<'de>,
+    {
+        let mut buf = Vec::with_capacity(seq.size_hint().unwrap_or(64));
+
+        while let Some(c) = seq.next_element::<u8>()? {
+            buf.push(c);
+        }
+
+        Ok(Bytes::from(buf))
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de: 'a, 'a> serde::Deserialize<'de> for Bytes<'a> {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        serde::Deserialize::deserialize(deserializer).map(|x: &[u8]| Bytes::from(x))
+        deserializer.deserialize_byte_buf(BytesVisitor)
+    }
+}
+
+#[cfg(all(feature = "serde", test))]
+mod tests {
+    use serde_test::{assert_de_tokens, assert_tokens, Token};
+
+    use super::*;
+
+    #[test]
+    fn serde() {
+        let bytes: Bytes<'static> = Bytes::from_static(b"Hello there");
+
+        assert_tokens(&bytes, &[Token::BorrowedBytes(b"Hello there")]);
+
+        let data = b"Hello there";
+        let bytes: Bytes<'_> = Bytes::from(data);
+
+        assert_tokens(&bytes, &[Token::BorrowedBytes(b"Hello there")]);
+
+        // deserialize from a sequence (like we get with serde_cbor)
+        assert_de_tokens(
+            &Bytes::from(&[0, 1, 2]),
+            &[
+                Token::Seq { len: Some(3) },
+                Token::U8(0),
+                Token::U8(1),
+                Token::U8(2),
+                Token::SeqEnd,
+            ],
+        );
+
+        assert_de_tokens(
+            &Bytes::from(&[0, 1, 2]),
+            &[
+                Token::Seq { len: None },
+                Token::U8(0),
+                Token::U8(1),
+                Token::U8(2),
+                Token::SeqEnd,
+            ],
+        );
+
+        assert_de_tokens(&Bytes::from(&[0, 1, 2]), &[Token::Bytes(&[0, 1, 2])]);
+
+        assert_de_tokens(&Bytes::from(&[0, 1, 2]), &[Token::ByteBuf(&[0, 1, 2])]);
     }
 }
