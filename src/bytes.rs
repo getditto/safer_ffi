@@ -839,6 +839,19 @@ impl<'de> serde::de::Visitor<'de> for BytesVisitor {
     fn visit_borrowed_bytes<E>(self, v: &'de [u8]) -> Result<Self::Value, E> {
         Ok(Bytes::from_slice(v))
     }
+
+    fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+    where
+        A: serde::de::SeqAccess<'de>,
+    {
+        let mut buf = Vec::with_capacity(seq.size_hint().unwrap_or(64));
+
+        while let Some(c) = seq.next_element::<u8>()? {
+            buf.push(c);
+        }
+
+        Ok(Bytes::from(buf))
+    }
 }
 
 #[cfg(feature = "serde")]
