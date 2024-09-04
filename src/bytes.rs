@@ -826,8 +826,43 @@ impl<'a> serde::Serialize for Bytes<'a> {
 }
 
 #[cfg(feature = "serde")]
-impl<'a, 'de: 'a> serde::Deserialize<'de> for Bytes<'a> {
+struct BytesVisitor;
+
+#[cfg(feature = "serde")]
+impl<'de> serde::de::Visitor<'de> for BytesVisitor {
+    type Value = Bytes<'de>;
+
+    fn expecting(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        formatter.write_str("a byte array")
+    }
+
+    fn visit_borrowed_bytes<E>(self, v: &'de [u8]) -> Result<Self::Value, E> {
+        Ok(Bytes::from_slice(v))
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de: 'a, 'a> serde::Deserialize<'de> for Bytes<'a> {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        serde::Deserialize::deserialize(deserializer).map(|x: &[u8]| Bytes::from(x))
+        deserializer.deserialize_bytes(BytesVisitor)
+    }
+}
+
+#[cfg(all(feature = "serde", test))]
+mod tests {
+    use serde_test::{assert_tokens, Token};
+
+    use super::*;
+
+    #[test]
+    fn serde() {
+        let bytes: Bytes<'static> = Bytes::from_static(b"Hello there");
+
+        assert_tokens(&bytes, &[Token::BorrowedBytes(b"Hello there")]);
+
+        let data = b"Hello there";
+        let bytes: Bytes<'_> = Bytes::from(data);
+
+        assert_tokens(&bytes, &[Token::BorrowedBytes(b"Hello there")]);
     }
 }

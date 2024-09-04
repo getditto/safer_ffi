@@ -84,6 +84,7 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(docs)'] }
 safer-ffi.path = "."
 safer-ffi.features = ["internal-tests"]
 rand = "0.8.5"
+serde_test = { version = "1.0.177" }
 
 [dependencies]
 async-compat.optional = true
@@ -111,7 +112,7 @@ paste.version = "1.0.12"
 scopeguard.version = "1.1.0"
 scopeguard.default-features = false
 
-serde.version = "1.0.204"
+serde.version = "1.0.171"
 serde.optional = true
 serde.default-features = false
 
