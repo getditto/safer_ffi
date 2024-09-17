@@ -4,6 +4,7 @@ var sourcesIndex = JSON.parse('{\
 "ext_trait":["",[],["lib.rs"]],\
 "ext_trait_proc_macros":["",[],["mod.rs"]],\
 "extension_traits":["",[],["lib.rs"]],\
+"extern_c":["",[],["_lib.rs","helpers.rs"]],\
 "futures":["",[],["lib.rs"]],\
 "futures_channel":["",[["mpsc",[],["mod.rs","queue.rs","sink_impl.rs"]]],["lib.rs","lock.rs","oneshot.rs"]],\
 "futures_core":["",[["task",[["__internal",[],["atomic_waker.rs","mod.rs"]]],["mod.rs","poll.rs"]]],["future.rs","lib.rs","stream.rs"]],\

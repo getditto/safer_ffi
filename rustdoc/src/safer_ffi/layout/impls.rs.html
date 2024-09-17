@@ -1196,34 +1196,6 @@
 <a href="#1196" id="1196">1196</a>
 <a href="#1197" id="1197">1197</a>
 <a href="#1198" id="1198">1198</a>
-<a href="#1199" id="1199">1199</a>
-<a href="#1200" id="1200">1200</a>
-<a href="#1201" id="1201">1201</a>
-<a href="#1202" id="1202">1202</a>
-<a href="#1203" id="1203">1203</a>
-<a href="#1204" id="1204">1204</a>
-<a href="#1205" id="1205">1205</a>
-<a href="#1206" id="1206">1206</a>
-<a href="#1207" id="1207">1207</a>
-<a href="#1208" id="1208">1208</a>
-<a href="#1209" id="1209">1209</a>
-<a href="#1210" id="1210">1210</a>
-<a href="#1211" id="1211">1211</a>
-<a href="#1212" id="1212">1212</a>
-<a href="#1213" id="1213">1213</a>
-<a href="#1214" id="1214">1214</a>
-<a href="#1215" id="1215">1215</a>
-<a href="#1216" id="1216">1216</a>
-<a href="#1217" id="1217">1217</a>
-<a href="#1218" id="1218">1218</a>
-<a href="#1219" id="1219">1219</a>
-<a href="#1220" id="1220">1220</a>
-<a href="#1221" id="1221">1221</a>
-<a href="#1222" id="1222">1222</a>
-<a href="#1223" id="1223">1223</a>
-<a href="#1224" id="1224">1224</a>
-<a href="#1225" id="1225">1225</a>
-<a href="#1226" id="1226">1226</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(rustfmt, rustfmt::skip)]
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
@@ -1305,7 +1277,7 @@
         }
         <span class="attr">#[cfg(docs)] </span><span class="macro">impl_CTypes! </span>{ @fns (A1, A2) } <span class="attr">#[cfg(not(docs))]
         </span><span class="macro">impl_CTypes! </span>{ @fns
-            (A9, A8, A7, A6, A5, A4, A3, A2, A1)
+            (A10, A9, A8, A7, A6, A5, A4, A3, A2, A1)
         }
         <span class="attr">#[cfg(docs)] </span><span class="macro">impl_CTypes! </span>{ @arrays <span class="number">1 2 </span>} <span class="attr">#[cfg(not(docs))]
         </span><span class="macro">impl_CTypes! </span>{ @arrays
@@ -1468,7 +1440,27 @@
             }
         )<span class="question-mark">?
 
-        </span><span class="comment">// LegacyCType
+        </span><span class="kw">unsafe
+        impl</span>&lt;
+            Ret : ReprC, $(
+            <span class="macro-nonterminal">$An </span>: ReprC, $(
+            <span class="macro-nonterminal">$Ai </span>: ReprC,
+        )<span class="kw-2">*</span>)<span class="question-mark">?</span>&gt; <span class="macro-nonterminal">$crate::layout::__HasNiche__
+        </span><span class="kw">for
+            unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>($(<span class="macro-nonterminal">$An</span>, $(<span class="macro-nonterminal">$Ai </span>,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; Ret
+        {}
+
+        <span class="kw">unsafe
+        impl</span>&lt;
+            Ret : ReprC, $(
+            <span class="macro-nonterminal">$An </span>: ReprC, $(
+            <span class="macro-nonterminal">$Ai </span>: ReprC,
+        )<span class="kw-2">*</span>)<span class="question-mark">?</span>&gt; <span class="macro-nonterminal">$crate::layout::__HasNiche__
+        </span><span class="kw">for
+            </span><span class="comment">/*unsafe*/ </span><span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>($(<span class="macro-nonterminal">$An</span>, $(<span class="macro-nonterminal">$Ai </span>,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; Ret
+        {}
+
+        <span class="comment">// LegacyCType
         </span><span class="doccomment">/// Simplified for lighter documentation, but the actual impls include
         /// **up to 9 function parameters**.
         </span><span class="kw">unsafe </span><span class="comment">// Safety: this is the &quot;blessed&quot; type recommended across Rust
@@ -1585,54 +1577,6 @@
                 }
             }
         } <span class="kw">type </span>OPAQUE_KIND = OpaqueKind::Concrete; }
-
-        <span class="doccomment">/// Simplified for lighter documentation, but the actual impls include
-        /// **up to 9 function parameters**.
-        </span><span class="kw">unsafe </span><span class="comment">// Safety: byte-wise the layout is the same, but the safety
-               // invariants will still have to be checked at each site.
-        </span><span class="kw">impl</span>&lt;
-            Ret : ReprC, $(
-            <span class="macro-nonterminal">$An </span>: ReprC, $(
-            <span class="macro-nonterminal">$Ai </span>: ReprC,
-        )<span class="kw-2">*</span>)<span class="question-mark">?</span>&gt; ReprC
-            <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>($(<span class="macro-nonterminal">$An</span>, $(<span class="macro-nonterminal">$Ai </span>,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; Ret&gt;
-        {
-            <span class="kw">type </span>CLayout = <span class="prelude-ty">Option</span>&lt;
-                <span class="kw">unsafe extern </span><span class="string">&quot;C&quot;
-                </span><span class="kw">fn </span>($(<span class="macro-nonterminal">$An::CLayout</span>, $(<span class="macro-nonterminal">$Ai::CLayout </span>,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; Ret::CLayout
-            &gt;;
-
-            <span class="attr">#[inline]
-            </span><span class="kw">fn </span>is_valid (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">Self</span>::CLayout)
-              -&gt; bool
-            {
-                <span class="bool-val">true
-            </span>}
-        }
-
-        <span class="doccomment">/// Simplified for lighter documentation, but the actual impls include
-        /// **up to 9 function parameters**.
-        </span><span class="kw">unsafe </span><span class="comment">// Safety: byte-wise the layout is the same, but the safety
-               // invariants will still have to be checked at each site.
-        </span><span class="kw">impl</span>&lt;
-            Ret : ReprC, $(
-            <span class="macro-nonterminal">$An </span>: ReprC, $(
-            <span class="macro-nonterminal">$Ai </span>: ReprC,
-        )<span class="kw-2">*</span>)<span class="question-mark">?</span>&gt; ReprC
-            <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;<span class="comment">/*unsafe*/ </span><span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>($(<span class="macro-nonterminal">$An</span>, $(<span class="macro-nonterminal">$Ai </span>,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; Ret&gt;
-        {
-            <span class="kw">type </span>CLayout = <span class="prelude-ty">Option</span>&lt;
-                <span class="kw">unsafe extern </span><span class="string">&quot;C&quot;
-                </span><span class="kw">fn </span>($(<span class="macro-nonterminal">$An::CLayout</span>, $(<span class="macro-nonterminal">$Ai::CLayout </span>,)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; Ret::CLayout
-            &gt;;
-
-            <span class="attr">#[inline]
-            </span><span class="kw">fn </span>is_valid (<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">Self</span>::CLayout)
-              -&gt; bool
-            {
-                <span class="bool-val">true
-            </span>}
-        }
 
         <span class="comment">/* == ReprC for Option-less == */
 

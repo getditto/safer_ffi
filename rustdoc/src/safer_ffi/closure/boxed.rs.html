@@ -235,6 +235,7 @@
 <a href="#235" id="235">235</a>
 <a href="#236" id="236">236</a>
 <a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(rustfmt, rustfmt::skip)]
 </span><span class="doccomment">//! `Box&lt;dyn &#39;static + Send + FnMut(...) -&gt; _&gt;` but with a `#[repr(C)]`
 //! layout (inlined virtual method table).
@@ -276,7 +277,7 @@
         </span>}
         {
             env_ptr: ptr::NonNull&lt;c_void&gt;,
-            call:
+            call: <span class="prelude-ty">Option</span>&lt;
                 <span class="kw">unsafe extern </span><span class="string">&quot;C&quot;
                 </span><span class="kw">fn </span>(
                     env_ptr: ptr::NonNull&lt;c_void&gt; $(,
@@ -284,18 +285,31 @@
                         <span class="macro-nonterminal">$A_k
                     </span>)<span class="kw-2">*</span>)<span class="question-mark">?
                 </span>) -&gt; Ret
-            ,
-            free:
+            &gt;,
+            free: <span class="prelude-ty">Option</span>&lt;
                 <span class="kw">unsafe extern </span><span class="string">&quot;C&quot;
                 </span><span class="kw">fn </span>(env_ptr: ptr::NonNull&lt;c_void&gt;)
-            ,
+            &gt;,
         }
     }
 
+    <span class="kw">unsafe
+        impl</span>&lt;Ret $(, <span class="macro-nonterminal">$A_N </span>$(, <span class="macro-nonterminal">$A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>&gt;
+            <span class="macro-nonterminal">$crate::layout::__HasNiche__
+        </span><span class="kw">for
+            </span><span class="macro-nonterminal">$BoxDynFnMut_N </span>&lt;Ret $(, <span class="macro-nonterminal">$A_N </span>$(, <span class="macro-nonterminal">$A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>&gt;
+        <span class="kw">where
+            </span>Ret : ReprC, $(
+            <span class="macro-nonterminal">$A_N </span>: ReprC, $(
+            <span class="macro-nonterminal">$A_k </span>: ReprC, )<span class="kw-2">*</span>)<span class="question-mark">?
+        </span>{}
+
     <span class="doccomment">/// `Box&lt;dyn Send + ...&gt; : Send`
     </span><span class="kw">unsafe
-        impl</span>&lt;Ret $(, <span class="macro-nonterminal">$A_N </span>$(, <span class="macro-nonterminal">$A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>&gt; Send
-            <span class="kw">for </span><span class="macro-nonterminal">$BoxDynFnMut_N </span>&lt;Ret $(, <span class="macro-nonterminal">$A_N </span>$(, <span class="macro-nonterminal">$A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>&gt;
+        impl</span>&lt;Ret $(, <span class="macro-nonterminal">$A_N </span>$(, <span class="macro-nonterminal">$A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>&gt;
+            Send
+        <span class="kw">for
+            </span><span class="macro-nonterminal">$BoxDynFnMut_N </span>&lt;Ret $(, <span class="macro-nonterminal">$A_N </span>$(, <span class="macro-nonterminal">$A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>&gt;
         <span class="kw">where
             </span>Ret : ReprC, $(
             <span class="macro-nonterminal">$A_N </span>: ReprC, $(
@@ -330,7 +344,7 @@
     </span>{
         <span class="attr">#[inline]
         </span><span class="kw">pub
-        fn </span>new&lt;F&gt; (f: rust::Box&lt;F&gt;) -&gt; <span class="self">Self
+        fn </span>new&lt;F&gt; (f: Box&lt;F&gt;) -&gt; <span class="self">Self
         </span><span class="kw">where
             </span>F : FnMut( $(<span class="macro-nonterminal">$A_N </span>$(, <span class="macro-nonterminal">$A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">? </span>) -&gt; Ret,
             F : Send + <span class="lifetime">&#39;static</span>,
@@ -339,33 +353,21 @@
             // thanks to the generic bounds on F.
             </span><span class="self">Self </span>{
                 env_ptr: ptr::NonNull::from(Box::leak(f)).cast(),
-                free: {
-                    <span class="kw">unsafe extern </span><span class="string">&quot;C&quot;
-                    </span><span class="kw">fn </span>free&lt;F&gt; (env_ptr: ptr::NonNull&lt;c_void&gt;)
-                    <span class="kw">where
-                        </span>F : Send + <span class="lifetime">&#39;static</span>,
-                    {
-                        drop::&lt;Box&lt;F&gt;&gt;(Box::from_raw(env_ptr.cast().as_ptr()));
-                    }
-                    free::&lt;F&gt;
-                },
-                call: {
-                    <span class="kw">unsafe extern </span><span class="string">&quot;C&quot;
-                    </span><span class="kw">fn </span>call&lt;F, Ret $(, <span class="macro-nonterminal">$A_N </span>$(, <span class="macro-nonterminal">$A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>&gt; (
+                free: <span class="prelude-val">Some</span>(::extern_c::extern_c(|env_ptr: ptr::NonNull&lt;c_void&gt;| <span class="kw">unsafe </span>{
+                    drop(Box::&lt;F&gt;::from_raw(env_ptr.cast().as_ptr()));
+                })),
+                call: <span class="prelude-val">Some</span>(::extern_c::extern_c(
+                    |
                         env_ptr: ptr::NonNull&lt;c_void&gt; $(,
                         <span class="macro-nonterminal">$A_N </span>: <span class="macro-nonterminal">$A_N </span>$(,
                         <span class="macro-nonterminal">$A_k </span>: <span class="macro-nonterminal">$A_k </span>)<span class="kw-2">*</span>)<span class="question-mark">?
-                    </span>) -&gt; Ret
-                    <span class="kw">where
-                        </span>F : FnMut($(<span class="macro-nonterminal">$A_N </span>$(, <span class="macro-nonterminal">$A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>) -&gt; Ret,
-                        F : Send + <span class="lifetime">&#39;static</span>,
+                    </span>| -&gt; Ret
                     {
-                        <span class="kw">let </span><span class="kw-2">mut </span>env_ptr = env_ptr.cast();
-                        <span class="kw">let </span>f: <span class="kw-2">&amp;mut </span>F = env_ptr.as_mut();
+                        <span class="kw">let </span><span class="kw-2">mut </span>env_ptr: ptr::NonNull&lt;F&gt; = env_ptr.cast();
+                        <span class="kw">let </span>f: <span class="kw-2">&amp;mut </span>F = <span class="kw">unsafe </span>{ env_ptr.as_mut() };
                         f( $(<span class="macro-nonterminal">$A_N </span>$(, <span class="macro-nonterminal">$A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">? </span>)
                     }
-                    call::&lt;F, Ret $(, <span class="macro-nonterminal">$A_N </span>$(, <span class="macro-nonterminal">$A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>&gt;
-                },
+                )),
             }
         }
     }
@@ -380,7 +382,7 @@
         <span class="kw">fn </span>drop (<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">mut </span><span class="self">Self</span>)
         {
             <span class="kw">unsafe </span>{
-                (<span class="self">self</span>.free)(<span class="self">self</span>.env_ptr)
+                <span class="self">self</span>.free.expect(<span class="string">&quot;non-NULL `.free`&quot;</span>)(<span class="self">self</span>.env_ptr)
             }
         }
     }
@@ -401,7 +403,7 @@
         </span>) -&gt; Ret
         {
             <span class="kw">unsafe </span>{
-                (<span class="self">self</span>.call)(<span class="self">self</span>.env_ptr, $(<span class="macro-nonterminal">$A_N </span>$(, <span class="macro-nonterminal">$A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>)
+                <span class="self">self</span>.call.expect(<span class="string">&quot;non-NULL `.call`&quot;</span>)(<span class="self">self</span>.env_ptr, $(<span class="macro-nonterminal">$A_N </span>$(, <span class="macro-nonterminal">$A_k</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>)
             }
         }
     }
