@@ -112,6 +112,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "extern-c"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "320bea982e85d42441eb25c49b41218e7eaa2657e8f90bc4eca7437376751e23"
+
+[[package]]
 name = "flate2"
 version = "1.0.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -629,9 +635,10 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 
 [[package]]
 name = "safer-ffi"
-version = "0.1.12"
+version = "0.1.13"
 dependencies = [
  "cratesio-placeholder-package",
+ "extern-c",
  "inventory",
  "libc",
  "macro_rules_attribute",
@@ -654,7 +661,7 @@ dependencies = [
 
 [[package]]
 name = "safer_ffi-proc_macros"
-version = "0.1.12"
+version = "0.1.13"
 dependencies = [
  "macro_rules_attribute",
  "prettyplease",
