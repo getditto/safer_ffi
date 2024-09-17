@@ -79,7 +79,7 @@ const _: () = { macro_rules! impl_CTypes {
         }
         #[cfg(docs)] impl_CTypes! { @fns (A1, A2) } #[cfg(not(docs))]
         impl_CTypes! { @fns
-            (A9, A8, A7, A6, A5, A4, A3, A2, A1)
+            (A10, A9, A8, A7, A6, A5, A4, A3, A2, A1)
         }
         #[cfg(docs)] impl_CTypes! { @arrays 1 2 } #[cfg(not(docs))]
         impl_CTypes! { @arrays
@@ -242,6 +242,26 @@ const _: () = { macro_rules! impl_CTypes {
             }
         )?
 
+        unsafe
+        impl<
+            Ret : ReprC, $(
+            $An : ReprC, $(
+            $Ai : ReprC,
+        )*)?> $crate::layout::__HasNiche__
+        for
+            unsafe extern "C" fn ($($An, $($Ai ,)*)?) -> Ret
+        {}
+
+        unsafe
+        impl<
+            Ret : ReprC, $(
+            $An : ReprC, $(
+            $Ai : ReprC,
+        )*)?> $crate::layout::__HasNiche__
+        for
+            /*unsafe*/ extern "C" fn ($($An, $($Ai ,)*)?) -> Ret
+        {}
+
         // LegacyCType
         /// Simplified for lighter documentation, but the actual impls include
         /// **up to 9 function parameters**.
@@ -359,54 +379,6 @@ const _: () = { macro_rules! impl_CTypes {
                 }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
-
-        /// Simplified for lighter documentation, but the actual impls include
-        /// **up to 9 function parameters**.
-        unsafe // Safety: byte-wise the layout is the same, but the safety
-               // invariants will still have to be checked at each site.
-        impl<
-            Ret : ReprC, $(
-            $An : ReprC, $(
-            $Ai : ReprC,
-        )*)?> ReprC
-            for Option<unsafe extern "C" fn ($($An, $($Ai ,)*)?) -> Ret>
-        {
-            type CLayout = Option<
-                unsafe extern "C"
-                fn ($($An::CLayout, $($Ai::CLayout ,)*)?) -> Ret::CLayout
-            >;
-
-            #[inline]
-            fn is_valid (_: &'_ Self::CLayout)
-              -> bool
-            {
-                true
-            }
-        }
-
-        /// Simplified for lighter documentation, but the actual impls include
-        /// **up to 9 function parameters**.
-        unsafe // Safety: byte-wise the layout is the same, but the safety
-               // invariants will still have to be checked at each site.
-        impl<
-            Ret : ReprC, $(
-            $An : ReprC, $(
-            $Ai : ReprC,
-        )*)?> ReprC
-            for Option</*unsafe*/ extern "C" fn ($($An, $($Ai ,)*)?) -> Ret>
-        {
-            type CLayout = Option<
-                unsafe extern "C"
-                fn ($($An::CLayout, $($Ai::CLayout ,)*)?) -> Ret::CLayout
-            >;
-
-            #[inline]
-            fn is_valid (_: &'_ Self::CLayout)
-              -> bool
-            {
-                true
-            }
-        }
 
         /* == ReprC for Option-less == */
 

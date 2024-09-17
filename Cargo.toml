@@ -90,6 +90,8 @@ serde_test = { version = "1.0.177" }
 async-compat.optional = true
 async-compat.version = "0.2.1"
 
+extern-c.version = "0.1.0"
+
 futures.optional = true
 futures.version = "0.3.24"
 
