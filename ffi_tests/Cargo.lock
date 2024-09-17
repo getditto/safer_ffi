@@ -60,6 +60,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "extern-c"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "320bea982e85d42441eb25c49b41218e7eaa2657e8f90bc4eca7437376751e23"
+
+[[package]]
 name = "ffi_tests"
 version = "0.1.0"
 dependencies = [
@@ -331,8 +337,9 @@ checksum = "955d28af4278de8121b7ebeb796b6a45735dc01436d898801014aced2773a3d6"
 
 [[package]]
 name = "safer-ffi"
-version = "0.1.12"
+version = "0.1.13"
 dependencies = [
+ "extern-c",
  "futures",
  "inventory",
  "libc",
@@ -348,7 +355,7 @@ dependencies = [
 
 [[package]]
 name = "safer_ffi-proc_macros"
-version = "0.1.12"
+version = "0.1.13"
 dependencies = [
  "macro_rules_attribute",
  "prettyplease",

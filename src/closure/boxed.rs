@@ -39,7 +39,7 @@ macro_rules! with_tuple {(
         }
         {
             env_ptr: ptr::NonNull<c_void>,
-            call:
+            call: Option<
                 unsafe extern "C"
                 fn (
                     env_ptr: ptr::NonNull<c_void> $(,
@@ -47,18 +47,31 @@ macro_rules! with_tuple {(
                         $A_k
                     )*)?
                 ) -> Ret
-            ,
-            free:
+            >,
+            free: Option<
                 unsafe extern "C"
                 fn (env_ptr: ptr::NonNull<c_void>)
-            ,
+            >,
         }
     }
 
+    unsafe
+        impl<Ret $(, $A_N $(, $A_k)*)?>
+            $crate::layout::__HasNiche__
+        for
+            $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
+        where
+            Ret : ReprC, $(
+            $A_N : ReprC, $(
+            $A_k : ReprC, )*)?
+        {}
+
     /// `Box<dyn Send + ...> : Send`
     unsafe
-        impl<Ret $(, $A_N $(, $A_k)*)?> Send
-            for $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
+        impl<Ret $(, $A_N $(, $A_k)*)?>
+            Send
+        for
+            $BoxDynFnMut_N <Ret $(, $A_N $(, $A_k)*)?>
         where
             Ret : ReprC, $(
             $A_N : ReprC, $(
@@ -93,7 +106,7 @@ macro_rules! with_tuple {(
     {
         #[inline]
         pub
-        fn new<F> (f: rust::Box<F>) -> Self
+        fn new<F> (f: Box<F>) -> Self
         where
             F : FnMut( $($A_N $(, $A_k)*)? ) -> Ret,
             F : Send + 'static,
@@ -102,33 +115,21 @@ macro_rules! with_tuple {(
             // thanks to the generic bounds on F.
             Self {
                 env_ptr: ptr::NonNull::from(Box::leak(f)).cast(),
-                free: {
-                    unsafe extern "C"
-                    fn free<F> (env_ptr: ptr::NonNull<c_void>)
-                    where
-                        F : Send + 'static,
-                    {
-                        drop::<Box<F>>(Box::from_raw(env_ptr.cast().as_ptr()));
-                    }
-                    free::<F>
-                },
-                call: {
-                    unsafe extern "C"
-                    fn call<F, Ret $(, $A_N $(, $A_k)*)?> (
+                free: Some(::extern_c::extern_c(|env_ptr: ptr::NonNull<c_void>| unsafe {
+                    drop(Box::<F>::from_raw(env_ptr.cast().as_ptr()));
+                })),
+                call: Some(::extern_c::extern_c(
+                    |
                         env_ptr: ptr::NonNull<c_void> $(,
                         $A_N : $A_N $(,
                         $A_k : $A_k )*)?
-                    ) -> Ret
-                    where
-                        F : FnMut($($A_N $(, $A_k)*)?) -> Ret,
-                        F : Send + 'static,
+                    | -> Ret
                     {
-                        let mut env_ptr = env_ptr.cast();
-                        let f: &mut F = env_ptr.as_mut();
+                        let mut env_ptr: ptr::NonNull<F> = env_ptr.cast();
+                        let f: &mut F = unsafe { env_ptr.as_mut() };
                         f( $($A_N $(, $A_k)*)? )
                     }
-                    call::<F, Ret $(, $A_N $(, $A_k)*)?>
-                },
+                )),
             }
         }
     }
@@ -143,7 +144,7 @@ macro_rules! with_tuple {(
         fn drop (self: &'_ mut Self)
         {
             unsafe {
-                (self.free)(self.env_ptr)
+                self.free.expect("non-NULL `.free`")(self.env_ptr)
             }
         }
     }
@@ -164,7 +165,7 @@ macro_rules! with_tuple {(
         ) -> Ret
         {
             unsafe {
-                (self.call)(self.env_ptr, $($A_N $(, $A_k)*)?)
+                self.call.expect("non-NULL `.call`")(self.env_ptr, $($A_N $(, $A_k)*)?)
             }
         }
     }
