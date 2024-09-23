@@ -562,7 +562,7 @@ macro_rules! impls {(
         ) -> CRet
         {
             // We set up an `on_unwind` guard, except if we're already being invoked
-            // from within a panicking context, which confuses the the `on_unwind` heuristic
+            // from within a panicking context, which confuses the `on_unwind` heuristic
             // of `::scopeguard`. Since in that case, any extra panic already triggers an abort,
             // we can then just have the guard do nothing.
             let _abort_on_unwind = ::std::thread::panicking().not().then(|| {
