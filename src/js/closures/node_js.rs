@@ -3,14 +3,14 @@
 use super::*;
 
 use ::napi::threadsafe_function::*;
+use ::once_cell::sync::OnceCell;
 use ::std::{
     os::raw::c_void,
     sync::Arc,
-    time::Duration
+    time::Duration,
 };
-use once_cell::sync::OnceCell;
 
-/// Global configuration for the number of milliseconds to wait for a callback sync. 
+/// Global configuration for the number of milliseconds to wait for a callback sync.
 /// Disabled when `None`. Access through `deadlock_timeout()`.
 static DEADLOCK_TIMEOUT_MS: OnceCell<Option<u32>> = OnceCell::new();
 
@@ -561,14 +561,19 @@ macro_rules! impls {(
             $_k: $_k, )*)?
         ) -> CRet
         {
-            ::scopeguard::defer_on_unwind! {
-                eprintln!("\
-                    Attempted to panic through an `extern \"C\"` boundary, \
-                    which is undefined behavior. \
-                    Aborting for soundness.\
-                ");
-                ::std::process::abort();
-            }
+            // We set up an `on_unwind` guard, except if we're already being invoked
+            // from within a panicking context, which confuses the the `on_unwind` heuristic
+            // of `::scopeguard`. Since in that case, any extra panic already triggers an abort,
+            // we can then just have the guard do nothing.
+            let _abort_on_unwind = ::std::thread::panicking().not().then(|| {
+                ::scopeguard::guard_on_unwind((), |()| {
+                    eprintln! {"\
+                        Attempted to panic through the `extern \"C\"` boundary of a C `fn()`, \
+                        which is undefined behavior. Aborting for soundness.\
+                    "}
+                    ::std::process::abort();
+                })
+            });
 
             let &Self {
                 ref ts_fun,
@@ -696,19 +701,23 @@ macro_rules! impls {(
                     );
                     debug_assert_eq!(status, Status::Ok);
 
-                    let on_channel_closed = || panic!("Failed to receive a return value from a \
-                        callback function (channel closed): missing `wrap_cb_for_ffi` call?");
+                    let on_channel_closed = || panic! {"\
+                        Failed to receive a return value from a callback function \
+                        (channel closed): missing `wrap_cb_for_ffi` call?\
+                    "};
 
                     if let Some(timeout) = get_deadlock_timeout() {
                         let duration = Duration::from_millis(timeout as u64);
                         match ret_receiver.recv_timeout(duration) {
                             Ok(ret) => ret,
-                            Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
-                                panic!("Failed to receive a return value from a callback \
-                                function (timeout after {}ms). This can be caused by a deadlock \
-                                or when execution is interrupted by an interactive debugger. \
-                                You can disable this check using \
-                                `Ditto.disableDeadlockDetection()", timeout)
+                            Err(std::sync::mpsc::RecvTimeoutError::Timeout) => panic! {
+                                "\
+                                Failed to receive a return value from a callback function (timeout \
+                                after {}ms). This can be caused by a deadlock or when execution is \
+                                interrupted by an interactive debugger. You can disable this check \
+                                using `Ditto.disableDeadlockDetection()\
+                                ",
+                                timeout,
                             },
                             Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
                                 on_channel_closed()
@@ -843,7 +852,7 @@ fn dummy_ret_sender (env: &'_ Env)
 }
 
 /// Returns the configured deadlock timeout, or `None` if the timeout is disabled.
-/// 
+///
 /// The timeout can be set once by calling `set_deadlock_timeout`. If that has not happened,
 /// the default timeout is returned.
 pub fn get_deadlock_timeout() -> Option<u32> {

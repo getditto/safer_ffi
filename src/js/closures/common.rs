@@ -1,3 +1,5 @@
+use ::core::ops::Not as _;
+
 #[derive(Debug)]
 pub
 struct ArcClosureRawParts<CallFn> {
