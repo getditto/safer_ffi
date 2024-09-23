@@ -2,8 +2,8 @@
 
 use super::*;
 
-use ::{
-    std::os::raw::c_void,
+use ::std::{
+    os::raw::c_void,
 };
 use crate::{
     layout::ReprC,
@@ -152,14 +152,16 @@ match_! {(
             $_k: <$_k as ReprC>::CLayout )*)?
         ) -> <Ret as ReprC>::CLayout
         {
-            ::scopeguard::defer_on_unwind! {
-                eprintln!("\
-                    Attempted to panic through an `extern \"C\"` boundary, \
-                    which is undefined behavior. \
-                    Aborting for soundness.\
-                ");
-                ::std::process::abort();
-            }
+            // Same logic as for `node_js`.
+            let _abort_on_unwind = ::std::thread::panicking().not().then(|| {
+                ::scopeguard::guard_on_unwind((), |()| {
+                    eprintln! {"\
+                        Attempted to panic through the `extern \"C\"` boundary of a C `fn()`, \
+                        which is undefined behavior. Aborting for soundness.\
+                    "}
+                    ::std::process::abort();
+                })
+            });
 
             let     &Self {
                 ref js_fun,
