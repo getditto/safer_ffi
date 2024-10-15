@@ -38,7 +38,7 @@ type JsOfCSliceRef<T> = JsOf<c_slice::Ref<'static, T>>;
 /// did not help in this case, alas, no matter how much was tweaked the codegen of `#[js_export]`,
 /// of `inventory::submit!`, or of custom hard-coded things.
 ///   - <https://github.com/dtolnay/inventory/pull/61>
-#[export_name = "::safer_ffi::js::ffi_helpers::_prevent_improper_linker_dead_code_elision"]
+#[export_name = "_ZN9safer_ffi2js11ffi_helpers42_prevent_improper_linker_dead_code_elisionE"]
 pub
 fn _prevent_improper_linker_dead_code_elision(unreachable: ::core::convert::Infallible)
 {
