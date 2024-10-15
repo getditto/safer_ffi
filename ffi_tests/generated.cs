@@ -46,13 +46,6 @@ public enum Bar_t : sbyte {
     B = 42,
 }
 
-[UnmanagedFunctionPointer(CallingConvention.Winapi)]
-public unsafe /* static */ delegate
-    void *
-    void_ptr_bool_fptr (
-        [MarshalAs(UnmanagedType.U1)]
-        bool _0);
-
 /// <summary>
 /// Hello, <c>World</c>!
 /// </summary>
@@ -66,8 +59,7 @@ public unsafe struct next_generation_t {
     /// <summary>
     /// with function pointers and everything!
     /// </summary>
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public void_ptr_bool_fptr cb;
+    public delegate* unmanaged<bool, void *> cb;
 }
 
 /// <summary>
@@ -127,12 +119,6 @@ public unsafe partial class Ffi {
     Int32 async_get_ft ();
 }
 
-[UnmanagedFunctionPointer(CallingConvention.Winapi)]
-public unsafe /* static */ delegate
-    void
-    void_void_ptr_fptr (
-        void * _0);
-
 /// <summary>
 /// <c>Arc<dyn Send + Sync + Fn() -> Ret></c>
 /// </summary>
@@ -140,14 +126,11 @@ public unsafe /* static */ delegate
 public unsafe struct ArcDynFn0_void_t {
     public void * env_ptr;
 
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public void_void_ptr_fptr call;
+    public delegate* unmanaged<void *, void> call;
 
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public void_void_ptr_fptr release;
+    public delegate* unmanaged<void *, void> release;
 
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public void_void_ptr_fptr retain;
+    public delegate* unmanaged<void *, void> retain;
 }
 
 public unsafe partial class Ffi {
@@ -269,16 +252,9 @@ public unsafe partial class Ffi {
         foo_t /*const*/ * foo);
 }
 
-[UnmanagedFunctionPointer(CallingConvention.Winapi)]
-public unsafe /* static */ delegate
-    UInt16
-    uint16_uint8_fptr (
-        byte _0);
-
 public unsafe partial class Ffi {
-    [return: MarshalAs(UnmanagedType.FunctionPtr)]
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
-    uint16_uint8_fptr returns_a_fn_ptr ();
+    delegate* unmanaged<byte, UInt16> returns_a_fn_ptr ();
 }
 
 /// <summary>
@@ -308,18 +284,6 @@ public struct Erased_t {
     #pragma warning restore 0169
 }
 
-[UnmanagedFunctionPointer(CallingConvention.Winapi)]
-public unsafe /* static */ delegate
-    void
-    void_Erased_ptr_fptr (
-        Erased_t * _0);
-
-[UnmanagedFunctionPointer(CallingConvention.Winapi)]
-public unsafe /* static */ delegate
-    Erased_t *
-    Erased_ptr_Erased_const_ptr_fptr (
-        Erased_t /*const*/ * _0);
-
 /// <summary>
 /// An FFI-safe <c>Poll<()></c>.
 /// </summary>
@@ -328,20 +292,11 @@ public enum PollFuture_t : sbyte {
     Pending = -1,
 }
 
-[UnmanagedFunctionPointer(CallingConvention.Winapi)]
-public unsafe /* static */ delegate
-    PollFuture_t
-    PollFuture_Erased_ptr_Opaque_Context_ptr_fptr (
-        Erased_t * _0,
-        Opaque_Context_t * _1);
-
 [StructLayout(LayoutKind.Sequential, Size = 16)]
 public unsafe struct FfiFutureVTable_t {
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public void_Erased_ptr_fptr release_vptr;
+    public delegate* unmanaged<Erased_t *, void> release_vptr;
 
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public PollFuture_Erased_ptr_Opaque_Context_ptr_fptr dyn_poll;
+    public delegate* unmanaged<Erased_t *, Opaque_Context_t *, PollFuture_t> dyn_poll;
 }
 
 [StructLayout(LayoutKind.Sequential, Size = 24)]
@@ -351,13 +306,6 @@ public unsafe struct VirtualPtr__Erased_ptr_FfiFutureVTable_t {
     public FfiFutureVTable_t vtable;
 }
 
-[UnmanagedFunctionPointer(CallingConvention.Winapi)]
-public unsafe /* static */ delegate
-    VirtualPtr__Erased_ptr_FfiFutureVTable_t
-    VirtualPtr__Erased_ptr_FfiFutureVTable_Erased_const_ptr_VirtualPtr__Erased_ptr_FfiFutureVTable_fptr (
-        Erased_t /*const*/ * _0,
-        VirtualPtr__Erased_ptr_FfiFutureVTable_t _1);
-
 /// <summary>
 /// <c>Box<dyn 'static + Send + FnMut() -> Ret></c>
 /// </summary>
@@ -365,31 +313,14 @@ public unsafe /* static */ delegate
 public unsafe struct BoxDynFnMut0_void_t {
     public void * env_ptr;
 
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public void_void_ptr_fptr call;
+    public delegate* unmanaged<void *, void> call;
 
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public void_void_ptr_fptr free;
+    public delegate* unmanaged<void *, void> free;
 }
-
-[UnmanagedFunctionPointer(CallingConvention.Winapi)]
-public unsafe /* static */ delegate
-    VirtualPtr__Erased_ptr_FfiFutureVTable_t
-    VirtualPtr__Erased_ptr_FfiFutureVTable_Erased_const_ptr_BoxDynFnMut0_void_fptr (
-        Erased_t /*const*/ * _0,
-        BoxDynFnMut0_void_t _1);
-
-[UnmanagedFunctionPointer(CallingConvention.Winapi)]
-public unsafe /* static */ delegate
-    void
-    void_Erased_const_ptr_VirtualPtr__Erased_ptr_FfiFutureVTable_fptr (
-        Erased_t /*const*/ * _0,
-        VirtualPtr__Erased_ptr_FfiFutureVTable_t _1);
 
 [StructLayout(LayoutKind.Sequential, Size = 8)]
 public unsafe struct DropGlueVTable_t {
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public void_Erased_ptr_fptr release_vptr;
+    public delegate* unmanaged<Erased_t *, void> release_vptr;
 }
 
 [StructLayout(LayoutKind.Sequential, Size = 16)]
@@ -399,31 +330,19 @@ public unsafe struct VirtualPtr__Erased_ptr_DropGlueVTable_t {
     public DropGlueVTable_t vtable;
 }
 
-[UnmanagedFunctionPointer(CallingConvention.Winapi)]
-public unsafe /* static */ delegate
-    VirtualPtr__Erased_ptr_DropGlueVTable_t
-    VirtualPtr__Erased_ptr_DropGlueVTable_Erased_const_ptr_fptr (
-        Erased_t /*const*/ * _0);
-
 [StructLayout(LayoutKind.Sequential, Size = 48)]
 public unsafe struct FfiFutureExecutorVTable_t {
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public void_Erased_ptr_fptr release_vptr;
+    public delegate* unmanaged<Erased_t *, void> release_vptr;
 
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public Erased_ptr_Erased_const_ptr_fptr retain_vptr;
+    public delegate* unmanaged<Erased_t /*const*/ *, Erased_t *> retain_vptr;
 
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public VirtualPtr__Erased_ptr_FfiFutureVTable_Erased_const_ptr_VirtualPtr__Erased_ptr_FfiFutureVTable_fptr dyn_spawn;
+    public delegate* unmanaged<Erased_t /*const*/ *, VirtualPtr__Erased_ptr_FfiFutureVTable_t, VirtualPtr__Erased_ptr_FfiFutureVTable_t> dyn_spawn;
 
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public VirtualPtr__Erased_ptr_FfiFutureVTable_Erased_const_ptr_BoxDynFnMut0_void_fptr dyn_spawn_blocking;
+    public delegate* unmanaged<Erased_t /*const*/ *, BoxDynFnMut0_void_t, VirtualPtr__Erased_ptr_FfiFutureVTable_t> dyn_spawn_blocking;
 
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public void_Erased_const_ptr_VirtualPtr__Erased_ptr_FfiFutureVTable_fptr dyn_block_on;
+    public delegate* unmanaged<Erased_t /*const*/ *, VirtualPtr__Erased_ptr_FfiFutureVTable_t, void> dyn_block_on;
 
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public VirtualPtr__Erased_ptr_DropGlueVTable_Erased_const_ptr_fptr dyn_enter;
+    public delegate* unmanaged<Erased_t /*const*/ *, VirtualPtr__Erased_ptr_DropGlueVTable_t> dyn_enter;
 }
 
 [StructLayout(LayoutKind.Sequential, Size = 56)]
@@ -439,13 +358,6 @@ public unsafe partial class Ffi {
         VirtualPtr__Erased_ptr_FfiFutureExecutorVTable_t executor);
 }
 
-[UnmanagedFunctionPointer(CallingConvention.Winapi)]
-public unsafe /* static */ delegate
-    void
-    void_void_ptr_char_const_ptr_fptr (
-        void * _0,
-        byte /*const*/ * _1);
-
 /// <summary>
 /// <c>&'lt mut (dyn 'lt + Send + FnMut(A1) -> Ret)</c>
 /// </summary>
@@ -453,8 +365,7 @@ public unsafe /* static */ delegate
 public unsafe struct RefDynFnMut1_void_char_const_ptr_t {
     public void * env_ptr;
 
-    [MarshalAs(UnmanagedType.FunctionPtr)]
-    public void_void_ptr_char_const_ptr_fptr call;
+    public delegate* unmanaged<void *, byte /*const*/ *, void> call;
 }
 
 public unsafe partial class Ffi {
@@ -469,18 +380,11 @@ public unsafe partial class Ffi {
         RefDynFnMut1_void_char_const_ptr_t cb);
 }
 
-[UnmanagedFunctionPointer(CallingConvention.Winapi)]
-public unsafe /* static */ delegate
-    void
-    void_foo_ptr_fptr (
-        foo_t * _0);
-
 public unsafe partial class Ffi {
     [return: MarshalAs(UnmanagedType.U1)]
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
     bool with_foo (
-        [MarshalAs(UnmanagedType.FunctionPtr)]
-        void_foo_ptr_fptr cb);
+        delegate* unmanaged<foo_t *, void> cb);
 }
 
 
