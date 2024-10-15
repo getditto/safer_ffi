@@ -8,6 +8,43 @@ use ::core::convert::TryFrom;
 type JsOf<T> = <crate::layout::CLayoutOf<T> as ReprNapi>::NapiValue;
 type JsOfCSliceRef<T> = JsOf<c_slice::Ref<'static, T>>;
 
+/// This module can, oddly enough, end up optimized by the linkage step, especially on macOS (on
+/// `--[profile ]release`).
+///
+/// See:
+///   - <https://github.com/getditto/safer_ffi/issues/161>
+///   - <https://github.com/dtolnay/inventory/issues/52>
+///
+/// The most heavyweight but effective workaround is to add `-C link-dead-code` to the `rustflags`,
+/// so that `rustc` not invoke the linker with the `--gc-sections` flag from which these problematic
+/// elisions stem.
+///   - <https://github.com/rust-lang/rust/issues/17141>
+///   - Due to worries about the resulting binary size, other venues are explored.
+///
+/// The aforementioned `inventory` issue also suggests forcing the `--[profile ]release` to use
+/// `codegen-units = 1`. This slows down compilation, and, seems quite brittle, so we keep looking.
+///
+/// The comments over <https://github.com/rust-lang/rust/issues/94348> suggest another trick: to
+/// have a non-`static` item be "exported" / visible "outside" (the crate? This remains unclear, but
+/// seems plausible).
+///   - <https://github.com/rust3ds/pthread-3ds/blob/90bd4d00e371ea5dbd8487c5a63d3d75d667f796/src/lib.rs#L8-L12>
+///
+/// Experiments show that this does work, here, but only when adding `#[no_mangle]`/`#[export_name]`
+/// (probably just because it ensures the seemingly necessary cross-crate visibility).
+///   - (`export_name` is used over `no_mangle` to more easily guarantee unicity of the so-exported
+///     symbol, should this approach end up needed elsewhere.)
+///
+/// Notable failed attempt: the official proper tool for this task, the `#[used(linker)]` directive,
+/// did not help in this case, alas, no matter how much was tweaked the codegen of `#[js_export]`,
+/// of `inventory::submit!`, or of custom hard-coded things.
+///   - <https://github.com/dtolnay/inventory/pull/61>
+#[export_name = "::safer_ffi::js::ffi_helpers::_prevent_improper_linker_dead_code_elision"]
+pub
+fn _prevent_improper_linker_dead_code_elision(unreachable: ::core::convert::Infallible)
+{
+    match unreachable {}
+}
+
 #[js_export(js_name = withCString, __skip_napi_import)]
 pub
 fn with_js_string_as_utf8 (
@@ -135,7 +172,7 @@ fn set_deadlock_timeout_js(
 {
     let ctx = ::safer_ffi::js::derive::__js_ctx!();
     let val: Option<std::num::NonZeroU32> = match val.try_into() {
-        // Maps an input 0 to `None` 
+        // Maps an input 0 to `None`
         Ok(val) => std::num::NonZeroU32::new(val),
         Err(_) => Err(Error::new(
             Status::InvalidArg,
