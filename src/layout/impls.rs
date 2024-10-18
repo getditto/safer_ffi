@@ -81,150 +81,8 @@ const _: () = { macro_rules! impl_CTypes {
         impl_CTypes! { @fns
             (A10, A9, A8, A7, A6, A5, A4, A3, A2, A1)
         }
-        #[cfg(docs)] impl_CTypes! { @arrays 1 2 } #[cfg(not(docs))]
-        impl_CTypes! { @arrays
-            // 0
-            1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
-            26 27 28 29 30 31 32 40 48 50 60 64 70 75 80 90 96 100 125 128 192
-            200 250 256 300 400 500 512 600 700 750 800 900 1000 1024
-        }
     );
 
-    (
-        @arrays
-        $($N:tt)*
-    ) => ($(
-        // LegacyCType
-        /// Simplified for lighter documentation, but the actual impls
-        /// range **from `1` up to `32`, plus a bunch of significant
-        /// lengths up to `1024`**.
-        unsafe // Safety: Rust arrays _are_ `#[repr(C)]`
-        impl<Item : CType> LegacyCType
-            for [Item; $N]
-        { __cfg_headers__! {
-            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-              -> fmt::Result
-            {
-                // item_N_array
-                write!(fmt,
-                    concat!("{}_", stringify!($N), "_array"),
-                    Item::short_name(),
-                )
-            }
-
-            fn c_define_self (definer: &'_ mut dyn Definer)
-              -> io::Result<()>
-            {
-                let ref me = Self::c_var("").to_string();
-                definer.define_once(
-                    me,
-                    &mut |definer| {
-                        Item::define_self(&crate::headers::languages::C, definer)?;
-                        writeln!(definer.out(),
-                            concat!(
-                                "typedef struct {{\n",
-                                "    {inline_array};\n",
-                                "}} {me};\n",
-                            ),
-                            inline_array = Item::name_wrapping_var(&crate::headers::languages::C, concat!(
-                                "idx[", stringify!($N), "]",
-                            )),
-                            me = me,
-                        )
-                    }
-                )
-            }
-
-            fn c_var_fmt (
-                fmt: &'_ mut fmt::Formatter<'_>,
-                var_name: &'_ str,
-            ) -> fmt::Result
-            {
-                // _e.g._, item_N_array_t
-                write!(fmt,
-                    "{}_t{sep}{}",
-                    Self::c_short_name(),
-                    var_name,
-                    sep = if var_name.is_empty() { "" } else { " " },
-                )
-            }
-
-            __cfg_csharp__! {
-                fn csharp_define_self (definer: &'_ mut dyn Definer)
-                  -> io::Result<()>
-                {
-                    let ref me = Self::csharp_ty();
-                    Item::define_self(&crate::headers::languages::CSharp, definer)?;
-                    definer.define_once(me, &mut |definer| {
-                        let array_items = {
-                            // Poor man's specialization to use `fixed` arrays.
-                            if  [
-                                    "bool",
-                                    "u8", "u16", "u32", "u64", "usize",
-                                    "i8", "i16", "i32", "i64", "isize",
-                                    "float", "double",
-                                ].contains(&::core::any::type_name::<Item>())
-                            {
-                                format!(
-                                    "    public fixed {ItemTy} arr[{N}];\n",
-                                    ItemTy = Item::name(&crate::headers::languages::CSharp),
-                                    N = $N,
-                                    // no need for a marshaler here
-                                )
-                            } else {
-                                // Sadly for the general case fixed arrays are
-                                // not supported.
-                                (0 .. $N)
-                                    .map(|i| format!(
-                                        "    \
-                                        {marshaler}\
-                                        public {ItemTy} _{i};\n",
-                                        ItemTy = Item::name(&crate::headers::languages::CSharp),
-                                        i = i,
-                                        marshaler =
-                                            Item::csharp_marshaler()
-                                                .map(|m| format!("[MarshalAs({})]\n    ", m))
-                                                .as_deref()
-                                                .unwrap_or("")
-                                        ,
-                                    ))
-                                    .collect::<rust::String>()
-                            }
-                        };
-                        writeln!(definer.out(),
-                            concat!(
-                                "[StructLayout(LayoutKind.Sequential, Size = {size})]\n",
-                                "public unsafe struct {me} {{\n",
-                                "{array_items}",
-                                "}}\n",
-                            ),
-                            me = me,
-                            array_items = array_items,
-                            size = mem::size_of::<Self>(),
-                        )
-                    })
-                }
-            }
-        } type OPAQUE_KIND = OpaqueKind::Concrete; }
-
-        // ReprC
-        /// Simplified for lighter documentation, but the actual impls
-        /// range **from `1` up to `32`, plus a bunch of significant
-        /// lengths up to `1024`**.
-        unsafe
-        impl<Item : ReprC> ReprC
-            for [Item; $N]
-        {
-            type CLayout = [Item::CLayout; $N];
-
-            #[inline]
-            fn is_valid (it: &'_ Self::CLayout)
-              -> bool
-            {
-                it.iter().all(Item::is_valid)
-            }
-        }
-    )*);
 
     (@fns
         (
@@ -378,6 +236,17 @@ const _: () = { macro_rules! impl_CTypes {
                     Some("UnmanagedType.FunctionPtr".into())
                 }
             }
+
+            __cfg_lua__! {
+                fn lua_define_self (definer: &'_ mut dyn Definer)
+                  -> io::Result<()>
+                {
+                    Ret::define_self(&crate::headers::languages::Lua, definer)?; $(
+                    $An::define_self(&crate::headers::languages::Lua, definer)?; $(
+                    $Ai::define_self(&crate::headers::languages::Lua, definer)?; )*)?
+                    Ok(())
+                }
+            }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
 
         /* == ReprC for Option-less == */
@@ -527,6 +396,15 @@ const _: () = { macro_rules! impl_CTypes {
                     $CSharpInt.into()
                 }
             }
+
+            __cfg_lua__! {
+                fn lua_define_self (
+                    _: &'_ mut dyn crate::headers::Definer,
+                ) -> io::Result<()>
+                {
+                    Ok(())
+                }
+            }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
         from_CType_impl_ReprC! { $RustInt }
     )*);
@@ -578,6 +456,15 @@ const _: () = { macro_rules! impl_CTypes {
                   -> rust::String
                 {
                     $Cty.into()
+                }
+            }
+
+            __cfg_lua__! {
+                fn lua_define_self (
+                    _: &'_ mut dyn crate::headers::Definer,
+                ) -> io::Result<()>
+                {
+                    Ok(())
                 }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
@@ -638,6 +525,15 @@ const _: () = { macro_rules! impl_CTypes {
                     format!("{} /*const*/ *", T::name(&crate::headers::languages::CSharp))
                 }
             }
+
+            __cfg_lua__! {
+                fn lua_define_self (definer: &'_ mut dyn $crate::headers::Definer)
+                  -> $crate::ඞ::io::Result<()>
+                {
+                    T::define_self(&crate::headers::languages::Lua, definer)?;
+                    Ok(())
+                }
+            }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
 
         unsafe
@@ -694,6 +590,14 @@ const _: () = { macro_rules! impl_CTypes {
                   -> rust::String
                 {
                     format!("{} *", T::name(&crate::headers::languages::CSharp))
+                }
+            }
+
+            __cfg_lua__! {
+                fn lua_define_self (definer: &'_ mut dyn $crate::headers::Definer)
+                  -> $crate::ඞ::io::Result<()>
+                {
+                    T::define_self(&crate::headers::languages::Lua, definer)
                 }
             }
         } type OPAQUE_KIND = OpaqueKind::Concrete; }
@@ -879,6 +783,15 @@ unsafe
                     "bool".into()
                 }
             }
+
+            __cfg_lua__! {
+                fn lua_define_self (
+                    _: &'_ mut dyn crate::headers::Definer,
+                ) -> io::Result<()>
+                {
+                    Ok(())
+                }
+            }
         }
 
         type OPAQUE_KIND = OpaqueKind::Concrete;
@@ -954,6 +867,15 @@ unsafe
                   -> Option<rust::String>
                 {
                     Some("UnmanagedType.SysInt".into())
+                }
+            }
+
+            __cfg_lua__! {
+                fn lua_define_self (
+                    _: &'_ mut dyn crate::headers::Definer,
+                ) -> io::Result<()>
+                {
+                    Ok(())
                 }
             }
         }
@@ -1196,3 +1118,145 @@ macro_rules! opaque_impls {(
         }
     )*
 )} use opaque_impls;
+
+
+/// Arrays of const size `N`
+unsafe // Safety: Rust arrays _are_ `#[repr(C)]`
+impl<Item : CType, const N: usize> LegacyCType
+    for [Item; N]
+{ __cfg_headers__! {
+    fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+      -> fmt::Result
+    {
+        // item_N_array
+        write!(fmt, "{}_{}_array", Item::short_name(), N)
+    }
+
+    fn c_define_self (definer: &'_ mut dyn Definer)
+      -> io::Result<()>
+    {
+        let ref me = Self::c_var("").to_string();
+        definer.define_once(
+            me,
+            &mut |definer| {
+                Item::define_self(&crate::headers::languages::C, definer)?;
+                writeln!(definer.out(),
+                    concat!(
+                        "typedef struct {{\n",
+                        "    {inline_array};\n",
+                        "}} {me};\n",
+                    ),
+                    inline_array = Item::name_wrapping_var(
+                        &crate::headers::languages::C,
+                        &format!("idx[{}]", N)
+                    ),
+                    me = me,
+                )
+            }
+        )
+    }
+
+    fn c_var_fmt (
+        fmt: &'_ mut fmt::Formatter<'_>,
+        var_name: &'_ str,
+    ) -> fmt::Result
+    {
+        // _e.g._, item_N_array_t
+        write!(fmt,
+            "{}_t{sep}{}",
+            Self::c_short_name(),
+            var_name,
+            sep = if var_name.is_empty() { "" } else { " " },
+        )
+    }
+
+    __cfg_csharp__! {
+        fn csharp_define_self (definer: &'_ mut dyn Definer)
+          -> io::Result<()>
+        {
+            let ref me = Self::csharp_ty();
+            Item::define_self(&crate::headers::languages::CSharp, definer)?;
+            definer.define_once(me, &mut |definer| {
+                let array_items = {
+                    // Poor man's specialization to use `fixed` arrays.
+                    if  [
+                            "bool",
+                            "u8", "u16", "u32", "u64", "usize",
+                            "i8", "i16", "i32", "i64", "isize",
+                            "float", "double",
+                        ].contains(&::core::any::type_name::<Item>())
+                    {
+                        format!(
+                            "    public fixed {ItemTy} arr[{N}];\n",
+                            ItemTy = Item::name(&crate::headers::languages::CSharp),
+                            N = N,
+                            // no need for a marshaler here
+                        )
+                    } else {
+                        // Sadly for the general case fixed arrays are
+                        // not supported.
+                        (0 .. N)
+                            .map(|i| format!(
+                                "    \
+                                {marshaler}\
+                                public {ItemTy} _{i};\n",
+                                ItemTy = Item::name(&crate::headers::languages::CSharp),
+                                i = i,
+                                marshaler =
+                                    Item::csharp_marshaler()
+                                        .map(|m| format!("[MarshalAs({})]\n    ", m))
+                                        .as_deref()
+                                        .unwrap_or("")
+                                ,
+                            ))
+                            .collect::<rust::String>()
+                    }
+                };
+                writeln!(definer.out(),
+                    concat!(
+                        "[StructLayout(LayoutKind.Sequential, Size = {size})]\n",
+                        "public unsafe struct {me} {{\n",
+                        "{array_items}",
+                        "}}\n",
+                    ),
+                    me = me,
+                    array_items = array_items,
+                    size = mem::size_of::<Self>(),
+                )
+            })
+        }
+    }
+
+    __cfg_lua__! {
+        fn lua_define_self (definer: &'_ mut dyn Definer)
+          -> io::Result<()>
+        {
+            Item::define_self(&crate::headers::languages::Lua, definer)
+        }
+
+        fn lua_var(var_name: &'_ str) -> rust::String {
+            let item_name = Item::name(&crate::headers::languages::Lua);
+            let sep = if var_name.is_empty() { "" } else { " " };
+            let (base_type, dimensions) = match item_name.find('[') {
+                Some(index) => (&item_name[0..index], &item_name[index..]),
+                None => (item_name.as_str(), ""),
+            };
+
+            format!("{base_type}{sep}{var_name}[{N}]{dimensions}")
+        }
+    }
+} type OPAQUE_KIND = OpaqueKind::Concrete; }
+
+unsafe
+impl<Item : ReprC, const N: usize> ReprC
+    for [Item; N]
+{
+    type CLayout = [Item::CLayout; N];
+
+    #[inline]
+    fn is_valid (it: &'_ Self::CLayout)
+      -> bool
+    {
+        it.iter().all(Item::is_valid)
+    }
+}
