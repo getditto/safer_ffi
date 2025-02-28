@@ -45,6 +45,7 @@ mod rust {
     pub(in crate) use ::alloc::{
         boxed::Box,
         string::String,
+        sync::Arc,
         vec::Vec,
     };
 }

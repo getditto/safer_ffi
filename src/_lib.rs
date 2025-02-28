@@ -258,6 +258,9 @@ cfg_alloc! {
 
 cfg_alloc! {
     pub
+    mod arc;
+
+    pub
     mod boxed;
 }
 
@@ -373,14 +376,12 @@ mod prelude {
         cfg_alloc! {
             #[doc(no_inline)]
             pub use crate::{
+                arc::Arc,
                 boxed::Box,
                 string::String,
                 vec::Vec,
                 option::TaggedOption,
             };
-
-            pub
-            type Arc<T> = <T as crate::boxed::FitForCArc>::CArcWrapped;
         }
     }
     pub
