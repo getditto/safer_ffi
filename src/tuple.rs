@@ -60,6 +60,15 @@ impl LegacyCType
             "void".into()
         }
     }
+
+    __cfg_lua__! {
+        fn lua_define_self (
+            _: &'_ mut dyn crate::headers::Definer,
+        ) -> io::Result<()>
+        {
+            Ok(())
+        }
+    }
 } type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete; }
 from_CType_impl_ReprC! { CVoid }
 

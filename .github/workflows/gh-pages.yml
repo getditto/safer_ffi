@@ -175,7 +175,15 @@ jobs:
           command: test
           args: --features docs
 
-      - name: FFI test (C & C#?)
+      - name: Install LuaJIT and LuaRocks (Ubuntu)
+        run: sudo apt-get install -y luajit
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: Install LuaJIT and LuaRocks (macOS)
+        run: brew install luajit
+        if: matrix.os == 'macos-latest'
+
+      - name: FFI test (C & C# & Lua?)
         run: make -C ffi_tests
         if: runner.os != 'Windows'
         env:

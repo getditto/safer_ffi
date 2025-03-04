@@ -324,6 +324,19 @@ Point { x: 42.0, y: 42.0 }
 
 ## Development
 
+### Dependencies
+For running Lua tests (`test_lua_code`) please install `luajit` dependency:
+
+MacOS:
+```bash
+brew install luajit
+```
+
+Ubuntu/Debian:
+```bash
+sudo apt-get install -y luajit
+```
+
 ### Tests
 
 safer-ffi includes three different tests suites that can be run.
