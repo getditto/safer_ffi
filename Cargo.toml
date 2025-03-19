@@ -3,7 +3,7 @@ path = "src/_lib.rs"
 
 [package]
 name = "safer-ffi"
-version = "0.1.13"                                                    # Keep in sync
+version = "0.2.0-alpha.0"                                                    # Keep in sync
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2021"
 rust-version = "1.85.0"
@@ -143,7 +143,7 @@ version = "0.0.3"
 
 [dependencies.safer_ffi-proc_macros]
 path = "src/proc_macro"
-version = "=0.1.13"     # Keep in sync
+version = "=0.2.0-alpha.0"     # Keep in sync
 
 [workspace]
 members = [
