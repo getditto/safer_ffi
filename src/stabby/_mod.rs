@@ -37,7 +37,7 @@ struct Stabbied<T> /* = */ (
 );
 
 unsafe
-impl<T: IStable> ReprC for Stabbied<T>
+impl<T : IStable> ReprC for Stabbied<T>
 where
     T::CType: CType,
 {
@@ -47,9 +47,11 @@ where
     }
 }
 
-unsafe impl<T: IStable<HasExactlyOneNiche = stabby::abi::B1>> __HasNiche__ for Stabbied<T>
+unsafe
+impl<T> __HasNiche__ for Stabbied<T>
 where
-    Self: ReprC,
+    T : IStable<HasExactlyOneNiche = ::stabby::abi::B1>,
+    Self : ReprC,
 {}
 
 mod boxed_impl;

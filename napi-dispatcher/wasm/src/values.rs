@@ -253,35 +253,38 @@ impl JsObject {
     }
 }
 
-#[derive(Debug)] pub struct Utf8String(String);
+#[derive(Debug)]
+pub
+struct Utf8String(String);
+
+impl Utf8String {
+    pub
+    fn as_str (self: &'_ Self)
+      -> Result<&'_ str>
+    {
+        Ok(&self.0)
+    }
+
+    pub
+    fn into_owned (self: Self)
+      -> Result<String>
+    {
+        Ok(self.0)
+    }
+
+    pub
+    fn take (self: Self)
+      -> Vec<u8>
+    {
+        self.0.into()
+    }
+}
+
 impl JsString {
     pub
     fn into_utf8 (self: Self)
       -> Result<Utf8String>
     {
-        impl Utf8String {
-            pub
-            fn as_str (self: &'_ Self)
-              -> Result<&'_ str>
-            {
-                Ok(&self.0)
-            }
-
-            pub
-            fn into_owned (self: Self)
-              -> Result<String>
-            {
-                Ok(self.0)
-            }
-
-            pub
-            fn take (self: Self)
-              -> Vec<u8>
-            {
-                self.0.into()
-            }
-        }
-
         Ok(Utf8String(self.__wasm.into()))
     }
 }
