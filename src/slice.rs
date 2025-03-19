@@ -739,8 +739,8 @@ const _: () = {
 };
 
 impl<'lt> slice_ref<'lt, u8> {
-    pub fn try_as_str(&'lt self) -> Result<&'lt str, std::str::Utf8Error> {
-        std::str::from_utf8(self.as_slice())
+    pub fn try_as_str(self: slice_ref<'lt, u8>) -> Result<&'lt str, ::core::str::Utf8Error> {
+        ::core::str::from_utf8(self.as_slice())
     }
 }
 
