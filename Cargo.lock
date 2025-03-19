@@ -1243,18 +1243,3 @@ dependencies = [
  "quote",
  "syn 1.0.109",
 ]
-
-[[patch.unused]]
-name = "tracing"
-version = "0.1.40"
-source = "git+https://github.com/getditto/tracing?branch=sm/short-target#8ea11afbbb9e372be40cf5c8d3b17fa8320cde12"
-
-[[patch.unused]]
-name = "tracing-core"
-version = "0.1.32"
-source = "git+https://github.com/getditto/tracing?branch=sm/short-target#8ea11afbbb9e372be40cf5c8d3b17fa8320cde12"
-
-[[patch.unused]]
-name = "tracing-subscriber"
-version = "0.3.18"
-source = "git+https://github.com/getditto/tracing?branch=sm/short-target#8ea11afbbb9e372be40cf5c8d3b17fa8320cde12"
