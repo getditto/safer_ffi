@@ -42,6 +42,7 @@ impl Parse for Args {
 }
 
 
+#[allow(unexpected_cfgs)]
 pub(in super)
 fn handle (
     Args { untyped }: Args,

@@ -3,7 +3,7 @@ path = "src/_lib.rs"
 
 [package]
 name = "safer-ffi"
-version = "0.1.12"                                                    # Keep in sync
+version = "0.1.13"                                                    # Keep in sync
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2021"
 rust-version = "1.72.1"
@@ -77,14 +77,20 @@ internal-tests = [
     "tokio/rt-multi-thread",
 ]
 
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(docs)'] }
+
 [dev-dependencies]
 safer-ffi.path = "."
 safer-ffi.features = ["internal-tests"]
 rand = "0.8.5"
+serde_test = { version = "1.0.177" }
 
 [dependencies]
 async-compat.optional = true
 async-compat.version = "0.2.1"
+
+extern-c.version = "0.1.0"
 
 futures.optional = true
 futures.version = "0.3.24"
@@ -108,9 +114,9 @@ paste.version = "1.0.12"
 scopeguard.version = "1.1.0"
 scopeguard.default-features = false
 
-serde.version = "1.0.204"
+serde.version = "1.0.171"
 serde.optional = true
-serde.default_features = false
+serde.default-features = false
 
 stabby.version = "36.1.1"
 stabby.optional = true
@@ -137,7 +143,7 @@ version = "0.0.3"
 
 [dependencies.safer_ffi-proc_macros]
 path = "src/proc_macro"
-version = "=0.1.12"     # Keep in sync
+version = "=0.1.13"     # Keep in sync
 
 [workspace]
 members = [

@@ -283,6 +283,7 @@ match_! {(
     struct Env<'r> {
         // quote-interpolable/friendly stuff from the caller.
     $(
+        #[allow(dead_code)]
         pub
         $field : &'r dyn ToTokens,
     )*
