@@ -37,6 +37,47 @@ public unsafe struct AnUnusedStruct_t {
     public Wow_t are_you_still_there;
 }
 
+[StructLayout(LayoutKind.Sequential, Size = 12)]
+public unsafe struct float_3_array_t {
+    public float _0;
+    public float _1;
+    public float _2;
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 40)]
+public unsafe struct uint64_5_array_t {
+    public fixed UInt64 arr[5];
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 1)]
+public unsafe struct uint8_1_array_t {
+    public fixed byte arr[1];
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 2)]
+public unsafe struct uint8_1_array_2_array_t {
+    public uint8_1_array_t _0;
+    public uint8_1_array_t _1;
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 6)]
+public unsafe struct uint8_1_array_2_array_3_array_t {
+    public uint8_1_array_2_array_t _0;
+    public uint8_1_array_2_array_t _1;
+    public uint8_1_array_2_array_t _2;
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 64)]
+public unsafe struct ArraysStruct_t {
+    public float_3_array_t floats;
+
+    public uint64_5_array_t sizes;
+
+    public uint8_1_array_2_array_t dim_2;
+
+    public uint8_1_array_2_array_3_array_t dim_3;
+}
+
 public unsafe partial class Ffi {
     public const Int32 FOO = 42;
 }
@@ -77,6 +118,40 @@ public struct Opaque__str_t {
     #pragma warning disable 0169
     private byte OPAQUE;
     #pragma warning restore 0169
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 1)]
+public unsafe struct ConstGenericStruct_uint8_1_t {
+    public uint8_1_array_t data;
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 2)]
+public unsafe struct uint8_2_array_t {
+    public fixed byte arr[2];
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 2)]
+public unsafe struct ConstGenericStruct_uint8_2_t {
+    public uint8_2_array_t data;
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 6)]
+public unsafe struct uint16_3_array_t {
+    public fixed UInt16 arr[3];
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 6)]
+public unsafe struct ConstGenericStruct_uint16_3_t {
+    public uint16_3_array_t data;
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 10)]
+public unsafe struct SpecificConstGenericContainer_t {
+    public ConstGenericStruct_uint8_1_t field1;
+
+    public ConstGenericStruct_uint8_2_t field2;
+
+    public ConstGenericStruct_uint16_3_t field3;
 }
 
 /// <summary>

@@ -737,3 +737,15 @@ const _: () = {
         }
     }
 };
+
+impl<'lt> slice_ref<'lt, u8> {
+    pub fn try_as_str(&'lt self) -> Result<&'lt str, std::str::Utf8Error> {
+        std::str::from_utf8(self.as_slice())
+    }
+}
+
+impl<'lt> From<&'lt str> for slice_ref<'lt, u8> {
+    fn from(s: &'lt str) -> Self {
+        s.as_bytes().into()
+    }
+}

@@ -226,13 +226,46 @@ pub struct AnUnusedStruct {
     are_you_still_there: Wow,
 }
 
+#[ffi_export]
+#[derive_ReprC]
+#[repr(C)]
+pub struct ArraysStruct {
+    floats: [f32; 3],
+    sizes: [u64; 5],
+    dim_2: [[u8; 1]; 2],
+    dim_3: [[[u8; 1]; 2]; 3],
+}
+
+#[derive_ReprC]
+#[repr(C)]
+pub struct ConstGenericStruct<const M: usize, T: ReprC> {
+    data: [T; M]
+}
+
+#[ffi_export]
+#[derive_ReprC]
+#[repr(C)]
+pub struct SpecificConstGenericContainer {
+    field1: ConstGenericStruct<1, u8>,
+    field2: ConstGenericStruct<2, u8>,
+    field3: ConstGenericStruct<3, u16>,
+}
+
 #[safer_ffi::cfg_headers]
 #[test]
 fn generate_headers ()
   -> ::std::io::Result<()>
 {
     use ::safer_ffi::headers::Language::*;
-    for &(language, ext) in &[(C, "h"), (CSharp, "cs"), (Python, "cffi")] {
+
+    let languages = &[
+        (C, "h"),
+        (CSharp, "cs"),
+        (Lua, "lua"),
+        (Python, "cffi"),
+    ];
+
+    for &(language, ext) in languages {
         let builder =
             ::safer_ffi::headers::builder()
                 .with_language(language)
