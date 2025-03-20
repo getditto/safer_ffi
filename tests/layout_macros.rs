@@ -316,6 +316,7 @@ fn generate_headers ()
   -> ::std::io::Result<()>
 {Ok({
     use ::safer_ffi::headers::Language::*;
+    let mut out = vec![];
     for &language
         in  &[
                 C,
@@ -324,7 +325,8 @@ fn generate_headers ()
     {
         ::safer_ffi::headers::builder()
             .with_language(language)
-            .to_writer(&mut ::std::io::stderr())
+            .to_writer(&mut out)
             .generate()?
     }
+    eprintln!("{}", String::from_utf8_lossy(&out));
 })}
