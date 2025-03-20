@@ -612,6 +612,15 @@ macro_rules! impls {(
                     };
 
                     // Do enqueue the call.
+                    // 👉👉 only to be done when the args are all `: 'static`! 👈👈
+                    // This is technically the case when using the `TypeAliasHelper`,
+                    // e.g., the `Closure<fn(…) -> …, SyncKind::Detached>` alias,
+                    // but better be explicit about this safety.
+                    //
+                    // Most notably, using `Closure<fn(…, char_p::Raw, …) -> …, SyncKind::Detached>`
+                    // as a lack-of-higher-ranked-genericity workaround risks passing the
+                    // `: 'static` check of the type alias, even though that `char_p::Raw` is
+                    // morally a non-`: 'static` `char_p::Ref<'_>`.
                     let status = ts_fun.call(
                         // Note: these params are handled by `fn convert_params`
                         (
