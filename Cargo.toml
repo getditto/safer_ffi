@@ -77,6 +77,8 @@ internal-tests = [
     "tokio/rt-multi-thread",
 ]
 
+ffi-tests = []
+
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(docs)'] }
 

@@ -25,6 +25,11 @@ __cfg_python__! {
     mod python;
 }
 
+__cfg_lua__! {
+    pub use lua::Lua;
+    mod lua;
+}
+
 pub
 struct Indentation {
     depth: ::core::cell::Cell<usize>,
