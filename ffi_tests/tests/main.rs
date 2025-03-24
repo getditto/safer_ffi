@@ -75,6 +75,7 @@ fn test_csharp_code ()
     assert!(
         ::std::process::Command::new("dotnet")
             .current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/csharp"))
+            .env("DOTNET_CLI_TELEMETRY_OPTOUT", "1")
             .arg("run")
             .status()
             .expect("Failed to compile the C binary")
