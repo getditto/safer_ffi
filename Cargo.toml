@@ -28,8 +28,6 @@ nightly = []
 alloc = []
 std = ["alloc", "scopeguard/use_std", "stabby?/std"]
 
-proc_macros = [] # Deprecated
-
 async-fn = ["safer_ffi-proc_macros/async-fn"]
 
 debug_proc_macros = ["safer_ffi-proc_macros/verbose-expansions"]
