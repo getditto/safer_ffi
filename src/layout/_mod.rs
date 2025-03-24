@@ -872,7 +872,7 @@ unsafe
 fn from_raw_unchecked<T : ReprC> (c_layout: T::CLayout)
   -> T
 {
-    if let Some(it) = from_raw::<T>(c_layout) { it } else {
+    if let Some(it) = unsafe { from_raw::<T>(c_layout) } { it } else {
         if cfg!(debug_assertions) || cfg!(test) {
             panic!(
                 "Error: not a valid bit-pattern for the type `{}`",
@@ -880,7 +880,9 @@ fn from_raw_unchecked<T : ReprC> (c_layout: T::CLayout)
                 ::core::any::type_name::<T>(),
             );
         } else {
-            ::core::hint::unreachable_unchecked()
+            unsafe {
+                ::core::hint::unreachable_unchecked()
+            }
         }
     }
 }

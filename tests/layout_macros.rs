@@ -145,7 +145,7 @@ fn test_concat ()
         }
     };
     unsafe {
-        extern "C" {
+        unsafe extern "C" {
             fn concat (
                 fst: *const c_char,
                 snd: *const c_char,
@@ -177,7 +177,7 @@ pub fn max<'a> (
     ints.as_slice().iter().max()
 }
 
-extern "C" {
+unsafe extern "C" {
     #[link_name = "max"]
     fn ffi_max (
         ints: i32_slice,
@@ -244,7 +244,7 @@ fn test_with_concat ()
         }
     };
     unsafe {
-        extern "C" {
+        unsafe extern "C" {
             fn with_concat (
                 fst: char_p::Ref<'_>,
                 snd: char_p::Ref<'_>,

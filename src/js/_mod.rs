@@ -125,7 +125,7 @@ macro_rules! js_register_exported_functions {() => (
     const _: () = {
         use ::safer_ffi::js as napi;
 
-        #[no_mangle] pub
+        #[unsafe(no_mangle)] pub
         unsafe extern "C"
         fn napi_register_module_v1 (
             env: napi::sys::napi_env,

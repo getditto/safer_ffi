@@ -57,7 +57,7 @@ fn try_handle_fptr (
             bail!("Missing `pub`" => struct_token);
         }
         // Check that the given ty is an `fn` pointer type.
-        let cb_ty = match fields.iter().next().unwrap() {
+        let cb_ty = match *fields.iter().next().unwrap() {
             | Field { ty: Type::BareFn(ref cb_ty), ref vis, .. } => {
                 if matches!(vis, Visibility::Public(_)).not() {
                     bail!("Missing `pub`" => cb_ty);

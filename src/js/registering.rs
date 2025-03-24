@@ -5,7 +5,7 @@
 //! a `napi_register_module_v1` special function.
 //!
 //! But that must be done from the downstream crate, so we export a macro
-//! that just `#[no_mangle]`-wraps the definition of such function contained
+//! that just `#[unsafe(no_mangle)]`-wraps the definition of such function contained
 //! in this module.
 //!
 //! Moreover, in order to support automagically getting access to the set

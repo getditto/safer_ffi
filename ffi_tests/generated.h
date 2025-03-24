@@ -103,7 +103,7 @@ typedef struct next_generation {
     /** \brief
      *  I test some `gen`-eration.
      */
-    Bar_t gen;
+    Bar_t generation;
 
     /** \brief
      *  with function pointers and everything!

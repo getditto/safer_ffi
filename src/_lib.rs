@@ -12,6 +12,7 @@
     nonstandard_style,
     trivial_bounds,
     unused_parens,
+    unused_braces,
 )]
 #![warn(
     missing_copy_implementations,

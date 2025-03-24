@@ -127,7 +127,9 @@ macro_rules! with_tuple {(
                     where
                         F : Send + Sync + 'static,
                     {
-                        drop::<Arc<F>>(Arc::from_raw(env_ptr.cast().as_ptr()));
+                        unsafe {
+                            drop::<Arc<F>>(Arc::from_raw(env_ptr.cast().as_ptr()));
+                        }
                     }
                     release::<F>
                 },
@@ -138,9 +140,9 @@ macro_rules! with_tuple {(
                         F : Send + Sync + 'static,
                     {
                         mem::forget(Arc::<F>::clone(&
-                            mem::ManuallyDrop::new(Arc::from_raw(
-                                env_ptr.cast().as_ptr()
-                            ))
+                            mem::ManuallyDrop::new(unsafe {
+                                Arc::from_raw(env_ptr.cast().as_ptr())
+                            })
                         ));
                     }
                     retain::<F>
@@ -157,7 +159,7 @@ macro_rules! with_tuple {(
                         F : Send + Sync + 'static,
                     {
                         let env_ptr = env_ptr.cast();
-                        let f: &F = env_ptr.as_ref();
+                        let f: &F = unsafe { env_ptr.as_ref() };
                         f( $($A_N $(, $A_k)*)? )
                     }
                     call::<F, Ret $(, $A_N $(, $A_k)*)?>
