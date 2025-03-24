@@ -324,18 +324,39 @@ Point { x: 42.0, y: 42.0 }
 
 ## Development
 
+To test the code with a certain amount of FFI integration baked into the tests (since `safer-ffi`,
+alone, only _exports_ APIs to the FFI, so doesn't come with FFI callsites on its own), the
+`ffi_tests/` project directory is used to test against C, C#, and Lua callsites.
+
+You can run these tests directly by doing:
+
+```bash
+make -C ffi_tests
+```
+
+or by adding `--features ffi_integration` to the `cargo test` command.
+
 ### Dependencies
-For running Lua tests (`test_lua_code`) please install `luajit` dependency:
 
-MacOS:
-```bash
-brew install luajit
-```
+  - #### Lua dependencies
 
-Ubuntu/Debian:
-```bash
-sudo apt-get install -y luajit
-```
+    For running the C# FFI integration tests please install `dotnet` (v8.0) dependency:
+
+    See <https://aka.ms/dotnet-download> for guidance about this.
+
+  - #### Lua dependencies
+
+    For running Lua FFI integration tests please install `luajit` dependency:
+
+    MacOS:
+    ```bash
+    brew install luajit
+    ```
+
+    Ubuntu/Debian:
+    ```bash
+    sudo apt-get install -y luajit
+    ```
 
 ### Tests
 

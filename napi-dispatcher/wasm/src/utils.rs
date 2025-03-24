@@ -34,10 +34,12 @@ macro_rules! new_type_wrappers {(
             }
         }
 
-        #[cfg(all(
-            // do not emit this `impl` for `$JsTy = JsUnknown`.
-            $($js_unknown = "__hack" ,)?
-        ))]
+
+        // do not emit this `impl` for `$JsTy = JsUnknown`.
+        $(
+            #[doc = stringify!($js_unknown)]
+            #[cfg(any())]
+        )?
         impl ::core::convert::TryFrom<JsUnknown> for $JsTy {
             type Error = JsValue;
 

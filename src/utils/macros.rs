@@ -7,6 +7,20 @@ macro_rules! use_prelude { () => (
 )}
 
 /// I really don't get the complexity of `cfg_if!`…
+///
+/// ```rust ,ignore
+/// // USAGE:
+/// match_cfg! {
+///     <CFG PREDICATE> => {
+///         <expansion if true>
+///     },
+///     // e.g.
+///     feature = "foo" => { ... },
+///     unix => { ... }
+///     // trailing `_` possible for the final "else" branch
+///     _ => { ... }
+/// }
+/// ```
 macro_rules! match_cfg {
     (
         _ => { $($expansion:tt)* } $(,)?

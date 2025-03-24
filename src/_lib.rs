@@ -497,6 +497,34 @@ mod __ {
         },
     };
 
+    pub use ::macro_rules_attribute::apply;
+
+    #[cfg(feature = "stabby")]
+    pub use ::stabby;
+
+    match_cfg! {
+        feature = "stabby" => {
+            #[doc(hidden)] /** Not part of the public API. */ #[macro_export]
+            macro_rules! ඞmaybe_stabby {(
+                $($item:tt)*
+            ) => (
+                #[$crate::ඞ::stabby::stabby]
+                $($item)*
+            )}
+            pub use ඞmaybe_stabby as maybe_stabby;
+        },
+        _ => {
+            #[doc(hidden)] /** Not part of the public API. */ #[macro_export]
+            macro_rules! ඞmaybe_stabby {(
+                $($item:tt)*
+            ) => (
+                /* no #[$crate::ඞ::stabby::stabby] */
+                $($item)*
+            )}
+            pub use ඞmaybe_stabby as maybe_stabby;
+        },
+    }
+
     #[cfg(feature = "headers")]
     pub use {
         crate::{

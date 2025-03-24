@@ -35,6 +35,7 @@ impl HeaderLanguage for C {
     {
         return Some(self);
         // where
+        #[expect(non_local_definitions)]
         impl HeaderLanguageSupportingTypeAliases for C {
             fn emit_type_alias(
                 self: &'_ Self,
