@@ -89,6 +89,7 @@ fn handle (
                                 match lang {
                                     | Language::C => &languages::C,
                                     | Language::CSharp => &languages::CSharp,
+                                    | Language::Lua => &languages::Lua,
                                 $($($if_cfg_python)?
                                     | Language::Python => &languages::Python,
                                 )?

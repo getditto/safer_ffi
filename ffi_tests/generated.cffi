@@ -20,6 +20,36 @@ typedef struct AnUnusedStruct {
     Wow_t are_you_still_there;
 } AnUnusedStruct_t;
 
+typedef struct {
+    float idx[3];
+} float_3_array_t;
+
+typedef struct {
+    uint64_t idx[5];
+} uint64_5_array_t;
+
+typedef struct {
+    uint8_t idx[1];
+} uint8_1_array_t;
+
+typedef struct {
+    uint8_1_array_t idx[2];
+} uint8_1_array_2_array_t;
+
+typedef struct {
+    uint8_1_array_2_array_t idx[3];
+} uint8_1_array_2_array_3_array_t;
+
+typedef struct ArraysStruct {
+    float_3_array_t floats;
+
+    uint64_5_array_t sizes;
+
+    uint8_1_array_2_array_t dim_2;
+
+    uint8_1_array_2_array_3_array_t dim_3;
+} ArraysStruct_t;
+
 #define FOO ...
 
 typedef enum Bar {
@@ -39,6 +69,34 @@ typedef struct next_generation {
 typedef ... Opaque__str_t;
 
 #define SOME_NAME ...
+
+typedef struct ConstGenericStruct_uint8_1 {
+    uint8_1_array_t data;
+} ConstGenericStruct_uint8_1_t;
+
+typedef struct {
+    uint8_t idx[2];
+} uint8_2_array_t;
+
+typedef struct ConstGenericStruct_uint8_2 {
+    uint8_2_array_t data;
+} ConstGenericStruct_uint8_2_t;
+
+typedef struct {
+    uint16_t idx[3];
+} uint16_3_array_t;
+
+typedef struct ConstGenericStruct_uint16_3 {
+    uint16_3_array_t data;
+} ConstGenericStruct_uint16_3_t;
+
+typedef struct SpecificConstGenericContainer {
+    ConstGenericStruct_uint8_1_t field1;
+
+    ConstGenericStruct_uint8_2_t field2;
+
+    ConstGenericStruct_uint16_3_t field3;
+} SpecificConstGenericContainer_t;
 
 typedef enum triforce {
     TRIFORCE_DIN,
