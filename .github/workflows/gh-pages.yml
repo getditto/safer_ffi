@@ -23,7 +23,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly-2023-09-14
+          toolchain: nightly-2025-01-03  # branch-from-master date of 1.85.0
           override: true
           components: rust-src
 
