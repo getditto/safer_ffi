@@ -1,5 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 pub(in crate)
 fn reified_span(span: impl Into<Option<::proc_macro2::Span>>)
   -> impl ::quote::ToTokens

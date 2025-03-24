@@ -1,5 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 export_cfgs! {$
     "headers" => __cfg_headers__!,
     "headers" => __cfg_csharp__!,

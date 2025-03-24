@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! Trait abstractions describing the semantics of "being `#[repr(C)]`"
 
 use_prelude!();

@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(unused)]
 #![warn(unused_must_use)]
 

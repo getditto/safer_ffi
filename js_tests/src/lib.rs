@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(unused_parens)]
 
 use ::safer_ffi::prelude::*;

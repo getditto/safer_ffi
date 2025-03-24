@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! Closures with a `#[repr(C)]` layout (inlined vtable),
 //! up to 9 function arguments.
 //!

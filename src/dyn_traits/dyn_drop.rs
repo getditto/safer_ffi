@@ -1,5 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 use super::*;
 
 #[derive_ReprC(dyn)]

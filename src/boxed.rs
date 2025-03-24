@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! `#[repr(C)]` [`Box`][`rust::Box`]ed types.
 
 use_prelude!();

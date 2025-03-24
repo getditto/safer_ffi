@@ -1,6 +1,5 @@
 #![recursion_limit = "256"]
 #![allow(clippy::all)]
-#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(nonstandard_style, unused_imports)]
 
 use {

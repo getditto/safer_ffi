@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! `&'lt mut (dyn 'lt + Send + FnMut(...) -> _>` but with a `#[repr(C)]`
 //! layout (env ptr + function ptr).
 

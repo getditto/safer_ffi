@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(missing_debug_implementations)]
 
 #[cfg_attr(feature = "stabby", stabby::stabby)]

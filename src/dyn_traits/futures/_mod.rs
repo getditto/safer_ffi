@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! See [the dedicated secion of the guide](https://getditto.github.io/safer_ffi/dyn_traits/futures.html).
 
 use {

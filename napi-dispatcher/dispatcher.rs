@@ -1,6 +1,5 @@
 #![warn(warnings)] // Prevent `-Dwarnings` from causing breakage.
 #![allow(clippy::all)]
-#![cfg_attr(rustfmt, rustfmt::skip)]
 
 macro_rules! emit {( $($_:tt)* ) => ( $($_)* )}
 

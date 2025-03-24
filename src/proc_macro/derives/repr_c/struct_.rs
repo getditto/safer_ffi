@@ -1,5 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 use super::*;
 
 fn docs_of (attrs: &'_ [Attribute])

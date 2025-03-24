@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 use_prelude!();
 
 /// A `ReprC` _standalone_ type with the same layout and ABI as

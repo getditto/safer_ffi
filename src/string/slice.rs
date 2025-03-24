@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 use_prelude!();
 use ::core::slice;
 use crate::slice::*;

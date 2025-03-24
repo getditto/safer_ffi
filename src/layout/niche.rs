@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 use_prelude!();
 use crate::prelude::c_slice;
 

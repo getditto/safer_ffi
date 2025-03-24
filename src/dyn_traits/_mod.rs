@@ -1,5 +1,3 @@
-
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! See [the dedicated section of the guide](https://getditto.github.io/safer_ffi/dyn_traits/_.html).
 
 use_prelude!();

@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(irrefutable_let_patterns)]
 
 use_prelude!();

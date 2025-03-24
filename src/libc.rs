@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! On certain platforms, `::libc` has no definitions for pervasive types such as `size_t`.
 //!
 //! We polyfill them here, and reëxport them for downstream users to use at leisure

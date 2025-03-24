@@ -1,5 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 use super::*;
 
 type Result<T, E = Error> = ::core::result::Result<T, E>;

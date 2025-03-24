@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! C headers generation.
 //!
 //! This module is only enabled when the `"headers"` feature of `::safer_ffi` is
