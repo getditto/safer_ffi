@@ -39,7 +39,9 @@ fn napi_register_module_v1 (
 ) -> ::napi::sys::napi_value
 {
     // let env = ::napi::Env::from_raw(raw_env);
-    let mut exports: ::napi::JsObject = ::napi::NapiValue::from_raw_unchecked(raw_env, raw_exports);
+    let mut exports: ::napi::JsObject = unsafe {
+        ::napi::NapiValue::from_raw_unchecked(raw_env, raw_exports)
+    };
     match (|| ::napi::Result::<_>::Ok({
         for entry in crate::inventory::iter::<NapiRegistryEntry> {
             match entry {
@@ -51,7 +53,7 @@ fn napi_register_module_v1 (
     }))()
     {
         Ok(()) => raw_exports,
-        Err(err) => {
+        Err(err) => unsafe {
             ::napi::sys::napi_throw_error(
                 raw_env,
                 crate::NULL!(),

@@ -258,7 +258,7 @@ cfg_not_wasm! {
         fn from_raw (env: sys::napi_env, value: sys::napi_value)
           -> Result<Self>
         {
-            JsObject::from_raw(env, value)
+            unsafe { JsObject::from_raw(env, value) }
                 .map(|obj| Self(obj, Default::default()))
         }
 
@@ -266,14 +266,17 @@ cfg_not_wasm! {
         fn from_raw_unchecked (env: sys::napi_env, value: sys::napi_value)
           -> Self
         {
-            Self(JsObject::from_raw_unchecked(env, value), Default::default())
+            Self(
+                unsafe { JsObject::from_raw_unchecked(env, value) },
+                Default::default(),
+            )
         }
 
         unsafe
         fn raw (self: &'_ Self)
           -> sys::napi_value
         {
-            self.0.raw()
+            unsafe { self.0.raw() }
         }
     }
 
