@@ -427,6 +427,7 @@ mod prelude {
 }
 
 #[macro_export]
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! NULL {() => (
     $crate::ඞ::ptr::null_mut()
 )}
@@ -449,6 +450,7 @@ struct __PanicOnDrop__ {} impl Drop for __PanicOnDrop__ {
     }
 }
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 #[apply(hidden_export)]
 macro_rules! __abort_with_msg__ { ($($tt:tt)*) => (
     match ($crate::__PanicOnDrop__ {}) { _ => {
@@ -505,6 +507,7 @@ mod __ {
     match_cfg! {
         feature = "stabby" => {
             #[doc(hidden)] /** Not part of the public API. */ #[macro_export]
+            #[cfg_attr(rustfmt, rustfmt::skip)]
             macro_rules! ඞmaybe_stabby {(
                 $($item:tt)*
             ) => (
@@ -515,6 +518,7 @@ mod __ {
         },
         _ => {
             #[doc(hidden)] /** Not part of the public API. */ #[macro_export]
+            #[cfg_attr(rustfmt, rustfmt::skip)]
             macro_rules! ඞmaybe_stabby {(
                 $($item:tt)*
             ) => (
@@ -589,18 +593,21 @@ mod __ {
 
     match_cfg! {
         feature = "log" => {
+            #[cfg_attr(rustfmt, rustfmt::skip)]
             #[apply(hidden_export)]
             macro_rules! __error__ {( $($msg:tt)* ) => (
                 $crate::log::error! { $($msg)* }
             )}
         },
         feature = "std" => {
+            #[cfg_attr(rustfmt, rustfmt::skip)]
             #[apply(hidden_export)]
             macro_rules! __error__ {( $($msg:tt)* ) => (
                 $crate::ඞ::eprintln! { $($msg)* }
             )}
         },
         _ => {
+            #[cfg_attr(rustfmt, rustfmt::skip)]
             #[apply(hidden_export)]
             macro_rules! __error__ {( $($msg:tt)* ) => (
                 /* nothing we can do */
@@ -698,6 +705,7 @@ mod __ {
 
     #[doc(hidden)] /** Not part of the public API! */
     #[macro_export]
+    #[cfg_attr(rustfmt, rustfmt::skip)]
     macro_rules! ඞassert_expr {( $e:expr $(,)? ) => ( $e )}
     #[doc(inline)]
     pub use ඞassert_expr as assert_expr;

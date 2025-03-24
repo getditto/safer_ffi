@@ -37,6 +37,7 @@ struct NonNullOwned<T> (
     PhantomData<T>, // Express ownership to dropck
 );
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! impl_for_each {(
     [$($T:ident),* $(,)?]
         .impl_for_each!(|$dol:tt $NonNull:ident| {
@@ -45,6 +46,7 @@ macro_rules! impl_for_each {(
     ;
 ) => (
     // const _: () = {
+        #[cfg_attr(rustfmt, rustfmt::skip)]
         macro_rules! helper {(
             $dol $NonNull : ident
         ) => (

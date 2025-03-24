@@ -38,6 +38,7 @@ use {
 };
 
 #[allow(unused_macros)]
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! todo {(
     $( $fmt:expr $(, $($rest:tt)* )? )?
 ) => (

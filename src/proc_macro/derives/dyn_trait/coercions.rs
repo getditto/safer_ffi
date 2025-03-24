@@ -3,6 +3,7 @@
 use super::*;
 
 #[allow(unused)]
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! quote {( $($tt:tt)* ) => (
     quote_spanned! { Span::mixed_site()=>
         $($tt)*

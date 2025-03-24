@@ -301,6 +301,7 @@ concat!(
 /// where `"{indent}"` is the first parameter passed to `mk_out!`,
 /// and the second parameter is the `impl Write` the `write!`s will
 /// be outputting to.
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! mk_out {
     (
         $indent_name:ident,
@@ -313,6 +314,7 @@ macro_rules! mk_out {
     (
         $indent_name:tt /* $indent:tt */ $out:tt $_:tt
     ) => (
+        #[cfg_attr(rustfmt, rustfmt::skip)]
         macro_rules! out {
             (
                 ($_(

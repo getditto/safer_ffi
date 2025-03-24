@@ -1,5 +1,6 @@
 #![allow(unused_macros)]
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! use_prelude { () => (
     #[allow(unused_imports)]
     use crate::utils::prelude::*;
@@ -20,6 +21,7 @@ macro_rules! use_prelude { () => (
 ///     _ => { ... }
 /// }
 /// ```
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! match_cfg {
     (
         _ => { $($expansion:tt)* } $(,)?
@@ -48,6 +50,7 @@ macro_rules! match_cfg {
 
 match_cfg! {
     feature = "alloc" => {
+        #[cfg_attr(rustfmt, rustfmt::skip)]
         macro_rules! cfg_alloc {(
             $($item:item)*
         ) => (
@@ -58,6 +61,7 @@ match_cfg! {
         )}
     },
     _ => {
+        #[cfg_attr(rustfmt, rustfmt::skip)]
         macro_rules! cfg_alloc {(
             $($item:item)*
         ) => (
@@ -68,6 +72,7 @@ match_cfg! {
 
 match_cfg! {
     feature = "std" => {
+        #[cfg_attr(rustfmt, rustfmt::skip)]
         macro_rules! cfg_std {(
             $($item:item)*
         ) => (
@@ -78,6 +83,7 @@ match_cfg! {
         )}
     },
     _ => {
+        #[cfg_attr(rustfmt, rustfmt::skip)]
         macro_rules! cfg_std {(
             $($item:item)*
         ) => (
@@ -86,12 +92,14 @@ match_cfg! {
     },
 }
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! cfg_wasm {( $($item:item)* ) => (
     $(
         #[cfg(target_arch = "wasm32")]
         $item
     )*
 )}
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! cfg_not_wasm {( $($item:item)* ) => (
     $(
         #[cfg(not(target_arch = "wasm32"))]
@@ -99,6 +107,7 @@ macro_rules! cfg_not_wasm {( $($item:item)* ) => (
     )*
 )}
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! const_assert {
     (
         for [$($generics:tt)*]
@@ -129,6 +138,7 @@ macro_rules! const_assert {
     );
 }
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! type_level_enum {(
     $( #[doc = $doc:tt] )*
     $pub:vis
@@ -215,6 +225,7 @@ macro_rules! type_level_enum {(
     }
 )}
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! doc_test {
     ($name:ident :
         #![$attr:ident]
@@ -262,6 +273,7 @@ doc_test! { c_str_inner_nul_byte:
 /// Users of this crate should not directly use them (unless the pinpoint the
 /// version dependency), since they are considered to be semver-exempt and
 /// could thus cause breakage.
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! hidden_export {
     (
         $(#[$attr:meta])*
@@ -269,6 +281,7 @@ macro_rules! hidden_export {
     ) => (
         $(#[$attr])*
         #[doc(hidden)] /** Not part of the public API **/ #[macro_export]
+        #[cfg_attr(rustfmt, rustfmt::skip)]
         macro_rules! $($rest)*
     );
 

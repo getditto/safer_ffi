@@ -1,5 +1,6 @@
 use super::*;
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! define_kws {(
     $_:tt $($kw:ident),* $(,)?
 ) => (
@@ -10,6 +11,7 @@ macro_rules! define_kws {(
         )*
     }
 
+    #[cfg_attr(rustfmt, rustfmt::skip)]
     macro_rules! sym {
         $(
             ( $kw ) => ( kw::$kw );

@@ -6,6 +6,7 @@ mod static_;
 mod type_;
 
 #[allow(unused_macros)]
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! emit {( $($tt:tt)* ) => ( $($tt)* )}
 
 pub(in super)

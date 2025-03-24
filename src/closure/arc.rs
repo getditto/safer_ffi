@@ -5,6 +5,7 @@ use ::alloc::sync::Arc;
 
 use_prelude!();
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! with_tuple {(
     $ArcDynFn_N:ident => (
         $( $A_N:ident, $($A_k:ident ,)* )?
@@ -247,6 +248,7 @@ macro_rules! with_tuple {(
     }
 )}
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! with_tuples {
     (
         $ArcDynFn0:ident,

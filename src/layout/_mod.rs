@@ -845,6 +845,7 @@ trait ReprC : Sized {
                    if downstream users find it useful
                 **/
 #[macro_export]
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! from_CType_impl_ReprC {(
     $(@for[$($generics:tt)*])? $T:ty $(where $($bounds:tt)*)?
 ) => (

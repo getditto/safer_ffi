@@ -27,6 +27,7 @@ impl<T : ReprC + HasNiche> ReprC
     }
 }
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! unsafe_impls {(
     $(
         $(@for[$($generics:tt)*])?

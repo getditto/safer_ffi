@@ -423,6 +423,7 @@ cfg_alloc! {
         pub
         trait __<Orig> { fn my_from (it: Orig) -> Self; }
     }
+    #[cfg_attr(rustfmt, rustfmt::skip)]
     macro_rules! derive_MyFrom_from {(
         $(
             $(@for[$($generics:tt)*])?

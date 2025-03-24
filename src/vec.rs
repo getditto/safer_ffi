@@ -192,6 +192,7 @@ impl<T : fmt::Debug + ReprC> fmt::Debug
 }
 
 #[macro_export]
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! c_vec { [$($input:tt)*] => (
     $crate::prelude::repr_c::Vec::from($crate::ඞ::vec![ $($input)* ])
 )}

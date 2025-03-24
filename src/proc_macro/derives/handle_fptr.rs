@@ -10,13 +10,16 @@ fn try_handle_fptr (
     input: &'_ DeriveInput,
 ) -> Option< Result<TokenStream2> >
 {
+    #[cfg_attr(rustfmt, rustfmt::skip)]
     macro_rules! fallback {() => ({
         return None;
     })}
 
-    macro_rules! bail {( $($tt:tt)* ) => (
+    #[cfg_attr(rustfmt, rustfmt::skip)]
+    macro_rules! _bail {( $($tt:tt)* ) => (
         return Some((|| crate::utils::bail!($($tt)*))())
     )}
+    use _bail as bail;
 
     if let &DeriveInput {
         ref attrs,
@@ -354,6 +357,7 @@ struct UnelideLifetimes<'__, 'vec> {
 }
 
 const _: () = {
+    #[cfg_attr(rustfmt, rustfmt::skip)]
     macro_rules! ELIDED_LIFETIME_TEMPLATE {() => (
         "__elided_{}"
     )}

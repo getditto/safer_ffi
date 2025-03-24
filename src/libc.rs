@@ -22,6 +22,7 @@ use_libc_or_else! {
     };
 }
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! use_libc_or_else_ {(
     pub use ::libc::{
         $(
@@ -61,9 +62,11 @@ macro_rules! use_libc_or_else_ {(
     }
 )} use use_libc_or_else_;
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! use_libc_or_else {(
     $($input:tt)*
 ) => (
+    #[cfg_attr(rustfmt, rustfmt::skip)]
     macro_rules! stringified_module_code {() => (
         stringify!($($input)*)
     )} use stringified_module_code;

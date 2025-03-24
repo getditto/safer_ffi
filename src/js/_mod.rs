@@ -119,6 +119,7 @@ cfg_not_wasm! {
 }
 
 #[macro_export]
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! js_register_exported_functions {() => (
     #[cfg(not(target_arch = "wasm32"))]
     const _: () = {

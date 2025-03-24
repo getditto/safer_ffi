@@ -200,6 +200,7 @@ match_cfg!(feature = "tokio" => {
 });
 
 #[macro_export]
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! ffi_export_future_helpers {() => (
     const _: () = {
         use $crate::ඞ::std::{sync::Arc, task::Context, prelude::v1::*};

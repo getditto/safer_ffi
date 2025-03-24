@@ -227,6 +227,7 @@ fn vtable_entries<'trait_> (
     use ::quote::format_ident as ident;
     // let mut Sized @ _ = None;
     // let mut skip_attrs_found = vec![];
+    #[cfg_attr(rustfmt, rustfmt::skip)]
     macro_rules! failwith {( $err_msg:expr => $at:expr $(,)? ) => (
         return Some(Err(Error::new_spanned($at, $err_msg)))
     )}

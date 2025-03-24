@@ -650,6 +650,7 @@ const _: () = { macro_rules! impl_CTypes {
     );
 } impl_CTypes! {} };
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! impl_ReprC_for {(
     $unsafe:tt {
         $(
@@ -1090,6 +1091,7 @@ opaque_impls! {
 }
 
 // where
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! opaque_impls {(
     $(
         $(@for[$($generics:tt)*])? $T:ty

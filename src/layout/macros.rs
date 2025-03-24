@@ -8,6 +8,7 @@ export_cfgs! {$
 /// Generates convenience `__cfg_xxx__! { … }` macros with the semantics of
 /// `#[cfg(feature = "xxx")] emit! { … }`, but usable by downstream code, such
 /// as the one emitted by our own derive macros and whatnot.
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! export_cfgs {(
     $_:tt
     $(
@@ -18,6 +19,7 @@ macro_rules! export_cfgs {(
         match_cfg! {
             feature = $feature => {
                 #[doc(hidden)] /** not part of the public API */ #[macro_export]
+                #[cfg_attr(rustfmt, rustfmt::skip)]
                 macro_rules! $macro_name {(
                     $_($item:item)*
                 ) => (
@@ -26,6 +28,7 @@ macro_rules! export_cfgs {(
             },
             _ => {
                 #[doc(hidden)] /** not part of the public API */ #[macro_export]
+                #[cfg_attr(rustfmt, rustfmt::skip)]
                 macro_rules! $macro_name {(
                     $_($item:item)*
                 ) => (
@@ -54,9 +57,11 @@ macro_rules! export_cfgs {(
 match_cfg! {
     feature = "python-headers" => {
         #[doc(hidden)] /** Not part of the public API */ #[macro_export]
+        #[cfg_attr(rustfmt, rustfmt::skip)]
         macro_rules! __with_cfg_python__ {(
             |$_:tt $if_python:ident $(, $__:tt $dol:ident)?| $body:tt
         ) => ({
+            #[cfg_attr(rustfmt, rustfmt::skip)]
             macro_rules! __emit__ {
                 (
                     [$( $__ $dol : tt )? $_($__rest:tt)*]
@@ -69,9 +74,11 @@ match_cfg! {
     },
     _ => {
         #[doc(hidden)] /** Not part of the public API */ #[macro_export]
+        #[cfg_attr(rustfmt, rustfmt::skip)]
         macro_rules! __with_cfg_python__ {(
             |$_:tt $if_python:ident $(, $__:tt $dol:ident)?| $body:tt
         ) => ({
+            #[cfg_attr(rustfmt, rustfmt::skip)]
             macro_rules! __emit__ {
                 (
                     [$( $__ $dol : tt )? $_($__rest:tt)*]
@@ -92,6 +99,7 @@ match_cfg! {
 ///
 /// [`ReprC!`]: crate::ReprC!
 #[macro_export]
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! CType {(
     $(
         @doc_meta( $($doc_meta:tt)* )
@@ -290,6 +298,7 @@ macro_rules! CType {(
 /// Transitioning helper macro: still uses the old `ReprC!` syntax, but just to
 /// forward to the new `#[derive_ReprC2($(js)?)]` one.
 #[macro_export]
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! ReprC {(
     $(
         @[doc = $doc:expr]

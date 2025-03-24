@@ -203,6 +203,7 @@ fn my_renamed_ptr_api() -> MyRenamedPtr {
     }
 }
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! docs {() => (
     "Hello, `World`!"
 )}

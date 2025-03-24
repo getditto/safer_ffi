@@ -270,6 +270,7 @@ unsafe
 // available yet, we use macros to generate implementations for many hard-coded
 // arities. In this instance, functions of up to 6 parameters.
 impls! { (_6, _5, _4, _3, _2, _1) }
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! impls {(
     ($( $_0:ident $(, $_k:ident)* $(,)? )?)
 ) => (
