@@ -334,7 +334,7 @@ You can run these tests directly by doing:
 make -C ffi_tests
 ```
 
-or by adding `--features ffi_integration` to the `cargo test` command.
+or by adding `--features ffi-tests` to the `cargo test` command.
 
 ### Dependencies
 
@@ -358,7 +358,7 @@ or by adding `--features ffi_integration` to the `cargo test` command.
     sudo apt-get install -y luajit
     ```
 
-### Tests
+### Various integration test suites
 
 safer-ffi includes three different tests suites that can be run.
 
