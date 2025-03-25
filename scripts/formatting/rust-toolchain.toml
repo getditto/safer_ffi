@@ -1,0 +1,4 @@
+[toolchain]
+channel = "nightly-2025-01-03"  # branch-from-master date of 1.85.0
+profile = "minimal"
+components = ["rustfmt"]

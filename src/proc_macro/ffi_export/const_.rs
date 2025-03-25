@@ -1,14 +1,12 @@
 use super::*;
 
 #[derive(Default)]
-pub(in crate)
-struct Args {
-    pub(in crate) untyped: Option<Untyped>,
+pub(crate) struct Args {
+    pub(crate) untyped: Option<Untyped>,
 }
 
-pub(in crate)
-struct Untyped {
-    pub(in crate) _kw: kw::untyped,
+pub(crate) struct Untyped {
+    pub(crate) _kw: kw::untyped,
 }
 
 mod kw {
@@ -16,10 +14,7 @@ mod kw {
 }
 
 impl Parse for Args {
-    fn parse (
-        input: ParseStream<'_>,
-    ) -> Result<Args>
-    {
+    fn parse(input: ParseStream<'_>) -> Result<Args> {
         let mut ret = Args::default();
         while input.is_empty().not() {
             let snoopy = input.lookahead1();
@@ -29,7 +24,7 @@ impl Parse for Args {
                         return Err(input.error("duplicate parameter"));
                     }
                     ret.untyped = Some(Untyped {
-                        _kw: input.parse().unwrap()
+                        _kw: input.parse().unwrap(),
                     });
                 },
 
@@ -41,17 +36,15 @@ impl Parse for Args {
     }
 }
 
-
 #[allow(unexpected_cfgs)]
-pub(in super)
-fn handle (
+pub(super) fn handle(
     Args { untyped }: Args,
     input: ItemConst,
-) -> Result<TokenStream2>
-{
+) -> Result<TokenStream2> {
     if cfg!(feature = "headers").not() {
         Ok(input.into_token_stream())
     } else {
+        #[rustfmt::skip]
         #[apply(let_quote!)]
         use {
             ::safer_ffi::{
@@ -60,7 +53,6 @@ fn handle (
             },
             ::safer_ffi as krate,
         };
-
 
         let VAR @ _ = &input.ident;
         let VAR_str @ _ = &VAR.to_string();

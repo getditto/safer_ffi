@@ -1,0 +1,9 @@
+[package]
+name = "run-sh"
+version = "0.0.0"
+edition = "2024"
+description = "A simple utility to allow defining `sh`-invoking Cargo aliases in the repo."
+
+[[bin]]
+name = "run-sh"
+path = "main.rs"

@@ -1,12 +1,6 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 use crate::*;
 
-pub(in crate)
-fn allowing_trivial_bound (
-    mut where_predicate: WherePredicate
-) -> WherePredicate
-{
+pub(crate) fn allowing_trivial_bound(mut where_predicate: WherePredicate) -> WherePredicate {
     if let WherePredicate::Type(PredicateType {
         ref mut lifetimes,
         ref mut bounded_ty,
@@ -16,8 +10,7 @@ fn allowing_trivial_bound (
         lifetimes
             .get_or_insert_with(|| parse_quote!(for<>))
             .lifetimes
-            .push(parse_quote!('__trivial_bound_hack))
-        ;
+            .push(parse_quote!('__trivial_bound_hack));
         *bounded_ty = parse_quote!(
             ::safer_ffi::__::Identity<'__trivial_bound_hack, #bounded_ty>
         );
@@ -27,12 +20,11 @@ fn allowing_trivial_bound (
     where_predicate
 }
 
-pub(in crate)
-fn ctype_generics (
+pub(crate) fn ctype_generics(
     generics: &'_ Generics,
     EachFieldTy @ _: &mut dyn Iterator<Item = &'_ Type>,
-) -> Generics
-{
+) -> Generics {
+    #[rustfmt::skip]
     #[apply(let_quote!)]
     use ::safer_ffi::ඞ::{
         ConcreteReprC,
@@ -42,22 +34,19 @@ fn ctype_generics (
         ReprC,
     };
     generics.clone().also(|it| {
-        it
-        .make_where_clause()
-        .predicates
-        .extend_::<WherePredicate, _>(Iterator::chain(
-            generics
-                .type_params()
-                .map(|TypeParam { ident: T, .. }| parse_quote!(
+        it.make_where_clause()
+            .predicates
+            .extend_::<WherePredicate, _>(Iterator::chain(
+                generics.type_params().map(|TypeParam { ident: T, .. }| {
+                    parse_quote!(
                     #T : #ReprC
-                ))
-            ,
-            EachFieldTy
-                .map(|FieldTy @_ | parse_quote!(
+                )
+                }),
+                EachFieldTy.map(|FieldTy @ _| {
+                    parse_quote!(
                     #FieldTy : #ConcreteReprC
-                ))
-                // .map(utils::allowing_trivial_bound)
-            ,
-        ))
+                )
+                }), // .map(utils::allowing_trivial_bound)
+            ))
     })
 }

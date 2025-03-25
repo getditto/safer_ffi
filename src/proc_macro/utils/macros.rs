@@ -1,14 +1,11 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
-pub(in crate)
-fn reified_span(span: impl Into<Option<::proc_macro2::Span>>)
-  -> impl ::quote::ToTokens
-{
-    ::proc_macro2::Ident::new("__", span.into().unwrap_or_else(
-        ::proc_macro2::Span::call_site
-    ))
+pub(crate) fn reified_span(span: impl Into<Option<::proc_macro2::Span>>) -> impl ::quote::ToTokens {
+    ::proc_macro2::Ident::new(
+        "__",
+        span.into().unwrap_or_else(::proc_macro2::Span::call_site),
+    )
 }
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! bail {
     (
         $err_msg:expr $(,)?
@@ -26,8 +23,10 @@ macro_rules! bail {
             $err_msg,
         ))
     );
-} pub(in crate) use bail;
+}
+pub(crate) use bail;
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! unwrap {( $proc_macro_result:expr $(,)? ) => (
     $proc_macro_result
         .unwrap_or_else(|mut err| {
@@ -47,15 +46,14 @@ macro_rules! unwrap {( $proc_macro_result:expr $(,)? ) => (
             err.to_compile_error()
         })
         .into()
-)} pub(in crate) use unwrap;
+)}
+pub(crate) use unwrap;
 
-pub(in crate)
-fn type_name_of_val<T> (_: T)
-  -> &'static str
-{
+pub(crate) fn type_name_of_val<T>(_: T) -> &'static str {
     ::core::any::type_name::<T>()
 }
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! function_name {() => ({
     let mut name = $crate::utils::type_name_of_val({ fn f () {} f });
     name = &name[.. name.len() - "::f".len()].trim_end_matches("::{{closure}}");
@@ -63,9 +61,12 @@ macro_rules! function_name {() => ({
         name = &name[i + 1..];
     }
     name
-})} pub(in crate) use function_name;
+})}
+pub(crate) use function_name;
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! let_quote {(
+    $( #[rustfmt::skip] )?
     use $($contents:tt)*
 ) => (
     __let_quote! {
@@ -75,8 +76,10 @@ macro_rules! let_quote {(
         ]
         $($contents)*
     }
-)} pub(in crate) use let_quote;
+)}
+pub(crate) use let_quote;
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! __let_quote {
     (
         [
@@ -166,15 +169,20 @@ macro_rules! __let_quote {
         $path:tt
         /* nothing left */
     ) => ();
-} pub(in crate) use __let_quote;
+}
+pub(crate) use __let_quote;
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! match_ {(
     ( $($input:tt)* ) $rules:tt
 ) => (
+    #[cfg_attr(rustfmt, rustfmt::skip)]
     macro_rules! __recurse__ $rules
     __recurse__! { $($input)* }
-)} pub(in crate) use match_;
+)}
+pub(crate) use match_;
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! dbg_parse_quote {(
     $($code:tt)*
 ) => (
@@ -194,18 +202,24 @@ macro_rules! dbg_parse_quote {(
         );
         ::syn::parse2(code).unwrap()
     })()
-)} pub(in crate) use dbg_parse_quote;
+)}
+pub(crate) use dbg_parse_quote;
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! Quote {( $T:ty $(,)? ) => (
     ::proc_macro2::TokenStream
-)} pub(in crate) use Quote;
+)}
+pub(crate) use Quote;
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! Expr {( $T:ty $(,)? ) => (
     ::syn::Expr
-)} pub(in crate) use Expr;
+)}
+pub(crate) use Expr;
 
 // Like `quote_spanned!` (defaulting to mixed_site), but allowing for
 // `#{ … }` interpolations.
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! squote {
     // ()
     (
@@ -450,4 +464,5 @@ macro_rules! squote {
             $($input)*
         }
     )
-} pub(in crate) use squote;
+}
+pub(crate) use squote;

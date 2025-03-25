@@ -1,0 +1,20 @@
+unstable_features = true
+
+comment_width = 100
+edition = "2024"
+fn_params_layout = "Vertical"
+format_code_in_doc_comments = true
+group_imports = "StdExternalCrate"
+imports_granularity = "Item"  # No more `git` conflicts around these.
+match_arm_leading_pipes = "Always"
+match_block_trailing_comma = true
+reorder_impl_items = false
+skip_macro_invocations = [
+    "quote", "quote_spanned",
+    "parse_quote", "parse_quote_spanned",
+    "squote", "squote_spanned",
+    "Quote",
+    "bail",
+]
+use_field_init_shorthand = true
+wrap_comments = true

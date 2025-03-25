@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! On certain platforms, `::libc` has no definitions for pervasive types such as `size_t`.
 //!
 //! We polyfill them here, and reëxport them for downstream users to use at leisure
@@ -23,6 +22,7 @@ use_libc_or_else! {
     };
 }
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! use_libc_or_else_ {(
     pub use ::libc::{
         $(
@@ -60,14 +60,18 @@ macro_rules! use_libc_or_else_ {(
             )*
         }
     }
-)} use use_libc_or_else_;
+)}
+use use_libc_or_else_;
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! use_libc_or_else {(
     $($input:tt)*
 ) => (
+    #[cfg_attr(rustfmt, rustfmt::skip)]
     macro_rules! stringified_module_code {() => (
         stringify!($($input)*)
     )} use stringified_module_code;
 
     use_libc_or_else_!($($input)*);
-)} use use_libc_or_else;
+)}
+use use_libc_or_else;

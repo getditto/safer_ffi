@@ -1,37 +1,29 @@
 use super::*;
 
 #[derive(Default)]
-pub(in crate)
-struct Args {
-    pub(in crate) js: Option<Js>,
-    pub(in crate) executor: Option<Executor>,
-    pub(in crate) rename: Option<Rename>,
+pub(crate) struct Args {
+    pub(crate) js: Option<Js>,
+    pub(crate) executor: Option<Executor>,
+    pub(crate) rename: Option<Rename>,
 }
 
-#[cfg_attr(not(feature = "js"),
-    allow(dead_code),
-)]
-pub(in crate)
-struct Js {
-    pub(in crate) kw: kw::js,
-    pub(in crate) async_worker: Option<kw::async_worker>,
+#[cfg_attr(not(feature = "js"), allow(dead_code))]
+pub(crate) struct Js {
+    pub(crate) kw: kw::js,
+    pub(crate) async_worker: Option<kw::async_worker>,
 }
 
-pub(in crate)
-struct Executor {
-    pub(in crate) kw: kw::executor,
-    pub(in crate) _eq: Token![=],
-    #[cfg_attr(not(feature = "async-fn"),
-        allow(dead_code),
-    )]
-    pub(in crate) block_on: Expr,
+pub(crate) struct Executor {
+    pub(crate) kw: kw::executor,
+    pub(crate) _eq: Token![=],
+    #[cfg_attr(not(feature = "async-fn"), allow(dead_code))]
+    pub(crate) block_on: Expr,
 }
 
-pub(in crate)
-struct Rename {
-    pub(in crate) _kw: kw::rename,
-    pub(in crate) _eq: Token![=],
-    pub(in crate) new_name: LitStr,
+pub(crate) struct Rename {
+    pub(crate) _kw: kw::rename,
+    pub(crate) _eq: Token![=],
+    pub(crate) new_name: LitStr,
 }
 
 mod kw {
@@ -42,10 +34,7 @@ mod kw {
 }
 
 impl Parse for Args {
-    fn parse (
-        input: ParseStream<'_>,
-    ) -> Result<Args>
-    {
+    fn parse(input: ParseStream<'_>) -> Result<Args> {
         let mut ret = Args::default();
         while input.is_empty().not() {
             let snoopy = input.lookahead1();
@@ -68,13 +57,15 @@ impl Parse for Args {
                     ret.js = Some(Js {
                         kw: input.parse().unwrap(),
                         async_worker: if input.peek(token::Paren) {
-                            utils::parenthesized(input, |_paren, input| Ok({
-                                let it: Option<_> = input.parse()?;
-                                if it.is_some() {
-                                    let _: Option<Token![,]> = input.parse()?;
-                                }
-                                it
-                            }))?
+                            utils::parenthesized(input, |_paren, input| {
+                                Ok({
+                                    let it: Option<_> = input.parse()?;
+                                    if it.is_some() {
+                                        let _: Option<Token![,]> = input.parse()?;
+                                    }
+                                    it
+                                })
+                            })?
                         } else {
                             None
                         },

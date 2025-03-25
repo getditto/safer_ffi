@@ -28,8 +28,6 @@ nightly = []
 alloc = []
 std = ["alloc", "scopeguard/use_std", "stabby?/std"]
 
-proc_macros = [] # Deprecated
-
 async-fn = ["safer_ffi-proc_macros/async-fn"]
 
 debug_proc_macros = ["safer_ffi-proc_macros/verbose-expansions"]
@@ -70,6 +68,7 @@ internal-tests = [
     "headers",
     "python-headers",
     "dyn-traits",
+    "stabby",
     "tokio/rt-multi-thread",
 ]
 
@@ -152,6 +151,10 @@ members = [
     "napi-dispatcher/wasm",
     "napi-dispatcher/wasm/src/proc_macros",
     "safer-ffi-build",
+    "run-sh",
+]
+default-members = [
+    ".",
 ]
 exclude = ["examples/point"]
 

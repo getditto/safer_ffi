@@ -1,5 +1,6 @@
 use super::*;
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! define_kws {(
     $_:tt $($kw:ident),* $(,)?
 ) => (
@@ -10,6 +11,7 @@ macro_rules! define_kws {(
         )*
     }
 
+    #[cfg_attr(rustfmt, rustfmt::skip)]
     macro_rules! sym {
         $(
             ( $kw ) => ( kw::$kw );
@@ -26,27 +28,26 @@ define_kws! {$
     Clone,
 }
 
-pub
-struct Args {
+pub struct Args {
     #[allow(dead_code)]
     pub dyn_: sym![dyn],
     pub clone: Option<sym![Clone]>,
 }
 
 impl Parse for Args {
-    fn parse (input: ParseStream<'_>)
-      -> Result<Args>
-    {
+    fn parse(input: ParseStream<'_>) -> Result<Args> {
         // We special case the `dyn` parameter. It does not provide any
         // information to the macro invocation; it just makes said invocation
         // more readable. We thus require it once, and at the beginning of the
         // args: the idea is that users could grep for `derive_ReprC(dyn`.
         let dyn_ = match input.parse() {
             | Ok(it) => it,
-            | Err(err) => return Err(Error::new(
-                err.span(),
-                &format!("{err} — usage: `#[derive_ReprC(dyn, …)]`"),
-            )),
+            | Err(err) => {
+                return Err(Error::new(
+                    err.span(),
+                    &format!("{err} — usage: `#[derive_ReprC(dyn, …)]`"),
+                ));
+            },
         };
         let mut clone = None;
         let _: Option<Token![,]> = input.parse()?;
@@ -66,9 +67,6 @@ impl Parse for Args {
             }
             let _: Option<Token![,]> = input.parse()?;
         }
-        Ok(Self {
-            dyn_,
-            clone,
-        })
+        Ok(Self { dyn_, clone })
     }
 }

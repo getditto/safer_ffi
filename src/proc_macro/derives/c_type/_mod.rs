@@ -1,23 +1,17 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
+use args::Args;
 
 use super::*;
-
-use args::Args;
 mod args;
 
 #[cfg(feature = "js")]
-pub(in crate)
-mod js;
+pub(crate) mod js;
 
-pub(in crate)
-mod struct_;
+pub(crate) mod struct_;
 
-pub(in crate)
-fn derive (
+pub(crate) fn derive(
     args: TokenStream2,
-    input: TokenStream2
-) -> Result<TokenStream2>
-{
+    input: TokenStream2,
+) -> Result<TokenStream2> {
     let args: Args = parse2(args)?;
 
     let input: DeriveInput = parse2(input)?;
@@ -29,14 +23,9 @@ fn derive (
         ref data,
     } = input;
     let ret = match data {
-        | Data::Struct(DataStruct { fields, .. }) => struct_::derive(
-            args,
-            attrs,
-            vis,
-            ident,
-            generics,
-            fields,
-        ),
+        | Data::Struct(DataStruct { fields, .. }) => {
+            struct_::derive(args, attrs, vis, ident, generics, fields)
+        },
         | Data::Enum(DataEnum { enum_token, .. }) => bail! {
             "\
                 an `enum` does not have a *fully safe* backing `CType`; \

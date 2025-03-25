@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! Wrappers around `NonNull` to better express the semantics of such pointer.
 //!
 //! Useful when manually defining custom low-level `ReprC` types.
@@ -10,34 +9,25 @@ pub use ::core::ptr::*;
 
 #[cfg_attr(feature = "stabby", stabby::stabby)]
 #[repr(transparent)]
-pub
-struct NonNullRef<T> (
-    pub
-    ptr::NonNull<T>, // Variance OK because immutable
+pub struct NonNullRef<T>(
+    pub ptr::NonNull<T>, // Variance OK because immutable
 );
 
 #[cfg_attr(feature = "stabby", stabby::stabby)]
 #[repr(transparent)]
-pub
-struct NonNullMut<T> (
-    pub
-    ptr::NonNull<T>,
-
-    pub
-    PhantomInvariant<T>, // Must be invariant because non-owning mutable.
+pub struct NonNullMut<T>(
+    pub ptr::NonNull<T>,
+    pub PhantomInvariant<T>, // Must be invariant because non-owning mutable.
 );
 
 #[cfg_attr(feature = "stabby", stabby::stabby)]
 #[repr(transparent)]
-pub
-struct NonNullOwned<T> (
-    pub
-    ptr::NonNull<T>, // Variance OK because ownership
-
-    pub
-    PhantomData<T>, // Express ownership to dropck
+pub struct NonNullOwned<T>(
+    pub ptr::NonNull<T>, // Variance OK because ownership
+    pub PhantomData<T>,  // Express ownership to dropck
 );
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! impl_for_each {(
     [$($T:ident),* $(,)?]
         .impl_for_each!(|$dol:tt $NonNull:ident| {
@@ -46,6 +36,7 @@ macro_rules! impl_for_each {(
     ;
 ) => (
     // const _: () = {
+        #[cfg_attr(rustfmt, rustfmt::skip)]
         macro_rules! helper {(
             $dol $NonNull : ident
         ) => (
@@ -161,13 +152,9 @@ impl_for_each! {
         }
     });
 }
-impl<'lt, T : 'lt> From<&'lt T>
-    for NonNullRef<T>
-{
+impl<'lt, T: 'lt> From<&'lt T> for NonNullRef<T> {
     #[inline]
-    fn from (it: &'lt T)
-      -> NonNullRef<T>
-    {
+    fn from(it: &'lt T) -> NonNullRef<T> {
         NonNullRef::from(NonNull::from(it))
     }
 }
@@ -203,26 +190,17 @@ impl<__> NonNullOwned<__> {
     }
 
     #[inline]
-    pub
-    unsafe
-    fn drop_in_place<T> (self)
-    {
+    pub unsafe fn drop_in_place<T>(self) {
         unsafe {
             drop_in_place::<T>(self.0.cast().as_mut());
         }
     }
 }
 
-impl<__> Copy
-    for NonNullRef<__>
-{}
-impl<__> Clone
-    for NonNullRef<__>
-{
+impl<__> Copy for NonNullRef<__> {}
+impl<__> Clone for NonNullRef<__> {
     #[inline]
-    fn clone (self: &'_ Self)
-      -> Self
-    {
+    fn clone(self: &'_ Self) -> Self {
         *self
     }
 }

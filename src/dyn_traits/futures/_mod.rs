@@ -1,43 +1,36 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! See [the dedicated secion of the guide](https://getditto.github.io/safer_ffi/dyn_traits/futures.html).
 
-use {
-    ::core::{
-        future::Future,
-        pin::Pin,
-        task::{Context, Poll},
-    },
-    ::safer_ffi::{
-        prelude::*,
-    },
-    super::{
-        *,
-    },
-};
+use ::core::future::Future;
+use ::core::pin::Pin;
+use ::core::task::Context;
+use ::core::task::Poll;
+use ::safer_ffi::prelude::*;
+
+use super::*;
 
 /// An FFI-safe `Poll<()>`.
 #[derive_ReprC]
 #[repr(i8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub
-enum PollFuture {
+pub enum PollFuture {
     Completed = 0,
     Pending = -1,
 }
 
 /// Models a `Future` resolving to `()`.
 #[derive_ReprC(dyn)]
-pub
-trait FfiFuture {
-    fn dyn_poll (self: Pin<&mut Self>, ctx: &'_ mut Context<'_>)
-      -> PollFuture
-    ;
+pub trait FfiFuture {
+    fn dyn_poll(
+        self: Pin<&mut Self>,
+        ctx: &'_ mut Context<'_>,
+    ) -> PollFuture;
 }
 
-impl<F : Future<Output = ()>> FfiFuture for F {
-    fn dyn_poll (self: Pin<&mut Self>, ctx: &'_ mut Context<'_>)
-      -> PollFuture
-    {
+impl<F: Future<Output = ()>> FfiFuture for F {
+    fn dyn_poll(
+        self: Pin<&mut Self>,
+        ctx: &'_ mut Context<'_>,
+    ) -> PollFuture {
         match Future::poll(self, ctx) {
             | Poll::Pending => PollFuture::Pending,
             | Poll::Ready(()) => PollFuture::Completed,

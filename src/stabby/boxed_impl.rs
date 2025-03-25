@@ -1,10 +1,14 @@
-use crate::{
-    CVoid,
-    ඞ::{CLayoutOf, ReprC, __HasNiche__},
-};
-use safer_ffi_proc_macros::derive_ReprC;
-pub use stabby::boxed::{Box, BoxedSlice, BoxedStr};
-use stabby::{alloc::IAlloc, IStable};
+use ::stabby::IStable;
+use ::stabby::alloc::IAlloc;
+pub use ::stabby::boxed::Box;
+pub use ::stabby::boxed::BoxedSlice;
+pub use ::stabby::boxed::BoxedStr;
+
+use crate::CVoid;
+use crate::derive_ReprC;
+use crate::ඞ::__HasNiche__;
+use crate::ඞ::CLayoutOf;
+use crate::ඞ::ReprC;
 
 type USIZE = <usize as IStable>::Size;
 

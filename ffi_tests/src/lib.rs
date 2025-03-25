@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(unused)]
 
 use ::safer_ffi::prelude::*;
@@ -7,11 +6,10 @@ use ::safer_ffi::prelude::*;
 ///
 /// The returned string must be freed using `free_char_p`.
 #[ffi_export]
-fn concat (
+fn concat(
     fst: char_p::Ref<'_>,
     snd: char_p::Ref<'_>,
-) -> char_p::Box
-{
+) -> char_p::Box {
     format!("{}{}", fst.to_str(), snd.to_str())
         .try_into()
         .unwrap()
@@ -19,17 +17,11 @@ fn concat (
 
 /// Frees a string created by `concat`.
 #[ffi_export(js)]
-fn free_char_p (_string: Option<char_p::Box>)
-{}
+fn free_char_p(_string: Option<char_p::Box>) {}
 
 #[ffi_export]
-fn returns_a_fn_ptr ()
-  -> extern "C" fn(u8) -> u16
-{
-    extern "C"
-    fn f (n: u8)
-      -> u16
-    {
+fn returns_a_fn_ptr() -> extern "C" fn(u8) -> u16 {
+    extern "C" fn f(n: u8) -> u16 {
         (n as u16) << 8
     }
 
@@ -37,23 +29,17 @@ fn returns_a_fn_ptr ()
 }
 
 #[ffi_export]
-fn call_in_the_background (
-    f: repr_c::Arc<dyn Send + Sync + Fn()>,
-)
-{
+fn call_in_the_background(f: repr_c::Arc<dyn Send + Sync + Fn()>) {
     let f2 = f.clone();
-    ::std::thread::spawn(move || {
-        f2.call()
-    });
+    ::std::thread::spawn(move || f2.call());
     drop(f);
 }
 
 /// https://github.com/getditto/safer_ffi/issues/45
 #[ffi_export]
-fn _issue_45<'a, 'b> (_: i32)
-  -> i32
+fn _issue_45<'a, 'b>(_: i32) -> i32
 where
-    'a : 'b,
+    'a: 'b,
 {
     unimplemented!();
 }
@@ -61,12 +47,11 @@ where
 /// Same as `concat`, but with a callback-based API to auto-free the created
 /// string.
 #[ffi_export]
-fn with_concat (
+fn with_concat(
     fst: char_p::Ref<'_>,
     snd: char_p::Ref<'_>,
     mut cb: ::safer_ffi::closure::RefDynFnMut1<'_, (), char_p::Raw>,
-)
-{
+) {
     let concat = concat(fst, snd);
     cb.call(concat.as_ref().into());
 }
@@ -74,13 +59,8 @@ fn with_concat (
 /// Returns a pointer to the maximum integer of the input slice, or `NULL` if
 /// it is empty.
 #[ffi_export(rename = "max")]
-fn max_but_with_a_weird_rust_name<'a> (
-    xs: c_slice::Ref<'a, i32>,
-) -> Option<&'a i32>
-{
-    xs  .as_slice()
-        .iter()
-        .max()
+fn max_but_with_a_weird_rust_name<'a>(xs: c_slice::Ref<'a, i32>) -> Option<&'a i32> {
+    xs.as_slice().iter().max()
 }
 
 mod foo {
@@ -88,43 +68,33 @@ mod foo {
 
     #[derive_ReprC(rename = "foo")]
     #[repr(opaque)]
-    pub
-    struct Foo_<Generic> {
+    pub struct Foo_<Generic> {
         hidden: Generic,
     }
 
     type Foo = Foo_<i32>;
 
     #[ffi_export]
-    fn read_foo (foo: &'_ Foo) -> i32
-    {
+    fn read_foo(foo: &'_ Foo) -> i32 {
         foo.hidden
     }
 
     #[ffi_export]
-    fn new_foo () -> repr_c::Box<Foo>
-    {
-        Box::new(Foo { hidden: 42 })
-            .into()
+    fn new_foo() -> repr_c::Box<Foo> {
+        Box::new(Foo { hidden: 42 }).into()
     }
 
     #[ffi_export]
-    fn free_foo (foo: Option<repr_c::Box<Foo>>)
-    {
+    fn free_foo(foo: Option<repr_c::Box<Foo>>) {
         drop(foo)
     }
 
     #[derive_ReprC]
     #[repr(transparent)]
-    pub
-    struct with_ref_cb<Arg : 'static + ReprC> /* = */ (
-        pub
-        extern "C" fn(&mut Arg)
-    );
+    pub struct with_ref_cb<Arg: 'static + ReprC>(pub extern "C" fn(&mut Arg));
 
     #[ffi_export]
-    fn with_foo (cb: with_ref_cb<Foo>) -> bool
-    {
+    fn with_foo(cb: with_ref_cb<Foo>) -> bool {
         cb(&mut Foo { hidden: 42 });
         true
     }
@@ -135,15 +105,13 @@ mod bar {
 
     #[derive_ReprC]
     #[repr(i8)]
-    pub
-    enum Bar {
+    pub enum Bar {
         A = 43,
         B = (Bar::A as i8 - 1),
     }
 
     #[ffi_export]
-    fn check_bar (_bar: Bar)
-    {}
+    fn check_bar(_bar: Bar) {}
 }
 
 #[allow(nonstandard_style)]
@@ -153,15 +121,13 @@ mod baz {
     /// This is a `#[repr(C)]` enum, which leads to a classic enum def.
     #[derive_ReprC]
     #[repr(C)]
-    pub
-    enum SomeReprCEnum {
+    pub enum SomeReprCEnum {
         /// This is some variant.
         SomeVariant,
     }
 
     #[ffi_export]
-    fn check_SomeReprCEnum (_baz: SomeReprCEnum)
-    {}
+    fn check_SomeReprCEnum(_baz: SomeReprCEnum) {}
 }
 
 #[ffi_export]
@@ -200,10 +166,11 @@ pub struct MyRenamedPtr {
 fn my_renamed_ptr_api() -> MyRenamedPtr {
     MyRenamedPtr {
         foo: ::core::ptr::NonNull::new(0xbad000 as _).unwrap(),
-        bar: ()
+        bar: (),
     }
 }
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! docs {() => (
     "Hello, `World`!"
 )}
@@ -239,7 +206,7 @@ pub struct ArraysStruct {
 #[derive_ReprC]
 #[repr(C)]
 pub struct ConstGenericStruct<const M: usize, T: ReprC> {
-    data: [T; M]
+    data: [T; M],
 }
 
 #[ffi_export]
@@ -253,43 +220,27 @@ pub struct SpecificConstGenericContainer {
 
 #[safer_ffi::cfg_headers]
 #[test]
-fn generate_headers ()
-  -> ::std::io::Result<()>
-{
+fn generate_headers() -> ::std::io::Result<()> {
     use ::safer_ffi::headers::Language::*;
 
-    let languages = &[
-        (C, "h"),
-        (CSharp, "cs"),
-        (Lua, "lua"),
-        (Python, "cffi"),
-    ];
+    let languages = &[(C, "h"), (CSharp, "cs"), (Lua, "lua"), (Python, "cffi")];
 
     for &(language, ext) in languages {
-        let builder =
-            ::safer_ffi::headers::builder()
-                .with_language(language)
-        ;
-        if  ::std::env::var("HEADERS_TO_STDOUT")
-                .ok()
-                .map_or(false, |it| it == "1")
+        let builder = ::safer_ffi::headers::builder().with_language(language);
+        if ::std::env::var("HEADERS_TO_STDOUT")
+            .ok()
+            .map_or(false, |it| it == "1")
         {
-            builder
-                .to_writer(::std::io::stdout())
-                .generate()?
+            builder.to_writer(::std::io::stdout()).generate()?
         } else {
-            builder
-                .to_file(&format!("generated.{}", ext))?
-                .generate()?
+            builder.to_file(&format!("generated.{}", ext))?.generate()?
         }
     }
     Ok(())
 }
 
 #[ffi_export(executor = futures::executor::block_on)]
-async fn async_get_ft ()
-  -> i32
-{
+async fn async_get_ft() -> i32 {
     ffi_await!(async { 42 })
 }
 
@@ -306,7 +257,9 @@ fn _some_opaque_std_lib_type() -> repr_c::Box<String> {
 
 #[derive_ReprC]
 #[repr(opaque)]
-enum Enum { A(String) }
+enum Enum {
+    A(String),
+}
 
 #[ffi_export]
 fn _my_enum_is_opaque() -> repr_c::Box<Enum> {
@@ -314,32 +267,31 @@ fn _my_enum_is_opaque() -> repr_c::Box<Enum> {
 }
 
 mod futures {
-    pub
-    mod executor {
-        use ::std::{
-            future::Future,
-            pin::Pin,
-            sync::Arc,
-            task::{Context, Poll, Wake},
-            thread::{self, Thread},
-        };
+    pub mod executor {
+        use ::std::future::Future;
+        use ::std::pin::Pin;
+        use ::std::sync::Arc;
+        use ::std::task::Context;
+        use ::std::task::Poll;
+        use ::std::task::Wake;
+        use ::std::thread::Thread;
+        use ::std::thread::{self};
 
-        struct ThreadUnparker /* = */ (Thread);
+        struct ThreadUnparker(Thread);
         impl Wake for ThreadUnparker {
-            fn wake (self: Arc<Self>) { self.0.unpark(); }
+            fn wake(self: Arc<Self>) {
+                self.0.unpark();
+            }
         }
 
-        pub
-        fn block_on<T> (ref mut fut: impl Future<Output = T>)
-          -> T
-        {
+        pub fn block_on<T>(ref mut fut: impl Future<Output = T>) -> T {
             let ref mut fut = unsafe { Pin::new_unchecked(fut) };
             let ref waker = Arc::new(ThreadUnparker(thread::current())).into();
             let ref mut cx = Context::from_waker(waker);
             loop {
                 match fut.as_mut().poll(cx) {
-                    Poll::Ready(res) => break res,
-                    Poll::Pending => thread::park(),
+                    | Poll::Ready(res) => break res,
+                    | Poll::Pending => thread::park(),
                 }
             }
         }
@@ -347,28 +299,20 @@ mod futures {
 }
 
 mod executors {
-    use {
-        ::safer_ffi::{
-            futures::FfiFutureExecutor,
-            prelude::*,
-        },
-    };
+    use ::safer_ffi::futures::FfiFutureExecutor;
+    use ::safer_ffi::prelude::*;
 
     ::safer_ffi::ffi_export_future_helpers!();
 
     #[ffi_export]
-    fn test_spawner (
-        executor: VirtualPtr<dyn 'static + FfiFutureExecutor>,
-    ) -> i32
-    {
+    fn test_spawner(executor: VirtualPtr<dyn 'static + FfiFutureExecutor>) -> i32 {
         let x: i32 = executor.block_on(async {
-            let x: i32 =
-                executor.spawn(async {
+            let x: i32 = executor
+                .spawn(async {
                     async {}.await;
                     42
                 })
-                .await
-            ;
+                .await;
             x
         });
         x

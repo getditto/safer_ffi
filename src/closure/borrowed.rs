@@ -1,9 +1,9 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! `&'lt mut (dyn 'lt + Send + FnMut(...) -> _>` but with a `#[repr(C)]`
 //! layout (env ptr + function ptr).
 
 use_prelude!();
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! with_tuple {(
     $RefDynFnMut_N:ident => (
         $( $A_N:ident, $($A_k:ident ,)* )?
@@ -146,6 +146,7 @@ macro_rules! with_tuple {(
     }
 )}
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! with_tuples {
     (
         $RefDynFnMut0:ident,

@@ -3,47 +3,46 @@
 use super::*;
 
 #[allow(unused)]
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! quote {( $($tt:tt)* ) => (
     quote_spanned! { Span::mixed_site()=>
         $($tt)*
     }
 )}
 
-pub
-enum Coercible {
+pub enum Coercible {
     Box,
     Rc { thread_safe: bool },
     Ref { mut_: bool },
 }
 
 impl Coercible {
-    pub
-    fn is_eligible (
+    pub fn is_eligible(
         self: &'_ Coercible,
         e: &'_ Env<'_>,
-    ) -> bool
-    {
+    ) -> bool {
         match *self {
             | Self::Box { .. } => true,
-            | Self::Rc { thread_safe } => e.has_mut.not() && (
-                thread_safe == e.is_send && e.is_send == e.is_sync
-            ),
+            | Self::Rc { thread_safe } => {
+                e.has_mut.not() && (thread_safe == e.is_send && e.is_send == e.is_sync)
+            },
             | Self::Ref { mut_: true } => e.Clone.is_none(),
-            | Self::Ref { mut_: false } => e.has_mut.not() && (
-                // TODO: handle the `-> dyn Send` case for `&`, by amending
-                // the default `impl_Trait : Send` as `impl_Trait : Sync`.
-                // Until then, just skip that case altogether.
-                e.is_sync == e.is_send
-            ),
+            | Self::Ref { mut_: false } => {
+                e.has_mut.not()
+                    && (
+                        // TODO: handle the `-> dyn Send` case for `&`, by amending
+                        // the default `impl_Trait : Send` as `impl_Trait : Sync`.
+                        // Until then, just skip that case altogether.
+                        e.is_sync == e.is_send
+                    )
+            },
         }
     }
 
-    pub
-    fn into_raw (
+    pub fn into_raw(
         self: &'_ Coercible,
         e @ Env { ඞ, .. }: &'_ Env<'_>,
-    ) -> TokenStream2
-    {
+    ) -> TokenStream2 {
         let this = if e.has_pin {
             squote!(
                 #ඞ::pin::Pin::into_inner_unchecked(this)
@@ -81,12 +80,10 @@ impl Coercible {
         }
     }
 
-    pub
-    fn release_vptr (
+    pub fn release_vptr(
         self: &'_ Coercible,
         e @ Env { ඞ, .. }: &'_ Env<'_>,
-    ) -> TokenStream2
-    {
+    ) -> TokenStream2 {
         match *self {
             | _ if self.is_eligible(e).not() => <_>::default(),
             | Self::Box => {
@@ -110,7 +107,7 @@ impl Coercible {
                     },
                 )
             },
-            Self::Rc { thread_safe } => {
+            | Self::Rc { thread_safe } => {
                 let Rc @ _ = if thread_safe {
                     squote!( #ඞ::sync::Arc )
                 } else {
@@ -134,7 +131,7 @@ impl Coercible {
                     },
                 )
             },
-            Self::Ref { .. } => {
+            | Self::Ref { .. } => {
                 squote!(
                     release_vptr: {
                         unsafe extern "C"
@@ -150,12 +147,10 @@ impl Coercible {
         }
     }
 
-    pub
-    fn retain_vptr (
+    pub fn retain_vptr(
         self: &'_ Coercible,
         e @ Env { ඞ, .. }: &Env<'_>,
-    ) -> TokenStream2
-    {
+    ) -> TokenStream2 {
         match *self {
             | _ if self.is_eligible(e).not() => <_>::default(),
             | Self::Box => {
@@ -182,7 +177,7 @@ impl Coercible {
                     },
                 )
             },
-            Self::Rc { thread_safe } => {
+            | Self::Rc { thread_safe } => {
                 let Rc @ _ = if thread_safe {
                     squote!( #ඞ::sync::Arc )
                 } else {
@@ -212,8 +207,8 @@ impl Coercible {
                 )
             },
             // `&mut` can't be `Clone`.
-            Self::Ref { mut_: true } => <_>::default(),
-            Self::Ref { mut_: false } => {
+            | Self::Ref { mut_: true } => <_>::default(),
+            | Self::Ref { mut_: false } => {
                 squote!(
                     retain_vptr: {
                         unsafe extern "C"
@@ -231,12 +226,10 @@ impl Coercible {
         }
     }
 
-    pub
-    fn as_type (
+    pub fn as_type(
         self: &'_ Coercible,
         e @ Env { ඞ, .. }: &Env<'_>,
-    ) -> TokenStream2
-    {
+    ) -> TokenStream2 {
         let ty = match *self {
             | Self::Box => {
                 squote!(

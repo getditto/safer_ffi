@@ -12,7 +12,10 @@ pub struct Point {
 /* Export a Rust function to the C world. */
 /// Returns the middle point of `[a, b]`.
 #[ffi_export]
-fn mid_point(a: &Point, b: &Point) -> Point {
+fn mid_point(
+    a: &Point,
+    b: &Point,
+) -> Point {
     Point {
         x: (a.x + b.x) / 2.,
         y: (a.y + b.y) / 2.,
@@ -20,13 +23,13 @@ fn mid_point(a: &Point, b: &Point) -> Point {
 }
 
 /* Export a Rust enum to C */
-#[ffi_export] // directly exporting a type is only needed
-              // if no exported function mentions it
+#[ffi_export] /* directly exporting a type is only needed
+.                if no exported function mentions it */
 #[derive_ReprC]
 #[repr(u8)]
 pub enum Figure {
-	Circle,
-	Square
+    Circle,
+    Square,
 }
 
 /// Pretty-prints a point using Rust's formatting logic.

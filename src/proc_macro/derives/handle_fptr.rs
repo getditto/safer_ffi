@@ -1,24 +1,18 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
+use ::syn::visit_mut::VisitMut;
 
-use {
-    ::syn::{
-        visit_mut::VisitMut,
-    },
-    super::*,
-};
+use super::*;
 
-pub(in super)
-fn try_handle_fptr (
-    input: &'_ DeriveInput,
-) -> Option< Result<TokenStream2> >
-{
+pub(super) fn try_handle_fptr(input: &'_ DeriveInput) -> Option<Result<TokenStream2>> {
+    #[cfg_attr(rustfmt, rustfmt::skip)]
     macro_rules! fallback {() => ({
         return None;
     })}
 
-    macro_rules! bail {( $($tt:tt)* ) => (
+    #[cfg_attr(rustfmt, rustfmt::skip)]
+    macro_rules! _bail {( $($tt:tt)* ) => (
         return Some((|| crate::utils::bail!($($tt)*))())
     )}
+    use _bail as bail;
 
     if let &DeriveInput {
         ref attrs,
@@ -26,23 +20,24 @@ fn try_handle_fptr (
         ident: ref StructName,
         ref generics,
         // Check that it is a unit struct with one field
-        data: Data::Struct(DataStruct {
-            ref struct_token,
-            fields:
-                | Fields::Unnamed(FieldsUnnamed {
-                    unnamed: ref fields,
-                    ..
-                })
-                | Fields::Named(FieldsNamed {
-                    named: ref fields,
-                    ..
-                })
-            ,
-            ..
-        }),
+        data:
+            Data::Struct(DataStruct {
+                ref struct_token,
+                fields:
+                    Fields::Unnamed(FieldsUnnamed {
+                        unnamed: ref fields,
+                        ..
+                    })
+                    | Fields::Named(FieldsNamed {
+                        named: ref fields, ..
+                    }),
+                ..
+            }),
     } = input
     {
-        if fields.len() != 1 { fallback!(); }
+        if fields.len() != 1 {
+            fallback!();
+        }
         mod kw {
             ::syn::custom_keyword!(transparent);
         }
@@ -51,14 +46,19 @@ fn try_handle_fptr (
                 | Ok(_) => {},
                 | Err(_) => fallback!(),
             },
-            | None => bail!("Missing `#[repr(…)]` annotation"), // or fallback!() and let the parent handle the error
+            | None => bail!("Missing `#[repr(…)]` annotation"), /* or fallback!() and let the
+                                                                 * parent handle the error */
         }
         if matches!(vis, Visibility::Public(_)).not() {
             bail!("Missing `pub`" => struct_token);
         }
         // Check that the given ty is an `fn` pointer type.
         let cb_ty = match *fields.iter().next().unwrap() {
-            | Field { ty: Type::BareFn(ref cb_ty), ref vis, .. } => {
+            | Field {
+                ty: Type::BareFn(ref cb_ty),
+                ref vis,
+                ..
+            } => {
                 if matches!(vis, Visibility::Public(_)).not() {
                     bail!("Missing `pub`" => cb_ty);
                 }
@@ -72,19 +72,17 @@ fn try_handle_fptr (
         // Check that it is `extern "C"`.
         match *cb_ty {
             | TypeBareFn {
-                abi: Some(Abi { name: Some(ref abi), .. }),
+                abi:
+                    Some(Abi {
+                        name: Some(ref abi),
+                        ..
+                    }),
                 ..
-            }
-                if abi.value() != "C"
-            => {
+            } if abi.value() != "C" => {
                 bail!("Expected `\"C\"`" => abi);
             },
 
-            | TypeBareFn {
-                abi: Some(_),
-                ..
-            }
-            => {}
+            | TypeBareFn { abi: Some(_), .. } => {},
 
             | _ => bail!(
                 "Missing `extern \"C\"`" => cb_ty.fn_token
@@ -95,6 +93,7 @@ fn try_handle_fptr (
         // Fully-qualified paths to be robust to a weird/antagonistic
         // namespace (except for `::safer_ffi`; that's our path-resolution
         // keystone).
+        #[rustfmt::skip]
         #[apply(let_quote!)]
         use ::safer_ffi::{
             __cfg_headers__,
@@ -146,20 +145,18 @@ fn try_handle_fptr (
             }
         );
 
-        let EachArgCType: Vec<Type> =
-            cb_ty
-                .inputs
-                .iter()
-                .map(|arg| {
-                    let mut ty = arg.ty.clone();
-                    StripLifetimeParams.visit_type_mut(&mut ty);
-                    ty = parse_quote!(
+        let EachArgCType: Vec<Type> = cb_ty
+            .inputs
+            .iter()
+            .map(|arg| {
+                let mut ty = arg.ty.clone();
+                StripLifetimeParams.visit_type_mut(&mut ty);
+                ty = parse_quote!(
                         #CLayoutOf<#ty>
                     );
-                    ty
-                })
-                .collect()
-        ;
+                ty
+            })
+            .collect();
         let ref mut RetCType = match cb_ty.output {
             | ReturnType::Default => parse_quote!( () ),
             | ReturnType::Type(_, ref ty) => {
@@ -172,7 +169,6 @@ fn try_handle_fptr (
             #CLayoutOf<#RetCType>
         );
 
-
         let mut input_Layout = DeriveInput {
             attrs: vec![],
             vis: vis.clone(),
@@ -181,65 +177,54 @@ fn try_handle_fptr (
             data: input.data.clone(),
         };
         // let ref StructName_Layout = input_Layout.ident;
-        let ref lifetimes =
-            cb_ty
-                .lifetimes
-                .as_ref()
-                .map(|it| it
-                    .lifetimes
-                    .iter()
-                    .cloned()
-                    .collect::<Vec<_>>()
-                )
-                .unwrap_or_default()
-        ;
-        let ref repr_c_clauses: Vec<WherePredicate> =
-            cb_ty
-                .inputs
-                .iter()
-                .map(|input| &input.ty)
-                .chain(match cb_ty.output {
-                    | ReturnType::Default => None,
-                    | ReturnType::Type(_, ref ty) => Some(&**ty),
-                })
-                .flat_map(|ty| {
-                    let ref mut ty = ty.clone();
-                    let ref mut lifetimes =
-                        ::std::borrow::Cow::<'_, Vec<_>>::Borrowed(lifetimes)
-                    ;
-                    UnelideLifetimes {
-                        lifetime_params: lifetimes,
-                        counter: (0 ..),
-                    }.visit_type_mut(ty);
-                    let is_ReprC: WherePredicate = parse_quote!(
+        let ref lifetimes = cb_ty
+            .lifetimes
+            .as_ref()
+            .map(|it| it.lifetimes.iter().cloned().collect::<Vec<_>>())
+            .unwrap_or_default();
+        let ref repr_c_clauses: Vec<WherePredicate> = cb_ty
+            .inputs
+            .iter()
+            .map(|input| &input.ty)
+            .chain(match cb_ty.output {
+                | ReturnType::Default => None,
+                | ReturnType::Type(_, ref ty) => Some(&**ty),
+            })
+            .flat_map(|ty| {
+                let ref mut ty = ty.clone();
+                let ref mut lifetimes = ::std::borrow::Cow::<'_, Vec<_>>::Borrowed(lifetimes);
+                UnelideLifetimes {
+                    lifetime_params: lifetimes,
+                    counter: (0..),
+                }
+                .visit_type_mut(ty);
+                let is_ReprC: WherePredicate = parse_quote!(
                         for<#(#lifetimes),*>
                             #ty : #ReprC
                     );
-                    // FIXME assert that the types involved are concrete.
-                    // let ty_no_lt = {
-                    //     let mut it = ty.clone();
-                    //     StripLifetimeParams.visit_type_mut(&mut it);
-                    //     it
-                    // };
-                    // let its_CType_is_concrete = parse_quote!(
-                    //     // for<#(#lifetimes),*> < #ty
-                    //     <#ty_no_lt as #ReprC>::CLayout
-                    //     :
-                    //     #LegacyCType<OPAQUE_KIND = #OpaqueKind::Concrete>
-                    // );
-                    // Iterator::chain(
-                        ::core::iter::once(is_ReprC)
-                    //     , ::core::iter::once(its_CType_is_concrete)
-                    // )
-                })
-                .collect()
-        ;
+                // FIXME assert that the types involved are concrete.
+                // let ty_no_lt = {
+                //     let mut it = ty.clone();
+                //     StripLifetimeParams.visit_type_mut(&mut it);
+                //     it
+                // };
+                // let its_CType_is_concrete = parse_quote!(
+                //     // for<#(#lifetimes),*> < #ty
+                //     <#ty_no_lt as #ReprC>::CLayout
+                //     :
+                //     #LegacyCType<OPAQUE_KIND = #OpaqueKind::Concrete>
+                // );
+                // Iterator::chain(
+                ::core::iter::once(is_ReprC)
+                //     , ::core::iter::once(its_CType_is_concrete)
+                // )
+            })
+            .collect();
         input_Layout
             .generics
             .make_where_clause()
             .predicates
-            .extend(repr_c_clauses.iter().cloned())
-        ;
+            .extend(repr_c_clauses.iter().cloned());
         let input_Layout_data = match input_Layout.data {
             | Data::Struct(ref mut it) => it,
             | _ => unreachable!(),
@@ -256,11 +241,13 @@ fn try_handle_fptr (
                           -> #RetCType
                     >
                 ),
-            ).unwrap()
+            )
+            .unwrap()
         };
         // Add a PhantomData field to account for unused lifetime params.
         // (given that we've had to strip them to become `LegacyCType`)
-        if generics.lifetimes().next().is_some() { // non-empty.
+        if generics.lifetimes().next().is_some() {
+            // non-empty.
             let fields_mut = match input_Layout_data.fields {
                 | Fields::Unnamed(FieldsUnnamed {
                     unnamed: ref mut it,
@@ -291,15 +278,14 @@ fn try_handle_fptr (
                         #[allow(unused_parens)]
                         #PhantomData<(#(#phantom_tys),*)>
                     ),
-                ).unwrap()
+                )
+                .unwrap()
             });
         }
-        let ref mut c_sharp_format_args =
-            EachArgCType
-                .iter()
-                .map(|_| "\n        {}{},")
-                .collect::<String>()
-        ;
+        let ref mut c_sharp_format_args = EachArgCType
+            .iter()
+            .map(|_| "\n        {}{},")
+            .collect::<String>();
         let _trailing_comma = c_sharp_format_args.pop();
         let (intro, fwd, where_) = input_Layout.generics.split_for_impl();
         ret.extend(quote!(
@@ -356,50 +342,48 @@ struct UnelideLifetimes<'__, 'vec> {
 }
 
 const _: () = {
+    #[cfg_attr(rustfmt, rustfmt::skip)]
     macro_rules! ELIDED_LIFETIME_TEMPLATE {() => (
         "__elided_{}"
     )}
     impl ::syn::visit_mut::VisitMut for UnelideLifetimes<'_, '_> {
-        fn visit_lifetime_mut (
+        fn visit_lifetime_mut(
             self: &'_ mut Self,
             lifetime: &'_ mut Lifetime,
-        )
-        {
-            let Self { lifetime_params, counter } = self;
+        ) {
+            let Self {
+                lifetime_params,
+                counter,
+            } = self;
             if lifetime.ident == "_" {
-                lifetime.ident = format_ident!(
-                    ELIDED_LIFETIME_TEMPLATE!(),
-                    counter.next().unwrap(),
-                );
+                lifetime.ident =
+                    format_ident!(ELIDED_LIFETIME_TEMPLATE!(), counter.next().unwrap(),);
                 lifetime_params.to_mut().push(parse_quote!( #lifetime ));
             }
         }
 
-        fn visit_type_mut (
+        fn visit_type_mut(
             self: &'_ mut Self,
             ty: &'_ mut Type,
-        )
-        {
+        ) {
             ::syn::visit_mut::visit_type_mut(self, ty);
-            let Self { lifetime_params, counter } = self;
+            let Self {
+                lifetime_params,
+                counter,
+            } = self;
             match *ty {
                 | Type::Reference(TypeReference {
                     lifetime: ref mut implicitly_elided_lifetime @ None,
                     ..
                 }) => {
                     let unelided_lifetime =
-                        implicitly_elided_lifetime
-                            .get_or_insert(Lifetime::new(
-                                &format!(
-                                    concat!(
-                                        "'",
-                                        ELIDED_LIFETIME_TEMPLATE!(),
-                                    ),
-                                    counter.next().unwrap(),
-                                ),
-                                Span::call_site(),
-                            ))
-                    ;
+                        implicitly_elided_lifetime.get_or_insert(Lifetime::new(
+                            &format!(
+                                concat!("'", ELIDED_LIFETIME_TEMPLATE!(),),
+                                counter.next().unwrap(),
+                            ),
+                            Span::call_site(),
+                        ));
                     lifetime_params.to_mut().push(parse_quote!(
                         #unelided_lifetime
                     ));
@@ -417,28 +401,24 @@ const _: () = {
 struct StripLifetimeParams;
 
 impl VisitMut for StripLifetimeParams {
-    fn visit_lifetime_mut (
+    fn visit_lifetime_mut(
         self: &'_ mut Self,
         lifetime: &'_ mut Lifetime,
-    )
-    {
+    ) {
         *lifetime = Lifetime::new("'static", Span::call_site());
     }
 
-    fn visit_type_mut (
+    fn visit_type_mut(
         self: &'_ mut Self,
         ty: &'_ mut Type,
-    )
-    {
+    ) {
         ::syn::visit_mut::visit_type_mut(self, ty);
         match *ty {
             | Type::Reference(TypeReference {
                 lifetime: ref mut implicitly_elided_lifetime @ None,
                 ..
             }) => {
-                *implicitly_elided_lifetime = Some(
-                    Lifetime::new("'static", Span::call_site())
-                );
+                *implicitly_elided_lifetime = Some(Lifetime::new("'static", Span::call_site()));
             },
             | _ => {},
         }

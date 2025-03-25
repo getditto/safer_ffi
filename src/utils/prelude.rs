@@ -1,25 +1,20 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(unused_imports)]
 
-pub(in crate) use crate::{
-    layout::macros::*,
-    c_char,
-    layout::*,
-    tuple::*,
-    utils::markers::*,
-};
+pub(crate) use ::core::convert::TryFrom;
+pub(crate) use ::core::convert::TryInto;
+pub(crate) use ::core::ffi::c_void;
+pub(crate) use ::core::fmt;
+pub(crate) use ::core::marker::PhantomData;
+pub(crate) use ::core::mem;
+pub(crate) use ::core::ops::Deref;
+pub(crate) use ::core::ops::DerefMut;
+pub(crate) use ::core::ops::Not as _;
 
-pub(in crate) use ::core::{
-    convert::{TryFrom, TryInto},
-    ffi::c_void,
-    fmt,
-    marker::PhantomData,
-    mem,
-    ops::{
-        Deref, DerefMut,
-        Not as _,
-    },
-};
+pub(crate) use crate::c_char;
+pub(crate) use crate::layout::macros::*;
+pub(crate) use crate::layout::*;
+pub(crate) use crate::tuple::*;
+pub(crate) use crate::utils::markers::*;
 
 match_cfg! {
     target_arch = "wasm32" => {
@@ -39,26 +34,22 @@ cfg_alloc! {
     };
 }
 
-pub(in crate)
-mod rust {
+pub(crate) mod rust {
     #[apply(cfg_alloc)]
-    pub(in crate) use ::alloc::{
-        boxed::Box,
-        string::String,
-        vec::Vec,
-    };
+    pub(crate) use ::alloc::boxed::Box;
+    #[apply(cfg_alloc)]
+    pub(crate) use ::alloc::string::String;
+    #[apply(cfg_alloc)]
+    pub(crate) use ::alloc::vec::Vec;
 }
 
-pub(in crate)
-mod ptr {
-    pub(in crate) use ::core::ptr::*;
-    pub(in crate) use crate::ptr::*;
+pub(crate) mod ptr {
+    pub(crate) use ::core::ptr::*;
+
+    pub(crate) use crate::ptr::*;
 }
 
 #[apply(cfg_std)]
-pub(in crate) use ::std::{
-    io,
-};
+pub(crate) use ::std::io;
 
-pub(in crate)
-use crate::prelude::*;
+pub(crate) use crate::prelude::*;

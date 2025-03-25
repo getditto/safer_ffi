@@ -1,16 +1,18 @@
 #![warn(warnings)] // Prevent `-Dwarnings` from causing breakage.
 #![allow(clippy::all)]
-#![cfg_attr(rustfmt, rustfmt::skip)]
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! emit {( $($_:tt)* ) => ( $($_)* )}
 
-#[cfg(target_arch = "wasm32")] emit! {
+#[cfg(target_arch = "wasm32")]
+emit! {
     extern crate napi_wasm;
     #[doc(no_inline)]
     pub use ::napi_wasm::*;
 }
 
-#[cfg(not(target_arch = "wasm32"))] emit! {
+#[cfg(not(target_arch = "wasm32"))]
+emit! {
     #[allow(unused_extern_crates)]
     extern crate napi;
     pub use ::{

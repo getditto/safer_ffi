@@ -1,7 +1,8 @@
 use crate::layout::ConcreteReprC;
 
 /// An ABI-stable version of `core::option::Option`.
-/// Its usage is expected to be the same as a standard Option, converting to and from said Option when necessary.
+/// Its usage is expected to be the same as a standard Option, converting to and from said Option
+/// when necessary.
 ///
 /// Note that this uses an explicit `bool` flag to store the discriminant.
 ///
@@ -30,13 +31,13 @@ where
         crate::layout::CLayoutOf<crate::tuple::Tuple2<bool, crate::layout::CLayoutOf<T>>>;
     fn is_valid(it: &'_ Self::CLayout) -> bool {
         match unsafe { ::core::mem::transmute_copy::<_, u8>(it) } {
-            0 => true,
-            1 => T::is_valid(unsafe {
+            | 0 => true,
+            | 1 => T::is_valid(unsafe {
                 &*(it as *const _ as *const u8)
                     .add(core::mem::align_of::<T>())
                     .cast()
             }),
-            _ => false,
+            | _ => false,
         }
     }
 }
@@ -44,8 +45,8 @@ where
 impl<T> From<core::option::Option<T>> for TaggedOption<T> {
     fn from(value: ::core::option::Option<T>) -> Self {
         match value {
-            Some(v) => Self::Some(v),
-            None => Self::None,
+            | Some(v) => Self::Some(v),
+            | None => Self::None,
         }
     }
 }
@@ -53,8 +54,8 @@ impl<T> From<core::option::Option<T>> for TaggedOption<T> {
 impl<T> From<TaggedOption<T>> for ::core::option::Option<T> {
     fn from(value: TaggedOption<T>) -> Self {
         match value {
-            TaggedOption::Some(v) => Self::Some(v),
-            TaggedOption::None => Self::None,
+            | TaggedOption::Some(v) => Self::Some(v),
+            | TaggedOption::None => Self::None,
         }
     }
 }
@@ -69,33 +70,44 @@ impl<T> TaggedOption<T> {
     /// Returns a reference to `self`'s contents if it is `Some`.
     pub fn as_ref(&self) -> ::core::option::Option<&T> {
         match self {
-            Self::None => None,
-            Self::Some(v) => Some(v),
+            | Self::None => None,
+            | Self::Some(v) => Some(v),
         }
     }
     /// Returns a mutable reference to `self`'s contents if it is `Some`.
     pub fn as_mut(&mut self) -> ::core::option::Option<&mut T> {
         match self {
-            Self::None => None,
-            Self::Some(v) => Some(v),
+            | Self::None => None,
+            | Self::Some(v) => Some(v),
         }
     }
     /// Applies `f` to `self`'s content if it is some, otherwise calls `default`.
-    pub fn map_or_else<U, D: FnOnce() -> U, F: FnOnce(T) -> U>(self, default: D, f: F) -> U {
+    pub fn map_or_else<U, D: FnOnce() -> U, F: FnOnce(T) -> U>(
+        self,
+        default: D,
+        f: F,
+    ) -> U {
         match self {
-            Self::None => default(),
-            Self::Some(v) => f(v),
+            | Self::None => default(),
+            | Self::Some(v) => f(v),
         }
     }
     /// Unwraps `self`'s value, producing a new value using `default` if it is `None`.
-    pub fn unwrap_or_else<D: FnOnce() -> T>(self, default: D) -> T {
+    pub fn unwrap_or_else<D: FnOnce() -> T>(
+        self,
+        default: D,
+    ) -> T {
         match self {
-            Self::None => default(),
-            Self::Some(v) => v,
+            | Self::None => default(),
+            | Self::Some(v) => v,
         }
     }
-    /// Applies `f` to `self`'s internals to produce an `Option`, returning `None` if `self` was `None`.
-    pub fn and_then<U, F: FnOnce(T) -> TaggedOption<U>>(self, f: F) -> TaggedOption<U> {
+    /// Applies `f` to `self`'s internals to produce an `Option`, returning `None` if `self` was
+    /// `None`.
+    pub fn and_then<U, F: FnOnce(T) -> TaggedOption<U>>(
+        self,
+        f: F,
+    ) -> TaggedOption<U> {
         self.map_or_else(|| TaggedOption::None, f)
     }
 
@@ -122,11 +134,16 @@ fn option() {
         }));
         assert_eq!(converted, i.into());
         assert_eq!(expected, converted.into());
-        assert!(TaggedOption::Some(i)
-            .and_then(|_| TaggedOption::<()>::None)
-            .into_rust()
-            .is_none());
-        assert_eq!(unsafe { ::core::mem::transmute_copy::<_, u8>(&converted) }, 1);
+        assert!(
+            TaggedOption::Some(i)
+                .and_then(|_| TaggedOption::<()>::None)
+                .into_rust()
+                .is_none()
+        );
+        assert_eq!(
+            unsafe { ::core::mem::transmute_copy::<_, u8>(&converted) },
+            1
+        );
     }
     assert_eq!(
         unsafe { ::core::mem::transmute_copy::<_, u8>(&TaggedOption::<u8>::None) },
