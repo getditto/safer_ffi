@@ -151,6 +151,10 @@ members = [
     "napi-dispatcher/wasm",
     "napi-dispatcher/wasm/src/proc_macros",
     "safer-ffi-build",
+    "run-sh",
+]
+default-members = [
+    ".",
 ]
 exclude = ["examples/point"]
 
