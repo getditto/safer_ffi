@@ -1,29 +1,26 @@
-use super::*;
+pub(crate) use args::*;
 
-pub(in crate) use args::*;
+use super::*;
 mod args;
 
 #[cfg(feature = "async-fn")]
 mod async_fn;
 
+#[rustfmt::skip]
 const SUPPORTED_ABIS: &[&str] = &[
     "C",
 ];
 
-fn concrete_c_type (T @ _: &'_ Type)
-  -> Type
-{
+fn concrete_c_type(T @ _: &'_ Type) -> Type {
     parse_quote_spanned!(T.span()=>
         <#T as ::safer_ffi::ඞ::ConcreteReprC>::ConcreteCLayout
     )
 }
 
-pub(in super)
-fn handle (
+pub(super) fn handle(
     args: Args,
     mut fun: ItemFn,
-) -> Result<TokenStream2>
-{
+) -> Result<TokenStream2> {
     // async fn case.
     if args.executor.is_some() || fun.sig.asyncness.is_some() {
         if true {
@@ -42,18 +39,14 @@ fn handle (
     }
 
     let mut storage = None;
-    let export_name_str: &LitStr =
-        if let Some(Rename { new_name, .. }) = &args.rename {
-            new_name
-        } else {
-            storage.get_or_insert(
-                LitStr::new(
-                    &fun.sig.ident.to_string(),
-                    fun.sig.ident.span(),
-                )
-            )
-        }
-    ;
+    let export_name_str: &LitStr = if let Some(Rename { new_name, .. }) = &args.rename {
+        new_name
+    } else {
+        storage.get_or_insert(LitStr::new(
+            &fun.sig.ident.to_string(),
+            fun.sig.ident.span(),
+        ))
+    };
 
     // *We* handle the C-safety heuristics in a more accurate manner than
     // rustc's lint, so let's disable it to prevent it from firing false
@@ -65,9 +58,11 @@ fn handle (
         #[forbid(elided_lifetimes_in_paths)]
     ));
     // Ergonomics: lack-of-`extern` defaults to `extern "C"`.
-    fun.sig.abi.get_or_insert_with(|| parse_quote!(
+    fun.sig.abi.get_or_insert_with(|| {
+        parse_quote!(
         extern "C"
-    ));
+    )
+    });
     // No more changes to the original function:
     let fun = fun;
 
@@ -75,13 +70,10 @@ fn handle (
     if matches!(
         &extern_.name, Some(abi)
         if SUPPORTED_ABIS.contains(&abi.value().as_str()).not()
-    )
-    {
+    ) {
         return Err(Error::new_spanned(
             &extern_.name,
-            &format!(
-                "unsupported abi, expected one of {:?}", SUPPORTED_ABIS,
-            ),
+            &format!("unsupported abi, expected one of {:?}", SUPPORTED_ABIS,),
         ));
     }
 
@@ -96,7 +88,11 @@ fn handle (
     let each_arg = &ffi_fun.sig.inputs.iter_mut().enumerate().vmap(|(i, arg)| {
         match *arg {
             | FnArg::Receiver(_) => unreachable!(),
-            | FnArg::Typed(PatType { ref mut pat, ref mut ty, .. }) => {
+            | FnArg::Typed(PatType {
+                ref mut pat,
+                ref mut ty,
+                ..
+            }) => {
                 // C-ize each arg type.
                 **ty = concrete_c_type(ty);
 
@@ -132,12 +128,10 @@ fn handle (
                         arg_name
                     },
                 }
-            }
+            },
         }
     });
-    fn arg_tys (fun: &ItemFn)
-      -> impl Iterator<Item = &'_ Type>
-    {
+    fn arg_tys(fun: &ItemFn) -> impl Iterator<Item = &'_ Type> {
         fun.sig.inputs.iter().map(|fn_arg| match *fn_arg {
             | FnArg::Typed(PatType { ref ty, .. }) => &**ty,
             | FnArg::Receiver(_) => unreachable!(),
@@ -145,22 +139,24 @@ fn handle (
     }
     // C-ize the return type.
     match ffi_fun.sig.output {
-        ref mut out @ ReturnType::Default => *out = parse_quote!(
+        | ref mut out @ ReturnType::Default => {
+            *out = parse_quote!(
             ->
             ::safer_ffi::ඞ::CLayoutOf<()>
-        ),
-        ReturnType::Type(_, ref mut ty) => **ty = concrete_c_type(ty),
+        )
+        },
+        | ReturnType::Type(_, ref mut ty) => **ty = concrete_c_type(ty),
     }
 
     let ItemFn {
         sig: Signature {
-            ident: ref fname,
-            ..
+            ident: ref fname, ..
         },
         ..
     } = fun;
     ffi_fun.sig.ident = format_ident!(
-        "{}__ffi_export__", fname,
+        "{}__ffi_export__",
+        fname,
         span = fname.span().resolved_at(Span::mixed_site()),
     );
     ffi_fun.attrs.push(parse_quote!(
@@ -168,6 +164,7 @@ fn handle (
             unsafe(export_name = #export_name_str),
         )]
     ));
+    #[rustfmt::skip]
     #[apply(let_quote!)]
     use ::safer_ffi::{
         ඞ,
@@ -190,6 +187,7 @@ fn handle (
     let mut js_body = quote!();
     #[cfg(feature = "js")]
     if let Some(args_js) = &args.js {
+        #[rustfmt::skip]
         #[apply(let_quote!)]
         use ::safer_ffi::{
             ඞ,
@@ -201,34 +199,32 @@ fn handle (
         let span = Span::mixed_site().located_at(args_js.kw.span());
         let fname = &ffi_fun.sig.ident;
         let mut storage = None;
-        let export_name =
-            if let Some(Rename { ref new_name, .. }) = args.rename {
-                storage.get_or_insert(
-                    new_name
-                        .parse()
-                        .expect("checked when parsing args")
-                )
-            } else {
-                &fun.sig.ident
-            }
-        ;
-        let EachArgTyStatic @ _ =
-            arg_tys(&fun).vmap(|ty| {
-                let mut ty = ty.clone();
-                visit_mut::VisitMut::visit_type_mut(
-                    &mut utils::RemapNonStaticLifetimesTo { new_lt_name: "static" },
-                    &mut ty,
-                );
-                ty
-            })
-        ;
-        let EachArgTyJs @ _ =
-            EachArgTyStatic.iter().map(|ty| quote!(
+        let export_name = if let Some(Rename { ref new_name, .. }) = args.rename {
+            storage.get_or_insert(new_name.parse().expect("checked when parsing args"))
+        } else {
+            &fun.sig.ident
+        };
+        let EachArgTyStatic @ _ = arg_tys(&fun).vmap(|ty| {
+            let mut ty = ty.clone();
+            visit_mut::VisitMut::visit_type_mut(
+                &mut utils::RemapNonStaticLifetimesTo {
+                    new_lt_name: "static",
+                },
+                &mut ty,
+            );
+            ty
+        });
+        let EachArgTyJs @ _ = EachArgTyStatic.iter().map(|ty| {
+            quote!(
                 <#ඞ::CLayoutOf<#ty> as #ReprNapi>::NapiValue
-            ))
-        ;
+            )
+        });
         let each_arg_spanned_at_fun = each_arg.iter().map(|arg| {
-            format_ident!("{}", arg, span = arg.span().located_at(fun.sig.ident.span()))
+            format_ident!(
+                "{}",
+                arg,
+                span = arg.span().located_at(fun.sig.ident.span())
+            )
         });
         let ty_aliases = quote_spanned!(span=>
             // We want to use `type $arg_name = <$arg_ty as …>::Assoc;`
@@ -254,11 +250,14 @@ fn handle (
                 )*
             }
         );
-        let EachArgTyJs = each_arg.iter().map(|arg| quote!(
+        let EachArgTyJs = each_arg.iter().map(|arg| {
+            quote!(
             __ty_aliases::#arg
-        ));
+        )
+        });
         let (generics, _, where_clause) = fun.sig.generics.split_for_impl();
-        let body = |call_and_return| quote_spanned!(span=>
+        let body = |call_and_return| {
+            quote_spanned!(span=>
             const _: () = {
                 #ty_aliases
 
@@ -281,7 +280,8 @@ fn handle (
                     #call_and_return
                 }
             };
-        );
+        )
+        };
         // where
         let call_and_return = if let Some(async_worker) = &args_js.async_worker {
             quote_spanned!(Span::mixed_site().located_at(async_worker.span())=>
@@ -337,12 +337,15 @@ fn handle (
     };
 
     let mut fun = fun;
-    fun.block.stmts.insert(0, parse_quote!(
+    fun.block.stmts.insert(
+        0,
+        parse_quote!(
         {
             #ffi_fun
             #js_body
         }
-    ));
+    ),
+    );
 
     let mut ret = fun.to_token_stream();
 
@@ -350,9 +353,7 @@ fn handle (
         let_quote!(use ::safer_ffi::headers);
         let mut storage = None;
         let RetTy @ _ = match fun.sig.output {
-            | ReturnType::Default => &*storage.get_or_insert(
-                Type::Verbatim(quote!( () ))
-            ),
+            | ReturnType::Default => &*storage.get_or_insert(Type::Verbatim(quote!( () ))),
             | ReturnType::Type(_, ref ty) => &**ty,
         };
         let ref EachArgTy @ _ = arg_tys(&fun).vec();

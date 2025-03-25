@@ -1,5 +1,6 @@
 use_prelude!();
 use ::core::slice;
+
 use crate::slice::*;
 
 cfg_alloc! {
@@ -125,67 +126,44 @@ ReprC! {
     );
 }
 
-impl<'lt> From<&'lt str>
-    for str_ref<'lt>
-{
+impl<'lt> From<&'lt str> for str_ref<'lt> {
     #[inline]
-    fn from (s: &'lt str)
-      -> str_ref<'lt>
-    {
+    fn from(s: &'lt str) -> str_ref<'lt> {
         let bytes = s.as_bytes();
-        Self(
-            bytes.into()
-        )
+        Self(bytes.into())
     }
 }
 
 impl<'lt> str_ref<'lt> {
     #[inline]
-    pub
-    fn as_str (self: str_ref<'lt>)
-      -> &'lt str
-    {
+    pub fn as_str(self: str_ref<'lt>) -> &'lt str {
         unsafe {
-            ::core::str::from_utf8_unchecked(
-                slice::from_raw_parts(
-                    self.0.as_ptr(),
-                    self.0.len(),
-                )
-            )
+            ::core::str::from_utf8_unchecked(slice::from_raw_parts(self.0.as_ptr(), self.0.len()))
         }
     }
 }
 
-impl<'lt> Deref
-    for str_ref<'lt>
-{
+impl<'lt> Deref for str_ref<'lt> {
     type Target = str;
 
     #[inline]
-    fn deref (self: &'_ str_ref<'lt>)
-      -> &'_ str
-    {
+    fn deref(self: &'_ str_ref<'lt>) -> &'_ str {
         self.as_str()
     }
 }
 
-impl AsRef<str>
-    for str_ref<'_>
-{
+impl AsRef<str> for str_ref<'_> {
     #[inline]
-    fn as_ref (self: &'_ Self)
-      -> &'_ str
-    {
+    fn as_ref(self: &'_ Self) -> &'_ str {
         self.as_str()
     }
 }
 
-impl fmt::Debug
-    for str_ref<'_>
-{
-    fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
-      -> fmt::Result
-    {
+impl fmt::Debug for str_ref<'_> {
+    fn fmt(
+        self: &'_ Self,
+        fmt: &'_ mut fmt::Formatter<'_>,
+    ) -> fmt::Result {
         <str as fmt::Debug>::fmt(self, fmt)
     }
 }

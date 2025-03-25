@@ -2,8 +2,7 @@ use super::*;
 
 #[cfg(feature = "tokio")]
 #[test]
-fn async_test ()
-{
+fn async_test() {
     let runtime = ::tokio::runtime::Runtime::new().unwrap();
     let handle = runtime.handle().clone();
     // Add pointer indirection to allow type erasure,
@@ -14,18 +13,14 @@ fn async_test ()
 }
 
 #[ffi_export]
-fn test_spawner (
-    executor: VirtualPtr<dyn 'static + FfiFutureExecutor>,
-) -> i32
-{
+fn test_spawner(executor: VirtualPtr<dyn 'static + FfiFutureExecutor>) -> i32 {
     let x: i32 = executor.block_on(async {
-        let x: i32 =
-            executor.spawn(async {
+        let x: i32 = executor
+            .spawn(async {
                 async {}.await;
                 42
             })
-            .await
-        ;
+            .await;
         x
     });
     x

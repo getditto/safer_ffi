@@ -1,9 +1,18 @@
 use core::ptr::NonNull;
 
+use stabby::IStable;
+use stabby::alloc::IAlloc;
+pub use stabby::sync::Arc;
+pub use stabby::sync::ArcSlice;
+pub use stabby::sync::ArcStr;
+pub use stabby::sync::Weak;
+pub use stabby::sync::WeakSlice;
+pub use stabby::sync::WeakStr;
+
 use crate::stabby::boxed_impl::AllocSlice;
-use crate::ඞ::{CLayoutOf, ReprC, __HasNiche__};
-pub use stabby::sync::{Arc, ArcSlice, ArcStr, Weak, WeakSlice, WeakStr};
-use stabby::{alloc::IAlloc, IStable};
+use crate::ඞ::__HasNiche__;
+use crate::ඞ::CLayoutOf;
+use crate::ඞ::ReprC;
 
 type USIZE = <usize as IStable>::Size;
 

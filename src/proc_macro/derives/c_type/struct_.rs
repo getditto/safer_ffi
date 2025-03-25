@@ -1,37 +1,28 @@
 use super::*;
 
 #[allow(unexpected_cfgs)]
-pub(in crate)
-fn derive (
+pub(crate) fn derive(
     args: Args,
     attrs: &'_ [Attribute],
     pub_: &'_ Visibility,
     StructName @ _: &'_ Ident,
     generics: &'_ Generics,
     fields: &'_ Fields,
-) -> Result<TokenStream2>
-{
+) -> Result<TokenStream2> {
     if let Some(repr) = attrs.iter().find_map(|attr| {
-        bool::then(
-            attr.path.is_ident("repr"),
-            || attr.parse_args::<Ident>().ok()
-        ).flatten()
-    })
-    {
+        bool::then(attr.path.is_ident("repr"), || {
+            attr.parse_args::<Ident>().ok()
+        })
+        .flatten()
+    }) {
         if repr.to_string() == "transparent" {
-            return derive_transparent(
-                args,
-                attrs,
-                pub_,
-                StructName,
-                generics,
-                fields,
-            );
+            return derive_transparent(args, attrs, pub_, StructName, generics, fields);
         }
     } else {
         bail!("Missing `#[repr]`!");
     }
 
+    #[rustfmt::skip]
     #[apply(let_quote!)]
     use ::safer_ffi::{
         ඞ,
@@ -73,21 +64,13 @@ fn derive (
     );
 
     if cfg!(feature = "headers") {
-        let EachGenericTy =
-            generics.type_params().map(|it| &it.ident)
-        ;
-        let EachConstParam =
-            generics.const_params().map(|param| &param.ident)
-        ;
-        let ref EachFieldTy =
-            fields.iter().vmap(|Field { ty, .. }| ty)
-        ;
-        let ref StructName_str =
-            args.rename.map_or_else(
-                || StructName.to_string().into_token_stream(),
-                ToTokens::into_token_stream,
-            )
-        ;
+        let EachGenericTy = generics.type_params().map(|it| &it.ident);
+        let EachConstParam = generics.const_params().map(|param| &param.ident);
+        let ref EachFieldTy = fields.iter().vmap(|Field { ty, .. }| ty);
+        let ref StructName_str = args.rename.map_or_else(
+            || StructName.to_string().into_token_stream(),
+            ToTokens::into_token_stream,
+        );
 
         impl_body.extend(quote!(
             fn short_name ()
@@ -106,13 +89,13 @@ fn derive (
 
         let ref struct_docs = utils::extract_docs(attrs)?;
 
-        let ref each_field: Vec<Quote![ StructField ]> =
-            (0..).zip(fields).try_vmap(|(i, f)| Result::Ok({
+        let ref each_field: Vec<Quote![StructField]> = (0..).zip(fields).try_vmap(|(i, f)| {
+            Result::Ok({
                 let ref field_docs = utils::extract_docs(&f.attrs)?;
-                let ref field_name_str = f.ident.as_ref().map_or_else(
-                    || format!("_{i}"),
-                    Ident::to_string,
-                );
+                let ref field_name_str = f
+                    .ident
+                    .as_ref()
+                    .map_or_else(|| format!("_{i}"), Ident::to_string);
                 let FieldTy = &f.ty;
                 quote!(
                     #ඞ::StructField {
@@ -121,8 +104,8 @@ fn derive (
                         ty: &#ඞ::marker::PhantomData::<#FieldTy>,
                     }
                 )
-            }))?
-        ;
+            })
+        })?;
 
         impl_body.extend(quote_spanned!(Span::mixed_site()=>
             #[allow(nonstandard_style)]
@@ -171,27 +154,23 @@ fn derive (
     Ok(ret)
 }
 
-pub(in crate)
-fn derive_transparent (
+pub(crate) fn derive_transparent(
     args: Args,
     attrs: &'_ [Attribute],
     _pub: &'_ Visibility,
     StructName_Layout @ _: &'_ Ident,
     generics: &'_ Generics,
     fields: &'_ Fields,
-) -> Result<TokenStream2>
-{
+) -> Result<TokenStream2> {
     // Example input:
     #[cfg(any())]
     #[derive_CType(js, rename = "dittoffi_string")]
     #[repr(transparent)]
-    struct FfiString_Layout(
-        CLayoutOf<char_p::Box>,
-    )
+    struct FfiString_Layout(CLayoutOf<char_p::Box>)
     where
-        char_p::Box : ReprC,
-    ;
+        char_p::Box: ReprC;
 
+    #[rustfmt::skip]
     #[apply(let_quote)]
     use ::safer_ffi::ඞ;
 
@@ -282,9 +261,15 @@ fn derive_transparent (
         }
     ));
 
-    ret.extend(trivial_impls(intro_generics, fwd_generics, where_clauses, StructName_Layout));
+    ret.extend(trivial_impls(
+        intro_generics,
+        fwd_generics,
+        where_clauses,
+        StructName_Layout,
+    ));
 
     if cfg!(feature = "js") && args.js.is_some() {
+        #[rustfmt::skip]
         #[apply(let_quote)]
         use ::safer_ffi::js;
 
@@ -326,6 +311,7 @@ fn trivial_impls(
     where_clauses: &dyn ToTokens,
     StructName @ _: &dyn ToTokens,
 ) -> TokenStream2 {
+    #[rustfmt::skip]
     #[apply(let_quote)]
     use ::safer_ffi::ඞ;
 

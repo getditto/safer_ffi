@@ -60,7 +60,8 @@ macro_rules! use_libc_or_else_ {(
             )*
         }
     }
-)} use use_libc_or_else_;
+)}
+use use_libc_or_else_;
 
 #[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! use_libc_or_else {(
@@ -72,4 +73,5 @@ macro_rules! use_libc_or_else {(
     )} use stringified_module_code;
 
     use_libc_or_else_!($($input)*);
-)} use use_libc_or_else;
+)}
+use use_libc_or_else;

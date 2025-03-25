@@ -1,22 +1,12 @@
-use {
-    ::core::{
-        mem, slice,
-    },
-    super::*,
-    self::{
-        coercions::{
-            Coercible,
-        },
-        receiver_types::{
-            ReceiverKind,
-            ReceiverType,
-        },
-        vtable_entry::{
-            VTableEntry,
-            vtable_entries,
-        },
-    }
-};
+use ::core::mem;
+use ::core::slice;
+
+use self::coercions::Coercible;
+use self::receiver_types::ReceiverKind;
+use self::receiver_types::ReceiverType;
+use self::vtable_entry::VTableEntry;
+use self::vtable_entry::vtable_entries;
+use super::*;
 
 mod args;
 mod coercions;
@@ -29,25 +19,24 @@ enum Input {
 }
 
 impl Parse for Input {
-    fn parse (input: ParseStream<'_>)
-      -> Result<Input>
-    {Ok({
-        let ref fork = input.fork();
-        fork.parse::<ItemTrait>()
-            .map(|trait_| {
-                ::syn::parse::discouraged::Speculative::advance_to(input, fork);
-                Input::Trait(trait_)
-            })
-            .unwrap_or_else(|_| Input::TokenStream(input.parse().unwrap()))
-    })}
+    fn parse(input: ParseStream<'_>) -> Result<Input> {
+        Ok({
+            let ref fork = input.fork();
+            fork.parse::<ItemTrait>()
+                .map(|trait_| {
+                    ::syn::parse::discouraged::Speculative::advance_to(input, fork);
+                    Input::Trait(trait_)
+                })
+                .unwrap_or_else(|_| Input::TokenStream(input.parse().unwrap()))
+        })
+    }
 }
 
-pub(in super)
-fn try_handle_trait (
+pub(super) fn try_handle_trait(
     args: &'_ mut TokenStream2,
     input: &'_ mut TokenStream2,
-) -> Result< Option<TokenStream2> >
-{
+) -> Result<Option<TokenStream2>> {
+    #[rustfmt::skip]
     #[apply(let_quote!)]
     use ::safer_ffi::{
         ඞ,
@@ -90,20 +79,16 @@ fn try_handle_trait (
         ref mut items,
     } = *trait_;
 
-    let (_, fwd_trait_generics, trait_where_clause) =
-        &generics.split_for_impl()
-    ;
+    let (_, fwd_trait_generics, trait_where_clause) = &generics.split_for_impl();
 
     let ref each_vtable_entry = vtable_entries(items, &mut ret)?;
     let each_method_def = each_vtable_entry.vmap(VTableEntry::virtual_forwarding);
     let each_vtable_entry_name = each_vtable_entry.vmap(VTableEntry::name);
     let each_vtable_entry_attrs = each_vtable_entry.vmap(VTableEntry::attrs);
-    let (EachVTableEntryType @ _, each_vtable_entry_value_f) =
-        each_vtable_entry
-            .iter()
-            .map(VTableEntry::type_and_value)
-            .unzip::<_, _, Vec<_>, Vec<_>>()
-    ;
+    let (EachVTableEntryType @ _, each_vtable_entry_value_f) = each_vtable_entry
+        .iter()
+        .map(VTableEntry::type_and_value)
+        .unzip::<_, _, Vec<_>, Vec<_>>();
     let VTableName @ _ = format_ident!("{}VTable", TraitName);
     let ref impl_Trait = format_ident!("__impl_{}", TraitName);
 
@@ -112,43 +97,40 @@ fn try_handle_trait (
     let ref lifetime = squote!(
         '__usability
     );
-    trait_generics_and_lt.params.insert(0, parse_quote!(
+    trait_generics_and_lt.params.insert(
+        0,
+        parse_quote!(
         #lifetime
-    ));
+    ),
+    );
     trait_generics_and_lt
         .make_where_clause()
         .predicates
-        .extend_::<WherePredicate, _>(
-            generics
-                .type_params()
-                .map(|it| &it.ident)
-                .map(|T @ _| parse_quote!(
+        .extend_::<WherePredicate, _>(generics.type_params().map(|it| &it.ident).map(|T @ _| {
+            parse_quote!(
                     #T : #lifetime
-                ))
-        )
-    ;
+                )
+        }));
     let ref trait_generics_and_lt = trait_generics_and_lt;
     let (intro_trait_generics_and_lt, fwd_trait_generics_and_lt, _) =
-        &trait_generics_and_lt.split_for_impl()
-    ;
+        &trait_generics_and_lt.split_for_impl();
 
-    let EachToBeInvariantParam @ _ =
-        Iterator::chain(
-            trait_generics_and_lt
-                .lifetimes()
-                .map(|LifetimeDef { lifetime, .. }| squote!(
+    let EachToBeInvariantParam @ _ = Iterator::chain(
+        trait_generics_and_lt
+            .lifetimes()
+            .map(|LifetimeDef { lifetime, .. }| {
+                squote!(
                     // We need something which *names* `lifetime`,
                     // but which "yields" / results in a 'static CType.
                     // So let's use the
                     // non-generic-assoc-type-of-a-generic-trait trick for this.
                     <u8 as #ඞ::IdentityIgnoring<#lifetime>>::ItSelf
-                ))
-            ,
-            trait_generics_and_lt.type_params().map(|ty| {
-                ty.ident.to_token_stream()
-            })
-        )
-    ;
+                )
+            }),
+        trait_generics_and_lt
+            .type_params()
+            .map(|ty| ty.ident.to_token_stream()),
+    );
 
     let if_retain = args.clone.is_some().kleenable();
 
@@ -191,17 +173,19 @@ fn try_handle_trait (
     );
 
     let has_mutability = |mutability: bool| {
-        each_vtable_entry.iter().any(|it| matches!(
-            *it,
-            VTableEntry::VirtualMethod {
-                receiver: ReceiverType {
-                    kind: ReceiverKind::Reference { mut_ },
+        each_vtable_entry.iter().any(|it| {
+            matches!(
+                *it,
+                VTableEntry::VirtualMethod {
+                    receiver: ReceiverType {
+                        kind: ReceiverKind::Reference { mut_ },
+                        ..
+                    },
                     ..
-                },
-                ..
-            }
-            if mut_ == mutability
-        ))
+                }
+                if mut_ == mutability
+            )
+        })
     };
     let (mut has_pin, mut has_non_pin_non_ref) = (None, None);
     each_vtable_entry
@@ -211,29 +195,21 @@ fn try_handle_trait (
                 ref receiver,
                 ref src,
                 ..
-            } => {
-                Some((receiver, || src.sig.ident.clone()))
-            },
+            } => Some((receiver, || src.sig.ident.clone())),
         })
         .for_each(|(receiver, fname)| match receiver {
-            | ReceiverType {
-                pinned: true,
-                ..
-            } => {
+            | ReceiverType { pinned: true, .. } => {
                 has_pin.get_or_insert_with(fname);
             },
             // Tolerate `&self` refs mixed with `Pin`s:
             | ReceiverType {
                 kind: ReceiverKind::Reference { mut_: false },
                 ..
-            } => {
-                /* OK */
-            },
+            } => { /* OK */ },
             | _otherwise => {
                 has_non_pin_non_ref.get_or_insert_with(fname);
             },
-        })
-    ;
+        });
     match (&has_pin, has_non_pin_non_ref) {
         | (Some(pinned_span), Some(non_pin_non_ref_span)) => bail! {
             "`Pin<>` receivers can only be mixed with `&self` receivers"
@@ -246,13 +222,14 @@ fn try_handle_trait (
 
     let send_trait = &squote!( #ඞ::marker::Send );
     let sync_trait = &squote!( #ඞ::marker::Sync );
-    for &(is_send, is_sync) in &[
+    #[rustfmt::skip]
+    let send_or_sync_combinations = &[
         (false, false),
         (true, true),
         (true, false),
         (false, true),
-    ]
-    {
+    ];
+    for &(is_send, is_sync) in send_or_sync_combinations {
         // given the *unconditional* presence of drop glue, the thread-safe
         // intent of `Sync` without `Send` is a code smell:
         if is_sync && is_send.not() {
@@ -277,28 +254,28 @@ fn try_handle_trait (
             all_generics.lifetimes().count(),
             all_generics.type_params().count(),
         );
-        all_generics.params.insert(param_count, parse_quote!(
+        all_generics.params.insert(
+            param_count,
+            parse_quote!(
             #impl_Trait : #Trait
-        ));
-        let (intro_all_generics, fwd_all_generics, where_clause) =
-            &all_generics.split_for_impl()
-        ;
-            let mut storage = None;
+        ),
+        );
+        let (intro_all_generics, fwd_all_generics, where_clause) = &all_generics.split_for_impl();
+        let mut storage = None;
         let ref where_clause_with_mb_clone = if args.clone.is_some() {
-            Some(&*storage.get_or_insert(
-                all_generics
-                    .where_clause
-                    .as_ref()
-                    .map_or_else(|| parse_quote!(where), Clone::clone)
-                    .also(|it| it
-                        .predicates
-                        .extend_one_::<WherePredicate>(
-                            parse_quote!(
+            Some(
+                &*storage.get_or_insert(
+                    all_generics
+                        .where_clause
+                        .as_ref()
+                        .map_or_else(|| parse_quote!(where), Clone::clone)
+                        .also(|it| {
+                            it.predicates.extend_one_::<WherePredicate>(parse_quote!(
                                 #impl_Trait : #Klone
-                            )
-                        )
-                    )
-            ))
+                            ))
+                        }),
+                ),
+            )
         } else {
             all_generics.where_clause.as_ref()
         };
@@ -307,16 +284,23 @@ fn try_handle_trait (
             <#impl_Trait as #TraitName #fwd_trait_generics>
         );
 
-        let ref EACH_VTABLE_ENTRY_VALUE @ _ =
-            each_vtable_entry_value_f.iter().vmap(|f| f(&QSelf, &all_generics))
-        ;
+        let ref EACH_VTABLE_ENTRY_VALUE @ _ = each_vtable_entry_value_f
+            .iter()
+            .vmap(|f| f(&QSelf, &all_generics));
         let ref e = coercions::Env {
             ඞ,
-            Box, ErasedTy, Trait,
-            impl_Trait, lifetime,
-            intro_all_generics, intro_trait_generics_and_lt,
-            fwd_all_generics, fwd_trait_generics_and_lt,
-            where_clause, trait_where_clause, where_clause_with_mb_clone,
+            Box,
+            ErasedTy,
+            Trait,
+            impl_Trait,
+            lifetime,
+            intro_all_generics,
+            intro_trait_generics_and_lt,
+            fwd_all_generics,
+            fwd_trait_generics_and_lt,
+            where_clause,
+            trait_where_clause,
+            where_clause_with_mb_clone,
 
             Clone: args.clone.as_ref(),
             is_send,
@@ -324,7 +308,8 @@ fn try_handle_trait (
             has_mut,
             has_pin,
         };
-        let vtable_expr = |src: &Coercible| squote!(
+        let vtable_expr = |src: &Coercible| {
+            squote!(
             #VTableName {
                 #{ src.release_vptr(e) }
                 #(#if_retain
@@ -336,12 +321,13 @@ fn try_handle_trait (
             )*
                 _invariant: #ඞ::marker::PhantomData,
             }
-        );
-        let constructors: TokenStream2 =
-            coercibles
+        )
+        };
+        let constructors: TokenStream2 = coercibles
             .iter()
             .filter(|it| it.is_eligible(e))
-            .map(|src: &Coercible| squote!(
+            .map(|src: &Coercible| {
+                squote!(
                 impl #intro_all_generics
                     #VirtualPtrFrom<
                         #{ src.as_type(e) }
@@ -370,9 +356,9 @@ fn try_handle_trait (
                         }
                     }
                 }
-            ))
-            .collect()
-        ;
+            )
+            })
+            .collect();
         ret.extend(squote!(
             impl #intro_trait_generics_and_lt
                 ::safer_ffi::dyn_traits::ReprCTrait
@@ -439,13 +425,13 @@ fn try_handle_trait (
     Ok(Some(ret))
 }
 
-fn CType (ty: &'_ Type)
-  -> TokenStream2
-{
+fn CType(ty: &'_ Type) -> TokenStream2 {
     /* replace lifetimes inside `T` with … `'static`?? */
     let mut T = ty.clone();
     ::syn::visit_mut::VisitMut::visit_type_mut(
-        &mut RemapNonStaticLifetimesTo { new_lt_name: "static" },
+        &mut RemapNonStaticLifetimesTo {
+            new_lt_name: "static",
+        },
         &mut T,
     );
     squote!(

@@ -39,7 +39,8 @@ macro_rules! export_cfgs {(
         #[allow(unused)]
         pub(in crate) use $macro_name;
     )*
-)} use export_cfgs;
+)}
+use export_cfgs;
 
 // Defines a special `__with_cfg_python__!` for-downstream-code, based on the
 // usable-everywhere `$($($if_cfg_python)? … )?` conditional expansion trick:
@@ -358,8 +359,7 @@ macro_rules! ReprC {(
 #[repr(u8)]
 #[derive(Debug)]
 /// Some docstring
-pub
-enum MyBool {
+pub enum MyBool {
     /// Some variant docstring
     False = 42,
     True, // = 43
@@ -374,8 +374,7 @@ mod test {
     #[repr(u8)]
     #[derive(Debug)]
     /// Some docstring after
-    pub
-    enum MyBool {
+    pub enum MyBool {
         False = 42,
         True, // = 43
     }

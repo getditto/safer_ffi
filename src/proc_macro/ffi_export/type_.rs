@@ -1,13 +1,11 @@
 use super::*;
 
-pub(in super)
-fn handle (
+pub(super) fn handle(
     _args: parse::Nothing,
     Ty @ _: &'_ Ident,
     generics: &'_ Generics,
     input: &dyn ToTokens,
-) -> Result<TokenStream2>
-{
+) -> Result<TokenStream2> {
     if let Some(extraneous) = generics.params.first() {
         bail! {
             "generic parameters not allowed here" => extraneous,

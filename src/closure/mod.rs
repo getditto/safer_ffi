@@ -76,10 +76,30 @@ cfg_alloc! {
 pub mod borrowed;
 
 #[doc(no_inline)]
-pub use borrowed::{RefDynFnMut0, RefDynFnMut1};
+pub use borrowed::RefDynFnMut0;
+#[doc(no_inline)]
+pub use borrowed::RefDynFnMut1;
 #[cfg(not(docs))]
 #[doc(no_inline)]
-pub use borrowed::{
-    RefDynFnMut2, RefDynFnMut3, RefDynFnMut4, RefDynFnMut5,
-    RefDynFnMut6, RefDynFnMut7, RefDynFnMut8, RefDynFnMut9,
-};
+pub use borrowed::RefDynFnMut2;
+#[cfg(not(docs))]
+#[doc(no_inline)]
+pub use borrowed::RefDynFnMut3;
+#[cfg(not(docs))]
+#[doc(no_inline)]
+pub use borrowed::RefDynFnMut4;
+#[cfg(not(docs))]
+#[doc(no_inline)]
+pub use borrowed::RefDynFnMut5;
+#[cfg(not(docs))]
+#[doc(no_inline)]
+pub use borrowed::RefDynFnMut6;
+#[cfg(not(docs))]
+#[doc(no_inline)]
+pub use borrowed::RefDynFnMut7;
+#[cfg(not(docs))]
+#[doc(no_inline)]
+pub use borrowed::RefDynFnMut8;
+#[cfg(not(docs))]
+#[doc(no_inline)]
+pub use borrowed::RefDynFnMut9;

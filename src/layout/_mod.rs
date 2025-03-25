@@ -9,15 +9,15 @@ __cfg_headers__! {
     };
 }
 
-pub(in crate)
-mod macros;
+pub(crate) mod macros;
 
 #[doc(inline)]
-pub use crate::{from_CType_impl_ReprC, ReprC, CType};
-
-pub use crate::{
-    derive_ReprC,
-};
+pub use crate::CType;
+#[doc(inline)]
+pub use crate::ReprC;
+pub use crate::derive_ReprC;
+#[doc(inline)]
+pub use crate::from_CType_impl_ReprC;
 
 type_level_enum! {
     pub
@@ -29,19 +29,11 @@ type_level_enum! {
 
 /// Safety (non-exhaustive list at the moment):
 ///   - `::core::mem::zeroed::<Self>()` must be sound to use.
-pub
-unsafe
-trait CType
-:
-    Sized +
-    Copy +
-{
-    type OPAQUE_KIND : OpaqueKind::T;
+pub unsafe trait CType: Sized + Copy {
+    type OPAQUE_KIND: OpaqueKind::T;
 
     fn zeroed() -> Self {
-        unsafe {
-            ::core::mem::zeroed()
-        }
+        unsafe { ::core::mem::zeroed() }
     }
 
     __cfg_headers__! {
@@ -93,8 +85,7 @@ trait CType
     }
 }
 
-unsafe
-impl<T : LegacyCType> CType for T {
+unsafe impl<T: LegacyCType> CType for T {
     type OPAQUE_KIND = <T as LegacyCType>::OPAQUE_KIND;
 
     __cfg_headers__! {
@@ -179,8 +170,7 @@ impl<T : LegacyCType> CType for T {
     }
 }
 
-pub
-type CLayoutOf<ImplReprC> = <ImplReprC as ReprC>::CLayout;
+pub type CLayoutOf<ImplReprC> = <ImplReprC as ReprC>::CLayout;
 
 /// One of the two core traits of this crate (with [`ReprC`][`trait@ReprC`]).
 ///
@@ -193,12 +183,10 @@ type CLayoutOf<ImplReprC> = <ImplReprC as ReprC>::CLayout;
 /// That's why **manually implementing this trait is strongly discouraged**,
 /// although not forbidden:
 ///
-///   - If you trully want a manual implementation of `CType` (_e.g._, for an
-///     "opaque type" pattern, _i.e._, a forward declaration), then, to
-///     implement the trait so that it works no matter the status of
-///     the `safer_ffi/headers` feature, one must define the methods as if
-///     feature was present, but with a `#[::safer_ffi::cfg_headers]` gate slapped
-///     on _each_ method.
+///   - If you trully want a manual implementation of `CType` (_e.g._, for an "opaque type" pattern,
+///     _i.e._, a forward declaration), then, to implement the trait so that it works no matter the
+///     status of the `safer_ffi/headers` feature, one must define the methods as if feature was
+///     present, but with a `#[::safer_ffi::cfg_headers]` gate slapped on _each_ method.
 ///
 /// # Safety
 ///
@@ -215,23 +203,16 @@ type CLayoutOf<ImplReprC> = <ImplReprC as ReprC>::CLayout;
 ///
 ///   - and recursively, a non-zero-sized `#[repr(C)]` struct of `CType` fields.
 ///
-///       - the [`CType!`] macro can be used to wrap a `#[repr(C)]` struct
-///         definition to _safely_ and automagically implement the trait
-///         when it is sound to do so.
+///       - the [`CType!`] macro can be used to wrap a `#[repr(C)]` struct definition to _safely_
+///         and automagically implement the trait when it is sound to do so.
 ///
 /// Note that types such as Rust's [`bool`] are ruled out by this definition,
 /// since it has the ABI of a `u8 <-> uint8_t`, and yet there are many
 /// bit-patterns for the `uint8_t` type that do not make _valid_ `bool`s.
 ///
 /// For such types, see the [`ReprC`][`trait@ReprC`] trait.
-pub
-unsafe trait LegacyCType
-:
-    Sized +
-    Copy +
-    CType +
-{
-    type OPAQUE_KIND : OpaqueKind::T;
+pub unsafe trait LegacyCType: Sized + Copy + CType {
+    type OPAQUE_KIND: OpaqueKind::T;
     __cfg_headers__! {
         /// A short-name description of the type, mainly used to fill
         /// "placeholders" such as when monomorphising generics structs or
@@ -745,7 +726,7 @@ __cfg_headers__! {
 ///
 /// #[derive_ReprC]
 /// #[repr(C)]
-/// struct Point<Coordinate : ReprC> {
+/// struct Point<Coordinate: ReprC> {
 ///     x: Coordinate,
 ///     y: Coordinate,
 /// }
@@ -770,11 +751,9 @@ __cfg_headers__! {
 ///         double y;
 ///     } Point_double_t;
 ///     ```
-pub
-unsafe
-trait ReprC : Sized {
+pub unsafe trait ReprC: Sized {
     /// The `CType` having the same layout as `Self`.
-    type CLayout : CType;
+    type CLayout: CType;
 
     /// Sanity checks that can be performed on an instance of the `CType`
     /// layout.
@@ -784,16 +763,15 @@ trait ReprC : Sized {
     ///
     /// Implementation-wise, this function is only a "sanity check" step:
     ///
-    ///   - It is valid (although rather pointless) for this function to always
-    ///     return `true`, even if the input may be `unsafe` to transmute to
-    ///     `Self`, or even be an _invalid_ value of type `Self`.
+    ///   - It is valid (although rather pointless) for this function to always return `true`, even
+    ///     if the input may be `unsafe` to transmute to `Self`, or even be an _invalid_ value of
+    ///     type `Self`.
     ///
-    ///   - In the other direction, it is not unsound, although it would be a
-    ///     logic error, to always return `false`.
+    ///   - In the other direction, it is not unsound, although it would be a logic error, to always
+    ///     return `false`.
     ///
-    ///   - This is because it is impossible to have a function that for any
-    ///     type is able to tell if a given bit pattern is a safe value of that
-    ///     type.
+    ///   - This is because it is impossible to have a function that for any type is able to tell if
+    ///     a given bit pattern is a safe value of that type.
     ///
     /// In practice, if this function returns `false`, then such result must be
     /// trusted, _i.e._, transmuting such instance to the `Self` type will,
@@ -835,9 +813,7 @@ trait ReprC : Sized {
     ///
     /// Still, there may be _safety_ invariants involved with custom types,
     /// so even then it is unclear.
-    fn is_valid (it: &'_ Self::CLayout)
-      -> bool
-    ;
+    fn is_valid(it: &'_ Self::CLayout) -> bool;
 }
 
 #[doc(hidden)] /** For clarity;
@@ -867,12 +843,10 @@ macro_rules! from_CType_impl_ReprC {(
 )}
 
 #[inline]
-pub
-unsafe
-fn from_raw_unchecked<T : ReprC> (c_layout: T::CLayout)
-  -> T
-{
-    if let Some(it) = unsafe { from_raw::<T>(c_layout) } { it } else {
+pub unsafe fn from_raw_unchecked<T: ReprC>(c_layout: T::CLayout) -> T {
+    if let Some(it) = unsafe { from_raw::<T>(c_layout) } {
+        it
+    } else {
         if cfg!(debug_assertions) || cfg!(test) {
             panic!(
                 "Error: not a valid bit-pattern for the type `{}`",
@@ -880,20 +854,14 @@ fn from_raw_unchecked<T : ReprC> (c_layout: T::CLayout)
                 ::core::any::type_name::<T>(),
             );
         } else {
-            unsafe {
-                ::core::hint::unreachable_unchecked()
-            }
+            unsafe { ::core::hint::unreachable_unchecked() }
         }
     }
 }
 
 #[deny(unsafe_op_in_unsafe_fn)]
 #[inline]
-pub
-unsafe
-fn from_raw<T : ReprC> (c_layout: T::CLayout)
-  -> Option<T>
-{
+pub unsafe fn from_raw<T: ReprC>(c_layout: T::CLayout) -> Option<T> {
     if <T as ReprC>::is_valid(&c_layout).not() {
         None
     } else {
@@ -909,22 +877,12 @@ fn from_raw<T : ReprC> (c_layout: T::CLayout)
 
 #[deny(unsafe_op_in_unsafe_fn)]
 #[inline]
-pub
-unsafe // May not be sound when input has uninit bytes that the output does not
-       // have.
-fn into_raw<T : ReprC> (it: T)
-  -> T::CLayout
-{
-    unsafe {
-        crate::utils::transmute_unchecked(
-            ::core::mem::ManuallyDrop::new(it)
-        )
-    }
+pub unsafe fn into_raw<T: ReprC>(it: T) -> T::CLayout {
+    unsafe { crate::utils::transmute_unchecked(::core::mem::ManuallyDrop::new(it)) }
 }
 
 pub use impls::Opaque;
-pub(in crate)
-mod impls;
+pub(crate) mod impls;
 
 mod niche;
 
@@ -932,31 +890,31 @@ mod niche;
 use niche::HasNiche as __HasNiche__;
 
 #[apply(hidden_export)]
-trait Is { type EqTo : ?Sized; }
-impl<T : ?Sized> Is for T { type EqTo = Self; }
+trait Is {
+    type EqTo: ?Sized;
+}
+impl<T: ?Sized> Is for T {
+    type EqTo = Self;
+}
 
 /// Alias for `ReprC where Self::CLayout::OPAQUE_KIND = OpaqueKind::Concrete`
-pub
-trait ConcreteReprC
+pub trait ConcreteReprC
 where
-    Self : ReprC,
+    Self: ReprC,
 {
-    type ConcreteCLayout
-    :
-        Is<EqTo = CLayoutOf<Self>> +
-        CType<OPAQUE_KIND = OpaqueKind::Concrete> +
-    ;
+    type ConcreteCLayout: Is<EqTo = CLayoutOf<Self>> + CType<OPAQUE_KIND = OpaqueKind::Concrete>;
 }
-impl<T : ?Sized> ConcreteReprC for T
+impl<T: ?Sized> ConcreteReprC for T
 where
-    Self : ReprC,
-    CLayoutOf<Self> : CType<OPAQUE_KIND = OpaqueKind::Concrete>,
+    Self: ReprC,
+    CLayoutOf<Self>: CType<OPAQUE_KIND = OpaqueKind::Concrete>,
 {
     type ConcreteCLayout = CLayoutOf<Self>;
 }
 
 #[apply(hidden_export)]
-fn __assert_concrete__<T> ()
+fn __assert_concrete__<T>()
 where
-    T : ConcreteReprC,
-{}
+    T: ConcreteReprC,
+{
+}

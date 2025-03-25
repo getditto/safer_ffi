@@ -2,30 +2,23 @@ use super::*;
 
 /// Models an `async` runtime's _handle_.
 #[derive_ReprC(dyn, Clone)]
-pub
-trait FfiFutureExecutor : Send + Sync {
-    fn dyn_spawn (
+pub trait FfiFutureExecutor: Send + Sync {
+    fn dyn_spawn(
         self: &'_ Self,
         future: VirtualPtr<dyn 'static + Send + FfiFuture>,
-    ) -> VirtualPtr<dyn 'static + Send + FfiFuture>
-    ;
+    ) -> VirtualPtr<dyn 'static + Send + FfiFuture>;
 
-    fn dyn_spawn_blocking (
+    fn dyn_spawn_blocking(
         self: &'_ Self,
         action: repr_c::Box<dyn 'static + Send + FnMut()>,
-    ) -> VirtualPtr<dyn 'static + Send + FfiFuture>
-    ;
+    ) -> VirtualPtr<dyn 'static + Send + FfiFuture>;
 
-    fn dyn_block_on (
+    fn dyn_block_on(
         self: &'_ Self,
         future: VirtualPtr<dyn '_ + FfiFuture>,
-    )
-    ;
+    );
 
-    fn dyn_enter (
-        self: &'_ Self,
-    ) -> VirtualPtr<dyn '_ + DropGlue>
-    {
+    fn dyn_enter(self: &'_ Self) -> VirtualPtr<dyn '_ + DropGlue> {
         Box::new(ImplDropGlue(())).into()
     }
 }

@@ -7,7 +7,8 @@ const_assert! {
     ::core::mem::size_of::<crate::libc::size_t>()
 }
 
-const _: () = { macro_rules! impl_CTypes {
+const _: () = {
+    macro_rules! impl_CTypes {
     () => (
         impl_CTypes! { @pointers }
         impl_CTypes! { @zsts }
@@ -648,7 +649,9 @@ const _: () = { macro_rules! impl_CTypes {
             }
         }
     );
-} impl_CTypes! {} };
+}
+    impl_CTypes! {}
+};
 
 #[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! impl_ReprC_for {(
@@ -695,8 +698,7 @@ macro_rules! impl_ReprC_for {(
 #[repr(transparent)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 #[allow(missing_debug_implementations)]
-pub
-struct Bool(u8);
+pub struct Bool(u8);
 
 #[cfg(feature = "js")]
 const _: () = {
@@ -705,97 +707,92 @@ const _: () = {
     impl ReprNapi for Bool {
         type NapiValue = JsBoolean;
 
-        fn to_napi_value (
+        fn to_napi_value(
             self: Self,
             env: &'_ Env,
-        ) -> Result< JsBoolean >
-        {
+        ) -> Result<JsBoolean> {
             env.get_boolean(match self.0 {
-                0 => false,
-                1 => true,
-                bad => unreachable!("({:#x}: Bool) != 0x0, 0x1", bad),
+                | 0 => false,
+                | 1 => true,
+                | bad => unreachable!("({:#x}: Bool) != 0x0, 0x1", bad),
             })
         }
 
-        fn from_napi_value (
+        fn from_napi_value(
             _env: &'_ Env,
             napi_value: JsBoolean,
-        ) -> Result<Self>
-        {
+        ) -> Result<Self> {
             napi_value.get_value().map(|b: bool| Self(b as _))
         }
     }
 };
 
-unsafe
-    impl LegacyCType
-        for Bool
-    {
-        __cfg_headers__! {
-            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-              -> fmt::Result
+unsafe impl LegacyCType for Bool {
+    __cfg_headers__! {
+        fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+          -> fmt::Result
+        {
+            fmt.write_str("bool")
+        }
+
+        fn c_define_self (definer: &'_ mut dyn Definer)
+          -> io::Result<()>
+        {
+            definer.define_once(
+                "bool",
+                &mut |definer| {
+                    definer.out().write_all(
+                        b"\n#include <stdbool.h>\n\n"
+                    )
+                },
+            )
+        }
+
+        fn c_var_fmt (
+            fmt: &'_ mut fmt::Formatter<'_>,
+            var_name: &'_ str,
+        ) -> fmt::Result
+        {
+            write!(fmt,
+                "bool{sep}{}",
+                var_name,
+                sep = if var_name.is_empty() { "" } else { " " },
+            )
+        }
+
+        __cfg_csharp__! {
+            fn csharp_define_self (
+                _: &'_ mut dyn crate::headers::Definer,
+            ) -> io::Result<()>
             {
-                fmt.write_str("bool")
+                Ok(())
             }
 
-            fn c_define_self (definer: &'_ mut dyn Definer)
-              -> io::Result<()>
+            fn legacy_csharp_marshaler ()
+              -> Option<rust::String>
             {
-                definer.define_once(
-                    "bool",
-                    &mut |definer| {
-                        definer.out().write_all(
-                            b"\n#include <stdbool.h>\n\n"
-                        )
-                    },
-                )
+                Some("UnmanagedType.U1".into())
             }
 
-            fn c_var_fmt (
-                fmt: &'_ mut fmt::Formatter<'_>,
-                var_name: &'_ str,
-            ) -> fmt::Result
+            fn csharp_ty ()
+              -> rust::String
             {
-                write!(fmt,
-                    "bool{sep}{}",
-                    var_name,
-                    sep = if var_name.is_empty() { "" } else { " " },
-                )
-            }
-
-            __cfg_csharp__! {
-                fn csharp_define_self (
-                    _: &'_ mut dyn crate::headers::Definer,
-                ) -> io::Result<()>
-                {
-                    Ok(())
-                }
-
-                fn legacy_csharp_marshaler ()
-                  -> Option<rust::String>
-                {
-                    Some("UnmanagedType.U1".into())
-                }
-
-                fn csharp_ty ()
-                  -> rust::String
-                {
-                    "bool".into()
-                }
-            }
-
-            __cfg_lua__! {
-                fn lua_define_self (
-                    _: &'_ mut dyn crate::headers::Definer,
-                ) -> io::Result<()>
-                {
-                    Ok(())
-                }
+                "bool".into()
             }
         }
 
-        type OPAQUE_KIND = OpaqueKind::Concrete;
+        __cfg_lua__! {
+            fn lua_define_self (
+                _: &'_ mut dyn crate::headers::Definer,
+            ) -> io::Result<()>
+            {
+                Ok(())
+            }
+        }
     }
+
+    type OPAQUE_KIND = OpaqueKind::Concrete;
+}
 from_CType_impl_ReprC! { Bool }
 
 /// A `ReprC` _standalone_ type with the same layout and ABI as
@@ -808,80 +805,77 @@ from_CType_impl_ReprC! { Bool }
 /// By using this type, you guarantee that the C `int` type be used in the headers.
 #[repr(transparent)]
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub
-struct c_int(pub crate::libc::c_int);
+pub struct c_int(pub crate::libc::c_int);
 
 impl ::core::fmt::Debug for c_int {
-    fn fmt (self: &'_ c_int, fmt: &'_ mut ::core::fmt::Formatter<'_>)
-      -> ::core::fmt::Result
-    {
+    fn fmt(
+        self: &'_ c_int,
+        fmt: &'_ mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         ::core::fmt::Debug::fmt(&self.0, fmt)
     }
 }
 
-unsafe
-    impl LegacyCType
-        for c_int
-    {
-        __cfg_headers__! {
-            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-                -> fmt::Result
-            {
-                fmt.write_str("int")
-            }
+unsafe impl LegacyCType for c_int {
+    __cfg_headers__! {
+        fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+            -> fmt::Result
+        {
+            fmt.write_str("int")
+        }
 
-            fn c_var_fmt (
-                fmt: &'_ mut fmt::Formatter<'_>,
-                var_name: &'_ str,
-            ) -> fmt::Result
-            {
-                write!(fmt,
-                    "int{sep}{}",
-                    var_name,
-                    sep = if var_name.is_empty() { "" } else { " " },
-                )
-            }
+        fn c_var_fmt (
+            fmt: &'_ mut fmt::Formatter<'_>,
+            var_name: &'_ str,
+        ) -> fmt::Result
+        {
+            write!(fmt,
+                "int{sep}{}",
+                var_name,
+                sep = if var_name.is_empty() { "" } else { " " },
+            )
+        }
 
-            fn c_define_self (
+        fn c_define_self (
+            _: &'_ mut dyn crate::headers::Definer,
+        ) -> io::Result<()>
+        {
+            Ok(())
+        }
+
+        __cfg_csharp__! {
+            fn csharp_define_self (
                 _: &'_ mut dyn crate::headers::Definer,
             ) -> io::Result<()>
             {
                 Ok(())
             }
 
-            __cfg_csharp__! {
-                fn csharp_define_self (
-                    _: &'_ mut dyn crate::headers::Definer,
-                ) -> io::Result<()>
-                {
-                    Ok(())
-                }
-
-                fn csharp_ty ()
-                  -> rust::String
-                {
-                    "int".into()
-                }
-
-                fn legacy_csharp_marshaler ()
-                  -> Option<rust::String>
-                {
-                    Some("UnmanagedType.SysInt".into())
-                }
+            fn csharp_ty ()
+              -> rust::String
+            {
+                "int".into()
             }
 
-            __cfg_lua__! {
-                fn lua_define_self (
-                    _: &'_ mut dyn crate::headers::Definer,
-                ) -> io::Result<()>
-                {
-                    Ok(())
-                }
+            fn legacy_csharp_marshaler ()
+              -> Option<rust::String>
+            {
+                Some("UnmanagedType.SysInt".into())
             }
         }
 
-        type OPAQUE_KIND = OpaqueKind::Concrete;
+        __cfg_lua__! {
+            fn lua_define_self (
+                _: &'_ mut dyn crate::headers::Definer,
+            ) -> io::Result<()>
+            {
+                Ok(())
+            }
+        }
     }
+
+    type OPAQUE_KIND = OpaqueKind::Concrete;
+}
 
 impl_ReprC_for! { unsafe {
     bool
@@ -942,20 +936,13 @@ impl_ReprC_for! { unsafe {
         },
 }}
 
-pub
-type OpaqueLayout<T> = OpaqueLayout_<
-    ::core::marker::PhantomData<T>,
->;
+pub type OpaqueLayout<T> = OpaqueLayout_<::core::marker::PhantomData<T>>;
 
 #[derive(Debug, Clone, Copy)]
-pub
-struct OpaqueLayout_<Phantom> (
-    Phantom,
-);
+pub struct OpaqueLayout_<Phantom>(Phantom);
 
 from_CType_impl_ReprC!(@for[T] OpaqueLayout<T>);
-unsafe
-impl<T> CType for OpaqueLayout<T> {
+unsafe impl<T> CType for OpaqueLayout<T> {
     type OPAQUE_KIND = OpaqueKind::Opaque;
 
     __cfg_headers__! {
@@ -988,76 +975,54 @@ impl<T> CType for OpaqueLayout<T> {
 
 #[derive(Debug)]
 #[repr(transparent)]
-pub
-struct Opaque<T> {
+pub struct Opaque<T> {
     pub concrete: T,
 }
 
 impl<T> ::core::ops::Deref for Opaque<T> {
     type Target = T;
 
-    fn deref (self: &'_ Opaque<T>)
-      -> &'_ T
-    {
+    fn deref(self: &'_ Opaque<T>) -> &'_ T {
         &self.concrete
     }
 }
 
 impl<T> ::core::ops::DerefMut for Opaque<T> {
-    fn deref_mut (self: &'_ mut Opaque<T>)
-      -> &'_ mut T
-    {
+    fn deref_mut(self: &'_ mut Opaque<T>) -> &'_ mut T {
         &mut self.concrete
     }
 }
 
 #[apply(cfg_alloc)]
 impl<T> From<rust::Box<T>> for rust::Box<Opaque<T>> {
-    fn from (b: rust::Box<T>)
-      -> rust::Box<Opaque<T>>
-    {
-        unsafe {
-            rust::Box::from_raw(rust::Box::into_raw(b).cast())
-        }
+    fn from(b: rust::Box<T>) -> rust::Box<Opaque<T>> {
+        unsafe { rust::Box::from_raw(rust::Box::into_raw(b).cast()) }
     }
 }
 
 #[apply(cfg_alloc)]
 impl<T> From<rust::Box<T>> for crate::boxed::Box_<Opaque<T>> {
-    fn from (b: rust::Box<T>)
-      -> repr_c::Box<Opaque<T>>
-    {
+    fn from(b: rust::Box<T>) -> repr_c::Box<Opaque<T>> {
         rust::Box::<Opaque<T>>::from(b).into()
     }
 }
 
 impl<'r, T> From<&'r T> for &'r Opaque<T> {
-    fn from (r: &'r T)
-      -> &'r Opaque<T>
-    {
-        unsafe {
-            &* <*const _>::cast::<Opaque<T>>(r)
-        }
+    fn from(r: &'r T) -> &'r Opaque<T> {
+        unsafe { &*<*const _>::cast::<Opaque<T>>(r) }
     }
 }
 
 impl<'r, T> From<&'r mut T> for &'r mut Opaque<T> {
-    fn from (r: &'r mut T)
-      -> &'r mut Opaque<T>
-    {
-        unsafe {
-            &mut* <*mut _>::cast::<Opaque<T>>(r)
-        }
+    fn from(r: &'r mut T) -> &'r mut Opaque<T> {
+        unsafe { &mut *<*mut _>::cast::<Opaque<T>>(r) }
     }
 }
 
-unsafe
-impl<T> ReprC for Opaque<T> {
+unsafe impl<T> ReprC for Opaque<T> {
     type CLayout = OpaqueLayout<T>;
 
-    fn is_valid (_: &'_ Self::CLayout)
-      -> bool
-    {
+    fn is_valid(_: &'_ Self::CLayout) -> bool {
         unreachable! {"\
             wondering about the validity of an opaque type \
             makes no sense\
@@ -1118,146 +1083,141 @@ macro_rules! opaque_impls {(
             }
         }
     )*
-)} use opaque_impls;
-
+)}
+use opaque_impls;
 
 /// Arrays of const size `N`
-unsafe // Safety: Rust arrays _are_ `#[repr(C)]`
-impl<Item : CType, const N: usize> LegacyCType
-    for [Item; N]
-{ __cfg_headers__! {
-    fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-      -> fmt::Result
-    {
-        // item_N_array
-        write!(fmt, "{}_{}_array", Item::short_name(), N)
-    }
+unsafe impl<Item: CType, const N: usize> LegacyCType for [Item; N] {
+    __cfg_headers__! {
+        fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
+          -> fmt::Result
+        {
+            // item_N_array
+            write!(fmt, "{}_{}_array", Item::short_name(), N)
+        }
 
-    fn c_define_self (definer: &'_ mut dyn Definer)
-      -> io::Result<()>
-    {
-        let ref me = Self::c_var("").to_string();
-        definer.define_once(
-            me,
-            &mut |definer| {
-                Item::define_self(&crate::headers::languages::C, definer)?;
-                writeln!(definer.out(),
-                    concat!(
-                        "typedef struct {{\n",
-                        "    {inline_array};\n",
-                        "}} {me};\n",
-                    ),
-                    inline_array = Item::name_wrapping_var(
-                        &crate::headers::languages::C,
-                        &format!("idx[{}]", N)
-                    ),
-                    me = me,
-                )
-            }
-        )
-    }
-
-    fn c_var_fmt (
-        fmt: &'_ mut fmt::Formatter<'_>,
-        var_name: &'_ str,
-    ) -> fmt::Result
-    {
-        // _e.g._, item_N_array_t
-        write!(fmt,
-            "{}_t{sep}{}",
-            Self::c_short_name(),
-            var_name,
-            sep = if var_name.is_empty() { "" } else { " " },
-        )
-    }
-
-    __cfg_csharp__! {
-        fn csharp_define_self (definer: &'_ mut dyn Definer)
+        fn c_define_self (definer: &'_ mut dyn Definer)
           -> io::Result<()>
         {
-            let ref me = Self::csharp_ty();
-            Item::define_self(&crate::headers::languages::CSharp, definer)?;
-            definer.define_once(me, &mut |definer| {
-                let array_items = {
-                    // Poor man's specialization to use `fixed` arrays.
-                    if  [
-                            "bool",
-                            "u8", "u16", "u32", "u64", "usize",
-                            "i8", "i16", "i32", "i64", "isize",
-                            "float", "double",
-                        ].contains(&::core::any::type_name::<Item>())
-                    {
-                        format!(
-                            "    public fixed {ItemTy} arr[{N}];\n",
-                            ItemTy = Item::name(&crate::headers::languages::CSharp),
-                            N = N,
-                            // no need for a marshaler here
-                        )
-                    } else {
-                        // Sadly for the general case fixed arrays are
-                        // not supported.
-                        (0 .. N)
-                            .map(|i| format!(
-                                "    \
-                                {marshaler}\
-                                public {ItemTy} _{i};\n",
+            let ref me = Self::c_var("").to_string();
+            definer.define_once(
+                me,
+                &mut |definer| {
+                    Item::define_self(&crate::headers::languages::C, definer)?;
+                    writeln!(definer.out(),
+                        concat!(
+                            "typedef struct {{\n",
+                            "    {inline_array};\n",
+                            "}} {me};\n",
+                        ),
+                        inline_array = Item::name_wrapping_var(
+                            &crate::headers::languages::C,
+                            &format!("idx[{}]", N)
+                        ),
+                        me = me,
+                    )
+                }
+            )
+        }
+
+        fn c_var_fmt (
+            fmt: &'_ mut fmt::Formatter<'_>,
+            var_name: &'_ str,
+        ) -> fmt::Result
+        {
+            // _e.g._, item_N_array_t
+            write!(fmt,
+                "{}_t{sep}{}",
+                Self::c_short_name(),
+                var_name,
+                sep = if var_name.is_empty() { "" } else { " " },
+            )
+        }
+
+        __cfg_csharp__! {
+            fn csharp_define_self (definer: &'_ mut dyn Definer)
+              -> io::Result<()>
+            {
+                let ref me = Self::csharp_ty();
+                Item::define_self(&crate::headers::languages::CSharp, definer)?;
+                definer.define_once(me, &mut |definer| {
+                    let array_items = {
+                        // Poor man's specialization to use `fixed` arrays.
+                        if  [
+                                "bool",
+                                "u8", "u16", "u32", "u64", "usize",
+                                "i8", "i16", "i32", "i64", "isize",
+                                "float", "double",
+                            ].contains(&::core::any::type_name::<Item>())
+                        {
+                            format!(
+                                "    public fixed {ItemTy} arr[{N}];\n",
                                 ItemTy = Item::name(&crate::headers::languages::CSharp),
-                                i = i,
-                                marshaler =
-                                    Item::csharp_marshaler()
-                                        .map(|m| format!("[MarshalAs({})]\n    ", m))
-                                        .as_deref()
-                                        .unwrap_or("")
-                                ,
-                            ))
-                            .collect::<rust::String>()
-                    }
+                                N = N,
+                                // no need for a marshaler here
+                            )
+                        } else {
+                            // Sadly for the general case fixed arrays are
+                            // not supported.
+                            (0 .. N)
+                                .map(|i| format!(
+                                    "    \
+                                    {marshaler}\
+                                    public {ItemTy} _{i};\n",
+                                    ItemTy = Item::name(&crate::headers::languages::CSharp),
+                                    i = i,
+                                    marshaler =
+                                        Item::csharp_marshaler()
+                                            .map(|m| format!("[MarshalAs({})]\n    ", m))
+                                            .as_deref()
+                                            .unwrap_or("")
+                                    ,
+                                ))
+                                .collect::<rust::String>()
+                        }
+                    };
+                    writeln!(definer.out(),
+                        concat!(
+                            "[StructLayout(LayoutKind.Sequential, Size = {size})]\n",
+                            "public unsafe struct {me} {{\n",
+                            "{array_items}",
+                            "}}\n",
+                        ),
+                        me = me,
+                        array_items = array_items,
+                        size = mem::size_of::<Self>(),
+                    )
+                })
+            }
+        }
+
+        __cfg_lua__! {
+            fn lua_define_self (definer: &'_ mut dyn Definer)
+              -> io::Result<()>
+            {
+                Item::define_self(&crate::headers::languages::Lua, definer)
+            }
+
+            fn lua_var(var_name: &'_ str) -> rust::String {
+                let item_name = Item::name(&crate::headers::languages::Lua);
+                let sep = if var_name.is_empty() { "" } else { " " };
+                let (base_type, dimensions) = match item_name.find('[') {
+                    Some(index) => (&item_name[0..index], &item_name[index..]),
+                    None => (item_name.as_str(), ""),
                 };
-                writeln!(definer.out(),
-                    concat!(
-                        "[StructLayout(LayoutKind.Sequential, Size = {size})]\n",
-                        "public unsafe struct {me} {{\n",
-                        "{array_items}",
-                        "}}\n",
-                    ),
-                    me = me,
-                    array_items = array_items,
-                    size = mem::size_of::<Self>(),
-                )
-            })
+
+                format!("{base_type}{sep}{var_name}[{N}]{dimensions}")
+            }
         }
     }
+    type OPAQUE_KIND = OpaqueKind::Concrete;
+}
 
-    __cfg_lua__! {
-        fn lua_define_self (definer: &'_ mut dyn Definer)
-          -> io::Result<()>
-        {
-            Item::define_self(&crate::headers::languages::Lua, definer)
-        }
-
-        fn lua_var(var_name: &'_ str) -> rust::String {
-            let item_name = Item::name(&crate::headers::languages::Lua);
-            let sep = if var_name.is_empty() { "" } else { " " };
-            let (base_type, dimensions) = match item_name.find('[') {
-                Some(index) => (&item_name[0..index], &item_name[index..]),
-                None => (item_name.as_str(), ""),
-            };
-
-            format!("{base_type}{sep}{var_name}[{N}]{dimensions}")
-        }
-    }
-} type OPAQUE_KIND = OpaqueKind::Concrete; }
-
-unsafe
-impl<Item : ReprC, const N: usize> ReprC
-    for [Item; N]
-{
+unsafe impl<Item: ReprC, const N: usize> ReprC for [Item; N] {
     type CLayout = [Item::CLayout; N];
 
     #[inline]
-    fn is_valid (it: &'_ Self::CLayout)
-      -> bool
-    {
+    fn is_valid(it: &'_ Self::CLayout) -> bool {
         it.iter().all(Item::is_valid)
     }
 }

@@ -1,6 +1,7 @@
-use super::*;
+use ::core::convert::TryFrom;
+use ::core::convert::TryInto;
 
-use ::core::convert::{TryFrom, TryInto};
+use super::*;
 
 match_! {(
     (u32, create_uint32 => u8, u16, u32),
@@ -387,20 +388,30 @@ match_! {(
     )
 }}
 
-impl<const N: usize> ReprNapi for [u8;N] {
+impl<const N: usize> ReprNapi for [u8; N] {
     type NapiValue = JsBuffer;
 
     #[inline]
-    fn to_napi_value(self, env: &'_ Env) -> Result<JsBuffer> {
-        env.create_buffer_copy(&self[..]).map(|x| {x.into_raw() })
+    fn to_napi_value(
+        self,
+        env: &'_ Env,
+    ) -> Result<JsBuffer> {
+        env.create_buffer_copy(&self[..]).map(|x| x.into_raw())
     }
 
-    fn from_napi_value(_env: &'_ Env, buffer: JsBuffer) -> Result<Self> {
+    fn from_napi_value(
+        _env: &'_ Env,
+        buffer: JsBuffer,
+    ) -> Result<Self> {
         let val = buffer.into_value()?;
         if let Ok(output) = Self::try_from(&val[..]) {
             Ok(output)
         } else {
-            return Err(Error::new(Status::InvalidArg, format!("Length mismatch. Expected {}, Got {}", N, val.len())).into())
+            return Err(Error::new(
+                Status::InvalidArg,
+                format!("Length mismatch. Expected {}, Got {}", N, val.len()),
+            )
+            .into());
         }
     }
 }
