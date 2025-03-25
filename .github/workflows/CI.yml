@@ -14,15 +14,6 @@ env:
   URL_ROOT_PATH: /safer_ffi/
 
 jobs:
-  cancel-previous:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.12.1
-        with:
-          access_token: ${{ github.token }}
-
   # Check no_std #
   check-nostd:
     name: 'Check `#![no_std]`'
