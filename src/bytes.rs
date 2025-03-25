@@ -889,7 +889,7 @@ fn fuzz_stabby() {
     use rand::Rng;
     use stabby::sync::ArcSlice;
     use stabby::vec::Vec;
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     for _ in 0..1000 {
         let data: ArcSlice<u8> = (0..rng.random_range(10..100))
             .map(|_| rng.random())
