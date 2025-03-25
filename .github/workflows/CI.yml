@@ -46,6 +46,24 @@ jobs:
             --no-default-features --features alloc
             --target x86_64-unknown-linux-gnu -Zbuild-std=core,alloc
 
+  # == Check formatting == #
+  check-formatting:
+    name: Check formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly-2025-01-03  # branch-from-master date of 1.85.0
+          override: true
+          components: rustfmt
+
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - run: ./scripts/format.sh --check
+
   # == CHECK == #
   check:
     name: Check nightly stable and MSRV
@@ -204,6 +222,7 @@ jobs:
     needs:
       - check-nostd
       - check
+      - check-formatting
       - check-features
       - build-and-test
       # the proc-macro dep, when version-bumped, will make this fail.

@@ -13,6 +13,8 @@ unset RUSTUP_TOOLCHAIN ||:
 
 (set -x; cargo fmt -- -V)
 
+pids=()
+
 MANIFEST_PATHS=(
     ./Cargo.toml
     ./src/proc_macro/Cargo.toml
@@ -28,6 +30,9 @@ MANIFEST_PATHS=(
     ./examples/point/Cargo.toml
 )
 for manifest_path in "${MANIFEST_PATHS[@]}"; do
-    (set -x; cargo fmt --manifest-path "../../${manifest_path}") &
+    (set -x; cargo fmt --manifest-path "../../${manifest_path}" -- "$@") & pids+=($!)
 done
-wait
+
+for pid in "${pids[@]}"; do
+    wait "${pid}"
+done
