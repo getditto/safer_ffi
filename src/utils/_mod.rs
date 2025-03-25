@@ -25,7 +25,9 @@ fn transmute_unchecked<T, U> (ref it: T)
         "Error, input has drop glue. \
         This is a soundness bug, please report an issue ASAP",
     );
-    ::core::mem::transmute_copy(it)
+    unsafe {
+        ::core::mem::transmute_copy(it)
+    }
 }
 
 #[allow(warnings)]

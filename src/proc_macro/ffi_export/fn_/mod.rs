@@ -165,7 +165,7 @@ fn handle (
     );
     ffi_fun.attrs.push(parse_quote!(
         #[cfg_attr(not(target_arch = "wasm32"),
-            export_name = #export_name_str,
+            unsafe(export_name = #export_name_str),
         )]
     ));
     #[apply(let_quote!)]

@@ -5,7 +5,7 @@ path = "src/_lib.rs"
 name = "safer-ffi"
 version = "0.2.0-alpha.0"                                                    # Keep in sync
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
-edition = "2021"
+edition = "2024"
 rust-version = "1.85.0"
 
 description = "Write safer FFI code in Rust without polluting it with unsafe code"
@@ -81,7 +81,7 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(docs)'] }
 [dev-dependencies]
 safer-ffi.path = "."
 safer-ffi.features = ["internal-tests"]
-rand = "0.8.5"
+rand = "0.9.0"
 serde_test = { version = "1.0.177" }
 
 [dependencies]

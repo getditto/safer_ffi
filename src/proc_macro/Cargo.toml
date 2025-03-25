@@ -6,7 +6,7 @@ proc-macro = true
 name = "safer_ffi-proc_macros"
 version = "0.2.0-alpha.0"                                                    # Keep in sync
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
-edition = "2021"
+edition = "2024"
 
 description = "Procedural macro internals of `::safer_ffi`"
 license = "MIT"

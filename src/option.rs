@@ -29,7 +29,7 @@ where
     type CLayout =
         crate::layout::CLayoutOf<crate::tuple::Tuple2<bool, crate::layout::CLayoutOf<T>>>;
     fn is_valid(it: &'_ Self::CLayout) -> bool {
-        match unsafe { core::mem::transmute_copy::<_, u8>(it) } {
+        match unsafe { ::core::mem::transmute_copy::<_, u8>(it) } {
             0 => true,
             1 => T::is_valid(unsafe {
                 &*(it as *const _ as *const u8)
@@ -42,7 +42,7 @@ where
 }
 
 impl<T> From<core::option::Option<T>> for TaggedOption<T> {
-    fn from(value: core::option::Option<T>) -> Self {
+    fn from(value: ::core::option::Option<T>) -> Self {
         match value {
             Some(v) => Self::Some(v),
             None => Self::None,
@@ -50,7 +50,7 @@ impl<T> From<core::option::Option<T>> for TaggedOption<T> {
     }
 }
 
-impl<T> From<TaggedOption<T>> for core::option::Option<T> {
+impl<T> From<TaggedOption<T>> for ::core::option::Option<T> {
     fn from(value: TaggedOption<T>) -> Self {
         match value {
             TaggedOption::Some(v) => Self::Some(v),
@@ -67,14 +67,14 @@ impl<T> From<T> for TaggedOption<T> {
 
 impl<T> TaggedOption<T> {
     /// Returns a reference to `self`'s contents if it is `Some`.
-    pub fn as_ref(&self) -> core::option::Option<&T> {
+    pub fn as_ref(&self) -> ::core::option::Option<&T> {
         match self {
             Self::None => None,
             Self::Some(v) => Some(v),
         }
     }
     /// Returns a mutable reference to `self`'s contents if it is `Some`.
-    pub fn as_mut(&mut self) -> core::option::Option<&mut T> {
+    pub fn as_mut(&mut self) -> ::core::option::Option<&mut T> {
         match self {
             Self::None => None,
             Self::Some(v) => Some(v),
@@ -101,11 +101,11 @@ impl<T> TaggedOption<T> {
 
     /// Takes the current value of `self`, replacing it with `None`
     pub fn take(&mut self) -> Self {
-        core::mem::replace(self, TaggedOption::None)
+        ::core::mem::replace(self, TaggedOption::None)
     }
 
     /// Converts `self` into a standard Rust [Option](core::option::Option).
-    pub fn into_rust(self) -> core::option::Option<T> {
+    pub fn into_rust(self) -> ::core::option::Option<T> {
         self.into()
     }
 }
@@ -117,8 +117,8 @@ fn option() {
     for i in 0..=u8::MAX {
         let expected = Some(i);
         let converted = TaggedOption::from(expected);
-        assert!(TaggedOption::<u8>::is_valid(unsafe {
-            &core::mem::transmute(converted)
+        assert!(TaggedOption::<u8>::is_valid(&unsafe {
+            ::core::mem::transmute(converted)
         }));
         assert_eq!(converted, i.into());
         assert_eq!(expected, converted.into());
@@ -126,10 +126,10 @@ fn option() {
             .and_then(|_| TaggedOption::<()>::None)
             .into_rust()
             .is_none());
-        assert_eq!(unsafe { core::mem::transmute_copy::<_, u8>(&converted) }, 1);
+        assert_eq!(unsafe { ::core::mem::transmute_copy::<_, u8>(&converted) }, 1);
     }
     assert_eq!(
-        unsafe { core::mem::transmute_copy::<_, u8>(&TaggedOption::<u8>::None) },
+        unsafe { ::core::mem::transmute_copy::<_, u8>(&TaggedOption::<u8>::None) },
         0
     );
 }

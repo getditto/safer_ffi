@@ -182,10 +182,12 @@ impl<__> NonNullOwned<__> {
             if ::core::mem::size_of::<T>() == 0 {
                 return;
             }
-            ::alloc::alloc::dealloc(
-                self.0.as_ptr().cast(),
-                ::alloc::alloc::Layout::new::<T>(),
-            );
+            unsafe {
+                ::alloc::alloc::dealloc(
+                    self.0.as_ptr().cast(),
+                    ::alloc::alloc::Layout::new::<T>(),
+                );
+            }
         }
 
         #[inline]
@@ -193,8 +195,10 @@ impl<__> NonNullOwned<__> {
         unsafe
         fn drop_in_place_and_dealloc<T> (mut self)
         {
-            drop_in_place::<T>(self.copy().cast().as_mut());
-            self.dealloc::<T>();
+            unsafe {
+                drop_in_place::<T>(self.copy().cast().as_mut());
+                self.dealloc::<T>();
+            }
         }
     }
 
@@ -203,7 +207,9 @@ impl<__> NonNullOwned<__> {
     unsafe
     fn drop_in_place<T> (self)
     {
-        drop_in_place::<T>(self.0.cast().as_mut());
+        unsafe {
+            drop_in_place::<T>(self.0.cast().as_mut());
+        }
     }
 }
 

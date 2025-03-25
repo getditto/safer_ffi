@@ -61,7 +61,7 @@ typedef enum Bar {
 #include <stdbool.h>
 
 typedef struct next_generation {
-    Bar_t gen;
+    Bar_t generation;
 
     void * (*cb)(bool);
 } next_generation_t;

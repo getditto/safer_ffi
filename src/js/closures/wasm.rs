@@ -122,7 +122,9 @@ match_! {(
                     unsafe extern "C"
                     fn release_arc<Self_> (data: *mut c_void)
                     {
-                        drop(Arc::<Self_>::from_raw(data.cast()))
+                        unsafe {
+                            drop(Arc::<Self_>::from_raw(data.cast()))
+                        }
                     }
 
                     release_arc::<Self>
@@ -133,7 +135,9 @@ match_! {(
                     {
                         let arc: &Arc<Self_> = &(
                             ::core::mem::ManuallyDrop::new(
-                                Arc::<Self_>::from_raw(data.cast())
+                                unsafe {
+                                    Arc::<Self_>::from_raw(data.cast())
+                                }
                             )
                         );
                         ::core::mem::forget(arc.clone());
@@ -166,7 +170,7 @@ match_! {(
             let     &Self {
                 ref js_fun,
                 ..
-            } = {
+            } = unsafe {
                 this.cast::<Self>().as_ref().expect("Got NULL")
             };
             let ref env = Env::__new();

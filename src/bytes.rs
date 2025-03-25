@@ -471,11 +471,15 @@ impl<'a> From<&'static str> for Bytes<'a> {
 }
 #[cfg(feature = "alloc")]
 unsafe extern "C" fn retain_arc_bytes(this: *const (), capacity: usize) {
-    Arc::increment_strong_count(core::ptr::slice_from_raw_parts(this.cast::<u8>(), capacity))
+    unsafe {
+        Arc::increment_strong_count(core::ptr::slice_from_raw_parts(this.cast::<u8>(), capacity))
+    }
 }
 #[cfg(feature = "alloc")]
 unsafe extern "C" fn release_arc_bytes(this: *const (), capacity: usize) {
-    Arc::decrement_strong_count(core::ptr::slice_from_raw_parts(this.cast::<u8>(), capacity))
+    unsafe {
+        Arc::decrement_strong_count(core::ptr::slice_from_raw_parts(this.cast::<u8>(), capacity))
+    }
 }
 #[cfg(feature = "alloc")]
 static ARC_BYTES_VT: BytesVt = BytesVt {
@@ -524,9 +528,11 @@ impl<'a, T: Sized + AsRef<[u8]> + Send + Sync + 'static> From<Arc<T>> for Bytes<
 impl From<alloc::boxed::Box<[u8]>> for Bytes<'_> {
     fn from(value: alloc::boxed::Box<[u8]>) -> Self {
         unsafe extern "C" fn release_box_bytes(this: *const (), capacity: usize) {
-            mem::drop(alloc::boxed::Box::from_raw(
-                core::ptr::slice_from_raw_parts_mut(this.cast::<u8>().cast_mut(), capacity),
-            ))
+            unsafe {
+                mem::drop(alloc::boxed::Box::from_raw(
+                    core::ptr::slice_from_raw_parts_mut(this.cast::<u8>().cast_mut(), capacity),
+                ))
+            }
         }
         let bytes: &[u8] = &*value;
         let len = bytes.len();
@@ -768,16 +774,16 @@ impl<'a> TryFrom<Bytes<'a>> for stabby::sync::ArcSlice<u8> {
 #[test]
 fn fuzz() {
     use rand::Rng;
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     for _ in 0..1000 {
-        let data = (0..rng.gen_range(10..100))
-            .map(|_| rng.gen())
+        let data = (0..rng.random_range(10..100))
+            .map(|_| rng.random())
             .collect::<Arc<[u8]>>();
         let bytes: Bytes<'_> = data.clone().into();
         assert_eq!(bytes.as_slice(), &*data);
         for _ in 0..100 {
-            let start = rng.gen_range(0..data.len());
-            let end = rng.gen_range(start..=data.len());
+            let start = rng.random_range(0..data.len());
+            let end = rng.random_range(start..=data.len());
             assert_eq!(bytes.clone().subsliced(start..end), &data[start..end]);
             let (l, r) = bytes.clone().split_at(start).unwrap();
             assert_eq!((l.as_slice(), r.as_slice()), data.split_at(start));
@@ -790,10 +796,10 @@ fn fuzz() {
 fn fuzz_stabby() {
     use rand::Rng;
     use stabby::{sync::ArcSlice, vec::Vec};
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     for _ in 0..1000 {
-        let data: ArcSlice<u8> = (0..rng.gen_range(10..100))
-            .map(|_| rng.gen())
+        let data: ArcSlice<u8> = (0..rng.random_range(10..100))
+            .map(|_| rng.random())
             .collect::<Vec<u8>>()
             .into();
         println!("{data:?}");
@@ -801,8 +807,8 @@ fn fuzz_stabby() {
         assert_eq!(bytes.as_slice(), &*data, "Bytes construction went wrong");
         for _ in 0..100 {
             assert_eq!(bytes.clone().as_slice(), bytes.as_slice());
-            let start = rng.gen_range(0..data.len());
-            let end = rng.gen_range(start..=data.len());
+            let start = rng.random_range(0..data.len());
+            let end = rng.random_range(start..=data.len());
             assert_eq!(
                 bytes.clone().subsliced(start..end),
                 &data[start..end],

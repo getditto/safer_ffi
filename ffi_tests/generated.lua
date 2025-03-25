@@ -51,7 +51,7 @@ typedef enum Bar {
 // Hello, `World`!
 typedef struct next_generation {
     // I test some `gen`-eration.
-    Bar_t gen;
+    Bar_t generation;
 
     // with function pointers and everything!
     void * (*cb)(bool);

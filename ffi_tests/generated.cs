@@ -102,7 +102,7 @@ public unsafe struct next_generation_t {
     /// <summary>
     /// I test some <c>gen</c>-eration.
     /// </summary>
-    public Bar_t gen;
+    public Bar_t generation;
 
     /// <summary>
     /// with function pointers and everything!

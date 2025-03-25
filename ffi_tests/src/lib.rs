@@ -214,7 +214,7 @@ macro_rules! docs {() => (
 #[repr(C)]
 pub struct Next {
     /// I test some `gen`-eration.
-    gen: bar::Bar,
+    generation: bar::Bar,
     /// with function pointers and everything!
     cb: extern "C" fn(bool) -> Option<MyPtr>,
 }

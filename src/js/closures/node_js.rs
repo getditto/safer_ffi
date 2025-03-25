@@ -531,7 +531,9 @@ macro_rules! impls {(
                     unsafe extern "C"
                     fn release_arc<Self_> (data: *mut c_void)
                     {
-                        drop(Arc::<Self_>::from_raw(data.cast()))
+                        unsafe {
+                            drop(Arc::<Self_>::from_raw(data.cast()))
+                        }
                     }
 
                     release_arc::<Self>
@@ -542,7 +544,9 @@ macro_rules! impls {(
                     {
                         let arc: &Arc<Self_> = &(
                             ::core::mem::ManuallyDrop::new(
-                                Arc::<Self_>::from_raw(data.cast())
+                                unsafe {
+                                    Arc::<Self_>::from_raw(data.cast())
+                                }
                             )
                         );
                         ::core::mem::forget(arc.clone());
@@ -561,7 +565,7 @@ macro_rules! impls {(
             $_0: $_0, $(
             $_k: $_k, )*)?
         ) -> CRet
-        {
+        { unsafe {
             // We set up an `on_unwind` guard, except if we're already being invoked
             // from within a panicking context, which confuses the `on_unwind` heuristic
             // of `::scopeguard`. Since in that case, any extra panic already triggers an abort,
@@ -784,7 +788,7 @@ macro_rules! impls {(
                 },
             }
             .expect("Cannot throw a js exception within an FFI callback")
-        }
+        }}
 
         fn convert_params(
             ThreadSafeCallContext {

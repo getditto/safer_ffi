@@ -88,7 +88,7 @@ impl<'trait_> VTableEntry<'trait_> {
         self: &'r VTableEntry<'trait_>
     ) -> &'r Vec<Attribute>
     {
-        match self {
+        match *self {
             | Self::VirtualMethod {
                 src: TraitItemMethod {
                     ref attrs,
