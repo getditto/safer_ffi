@@ -959,7 +959,7 @@ unsafe impl<T> CType for OpaqueLayout<T> {
             definer: &'_ mut dyn Definer,
         ) -> io::Result<()>
         {
-            language.emit_opaque_type(
+            language.declare_opaque_type(
                 definer,
                 &[
                     &format!(

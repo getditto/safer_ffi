@@ -65,7 +65,7 @@ pub trait HeaderLanguage: UpcastAny {
         None
     }
 
-    fn emit_simple_enum(
+    fn declare_simple_enum(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
@@ -74,7 +74,7 @@ pub trait HeaderLanguage: UpcastAny {
         variants: &'_ [EnumVariant<'_>],
     ) -> io::Result<()>;
 
-    fn emit_struct(
+    fn declare_struct(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
@@ -82,14 +82,14 @@ pub trait HeaderLanguage: UpcastAny {
         fields: &'_ [StructField<'_>],
     ) -> io::Result<()>;
 
-    fn emit_opaque_type(
+    fn declare_opaque_type(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>;
 
-    fn emit_function(
+    fn declare_function(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
@@ -98,7 +98,7 @@ pub trait HeaderLanguage: UpcastAny {
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>;
 
-    fn emit_constant(
+    fn declare_constant(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,

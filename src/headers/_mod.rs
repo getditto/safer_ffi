@@ -599,7 +599,7 @@ fn __define_fn__(
         #[cfg(feature = "python-headers")]
         | Language::Python => &languages::Python,
     };
-    dyn_lang.emit_function(definer, docs, fname, args, ret_ty)
+    dyn_lang.declare_function(definer, docs, fname, args, ret_ty)
 }
 
 hidden_export! {
