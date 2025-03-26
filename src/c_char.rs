@@ -57,7 +57,7 @@ unsafe impl LegacyCType for c_char {
             Ok(())
         }
 
-        __cfg_csharp__! {
+        __cfg_headers__! {
             fn csharp_define_self (
                 _: &'_ mut dyn crate::headers::Definer,
             ) -> io::Result<()>
@@ -72,7 +72,7 @@ unsafe impl LegacyCType for c_char {
             }
         }
 
-        __cfg_lua__! {
+        __cfg_headers__! {
             fn lua_define_self (
                 _: &'_ mut dyn crate::headers::Definer,
             ) -> io::Result<()>

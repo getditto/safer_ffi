@@ -169,7 +169,7 @@ const _: () = {
                 fmt.write_str(")")
             }
 
-            __cfg_csharp__! {
+            __cfg_headers__! {
                 fn csharp_define_self (definer: &'_ mut dyn Definer)
                   -> io::Result<()>
                 {
@@ -237,7 +237,7 @@ const _: () = {
                 }
             }
 
-            __cfg_lua__! {
+            __cfg_headers__! {
                 fn lua_define_self (definer: &'_ mut dyn Definer)
                   -> io::Result<()>
                 {
@@ -382,7 +382,7 @@ const _: () = {
                 )
             }
 
-            __cfg_csharp__! {
+            __cfg_headers__! {
                 fn csharp_define_self (
                     _: &'_ mut dyn crate::headers::Definer,
                 ) -> io::Result<()>
@@ -397,7 +397,7 @@ const _: () = {
                 }
             }
 
-            __cfg_lua__! {
+            __cfg_headers__! {
                 fn lua_define_self (
                     _: &'_ mut dyn crate::headers::Definer,
                 ) -> io::Result<()>
@@ -444,7 +444,7 @@ const _: () = {
                 Ok(())
             }
 
-            __cfg_csharp__! {
+            __cfg_headers__! {
                 fn csharp_define_self (
                     _: &'_ mut dyn crate::headers::Definer,
                 ) -> io::Result<()>
@@ -459,7 +459,7 @@ const _: () = {
                 }
             }
 
-            __cfg_lua__! {
+            __cfg_headers__! {
                 fn lua_define_self (
                     _: &'_ mut dyn crate::headers::Definer,
                 ) -> io::Result<()>
@@ -503,7 +503,7 @@ const _: () = {
                 )
             }
 
-            __cfg_csharp__! {
+            __cfg_headers__! {
                 fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
                   -> $crate::ඞ::io::Result<()>
                 {
@@ -526,7 +526,7 @@ const _: () = {
                 }
             }
 
-            __cfg_lua__! {
+            __cfg_headers__! {
                 fn lua_define_self (definer: &'_ mut dyn $crate::headers::Definer)
                   -> $crate::ඞ::io::Result<()>
                 {
@@ -579,7 +579,7 @@ const _: () = {
                 )
             }
 
-            __cfg_csharp__! {
+            __cfg_headers__! {
                 fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
                   -> $crate::ඞ::io::Result<()>
                 {
@@ -593,7 +593,7 @@ const _: () = {
                 }
             }
 
-            __cfg_lua__! {
+            __cfg_headers__! {
                 fn lua_define_self (definer: &'_ mut dyn $crate::headers::Definer)
                   -> $crate::ඞ::io::Result<()>
                 {
@@ -760,7 +760,7 @@ unsafe impl LegacyCType for Bool {
             )
         }
 
-        __cfg_csharp__! {
+        __cfg_headers__! {
             fn csharp_define_self (
                 _: &'_ mut dyn crate::headers::Definer,
             ) -> io::Result<()>
@@ -781,7 +781,7 @@ unsafe impl LegacyCType for Bool {
             }
         }
 
-        __cfg_lua__! {
+        __cfg_headers__! {
             fn lua_define_self (
                 _: &'_ mut dyn crate::headers::Definer,
             ) -> io::Result<()>
@@ -843,7 +843,7 @@ unsafe impl LegacyCType for c_int {
             Ok(())
         }
 
-        __cfg_csharp__! {
+        __cfg_headers__! {
             fn csharp_define_self (
                 _: &'_ mut dyn crate::headers::Definer,
             ) -> io::Result<()>
@@ -864,7 +864,7 @@ unsafe impl LegacyCType for c_int {
             }
         }
 
-        __cfg_lua__! {
+        __cfg_headers__! {
             fn lua_define_self (
                 _: &'_ mut dyn crate::headers::Definer,
             ) -> io::Result<()>
@@ -1134,7 +1134,7 @@ unsafe impl<Item: CType, const N: usize> LegacyCType for [Item; N] {
             )
         }
 
-        __cfg_csharp__! {
+        __cfg_headers__! {
             fn csharp_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {
@@ -1191,7 +1191,7 @@ unsafe impl<Item: CType, const N: usize> LegacyCType for [Item; N] {
             }
         }
 
-        __cfg_lua__! {
+        __cfg_headers__! {
             fn lua_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
             {

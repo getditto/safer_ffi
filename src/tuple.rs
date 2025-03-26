@@ -42,7 +42,7 @@ unsafe impl LegacyCType for CVoid {
             Ok(())
         }
 
-        __cfg_csharp__! {
+        __cfg_headers__! {
             fn csharp_define_self (
                 _: &'_ mut dyn crate::headers::Definer,
             ) -> io::Result<()>
@@ -57,7 +57,7 @@ unsafe impl LegacyCType for CVoid {
             }
         }
 
-        __cfg_lua__! {
+        __cfg_headers__! {
             fn lua_define_self (
                 _: &'_ mut dyn crate::headers::Definer,
             ) -> io::Result<()>

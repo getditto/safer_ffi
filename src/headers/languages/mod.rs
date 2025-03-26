@@ -8,7 +8,7 @@ pub use c::C;
 use super::Definer;
 mod c;
 
-__cfg_csharp__! {
+__cfg_headers__! {
     pub use csharp::CSharp;
     mod csharp;
 }
@@ -18,7 +18,7 @@ __cfg_python__! {
     mod python;
 }
 
-__cfg_lua__! {
+__cfg_headers__! {
     pub use lua::Lua;
     mod lua;
 }

@@ -516,7 +516,7 @@ pub unsafe trait LegacyCType: Sized + Copy + CType {
             }
         }
 
-        __cfg_csharp__! {
+        __cfg_headers__! {
             /// Extra typedef code (_e.g._ `[LayoutKind.Sequential] struct ...`)
             fn csharp_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>
@@ -557,7 +557,7 @@ pub unsafe trait LegacyCType: Sized + Copy + CType {
         }
 
 
-        __cfg_lua__! {
+        __cfg_headers__! {
             /// Extra typedef code (_e.g._ `[LayoutKind.Sequential] struct ...`)
             fn lua_define_self (definer: &'_ mut dyn Definer)
               -> io::Result<()>

@@ -1,7 +1,5 @@
 export_cfgs! {$
     "headers" => __cfg_headers__!,
-    "headers" => __cfg_csharp__!,
-    "headers" => __cfg_lua__!,
     "js" => __cfg_js__!,
     "python-headers" => __cfg_python__!,
 }
