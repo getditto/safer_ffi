@@ -3,9 +3,12 @@
 use_prelude!();
 use ::std::io::Write as _;
 use ::std::io::{self};
-pub use c::C;
+use primitives::Primitive;
 
 use super::Definer;
+mod primitives;
+
+pub use c::C;
 mod c;
 
 pub use csharp::CSharp;
@@ -118,6 +121,19 @@ pub trait HeaderLanguage: UpcastAny {
         // it is not directly called by the framework.
         Ok(())
     }
+
+    fn emit_primitive_ty(
+        self: &'_ Self,
+        _ctx: &mut dyn Definer,
+        _primitive: Primitive,
+    ) -> io::Result<()>;
+
+    fn emit_pointer_ty(
+        self: &'_ Self,
+        _ctx: &mut dyn Definer,
+        pointee_is_immutable: bool,
+        pointee: &'_ dyn PhantomCType,
+    ) -> io::Result<()>;
 }
 
 pub trait HeaderLanguageSupportingTypeAliases: HeaderLanguage {
