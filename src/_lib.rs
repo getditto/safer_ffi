@@ -210,16 +210,14 @@ pub use ::safer_ffi_proc_macros::ffi_export;
 #[path = "layout/_mod.rs"]
 pub mod layout;
 
+#[cfg(feature = "headers")]
+#[cfg_attr(feature = "nightly", doc(cfg(feature = "headers")))]
+#[path = "headers/_mod.rs"]
+pub mod headers;
+
 __cfg_headers__! {
     #[doc(hidden)] pub
     use ::inventory;
-
-    #[cfg_attr(feature = "nightly",
-        doc(cfg(feature = "headers")),
-    )]
-    #[path = "headers/_mod.rs"]
-    pub
-    mod headers;
 
     #[allow(missing_copy_implementations, missing_debug_implementations)]
     #[doc(hidden)] /** Not part of the public API */ pub
@@ -241,10 +239,8 @@ cfg_alloc! {
     extern crate alloc;
 }
 
-cfg_alloc! {
-    pub
-    mod boxed;
-}
+#[cfg(feature = "alloc")]
+pub mod boxed;
 
 pub mod bytes;
 
@@ -294,8 +290,9 @@ cfg_alloc! {
 
     #[doc(inline)]
     pub use vec::Vec;
-    pub mod vec;
 }
+#[cfg(feature = "alloc")]
+pub mod vec;
 
 #[doc(inline)]
 pub use layout::impls::c_int;

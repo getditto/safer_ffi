@@ -22,10 +22,8 @@ pub mod ffi_helpers;
 
 mod impls;
 
-cfg_not_wasm! {
-    pub
-    mod registering;
-}
+#[cfg(not(target_arch = "wasm32"))]
+pub mod registering;
 
 /// Interconversion between `CType`s and js values
 pub trait ReprNapi: Sized /* : crate::layout::CType */ {

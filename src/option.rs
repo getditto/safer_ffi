@@ -116,7 +116,7 @@ impl<T> TaggedOption<T> {
         ::core::mem::replace(self, TaggedOption::None)
     }
 
-    /// Converts `self` into a standard Rust [Option](core::option::Option).
+    /// Converts `self` into a standard Rust [Option].
     pub fn into_rust(self) -> ::core::option::Option<T> {
         self.into()
     }
