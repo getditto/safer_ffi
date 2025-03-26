@@ -145,7 +145,8 @@ impl<'a> Bytes<'a> {
     ///
     /// This is equivalent to `<Bytes as From<&'static [u8]>>::from`, guaranteeing that
     /// [`Self::upgrade`] won't need to reallocate to recover the `'static` lifetime through
-    /// [`Bytes::upgrade`]. ```
+    /// [`Bytes::upgrade`].
+    /// ```
     /// # use safer_ffi::bytes::Bytes;
     /// let data = "Hello there, this string is long enough that it'll cross the inline-threshold \
     /// (core::mem::size_of::<Bytes>() - 1) on all supported platforms";
@@ -197,7 +198,8 @@ impl<'a> Bytes<'a> {
     /// If the slice is too long to be inlined, this constructor returns `None` instead.
     ///
     /// A slice may be inlined if its size is `<=` [`Bytes::MAX_INLINE_SIZE`], which depends on your
-    /// CPU architecture. ```
+    /// CPU architecture.
+    /// ```
     /// # use safer_ffi::bytes::Bytes;
     /// let inlined = Bytes::inline_slice("Hi".as_bytes()).unwrap();
     /// assert_eq!(inlined.as_slice(), "Hi".as_bytes());

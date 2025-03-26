@@ -1,16 +1,14 @@
 use super::*;
 
-pub
-struct C;
+pub struct C;
 
 impl HeaderLanguage for C {
-    fn emit_docs (
+    fn emit_docs(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         indent: &'_ Indentation,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         mk_out!(indent, ctx.out());
 
         if docs.is_empty() {
@@ -28,9 +26,7 @@ impl HeaderLanguage for C {
         Ok(())
     }
 
-    fn supports_type_aliases(self: &'_ C)
-      -> Option<&'_ dyn HeaderLanguageSupportingTypeAliases>
-    {
+    fn supports_type_aliases(self: &'_ C) -> Option<&'_ dyn HeaderLanguageSupportingTypeAliases> {
         return Some(self);
         // where
         #[expect(non_local_definitions)]
@@ -41,8 +37,7 @@ impl HeaderLanguage for C {
                 docs: Docs<'_>,
                 self_ty: &'_ dyn PhantomCType,
                 inner_ty: &'_ dyn PhantomCType,
-            ) -> io::Result<()>
-            {
+            ) -> io::Result<()> {
                 let ref indent = Indentation::new(4 /* ctx.indent_width() */);
                 mk_out!(indent, ctx.out());
                 self.emit_docs(ctx, docs, indent)?;
@@ -58,21 +53,18 @@ impl HeaderLanguage for C {
         }
     }
 
-    fn emit_simple_enum (
+    fn emit_simple_enum(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         backing_integer: Option<&dyn PhantomCType>,
         variants: &'_ [EnumVariant<'_>],
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
-        let ref intn_t =
-            backing_integer.map(|it| it.name(self))
-        ;
+        let ref intn_t = backing_integer.map(|it| it.name(self));
 
         self.emit_docs(ctx, docs, indent)?;
 
@@ -123,14 +115,13 @@ impl HeaderLanguage for C {
         Ok(())
     }
 
-    fn emit_struct (
+    fn emit_struct(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-        fields: &'_ [StructField<'_>]
-    ) -> io::Result<()>
-    {
+        fields: &'_ [StructField<'_>],
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
         let short_name = self_ty.short_name();
@@ -169,13 +160,12 @@ impl HeaderLanguage for C {
         Ok(())
     }
 
-    fn emit_opaque_type (
+    fn emit_opaque_type(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
         let short_name = self_ty.short_name();
@@ -188,15 +178,14 @@ impl HeaderLanguage for C {
         Ok(())
     }
 
-    fn emit_function (
+    fn emit_function(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
 
         self.emit_docs(ctx, docs, indent)?;
@@ -238,7 +227,7 @@ impl HeaderLanguage for C {
         Ok(())
     }
 
-    fn emit_constant (
+    fn emit_constant(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
@@ -246,8 +235,7 @@ impl HeaderLanguage for C {
         ty: &'_ dyn PhantomCType,
         skip_type: bool,
         value: &'_ dyn ::core::fmt::Debug,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 

@@ -348,7 +348,7 @@ But since it needs to be a genuine `nightly` toolchain, we are forced to pick an
 toolchain, only one whose date matches the birth of the corresponding `MSRV`-stable toolchain.
 
   - See [`./scripts/formatting/rust-toolchain.toml`](./scripts/formatting/rust-toolchain.toml).
-  - See also, w.r.t. versions and dates: https://releases.rs
+  - See also, w.r.t. versions and dates: <https://releases.rs>
 
 To format the code, you have three options:
 

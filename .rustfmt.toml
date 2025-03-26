@@ -15,6 +15,7 @@ skip_macro_invocations = [
     "squote", "squote_spanned",
     "Quote",
     "bail",
+    "out",
 ]
 use_field_init_shorthand = true
 wrap_comments = true

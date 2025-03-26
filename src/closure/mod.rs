@@ -51,9 +51,13 @@
     ``` */
 //!
 
+#[cfg(feature = "alloc")]
+pub mod arc;
+
+#[cfg(feature = "alloc")]
+pub mod boxed;
+
 cfg_alloc! {
-    pub mod arc;
-    pub mod boxed;
     #[doc(no_inline)]
     pub use self::{
         arc::{ArcDynFn0, ArcDynFn1},

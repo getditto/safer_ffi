@@ -18,25 +18,26 @@
 //! which can then call the [`builder`] to do the work:
 //!
 //! ```rust
-//! use ::std::{io, fs};
 //! use ::safer_ffi::prelude::*;
+//! use ::std::fs;
+//! use ::std::io;
 //!
 //! /// Concatenate two strings.
 //! ///
 //! /// The returned value must be freed with `rust_free`
 //! #[ffi_export]
-//! fn rust_concat (fst: char_p::Ref<'_>, snd: char_p::Ref<'_>)
-//!   -> char_p::Box
-//! {
+//! fn rust_concat(
+//!     fst: char_p::Ref<'_>,
+//!     snd: char_p::Ref<'_>,
+//! ) -> char_p::Box {
 //!     let s: String = format!("{}{}\0", fst, snd);
-//!     s   .try_into() // Try to convert to a boxed `char *` pointer
-//!         .unwrap()   // Only fails if there is an inner nul byte.
+//!     s.try_into() // Try to convert to a boxed `char *` pointer
+//!         .unwrap() // Only fails if there is an inner nul byte.
 //! }
 //!
 //! /// Frees a pointer obtained by calling `rust_concat`.
 //! #[ffi_export]
-//! fn rust_free (it: char_p::Box)
-//! {
+//! fn rust_free(it: char_p::Box) {
 //!     drop(it);
 //! }
 //!
@@ -44,9 +45,7 @@
 //! #[::safer_ffi::cfg_headers]
 //! #[test]
 //! # }
-//! fn generate_c_header ()
-//!   -> io::Result<()>
-//! {
+//! fn generate_c_header() -> io::Result<()> {
 //!     ::safer_ffi::headers::builder()
 //!         .with_guard("__ASGARD__")
 //!         .to_file("filename.h")?
@@ -75,45 +74,50 @@
 //! <span style="color:#3f7f8f; ">&nbsp;*                                         *</span>
 //! <span style="color:#3f7f8f; ">&nbsp;*******************************************/</span>
 //!
-//! <span style="color:#004a43; ">#</span><span style="color:#004a43; ">ifndef</span><span style="color:#004a43; "> __ASGARD__</span>
-//! <span style="color:#004a43; ">#</span><span style="color:#004a43; ">define</span><span style="color:#004a43; "> __ASGARD__</span>
+//! <span style="color:#004a43; ">#</span><span style="color:#004a43; ">ifndef</span><span
+//! style="color:#004a43; "> __ASGARD__</span> <span style="color:#004a43; ">#</span><span
+//! style="color:#004a43; ">define</span><span style="color:#004a43; "> __ASGARD__</span>
 //!
 //!
 //! <span style="color:#3f7f8f; ">/** \brief</span>
 //! <span style="color:#3f7f8f; ">&nbsp;*  Concatenate two strings.</span>
 //! <span style="color:#3f7f8f; ">&nbsp;* </span>
-//! <span style="color:#3f7f8f; ">&nbsp;*  The returned value must be freed with `rust_free_string`</span>
-//! <span style="color:#3f7f8f; ">&nbsp;*/</span>
-//! <span style="color:#200080; font-weight:bold; ">char</span> <span style="color:#308080; ">*</span> rust_concat <span style="color:#308080; ">(</span>
-//!     <span style="color:#200080; font-weight:bold; ">char</span> <span style="color:#200080; font-weight:bold; ">const</span> <span style="color:#308080; ">*</span> fst<span style="color:#308080; ">,</span>
-//!     <span style="color:#200080; font-weight:bold; ">char</span> <span style="color:#200080; font-weight:bold; ">const</span> <span style="color:#308080; ">*</span> snd<span style="color:#308080; ">)</span><span style="color:#406080; ">;</span>
+//! <span style="color:#3f7f8f; ">&nbsp;*  The returned value must be freed with
+//! `rust_free_string`</span> <span style="color:#3f7f8f; ">&nbsp;*/</span>
+//! <span style="color:#200080; font-weight:bold; ">char</span> <span style="color:#308080;
+//! ">*</span> rust_concat <span style="color:#308080; ">(</span>     <span style="color:#200080;
+//! font-weight:bold; ">char</span> <span style="color:#200080; font-weight:bold; ">const</span>
+//! <span style="color:#308080; ">*</span> fst<span style="color:#308080; ">,</span>
+//!     <span style="color:#200080; font-weight:bold; ">char</span> <span style="color:#200080;
+//! font-weight:bold; ">const</span> <span style="color:#308080; ">*</span> snd<span
+//! style="color:#308080; ">)</span><span style="color:#406080; ">;</span>
 //!
 //! <span style="color:#3f7f8f; ">/** \brief</span>
 //! <span style="color:#3f7f8f; ">&nbsp;*  Frees a pointer obtained by calling `rust_concat`.</span>
 //! <span style="color:#3f7f8f; ">&nbsp;*/</span>
-//! <span style="color:#200080; font-weight:bold; ">void</span> rust_free_string <span style="color:#308080; ">(</span>
-//!     <span style="color:#200080; font-weight:bold; ">char</span> <span style="color:#308080; ">*</span> it<span style="color:#308080; ">)</span><span style="color:#406080; ">;</span>
+//! <span style="color:#200080; font-weight:bold; ">void</span> rust_free_string <span
+//! style="color:#308080; ">(</span>     <span style="color:#200080; font-weight:bold; ">char</span>
+//! <span style="color:#308080; ">*</span> it<span style="color:#308080; ">)</span><span
+//! style="color:#406080; ">;</span>
 //!
 //!
-//! <span style="color:#004a43; ">#</span><span style="color:#004a43; ">endif</span><span style="color:#004a43; "> </span><span style="color:#595979; ">/* __ASGARD__ */</span>
-//! </pre>
+//! <span style="color:#004a43; ">#</span><span style="color:#004a43; ">endif</span><span
+//! style="color:#004a43; "> </span><span style="color:#595979; ">/* __ASGARD__ */</span> </pre>
 
 #![allow(missing_copy_implementations, missing_debug_implementations)]
 
-use ::std::{
-    collections::HashSet,
-    fs,
-    io,
-    path::Path,
-};
+use ::std::collections::HashSet;
+use ::std::fs;
+use ::std::io;
+use ::std::path::Path;
 
 use_prelude!();
-use rust::{String};
+use rust::String;
 
-pub // (in crate)
-mod languages;
+pub mod languages;
 
-pub use definer::{Definer, HashSetDefiner};
+pub use definer::Definer;
+pub use definer::HashSetDefiner;
 mod definer;
 
 match_! {(
@@ -326,10 +330,10 @@ impl Builder<'_, WhereTo> {
     ///
     /// With this call, one can provide a custom implementation of a [`Definer`],
     /// which can be useful for mock tests, mainly.
-    pub
-    fn generate_with_definer (self, definer: &mut impl Definer)
-      -> io::Result<()>
-    {
+    pub fn generate_with_definer(
+        self,
+        definer: &mut impl Definer,
+    ) -> io::Result<()> {
         let config = self;
         // Banner
         config.write_banner(definer)?;
@@ -342,48 +346,52 @@ impl Builder<'_, WhereTo> {
         Ok(())
     }
 
-    fn write_banner (&'_ self, definer: &'_ mut dyn Definer)
-      -> io::Result<()>
-    {
+    fn write_banner(
+        &'_ self,
+        definer: &'_ mut dyn Definer,
+    ) -> io::Result<()> {
         let lang = self.language.unwrap_or(Language::C);
 
         let banner: &'_ str = self.banner.unwrap_or(match lang {
-            Language::Lua => concat!(
+            | Language::Lua => concat!(
                 "-- File auto-generated by `::safer_ffi`.\n",
                 "--\n",
                 "-- Do not manually edit this file.\n",
             ),
-            _ => concat!(
-            "/*! \\file */\n",
-            "/*******************************************\n",
-            " *                                         *\n",
-            " *  File auto-generated by `::safer_ffi`.  *\n",
-            " *                                         *\n",
-            " *  Do not manually edit this file.        *\n",
-            " *                                         *\n",
-            " *******************************************/\n",
+            | _ => concat!(
+                "/*! \\file */\n",
+                "/*******************************************\n",
+                " *                                         *\n",
+                " *  File auto-generated by `::safer_ffi`.  *\n",
+                " *                                         *\n",
+                " *  Do not manually edit this file.        *\n",
+                " *                                         *\n",
+                " *******************************************/\n",
             ),
         });
 
         writeln!(definer.out(), "{}", banner)
     }
 
-    fn write_prelude (&'_ self, definer: &'_ mut dyn Definer)
-      -> io::Result<()>
-    {
+    fn write_prelude(
+        &'_ self,
+        definer: &'_ mut dyn Definer,
+    ) -> io::Result<()> {
         let lang = self.language.unwrap_or(Language::C);
 
         let guard = self.guard();
         let text_after_guard = self.text_after_guard();
 
         match lang {
-            | Language::C => writeln!(definer.out(),
-                  include_str!("templates/c/_prelude.h"),
-                  guard = guard,
-                  text_after_guard = text_after_guard,
+            | Language::C => writeln!(
+                definer.out(),
+                include_str!("templates/c/_prelude.h"),
+                guard = guard,
+                text_after_guard = text_after_guard,
             ),
 
-            | Language::CSharp => writeln!(definer.out(),
+            | Language::CSharp => writeln!(
+                definer.out(),
                 include_str!("templates/csharp/_prelude.cs"),
                 NameSpace = Self::pascal_cased_lib_name(),
                 RustLib = Self::lib_name(),
@@ -398,9 +406,10 @@ impl Builder<'_, WhereTo> {
     }
 
     /// Heart of safer ffi: write the items in the header
-    fn write_body (&'_ self, definer: &'_ mut dyn Definer)
-      -> io::Result<()>
-    {
+    fn write_body(
+        &'_ self,
+        definer: &'_ mut dyn Definer,
+    ) -> io::Result<()> {
         let stable_header = self.stable_header.unwrap_or(true);
         let lang = self.language.unwrap_or(Language::C);
 
@@ -410,11 +419,10 @@ impl Builder<'_, WhereTo> {
             definer.insert("bool");
         }
 
-        let _naming_convention =
-            self.naming_convention
-                .as_ref()
-                .unwrap_or(&NamingConvention::Default)
-        ;
+        let _naming_convention = self
+            .naming_convention
+            .as_ref()
+            .unwrap_or(&NamingConvention::Default);
         let (mut storage0, mut storage1) = (None, None);
         let gen_defs: &mut dyn Iterator<Item = _> = if stable_header {
             storage0.get_or_insert(
@@ -424,7 +432,7 @@ impl Builder<'_, WhereTo> {
                     // Sort the definitions for a reliable header generation.
                     .collect::<::std::collections::BTreeMap<_, _>>()
                     .into_iter()
-                    .map(|(_, gen_def)| gen_def)
+                    .map(|(_, gen_def)| gen_def),
             )
         } else {
             storage1.get_or_insert(
@@ -432,30 +440,35 @@ impl Builder<'_, WhereTo> {
                     .into_iter()
                     // Iterate in reverse fashion to more closely match
                     // the Rust definition order.
-                    .collect::<rust::Vec<_>>().into_iter().rev()
-                    .map(|crate::FfiExport { gen_def, .. }| gen_def)
+                    .collect::<rust::Vec<_>>()
+                    .into_iter()
+                    .rev()
+                    .map(|crate::FfiExport { gen_def, .. }| gen_def),
             )
         };
         (&mut { gen_defs }).try_for_each(|gen_def| gen_def(definer, lang))?;
         Ok(())
     }
 
-    fn write_epilogue (&'_ self, definer: &'_ mut dyn Definer)
-      -> io::Result<()>
-    {
+    fn write_epilogue(
+        &'_ self,
+        definer: &'_ mut dyn Definer,
+    ) -> io::Result<()> {
         let lang = self.language.unwrap_or(Language::C);
         match lang {
-            | Language::C => write!(definer.out(),
+            | Language::C => write!(
+                definer.out(),
                 include_str!("templates/c/epilogue.h"),
                 guard = self.guard(),
             ),
 
             | Language::CSharp => {
                 let pkg_name = Self::pascal_cased_lib_name();
-                    write!(definer.out(),
-                include_str!("templates/csharp/epilogue.cs"),
-                PkgName = pkg_name,
-            )
+                write!(
+                    definer.out(),
+                    include_str!("templates/csharp/epilogue.cs"),
+                    PkgName = pkg_name,
+                )
             },
 
             | Language::Lua => {
@@ -468,33 +481,24 @@ impl Builder<'_, WhereTo> {
         }
     }
 
-    fn guard (&'_ self)
-      -> String
-    {
+    fn guard(&'_ self) -> String {
         self.guard.map_or_else(
             || format!("__RUST_{}__", Self::lib_name().to_ascii_uppercase()),
             Into::into,
         )
     }
 
-    fn text_after_guard(&'_ self)
-                        -> String
-    {
+    fn text_after_guard(&'_ self) -> String {
         match self.text_after_guard {
-            None => String::new(),
-            Some(s) => format!("\n\n{}\n", s)
+            | None => String::new(),
+            | Some(s) => format!("\n\n{}\n", s),
         }
     }
 
     /// Return the library name
-    fn lib_name ()
-      -> String
-    {
+    fn lib_name() -> String {
         ::std::env::var("CARGO_CRATE_NAME")
-            .or_else(|_| {
-                ::std::env::var("CARGO_PKG_NAME")
-                    .map(|s| s.replace('-', "_"))
-            })
+            .or_else(|_| ::std::env::var("CARGO_PKG_NAME").map(|s| s.replace('-', "_")))
             .expect("Missing `CARGO_{CRATE,PKG}_NAME` env vars")
     }
 
@@ -505,35 +509,29 @@ impl Builder<'_, WhereTo> {
             .filter_map({
                 // `true` for PascalCase, `false` for lowerCamelCase.
                 let mut underscore = true;
-                move |c| Some(match c {
-                    | _ if underscore => {
-                        underscore = false;
-                        c.to_ascii_uppercase()
-                    },
+                move |c| {
+                    Some(match c {
+                        | _ if underscore => {
+                            underscore = false;
+                            c.to_ascii_uppercase()
+                        },
 
-                    | '_' => {
-                        underscore = true;
-                        return None; // continue
-                    },
+                        | '_' => {
+                            underscore = true;
+                            return None; // continue
+                        },
 
-                    | _ => {
-                        c
-                    },
-                })
+                        | _ => c,
+                    })
+                }
             })
             .collect::<String>()
     }
 }
 
-
 /// Language of the generated headers.
-#[derive(
-    Debug,
-    Copy, Clone,
-    PartialEq, Eq,
-)]
-pub
-enum Language {
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum Language {
     /// C, _lingua franca_ of FFI interop.
     C,
 
@@ -549,12 +547,11 @@ enum Language {
 }
 
 /// Allow user to specify
-pub
-enum NamingConvention {
+pub enum NamingConvention {
     Default,
     Suffix(String),
     Prefix(String),
-    Custom(fn(&str)-> String),
+    Custom(fn(&str) -> String),
 }
 
 hidden_export! {
@@ -582,22 +579,19 @@ hidden_export! {
     }
 }
 
-use self::languages::{
-    FunctionArg,
-    HeaderLanguage,
-    PhantomCType,
-};
+use self::languages::FunctionArg;
+use self::languages::HeaderLanguage;
+use self::languages::PhantomCType;
 
 #[apply(hidden_export)]
-fn __define_fn__ (
+fn __define_fn__(
     definer: &'_ mut dyn Definer,
     lang: Language,
     docs: &'_ [&'_ str],
     fname: &'_ str,
     args: &'_ [FunctionArg<'_>],
     ret_ty: &'_ dyn PhantomCType,
-) -> io::Result<()>
-{
+) -> io::Result<()> {
     let dyn_lang: &dyn HeaderLanguage = match lang {
         | Language::C => &languages::C,
         | Language::CSharp => &languages::CSharp,
@@ -605,13 +599,7 @@ fn __define_fn__ (
         #[cfg(feature = "python-headers")]
         | Language::Python => &languages::Python,
     };
-    dyn_lang.emit_function(
-        definer,
-        docs,
-        fname,
-        args,
-        ret_ty,
-    )
+    dyn_lang.emit_function(definer, docs, fname, args, ret_ty)
 }
 
 hidden_export! {

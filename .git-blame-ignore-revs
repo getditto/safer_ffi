@@ -3,4 +3,5 @@
 # git config blame.ignoreRevsFile '.git-blame-ignore-revs'
 # ```
 
-8a9b15953d5f56c54393e9c1f6e12c3749bc0164
+8a9b15953d5f56c54393e9c1f6e12c3749bc0164 # rustfmt the World
+cd5f6328ddd5a7104e803b2513cc290844a660af # rustfmt missing mods

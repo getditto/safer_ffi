@@ -1,17 +1,11 @@
 #![allow(irrefutable_let_patterns)]
 
 use_prelude!();
-use {
-    ::std::io::{
-        self,
-        Write as _,
-    },
-    super::{
-        Definer,
-    },
-};
-
+use ::std::io::Write as _;
+use ::std::io::{self};
 pub use c::C;
+
+use super::Definer;
 mod c;
 
 __cfg_csharp__! {
@@ -29,24 +23,20 @@ __cfg_lua__! {
     mod lua;
 }
 
-pub
-struct Indentation {
+pub struct Indentation {
     depth: ::core::cell::Cell<usize>,
     width: usize,
 }
 
 impl Indentation {
-    pub
-    fn new (width: usize)
-      -> Indentation
-    {
-        Self { depth: 0.into(), width }
+    pub fn new(width: usize) -> Indentation {
+        Self {
+            depth: 0.into(),
+            width,
+        }
     }
 
-    pub
-    fn scope (self: &'_ Self)
-      -> impl '_ + Sized
-    {
+    pub fn scope(self: &'_ Self) -> impl '_ + Sized {
         self.depth.set(self.depth.get() + 1);
         ::scopeguard::guard((), move |()| {
             self.depth.set(self.depth.get() - 1);
@@ -55,67 +45,66 @@ impl Indentation {
 }
 
 impl ::core::fmt::Display for Indentation {
-    fn fmt (
+    fn fmt(
         self: &'_ Indentation,
         fmt: &'_ mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result
-    {
-        write!(fmt, "{: <indent$}", "", indent = self.depth.get() * self.width)
+    ) -> ::core::fmt::Result {
+        write!(
+            fmt,
+            "{: <indent$}",
+            "",
+            indent = self.depth.get() * self.width
+        )
     }
 }
 
 type Docs<'lt> = &'lt [&'lt str];
 
-pub
-trait HeaderLanguage : UpcastAny {
+pub trait HeaderLanguage: UpcastAny {
     fn language_name(self: &'_ Self) -> &'static str {
         ::core::any::type_name::<Self>()
     }
 
-    fn supports_type_aliases(self: &'_ Self)
-      -> Option<&'_ dyn HeaderLanguageSupportingTypeAliases>
-    {
+    fn supports_type_aliases(
+        self: &'_ Self
+    ) -> Option<&'_ dyn HeaderLanguageSupportingTypeAliases> {
         None
     }
 
-    fn emit_simple_enum (
+    fn emit_simple_enum(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         backing_integer: Option<&'_ dyn PhantomCType>,
         variants: &'_ [EnumVariant<'_>],
-    ) -> io::Result<()>
-    ;
+    ) -> io::Result<()>;
 
-    fn emit_struct (
+    fn emit_struct(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-        fields: &'_ [StructField<'_>]
-    ) -> io::Result<()>
-    ;
+        fields: &'_ [StructField<'_>],
+    ) -> io::Result<()>;
 
-    fn emit_opaque_type (
+    fn emit_opaque_type(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    ;
+    ) -> io::Result<()>;
 
-    fn emit_function (
+    fn emit_function(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    ;
+    ) -> io::Result<()>;
 
-    fn emit_constant (
+    fn emit_constant(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
@@ -123,68 +112,52 @@ trait HeaderLanguage : UpcastAny {
         ty: &'_ dyn PhantomCType,
         skip_type: bool,
         value: &'_ dyn ::core::fmt::Debug,
-    ) -> io::Result<()>
-    ;
+    ) -> io::Result<()>;
 
-    fn emit_docs (
+    fn emit_docs(
         self: &'_ Self,
         _ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
         _indentation: &'_ Indentation,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         // This function is just offered as a convenience helper;
         // it is not directly called by the framework.
         Ok(())
     }
 }
 
-pub
-trait HeaderLanguageSupportingTypeAliases : HeaderLanguage {
+pub trait HeaderLanguageSupportingTypeAliases: HeaderLanguage {
     fn emit_type_alias(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         inner_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    ;
+    ) -> io::Result<()>;
 }
 
-pub
-struct EnumVariant<'lt> {
-    pub
-    docs: Docs<'lt>,
+pub struct EnumVariant<'lt> {
+    pub docs: Docs<'lt>,
 
-    pub
-    name: &'lt str,
+    pub name: &'lt str,
 
-    pub
-    discriminant: Option<&'lt dyn ::core::fmt::Debug>,
+    pub discriminant: Option<&'lt dyn ::core::fmt::Debug>,
 }
 
-pub
-struct StructField<'lt> {
-    pub
-    docs: Docs<'lt>,
+pub struct StructField<'lt> {
+    pub docs: Docs<'lt>,
 
-    pub
-    name: &'lt str,
+    pub name: &'lt str,
 
-    pub
-    ty: &'lt dyn PhantomCType,
+    pub ty: &'lt dyn PhantomCType,
 }
 
-pub
-struct FunctionArg<'lt> {
+pub struct FunctionArg<'lt> {
     // pub
     // docs: Docs<'lt>,
+    pub name: &'lt str,
 
-    pub
-    name: &'lt str,
-
-    pub
-    ty: &'lt dyn PhantomCType,
+    pub ty: &'lt dyn PhantomCType,
 }
 
 /// `T::assoc_func()` -> `PhantomData::<T>.method()` conversion
@@ -196,91 +169,59 @@ struct FunctionArg<'lt> {
 /// of an array / struct / "table" of a type's associated functions
 /// into a _runtime_ table of such, thence allowing runtime / `dyn`amic
 /// unification within a heterogeneous collection.
-pub
-trait PhantomCType {
-    fn short_name (
-        self: &'_ Self,
-    ) -> String
-    ;
+pub trait PhantomCType {
+    fn short_name(self: &'_ Self) -> String;
 
-    fn name_wrapping_var (
+    fn name_wrapping_var(
         self: &'_ Self,
         language: &'_ dyn HeaderLanguage,
         var_name: &'_ str,
-    ) -> String
-    ;
+    ) -> String;
 
-    fn name (
+    fn name(
         self: &'_ Self,
         language: &'_ dyn HeaderLanguage,
-    ) -> String
-    ;
+    ) -> String;
 
-    fn csharp_marshaler (
-        self: &'_ Self,
-    ) -> Option<String>
-    ;
+    fn csharp_marshaler(self: &'_ Self) -> Option<String>;
 
-    fn size (
-        self: &'_ Self,
-    ) -> usize
-    ;
+    fn size(self: &'_ Self) -> usize;
 
-    fn align (
-        self: &'_ Self,
-    ) -> usize
-    ;
+    fn align(self: &'_ Self) -> usize;
 }
 
-impl<T : ?Sized>
-    PhantomCType
-for
-    ::core::marker::PhantomData<T>
+impl<T: ?Sized> PhantomCType for ::core::marker::PhantomData<T>
 where
-    T : CType,
+    T: CType,
 {
-    fn short_name (
-        self: &'_ Self,
-    ) -> String
-    {
+    fn short_name(self: &'_ Self) -> String {
         <T as CType>::short_name()
     }
 
-    fn name_wrapping_var (
+    fn name_wrapping_var(
         self: &'_ Self,
         language: &'_ dyn HeaderLanguage,
         var_name: &'_ str,
-    ) -> String
-    {
+    ) -> String {
         T::name_wrapping_var(language, var_name)
     }
 
-    fn name (
+    fn name(
         self: &'_ Self,
         language: &'_ dyn HeaderLanguage,
-    ) -> String
-    {
+    ) -> String {
         T::name(language)
     }
 
-    fn csharp_marshaler (
-        self: &'_ Self,
-    ) -> Option<String>
-    {
+    fn csharp_marshaler(self: &'_ Self) -> Option<String> {
         T::csharp_marshaler()
     }
 
-    fn size (
-        self: &'_ Self,
-    ) -> usize
-    {
+    fn size(self: &'_ Self) -> usize {
         ::core::mem::size_of::<T>()
     }
 
-    fn align (
-        self: &'_ Self,
-    ) -> usize
-    {
+    fn align(self: &'_ Self) -> usize {
         ::core::mem::align_of::<T>()
     }
 }
@@ -369,37 +310,24 @@ macro_rules! mk_out {
             )
         }
     );
-} use mk_out;
-
-pub
-trait UpcastAny : 'static {
-    fn upcast_any (self: &'_ Self)
-      -> &'_ dyn ::core::any::Any
-    ;
 }
-impl<T : 'static> UpcastAny for T {
-    fn upcast_any (self: &'_ Self)
-      -> &'_ dyn ::core::any::Any
-    {
+use mk_out;
+
+pub trait UpcastAny: 'static {
+    fn upcast_any(self: &'_ Self) -> &'_ dyn ::core::any::Any;
+}
+impl<T: 'static> UpcastAny for T {
+    fn upcast_any(self: &'_ Self) -> &'_ dyn ::core::any::Any {
         self
     }
 }
 
 impl dyn HeaderLanguage {
-    pub
-    fn is<Concrete : HeaderLanguage> (
-        self: &'_ Self,
-    ) -> bool
-    {
+    pub fn is<Concrete: HeaderLanguage>(self: &'_ Self) -> bool {
         self.upcast_any().is::<Concrete>()
     }
 
-    pub
-    fn downcast_ref<Concrete : HeaderLanguage> (
-        self: &'_ Self,
-    ) -> Option<&'_ Concrete>
-    {
-        self.upcast_any()
-            .downcast_ref()
+    pub fn downcast_ref<Concrete: HeaderLanguage>(self: &'_ Self) -> Option<&'_ Concrete> {
+        self.upcast_any().downcast_ref()
     }
 }
