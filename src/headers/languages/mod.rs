@@ -8,20 +8,14 @@ pub use c::C;
 use super::Definer;
 mod c;
 
-__cfg_headers__! {
-    pub use csharp::CSharp;
-    mod csharp;
-}
+pub use csharp::CSharp;
+mod csharp;
 
-__cfg_python__! {
-    pub use python::Python;
-    mod python;
-}
+pub use python::Python;
+mod python;
 
-__cfg_headers__! {
-    pub use lua::Lua;
-    mod lua;
-}
+pub use lua::Lua;
+mod lua;
 
 pub struct Indentation {
     depth: ::core::cell::Cell<usize>,

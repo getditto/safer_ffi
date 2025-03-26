@@ -1,16 +1,14 @@
 use super::*;
 
-pub
-struct CSharp;
+pub struct CSharp;
 
 impl HeaderLanguage for CSharp {
-    fn emit_docs (
+    fn emit_docs(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         indent: &'_ Indentation,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         mk_out!(indent, ctx.out());
 
         if docs.is_empty() {
@@ -48,21 +46,18 @@ impl HeaderLanguage for CSharp {
         Ok(())
     }
 
-    fn emit_simple_enum (
+    fn emit_simple_enum(
         self: &'_ CSharp,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         backing_integer: Option<&dyn PhantomCType>,
         variants: &'_ [EnumVariant<'_>],
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
-        let ref IntN =
-            backing_integer.map(|it| it.name(self))
-        ;
+        let ref IntN = backing_integer.map(|it| it.name(self));
 
         let ref full_ty_name = self_ty.name(self);
 
@@ -99,14 +94,13 @@ impl HeaderLanguage for CSharp {
         Ok(())
     }
 
-    fn emit_struct (
+    fn emit_struct(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-        fields: &'_ [StructField<'_>]
-    ) -> io::Result<()>
-    {
+        fields: &'_ [StructField<'_>],
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
@@ -154,13 +148,12 @@ impl HeaderLanguage for CSharp {
         Ok(())
     }
 
-    fn emit_opaque_type (
+    fn emit_opaque_type(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
@@ -181,15 +174,14 @@ impl HeaderLanguage for CSharp {
         Ok(())
     }
 
-    fn emit_function (
+    fn emit_function(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
@@ -236,7 +228,7 @@ impl HeaderLanguage for CSharp {
         Ok(())
     }
 
-    fn emit_constant (
+    fn emit_constant(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
@@ -244,8 +236,7 @@ impl HeaderLanguage for CSharp {
         ty: &'_ dyn PhantomCType,
         skip_type: bool,
         value: &'_ dyn ::core::fmt::Debug,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         if skip_type {
             // Skip the whole const for now.
             // TODO: properly support constants in C#

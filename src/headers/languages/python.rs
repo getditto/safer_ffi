@@ -1,31 +1,27 @@
 use super::*;
 
-
 pub struct Python;
-
 
 /// Create a file whose content will be set in `ffi.cdef` of the Python module `cffi`
 impl HeaderLanguage for Python {
-    fn emit_docs (
+    fn emit_docs(
         self: &'_ Self,
         _ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
         _indent: &'_ Indentation,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         // No documentation
-        return Ok(())
+        return Ok(());
     }
 
-    fn emit_simple_enum (
+    fn emit_simple_enum(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         _backing_integer: Option<&dyn PhantomCType>,
         variants: &'_ [EnumVariant<'_>],
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
@@ -51,14 +47,13 @@ impl HeaderLanguage for Python {
         Ok(())
     }
 
-    fn emit_struct (
+    fn emit_struct(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-        fields: &'_ [StructField<'_>]
-    ) -> io::Result<()>
-    {
+        fields: &'_ [StructField<'_>],
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
         let short_name = self_ty.short_name();
@@ -96,13 +91,12 @@ impl HeaderLanguage for Python {
         Ok(())
     }
 
-    fn emit_opaque_type (
+    fn emit_opaque_type(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
         let full_ty_name = self_ty.name(self);
@@ -111,15 +105,14 @@ impl HeaderLanguage for Python {
         Ok(())
     }
 
-    fn emit_function (
+    fn emit_function(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
 
         let ref fn_sig_but_for_ret_type: String = {
@@ -152,7 +145,7 @@ impl HeaderLanguage for Python {
         Ok(())
     }
 
-    fn emit_constant (
+    fn emit_constant(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
@@ -160,8 +153,7 @@ impl HeaderLanguage for Python {
         _ty: &'_ dyn PhantomCType,
         _skip_type: bool,
         _value: &'_ dyn ::core::fmt::Debug,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 

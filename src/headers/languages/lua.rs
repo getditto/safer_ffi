@@ -3,13 +3,12 @@ use super::*;
 pub struct Lua;
 
 impl HeaderLanguage for Lua {
-    fn emit_docs (
+    fn emit_docs(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         indent: &'_ Indentation,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         mk_out!(indent, ctx.out());
 
         if docs.is_empty() {
@@ -25,21 +24,18 @@ impl HeaderLanguage for Lua {
         Ok(())
     }
 
-    fn emit_simple_enum (
+    fn emit_simple_enum(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         backing_integer: Option<&dyn PhantomCType>,
         variants: &'_ [EnumVariant<'_>],
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4);
         mk_out!(indent, ctx.out());
 
-        let ref intn_t =
-            backing_integer.map(|it| it.name(self))
-            ;
+        let ref intn_t = backing_integer.map(|it| it.name(self));
 
         self.emit_docs(ctx, docs, indent)?;
 
@@ -82,14 +78,13 @@ impl HeaderLanguage for Lua {
         Ok(())
     }
 
-    fn emit_struct (
+    fn emit_struct(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-        fields: &'_ [StructField<'_>]
-    ) -> io::Result<()>
-    {
+        fields: &'_ [StructField<'_>],
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4);
         mk_out!(indent, ctx.out());
         let short_name = self_ty.short_name();
@@ -128,13 +123,12 @@ impl HeaderLanguage for Lua {
         Ok(())
     }
 
-    fn emit_opaque_type (
+    fn emit_opaque_type(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4);
         mk_out!(indent, ctx.out());
         let short_name = self_ty.short_name();
@@ -147,15 +141,14 @@ impl HeaderLanguage for Lua {
         Ok(())
     }
 
-    fn emit_function (
+    fn emit_function(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4);
 
         self.emit_docs(ctx, docs, indent)?;
@@ -197,7 +190,7 @@ impl HeaderLanguage for Lua {
         Ok(())
     }
 
-    fn emit_constant (
+    fn emit_constant(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
@@ -205,23 +198,22 @@ impl HeaderLanguage for Lua {
         ty: &'_ dyn PhantomCType,
         _skip_type: bool,
         value: &'_ dyn ::core::fmt::Debug,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4);
         mk_out!(indent, ctx.out());
 
         self.emit_docs(ctx, docs, indent)?;
         let ty = ty.name(self);
         match ty.as_str() {
-            "int32_t" | "uint32_t" | "int16_t" | "uint16_t" | "int8_t" | "uint8_t" => {
+            | "int32_t" | "uint32_t" | "int16_t" | "uint16_t" | "int8_t" | "uint8_t" => {
                 out!(("static const {ty} {name} = {value:?};"));
             },
-            "Opaque__str_t" => {
+            | "Opaque__str_t" => {
                 out!(("extern const char* {name};"));
             },
             // Based on https://luajit.org/ext_ffi_semantics.html
             // "static const declarations only work for integer types up to 32 bits."
-            _ => panic!("Lua doesn't support this const type: {}", ty),
+            | _ => panic!("Lua doesn't support this const type: {}", ty),
         }
 
         out!("\n");
