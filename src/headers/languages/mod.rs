@@ -3,9 +3,12 @@
 use_prelude!();
 use ::std::io::Write as _;
 use ::std::io::{self};
-use primitives::Primitive;
 
+use self::primitives::FloatBitWidth;
+use self::primitives::IntBitWidth;
+use self::primitives::Primitive;
 use super::Definer;
+use crate::utils::DisplayFromFn as F;
 mod primitives;
 
 pub use c::C;
@@ -101,6 +104,14 @@ pub trait HeaderLanguage: UpcastAny {
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>;
 
+    fn emit_function_ptr_ty(
+        self: &'_ Self,
+        out: &mut dyn io::Write,
+        name: &'_ str,
+        args: &'_ [FunctionArg<'_>],
+        ret_ty: &'_ dyn PhantomCType,
+    ) -> io::Result<()>;
+
     fn declare_constant(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
@@ -124,20 +135,20 @@ pub trait HeaderLanguage: UpcastAny {
 
     fn emit_primitive_ty(
         self: &'_ Self,
-        _ctx: &mut dyn Definer,
+        _out: &mut dyn io::Write,
         _primitive: Primitive,
     ) -> io::Result<()>;
 
     fn emit_pointer_ty(
         self: &'_ Self,
-        _ctx: &mut dyn Definer,
+        out: &mut dyn io::Write,
         pointee_is_immutable: bool,
         pointee: &'_ dyn PhantomCType,
     ) -> io::Result<()>;
 }
 
 pub trait HeaderLanguageSupportingTypeAliases: HeaderLanguage {
-    fn emit_type_alias(
+    fn declare_type_alias(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
@@ -182,6 +193,12 @@ pub struct FunctionArg<'lt> {
 pub trait PhantomCType {
     fn short_name(self: &'_ Self) -> String;
 
+    fn render(
+        self: &'_ Self,
+        language: &'_ dyn HeaderLanguage,
+        out: &'_ mut dyn io::Write,
+    ) -> io::Result<()>;
+
     fn name_wrapping_var(
         self: &'_ Self,
         language: &'_ dyn HeaderLanguage,
@@ -205,7 +222,15 @@ where
     T: CType,
 {
     fn short_name(self: &'_ Self) -> String {
-        <T as CType>::short_name()
+        T::short_name()
+    }
+
+    fn render(
+        self: &'_ Self,
+        language: &'_ dyn HeaderLanguage,
+        out: &'_ mut dyn io::Write,
+    ) -> io::Result<()> {
+        T::render(language, out)
     }
 
     fn name_wrapping_var(

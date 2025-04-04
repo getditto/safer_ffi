@@ -157,7 +157,7 @@ pub(crate) fn derive(
             ) -> #ඞ::io::Result<()>
             {
                 <#Int as #CType>::define_self(language, definer)?;
-                language.emit_simple_enum(
+                language.declare_simple_enum(
                     definer,
                     &[#(#each_doc),*],
                     &#ඞ::marker::PhantomData::<Self>,

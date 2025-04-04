@@ -117,7 +117,7 @@ pub(crate) fn derive(
             #(
                 < #EachFieldTy as #CType >::define_self(language, definer)?;
             )*
-                language.emit_struct(
+                language.declare_struct(
                     definer,
                     &[#(#struct_docs),*],
                     &#ඞ::marker::PhantomData::<Self>,
@@ -215,7 +215,7 @@ pub(crate) fn derive_transparent(
                     <#CFieldTy as #ඞ::CType>::define_self(language, definer)?;
 
                     if let #ඞ::Some(language) = language.supports_type_aliases() {
-                        language.emit_type_alias(
+                        language.declare_type_alias(
                             definer,
                             &[#(#docs),*],
                             &#ඞ::PhantomData::<Self>,

@@ -66,6 +66,14 @@ pub unsafe trait CType: Sized + Copy {
             format!("{}_t", Self::short_name())
         }
 
+        fn render(
+            language: &'_ dyn HeaderLanguage,
+            out: &'_ mut dyn io::Write,
+        ) -> io::Result<()>
+        {
+            write!(out, "{}", Self::name(language))
+        }
+
         fn name_wrapping_var (
             language: &'_ dyn HeaderLanguage,
             var_name: &'_ str,

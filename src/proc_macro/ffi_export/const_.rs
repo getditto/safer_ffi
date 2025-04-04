@@ -94,7 +94,7 @@ pub(super) fn handle(
                             )?;
 
                             header_builder
-                        }).emit_constant(
+                        }).declare_constant(
                             definer,
                             &[ #(#each_doc),* ],
                             #VAR_str,

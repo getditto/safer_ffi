@@ -258,4 +258,82 @@ impl HeaderLanguage for CSharp {
         out!("\n");
         Ok(())
     }
+
+    fn emit_function_ptr_ty(
+        self: &'_ Self,
+        out: &mut dyn io::Write,
+        name: &'_ str,
+        args: &'_ [FunctionArg<'_>],
+        ret_ty: &'_ dyn PhantomCType,
+    ) -> io::Result<()> {
+        write!(
+            out,
+            "{ret_ty}_{args}_fptr {name}",
+            ret_ty = ret_ty.short_name(),
+            args = F(|out| {
+                let first = &mut true;
+                for arg in args {
+                    if mem::take(first).not() {
+                        write!(out, "_")?;
+                    }
+                    write!(out, "{}", arg.ty.short_name())?;
+                }
+                Ok(())
+            }),
+        )
+    }
+
+    fn emit_primitive_ty(
+        self: &'_ Self,
+        out: &mut dyn io::Write,
+        primitive: Primitive,
+    ) -> io::Result<()> {
+        match primitive {
+            | Primitive::Bool => {
+                write!(out, "bool")?;
+            },
+            | Primitive::Integer {
+                signed,
+                bitwidth: IntBitWidth::PtrSized,
+            } => {
+                let sign_prefix = if signed { "" } else { "U" };
+                write!(out, "{sign_prefix}Intptr")?;
+            },
+            | Primitive::Integer {
+                signed,
+                bitwidth: IntBitWidth::_8,
+            } => {
+                let sign_prefix = if signed { "s" } else { "" };
+                write!(out, "{sign_prefix}byte")?;
+            },
+            | Primitive::Integer { signed, bitwidth } => {
+                let sign_prefix = if signed { "" } else { "U" };
+                let bitwidth = bitwidth as u8;
+                write!(out, "{sign_prefix}Int{bitwidth}")?;
+            },
+            | Primitive::Float { bitwidth } => write!(out, "{}", match bitwidth {
+                | FloatBitWidth::_32 => "float",
+                | FloatBitWidth::_64 => "double",
+            })?,
+        }
+        Ok(())
+    }
+
+    fn emit_pointer_ty(
+        self: &'_ Self,
+        out: &mut dyn io::Write,
+        pointee_is_immutable: bool,
+        pointee: &'_ dyn PhantomCType,
+    ) -> io::Result<()> {
+        let maybe_const = if pointee_is_immutable {
+            "/*const*/ "
+        } else {
+            ""
+        };
+        write!(
+            out,
+            "{pointee} {maybe_const}*",
+            pointee = F(|out| pointee.render(self, out)),
+        )
+    }
 }

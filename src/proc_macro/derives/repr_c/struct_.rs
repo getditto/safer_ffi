@@ -469,7 +469,7 @@ pub(crate) fn derive_opaque(
                     definer: &'_ mut dyn #ඞ::Definer,
                 ) -> #ඞ::io::Result<()>
                 {
-                    language.emit_opaque_type(
+                    language.declare_opaque_type(
                         definer,
                         &[#(#docs),*],
                         &#ඞ::PhantomData::<Self>,

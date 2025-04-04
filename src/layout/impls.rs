@@ -331,7 +331,7 @@ const _: () = {
         {
             #[inline]
             fn is_niche (_: &'_ Self::CLayout)
-            -> bool
+              -> bool
             {
                 unreachable!()
             }
