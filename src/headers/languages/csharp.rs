@@ -262,25 +262,27 @@ impl HeaderLanguage for CSharp {
     fn emit_function_ptr_ty(
         self: &'_ Self,
         out: &mut dyn io::Write,
-        name: &'_ str,
-        args: &'_ [FunctionArg<'_>],
-        ret_ty: &'_ dyn PhantomCType,
+        self_ty: &'_ dyn PhantomCType,
+        _name: &'_ str,
+        _args: &'_ [FunctionArg<'_>],
+        _ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()> {
-        write!(
-            out,
-            "{ret_ty}_{args}_fptr {name}",
-            ret_ty = ret_ty.short_name(),
-            args = F(|out| {
-                let first = &mut true;
-                for arg in args {
-                    if mem::take(first).not() {
-                        write!(out, "_")?;
-                    }
-                    write!(out, "{}", arg.ty.short_name())?;
-                }
-                Ok(())
-            }),
-        )
+        write!(out, "{}", self_ty.name(self))
+        // write!(
+        //     out,
+        //     "{ret_ty}_{args}_fptr {name}",
+        //     ret_ty = ret_ty.short_name(),
+        //     args = F(|out| {
+        //         let first = &mut true;
+        //         for arg in args {
+        //             if mem::take(first).not() {
+        //                 write!(out, "_")?;
+        //             }
+        //             write!(out, "{}", arg.ty.short_name())?;
+        //         }
+        //         Ok(())
+        //     }),
+        // )
     }
 
     fn emit_primitive_ty(

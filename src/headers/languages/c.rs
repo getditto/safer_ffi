@@ -258,6 +258,7 @@ impl HeaderLanguage for C {
     fn emit_function_ptr_ty(
         self: &'_ Self,
         out: &mut dyn io::Write,
+        _self_ty: &'_ dyn PhantomCType,
         name: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,

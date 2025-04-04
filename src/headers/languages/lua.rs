@@ -223,11 +223,12 @@ impl HeaderLanguage for Lua {
     fn emit_function_ptr_ty(
         self: &'_ Self,
         out: &mut dyn io::Write,
+        self_ty: &'_ dyn PhantomCType,
         name: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()> {
-        C.emit_function_ptr_ty(out, name, args, ret_ty)
+        C.emit_function_ptr_ty(out, self_ty, name, args, ret_ty)
     }
 
     fn emit_primitive_ty(

@@ -104,9 +104,28 @@ pub trait HeaderLanguage: UpcastAny {
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>;
 
+    // On certain languages, such as older C#, there is, surprisingly enough, no direct function
+    // pointer type. But a static delegate can be annotated with a marshalling attribute so as to
+    // be convertible into one.
+    //
+    // This, thus, requires a one-time setup to declare the helper type, _per choice_ of generics.
+    // (Other types also requiring helper definitions, when non-generic, may be left to be
+    // "hardcoded" within that language's header prelude or whatnot.)
+    fn define_function_ptr_ty(
+        self: &'_ Self,
+        _ctx: &'_ mut dyn Definer,
+        _self_ty: &'_ dyn PhantomCType,
+        _args: &'_ [FunctionArg<'_>],
+        _ret_ty: &'_ dyn PhantomCType,
+    ) -> io::Result<()> {
+        // By default, assume the language needs no setup.
+        Ok(())
+    }
+
     fn emit_function_ptr_ty(
         self: &'_ Self,
         out: &mut dyn io::Write,
+        self_ty: &'_ dyn PhantomCType,
         name: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,

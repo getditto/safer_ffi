@@ -37,10 +37,6 @@ pub unsafe trait CType: Sized + Copy {
     }
 
     __cfg_headers__! {
-        fn short_name ()
-          -> String
-        ;
-
         #[allow(nonstandard_style)]
         fn define_self__impl (
             language: &'_ dyn HeaderLanguage,
@@ -58,6 +54,10 @@ pub unsafe trait CType: Sized + Copy {
                 &mut |definer| Self::define_self__impl(language, definer),
             )
         }
+
+        fn short_name ()
+          -> String
+        ;
 
         fn name (
             _language: &'_ dyn HeaderLanguage,
