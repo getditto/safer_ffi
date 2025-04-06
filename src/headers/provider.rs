@@ -104,7 +104,7 @@
 //!             CaseConvention::default()
 //!         }();
 //!         // ...
-//!         # todo!()
+//!         # unimplemented!("doc example")
 //!     }
 //!     ```
 //!
@@ -116,8 +116,8 @@
 //! # Example usage
 //!
 //! ```rust
-//! use ::safer_ffi::headers::provider;
 //! use ::safer_ffi::headers::provider::Provider;
+//! use ::safer_ffi::headers::provider::provide_with;
 //!
 //! trait PrettyPrint {
 //!     fn pretty_print(
@@ -159,10 +159,10 @@
 //! // Notable `impl`ementor of `Provider`: `None`.
 //! assert_eq!(true.pretty_print(&None), "true");
 //! assert_eq!(42.pretty_print(&None), "42");
-//! // Notable `impl`ementor of `Provider`: `impl Fn(&mut RequestSlot<'_>)`.
+//! // Notable `impl`ementor of `Provider`: `impl Fn(&mut Request<'_>)`.
 //! assert_eq!(
-//!     42.pretty_print(&provider::from_fn(|request_slot| {
-//!         request_slot.put_if_requested::<Base>(|| Base::NinePlusSeven);
+//!     42.pretty_print(&provide_with(|request| {
+//!         request.give_if_requested::<Base>(|| Base::NinePlusSeven);
 //!     })),
 //!     "0x2a",
 //! );
@@ -196,17 +196,17 @@
 
 /// Convenience from-`impl Fn(…)` constructor of _ad-hoc_ <code>impl [Provider]</code>s.
 #[allow(nonstandard_style)]
-pub struct from_fn<F: Fn(&mut RequestSlot<'_>)>(pub F)
+pub struct provide_with<F: Fn(&mut Request<'_>)>(pub F)
 where
     Self: Provider;
 
-impl<F: Fn(&mut RequestSlot<'_>)> Provider for from_fn<F> {
+impl<F: Fn(&mut Request<'_>)> Provider for provide_with<F> {
     #[inline]
-    fn provide(
+    fn provide_to(
         &self,
-        requester_slot: &mut RequestSlot<'_>,
+        request: &mut Request<'_>,
     ) {
-        self.0(requester_slot)
+        self.0(request)
     }
 }
 
@@ -214,39 +214,40 @@ impl<F: Fn(&mut RequestSlot<'_>)> Provider for from_fn<F> {
 /// [`.request::<T>([])`][`Provider::request()`] to be callable.
 impl<P: ?Sized + Provider> Provider for &'_ P {
     #[inline]
-    fn provide(
+    fn provide_to(
         &self,
-        requester_slot: &mut RequestSlot<'_>,
+        request: &mut Request<'_>,
     ) {
-        P::provide(*self, requester_slot);
+        P::provide_to(*self, request);
     }
 }
 
 /// `Provider` is implemented "for `None`" (by providing _nothing_, _i.e._, never calling any
-/// [`.put_if_requested::<T>()`][`RequestSlot::put_if_requested()`]).
+/// [`.give_if_requested::<T>()`][`Request::give_if_requested()`]).
 impl Provider for Option<::never_say_never::Never> {
     #[inline]
-    fn provide(
+    fn provide_to(
         &self,
-        _: &mut RequestSlot<'_>,
+        _: &mut Request<'_>,
     ) {
     }
 }
 
 /// Rename used purely for documentation: we cannot do `Option<dyn Any>` (since `Option<>`
 /// requires `Sized`), which is why we end up `Any`-erasing *everything*, including the
-/// `Option` layer itself, but morally an `Option<dyn Any>` is basically what a [`RequestSlot`]
+/// `Option` layer itself, but morally an `Option<dyn Any>` is basically what a [`Request`]
 /// is about.
 use ::core::any::Any as OptionAny;
 
 // Morally, this type represents an `Option<dyn Any>`, initialized from some `None::<T>`,
 // wherein the _requester_ having used this instance is looking to receive / be provided a value of
 // type `T`.
-/// Handle through which an implementor of [`Provider::provide()`] is expected to _provide_ / give
-/// its value(s) of type `<T>`, through the [`.put_if_requested::<T>()`][`Self::put_if_requested()`]
-/// method, to the [`.request::<T>([])`][`Provider::request()`]ers.
+/// Handle through which an implementor of [`Provider::provide_to()`] is expected to _provide_ /
+/// give its value(s) of type `<T>`, through the
+/// [`.give_if_requested::<T>()`][`Self::give_if_requested()`] method, to the
+/// [`.request::<T>([])`][`Provider::request()`]ers.
 #[repr(transparent)]
-pub struct RequestSlot<'lt>(
+pub struct Request<'lt>(
     /// We pre-reserve an invariant `'lt` param in this type should we end up "un-mini"-fying this
     /// module so as to support `'lt`-infected `T` types in the request, as in:
     /// `request::<&mut Vec<String>>()`.
@@ -258,19 +259,19 @@ pub struct RequestSlot<'lt>(
     dyn OptionAny,
 );
 
-impl RequestSlot<'_> {
+impl Request<'_> {
     #[inline]
-    fn wrap_mut<U: 'static>(it: &mut Option<U>) -> &mut Self {
+    fn wrap_mut<U: 'static>(requester_slot: &mut Option<U>) -> &mut Self {
         #[rustfmt::skip]
         return unsafe {
             // SAFETY: same layout of the pointee (thanks to `repr(transparent ≥ C)`),
             //         and usage of `as` casts makes this robust to whichever layout of the wide
             //         pointer is picked.
             //
-            //         Finally, `RequestSlot` involves no extra validity nor safety invariants
+            //         Finally, `Request` involves no extra validity nor safety invariants
             //         whatsoever.
             &mut *(
-                ::core::ptr::addr_of_mut!(*it)
+                ::core::ptr::addr_of_mut!(*requester_slot)
                   // : *mut Option<U>
                     as *mut dyn OptionAny
                     as *mut Self/*(dyn OptionAny)*/
@@ -285,21 +286,21 @@ impl RequestSlot<'_> {
     /// The closure is only invoked (and the value, provided) if and only if:
     ///
     ///  1. the [`.request()`] involved the same `T`.
-    ///  1. a `T` value hasn't already been `put` in the [`RequestSlot`]
+    ///  1. a `T` value hasn't already been `put` in the [`Request`]
     ///
     ///     _i.e._, don't do:
     ///
     ///     ```rust
-    ///     use ::safer_ffi::headers::provider::{Provider, RequestSlot};
+    ///     use ::safer_ffi::headers::provider::{Provider, Request};
     ///
     ///     struct Foo;
     ///     impl Provider for Foo {
-    ///         fn provide(&self, request_slot: &mut RequestSlot) {
+    ///         fn provide_to(&self, request: &mut Request) {
     ///             // Provide `T = i32` once.
-    ///             request_slot.put_if_requested::<i32>(|| 42);
+    ///             request.give_if_requested::<i32>(|| 42);
     ///             let mut called = false;
     ///             // Provide it a second time???
-    ///             request_slot.put_if_requested::<i32>(|| {
+    ///             request.give_if_requested::<i32>(|| {
     ///                 called = true;
     ///                 27
     ///             });
@@ -312,7 +313,7 @@ impl RequestSlot<'_> {
     ///     assert_eq!(Foo.request::</* T = */ i32>([]), Some(42));
     ///     ```
     #[inline]
-    pub fn put_if_requested<T: 'static + private::ObligatoryTurbofish<ItSelf = T>>(
+    pub fn give_if_requested<T: 'static + private::ObligatoryTurbofish<ItSelf = T>>(
         &mut self,
         f: impl FnOnce() -> T::ItSelf,
     ) -> &mut Self {
@@ -332,15 +333,6 @@ impl RequestSlot<'_> {
         }
         self
     }
-
-    // Is this really that useful?
-    // /// Convenience for `self.put_if_requested::<T>(|| value)`.
-    // pub fn put_maybe<T: 'static>(
-    //     &mut self,
-    //     value: T,
-    // ) -> &mut Self {
-    //     self.put_if_requested::<T>(|| value)
-    // }
 }
 
 /// Assert `dyn`-compatibility.
@@ -356,12 +348,12 @@ impl dyn '_ + Provider {
 /// that.
 ///
 ///   - On the one side, callees / `impl`ementors are expected to provide (heh) an implementation of
-///     the [`Self::provide()`] method.
+///     the [`Self::provide_to()`] method.
 ///
 ///     This is achieved by calling
-///     <code>request_slot[.put_if_requested::\<T\>()]</code> with any number of choices of `<T>`.
+///     <code>request[.give_if_requested::\<T\>()]</code> with any number of choices of `<T>`.
 ///
-///     [.put_if_requested::\<T\>()]: `RequestSlot::put_if_requested()`
+///     [.give_if_requested::\<T\>()]: `Request::give_if_requested()`
 ///
 ///   - On the other side, call-sites are expected to using the convenience
 ///     [`.request::<T>([])`][`Provider::request()`] method on <code>impl [Provider]</code> types.
@@ -372,18 +364,18 @@ impl dyn '_ + Provider {
 ///
 /// ```rust
 /// use ::safer_ffi::headers::provider::Provider;
-/// use ::safer_ffi::headers::provider::RequestSlot;
+/// use ::safer_ffi::headers::provider::Request;
 ///
 /// struct Foo;
 ///
 /// impl Provider for Foo {
-///     fn provide(
+///     fn provide_to(
 ///         &self,
-///         request_slot: &mut RequestSlot<'_>,
+///         request: &mut Request<'_>,
 ///     ) {
-///         request_slot.put_if_requested::<i32>(|| 42);
-///         request_slot.put_if_requested::<bool>(|| true);
-///         request_slot.put_if_requested::<MyOwnSignal>(MyOwnSignal);
+///         request.give_if_requested::<i32>(|| 42);
+///         request.give_if_requested::<bool>(|| true);
+///         request.give_if_requested::<MyOwnSignal>(MyOwnSignal);
 ///     }
 /// }
 ///
@@ -400,37 +392,37 @@ impl dyn '_ + Provider {
 /// ## This trait is `dyn` compatible
 ///
 /// ```rust
-/// use ::safer_ffi::headers::provider;
 /// use ::safer_ffi::headers::provider::Provider;
+/// use ::safer_ffi::headers::provider::provide_with;
 ///
 /// fn demo(p: &dyn Provider) {
 ///     assert!(p.dyn_request::<i32>() == Some(42));
 ///     assert!(p.dyn_request::<u32>() == None);
 /// }
 ///
-/// demo(&provider::from_fn(|slot| {
-///     slot.put_if_requested::<i32>(|| 42);
+/// demo(&provide_with(|request| {
+///     request.give_if_requested::<i32>(|| 42);
 /// }));
 /// ```
 pub trait Provider {
     /// Method to be implemented by _the callee_ / the implementor / `Self`, by calling
-    /// <code>request_slot[.put_if_requested::\<T\>()]</code> with any number of choices of `<T>`.
+    /// <code>request[.give_if_requested::\<T\>()]</code> with any number of choices of `<T>`.
     ///
-    /// [.put_if_requested::\<T\>()]: `RequestSlot::put_if_requested()`
-    fn provide(
+    /// [.give_if_requested::\<T\>()]: `Request::give_if_requested()`
+    fn provide_to(
         &self,
-        requester_slot: &mut RequestSlot<'_>,
+        request: &mut Request<'_>,
     );
 
     /// Convenience method for _callers_ dealing with some <code>impl [Provider]</code> type,
     /// for them to be able to _request_ / query / get the value of type `<T>` that this impl may
-    /// have [`.put_if_requested::<T>()`][`RequestSlot::put_if_requested()`].
+    /// have [`.give[n]_if_requested::<T>()`][`Request::give_if_requested()`].
     ///
     /// It is a `Sealed` / _final_ method, which due to limitations of Rust at the moment requires
     /// an empty array argument.
     ///
-    /// Just ignore it, and consider that the syntax to call this is `.request::<T>([])` rather than
-    /// just `.request::<T>()`.
+    /// Just ignore it, and consider that the syntax to call it is just `.request::<T>([])` rather
+    /// than `.request::<T>()`.
     #[inline]
     fn request<T: 'static>(
         &self,
@@ -440,7 +432,7 @@ pub trait Provider {
         Self: Sized,
     {
         let mut requester_slot = None::<T> {};
-        self.provide(RequestSlot::wrap_mut(&mut requester_slot));
+        self.provide_to(Request::wrap_mut(&mut requester_slot));
         requester_slot
     }
 }

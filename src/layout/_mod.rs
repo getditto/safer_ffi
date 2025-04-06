@@ -6,6 +6,7 @@ __cfg_headers__! {
     use crate::headers::{
         Definer,
         languages::*,
+        provider::Provider,
     };
 }
 
@@ -81,6 +82,10 @@ pub unsafe trait CType: Sized + Copy {
         {
             let sep = if var_name.is_empty() { "" } else { " " };
             format!("{}{sep}{var_name}", Self::name(language))
+        }
+
+        fn metadata() -> &'static dyn Provider {
+            &None
         }
 
         /// Optional marshaler attached to the type (_e.g._,
