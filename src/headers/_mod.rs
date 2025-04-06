@@ -120,6 +120,8 @@ pub use definer::Definer;
 pub use definer::HashSetDefiner;
 mod definer;
 
+pub mod provider;
+
 match_! {(
     /// Sets up the name of the `ifndef` guard of the header file.
     ///

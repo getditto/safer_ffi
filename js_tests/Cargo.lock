@@ -440,6 +440,12 @@ version = "1.0.0"
 source = "git+https://github.com/getditto/napi-rs?branch=ditto%2Fclosure-into-jsfunction#da095cc3f1af133344083b525d7e9763b347e249"
 
 [[package]]
+name = "never-say-never"
+version = "6.6.666"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cf5a574dadd7941adeaa71823ecba5e28331b8313fb2e1c6a5c7e5981ea53ad6"
+
+[[package]]
 name = "num_cpus"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -634,6 +640,7 @@ dependencies = [
  "inventory",
  "libc",
  "macro_rules_attribute",
+ "never-say-never",
  "once_cell",
  "paste",
  "safer_ffi-proc_macros",
