@@ -1,7 +1,7 @@
 use super::*;
 
 fn docs_of(attrs: &'_ [Attribute]) -> impl '_ + Iterator<Item = &'_ Attribute> {
-    attrs.iter().filter(|a| a.path.is_ident("doc"))
+    attrs.iter().filter(|a| a.path().is_ident("doc"))
 }
 
 pub(crate) fn derive(
@@ -13,7 +13,7 @@ pub(crate) fn derive(
     fields: &'_ Fields,
 ) -> Result<TokenStream2> {
     if let Some(repr) = attrs.iter().find_map(|attr| {
-        bool::then(attr.path.is_ident("repr"), || {
+        bool::then(attr.path().is_ident("repr"), || {
             attr.parse_args::<Ident>().ok()
         })
         .flatten()
@@ -392,7 +392,7 @@ pub(crate) fn derive_opaque(
             mod kw {
                 ::syn::custom_keyword!(opaque);
             }
-            attr.path.is_ident("repr") && attr.parse_args::<kw::opaque>().is_ok()
+            attr.path().is_ident("repr") && attr.parse_args::<kw::opaque>().is_ok()
         })
     });
 

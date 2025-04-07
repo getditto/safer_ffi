@@ -91,7 +91,7 @@ pub(crate) fn derive_ReprC(
         },
         input,
     )?;
-    if let Some(attr) = attrs.iter_mut().find(|a| a.path.is_ident("repr")) {
+    if let Some(attr) = attrs.iter_mut().find(|a| a.path().is_ident("repr")) {
         let mut idents = attr
             .parse_args_with(Punctuated::<Ident, Token![,]>::parse_terminated)
             .unwrap()

@@ -41,7 +41,7 @@ pub(super) fn try_handle_fptr(input: &'_ DeriveInput) -> Option<Result<TokenStre
         mod kw {
             ::syn::custom_keyword!(transparent);
         }
-        match attrs.iter().find(|attr| attr.path.is_ident("repr")) {
+        match attrs.iter().find(|attr| attr.path().is_ident("repr")) {
             | Some(attr) => match attr.parse_args::<kw::transparent>() {
                 | Ok(_) => {},
                 | Err(_) => fallback!(),
@@ -177,11 +177,28 @@ pub(super) fn try_handle_fptr(input: &'_ DeriveInput) -> Option<Result<TokenStre
             data: input.data.clone(),
         };
         // let ref StructName_Layout = input_Layout.ident;
-        let ref lifetimes = cb_ty
+        let lifetimes_result = cb_ty
             .lifetimes
             .as_ref()
-            .map(|it| it.lifetimes.iter().cloned().collect::<Vec<_>>())
-            .unwrap_or_default();
+            .map(|it| {
+                it.lifetimes
+                    .iter()
+                    .map(|p| match p {
+                        | GenericParam::Lifetime(it) => Ok(it.clone()),
+                        | GenericParam::Type(not_a_lifetime) => {
+                            Err(Error::new_spanned(not_a_lifetime, "lifetime expected"))
+                        },
+                        | GenericParam::Const(not_a_lifetime) => {
+                            Err(Error::new_spanned(not_a_lifetime, "lifetime expected"))
+                        },
+                    })
+                    .collect::<Result<Vec<_>>>()
+            })
+            .unwrap_or_else(|| Ok(<_>::default()));
+        let ref lifetimes = match lifetimes_result {
+            | Ok(it) => it,
+            | Err(err) => bail!(err),
+        };
         let ref repr_c_clauses: Vec<WherePredicate> = cb_ty
             .inputs
             .iter()
@@ -259,7 +276,7 @@ pub(super) fn try_handle_fptr(input: &'_ DeriveInput) -> Option<Result<TokenStre
                 let phantom_tys = // Iterator::chain(
                     generics
                         .lifetimes()
-                        .map(|&LifetimeDef { lifetime: ref lt, .. }| -> Type {
+                        .map(|&LifetimeParam { lifetime: ref lt, .. }| -> Type {
                             parse_quote!( *mut (&#lt ()) )
                         })
                 //     ,
@@ -337,7 +354,7 @@ pub(super) fn try_handle_fptr(input: &'_ DeriveInput) -> Option<Result<TokenStre
 /// Convert, for instance, `fn(&i32)` into `fn(&'__elided_0 i32)`, yielding
 /// `'__elided_0`
 struct UnelideLifetimes<'__, 'vec> {
-    lifetime_params: &'__ mut ::std::borrow::Cow<'vec, Vec<LifetimeDef>>,
+    lifetime_params: &'__ mut ::std::borrow::Cow<'vec, Vec<LifetimeParam>>,
     counter: ::core::ops::RangeFrom<usize>,
 }
 

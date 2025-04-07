@@ -77,6 +77,7 @@ pub(super) fn try_handle_trait(
         supertraits: _,
         brace_token: _,
         ref mut items,
+        restriction: _,
     } = *trait_;
 
     let (_, fwd_trait_generics, trait_where_clause) = &generics.split_for_impl();
@@ -118,7 +119,7 @@ pub(super) fn try_handle_trait(
     let EachToBeInvariantParam @ _ = Iterator::chain(
         trait_generics_and_lt
             .lifetimes()
-            .map(|LifetimeDef { lifetime, .. }| {
+            .map(|LifetimeParam { lifetime, .. }| {
                 squote!(
                     // We need something which *names* `lifetime`,
                     // but which "yields" / results in a 'static CType.
