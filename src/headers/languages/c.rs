@@ -55,6 +55,7 @@ impl HeaderLanguage for C {
 
     fn declare_simple_enum(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
@@ -66,7 +67,7 @@ impl HeaderLanguage for C {
 
         let ref intn_t = backing_integer.map(|it| it.name(self));
 
-        self.emit_docs(ctx, docs, indent)?;
+        this.emit_docs(ctx, docs, indent)?;
 
         let ref short_name = self_ty.short_name();
         let ref full_ty_name = self_ty.name(self);
@@ -85,7 +86,7 @@ impl HeaderLanguage for C {
 
         if let _ = indent.scope() {
             for v in variants {
-                self.emit_docs(ctx, v.docs, indent)?;
+                this.emit_docs(ctx, v.docs, indent)?;
                 let variant_name = crate::utils::screaming_case(short_name, v.name) /* ctx.adjust_variant_name(
                     Language::C,
                     enum_name,
@@ -117,6 +118,7 @@ impl HeaderLanguage for C {
 
     fn declare_struct(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
@@ -125,13 +127,13 @@ impl HeaderLanguage for C {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
         let short_name = self_ty.short_name();
-        let full_ty_name = self_ty.name(self);
+        let full_ty_name = self_ty.name(this);
 
         if self_ty.size() == 0 {
             panic!("C does not support zero-sized structs!")
         }
 
-        self.emit_docs(ctx, docs, indent)?;
+        this.emit_docs(ctx, docs, indent)?;
         out!(("typedef struct {short_name} {{"));
         if let _ = indent.scope() {
             let ref mut first = true;
@@ -147,7 +149,7 @@ impl HeaderLanguage for C {
                 if mem::take(first).not() {
                     out!("\n");
                 }
-                self.emit_docs(ctx, docs, indent)?;
+                this.emit_docs(ctx, docs, indent)?;
                 out!(
                     ("{};"),
                     ty.name_wrapping_var(self, name)
@@ -162,6 +164,7 @@ impl HeaderLanguage for C {
 
     fn declare_opaque_type(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
@@ -171,7 +174,7 @@ impl HeaderLanguage for C {
         let short_name = self_ty.short_name();
         let full_ty_name = self_ty.name(self);
 
-        self.emit_docs(ctx, docs, indent)?;
+        this.emit_docs(ctx, docs, indent)?;
         out!(("typedef struct {short_name} {full_ty_name};"));
 
         out!("\n");
@@ -180,6 +183,7 @@ impl HeaderLanguage for C {
 
     fn declare_function(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         fname: &'_ str,
@@ -188,7 +192,7 @@ impl HeaderLanguage for C {
     ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
 
-        self.emit_docs(ctx, docs, indent)?;
+        this.emit_docs(ctx, docs, indent)?;
 
         let ref fn_sig_but_for_ret_type: String = {
             let mut buf = Vec::<u8>::new();
@@ -208,7 +212,7 @@ impl HeaderLanguage for C {
                     if mem::take(&mut first).not() {
                         out!(",");
                     }
-                    out!("\n{indent}{}", arg.ty.name_wrapping_var(self, arg.name))
+                    out!("\n{indent}{}", arg.ty.name_wrapping_var(this, arg.name))
                 }
                 if first {
                     out!("void");
@@ -220,7 +224,7 @@ impl HeaderLanguage for C {
 
         mk_out!(indent, ctx.out());
         out!(
-            ("{};"), ret_ty.name_wrapping_var(self, fn_sig_but_for_ret_type)
+            ("{};"), ret_ty.name_wrapping_var(this, fn_sig_but_for_ret_type)
         );
 
         out!("\n");
@@ -229,6 +233,7 @@ impl HeaderLanguage for C {
 
     fn declare_constant(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         name: &'_ str,
@@ -239,13 +244,13 @@ impl HeaderLanguage for C {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
-        self.emit_docs(ctx, docs, indent)?;
+        this.emit_docs(ctx, docs, indent)?;
         if skip_type {
             out!((
                 "#define {name} {value:?}"
             ));
         } else {
-            let ty = ty.name(self);
+            let ty = ty.name(this);
             out!((
                 "#define {name} (({ty}) {value:?})"
             ));
@@ -257,8 +262,9 @@ impl HeaderLanguage for C {
 
     fn emit_function_ptr_ty(
         self: &'_ Self,
-        out: &mut dyn io::Write,
-        _self_ty: &'_ dyn PhantomCType,
+        this: &dyn HeaderLanguage,
+        out: &'_ mut dyn io::Write,
+        _newtype_name: &'_ str,
         name: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
@@ -266,14 +272,17 @@ impl HeaderLanguage for C {
         write!(
             out,
             "{ret_ty} (*{name})({args})",
-            ret_ty = F(|out| ret_ty.render(self, out)),
+            ret_ty = F(|out| ret_ty.render(out, this)),
             args = F(|out| {
+                if args.is_empty() {
+                    return write!(out, "void");
+                }
                 let first = &mut true;
                 for arg in args {
                     if mem::take(first).not() {
                         write!(out, ", ")?;
                     }
-                    arg.ty.render(self, out)?;
+                    arg.ty.render(out, this)?;
                 }
                 Ok(())
             }),
@@ -289,37 +298,130 @@ impl HeaderLanguage for C {
             | Primitive::Bool => {
                 write!(out, "bool")?;
             },
-            | Primitive::Integer {
-                signed,
-                bitwidth: IntBitWidth::PtrSized,
-            } => {
-                let sign_prefix = if signed { "s" } else { "" };
-                write!(out, "{sign_prefix}size_t")?;
+            | Primitive::CChar => {
+                write!(out, "char")?;
             },
-            | Primitive::Integer { signed, bitwidth } => {
-                let sign_prefix = if signed { "" } else { "u" };
-                let bitwidth = bitwidth as u8;
-                write!(out, "{sign_prefix}int{bitwidth}_t")?;
+            | Primitive::Integer { signed, bitwidth } => match bitwidth {
+                | IntBitWidth::PointerSized => {
+                    let sign_prefix = if signed { "s" } else { "" };
+                    write!(out, "{sign_prefix}size_t")?;
+                },
+                | IntBitWidth::Fixed(num_bits) => {
+                    let sign_prefix = if signed { "" } else { "u" };
+                    let num_bits = num_bits as u8;
+                    write!(out, "{sign_prefix}int{num_bits}_t")?;
+                },
+                | IntBitWidth::CInt => {
+                    let sign_prefix = if signed { "" } else { "u" };
+                    write!(out, "{sign_prefix}int")?;
+                },
             },
-            | Primitive::Float { bitwidth } => write!(out, "{}", match bitwidth {
-                | FloatBitWidth::_32 => "float",
-                | FloatBitWidth::_64 => "double",
-            })?,
+            | Primitive::Float { bitwidth } => match bitwidth {
+                | FloatBitWidth::_32 => write!(out, "float")?,
+                | FloatBitWidth::_64 => write!(out, "double")?,
+            },
         }
         Ok(())
     }
 
     fn emit_pointer_ty(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         out: &mut dyn io::Write,
         pointee_is_immutable: bool,
         pointee: &'_ dyn PhantomCType,
     ) -> io::Result<()> {
-        let maybe_const = if pointee_is_immutable { "const" } else { "" };
+        let maybe_const = if pointee_is_immutable { "const " } else { "" };
         write!(
             out,
             "{pointee} {maybe_const}*",
-            pointee = F(|out| pointee.render(self, out)),
+            pointee = F(|out| pointee.render(out, this)),
         )
+    }
+
+    fn define_array_ty(
+        self: &'_ Self,
+        this: &dyn HeaderLanguage,
+        definer: &'_ mut dyn Definer,
+        self_ty: &'_ dyn PhantomCType,
+        elem_ty: &'_ dyn PhantomCType,
+        array_len: usize,
+    ) -> io::Result<()> {
+        let me = &F(|out| self_ty.render(out, self)).to_string();
+        write!(
+            definer.out(),
+            concat!(
+                "typedef struct {{\n",
+                "    {inline_array};\n",
+                "}} {me};\n",
+                "\n",
+            ),
+            inline_array =
+                F(
+                    |out| {
+                        elem_ty.render_wrapping_var(out, this, &format!("idx[{}]", array_len))
+                    }
+                ),
+            me = me,
+        )?;
+        Ok(())
+    }
+
+    fn emit_array_ty(
+        self: &'_ Self,
+        _this: &dyn HeaderLanguage,
+        out: &mut dyn io::Write,
+        var_name: &'_ str,
+        newtype_name: &'_ str,
+        _elem_ty: &'_ dyn PhantomCType,
+        _array_len: usize,
+    ) -> io::Result<()> {
+        let sep = var_name.sep();
+        write!(out, "{newtype_name}{sep}{var_name}")
+    }
+
+    fn define_primitive_ty(
+        self: &'_ Self,
+        _this: &dyn HeaderLanguage,
+        definer: &'_ mut dyn Definer,
+        primitive: Primitive,
+    ) -> io::Result<()> {
+        match primitive {
+            | Primitive::Integer {
+                signed: _,
+                bitwidth,
+            } => match bitwidth {
+                | primitives::IntBitWidth::CInt => {},
+                | _ => {
+                    definer.define_once("__int_headers__", &mut |definer| {
+                        write!(definer.out(), concat! {
+                            "\n",
+                            "#include <stddef.h>\n",
+                            "#include <stdint.h>\n",
+                            "\n",
+                        },)
+                    })?;
+                },
+            },
+            | Primitive::Bool => {
+                definer.define_once("bool", &mut |definer| {
+                    write!(definer.out(), concat! {
+                        "\n",
+                        "#include <stdbool.h>\n",
+                        "\n",
+                    },)
+                })?;
+            },
+            | _ => {},
+        }
+        Ok(())
+    }
+
+    fn emit_void_output_type(
+        self: &'_ Self,
+        out: &mut dyn io::Write,
+    ) -> io::Result<()> {
+        write!(out, "void")?;
+        Ok(())
     }
 }

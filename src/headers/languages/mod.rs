@@ -4,17 +4,20 @@ use_prelude!();
 use ::std::io::Write as _;
 use ::std::io::{self};
 
+use self::primitives::FixedIntBitWidth;
 use self::primitives::FloatBitWidth;
 use self::primitives::IntBitWidth;
 use self::primitives::Primitive;
 use super::Definer;
+use super::provider::Provider;
 use crate::utils::DisplayFromFn as F;
-mod primitives;
+pub mod primitives;
 
 pub use c::C;
 mod c;
 
 pub use csharp::CSharp;
+pub use csharp::CSharpMarshaler;
 mod csharp;
 
 pub use python::Python;
@@ -73,6 +76,8 @@ pub trait HeaderLanguage: UpcastAny {
 
     fn declare_simple_enum(
         self: &'_ Self,
+        // subrecursing language
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
@@ -82,6 +87,8 @@ pub trait HeaderLanguage: UpcastAny {
 
     fn declare_struct(
         self: &'_ Self,
+        // subrecursing language
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
@@ -90,6 +97,8 @@ pub trait HeaderLanguage: UpcastAny {
 
     fn declare_opaque_type(
         self: &'_ Self,
+        // subrecursing language
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
@@ -97,11 +106,43 @@ pub trait HeaderLanguage: UpcastAny {
 
     fn declare_function(
         self: &'_ Self,
+        // subrecursing language
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
+    ) -> io::Result<()>;
+
+    fn define_primitive_ty(
+        self: &'_ Self,
+        // subrecursing language
+        _this: &dyn HeaderLanguage,
+        _ctx: &'_ mut dyn Definer,
+        _primitive: Primitive,
+    ) -> io::Result<()> {
+        // By default, assume the language needs no setup.
+        Ok(())
+    }
+
+    fn emit_primitive_ty(
+        self: &'_ Self,
+        _out: &mut dyn io::Write,
+        _primitive: Primitive,
+    ) -> io::Result<()>;
+
+    fn emit_pointer_ty(
+        self: &'_ Self,
+        this: &dyn HeaderLanguage,
+        out: &mut dyn io::Write,
+        pointee_is_immutable: bool,
+        pointee: &'_ dyn PhantomCType,
+    ) -> io::Result<()>;
+
+    fn emit_void_output_type(
+        self: &'_ Self,
+        _out: &mut dyn io::Write,
     ) -> io::Result<()>;
 
     // On certain languages, such as older C#, there is, surprisingly enough, no direct function
@@ -113,6 +154,8 @@ pub trait HeaderLanguage: UpcastAny {
     // "hardcoded" within that language's header prelude or whatnot.)
     fn define_function_ptr_ty(
         self: &'_ Self,
+        // subrecursing language
+        _this: &dyn HeaderLanguage,
         _ctx: &'_ mut dyn Definer,
         _self_ty: &'_ dyn PhantomCType,
         _args: &'_ [FunctionArg<'_>],
@@ -124,15 +167,42 @@ pub trait HeaderLanguage: UpcastAny {
 
     fn emit_function_ptr_ty(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         out: &mut dyn io::Write,
-        self_ty: &'_ dyn PhantomCType,
+        newtype_name: &str,
         name: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>;
 
+    // Same pattern as for `…function_ptr_ty`, but applied to arrays.
+    fn define_array_ty(
+        self: &'_ Self,
+        // subrecursing language
+        _this: &dyn HeaderLanguage,
+        _ctx: &'_ mut dyn Definer,
+        _self_ty: &'_ dyn PhantomCType,
+        _elem_ty: &'_ dyn PhantomCType,
+        _array_len: usize,
+    ) -> io::Result<()> {
+        // By default, assume the language needs no setup.
+        Ok(())
+    }
+
+    fn emit_array_ty(
+        self: &'_ Self,
+        // subrecursing language
+        this: &dyn HeaderLanguage,
+        out: &mut dyn io::Write,
+        var_name: &'_ str,
+        newtype_name: &'_ str,
+        elem_ty: &'_ dyn PhantomCType,
+        array_len: usize,
+    ) -> io::Result<()>;
+
     fn declare_constant(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         name: &'_ str,
@@ -151,19 +221,6 @@ pub trait HeaderLanguage: UpcastAny {
         // it is not directly called by the framework.
         Ok(())
     }
-
-    fn emit_primitive_ty(
-        self: &'_ Self,
-        _out: &mut dyn io::Write,
-        _primitive: Primitive,
-    ) -> io::Result<()>;
-
-    fn emit_pointer_ty(
-        self: &'_ Self,
-        out: &mut dyn io::Write,
-        pointee_is_immutable: bool,
-        pointee: &'_ dyn PhantomCType,
-    ) -> io::Result<()>;
 }
 
 pub trait HeaderLanguageSupportingTypeAliases: HeaderLanguage {
@@ -214,8 +271,15 @@ pub trait PhantomCType {
 
     fn render(
         self: &'_ Self,
-        language: &'_ dyn HeaderLanguage,
         out: &'_ mut dyn io::Write,
+        language: &'_ dyn HeaderLanguage,
+    ) -> io::Result<()>;
+
+    fn render_wrapping_var(
+        self: &'_ Self,
+        out: &'_ mut dyn io::Write,
+        language: &'_ dyn HeaderLanguage,
+        var_name: &'_ str,
     ) -> io::Result<()>;
 
     fn name_wrapping_var(
@@ -229,7 +293,7 @@ pub trait PhantomCType {
         language: &'_ dyn HeaderLanguage,
     ) -> String;
 
-    fn csharp_marshaler(self: &'_ Self) -> Option<String>;
+    fn metadata(self: &'_ Self) -> &'static dyn Provider;
 
     fn size(self: &'_ Self) -> usize;
 
@@ -246,10 +310,19 @@ where
 
     fn render(
         self: &'_ Self,
-        language: &'_ dyn HeaderLanguage,
         out: &'_ mut dyn io::Write,
+        language: &'_ dyn HeaderLanguage,
     ) -> io::Result<()> {
-        T::render(language, out)
+        T::render(out, language)
+    }
+
+    fn render_wrapping_var(
+        self: &'_ Self,
+        out: &'_ mut dyn io::Write,
+        language: &'_ dyn HeaderLanguage,
+        var_name: &'_ str,
+    ) -> io::Result<()> {
+        T::render_wrapping_var(out, language, var_name)
     }
 
     fn name_wrapping_var(
@@ -267,8 +340,8 @@ where
         T::name(language)
     }
 
-    fn csharp_marshaler(self: &'_ Self) -> Option<String> {
-        T::csharp_marshaler()
+    fn metadata(self: &'_ Self) -> &'static dyn Provider {
+        T::metadata()
     }
 
     fn size(self: &'_ Self) -> usize {

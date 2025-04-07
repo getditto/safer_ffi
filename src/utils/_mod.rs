@@ -1,6 +1,8 @@
 #[macro_use]
 mod macros;
 
+pub(crate) mod extension_traits;
+
 pub(crate) mod prelude;
 
 pub(crate) mod markers;

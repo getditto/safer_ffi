@@ -71,30 +71,32 @@ pub(super) fn handle(
                         definer: &'_ mut dyn #ඞ::Definer,
                         lang: #ඞ::Language,
                     | {
-                        #krate::__with_cfg_python__!(|$if_cfg_python| {
-                            use #krate::headers::{
-                                Language,
-                                languages::{self, HeaderLanguage},
-                            };
-
-                            let header_builder: &'static dyn HeaderLanguage = {
-                                match lang {
-                                    | Language::C => &languages::C,
-                                    | Language::CSharp => &languages::CSharp,
-                                    | Language::Lua => &languages::Lua,
-                                $($($if_cfg_python)?
-                                    | Language::Python => &languages::Python,
-                                )?
+                        use #krate::headers::{
+                            Language,
+                            languages::{self, HeaderLanguage},
+                        };
+                        let header_builder: &'static dyn HeaderLanguage =
+                            #krate::__with_cfg_python__!(|$if_cfg_python| {
+                                {
+                                    match lang {
+                                        | Language::C => &languages::C,
+                                        | Language::CSharp => &languages::CSharp,
+                                        | Language::Lua => &languages::Lua,
+                                    $($($if_cfg_python)?
+                                        | Language::Python => &languages::Python,
+                                    )?
+                                    }
                                 }
-                            };
+                            })
+                        ;
 
-                            <#ඞ::CLayoutOf<#Ty> as #ඞ::CType>::define_self(
-                                header_builder,
-                                definer
-                            )?;
+                        <#ඞ::CLayoutOf<#Ty> as #ඞ::CType>::define_self(
+                            header_builder,
+                            definer
+                        )?;
 
-                            header_builder
-                        }).declare_constant(
+                        header_builder.declare_constant(
+                            header_builder,
                             definer,
                             &[ #(#each_doc),* ],
                             #VAR_str,

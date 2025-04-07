@@ -90,7 +90,7 @@ match_cfg! {
     },
 }
 
-/// Safely implement [`CType`][`trait@crate::layout::LegacyCType`]
+/// Safely implement [`CType`][`trait@crate::layout::CType`]
 /// for a `#[repr(C)]` struct **when all its fields are `CType`**.
 ///
 /// Note: you rarely need to call this macro directly. Instead, look for the

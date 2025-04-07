@@ -15,58 +15,31 @@ mod void {
 }
 pub(crate) use void::CVoid;
 
-unsafe impl LegacyCType for CVoid {
+unsafe impl CType for CVoid {
+    type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete;
+
     __cfg_headers__! {
-        fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-          -> fmt::Result
-        {
-            fmt.write_str("void")
+        fn short_name () -> String {
+            "void".into()
         }
 
-        fn c_var_fmt (
-            fmt: &'_ mut fmt::Formatter<'_>,
-            var_name: &'_ str,
-        ) -> fmt::Result
-        {
-            write!(fmt,
-                "void{sep}{}",
-                var_name,
-                sep = if var_name.is_empty() { "" } else { " " },
-            )
-        }
-
-        fn c_define_self (
-            _: &'_ mut dyn crate::headers::Definer,
+        fn define_self__impl (
+            _language: &'_ dyn HeaderLanguage,
+            _definer: &'_ mut dyn Definer,
         ) -> io::Result<()>
         {
             Ok(())
         }
 
-        __cfg_headers__! {
-            fn csharp_define_self (
-                _: &'_ mut dyn crate::headers::Definer,
-            ) -> io::Result<()>
-            {
-                Ok(())
-            }
-
-            fn csharp_ty ()
-              -> rust::String
-            {
-                "void".into()
-            }
-        }
-
-        __cfg_headers__! {
-            fn lua_define_self (
-                _: &'_ mut dyn crate::headers::Definer,
-            ) -> io::Result<()>
-            {
-                Ok(())
-            }
+        fn render(
+            out: &'_ mut dyn io::Write,
+            language: &'_ dyn HeaderLanguage,
+        ) -> io::Result<()>
+        {
+            language.emit_void_output_type(out)?;
+            Ok(())
         }
     }
-    type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete;
 }
 from_CType_impl_ReprC! { CVoid }
 

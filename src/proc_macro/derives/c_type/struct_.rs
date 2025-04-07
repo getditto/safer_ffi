@@ -118,6 +118,7 @@ pub(crate) fn derive(
                 < #EachFieldTy as #CType >::define_self(language, definer)?;
             )*
                 language.declare_struct(
+                    language,
                     definer,
                     &[#(#struct_docs),*],
                     &#ඞ::marker::PhantomData::<Self>,
@@ -212,18 +213,7 @@ pub(crate) fn derive_transparent(
                     definer: &'_ mut dyn #ඞ::Definer,
                 ) -> #ඞ::io::Result<()>
                 {
-                    <#CFieldTy as #ඞ::CType>::define_self(language, definer)?;
-
-                    if let #ඞ::Some(language) = language.supports_type_aliases() {
-                        language.declare_type_alias(
-                            definer,
-                            &[#(#docs),*],
-                            &#ඞ::PhantomData::<Self>,
-                            &#ඞ::PhantomData::<#CFieldTy>,
-                        )?;
-                    }
-
-                    Ok(())
+                    ::core::unimplemented!("directly handled in `define_self()`");
                 }
 
                 fn define_self (
@@ -231,30 +221,77 @@ pub(crate) fn derive_transparent(
                     definer: &'_ mut dyn #ඞ::Definer,
                 ) -> #ඞ::io::Result<()>
                 {
-                    // We need to be careful with the default idempotency guard:
-                    // Since the `name` for a type alias happens to be identical to that of the
-                    // inner type, and since `.define_once()`'s implementation eagerly `.insert()`s
-                    // into the map before running the `__impl()`, we have no choice but to use
-                    // a properly unique name here, like the true C (re)name.
-                    let idempotency_definition_id = if language.supports_type_aliases().is_some() {
-                        Self::name(language)
-                    } else {
-                        Self::name(&#ඞ::languages::C)
-                    };
+                    // We have to manyally override `define_self()`, since the
+                    // idempotency logic here is a bit more subtle: we may be dealing
+                    // with a language which does not support type aliases.
+                    //
+                    // In that case, we will just be inlining the semantics of the inner
+                    // type, completely bypassing the existence of the alias
+                    // (in other words, we will be "eagerly" expanding the type alias to
+                    // its aliasee).
+                    //
+                    // Among other things, in that case, the `{short_,}name()` will be that
+                    // of the inner type.
+                    //
+                    // And this is where the subtlety lies: it's the same name
+                    // being used as the "idempotency_id" in `define_{once,self}()`.
+                    //
+                    // So we need to make sure to *first* define the inner type, and only
+                    // then self-guard the rest with our extra info.
+                    <#CFieldTy as #ඞ::CType>::define_self(language, definer)?;
+
                     definer.define_once(
-                        &idempotency_definition_id,
-                        &mut |definer| Self::define_self__impl(language, definer),
-                    )
+                        &Self::name(language),
+                        &mut |definer| {
+                            if let #ඞ::Some(language) = language.supports_type_aliases() {
+                                language.declare_type_alias(
+                                    definer,
+                                    &[#(#docs),*],
+                                    &#ඞ::PhantomData::<Self>,
+                                    &#ඞ::PhantomData::<#CFieldTy>,
+                                )?;
+                            }
+                            Ok(())
+                        },
+                    )?;
+
+                    Ok(())
                 }
 
                 fn name (
                     language: &'_ dyn #ඞ::HeaderLanguage,
-                ) -> String
+                ) -> #ඞ::String
                 {
-                    if let #ඞ::Some(language) = language.supports_type_aliases() {
+                    if language.supports_type_aliases().is_some() {
                         #ඞ::std::format!("{}_t", Self::short_name())
                     } else {
                         <#CFieldTy as #ඞ::CType>::name(language)
+                    }
+                }
+
+                fn render(
+                    out: &'_ mut dyn #ඞ::io::Write,
+                    language: &'_ dyn #ඞ::HeaderLanguage,
+                ) -> #ඞ::io::Result<()>
+                {
+                    Self::render_wrapping_var(out, language, "")
+                }
+
+                fn render_wrapping_var(
+                    out: &'_ mut dyn #ඞ::io::Write,
+                    language: &'_ dyn #ඞ::HeaderLanguage,
+                    var_name: &#ඞ::str,
+                ) -> #ඞ::io::Result<()>
+                {
+                    if language.supports_type_aliases().is_some() {
+                        #ඞ::write!(
+                            out,
+                            "{ty}{sep}{var_name}",
+                            ty=Self::name(language),
+                            sep=if var_name.is_empty() { "" } else { " " },
+                        )
+                    } else {
+                        <#CFieldTy as #ඞ::CType>::render_wrapping_var(out, language, var_name)
                     }
                 }
             }

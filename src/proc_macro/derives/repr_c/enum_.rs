@@ -158,6 +158,7 @@ pub(crate) fn derive(
             {
                 <#Int as #CType>::define_self(language, definer)?;
                 language.declare_simple_enum(
+                    language,
                     definer,
                     &[#(#each_doc),*],
                     &#ඞ::marker::PhantomData::<Self>,

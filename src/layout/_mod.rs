@@ -2,14 +2,6 @@
 
 use_prelude!();
 
-__cfg_headers__! {
-    use crate::headers::{
-        Definer,
-        languages::*,
-        provider::Provider,
-    };
-}
-
 pub(crate) mod macros;
 
 #[doc(inline)]
@@ -27,163 +19,6 @@ type_level_enum! {
         Opaque,
     }
 }
-
-/// Safety (non-exhaustive list at the moment):
-///   - `::core::mem::zeroed::<Self>()` must be sound to use.
-pub unsafe trait CType: Sized + Copy {
-    type OPAQUE_KIND: OpaqueKind::T;
-
-    fn zeroed() -> Self {
-        unsafe { ::core::mem::zeroed() }
-    }
-
-    __cfg_headers__! {
-        #[allow(nonstandard_style)]
-        fn define_self__impl (
-            language: &'_ dyn HeaderLanguage,
-            definer: &'_ mut dyn Definer,
-        ) -> io::Result<()>
-        ;
-
-        fn define_self (
-            language: &'_ dyn HeaderLanguage,
-            definer: &'_ mut dyn Definer,
-        ) -> io::Result<()>
-        {
-            definer.define_once(
-                &Self::name(language),
-                &mut |definer| Self::define_self__impl(language, definer),
-            )
-        }
-
-        fn short_name ()
-          -> String
-        ;
-
-        fn name (
-            _language: &'_ dyn HeaderLanguage,
-        ) -> String
-        {
-            format!("{}_t", Self::short_name())
-        }
-
-        fn render(
-            language: &'_ dyn HeaderLanguage,
-            out: &'_ mut dyn io::Write,
-        ) -> io::Result<()>
-        {
-            write!(out, "{}", Self::name(language))
-        }
-
-        fn name_wrapping_var (
-            language: &'_ dyn HeaderLanguage,
-            var_name: &'_ str,
-        ) -> String
-        {
-            let sep = if var_name.is_empty() { "" } else { " " };
-            format!("{}{sep}{var_name}", Self::name(language))
-        }
-
-        fn metadata() -> &'static dyn Provider {
-            &None
-        }
-
-        /// Optional marshaler attached to the type (_e.g._,
-        /// `[MarshalAs(UnmanagedType.FunctionPtr)]`)
-        fn csharp_marshaler ()
-          -> Option<String>
-        {
-            None
-        }
-    }
-}
-
-unsafe impl<T: LegacyCType> CType for T {
-    type OPAQUE_KIND = <T as LegacyCType>::OPAQUE_KIND;
-
-    __cfg_headers__! {
-        #[inline]
-        fn short_name ()
-          -> String
-        {
-            <Self as LegacyCType>::c_short_name().to_string()
-        }
-
-        #[inline]
-        fn define_self__impl (
-            _: &'_ dyn HeaderLanguage,
-            _: &'_ mut dyn Definer,
-        ) -> io::Result<()>
-        {
-            unimplemented!()
-        }
-
-        fn define_self (
-            language: &'_ dyn HeaderLanguage,
-            definer: &'_ mut dyn Definer,
-        ) -> io::Result<()>
-        {
-            match () {
-                | _case if language.is::<C>() => {
-                    <Self as LegacyCType>::c_define_self(definer)
-                },
-                | _case if language.is::<CSharp>() => {
-                    <Self as LegacyCType>::csharp_define_self(definer)
-                },
-                | _case if language.is::<Lua>() => {
-                    <Self as LegacyCType>::lua_define_self(definer)
-                },
-                #[cfg(feature = "python-headers")]
-                | _case if language.is::<Python>() => {
-                    <Self as LegacyCType>::c_define_self(definer)
-                },
-                | _ => unimplemented!(),
-            }
-        }
-
-        #[inline]
-        fn name (
-            language: &'_ dyn HeaderLanguage,
-        ) -> String
-        {
-            Self::name_wrapping_var(language, "")
-        }
-
-        #[inline]
-        fn name_wrapping_var (
-            language: &'_ dyn HeaderLanguage,
-            var_name: &'_ str,
-        ) -> String
-        {
-            match () {
-                | _case if language.is::<C>() => {
-                    <Self as LegacyCType>::c_var(var_name).to_string()
-                },
-                | _case if language.is::<CSharp>() => {
-                    let sep = if var_name.is_empty() { "" } else { " " };
-                    format!("{}{sep}{var_name}", Self::csharp_ty())
-                },
-                | _case if language.is::<Lua>() => {
-                    <Self as LegacyCType>::lua_var(var_name)
-                },
-                #[cfg(feature = "python-headers")]
-                | _case if language.is::<Python>() => {
-                    <Self as LegacyCType>::c_var(var_name).to_string()
-                },
-                | _ => unimplemented!(),
-            }
-        }
-
-        #[inline]
-        fn csharp_marshaler ()
-          -> Option<String>
-        {
-            <T as LegacyCType>::legacy_csharp_marshaler()
-        }
-    }
-}
-
-pub type CLayoutOf<ImplReprC> = <ImplReprC as ReprC>::CLayout;
 
 /// One of the two core traits of this crate (with [`ReprC`][`trait@ReprC`]).
 ///
@@ -224,14 +59,121 @@ pub type CLayoutOf<ImplReprC> = <ImplReprC as ReprC>::CLayout;
 /// bit-patterns for the `uint8_t` type that do not make _valid_ `bool`s.
 ///
 /// For such types, see the [`ReprC`][`trait@ReprC`] trait.
-pub unsafe trait LegacyCType: Sized + Copy + CType {
+///
+/// Safety (non-exhaustive list at the moment):
+///   - `::core::mem::zeroed::<Self>()` must be sound to use.
+pub unsafe trait CType: Sized + Copy {
     type OPAQUE_KIND: OpaqueKind::T;
+
+    fn zeroed() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+
     __cfg_headers__! {
+        /// Necessary one-time code for [`CType::name()`] to make sense.
+        ///
+        /// Some types, such as `char`, are part of the language, and can be
+        /// used directly by [`CType::name()`].
+        /// In that case, there is nothing else to _define_, and all is fine.
+        ///
+        ///   - That is the default implementation of this method: doing
+        ///     nothing.
+        ///
+        /// But most often than not, a `typedef` or an `#include` is required.
+        ///
+        /// In that case, here is the place to put it, with the help of the
+        /// provided `Definer`.
+        ///
+        /// # Idempotency?
+        ///
+        /// Given some `definer: &mut dyn Definer`, **the `define_self__impl(definer)`
+        /// call is not to be called more than once, thanks to the convenience
+        /// method [`Self::define_self()`], which is the one to guarantee idempotency**
+        /// (thanks to the [`Definer`]'s [`.define_once()`][`Definer::define_once()`] helper).
+        ///
+        /// # Safety
+        ///
+        /// Given that the defined types may be used by [`CType::name_wrapping_var()`],
+        /// and [`CType::name()`], the same safety disclaimers apply.
+        ///
+        /// ## Examples
+        ///
+        /// ### `#[repr(C)] struct Foo { x: i32 }`
+        ///
+        /// ```rust
+        /// use ::std::{io, marker::PhantomData};
+        /// use ::safer_ffi::{
+        ///     headers::{
+        ///         Definer,
+        ///         languages::HeaderLanguage,
+        ///     },
+        ///     layout::{CType, OpaqueKind},
+        /// };
+        ///
+        /// #[derive(Clone, Copy)]
+        /// #[repr(C)]
+        /// struct Foo {
+        ///     x: i32,
+        /// }
+        ///
+        /// unsafe impl CType for Foo {
+        ///     #[::safer_ffi::cfg_headers]
+        ///     fn define_self__impl (
+        ///         language: &'_ dyn HeaderLanguage,
+        ///         definer: &'_ mut dyn Definer,
+        ///     ) -> io::Result<()>
+        ///     {
+        ///         // ensure int32_t makes sense
+        ///         <i32 as CType>::define_self(language, definer)?;
+        ///         language.declare_struct(
+        ///             language,
+        ///             definer,
+        ///             // no docs.
+        ///             &[],
+        ///             &PhantomData::<Self>,
+        ///             &[
+        ///                 ::safer_ffi::headers::languages::StructField {
+        ///                     docs: &[],
+        ///                     name: "x", ty: &PhantomData::<i32>,
+        ///                 },
+        ///             ]
+        ///         )?;
+        ///         Ok(())
+        ///     }
+        ///
+        ///     #[::safer_ffi::cfg_headers]
+        ///     fn short_name() -> String {
+        ///         "Foo".into()
+        ///     }
+        ///
+        ///     type OPAQUE_KIND = OpaqueKind::Concrete;
+        ///
+        ///     // ...
+        /// }
+        /// ```
+        #[allow(nonstandard_style)]
+        fn define_self__impl (
+            language: &'_ dyn HeaderLanguage,
+            definer: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        ;
+
+        fn define_self (
+            language: &'_ dyn HeaderLanguage,
+            definer: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        {
+            definer.define_once(
+                &F(|out| Self::render(out, language)).to_string(),
+                &mut |definer| Self::define_self__impl(language, definer),
+            )
+        }
+
         /// A short-name description of the type, mainly used to fill
         /// "placeholders" such as when monomorphising generics structs or
         /// arrays.
         ///
-        /// This provides the implementation used by [`LegacyCType::c_short_name`]`()`.
+        /// This provides the implementation used by [`CType::short_name`]`()`.
         ///
         /// There are no bad implementations of this method, except,
         /// of course, for the obligation to provide a valid identifier chunk,
@@ -243,7 +185,7 @@ pub unsafe trait LegacyCType: Sized + Copy + CType {
         /// type `T`) will be typedef-named as:
         ///
         /// ```rust,ignore
-        /// write!(fmt, "{}_{}_array", <T as CType>::c_short_name(), N)
+        /// write!(fmt, "{}_{}_array", <T as CType>::short_name(), N)
         /// ```
         ///
         /// Generally, typedefs with a trailing `_t` will see that `_t` trimmed
@@ -273,153 +215,43 @@ pub unsafe trait LegacyCType: Sized + Copy + CType {
         ///
         /// will have `Foo_xxx` as its `short_name`, with `xxx` being `T`'s
         /// `short_name`.
-        fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-          -> fmt::Result
+        fn short_name ()
+          -> String
         ;
-        // {
-        //     Self::short_name_fmt(&C, fmt)
-        // }
 
-        // fn short_name_fmt (
-        //     language: &'_ dyn HeaderLanguage,
-        //     fmt: &'_ mut fmt::Formatter<'_>,
-        // ) -> fmt::Result
-        // {
-        //     match () {
-        //         | _case if language.is::<C>() => Self::c_short_name_fmt(fmt),
-        //         // | _case if language.is::<CSharp>() => Self::csharp_short_name_fmt(fmt),
-        //         | _ => unimplemented!(),
-        //     }
-        // }
-
-        /// Convenience function for _callers_ / users of types implementing
-        /// [`CType`][`trait@CType`].
-        ///
-        /// The `Display` logic is auto-derived from the implementation of
-        /// [`LegacyCType::c_short_name_fmt`]`()`.
-        #[inline]
-        fn c_short_name ()
-          -> short_name_impl_display::ImplDisplay<Self>
+        fn render(
+            out: &'_ mut dyn io::Write,
+            _language: &'_ dyn HeaderLanguage,
+        ) -> io::Result<()>
         {
-            short_name_impl_display::ImplDisplay { _phantom: PhantomData }
+            write!(out, "{}_t", Self::short_name())
         }
 
-        /// Necessary one-time code for [`LegacyCType::c_var`]`()` to make sense.
-        ///
-        /// Some types, such as `char`, are part of the language, and can be
-        /// used directly by [`LegacyCType::c_var`]`()`.
-        /// In that case, there is nothing else to _define_, and all is fine.
-        ///
-        ///   - That is the default implementation of this method: doing
-        ///     nothing.
-        ///
-        /// But most often than not, a `typedef` or an `#include` is required.
-        ///
-        /// In that case, here is the place to put it, with the help of the
-        /// provided `Definer`.
-        ///
-        /// # Idempotent
-        ///
-        /// Given some `definer: &mut dyn Definer`, **the `c_define_self(definer)`
-        /// call must be idempotent _w.r.t._ code generated**. In other words,
-        /// two or more such calls must not generate any extra code _w.r.t_ the
-        /// first call.
-        ///
-        /// This is easy to achieve thanks to `definer`:
-        ///
-        /// ```rust,ignore
-        /// // This ensures the idempotency requirements are met.
-        /// definer.define_once(
-        ///     // some unique `&str`, ideally the C name being defined:
-        ///     "my_super_type_t",
-        ///     // Actual code generation logic, writing to `definer.out()`
-        ///     &mut |definer| {
-        ///         // If the typdef recursively needs other types being defined,
-        ///         // ensure it is the case by explicitly calling
-        ///         // `c_define_self(definer)` on those types.
-        ///         OtherType::c_define_self(definer)?;
-        ///         write!(definer.out(), "typedef ... my_super_type_t;", ...)
-        ///     },
-        /// )?
-        /// ```
-        ///
-        /// # Safety
-        ///
-        /// Given that the defined types may be used by [`LegacyCType::c_var_fmt`]`()`,
-        /// the same safety disclaimers apply.
-        ///
-        /// ## Examples
-        ///
-        /// #### `i32`
-        ///
-        /// The corresponding type for `i32` in C is `int32_t`, but such type
-        /// definition is not part of the language, it is brought by a library
-        /// instead: `<stdint.h>` (or `<inttypes.h>` since it includes it).
-        ///
-        /// ```rust,ignore
-        /// unsafe impl CType for i32 {
-        ///     #[::safer_ffi::cfg_headers]
-        ///     fn c_define_self (definer: &'_ mut dyn Definer)
-        ///       -> io::Result<()>
-        ///     {
-        ///         definer.define_once("<stdint.h>", &mut |definer| {
-        ///             write!(definer.out(), "\n#include <stdint.h>\n")
-        ///         })
-        ///     }
-        ///
-        ///     // ...
-        /// }
-        /// ```
-        ///
-        /// #### `#[repr(C)] struct Foo { x: i32 }`
-        ///
-        /// ```rust,ignore
-        /// #[repr(C)]
-        /// struct Foo {
-        ///     x: i32,
-        /// }
-        ///
-        /// unsafe impl CType for i32 {
-        ///     #[::safer_ffi::cfg_headers]
-        ///     fn c_define_self (definer: &'_ mut dyn Definer)
-        ///       -> io::Result<()>
-        ///     {
-        ///         definer.define_once("Foo_t", &mut |definer| {
-        ///             // ensure int32_t makes sense
-        ///             <i32 as CType>::c_define_self(definer)?;
-        ///             write!(definer.out(),
-        ///                 "typedef struct {{ {}; }} Foo_t;",
-        ///                 <i32 as CType>::c_var("x"),
-        ///             )
-        ///         })
-        ///     }
-        ///
-        ///     // ...
-        /// }
-        /// ```
-        fn c_define_self (definer: &'_ mut dyn Definer)
-          -> io::Result<()>
-        ;
-        // {
-        //     Self::define_self(&C, definer)
-        // }
+        fn name(language: &dyn HeaderLanguage) -> String {
+            F(|out| Self::render(out, language)).to_string()
+        }
 
-        // #[inline]
-        // fn define_self__impl (
-        //     language: &'_ dyn HeaderLanguage,
-        //     definer: &'_ mut dyn Definer,
-        // ) -> io::Result<()>
-        // {
-        //     let _ = (language, definer);
-        //     Ok(())
-        // }
+        // Note: when overriding this default impl, remember to impl
+        // `Self::render()` as `Self::render_wrapping_var(…, "")`.
+        fn render_wrapping_var(
+            out: &'_ mut dyn io::Write,
+            language: &'_ dyn HeaderLanguage,
+            var_name: &str,
+        ) -> io::Result<()>
+        {
+            write!(
+                out,
+                "{}{sep}{var_name}",
+                F(|out| Self::render(out, language)),
+                sep=var_name.sep(),
+            )?;
+            Ok(())
+        }
 
-        /// The core method of the trait: it provides the implementation to be
-        /// used by [`LegacyCType::c_var`], by bringing a `Formatter` in scope.
+        /// The core method of the trait: it provides the code to emit in the target
+        /// [`HeaderLanguage`] in order to refer to the corresponding C type.
         ///
-        /// This provides the implementation used by [`LegacyCType::c_var`]`()`.
-        ///
-        /// The implementations are thus much like any classic `Display` impl,
+        /// The implementations are thus much like any classic `.to_string()` impl,
         /// except that:
         ///
         ///   - it must output valid C code representing the type corresponding
@@ -440,204 +272,54 @@ pub unsafe trait LegacyCType: Sized + Copy + CType {
         ///
         /// #### `i32`
         ///
-        /// ```rust,ignore
+        /// ```rust ,ignore
+        /// # #[repr(transparent)] struct i32(::core::primitive::i32);
+        ///
+        /// use ::safer_ffi::{headers::languages::HeaderLanguage, layout::CType};
+        ///
         /// unsafe impl CType for i32 {
         ///     #[::safer_ffi::cfg_headers]
-        ///     fn c_var_fmt (
-        ///         fmt: &'_ mut fmt::Formatter<'_>,
-        ///         var_name: &'_ str,
-        ///     ) -> fmt::Result
+        ///     fn name_wrapping_var (
+        ///         header_language: &dyn HeaderLanguage,
+        ///         var_name: &str,
+        ///     ) -> String
         ///     {
-        ///         write!(fmt, "int32_t {}", var_name)
+        ///         // Usually this kind of logic for primitive types is
+        ///         // provided by the `HeaderLanguage` itself, rather than hard-coded by the type…
+        ///         assert_eq!(header_language.language_name(), "C");
+        ///
+        ///         let sep = if var_name { " " } else { "" };
+        ///         format!("int32_t{sep}{var_name}")
         ///     }
         ///
         ///     // ...
         /// }
         /// ```
         ///
-        /// #### `Option<extern "C" fn (i32) -> u32>`
-        ///
-        /// ```rust,ignore
-        /// unsafe impl CType for Option<extern "C" fn (i32) -> u32> {
-        ///     #[::safer_ffi::cfg_headers]
-        ///     fn c_var_fmt (
-        ///         fmt: &'_ mut fmt::Formatter<'_>,
-        ///         var_name: &'_ str,
-        ///     ) -> fmt::Result
-        ///     {
-        ///         write!(fmt, "uint32_t (*{})(int32_t)", var_name)
-        ///     }
-        ///
-        ///     // ...
-        /// }
-        /// ```
-        ///
-        /// #### `[i32; 42]`
-        ///
-        /// ```rust,ignore
-        /// unsafe impl CType for [i32; 42] {
-        ///     #[::safer_ffi::cfg_headers]
-        ///     fn c_var_fmt (
-        ///         fmt: &'_ mut fmt::Formatter<'_>,
-        ///         var_name: &'_ str,
-        ///     ) -> fmt::Result
-        ///     {
-        ///         let typedef_name = format_args!("{}_t", Self::c_short_name());
-        ///         write!(fmt, "{} {}", typedef_name, var_name)
-        ///     }
-        ///
-        ///     // Since `c_var_fmt()` requires a one-time typedef, overriding
-        ///     // `c_define_self()` is necessary:
-        ///     #[::safer_ffi::cfg_headers]
-        ///     fn c_define_self (definer: &'_ mut dyn Definer)
-        ///       -> fmt::Result
-        ///     {
-        ///         let typedef_name = &format!("{}_t", Self::c_short_name());
-        ///         definer.define_once(typedef_name, &mut |definer| {
-        ///             // ensure the array element type is defined
-        ///             i32::c_define_self(definer)?;
-        ///             write!(definer.out(),
-        ///                 "typedef struct {{ {0}; }} {1};\n",
-        ///                 i32::c_var("arr[42]"), // `int32_t arr[42]`
-        ///                 typedef_name,
-        ///             )
-        ///         })
-        ///     }
-        ///
-        ///     // etc.
-        /// }
-        /// ```
-        fn c_var_fmt (
-            fmt: &'_ mut fmt::Formatter<'_>,
+        fn name_wrapping_var (
+            language: &'_ dyn HeaderLanguage,
             var_name: &'_ str,
-        ) -> fmt::Result
-        ;
+        ) -> String
+        {
+            F(|out| Self::render_wrapping_var(out, language, var_name)).to_string()
+        }
 
-        /// Convenience function for _callers_ / users of types implementing
-        /// [`LegacyCType`][`trait@LegacyCType`].
+        /// Optional language-specific metadata attached to the type (_e.g._,
+        /// some `[MarshalAs(UnmanagedType.FunctionPtr)]` annotation for C#).
         ///
-        /// The `Display` logic is auto-derived from the implementation of
-        /// [`LegacyCType::c_var_fmt`]`()`.
-        #[inline]
-        fn c_var (
-            var_name: &'_ str,
-        ) -> var_impl_display::ImplDisplay<'_, Self>
-        {
-            var_impl_display::ImplDisplay {
-                var_name,
-                _phantom: Default::default(),
-            }
-        }
-
-        __cfg_headers__! {
-            /// Extra typedef code (_e.g._ `[LayoutKind.Sequential] struct ...`)
-            fn csharp_define_self (definer: &'_ mut dyn Definer)
-              -> io::Result<()>
-            ;
-            // {
-            //     Self::define_self(
-            //         &CSharp,
-            //         definer,
-            //     )
-            // }
-
-            /// Optional marshaler attached to the type (_e.g._,
-            /// `[MarshalAs(UnmanagedType.FunctionPtr)]`)
-            fn legacy_csharp_marshaler ()
-              -> Option<rust::String>
-            {
-                None
-            }
-
-            // TODO: Optimize out those unnecessary heap-allocations
-            /// Type name (_e.g._, `int`, `string`, `IntPtr`)
-            fn csharp_ty ()
-              -> rust::String
-            {
-                Self::c_var("").to_string()
-            }
-
-            /// Convenience function for formatting `{ty} {var}` in CSharp.
-            fn csharp_var (var_name: &'_ str)
-              -> rust::String
-            {
-                format!(
-                    "{}{sep}{}",
-                    Self::csharp_ty(), var_name,
-                    sep = if var_name.is_empty() { "" } else { " " },
-                )
-            }
-        }
-
-
-        __cfg_headers__! {
-            /// Extra typedef code (_e.g._ `[LayoutKind.Sequential] struct ...`)
-            fn lua_define_self (definer: &'_ mut dyn Definer)
-              -> io::Result<()>
-            ;
-
-            /// Convenience function for formatting `{ty} {var}` in Lua.
-            fn lua_var (var_name: &'_ str)
-              -> rust::String
-            {
-                Self::c_var(var_name).to_string()
-            }
-        }
-    }
-}
-
-__cfg_headers__! {
-    mod var_impl_display {
-        use super::*;
-        use fmt::*;
-
-        #[allow(missing_debug_implementations)]
-        pub
-        struct ImplDisplay<'__, T : LegacyCType> {
-            pub(in super)
-            var_name: &'__ str,
-
-            pub(in super)
-            _phantom: ::core::marker::PhantomData<T>,
-        }
-
-        impl<T : LegacyCType> Display
-            for ImplDisplay<'_, T>
-        {
-            #[inline]
-            fn fmt (self: &'_ Self, fmt: &'_ mut Formatter<'_>)
-              -> Result
-            {
-                T::c_var_fmt(fmt, self.var_name)
-            }
-        }
-    }
-
-    mod short_name_impl_display {
-        use super::*;
-        use fmt::*;
-
-        #[allow(missing_debug_implementations)]
-        pub
-        struct ImplDisplay<T : LegacyCType> {
-            pub(in super)
-            _phantom: ::core::marker::PhantomData<T>,
-        }
-
-        impl<T : LegacyCType> Display
-            for ImplDisplay<T>
-        {
-            #[inline]
-            fn fmt (self: &'_ Self, fmt: &'_ mut Formatter<'_>)
-              -> Result
-            {
-                T::c_short_name_fmt(fmt)
-            }
+        /// To be done using:
+        ///
+        /// <code>\&[provide_with]\(|req| req.give_if_requested::\<[CSharpMarshaler]\>(…))</code>
+        ///
+        /// [CSharpMarshaler]: `crate::headers::languages::CSharpMarshaler`
+        fn metadata() -> &'static dyn Provider {
+            &None
         }
     }
 }
 
 /// The meat of the crate. _The_ trait.
+///
 /// This trait describes that **a type has a defined / fixed `#[repr(C)]`
 /// layout**.
 ///
@@ -828,6 +510,8 @@ pub unsafe trait ReprC: Sized {
     /// so even then it is unclear.
     fn is_valid(it: &'_ Self::CLayout) -> bool;
 }
+
+pub type CLayoutOf<ImplReprC> = <ImplReprC as ReprC>::CLayout;
 
 #[doc(hidden)] /** For clarity;
                    this macro may be stabilized

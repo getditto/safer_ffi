@@ -478,7 +478,6 @@ impl Builder<'_, WhereTo> {
             },
 
             #[cfg(feature = "python-headers")]
-            // CHECKME
             | Language::Python => Ok(()),
         }
     }
@@ -548,6 +547,18 @@ pub enum Language {
     Python,
 }
 
+impl Language {
+    pub(crate) fn as_dyn(self) -> &'static dyn HeaderLanguage {
+        match self {
+            | Language::C => &languages::C,
+            | Language::CSharp => &languages::CSharp,
+            | Language::Lua => &languages::Lua,
+            #[cfg(feature = "python-headers")]
+            | Language::Python => &languages::Python,
+        }
+    }
+}
+
 /// Allow user to specify
 pub enum NamingConvention {
     Default,
@@ -563,21 +574,7 @@ hidden_export! {
         lang: Language,
     ) -> ::std::io::Result<()>
     {
-        match lang {
-            | Language::C => {
-                <T::CLayout as CType>::define_self(&crate::headers::languages::C, definer)
-            },
-            | Language::CSharp => {
-                <T::CLayout as CType>::define_self(&crate::headers::languages::CSharp, definer)
-            },
-            | Language::Lua => {
-                <T::CLayout as CType>::define_self(&crate::headers::languages::Lua, definer)
-            },
-            #[cfg(feature = "python-headers")]
-            | Language::Python => {
-                <T::CLayout as CType>::define_self(&crate::headers::languages::Python, definer)
-            },
-        }
+        CLayoutOf::<T>::define_self(lang.as_dyn(), definer)
     }
 }
 
@@ -594,153 +591,6 @@ fn __define_fn__(
     args: &'_ [FunctionArg<'_>],
     ret_ty: &'_ dyn PhantomCType,
 ) -> io::Result<()> {
-    let dyn_lang: &dyn HeaderLanguage = match lang {
-        | Language::C => &languages::C,
-        | Language::CSharp => &languages::CSharp,
-        | Language::Lua => &languages::Lua,
-        #[cfg(feature = "python-headers")]
-        | Language::Python => &languages::Python,
-    };
-    dyn_lang.declare_function(definer, docs, fname, args, ret_ty)
-}
-
-hidden_export! {
-    /// Helpers for the generation of FFI-imported function declarations.
-    mod __define_fn__ {
-        use super::*;
-        use ::std::{
-            fmt::Write as _,
-            io::Result,
-        };
-
-        pub
-        fn name (
-            out: &'_ mut String,
-            f_name: &'_ str,
-            lang: Language,
-        )
-        {
-            match lang {
-                | Language::C => write!(out,
-                    "{} (", f_name.trim(),
-                ),
-
-                | Language::CSharp => write!(out,
-                    "{} (", f_name.trim(),
-                ),
-
-                | Language::Lua => write!(out,
-                    "{} (", f_name.trim(),
-                ),
-
-                #[cfg(feature = "python-headers")]
-                | Language::Python => write!(out,
-                    "{} (", f_name.trim(),
-                ),
-            }
-            .expect("`write!`-ing to a `String` cannot fail")
-        }
-
-        pub
-        fn arg<Arg : ReprC> (
-            out: &'_ mut String,
-            arg_name: &'_ str,
-            lang: Language,
-        )
-        {
-            if out.ends_with("(").not() {
-                out.push_str(",");
-            }
-            match lang {
-                | Language::C => write!(out,
-                    "\n    {}",
-                    Arg::CLayout::name_wrapping_var(&crate::headers::languages::C, arg_name),
-                ),
-
-                | Language::CSharp => write!(out,
-                    "\n        {marshaler}{}",
-                     Arg::CLayout::name_wrapping_var(&crate::headers::languages::CSharp, arg_name),
-                    marshaler =
-                        Arg::CLayout::csharp_marshaler()
-                            .map(|m| format!("[MarshalAs({})]\n        ", m))
-                            .as_deref()
-                            .unwrap_or("")
-                    ,
-                ),
-
-                | Language::Lua => write!(out,
-                    "\n    {}",
-                    Arg::CLayout::name_wrapping_var(&crate::headers::languages::Lua, arg_name),
-                ),
-
-                #[cfg(feature = "python-headers")]
-                | Language::Python => write!(out,
-                    "\n    {}",
-                    Arg::CLayout::name_wrapping_var(&crate::headers::languages::Python, arg_name),
-                ),
-            }
-            .expect("`write!`-ing to a `String` cannot fail")
-        }
-
-        pub
-        fn ret<Ret : ReprC> (
-            definer: &'_ mut dyn Definer,
-            lang: Language,
-            mut fname_and_args: String,
-        ) -> Result<()>
-        {
-            let out = definer.out();
-            match lang {
-                | Language::C => {
-                    if fname_and_args.ends_with("(") {
-                        fname_and_args.push_str("void");
-                    }
-                    writeln!(out,
-                        "{});\n",
-                        Ret::CLayout::name_wrapping_var(&crate::headers::languages::C, &fname_and_args),
-                    )
-                },
-
-                | Language::CSharp => {
-                    writeln!(out,
-                        concat!(
-                            "public unsafe partial class Ffi {{\n    ",
-                            "{mb_marshaler}",
-                            "[DllImport(RustLib, ExactSpelling = true)] public static unsafe extern\n",
-                            "    {});\n",
-                            "}}\n",
-                        ),
-                        Ret::CLayout::name_wrapping_var(&crate::headers::languages::CSharp, &fname_and_args),
-                        mb_marshaler =
-                            Ret::CLayout::csharp_marshaler()
-                                .map(|m| format!("[return: MarshalAs({})]\n    ", m))
-                                .as_deref()
-                                .unwrap_or("")
-                        ,
-                    )
-                },
-
-                | Language::Lua => {
-                    if fname_and_args.ends_with("(") {
-                        fname_and_args.push_str("void");
-                    }
-                    writeln!(out,
-                        "{});\n",
-                        Ret::CLayout::name_wrapping_var(&crate::headers::languages::Lua, &fname_and_args),
-                    )
-                },
-
-                #[cfg(feature = "python-headers")]
-                | Language::Python => {
-                    if fname_and_args.ends_with("(") {
-                        fname_and_args.push_str("void");
-                    }
-                    writeln!(out,
-                        "{});\n",
-                        Ret::CLayout::name_wrapping_var(&crate::headers::languages::Python, &fname_and_args),
-                    )
-                },
-            }
-        }
-    }
+    let dyn_lang: &dyn HeaderLanguage = lang.as_dyn();
+    dyn_lang.declare_function(dyn_lang, definer, docs, fname, args, ret_ty)
 }

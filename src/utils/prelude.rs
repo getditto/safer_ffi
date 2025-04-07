@@ -14,6 +14,7 @@ pub(crate) use crate::c_char;
 pub(crate) use crate::layout::macros::*;
 pub(crate) use crate::layout::*;
 pub(crate) use crate::tuple::*;
+pub(crate) use crate::utils::extension_traits::*;
 pub(crate) use crate::utils::markers::*;
 
 match_cfg! {
@@ -53,3 +54,15 @@ pub(crate) mod ptr {
 pub(crate) use ::std::io;
 
 pub(crate) use crate::prelude::*;
+
+__cfg_headers__! {
+    pub(crate) use crate::headers::{
+        Definer,
+        languages::{
+            HeaderLanguage,
+            primitives,
+        },
+        provider::{Provider, provide_with},
+    };
+    pub(crate) use crate::utils::DisplayFromFn as F;
+}
