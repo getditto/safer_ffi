@@ -92,13 +92,13 @@
 //!     fn serialize<S: Serializer>(_: &Thing) -> SerdeResult<S> {
 //!         let case_convention = || -> CaseConvention {
 //!             let provider = &S::provider();
-//!             if provider.request::<KebabCase>([]).is_some() {
+//!             if provider.request::<KebabCase>().is_some() {
 //!                 return CaseConvention::Kebab;
 //!             }
-//!             if provider.request::<SnakeCase>([]).is_some() {
+//!             if provider.request::<SnakeCase>().is_some() {
 //!                 return CaseConvention::Snake;
 //!             }
-//!             if provider.request::<SpongeBobCase>([]).is_some() {
+//!             if provider.request::<SpongeBobCase>().is_some() {
 //!                 return CaseConvention::SpongeBob;
 //!             }
 //!             CaseConvention::default()
@@ -149,7 +149,7 @@
 //!         &self,
 //!         config: &impl Provider,
 //!     ) -> String {
-//!         match config.request::<Base>([]).unwrap_or_default() {
+//!         match config.request::<Base>().unwrap_or_default() {
 //!             | Base::NinePlusOne => format!("{self}"),
 //!             | Base::NinePlusSeven => format!("{self:#x}"),
 //!         }
@@ -211,7 +211,7 @@ impl<F: Fn(&mut Request<'_>)> Provider for provide_with<F> {
 }
 
 /// Trivial `&`-transitivity of the trait, enabling, mainly for <code>dyn [Provider]</code>s, for
-/// [`.request::<T>([])`][`Provider::request()`] to be callable.
+/// [`.request::<T>()`][`Provider::request()`] to be callable.
 impl<P: ?Sized + Provider> Provider for &'_ P {
     #[inline]
     fn provide_to(
@@ -245,7 +245,7 @@ use ::core::any::Any as OptionAny;
 /// Handle through which an implementor of [`Provider::provide_to()`] is expected to _provide_ /
 /// give its value(s) of type `<T>`, through the
 /// [`.give_if_requested::<T>()`][`Self::give_if_requested()`] method, to the
-/// [`.request::<T>([])`][`Provider::request()`]ers.
+/// [`.request::<T>()`][`Provider::request()`]ers.
 #[repr(transparent)]
 pub struct Request<'lt>(
     /// We pre-reserve an invariant `'lt` param in this type should we end up "un-mini"-fying this
@@ -310,7 +310,7 @@ impl Request<'_> {
     ///     }
     ///
     ///     // request-site:
-    ///     assert_eq!(Foo.request::</* T = */ i32>([]), Some(42));
+    ///     assert_eq!(Foo.request::</* T = */ i32>(), Some(42));
     ///     ```
     #[inline]
     pub fn give_if_requested<T: 'static + private::ObligatoryTurbofish<ItSelf = T>>(
@@ -338,9 +338,9 @@ impl Request<'_> {
 /// Assert `dyn`-compatibility.
 impl dyn '_ + Provider {
     /// Convenience method for <code>dyn [Provider]</code>s:
-    /// <code>(&self)[.request::\<T\>([])][`Provider::request()`]</code>.
+    /// <code>(&self)[.request::\<T\>()][`Provider::request()`]</code>.
     pub fn dyn_request<T: 'static>(&self) -> Option<T> {
-        (&self).request::<T>([])
+        (&self).request::<T>()
     }
 }
 
@@ -356,7 +356,7 @@ impl dyn '_ + Provider {
 ///     [.give_if_requested::\<T\>()]: `Request::give_if_requested()`
 ///
 ///   - On the other side, call-sites are expected to using the convenience
-///     [`.request::<T>([])`][`Provider::request()`] method on <code>impl [Provider]</code> types.
+///     [`.request::<T>()`][`Provider::request()`] method on <code>impl [Provider]</code> types.
 ///
 /// # Examples
 ///
@@ -381,12 +381,12 @@ impl dyn '_ + Provider {
 ///
 /// struct MyOwnSignal();
 ///
-/// assert!(Foo.request::<i32>([]) == Some(42));
-/// assert!(Foo.request::<bool>([]) == Some(true));
-/// assert!(Foo.request::<MyOwnSignal>([]).is_some());
+/// assert!(Foo.request::<i32>() == Some(42));
+/// assert!(Foo.request::<bool>() == Some(true));
+/// assert!(Foo.request::<MyOwnSignal>().is_some());
 ///
 /// enum SomethingElse {}
-/// assert!(Foo.request::<SomethingElse>([]).is_none());
+/// assert!(Foo.request::<SomethingElse>().is_none());
 /// ```
 ///
 /// ## This trait is `dyn` compatible
@@ -404,6 +404,7 @@ impl dyn '_ + Provider {
 ///     request.give_if_requested::<i32>(|| 42);
 /// }));
 /// ```
+#[::seal_the_deal::with_seals]
 pub trait Provider {
     /// Method to be implemented by _the callee_ / the implementor / `Self`, by calling
     /// <code>request[.give_if_requested::\<T\>()]</code> with any number of choices of `<T>`.
@@ -417,17 +418,9 @@ pub trait Provider {
     /// Convenience method for _callers_ dealing with some <code>impl [Provider]</code> type,
     /// for them to be able to _request_ / query / get the value of type `<T>` that this impl may
     /// have [`.give[n]_if_requested::<T>()`][`Request::give_if_requested()`].
-    ///
-    /// It is a `Sealed` / _final_ method, which due to limitations of Rust at the moment requires
-    /// an empty array argument.
-    ///
-    /// Just ignore it, and consider that the syntax to call it is just `.request::<T>([])` rather
-    /// than `.request::<T>()`.
+    #[sealed]
     #[inline]
-    fn request<T: 'static>(
-        &self,
-        _: [private::Sealed; 0],
-    ) -> Option<T>
+    fn request<T: 'static>(&self) -> Option<T>
     where
         Self: Sized,
     {
@@ -438,8 +431,6 @@ pub trait Provider {
 }
 
 mod private {
-    pub enum Sealed {}
-
     pub trait ObligatoryTurbofish {
         type ItSelf;
     }

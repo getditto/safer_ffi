@@ -645,6 +645,7 @@ dependencies = [
  "paste",
  "safer_ffi-proc_macros",
  "scopeguard",
+ "seal-the-deal",
  "stabby",
  "uninit",
  "unwind_safe",
@@ -683,6 +684,26 @@ checksum = "d53dcdb7c9f8158937a7981b48accfd39a43af418591a5d008c7b22b5e1b7ca4"
 dependencies = [
  "ring 0.16.20",
  "untrusted 0.7.1",
+]
+
+[[package]]
+name = "seal-the-deal"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "99a5a756b7f47a1d5b0ae3298a9ee8887a8235c06cdf2bb043847afdf260b3d8"
+dependencies = [
+ "seal-the-deal-proc_macros",
+]
+
+[[package]]
+name = "seal-the-deal-proc_macros"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9de4a0d5221ed52002818c0a943f29c0d3b1be6e23209b08d3baa050f76101b8"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.12",
 ]
 
 [[package]]
