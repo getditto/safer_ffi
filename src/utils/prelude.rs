@@ -40,6 +40,8 @@ pub(crate) mod rust {
     #[apply(cfg_alloc)]
     pub(crate) use ::alloc::string::String;
     #[apply(cfg_alloc)]
+    pub(crate) use ::alloc::sync::Arc;
+    #[apply(cfg_alloc)]
     pub(crate) use ::alloc::vec::Vec;
 }
 

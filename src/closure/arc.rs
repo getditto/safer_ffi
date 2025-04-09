@@ -12,7 +12,7 @@ macro_rules! with_tuple {(
     )
 ) => (
     impl<Ret $(, $A_N $(, $A_k)*)?>
-        crate::boxed::FitForCArc
+        crate::arc::FitForCArc
     for
         dyn 'static + Send + Sync + Fn($($A_N $(, $A_k)*)?) -> Ret
     where
