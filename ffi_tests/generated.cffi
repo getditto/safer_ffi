@@ -157,6 +157,12 @@ concat (
     char const * snd);
 
 void
+deprecated_function_1 (void);
+
+void
+deprecated_function_2 (void);
+
+void
 free_char_p (
     char * _string);
 

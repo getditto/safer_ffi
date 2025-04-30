@@ -7,11 +7,12 @@ impl HeaderLanguage for C {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
+        deprecated: Deprecated,
         indent: &'_ Indentation,
     ) -> io::Result<()> {
         mk_out!(indent, ctx.out());
 
-        if docs.is_empty() {
+        if docs.is_empty() && deprecated.is_none() {
             out!(("/** <No documentation available> */"));
             return Ok(());
         }
@@ -20,6 +21,10 @@ impl HeaderLanguage for C {
         for line in docs.iter().copied().map(str::trim) {
             let sep = if line.is_empty() { "" } else { "  " };
             out!((" *{sep}{line}"));
+        }
+        if let Some(note) = deprecated {
+            out!((" *  \\deprecated"));
+            out!((" *  {note}"));
         }
         out!((" */"));
 
@@ -35,12 +40,13 @@ impl HeaderLanguage for C {
                 self: &'_ Self,
                 ctx: &'_ mut dyn Definer,
                 docs: Docs<'_>,
+                deprecated: Deprecated,
                 self_ty: &'_ dyn PhantomCType,
                 inner_ty: &'_ dyn PhantomCType,
             ) -> io::Result<()> {
                 let ref indent = Indentation::new(4 /* ctx.indent_width() */);
                 mk_out!(indent, ctx.out());
-                self.emit_docs(ctx, docs, indent)?;
+                self.emit_docs(ctx, docs, deprecated, indent)?;
                 let ref aliaser = self_ty.name(self);
                 let ref aliasee = inner_ty.name(self);
                 out!((
@@ -57,6 +63,7 @@ impl HeaderLanguage for C {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
+        deprecated: Deprecated,
         self_ty: &'_ dyn PhantomCType,
         backing_integer: Option<&dyn PhantomCType>,
         variants: &'_ [EnumVariant<'_>],
@@ -66,7 +73,7 @@ impl HeaderLanguage for C {
 
         let ref intn_t = backing_integer.map(|it| it.name(self));
 
-        self.emit_docs(ctx, docs, indent)?;
+        self.emit_docs(ctx, docs, deprecated, indent)?;
 
         let ref short_name = self_ty.short_name();
         let ref full_ty_name = self_ty.name(self);
@@ -85,7 +92,7 @@ impl HeaderLanguage for C {
 
         if let _ = indent.scope() {
             for v in variants {
-                self.emit_docs(ctx, v.docs, indent)?;
+                self.emit_docs(ctx, v.docs, deprecated, indent)?;
                 let variant_name = crate::utils::screaming_case(short_name, v.name) /* ctx.adjust_variant_name(
                     Language::C,
                     enum_name,
@@ -119,6 +126,7 @@ impl HeaderLanguage for C {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
+        deprecated: Deprecated,
         self_ty: &'_ dyn PhantomCType,
         fields: &'_ [StructField<'_>],
     ) -> io::Result<()> {
@@ -131,7 +139,7 @@ impl HeaderLanguage for C {
             panic!("C does not support zero-sized structs!")
         }
 
-        self.emit_docs(ctx, docs, indent)?;
+        self.emit_docs(ctx, docs, deprecated, indent)?;
         out!(("typedef struct {short_name} {{"));
         if let _ = indent.scope() {
             let ref mut first = true;
@@ -147,7 +155,7 @@ impl HeaderLanguage for C {
                 if mem::take(first).not() {
                     out!("\n");
                 }
-                self.emit_docs(ctx, docs, indent)?;
+                self.emit_docs(ctx, docs, deprecated, indent)?;
                 out!(
                     ("{};"),
                     ty.name_wrapping_var(self, name)
@@ -164,6 +172,7 @@ impl HeaderLanguage for C {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
+        deprecated: Deprecated,
         self_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
@@ -171,7 +180,7 @@ impl HeaderLanguage for C {
         let short_name = self_ty.short_name();
         let full_ty_name = self_ty.name(self);
 
-        self.emit_docs(ctx, docs, indent)?;
+        self.emit_docs(ctx, docs, deprecated, indent)?;
         out!(("typedef struct {short_name} {full_ty_name};"));
 
         out!("\n");
@@ -182,13 +191,14 @@ impl HeaderLanguage for C {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
+        deprecated: Deprecated,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
 
-        self.emit_docs(ctx, docs, indent)?;
+        self.emit_docs(ctx, docs, deprecated, indent)?;
 
         let ref fn_sig_but_for_ret_type: String = {
             let mut buf = Vec::<u8>::new();
@@ -220,7 +230,13 @@ impl HeaderLanguage for C {
 
         mk_out!(indent, ctx.out());
         out!(
-            ("{};"), ret_ty.name_wrapping_var(self, fn_sig_but_for_ret_type)
+            ("{}{};"),
+            ret_ty.name_wrapping_var(self, fn_sig_but_for_ret_type),
+            if let Some(note) = deprecated {
+                format!(" __attribute__((__deprecated__(\"{}\")))", note)
+            } else {
+                String::from("")
+            },
         );
 
         out!("\n");
@@ -231,6 +247,7 @@ impl HeaderLanguage for C {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
+        deprecated: Deprecated,
         name: &'_ str,
         ty: &'_ dyn PhantomCType,
         skip_type: bool,
@@ -239,7 +256,7 @@ impl HeaderLanguage for C {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
-        self.emit_docs(ctx, docs, indent)?;
+        self.emit_docs(ctx, docs, deprecated, indent)?;
         if skip_type {
             out!((
                 "#define {name} {value:?}"

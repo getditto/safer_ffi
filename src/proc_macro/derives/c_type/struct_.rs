@@ -120,6 +120,7 @@ pub(crate) fn derive(
                 language.emit_struct(
                     definer,
                     &[#(#struct_docs),*],
+                    None,
                     &#ඞ::marker::PhantomData::<Self>,
                     &[#(#each_field),*],
                 )
@@ -218,6 +219,7 @@ pub(crate) fn derive_transparent(
                         language.emit_type_alias(
                             definer,
                             &[#(#docs),*],
+                            None,
                             &#ඞ::PhantomData::<Self>,
                             &#ඞ::PhantomData::<#CFieldTy>,
                         )?;

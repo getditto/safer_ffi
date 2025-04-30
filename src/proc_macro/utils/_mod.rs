@@ -208,6 +208,38 @@ pub(crate) fn extract_docs(attrs: &'_ [Attribute]) -> Result<Vec<Expr>> {
         .collect()
 }
 
+pub(crate) fn extract_deprecated(attrs: &'_ [Attribute]) -> Result<Option<Expr>> {
+    attrs
+        .iter()
+        .filter_map(|attr| {
+            attr.path.is_ident("deprecated").then(|| {
+                Some(Parser::parse2(
+                    |input: ParseStream<'_>| {
+                        Ok(if input.peek(Token![=]) {
+                            let _: Token![=] = input.parse::<Token![=]>().unwrap();
+                            let note_str: Expr = input.parse()?;
+                            let _: Option<Token![,]> = input.parse()?;
+                            note_str
+                        } else {
+                            let _ = input.parse::<TokenStream2>();
+                            Expr::Lit(ExprLit {
+                                attrs: vec![],
+                                lit: Lit::Str(LitStr::new(
+                                    "<No deprecation message available>",
+                                    Span::call_site(),
+                                )),
+                            })
+                        })
+                    },
+                    attr.tokens.clone(),
+                ))
+                .transpose()
+            })
+        })
+        .nth(0)
+        .unwrap_or(Ok(None))
+}
+
 pub(crate) struct LazyQuote(
     pub(crate) fn() -> TokenStream2,
     pub(crate) ::core::cell::RefCell<Option<TokenStream2>>,

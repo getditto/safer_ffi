@@ -472,6 +472,7 @@ pub(crate) fn derive_opaque(
                     language.emit_opaque_type(
                         definer,
                         &[#(#docs),*],
+                        None,
                         &#ඞ::PhantomData::<Self>,
                     )
                 }

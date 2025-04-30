@@ -132,5 +132,11 @@ int main (
 
     puts("C: [ok]");
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated"
+    deprecated_function_1();
+    deprecated_function_2();
+#pragma GCC diagnostic pop
+
     return EXIT_SUCCESS;
 }

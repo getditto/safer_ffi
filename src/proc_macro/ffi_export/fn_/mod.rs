@@ -176,6 +176,7 @@ pub(super) fn handle(
             abort_on_unwind_guard = #ඞ::UnwindGuard(#export_name_str),
             unsafe {
                 #layout::into_raw(
+                    #[allow(deprecated)]
                     #fname( #(#layout::from_raw_unchecked(#each_arg)),* )
                 )
             },
@@ -306,6 +307,7 @@ pub(super) fn handle(
                                         #js::UnsafeAssertSend::into_inner(#each_arg)
                                     };
                                 )*
+                                #[allow(deprecated)]
                                 #fname( #(#each_arg),* )
                             }
                         },
@@ -315,6 +317,7 @@ pub(super) fn handle(
 
                 #[cfg(target_arch = "wasm32")] {
                     let ret = unsafe {
+                        #[allow(deprecated)]
                         #fname( #(#each_arg),* )
                     };
                     #ReprNapi::to_napi_value(ret, __ctx__.env)
@@ -327,6 +330,7 @@ pub(super) fn handle(
         } else {
             quote_spanned!(Span::mixed_site()=>
                 let ret = unsafe {
+                    #[allow(deprecated)]
                     #fname( #(#each_arg),* )
                 };
                 #ReprNapi::to_napi_value(ret, __ctx__.env)
@@ -358,6 +362,7 @@ pub(super) fn handle(
         };
         let ref EachArgTy @ _ = arg_tys(&fun).vec();
         let each_doc = utils::extract_docs(&fun.attrs)?;
+        let deprecated: Vec<Expr> = utils::extract_deprecated(&fun.attrs)?.into_iter().collect();
         let (generics, _, where_clause) = fun.sig.generics.split_for_impl();
         ret.extend(quote!(
             #[cfg(not(target_arch = "wasm32"))]
@@ -393,6 +398,7 @@ pub(super) fn handle(
                                 definer,
                                 lang,
                                 &[ #(#each_doc),* ],
+                                &[ #(#deprecated),* ],
                                 #export_name_str,
                                 &[
                                     #(

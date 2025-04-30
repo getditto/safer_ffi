@@ -15,6 +15,15 @@ fn concat(
         .unwrap()
 }
 
+/// Deprecated functions.
+#[ffi_export(js)]
+#[deprecated]
+fn deprecated_function_1() {}
+
+#[ffi_export(js)]
+#[deprecated = "test deprecation message"]
+fn deprecated_function_2() {}
+
 /// Frees a string created by `concat`.
 #[ffi_export(js)]
 fn free_char_p(_string: Option<char_p::Box>) {}
