@@ -21,7 +21,12 @@ macro_rules! export_cfgs {(
                 macro_rules! $macro_name {(
                     $_($item:item)*
                 ) => (
-                    $_($item)*
+                    $_(
+                        #[cfg_attr(feature = "nightly",
+                            doc(cfg(feature  = $feature)),
+                        )]
+                        $item
+                    )*
                 )}
             },
             _ => {

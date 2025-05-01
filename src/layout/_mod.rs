@@ -69,252 +69,281 @@ pub unsafe trait CType: Sized + Copy {
         unsafe { ::core::mem::zeroed() }
     }
 
-    __cfg_headers__! {
-        /// Necessary one-time code for [`CType::name()`] to make sense.
-        ///
-        /// Some types, such as `char`, are part of the language, and can be
-        /// used directly by [`CType::name()`].
-        /// In that case, there is nothing else to _define_, and all is fine.
-        ///
-        ///   - That is the default implementation of this method: doing
-        ///     nothing.
-        ///
-        /// But most often than not, a `typedef` or an `#include` is required.
-        ///
-        /// In that case, here is the place to put it, with the help of the
-        /// provided `Definer`.
-        ///
-        /// # Idempotency?
-        ///
-        /// Given some `definer: &mut dyn Definer`, **the `define_self__impl(definer)`
-        /// call is not to be called more than once, thanks to the convenience
-        /// method [`Self::define_self()`], which is the one to guarantee idempotency**
-        /// (thanks to the [`Definer`]'s [`.define_once()`][`Definer::define_once()`] helper).
-        ///
-        /// # Safety
-        ///
-        /// Given that the defined types may be used by [`CType::name_wrapping_var()`],
-        /// and [`CType::name()`], the same safety disclaimers apply.
-        ///
-        /// ## Examples
-        ///
-        /// ### `#[repr(C)] struct Foo { x: i32 }`
-        ///
-        /// ```rust
-        /// use ::std::{io, marker::PhantomData};
-        /// use ::safer_ffi::{
-        ///     headers::{
-        ///         Definer,
-        ///         languages::HeaderLanguage,
-        ///     },
-        ///     layout::{CType, OpaqueKind},
-        /// };
-        ///
-        /// #[derive(Clone, Copy)]
-        /// #[repr(C)]
-        /// struct Foo {
-        ///     x: i32,
-        /// }
-        ///
-        /// unsafe impl CType for Foo {
-        ///     #[::safer_ffi::cfg_headers]
-        ///     fn define_self__impl (
-        ///         language: &'_ dyn HeaderLanguage,
-        ///         definer: &'_ mut dyn Definer,
-        ///     ) -> io::Result<()>
-        ///     {
-        ///         // ensure int32_t makes sense
-        ///         <i32 as CType>::define_self(language, definer)?;
-        ///         language.declare_struct(
-        ///             language,
-        ///             definer,
-        ///             // no docs.
-        ///             &[],
-        ///             &PhantomData::<Self>,
-        ///             &[
-        ///                 ::safer_ffi::headers::languages::StructField {
-        ///                     docs: &[],
-        ///                     name: "x", ty: &PhantomData::<i32>,
-        ///                 },
-        ///             ]
-        ///         )?;
-        ///         Ok(())
-        ///     }
-        ///
-        ///     #[::safer_ffi::cfg_headers]
-        ///     fn short_name() -> String {
-        ///         "Foo".into()
-        ///     }
-        ///
-        ///     type OPAQUE_KIND = OpaqueKind::Concrete;
-        ///
-        ///     // ...
-        /// }
-        /// ```
-        #[allow(nonstandard_style)]
-        fn define_self__impl (
-            language: &'_ dyn HeaderLanguage,
-            definer: &'_ mut dyn Definer,
-        ) -> io::Result<()>
-        ;
+    #[apply(__cfg_headers__!)]
+    /// Necessary one-time code for [`CType::name()`] to make sense.
+    ///
+    /// Some types, such as `char`, are part of the language, and can be
+    /// used directly by [`CType::name()`].
+    /// In that case, there is nothing else to _define_, and all is fine.
+    ///
+    ///   - That is the default implementation of this method: doing nothing.
+    ///
+    /// But most often than not, a `typedef` or an `#include` is required.
+    ///
+    /// In that case, here is the place to put it, with the help of the
+    /// provided `Definer`.
+    ///
+    /// # Idempotency?
+    ///
+    /// Given some `definer: &mut dyn Definer`, **the `define_self__impl(definer)`
+    /// call is not to be called more than once, thanks to the convenience
+    /// method [`Self::define_self()`], which is the one to guarantee idempotency**
+    /// (thanks to the [`Definer`]'s [`.define_once()`][`Definer::define_once()`] helper).
+    ///
+    /// # Safety
+    ///
+    /// Given that the defined types may be used by [`CType::name_wrapping_var()`],
+    /// and [`CType::name()`], the same safety disclaimers apply.
+    ///
+    /// ## Examples
+    ///
+    /// ### `#[repr(C)] struct Foo { x: i32 }`
+    ///
+    /// ```rust
+    /// use ::safer_ffi::headers::Definer;
+    /// use ::safer_ffi::headers::languages::HeaderLanguage;
+    /// use ::safer_ffi::layout::CType;
+    /// use ::safer_ffi::layout::OpaqueKind;
+    /// use ::std::io;
+    /// use ::std::marker::PhantomData;
+    ///
+    /// #[derive(Clone, Copy)]
+    /// #[repr(C)]
+    /// struct Foo {
+    ///     x: i32,
+    /// }
+    ///
+    /// unsafe impl CType for Foo {
+    ///     #[::safer_ffi::cfg_headers]
+    ///     fn define_self__impl(
+    ///         language: &'_ dyn HeaderLanguage,
+    ///         definer: &'_ mut dyn Definer,
+    ///     ) -> io::Result<()> {
+    ///         // ensure int32_t makes sense
+    ///         <i32 as CType>::define_self(language, definer)?;
+    ///         language.declare_struct(
+    ///             language,
+    ///             definer,
+    ///             // no docs.
+    ///             &[],
+    ///             &PhantomData::<Self>,
+    ///             &[::safer_ffi::headers::languages::StructField {
+    ///                 docs: &[],
+    ///                 name: "x",
+    ///                 ty: &PhantomData::<i32>,
+    ///             }],
+    ///         )?;
+    ///         Ok(())
+    ///     }
+    ///
+    ///     #[::safer_ffi::cfg_headers]
+    ///     fn short_name() -> String {
+    ///         "Foo".into()
+    ///     }
+    ///
+    ///     type OPAQUE_KIND = OpaqueKind::Concrete;
+    ///
+    ///     // ...
+    /// }
+    /// ```
+    #[allow(nonstandard_style)]
+    fn define_self__impl(
+        language: &'_ dyn HeaderLanguage,
+        definer: &'_ mut dyn Definer,
+    ) -> io::Result<()>;
 
-        fn define_self (
-            language: &'_ dyn HeaderLanguage,
-            definer: &'_ mut dyn Definer,
-        ) -> io::Result<()>
-        {
-            definer.define_once(
-                &F(|out| Self::render(out, language)).to_string(),
-                &mut |definer| Self::define_self__impl(language, definer),
-            )
-        }
+    #[apply(__cfg_headers__!)]
+    fn define_self(
+        language: &'_ dyn HeaderLanguage,
+        definer: &'_ mut dyn Definer,
+    ) -> io::Result<()> {
+        definer.define_once(
+            &F(|out| Self::render(out, language)).to_string(),
+            &mut |definer| Self::define_self__impl(language, definer),
+        )
+    }
 
-        /// A short-name description of the type, mainly used to fill
-        /// "placeholders" such as when monomorphising generics structs or
-        /// arrays.
-        ///
-        /// This provides the implementation used by [`CType::short_name`]`()`.
-        ///
-        /// There are no bad implementations of this method, except,
-        /// of course, for the obligation to provide a valid identifier chunk,
-        /// _i.e._, the output must only contain alphanumeric digits and
-        /// underscores.
-        ///
-        /// For instance, given `T : CType` and `const N: usize > 0`, the type
-        /// `[T; N]` (inline fixed-size array of `N` consecutive elements of
-        /// type `T`) will be typedef-named as:
-        ///
-        /// ```rust,ignore
-        /// write!(fmt, "{}_{}_array", <T as CType>::short_name(), N)
-        /// ```
-        ///
-        /// Generally, typedefs with a trailing `_t` will see that `_t` trimmed
-        /// when used as a `short_name`.
-        ///
-        /// ## Implementation by [`CType!`]:
-        ///
-        /// A non generic struct such as:
-        ///
-        /// ```rust,ignore
-        /// CType! {
-        ///     #[repr(C)]
-        ///     struct Foo { /* fields */ }
-        /// }
-        /// ```
-        ///
-        /// will have `Foo` as its `short_name`.
-        ///
-        /// A generic struct such as:
-        ///
-        /// ```rust,ignore
-        /// CType! {
-        ///     #[repr(C)]
-        ///     struct Foo[T] where { T : CType } { /* fields */ }
-        /// }
-        /// ```
-        ///
-        /// will have `Foo_xxx` as its `short_name`, with `xxx` being `T`'s
-        /// `short_name`.
-        fn short_name ()
-          -> String
-        ;
+    #[apply(__cfg_headers__!)]
+    /// A short-name description of the type, mainly used to fill
+    /// "placeholders" such as when monomorphising generics structs or
+    /// arrays.
+    ///
+    /// This provides the implementation used by [`CType::short_name`]`()`.
+    ///
+    /// There are no bad implementations of this method, except,
+    /// of course, for the obligation to provide a valid identifier chunk,
+    /// _i.e._, the output must only contain alphanumeric digits and
+    /// underscores.
+    ///
+    /// For instance, given `T : CType` and `const N: usize > 0`, the type
+    /// `[T; N]` (inline fixed-size array of `N` consecutive elements of
+    /// type `T`) will be typedef-named as:
+    ///
+    /// ```rust,ignore
+    /// write!(fmt, "{}_{}_array", <T as CType>::short_name(), N)
+    /// ```
+    ///
+    /// Generally, typedefs with a trailing `_t` will see that `_t` trimmed
+    /// when used as a `short_name`.
+    ///
+    /// ## Implementation by [`CType!`]:
+    ///
+    /// A non generic struct such as:
+    ///
+    /// ```rust,ignore
+    /// CType! {
+    ///     #[repr(C)]
+    ///     struct Foo { /* fields */ }
+    /// }
+    /// ```
+    ///
+    /// will have `Foo` as its `short_name`.
+    ///
+    /// A generic struct such as:
+    ///
+    /// ```rust,ignore
+    /// CType! {
+    ///     #[repr(C)]
+    ///     struct Foo[T] where { T : CType } { /* fields */ }
+    /// }
+    /// ```
+    ///
+    /// will have `Foo_xxx` as its `short_name`, with `xxx` being `T`'s
+    /// `short_name`.
+    fn short_name() -> String;
 
-        fn render(
-            out: &'_ mut dyn io::Write,
-            _language: &'_ dyn HeaderLanguage,
-        ) -> io::Result<()>
-        {
-            write!(out, "{}_t", Self::short_name())
-        }
+    /// Display itself as header code which refers to this C type.
+    ///
+    /// This can be:
+    ///
+    ///   - either through some direct syntactical construct derived off some other stuff,
+    ///     e.g., in C, `{} const*` for the `*const T` case,
+    ///
+    ///   - or simply by given a simple/single identifier name from a helper type alias or type
+    ///     definition having occurred in `define_self` (common case).
+    ///
+    ///     In this case, the name is probably going to be equal to `Self::short_name() + "_t"`.
+    ///
+    ///     **The default implementation does this.**
+    #[apply(__cfg_headers__!)]
+    fn render(
+        out: &'_ mut dyn io::Write,
+        _language: &'_ dyn HeaderLanguage,
+    ) -> io::Result<()> {
+        write!(out, "{}_t", Self::short_name())
+    }
 
-        fn name(language: &dyn HeaderLanguage) -> String {
-            F(|out| Self::render(out, language)).to_string()
-        }
+    /// Convenience directly-`String`-outputting version of [`Self::render()`].
+    #[apply(__cfg_headers__!)]
+    fn name(language: &dyn HeaderLanguage) -> String {
+        F(|out| Self::render(out, language)).to_string()
+    }
 
-        // Note: when overriding this default impl, remember to impl
-        // `Self::render()` as `Self::render_wrapping_var(…, "")`.
-        fn render_wrapping_var(
-            out: &'_ mut dyn io::Write,
-            language: &'_ dyn HeaderLanguage,
-            var_name: &str,
-        ) -> io::Result<()>
-        {
-            write!(
-                out,
-                "{}{sep}{var_name}",
-                F(|out| Self::render(out, language)),
-                sep=var_name.sep(),
-            )?;
-            Ok(())
-        }
+    /// Same as [`Self::render()`], but for "appending the varname/fn-name after it, with
+    /// whitespace.
+    ///
+    /// This, on its own would be a silly thing for which to dedicate a whole function.
+    ///
+    /// However, C being how it is, in the non-simple/single-typename ident cases for
+    /// `Self::render()`, mainly and most notably, in the array and `fn` pointer cases, the
+    /// varname/fn-name does not just go after the whole type.
+    ///
+    /// Instead, **it has to be interspersed in the middle of the type**.
+    ///
+    /// For instance, in the `fn(c_int) -> u8` case, it would have to be:
+    ///
+    /// > `uint8_t (*{var_name})(int)`.
+    ///
+    /// So such cases need to override the default implementation here, do the right thing, and then
+    /// override the other simpler non-`wrapping_var` versions thereof, to delegate to this function
+    /// with `var_name = ""`.
+    ///
+    /// > ⚠️ **NOTE**: when overriding this default impl, remember to `Self::render()` as
+    /// `Self::render_wrapping_var(…, "")`.
+    ///
+    /// ---
+    ///
+    /// Default implementation is to simply emit `{self.render()}{sep}{var_name}`, in pseudo-code
+    /// parlance.
+    #[apply(__cfg_headers__!)]
+    fn render_wrapping_var(
+        out: &'_ mut dyn io::Write,
+        language: &'_ dyn HeaderLanguage,
+        var_name: &str,
+    ) -> io::Result<()> {
+        write!(
+            out,
+            "{}{sep}{var_name}",
+            F(|out| Self::render(out, language)),
+            sep = var_name.sep(),
+        )?;
+        Ok(())
+    }
 
-        /// The core method of the trait: it provides the code to emit in the target
-        /// [`HeaderLanguage`] in order to refer to the corresponding C type.
-        ///
-        /// The implementations are thus much like any classic `.to_string()` impl,
-        /// except that:
-        ///
-        ///   - it must output valid C code representing the type corresponding
-        ///     to the Rust type.
-        ///
-        ///   - a `var_name` may be supplied, in which case the type must
-        ///     use that as its "variable name" (C being how it is, the var
-        ///     name may need to be inserted in the middle of the types, such as
-        ///     with arrays and function pointers).
-        ///
-        /// # Safety
-        ///
-        /// Here is where the meat of the safety happens: associating a Rust
-        /// type to a non-corresponding C definition will cause Undefined
-        /// Behavior when a function using such type in its ABI is called.
-        ///
-        /// ## Examples
-        ///
-        /// #### `i32`
-        ///
-        /// ```rust ,ignore
-        /// # #[repr(transparent)] struct i32(::core::primitive::i32);
-        ///
-        /// use ::safer_ffi::{headers::languages::HeaderLanguage, layout::CType};
-        ///
-        /// unsafe impl CType for i32 {
-        ///     #[::safer_ffi::cfg_headers]
-        ///     fn name_wrapping_var (
-        ///         header_language: &dyn HeaderLanguage,
-        ///         var_name: &str,
-        ///     ) -> String
-        ///     {
-        ///         // Usually this kind of logic for primitive types is
-        ///         // provided by the `HeaderLanguage` itself, rather than hard-coded by the type…
-        ///         assert_eq!(header_language.language_name(), "C");
-        ///
-        ///         let sep = if var_name { " " } else { "" };
-        ///         format!("int32_t{sep}{var_name}")
-        ///     }
-        ///
-        ///     // ...
-        /// }
-        /// ```
-        ///
-        fn name_wrapping_var (
-            language: &'_ dyn HeaderLanguage,
-            var_name: &'_ str,
-        ) -> String
-        {
-            F(|out| Self::render_wrapping_var(out, language, var_name)).to_string()
-        }
+    #[apply(__cfg_headers__!)]
+    /// The core method of the trait: it provides the code to emit in the target
+    /// [`HeaderLanguage`] in order to refer to the corresponding C type.
+    ///
+    /// The implementations are thus much like any classic `.to_string()` impl,
+    /// except that:
+    ///
+    ///   - it must output valid C code representing the type corresponding to the Rust type.
+    ///
+    ///   - a `var_name` may be supplied, in which case the type must use that as its "variable
+    ///     name" (C being how it is, the var name may need to be inserted in the middle of the
+    ///     types, such as with arrays and function pointers).
+    ///
+    /// # Safety
+    ///
+    /// Here is where the meat of the safety happens: associating a Rust
+    /// type to a non-corresponding C definition will cause Undefined
+    /// Behavior when a function using such type in its ABI is called.
+    ///
+    /// ## Examples
+    ///
+    /// #### `i32`
+    ///
+    /// ```rust ,ignore
+    /// # #[repr(transparent)] struct i32(::core::primitive::i32);
+    ///
+    /// use ::safer_ffi::{headers::languages::HeaderLanguage, layout::CType};
+    ///
+    /// unsafe impl CType for i32 {
+    ///     #[::safer_ffi::cfg_headers]
+    ///     fn name_wrapping_var (
+    ///         header_language: &dyn HeaderLanguage,
+    ///         var_name: &str,
+    ///     ) -> String
+    ///     {
+    ///         // Usually this kind of logic for primitive types is
+    ///         // provided by the `HeaderLanguage` itself, rather than hard-coded by the type…
+    ///         assert_eq!(header_language.language_name(), "C");
+    ///
+    ///         let sep = if var_name { " " } else { "" };
+    ///         format!("int32_t{sep}{var_name}")
+    ///     }
+    ///
+    ///     // ...
+    /// }
+    /// ```
+    fn name_wrapping_var(
+        language: &'_ dyn HeaderLanguage,
+        var_name: &'_ str,
+    ) -> String {
+        F(|out| Self::render_wrapping_var(out, language, var_name)).to_string()
+    }
 
-        /// Optional language-specific metadata attached to the type (_e.g._,
-        /// some `[MarshalAs(UnmanagedType.FunctionPtr)]` annotation for C#).
-        ///
-        /// To be done using:
-        ///
-        /// <code>\&[provide_with]\(|req| req.give_if_requested::\<[CSharpMarshaler]\>(…))</code>
-        ///
-        /// [CSharpMarshaler]: `crate::headers::languages::CSharpMarshaler`
-        fn metadata() -> &'static dyn Provider {
-            &None
-        }
+    #[apply(__cfg_headers__!)]
+    /// Optional language-specific metadata attached to the type (_e.g._,
+    /// some `[MarshalAs(UnmanagedType.FunctionPtr)]` annotation for C#).
+    ///
+    /// To be done using:
+    ///
+    /// <code>\&[provide_with]\(|req| req.give_if_requested::\<[CSharpMarshaler]\>(…))</code>
+    ///
+    /// [CSharpMarshaler]: `crate::headers::languages::CSharpMarshaler`
+    fn metadata() -> &'static dyn Provider {
+        &None
     }
 }
 
