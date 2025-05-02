@@ -13,8 +13,8 @@ ReprC! {
 impl<T> From<rust::Arc<T>> for Arc_<T> {
     #[inline]
     fn from(arced: rust::Arc<T>) -> Arc_<T> {
-        let raw = rust::Arc::into_raw(arced);
-        Self(ptr::NonNull::from(unsafe { &*raw }).into())
+        let raw = rust::Arc::into_raw(arced) as *mut T;
+        Self(unsafe { ptr::NonNull::new_unchecked(raw) }.into())
     }
 }
 
