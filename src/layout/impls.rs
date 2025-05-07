@@ -967,6 +967,7 @@ unsafe impl<T> CType for OpaqueLayout<T> {
                         ::core::any::type_name::<T>(),
                     ),
                 ],
+                None,
                 &PhantomData::<Self>,
             )
         }

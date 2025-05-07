@@ -588,6 +588,8 @@ fn __define_fn__(
     definer: &'_ mut dyn Definer,
     lang: Language,
     docs: &'_ [&'_ str],
+    // an Option<&str> passed as an empty or exactly-one-element slice... is there a better way?
+    deprecated: &'_ [&'static str],
     fname: &'_ str,
     args: &'_ [FunctionArg<'_>],
     ret_ty: &'_ dyn PhantomCType,
@@ -599,7 +601,14 @@ fn __define_fn__(
         #[cfg(feature = "python-headers")]
         | Language::Python => &languages::Python,
     };
-    dyn_lang.emit_function(definer, docs, fname, args, ret_ty)
+    dyn_lang.emit_function(
+        definer,
+        docs,
+        deprecated.first().copied(),
+        fname,
+        args,
+        ret_ty,
+    )
 }
 
 hidden_export! {

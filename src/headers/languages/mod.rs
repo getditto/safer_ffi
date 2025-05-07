@@ -60,6 +60,8 @@ impl ::core::fmt::Display for Indentation {
 
 type Docs<'lt> = &'lt [&'lt str];
 
+type Deprecated = Option<&'static str>;
+
 pub trait HeaderLanguage: UpcastAny {
     fn language_name(self: &'_ Self) -> &'static str {
         ::core::any::type_name::<Self>()
@@ -75,6 +77,7 @@ pub trait HeaderLanguage: UpcastAny {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
+        deprecated: Deprecated,
         self_ty: &'_ dyn PhantomCType,
         backing_integer: Option<&'_ dyn PhantomCType>,
         variants: &'_ [EnumVariant<'_>],
@@ -84,6 +87,7 @@ pub trait HeaderLanguage: UpcastAny {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
+        deprecated: Deprecated,
         self_ty: &'_ dyn PhantomCType,
         fields: &'_ [StructField<'_>],
     ) -> io::Result<()>;
@@ -92,6 +96,7 @@ pub trait HeaderLanguage: UpcastAny {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
+        deprecated: Deprecated,
         self_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>;
 
@@ -99,6 +104,7 @@ pub trait HeaderLanguage: UpcastAny {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
+        deprecated: Deprecated,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
@@ -108,6 +114,7 @@ pub trait HeaderLanguage: UpcastAny {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
+        deprecated: Deprecated,
         name: &'_ str,
         ty: &'_ dyn PhantomCType,
         skip_type: bool,
@@ -118,6 +125,7 @@ pub trait HeaderLanguage: UpcastAny {
         self: &'_ Self,
         _ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
+        _deprecated: Deprecated,
         _indentation: &'_ Indentation,
     ) -> io::Result<()> {
         // This function is just offered as a convenience helper;
@@ -131,6 +139,7 @@ pub trait HeaderLanguageSupportingTypeAliases: HeaderLanguage {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
+        deprecated: Deprecated,
         self_ty: &'_ dyn PhantomCType,
         inner_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>;

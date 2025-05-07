@@ -10,6 +10,7 @@ impl HeaderLanguage for Python {
         self: &'_ Self,
         _ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
+        _deprecated: Deprecated,
         _indent: &'_ Indentation,
     ) -> io::Result<()>
     {
@@ -21,6 +22,7 @@ impl HeaderLanguage for Python {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
+        deprecated: Deprecated,
         self_ty: &'_ dyn PhantomCType,
         _backing_integer: Option<&dyn PhantomCType>,
         variants: &'_ [EnumVariant<'_>],
@@ -36,7 +38,7 @@ impl HeaderLanguage for Python {
 
         if let _ = indent.scope() {
             for v in variants {
-                self.emit_docs(ctx, v.docs, indent)?;
+                self.emit_docs(ctx, v.docs, deprecated, indent)?;
                 let variant_name = crate::utils::screaming_case(short_name, v.name) /* ctx.adjust_variant_name(
                     Language::C,
                     enum_name,
@@ -55,6 +57,7 @@ impl HeaderLanguage for Python {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
+        deprecated: Deprecated,
         self_ty: &'_ dyn PhantomCType,
         fields: &'_ [StructField<'_>]
     ) -> io::Result<()>
@@ -83,7 +86,7 @@ impl HeaderLanguage for Python {
                 if mem::take(first).not() {
                     out!("\n");
                 }
-                self.emit_docs(ctx, docs, indent)?;
+                self.emit_docs(ctx, docs, deprecated, indent)?;
                 out!(
                     ("{};"),
                     ty.name_wrapping_var(self, name)
@@ -100,6 +103,7 @@ impl HeaderLanguage for Python {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
+        _deprecated: Deprecated,
         self_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>
     {
@@ -115,6 +119,7 @@ impl HeaderLanguage for Python {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
+        _deprecated: Deprecated,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
@@ -156,6 +161,7 @@ impl HeaderLanguage for Python {
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
+        _deprecated: Deprecated,
         name: &'_ str,
         _ty: &'_ dyn PhantomCType,
         _skip_type: bool,

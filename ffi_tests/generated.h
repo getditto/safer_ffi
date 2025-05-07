@@ -257,6 +257,21 @@ concat (
     char const * snd);
 
 /** \brief
+ *  Deprecated functions.
+ *  \deprecated
+ *  <No deprecation message available>
+ */
+void
+deprecated_function_1 (void) __attribute__((__deprecated__("<No deprecation message available>")));
+
+/** \brief
+ *  \deprecated
+ *  test deprecation message
+ */
+void
+deprecated_function_2 (void) __attribute__((__deprecated__("test deprecation message")));
+
+/** \brief
  *  Frees a string created by `concat`.
  */
 void

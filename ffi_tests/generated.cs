@@ -267,6 +267,19 @@ public unsafe partial class Ffi {
 
 public unsafe partial class Ffi {
     /// <summary>
+    /// Deprecated functions.
+    /// </summary>
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    void deprecated_function_1 ();
+}
+
+public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    void deprecated_function_2 ();
+}
+
+public unsafe partial class Ffi {
+    /// <summary>
     /// Frees a string created by <c>concat</c>.
     /// </summary>
     [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern

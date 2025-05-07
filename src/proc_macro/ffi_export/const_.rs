@@ -97,6 +97,7 @@ pub(super) fn handle(
                         }).emit_constant(
                             definer,
                             &[ #(#each_doc),* ],
+                            None,
                             #VAR_str,
                             &#ඞ::PhantomData::<
                                 #ඞ::CLayoutOf< #Ty >,

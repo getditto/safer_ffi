@@ -160,6 +160,7 @@ pub(crate) fn derive(
                 language.emit_simple_enum(
                     definer,
                     &[#(#each_doc),*],
+                    None,
                     &#ඞ::marker::PhantomData::<Self>,
                     #mb_phantom_int,
                     &[#(#each_enum_variant),*],
