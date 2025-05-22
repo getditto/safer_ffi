@@ -91,6 +91,8 @@ trait CType
         {
             None
         }
+
+        fn metadata_type_usage () -> String;
     }
 }
 
@@ -127,6 +129,9 @@ impl<T : LegacyCType> CType for T {
                 | _case if language.is::<CSharp>() => {
                     <Self as LegacyCType>::csharp_define_self(definer)
                 },
+                | _case if language.is::<Metadata>() => {
+                    <Self as LegacyCType>::metadata_define_self(definer)
+                },
                 #[cfg(feature = "python-headers")]
                 | _case if language.is::<Python>() => {
                     <Self as LegacyCType>::c_define_self(definer)
@@ -157,12 +162,19 @@ impl<T : LegacyCType> CType for T {
                     let sep = if var_name.is_empty() { "" } else { " " };
                     format!("{}{sep}{var_name}", Self::csharp_ty())
                 },
+                | _case if language.is::<Metadata>() => {
+                    <Self as LegacyCType>::c_var(var_name).to_string()
+                },
                 #[cfg(feature = "python-headers")]
                 | _case if language.is::<Python>() => {
                     <Self as LegacyCType>::c_var(var_name).to_string()
                 },
                 | _ => unimplemented!(),
             }
+        }
+
+        fn metadata_type_usage() -> String {
+            <T as LegacyCType>::metadata_type_usage()
         }
 
         #[inline]
@@ -529,6 +541,10 @@ unsafe trait LegacyCType
                 _phantom: Default::default(),
             }
         }
+
+        fn metadata_define_self (definer: &'_ mut dyn Definer) -> io::Result<()>;
+
+        fn metadata_type_usage () -> String;
 
         __cfg_csharp__! {
             /// Extra typedef code (_e.g._ `[LayoutKind.Sequential] struct ...`)

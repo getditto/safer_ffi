@@ -497,6 +497,10 @@ mod __ {
         },
     };
 
+
+    #[cfg(feature =  "stabby")]
+    pub use ::stabby;
+
     #[cfg(feature = "headers")]
     pub use {
         crate::{

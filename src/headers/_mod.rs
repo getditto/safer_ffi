@@ -343,9 +343,19 @@ impl Builder<'_, WhereTo> {
         Ok(())
     }
 
+    fn get_unwrapped_language(&'_ self) -> Language {
+        self.language.unwrap_or(Language::C)
+    }
+
     fn write_banner (&'_ self, definer: &'_ mut dyn Definer)
       -> io::Result<()>
     {
+        let lang = self.get_unwrapped_language();
+
+        if lang == Language::Metadata {
+            return Ok(());
+        }
+
         let banner: &'_ str = self.banner.unwrap_or(concat!(
             "/*! \\file */\n",
             "/*******************************************\n",
@@ -362,7 +372,7 @@ impl Builder<'_, WhereTo> {
     fn write_prelude (&'_ self, definer: &'_ mut dyn Definer)
       -> io::Result<()>
     {
-        let lang = self.language.unwrap_or(Language::C);
+        let lang = self.get_unwrapped_language();
 
         let guard = self.guard();
         let text_after_guard = self.text_after_guard();
@@ -380,6 +390,11 @@ impl Builder<'_, WhereTo> {
                 RustLib = Self::lib_name(),
             ),
 
+            | Language::Metadata => write!(
+                definer.out(),
+                include_str!("templates/metadata/_prelude.txt"),
+            ),
+
             #[cfg(feature = "python-headers")]
             // CHECKME
             | Language::Python => Ok(()),
@@ -391,7 +406,7 @@ impl Builder<'_, WhereTo> {
       -> io::Result<()>
     {
         let stable_header = self.stable_header.unwrap_or(true);
-        let lang = self.language.unwrap_or(Language::C);
+        let lang = self.get_unwrapped_language();
         let _naming_convention =
             self.naming_convention
                 .as_ref()
@@ -425,7 +440,7 @@ impl Builder<'_, WhereTo> {
     fn write_epilogue (&'_ self, definer: &'_ mut dyn Definer)
       -> io::Result<()>
     {
-        let lang = self.language.unwrap_or(Language::C);
+        let lang = self.get_unwrapped_language();
         match lang {
             | Language::C => write!(definer.out(),
                 include_str!("templates/c/epilogue.h"),
@@ -439,6 +454,9 @@ impl Builder<'_, WhereTo> {
                 PkgName = pkg_name,
             )
             },
+
+            | Language::Metadata => writeln!(definer.out(), "]"),
+
             #[cfg(feature = "python-headers")]
             // CHECKME
             | Language::Python => Ok(()),
@@ -516,6 +534,9 @@ enum Language {
 
     /// C#
     CSharp,
+
+    Metadata,
+
     /// Python (experimental).
     #[cfg(feature = "python-headers")]
     Python,
@@ -544,6 +565,9 @@ hidden_export! {
             | Language::CSharp => {
                 <T::CLayout as CType>::define_self(&crate::headers::languages::CSharp, definer)
             },
+            | Language::Metadata => {
+                <T::CLayout as CType>::define_self(&crate::headers::languages::Metadata, definer)
+            },
             #[cfg(feature = "python-headers")]
             | Language::Python => {
                 <T::CLayout as CType>::define_self(&crate::headers::languages::Python, definer)
@@ -571,6 +595,7 @@ fn __define_fn__ (
     let dyn_lang: &dyn HeaderLanguage = match lang {
         | Language::C => &languages::C,
         | Language::CSharp => &languages::CSharp,
+        | Language::Metadata => &languages::Metadata,
         #[cfg(feature = "python-headers")]
         | Language::Python => &languages::Python,
     };
@@ -607,6 +632,9 @@ hidden_export! {
                 | Language::CSharp => write!(out,
                     "{} (", f_name.trim(),
                 ),
+
+                | Language::Metadata => write!(out, ""),
+
                 #[cfg(feature = "python-headers")]
                 | Language::Python => write!(out,
                     "{} (", f_name.trim(),
@@ -641,6 +669,9 @@ hidden_export! {
                             .unwrap_or("")
                     ,
                 ),
+
+                | Language::Metadata => write!(out, ""),
+
                 #[cfg(feature = "python-headers")]
                 | Language::Python => write!(out,
                     "\n    {}",
@@ -687,6 +718,9 @@ hidden_export! {
                         ,
                     )
                 },
+
+                | Language::Metadata => write!(out, ""),
+
                 #[cfg(feature = "python-headers")]
                 | Language::Python => {
                     if fname_and_args.ends_with("(") {

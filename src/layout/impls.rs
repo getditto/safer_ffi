@@ -149,6 +149,23 @@ const _: () = { macro_rules! impl_CTypes {
                 )
             }
 
+            fn metadata_define_self (
+                _: &'_ mut dyn crate::headers::Definer,
+            ) -> io::Result<()> {
+                Ok(())
+            }
+
+            fn metadata_type_usage() -> String {
+                let nested_type = metadata_nested_type_usage::<Item>();
+
+                format!("\"kind\": \"{}\",\n\"backingTypeName\": \"{}\",\n\"size\": {},\n\"type\": {{\n{}\n}}",
+                    "StaticArray",
+                    Self::c_var("").to_string(),
+                    $N,
+                    nested_type,
+                )
+            }
+
             __cfg_csharp__! {
                 fn csharp_define_self (definer: &'_ mut dyn Definer)
                   -> io::Result<()>
@@ -309,6 +326,43 @@ const _: () = { macro_rules! impl_CTypes {
                     fmt.write_str("void")?;
                 }
                 fmt.write_str(")")
+            }
+
+            fn metadata_define_self (
+                definer: &'_ mut dyn crate::headers::Definer,
+            ) -> io::Result<()> {
+                Ret::define_self(&crate::headers::languages::Metadata, definer)?; $(
+                $An::define_self(&crate::headers::languages::Metadata, definer)?; $(
+                $Ai::define_self(&crate::headers::languages::Metadata, definer)?; )*)?
+                Ok(())
+            }
+
+            fn metadata_type_usage() -> String {
+                let return_type = metadata_nested_type_usage::<Ret>();
+
+                #[allow(unused_mut)]
+                let mut value_parameters = String::new();
+
+                $(
+                    let n_type = metadata_n_nested_type_usage::<$An>(2);
+                    value_parameters.push_str("\n    {\n");
+                    value_parameters.push_str(&n_type);
+
+                    $(
+                        let i_type = metadata_n_nested_type_usage::<$Ai>(2);
+                        value_parameters.push_str("\n    },\n    {\n");
+                        value_parameters.push_str(&i_type);
+                    )*
+
+                    value_parameters.push_str("\n    }\n");
+                )?
+
+                format!(
+                    "\"kind\": \"{}\",\n\"valueParameters\": [{}],\n\"returnType\": {{\n{}\n}}",
+                    "Function",
+                    value_parameters,
+                    return_type,
+                )
             }
 
             __cfg_csharp__! {
@@ -513,6 +567,16 @@ const _: () = { macro_rules! impl_CTypes {
                 )
             }
 
+            fn metadata_define_self (
+                _: &'_ mut dyn crate::headers::Definer,
+            ) -> io::Result<()> {
+                Ok(())
+            }
+
+            fn metadata_type_usage() -> String {
+                format!("\"kind\": \"{}\"", stringify!($RustInt))
+            }
+
             __cfg_csharp__! {
                 fn csharp_define_self (
                     _: &'_ mut dyn crate::headers::Definer,
@@ -566,6 +630,16 @@ const _: () = { macro_rules! impl_CTypes {
                 Ok(())
             }
 
+            fn metadata_define_self (
+                _: &'_ mut dyn crate::headers::Definer,
+            ) -> io::Result<()> {
+                Ok(())
+            }
+
+            fn metadata_type_usage() -> String {
+                format!("\"kind\": \"{}\"", stringify!($fN))
+            }
+
             __cfg_csharp__! {
                 fn csharp_define_self (
                     _: &'_ mut dyn crate::headers::Definer,
@@ -613,6 +687,23 @@ const _: () = { macro_rules! impl_CTypes {
                     T::name(&crate::headers::languages::C),
                     var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
+                )
+            }
+
+            fn metadata_define_self (
+                definer: &'_ mut dyn crate::headers::Definer,
+            ) -> io::Result<()> {
+                T::define_self(&crate::headers::languages::Metadata, definer)
+            }
+
+            fn metadata_type_usage() -> String {
+                let nested_type = metadata_nested_type_usage::<T>();
+
+                format!(
+                    "\"kind\": \"{}\",\n\"isMutable\": {},\n\"type\": {{\n{}\n}}",
+                    "Pointer",
+                    "false",
+                    nested_type,
                 )
             }
 
@@ -680,6 +771,23 @@ const _: () = { macro_rules! impl_CTypes {
                     T::name(&crate::headers::languages::C),
                     var_name,
                     sep = if var_name.is_empty() { "" } else { " " },
+                )
+            }
+
+            fn metadata_define_self (
+                definer: &'_ mut dyn crate::headers::Definer,
+            ) -> io::Result<()> {
+                T::define_self(&crate::headers::languages::Metadata, definer)
+            }
+
+            fn metadata_type_usage() -> String {
+                let nested_type = metadata_nested_type_usage::<T>();
+
+                format!(
+                    "\"kind\": \"{}\",\n\"isMutable\": {},\n\"type\": {{\n{}\n}}",
+                    "Pointer",
+                    "true",
+                    nested_type,
                 )
             }
 
@@ -859,6 +967,16 @@ unsafe
                 )
             }
 
+            fn metadata_define_self (
+                _: &'_ mut dyn crate::headers::Definer,
+            ) -> io::Result<()> {
+                Ok(())
+            }
+
+            fn metadata_type_usage() -> String {
+                format!("\"kind\": \"{}\"", "bool")
+            }
+
             __cfg_csharp__! {
                 fn csharp_define_self (
                     _: &'_ mut dyn crate::headers::Definer,
@@ -936,6 +1054,16 @@ unsafe
                 Ok(())
             }
 
+            fn metadata_define_self (
+                _: &'_ mut dyn crate::headers::Definer,
+            ) -> io::Result<()> {
+                Ok(())
+            }
+
+            fn metadata_type_usage() -> String {
+                format!("\"kind\": \"{}\"", "int")
+            }
+
             __cfg_csharp__! {
                 fn csharp_define_self (
                     _: &'_ mut dyn crate::headers::Definer,
@@ -961,6 +1089,76 @@ unsafe
         type OPAQUE_KIND = OpaqueKind::Concrete;
     }
 
+
+#[derive(Debug, Clone, Copy)]
+pub struct NonNullCLayout<T : CType> {
+    wrappedCLayout: T,
+}
+
+unsafe
+impl<T : CType> CType for NonNullCLayout<T> {
+
+    type OPAQUE_KIND = T::OPAQUE_KIND;
+
+    __cfg_headers__! {
+        fn short_name() -> String {
+            T::short_name()
+        }
+
+        fn define_self__impl(language: &'_ dyn HeaderLanguage, definer: &'_ mut dyn Definer) -> io::Result<()> {
+            T::define_self__impl(language, definer)
+        }
+
+        fn define_self(language: &'_ dyn HeaderLanguage, definer: &'_ mut dyn Definer) -> io::Result<()> {
+            T::define_self(language, definer)
+        }
+
+        fn name(_language: &'_ dyn HeaderLanguage) -> String {
+            T::name(_language)
+        }
+
+        fn name_wrapping_var(language: &'_ dyn HeaderLanguage, var_name: &'_ str) -> String {
+            T::name_wrapping_var(language, var_name)
+        }
+
+        fn csharp_marshaler() -> Option<String> {
+            T::csharp_marshaler()
+        }
+
+        fn metadata_type_usage() -> String {
+            let nested_type = metadata_nested_type_usage::<T>();
+
+            format!("\"kind\": \"{}\",\n\"type\": {{\n{}\n}}", "NonNull", nested_type)
+        }
+    }
+}
+
+unsafe
+impl<T : ReprC + CType> ReprC for NonNullCLayout<T> {
+
+    type CLayout = T::CLayout;
+
+    fn is_valid(it: &'_ Self::CLayout) -> bool {
+        T::is_valid(it)
+    }
+}
+
+impl<T : CType> NonNullCLayout<*mut T> {
+
+    #[inline]
+    pub fn is_null(self) -> bool {
+        self.wrappedCLayout.is_null()
+    }
+}
+
+impl<T : CType> NonNullCLayout<*const T> {
+
+    #[inline]
+    pub fn is_null(self) -> bool {
+        self.wrappedCLayout.is_null()
+    }
+}
+
 impl_ReprC_for! { unsafe {
     bool
         => |ref byte: Bool| (byte.0 & !0b1) == 0
@@ -968,44 +1166,44 @@ impl_ReprC_for! { unsafe {
 
     @for[T : ReprC]
     ptr::NonNull<T>
-        => |ref it: *mut T::CLayout| {
+        => |ref it: NonNullCLayout<*mut T::CLayout>| {
             it.is_null().not() &&
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
+            (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
         }
     ,
     @for[T : ReprC]
     ptr::NonNullRef<T>
-        => |ref it: *const T::CLayout| {
+        => |ref it: NonNullCLayout<*const T::CLayout>| {
             it.is_null().not() &&
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
+            (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
         }
     ,
     @for[T : ReprC]
     ptr::NonNullMut<T>
-        => |ref it: *mut T::CLayout| {
+        => |ref it: NonNullCLayout<*mut T::CLayout>| {
             it.is_null().not() &&
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
+            (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
         }
     ,
     @for[T : ReprC]
     ptr::NonNullOwned<T>
-        => |ref it: *mut T::CLayout| {
+        => |ref it: NonNullCLayout<*mut T::CLayout>| {
             it.is_null().not() &&
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
+            (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
         }
     ,
     @for['a, T : 'a + ReprC]
     &'a T
-        => |ref it: *const T::CLayout| {
+        => |ref it: NonNullCLayout<*const T::CLayout>| {
             it.is_null().not() &&
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
+            (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
         }
     ,
     @for['a, T : 'a + ReprC]
     &'a mut T
-        => |ref it: *mut T::CLayout| {
+        => |ref it: NonNullCLayout<*mut T::CLayout>| {
             it.is_null().not() &&
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
+            (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
         }
     ,
 }}
@@ -1015,8 +1213,8 @@ impl_ReprC_for! { unsafe {
 impl_ReprC_for! { unsafe {
     @for['out, T : 'out + Sized + ReprC]
     Out<'out, T>
-        => |ref it: *mut T::CLayout| {
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
+        => |ref it: NonNullCLayout<*mut T::CLayout>| {
+            (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
         },
 }}
 
@@ -1060,6 +1258,10 @@ impl<T> CType for OpaqueLayout<T> {
                 ],
                 &PhantomData::<Self>,
             )
+        }
+
+        fn metadata_type_usage() -> String {
+            format!("\"kind\": \"{}\",\n\"name\": \"{}\"", "Opaque", Self::short_name())
         }
     }
 }
@@ -1196,3 +1398,22 @@ macro_rules! opaque_impls {(
         }
     )*
 )} use opaque_impls;
+
+__cfg_headers__! {
+
+    pub(super)
+    fn metadata_nested_type_usage<Type: CType>() -> String {
+        metadata_n_nested_type_usage::<Type>(1)
+    }
+
+    pub(super)
+    fn metadata_n_nested_type_usage<Type: CType>(nesting: usize) -> String {
+        let nested_type = Type::metadata_type_usage();
+
+        nested_type
+            .lines()
+            .map(|line| format!("{}{}", "    ".repeat(nesting), line))
+            .collect::<Vec<String>>()
+            .join("\n")
+    }
+}

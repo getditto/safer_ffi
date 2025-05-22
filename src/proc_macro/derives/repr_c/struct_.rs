@@ -96,6 +96,12 @@ fn derive (
                             #[repr(C)]
                         ),
                     ])
+                    .chain(
+                        attrs
+                            .iter()
+                            .filter(|a| a.path.is_ident("ffi_metadata"))
+                            .cloned()
+                    )
                     .collect()
             ,
             vis: {
@@ -508,6 +514,10 @@ fn derive_opaque (
                         &[#(#docs),*],
                         &#ඞ::PhantomData::<Self>,
                     )
+                }
+
+                fn metadata_type_usage() -> String {
+                    format!("\"kind\": \"{}\",\n\"name\": \"{}\"", "Opaque", Self::short_name())
                 }
             )
         };

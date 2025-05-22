@@ -232,7 +232,7 @@ fn generate_headers ()
   -> ::std::io::Result<()>
 {
     use ::safer_ffi::headers::Language::*;
-    for &(language, ext) in &[(C, "h"), (CSharp, "cs"), (Python, "cffi")] {
+    for &(language, ext) in &[(C, "h"), (CSharp, "cs"), (Metadata, "metadata.json"), (Python, "cffi")] {
         let builder =
             ::safer_ffi::headers::builder()
                 .with_language(language)

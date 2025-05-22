@@ -46,6 +46,16 @@ impl LegacyCType
         Ok(())
     }
 
+    fn metadata_define_self (
+        _: &'_ mut dyn crate::headers::Definer,
+    ) -> io::Result<()> {
+        Ok(())
+    }
+
+    fn metadata_type_usage() -> String {
+        format!("\"kind\": \"{}\"", "void")
+    }
+
     __cfg_csharp__! {
         fn csharp_define_self (
             _: &'_ mut dyn crate::headers::Definer,

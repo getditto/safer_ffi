@@ -9,6 +9,7 @@ trait CollectVec : Sized + IntoIterator {
     fn vec (self: Self)
       -> Vec<Self::Item>
     {
+        #[expect(non_local_definitions)]
         impl<I : IntoIterator> CollectVec for I {}
         self.into_iter().collect()
     }
@@ -48,6 +49,7 @@ trait Extend_ {
         Self : Extend<A>,
         I : IntoIterator<Item = A>,
     {
+        #[expect(non_local_definitions)]
         impl<T> Extend_ for T {}
         self.extend(iterable)
     }
@@ -68,6 +70,7 @@ trait Also : Sized {
     fn also (mut self, tweak: impl FnOnce(&mut Self))
       -> Self
     {
+        #[expect(non_local_definitions)]
         impl<T> Also for T {}
         tweak(&mut self);
         self

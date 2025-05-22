@@ -180,6 +180,10 @@ fn derive (
                     &[#(#each_enum_variant),*],
                 )
             }
+
+            fn metadata_type_usage() -> String {
+                format!("\"kind\": \"{}\",\n\"name\": \"{}\"", "Enum", Self::short_name())
+            }
         ));
     }
 
