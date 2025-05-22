@@ -551,10 +551,14 @@ pub enum Language {
     /// C#
     CSharp,
 
+<<<<<<< HEAD
     /// Lua
     Lua,
 
     // A JSON file containing detailed information about the FFI declarations.
+=======
+    /// JSON Metadata
+>>>>>>> 7a939bd46 (docs: document metadata language)
     Metadata,
 
     /// Python (experimental).
