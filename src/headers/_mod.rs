@@ -535,6 +535,7 @@ enum Language {
     /// C#
     CSharp,
 
+    /// JSON Metadata
     Metadata,
 
     /// Python (experimental).
