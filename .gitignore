@@ -9,3 +9,4 @@ generated.cffi
 generated.cs
 generated.h
 generated.lua
+generated.metadata.json
