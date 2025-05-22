@@ -259,7 +259,6 @@ impl JsString {
     fn into_utf8 (self: Self)
       -> Result<Utf8String>
     {
-        #[allow(non_local_definitions)]
         impl Utf8String {
             pub
             fn as_str (self: &'_ Self)
