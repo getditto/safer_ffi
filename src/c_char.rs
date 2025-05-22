@@ -45,6 +45,10 @@ unsafe impl CType for c_char {
             Ok(())
         }
 
+        fn metadata_type_usage() -> String {
+            format!("\"kind\": \"{}\"", "char")
+        }
+
         fn render(
             out: &mut dyn io::Write,
             language: &dyn HeaderLanguage,

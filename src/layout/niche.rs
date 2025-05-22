@@ -1,5 +1,11 @@
 use_prelude!();
+
 use crate::prelude::c_slice;
+
+__cfg_headers__! {
+    use crate::__::{Definer, HeaderLanguage};
+    use crate::layout::impls::metadata_nested_type_usage;
+}
 
 pub unsafe trait HasNiche: ReprC {
     fn is_niche(it: &'_ <Self as ReprC>::CLayout) -> bool {
@@ -17,6 +23,71 @@ unsafe impl<T: ReprC + HasNiche> ReprC for Option<T> {
         T::is_niche(it) || <T as ReprC>::is_valid(it)
     }
 }
+
+// unsafe
+// impl<T : ReprC + HasNiche> ReprC
+// for Option<T>
+// {
+//     type CLayout = OptionCLayout<T::CLayout>;
+//
+//     #[inline]
+//     fn is_valid (it: &'_ Self::CLayout) -> bool {
+//         T::is_niche(&it.wrappedCLayout) || <T as ReprC>::is_valid(&it.wrappedCLayout)
+//     }
+// }
+//
+// #[derive(Debug, Clone, Copy)]
+// pub struct OptionCLayout<T : CType> {
+//     wrappedCLayout: T,
+// }
+//
+// unsafe
+// impl<T : CType> CType for OptionCLayout<T> {
+//
+//     type OPAQUE_KIND = T::OPAQUE_KIND;
+//
+//     __cfg_headers__! {
+//         fn short_name() -> String {
+//             T::short_name()
+//         }
+//
+//         fn define_self__impl(language: &'_ dyn HeaderLanguage, definer: &'_ mut dyn Definer) -> io::Result<()> {
+//             T::define_self__impl(language, definer)
+//         }
+//
+//         fn define_self(language: &'_ dyn HeaderLanguage, definer: &'_ mut dyn Definer) -> io::Result<()> {
+//             T::define_self(language, definer)
+//         }
+//
+//         fn name(_language: &'_ dyn HeaderLanguage) -> String {
+//             T::name(_language)
+//         }
+//
+//         fn name_wrapping_var(language: &'_ dyn HeaderLanguage, var_name: &'_ str) -> String {
+//             T::name_wrapping_var(language, var_name)
+//         }
+//
+//         fn csharp_marshaler() -> Option<String> {
+//             T::csharp_marshaler()
+//         }
+//
+//         fn metadata_type_usage() -> String {
+//             let nested_type = metadata_nested_type_usage::<T>();
+//
+//             format!("\"kind\": \"{}\",\n\"type\": {{\n{}\n}}", "Optional", nested_type)
+//         }
+//     }
+// }
+//
+// unsafe
+// impl<T : ReprC + CType> ReprC for OptionCLayout<T> {
+//
+//     type CLayout = T::CLayout;
+//
+//     fn is_valid(it: &'_ Self::CLayout) -> bool {
+//         T::is_valid(it)
+//     }
+// }
 
 #[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! unsafe_impls {(

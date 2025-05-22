@@ -348,11 +348,15 @@ impl Builder<'_, WhereTo> {
         Ok(())
     }
 
+    fn get_unwrapped_language(&'_ self) -> Language {
+        self.language.unwrap_or(Language::C)
+    }
+
     fn write_banner(
         &'_ self,
         definer: &'_ mut dyn Definer,
     ) -> io::Result<()> {
-        let lang = self.language.unwrap_or(Language::C);
+        let lang = self.get_unwrapped_language();
 
         let banner: &'_ str = self.banner.unwrap_or(match lang {
             | Language::Lua => concat!(
@@ -360,6 +364,7 @@ impl Builder<'_, WhereTo> {
                 "--\n",
                 "-- Do not manually edit this file.\n",
             ),
+            | Language::Metadata => return Ok(()),
             | _ => concat!(
                 "/*! \\file */\n",
                 "/*******************************************\n",
@@ -379,7 +384,7 @@ impl Builder<'_, WhereTo> {
         &'_ self,
         definer: &'_ mut dyn Definer,
     ) -> io::Result<()> {
-        let lang = self.language.unwrap_or(Language::C);
+        let lang = self.get_unwrapped_language();
 
         let guard = self.guard();
         let text_after_guard = self.text_after_guard();
@@ -399,6 +404,11 @@ impl Builder<'_, WhereTo> {
                 RustLib = Self::lib_name(),
             ),
 
+            | Language::Metadata => write!(
+                definer.out(),
+                include_str!("templates/metadata/_prelude.txt"),
+            ),
+
             | Language::Lua => writeln!(definer.out(), include_str!("templates/lua/_prelude.lua")),
 
             #[cfg(feature = "python-headers")]
@@ -413,7 +423,7 @@ impl Builder<'_, WhereTo> {
         definer: &'_ mut dyn Definer,
     ) -> io::Result<()> {
         let stable_header = self.stable_header.unwrap_or(true);
-        let lang = self.language.unwrap_or(Language::C);
+        let lang = self.get_unwrapped_language();
 
         // skip adding int/bool headers for Lua
         if lang == Language::Lua {
@@ -456,7 +466,7 @@ impl Builder<'_, WhereTo> {
         &'_ self,
         definer: &'_ mut dyn Definer,
     ) -> io::Result<()> {
-        let lang = self.language.unwrap_or(Language::C);
+        let lang = self.get_unwrapped_language();
         match lang {
             | Language::C => write!(
                 definer.out(),
@@ -476,6 +486,8 @@ impl Builder<'_, WhereTo> {
             | Language::Lua => {
                 write!(definer.out(), include_str!("templates/lua/epilogue.lua"))
             },
+
+            | Language::Metadata => writeln!(definer.out(), "]"),
 
             #[cfg(feature = "python-headers")]
             | Language::Python => Ok(()),
@@ -541,6 +553,9 @@ pub enum Language {
 
     /// Lua
     Lua,
+
+    // A JSON file containing detailed information about the FFI declarations.
+    Metadata,
 
     /// Python (experimental).
     #[cfg(feature = "python-headers")]

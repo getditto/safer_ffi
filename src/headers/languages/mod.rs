@@ -26,6 +26,9 @@ mod python;
 pub use lua::Lua;
 mod lua;
 
+pub use metadata::Metadata;
+mod metadata;
+
 pub struct Indentation {
     depth: ::core::cell::Cell<usize>,
     width: usize,
@@ -221,6 +224,10 @@ pub trait HeaderLanguage: UpcastAny {
         // it is not directly called by the framework.
         Ok(())
     }
+
+    fn must_declare_built_in_types(self: &'_ Self) -> bool {
+        true
+    }
 }
 
 pub trait HeaderLanguageSupportingTypeAliases: HeaderLanguage {
@@ -295,6 +302,8 @@ pub trait PhantomCType {
 
     fn metadata(self: &'_ Self) -> &'static dyn Provider;
 
+    fn metadata_type_usage (self: &'_ Self) -> String;
+
     fn size(self: &'_ Self) -> usize;
 
     fn align(self: &'_ Self) -> usize;
@@ -342,6 +351,10 @@ where
 
     fn metadata(self: &'_ Self) -> &'static dyn Provider {
         T::metadata()
+    }
+
+    fn metadata_type_usage (self: &'_ Self) -> String {
+        T::metadata_type_usage()
     }
 
     fn size(self: &'_ Self) -> usize {

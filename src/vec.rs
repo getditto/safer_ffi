@@ -1,10 +1,12 @@
 use_prelude!();
 use ::core::slice;
 
+use safer_ffi_proc_macros::ffi_metadata;
 use crate::slice::*;
 
 ReprC! {
     #[repr(C, js)]
+    #[ffi_metadata(Vector)]
     #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]
     /// Same as [`Vec<T>`][`rust::Vec`], but with guaranteed `#[repr(C)]` layout
     pub

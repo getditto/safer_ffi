@@ -229,6 +229,7 @@ fn generate_headers() -> ::std::io::Result<()> {
         (C, "h"),
         (CSharp, "cs"),
         (Lua, "lua"),
+        (Metadata, "metadata.json"),
         (Python, "cffi"),
     ];
 

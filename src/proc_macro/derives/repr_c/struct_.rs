@@ -82,6 +82,12 @@ pub(crate) fn derive(
                             #[repr(C)]
                         ),
                 ])
+                .chain(
+                    attrs
+                        .iter()
+                        .filter(|a| a.path.is_ident("ffi_metadata"))
+                        .cloned()
+                )
                 .collect(),
             vis: {
                 let pub_ = crate::respan(
@@ -476,6 +482,10 @@ pub(crate) fn derive_opaque(
                         &#ඞ::PhantomData::<Self>,
                     )
                 }
+
+                // fn metadata_type_usage() -> String {
+                //     format!("\"kind\": \"{}\",\n\"name\": \"{}\"", "Opaque", Self::short_name())
+                // }
             )
         };
 
