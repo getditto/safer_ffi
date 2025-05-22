@@ -8,3 +8,4 @@ filename.h
 generated.cffi
 generated.cs
 generated.h
+generated.metadata.json
