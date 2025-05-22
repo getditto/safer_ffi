@@ -29,7 +29,6 @@ impl HeaderLanguage for C {
     fn supports_type_aliases(self: &'_ C) -> Option<&'_ dyn HeaderLanguageSupportingTypeAliases> {
         return Some(self);
         // where
-        #[expect(non_local_definitions)]
         impl HeaderLanguageSupportingTypeAliases for C {
             fn declare_type_alias(
                 self: &'_ Self,

@@ -99,7 +99,6 @@ mod safety_boundary {
                 );
             }
 
-            #[expect(non_local_definitions)]
             impl Drop for ThreadTiedJsFunction {
                 fn drop(self: &'_ mut ThreadTiedJsFunction) {
                     // Note: since Self is `Send`,
