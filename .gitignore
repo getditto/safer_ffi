@@ -1,7 +1,7 @@
 **/*.rs.bk
 *.code-workspace
 .DS_Store
-/target
+.idea/
 examples/point/Cargo.lock
 examples/point/main
 filename.h
@@ -10,3 +10,4 @@ generated.cs
 generated.h
 generated.lua
 generated.metadata.json
+target/
