@@ -2,6 +2,7 @@
 #![allow(irrefutable_let_patterns)]
 
 use_prelude!();
+
 use {
     ::std::io::{
         self,
@@ -14,6 +15,8 @@ use {
 
 pub use c::C;
 mod c;
+pub use metadata::Metadata;
+mod metadata;
 
 __cfg_csharp__! {
     pub use csharp::CSharp;
@@ -133,6 +136,10 @@ trait HeaderLanguage : UpcastAny {
         // it is not directly called by the framework.
         Ok(())
     }
+
+    fn must_declare_built_in_types(self: &'_ Self) -> bool {
+        true
+    }
 }
 
 pub
@@ -217,6 +224,8 @@ trait PhantomCType {
     ) -> Option<String>
     ;
 
+    fn metadata_type_usage (self: &'_ Self) -> String;
+
     fn size (
         self: &'_ Self,
     ) -> usize
@@ -264,6 +273,10 @@ where
     ) -> Option<String>
     {
         T::csharp_marshaler()
+    }
+
+    fn metadata_type_usage (self: &'_ Self) -> String {
+        T::metadata_type_usage()
     }
 
     fn size (

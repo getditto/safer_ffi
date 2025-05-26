@@ -291,6 +291,7 @@ macro_rules! CType {(
 /// Transitioning helper macro: still uses the old `ReprC!` syntax, but just to
 /// forward to the new `#[derive_ReprC2($(js)?)]` one.
 #[macro_export]
+#[cfg(not(feature = "stabby"))]
 macro_rules! ReprC {(
     $(
         @[doc = $doc:expr]
@@ -327,7 +328,64 @@ macro_rules! ReprC {(
     $(
         #[doc = $doc2]
     )*
-    #[cfg_attr(feature = "stabby", stabby::stabby)]
+    #[repr($C_or_transparent)]
+    $(
+        #[$attr]
+    )*
+    $pub
+    struct $StructName $(<$($generics)*>)?
+    $(
+        where $($wc)*
+    )?
+    $({
+        $($body)*
+    })?
+    $((
+        $($body2)*
+    );)?
+)}
+
+/// Transitioning helper macro: still uses the old `ReprC!` syntax, but just to
+/// forward to the new `#[derive_ReprC2($(js)?)]` one.
+#[macro_export]
+#[cfg(feature = "stabby")]
+macro_rules! ReprC {(
+    $(
+        @[doc = $doc:expr]
+    )?
+    $(
+        #[doc = $doc2:expr]
+    )*
+    #[repr(
+        $C_or_transparent:ident $(,
+            $($(@$if_js:tt)?
+        js $(,)?
+            )?
+        )?
+    )]
+    $(
+        #[$attr:meta]
+    )*
+    $pub:vis
+    struct $StructName:ident $([$($generics:tt)*])?
+    $(
+        where { $($wc:tt)* }
+    )?
+    $({
+        $($body:tt)*
+    })?
+    $((
+        $($body2:tt)*
+    );)?
+) => (
+    #[$crate::prelude::derive_ReprC2($($($($if_js)? js)?)?)]
+    $(
+        #[doc = $doc]
+    )?
+    $(
+        #[doc = $doc2]
+    )*
+    #[crate::ඞ::stabby::stabby]
     #[repr($C_or_transparent)]
     $(
         #[$attr]
