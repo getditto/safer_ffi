@@ -113,7 +113,7 @@ paste.version = "1.0.12"
 scopeguard.version = "1.1.0"
 scopeguard.default-features = false
 
-seal-the-deal.version = "0.1.0"
+seal-the-deal.version = "0.1.2"
 
 serde.version = "1.0.171"
 serde.optional = true

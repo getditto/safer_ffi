@@ -358,18 +358,18 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "seal-the-deal"
-version = "0.1.0"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "99a5a756b7f47a1d5b0ae3298a9ee8887a8235c06cdf2bb043847afdf260b3d8"
+checksum = "e82421a007f516184c2c3868eec8ff4ccdb9d45526d6d85349efdbed3bf85e3a"
 dependencies = [
  "seal-the-deal-proc_macros",
 ]
 
 [[package]]
 name = "seal-the-deal-proc_macros"
-version = "0.1.0"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9de4a0d5221ed52002818c0a943f29c0d3b1be6e23209b08d3baa050f76101b8"
+checksum = "8a86068a0f8a289b75e2150a89cff5c663b86fe911375090e23e40f6573372d2"
 dependencies = [
  "proc-macro2",
  "quote",
