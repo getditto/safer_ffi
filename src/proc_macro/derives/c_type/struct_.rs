@@ -274,21 +274,22 @@ pub(crate) fn derive_transparent(
                     language: &'_ dyn #ඞ::HeaderLanguage,
                 ) -> #ඞ::io::Result<()>
                 {
-                    Self::render_wrapping_var(out, language, "")
+                    Self::render_wrapping_var(out, language, #ඞ::None {})
                 }
 
                 fn render_wrapping_var(
                     out: &'_ mut dyn #ඞ::io::Write,
                     language: &'_ dyn #ඞ::HeaderLanguage,
-                    var_name: &#ඞ::str,
+                    var_name: #ඞ::Option<&dyn #ඞ::fmt::Display>,
                 ) -> #ඞ::io::Result<()>
                 {
                     if language.supports_type_aliases().is_some() {
                         #ඞ::write!(
                             out,
                             "{ty}{sep}{var_name}",
-                            ty=Self::name(language),
-                            sep=if var_name.is_empty() { "" } else { " " },
+                            ty = Self::name(language),
+                            sep = if var_name.is_none() { "" } else { " " },
+                            var_name = var_name.unwrap_or(&""),
                         )
                     } else {
                         <#CFieldTy as #ඞ::CType>::render_wrapping_var(out, language, var_name)

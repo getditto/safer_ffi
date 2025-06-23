@@ -170,7 +170,7 @@ pub trait HeaderLanguage: UpcastAny {
         this: &dyn HeaderLanguage,
         out: &mut dyn io::Write,
         newtype_name: &str,
-        name: &'_ str,
+        name: Option<&dyn ::core::fmt::Display>,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>;
@@ -194,7 +194,7 @@ pub trait HeaderLanguage: UpcastAny {
         // subrecursing language
         this: &dyn HeaderLanguage,
         out: &mut dyn io::Write,
-        var_name: &'_ str,
+        var_name: Option<&dyn ::core::fmt::Display>,
         newtype_name: &'_ str,
         elem_ty: &'_ dyn PhantomCType,
         array_len: usize,
@@ -279,13 +279,13 @@ pub trait PhantomCType {
         self: &'_ Self,
         out: &'_ mut dyn io::Write,
         language: &'_ dyn HeaderLanguage,
-        var_name: &'_ str,
+        var_name: Option<&dyn ::core::fmt::Display>,
     ) -> io::Result<()>;
 
     fn name_wrapping_var(
         self: &'_ Self,
         language: &'_ dyn HeaderLanguage,
-        var_name: &'_ str,
+        var_name: Option<&dyn ::core::fmt::Display>,
     ) -> String;
 
     fn name(
@@ -320,7 +320,7 @@ where
         self: &'_ Self,
         out: &'_ mut dyn io::Write,
         language: &'_ dyn HeaderLanguage,
-        var_name: &'_ str,
+        var_name: Option<&dyn ::core::fmt::Display>,
     ) -> io::Result<()> {
         T::render_wrapping_var(out, language, var_name)
     }
@@ -328,7 +328,7 @@ where
     fn name_wrapping_var(
         self: &'_ Self,
         language: &'_ dyn HeaderLanguage,
-        var_name: &'_ str,
+        var_name: Option<&dyn ::core::fmt::Display>,
     ) -> String {
         T::name_wrapping_var(language, var_name)
     }

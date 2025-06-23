@@ -148,7 +148,7 @@ impl HeaderLanguage for Lua {
         this: &dyn HeaderLanguage,
         out: &mut dyn io::Write,
         newtype_name: &'_ str,
-        name: &'_ str,
+        name: Option<&dyn ::core::fmt::Display>,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()> {
@@ -177,16 +177,35 @@ impl HeaderLanguage for Lua {
         self: &'_ Self,
         this: &dyn HeaderLanguage,
         out: &mut dyn io::Write,
-        var_name: &'_ str,
+        var_name: Option<&dyn ::core::fmt::Display>,
         _newtype_name: &'_ str,
         elem_ty: &'_ dyn PhantomCType,
         array_len: usize,
     ) -> io::Result<()> {
-        let elem_name = &elem_ty.name(this);
-        let sep = var_name.sep();
-        let (base_type, dimensions) =
-            elem_name.split_at(elem_name.find('[').unwrap_or(elem_name.len()));
-        write!(out, "{base_type}{sep}{var_name}[{array_len}]{dimensions}")?;
+        // In these instances, it is important to be mindful of ordering.
+        // The ordering for arrays (or other such nested types) in C-like header languages goes from
+        // outer to inner, since this is how the "unwrapping" operations would be written on a
+        // variable of that type.
+        //
+        // To illustrate, given a `arr: [[c_int; 3]; 4]`, you'd have to index `..4` first, and then
+        // to `..3`. Papering over off-by-one errors, this would be:
+        // ```C
+        // arr[4][3] // of type int.
+        // ```
+        //
+        // Thus, the type definition is to become `int {var_name}[4][3]`.
+        //
+        // If we did `"{}[array_len]", elem_ty.name_wrapping_var(this)` in this instance, where
+        // `elem_ty` refers to `[c_int; 3]`, and `array_len`, to `4`, we'd incorrectly end up with
+        // `"{}[array_len]", "int {var_name}[3]"`, i.e., `int {var_name}[3][4]`!
+        //
+        // Hence the handling *first* this current outermost layer, and only then calling into
+        // `elem_ty.…_wrapping_var()` logic on this transformated output.
+        elem_ty.render_wrapping_var(
+            out,
+            this,
+            Some(&format_args!("{var_name}[{array_len}]", var_name = var_name.or_empty())),
+        )?;
         Ok(())
     }
 

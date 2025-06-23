@@ -188,13 +188,13 @@ const _: () = {
                     language: &dyn HeaderLanguage,
                 ) -> io::Result<()>
                 {
-                    Self::render_wrapping_var(out, language, "")
+                    Self::render_wrapping_var(out, language, None)
                 }
 
                 fn render_wrapping_var(
                     out: &'_ mut dyn io::Write,
                     language: &'_ dyn HeaderLanguage,
-                    var_name: &str,
+                    var_name: Option<&dyn ::core::fmt::Display>,
                 ) -> io::Result<()>
                 {
                     language.emit_function_ptr_ty(
@@ -1005,13 +1005,13 @@ unsafe impl<Item: CType, const N: usize> CType for [Item; N] {
             language: &dyn HeaderLanguage,
         ) -> io::Result<()>
         {
-            Self::render_wrapping_var(out, language, "")
+            Self::render_wrapping_var(out, language, None)
         }
 
         fn render_wrapping_var(
             out: &'_ mut dyn io::Write,
             language: &'_ dyn HeaderLanguage,
-            var_name: &str,
+            var_name: Option<&dyn ::core::fmt::Display>,
         ) -> io::Result<()>
         {
             language.emit_array_ty(

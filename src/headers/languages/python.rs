@@ -141,7 +141,7 @@ impl HeaderLanguage for Python {
         this: &dyn HeaderLanguage,
         out: &mut dyn io::Write,
         newtype_name: &'_ str,
-        name: &'_ str,
+        name: Option<&dyn ::core::fmt::Display>,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()> {
@@ -163,7 +163,7 @@ impl HeaderLanguage for Python {
         self: &'_ Self,
         this: &dyn HeaderLanguage,
         out: &mut dyn io::Write,
-        var_name: &'_ str,
+        var_name: Option<&dyn ::core::fmt::Display>,
         newtype_name: &'_ str,
         elem_ty: &'_ dyn PhantomCType,
         array_len: usize,

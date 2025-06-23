@@ -269,13 +269,15 @@ pub unsafe trait CType: Sized + Copy {
     fn render_wrapping_var(
         out: &'_ mut dyn io::Write,
         language: &'_ dyn HeaderLanguage,
-        var_name: &str,
+        // Either a `&&str`, or a `&fmt::Arguments<'_>`, for instance.
+        var_name: Option<&dyn ::core::fmt::Display>,
     ) -> io::Result<()> {
         write!(
             out,
             "{}{sep}{var_name}",
             F(|out| Self::render(out, language)),
             sep = var_name.sep(),
+            var_name = var_name.or_empty(),
         )?;
         Ok(())
     }
@@ -312,7 +314,7 @@ pub unsafe trait CType: Sized + Copy {
     ///     #[::safer_ffi::cfg_headers]
     ///     fn name_wrapping_var (
     ///         header_language: &dyn HeaderLanguage,
-    ///         var_name: &str,
+    ///         var_name: Option<&dyn ::core::fmt::Display>,
     ///     ) -> String
     ///     {
     ///         // Usually this kind of logic for primitive types is
@@ -328,7 +330,7 @@ pub unsafe trait CType: Sized + Copy {
     /// ```
     fn name_wrapping_var(
         language: &'_ dyn HeaderLanguage,
-        var_name: &'_ str,
+        var_name: Option<&dyn ::core::fmt::Display>,
     ) -> String {
         F(|out| Self::render_wrapping_var(out, language, var_name)).to_string()
     }

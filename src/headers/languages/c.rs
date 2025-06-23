@@ -155,7 +155,7 @@ impl HeaderLanguage for C {
                 this.emit_docs(ctx, docs, indent)?;
                 out!(
                     ("{};"),
-                    ty.name_wrapping_var(self, name)
+                    ty.name_wrapping_var(this, Some(&name))
                 );
             }
         }
@@ -215,7 +215,7 @@ impl HeaderLanguage for C {
                     if mem::take(&mut first).not() {
                         out!(",");
                     }
-                    out!("\n{indent}{}", arg.ty.name_wrapping_var(this, arg.name))
+                    out!("\n{indent}{}", arg.ty.name_wrapping_var(this, Some(&arg.name)))
                 }
                 if first {
                     out!("void");
@@ -227,7 +227,7 @@ impl HeaderLanguage for C {
 
         mk_out!(indent, ctx.out());
         out!(
-            ("{};"), ret_ty.name_wrapping_var(this, fn_sig_but_for_ret_type)
+            ("{};"), ret_ty.name_wrapping_var(this, Some(&fn_sig_but_for_ret_type))
         );
 
         out!("\n");
@@ -268,7 +268,7 @@ impl HeaderLanguage for C {
         this: &dyn HeaderLanguage,
         out: &'_ mut dyn io::Write,
         _newtype_name: &'_ str,
-        name: &'_ str,
+        name: Option<&dyn ::core::fmt::Display>,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()> {
@@ -289,6 +289,7 @@ impl HeaderLanguage for C {
                 }
                 Ok(())
             }),
+            name = name.or_empty(),
         )
     }
 
@@ -359,12 +360,15 @@ impl HeaderLanguage for C {
                 "}} {me};\n",
                 "\n",
             ),
-            inline_array =
-                F(
-                    |out| {
-                        elem_ty.render_wrapping_var(out, this, &format!("idx[{}]", array_len))
-                    }
-                ),
+            inline_array = F(
+                |out| {
+                    elem_ty.render_wrapping_var(
+                        out,
+                        this,
+                        Some(&format_args!("idx[{}]", array_len)),
+                    )
+                }
+            ),
             me = me,
         )?;
         Ok(())
@@ -374,13 +378,12 @@ impl HeaderLanguage for C {
         self: &'_ Self,
         _this: &dyn HeaderLanguage,
         out: &mut dyn io::Write,
-        var_name: &'_ str,
+        var_name: Option<&dyn ::core::fmt::Display>,
         newtype_name: &'_ str,
         _elem_ty: &'_ dyn PhantomCType,
         _array_len: usize,
     ) -> io::Result<()> {
-        let sep = var_name.sep();
-        write!(out, "{newtype_name}{sep}{var_name}")
+        write!(out, "{newtype_name}{sep}{var_name}", sep = var_name.sep(), var_name = var_name.or_empty())
     }
 
     fn define_primitive_ty(

@@ -223,7 +223,7 @@ impl HeaderLanguage for CSharp {
                 }
                 out!(
                     ("public {};"),
-                    F(|out| field_ty.render_wrapping_var(out, this, name)),
+                    F(|out| field_ty.render_wrapping_var(out, this, Some(&name))),
                 );
             }
         }
@@ -412,7 +412,9 @@ impl HeaderLanguage for CSharp {
                             .dyn_request::<CSharpMarshaler>()
                             .unwrap_or_default()
                             .pretty_print("[MarshalAs(", ")]\n        "),
-                        arg_ty = arg_ty.ty.name_wrapping_var(this, &format!("_{arg_idx}"),),
+                        arg_ty = arg_ty
+                            .ty
+                            .name_wrapping_var(this, Some(&format_args!("_{arg_idx}")),),
                     )?;
                 }
                 Ok(())
@@ -426,11 +428,17 @@ impl HeaderLanguage for CSharp {
         _this: &dyn HeaderLanguage,
         out: &mut dyn io::Write,
         newtype_name: &str,
-        _name: &'_ str,
+        var_name: Option<&dyn ::core::fmt::Display>,
         _args: &'_ [FunctionArg<'_>],
         _ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()> {
-        write!(out, "{}", newtype_name)
+        write!(
+            out,
+            "{}{sep}{var_name}",
+            newtype_name,
+            sep = var_name.sep(),
+            var_name = var_name.or_empty()
+        )
     }
 
     fn define_array_ty(
@@ -494,12 +502,17 @@ impl HeaderLanguage for CSharp {
         self: &'_ Self,
         _this: &dyn HeaderLanguage,
         out: &mut dyn io::Write,
-        _var_name: &'_ str,
+        var_name: Option<&dyn ::core::fmt::Display>,
         newtype_name: &'_ str,
         _elem_ty: &'_ dyn PhantomCType,
         _array_len: usize,
     ) -> io::Result<()> {
-        write!(out, "{newtype_name}")
+        write!(
+            out,
+            "{newtype_name}{sep}{var_name}",
+            sep = var_name.sep(),
+            var_name = var_name.or_empty(),
+        )
     }
 
     fn emit_void_output_type(
