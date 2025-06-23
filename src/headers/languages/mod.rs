@@ -3,25 +3,28 @@
 use_prelude!();
 use ::std::io::Write as _;
 use ::std::io::{self};
-pub use c::C;
 
+use self::primitives::FixedIntBitWidth;
+use self::primitives::FloatBitWidth;
+use self::primitives::IntBitWidth;
+use self::primitives::Primitive;
 use super::Definer;
+use super::provider::Provider;
+use crate::utils::DisplayFromFn as F;
+pub mod primitives;
+
+pub use c::C;
 mod c;
 
-__cfg_csharp__! {
-    pub use csharp::CSharp;
-    mod csharp;
-}
+pub use csharp::CSharp;
+pub use csharp::CSharpMarshaler;
+mod csharp;
 
-__cfg_python__! {
-    pub use python::Python;
-    mod python;
-}
+pub use python::Python;
+mod python;
 
-__cfg_lua__! {
-    pub use lua::Lua;
-    mod lua;
-}
+pub use lua::Lua;
+mod lua;
 
 pub struct Indentation {
     depth: ::core::cell::Cell<usize>,
@@ -71,8 +74,10 @@ pub trait HeaderLanguage: UpcastAny {
         None
     }
 
-    fn emit_simple_enum(
+    fn declare_simple_enum(
         self: &'_ Self,
+        // subrecursing language
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
@@ -80,23 +85,29 @@ pub trait HeaderLanguage: UpcastAny {
         variants: &'_ [EnumVariant<'_>],
     ) -> io::Result<()>;
 
-    fn emit_struct(
+    fn declare_struct(
         self: &'_ Self,
+        // subrecursing language
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         fields: &'_ [StructField<'_>],
     ) -> io::Result<()>;
 
-    fn emit_opaque_type(
+    fn declare_opaque_type(
         self: &'_ Self,
+        // subrecursing language
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>;
 
-    fn emit_function(
+    fn declare_function(
         self: &'_ Self,
+        // subrecursing language
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         fname: &'_ str,
@@ -104,8 +115,94 @@ pub trait HeaderLanguage: UpcastAny {
         ret_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()>;
 
-    fn emit_constant(
+    fn define_primitive_ty(
         self: &'_ Self,
+        // subrecursing language
+        _this: &dyn HeaderLanguage,
+        _ctx: &'_ mut dyn Definer,
+        _primitive: Primitive,
+    ) -> io::Result<()> {
+        // By default, assume the language needs no setup.
+        Ok(())
+    }
+
+    fn emit_primitive_ty(
+        self: &'_ Self,
+        _out: &mut dyn io::Write,
+        _primitive: Primitive,
+    ) -> io::Result<()>;
+
+    fn emit_pointer_ty(
+        self: &'_ Self,
+        this: &dyn HeaderLanguage,
+        out: &mut dyn io::Write,
+        pointee_is_immutable: bool,
+        pointee: &'_ dyn PhantomCType,
+    ) -> io::Result<()>;
+
+    fn emit_void_output_type(
+        self: &'_ Self,
+        _out: &mut dyn io::Write,
+    ) -> io::Result<()>;
+
+    // On certain languages, such as older C#, there is, surprisingly enough, no direct function
+    // pointer type. But a static delegate can be annotated with a marshalling attribute so as to
+    // be convertible into one.
+    //
+    // This, thus, requires a one-time setup to declare the helper type, _per choice_ of generics.
+    // (Other types also requiring helper definitions, when non-generic, may be left to be
+    // "hardcoded" within that language's header prelude or whatnot.)
+    fn define_function_ptr_ty(
+        self: &'_ Self,
+        // subrecursing language
+        _this: &dyn HeaderLanguage,
+        _ctx: &'_ mut dyn Definer,
+        _self_ty: &'_ dyn PhantomCType,
+        _args: &'_ [FunctionArg<'_>],
+        _ret_ty: &'_ dyn PhantomCType,
+    ) -> io::Result<()> {
+        // By default, assume the language needs no setup.
+        Ok(())
+    }
+
+    fn emit_function_ptr_ty(
+        self: &'_ Self,
+        this: &dyn HeaderLanguage,
+        out: &mut dyn io::Write,
+        newtype_name: &str,
+        name: Option<&dyn ::core::fmt::Display>,
+        args: &'_ [FunctionArg<'_>],
+        ret_ty: &'_ dyn PhantomCType,
+    ) -> io::Result<()>;
+
+    // Same pattern as for `…function_ptr_ty`, but applied to arrays.
+    fn define_array_ty(
+        self: &'_ Self,
+        // subrecursing language
+        _this: &dyn HeaderLanguage,
+        _ctx: &'_ mut dyn Definer,
+        _self_ty: &'_ dyn PhantomCType,
+        _elem_ty: &'_ dyn PhantomCType,
+        _array_len: usize,
+    ) -> io::Result<()> {
+        // By default, assume the language needs no setup.
+        Ok(())
+    }
+
+    fn emit_array_ty(
+        self: &'_ Self,
+        // subrecursing language
+        this: &dyn HeaderLanguage,
+        out: &mut dyn io::Write,
+        var_name: Option<&dyn ::core::fmt::Display>,
+        newtype_name: &'_ str,
+        elem_ty: &'_ dyn PhantomCType,
+        array_len: usize,
+    ) -> io::Result<()>;
+
+    fn declare_constant(
+        self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         name: &'_ str,
@@ -127,7 +224,7 @@ pub trait HeaderLanguage: UpcastAny {
 }
 
 pub trait HeaderLanguageSupportingTypeAliases: HeaderLanguage {
-    fn emit_type_alias(
+    fn declare_type_alias(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
@@ -172,10 +269,23 @@ pub struct FunctionArg<'lt> {
 pub trait PhantomCType {
     fn short_name(self: &'_ Self) -> String;
 
+    fn render(
+        self: &'_ Self,
+        out: &'_ mut dyn io::Write,
+        language: &'_ dyn HeaderLanguage,
+    ) -> io::Result<()>;
+
+    fn render_wrapping_var(
+        self: &'_ Self,
+        out: &'_ mut dyn io::Write,
+        language: &'_ dyn HeaderLanguage,
+        var_name: Option<&dyn ::core::fmt::Display>,
+    ) -> io::Result<()>;
+
     fn name_wrapping_var(
         self: &'_ Self,
         language: &'_ dyn HeaderLanguage,
-        var_name: &'_ str,
+        var_name: Option<&dyn ::core::fmt::Display>,
     ) -> String;
 
     fn name(
@@ -183,7 +293,7 @@ pub trait PhantomCType {
         language: &'_ dyn HeaderLanguage,
     ) -> String;
 
-    fn csharp_marshaler(self: &'_ Self) -> Option<String>;
+    fn metadata(self: &'_ Self) -> &'static dyn Provider;
 
     fn size(self: &'_ Self) -> usize;
 
@@ -195,13 +305,30 @@ where
     T: CType,
 {
     fn short_name(self: &'_ Self) -> String {
-        <T as CType>::short_name()
+        T::short_name()
+    }
+
+    fn render(
+        self: &'_ Self,
+        out: &'_ mut dyn io::Write,
+        language: &'_ dyn HeaderLanguage,
+    ) -> io::Result<()> {
+        T::render(out, language)
+    }
+
+    fn render_wrapping_var(
+        self: &'_ Self,
+        out: &'_ mut dyn io::Write,
+        language: &'_ dyn HeaderLanguage,
+        var_name: Option<&dyn ::core::fmt::Display>,
+    ) -> io::Result<()> {
+        T::render_wrapping_var(out, language, var_name)
     }
 
     fn name_wrapping_var(
         self: &'_ Self,
         language: &'_ dyn HeaderLanguage,
-        var_name: &'_ str,
+        var_name: Option<&dyn ::core::fmt::Display>,
     ) -> String {
         T::name_wrapping_var(language, var_name)
     }
@@ -213,8 +340,8 @@ where
         T::name(language)
     }
 
-    fn csharp_marshaler(self: &'_ Self) -> Option<String> {
-        T::csharp_marshaler()
+    fn metadata(self: &'_ Self) -> &'static dyn Provider {
+        T::metadata()
     }
 
     fn size(self: &'_ Self) -> usize {

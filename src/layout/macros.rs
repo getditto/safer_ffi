@@ -1,7 +1,5 @@
 export_cfgs! {$
     "headers" => __cfg_headers__!,
-    "headers" => __cfg_csharp__!,
-    "headers" => __cfg_lua__!,
     "js" => __cfg_js__!,
     "python-headers" => __cfg_python__!,
 }
@@ -23,7 +21,12 @@ macro_rules! export_cfgs {(
                 macro_rules! $macro_name {(
                     $_($item:item)*
                 ) => (
-                    $_($item)*
+                    $_(
+                        #[cfg_attr(all(docs, feature = "docs"),
+                            doc(cfg(feature = $feature)),
+                        )]
+                        $item
+                    )*
                 )}
             },
             _ => {
@@ -92,7 +95,7 @@ match_cfg! {
     },
 }
 
-/// Safely implement [`CType`][`trait@crate::layout::LegacyCType`]
+/// Safely implement [`CType`][`trait@crate::layout::CType`]
 /// for a `#[repr(C)]` struct **when all its fields are `CType`**.
 ///
 /// Note: you rarely need to call this macro directly. Instead, look for the

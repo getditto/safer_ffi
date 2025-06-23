@@ -2,6 +2,7 @@
 #![allow(clippy::all)]
 #![cfg_attr(feature = "nightly", feature(doc_cfg))]
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(all(feature = "docs"), allow(unused_attributes))] // for the `cfg_…!` macros.
 #![allow(nonstandard_style, trivial_bounds, unused_parens, unused_braces)]
 #![warn(missing_copy_implementations, missing_debug_implementations)]
 #![deny(

@@ -98,7 +98,7 @@ pub(super) fn try_handle_fptr(input: &'_ DeriveInput) -> Option<Result<TokenStre
         use ::safer_ffi::{
             __cfg_headers__,
             __cfg_python__,
-            __cfg_csharp__,
+            __cfg_headers__,
             ඞ,
             ඞ::{
                 __HasNiche__,

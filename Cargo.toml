@@ -3,7 +3,7 @@ path = "src/_lib.rs"
 
 [package]
 name = "safer-ffi"
-version = "0.2.0-alpha.0"                                                    # Keep in sync
+version = "0.2.0-alpha.0"  # Keep in sync
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2024"
 rust-version = "1.85.0"
@@ -103,6 +103,8 @@ log.version = "0.4.8"
 
 macro_rules_attribute.version = "0.1.3"
 
+never-say-never.version = "6.6.666"
+
 once_cell.optional = true
 once_cell.version = "1.17.1"
 
@@ -110,6 +112,8 @@ paste.version = "1.0.12"
 
 scopeguard.version = "1.1.0"
 scopeguard.default-features = false
+
+seal-the-deal.version = "0.1.2"
 
 serde.version = "1.0.171"
 serde.optional = true
@@ -140,7 +144,7 @@ version = "0.0.3"
 
 [dependencies.safer_ffi-proc_macros]
 path = "src/proc_macro"
-version = "=0.2.0-alpha.0"     # Keep in sync
+version = "=0.2.0-alpha.0"  # Keep in sync
 
 [workspace]
 members = [

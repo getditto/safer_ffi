@@ -30,58 +30,32 @@ const _: () = {
     };
 };
 
-unsafe impl LegacyCType for c_char {
+unsafe impl CType for c_char {
+    type OPAQUE_KIND = OpaqueKind::Concrete;
     __cfg_headers__! {
-        fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-          -> fmt::Result
-        {
-            fmt.write_str("char")
+        fn short_name() -> String {
+            "char".into()
         }
 
-        fn c_var_fmt (
-            fmt: &'_ mut fmt::Formatter<'_>,
-            var_name: &'_ str,
-        ) -> fmt::Result
-        {
-            write!(fmt,
-                "char{sep}{}",
-                var_name,
-                sep = if var_name.is_empty() { "" } else { " " },
-            )
-        }
-
-        fn c_define_self (
-            _: &'_ mut dyn crate::headers::Definer,
+        fn define_self__impl(
+            _language: &dyn HeaderLanguage,
+            _definer: &mut dyn Definer,
         ) -> io::Result<()>
         {
             Ok(())
         }
 
-        __cfg_csharp__! {
-            fn csharp_define_self (
-                _: &'_ mut dyn crate::headers::Definer,
-            ) -> io::Result<()>
-            {
-                Ok(())
-            }
-
-            fn csharp_ty ()
-              -> rust::String
-            {
-                "byte".into()
-            }
-        }
-
-        __cfg_lua__! {
-            fn lua_define_self (
-                _: &'_ mut dyn crate::headers::Definer,
-            ) -> io::Result<()>
-            {
-                Ok(())
-            }
+        fn render(
+            out: &mut dyn io::Write,
+            language: &dyn HeaderLanguage,
+        ) -> io::Result<()>
+        {
+            language.emit_primitive_ty(
+                out,
+                primitives::Primitive::CChar,
+            )
         }
     }
-    type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete;
 }
 
 from_CType_impl_ReprC! {

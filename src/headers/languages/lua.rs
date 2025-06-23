@@ -3,13 +3,12 @@ use super::*;
 pub struct Lua;
 
 impl HeaderLanguage for Lua {
-    fn emit_docs (
+    fn emit_docs(
         self: &'_ Self,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         indent: &'_ Indentation,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         mk_out!(indent, ctx.out());
 
         if docs.is_empty() {
@@ -25,26 +24,24 @@ impl HeaderLanguage for Lua {
         Ok(())
     }
 
-    fn emit_simple_enum (
+    fn declare_simple_enum(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         backing_integer: Option<&dyn PhantomCType>,
         variants: &'_ [EnumVariant<'_>],
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4);
         mk_out!(indent, ctx.out());
 
-        let ref intn_t =
-            backing_integer.map(|it| it.name(self))
-            ;
+        let ref intn_t = backing_integer.map(|it| it.name(this));
 
-        self.emit_docs(ctx, docs, indent)?;
+        this.emit_docs(ctx, docs, indent)?;
 
         let ref short_name = self_ty.short_name();
-        let ref full_ty_name = self_ty.name(self);
+        let ref full_ty_name = self_ty.name(this);
 
         if let Some(intn_t) = intn_t {
             out!((
@@ -57,7 +54,7 @@ impl HeaderLanguage for Lua {
 
         if let _ = indent.scope() {
             for v in variants {
-                self.emit_docs(ctx, v.docs, indent)?;
+                this.emit_docs(ctx, v.docs, indent)?;
                 let variant_name = crate::utils::screaming_case(short_name, v.name) /* ctx.adjust_variant_name(
                     Language::C,
                     enum_name,
@@ -82,149 +79,143 @@ impl HeaderLanguage for Lua {
         Ok(())
     }
 
-    fn emit_struct (
+    fn declare_struct(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-        fields: &'_ [StructField<'_>]
-    ) -> io::Result<()>
-    {
-        let ref indent = Indentation::new(4);
-        mk_out!(indent, ctx.out());
-        let short_name = self_ty.short_name();
-        let full_ty_name = self_ty.name(self);
-
-        if self_ty.size() == 0 {
-            panic!("C does not support zero-sized structs!")
-        }
-
-        self.emit_docs(ctx, docs, indent)?;
-        out!(("typedef struct {short_name} {{"));
-        if let _ = indent.scope() {
-            let ref mut first = true;
-            for &StructField { docs, name, ty } in fields {
-                // Skip ZSTs
-                if ty.size() == 0 {
-                    if ty.align() > 1 {
-                        panic!("Zero-sized fields must have an alignment of `1`");
-                    } else {
-                        continue;
-                    }
-                }
-                if mem::take(first).not() {
-                    out!("\n");
-                }
-                self.emit_docs(ctx, docs, indent)?;
-                out!(
-                    ("{};"),
-                    ty.name_wrapping_var(self, name)
-                );
-            }
-        }
-        out!(("}} {full_ty_name};"));
-
-        out!("\n");
-        Ok(())
+        fields: &'_ [StructField<'_>],
+    ) -> io::Result<()> {
+        C.declare_struct(this, ctx, docs, self_ty, fields)
     }
 
-    fn emit_opaque_type (
+    fn declare_opaque_type(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    {
-        let ref indent = Indentation::new(4);
-        mk_out!(indent, ctx.out());
-        let short_name = self_ty.short_name();
-        let full_ty_name = self_ty.name(self);
-
-        self.emit_docs(ctx, docs, indent)?;
-        out!(("typedef struct {short_name} {full_ty_name};"));
-
-        out!("\n");
-        Ok(())
+    ) -> io::Result<()> {
+        C.declare_opaque_type(this, ctx, docs, self_ty)
     }
 
-    fn emit_function (
+    fn declare_function(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    {
-        let ref indent = Indentation::new(4);
-
-        self.emit_docs(ctx, docs, indent)?;
-
-        let ref fn_sig_but_for_ret_type: String = {
-            let mut buf = Vec::<u8>::new();
-            mk_out!(indent, buf);
-
-            out!(
-                "\n{indent}{fn}{fname} (",
-                fn = if cfg!(feature = "c-headers-with-fn-style") {
-                    "/* fn */ "
-                } else {
-                    ""
-                },
-            );
-            let mut first = true;
-            if let _ = indent.scope() {
-                for arg in args {
-                    if mem::take(&mut first).not() {
-                        out!(",");
-                    }
-                    out!("\n{indent}{}", arg.ty.name_wrapping_var(self, arg.name))
-                }
-                if first {
-                    out!("void");
-                }
-            }
-            out!(")");
-            String::from_utf8(buf).unwrap()
-        };
-
-        mk_out!(indent, ctx.out());
-        out!(
-            ("{};"), ret_ty.name_wrapping_var(self, fn_sig_but_for_ret_type)
-        );
-
-        out!("\n");
-        Ok(())
+    ) -> io::Result<()> {
+        C.declare_function(this, ctx, docs, fname, args, ret_ty)
     }
 
-    fn emit_constant (
+    fn declare_constant(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         docs: Docs<'_>,
         name: &'_ str,
         ty: &'_ dyn PhantomCType,
         _skip_type: bool,
         value: &'_ dyn ::core::fmt::Debug,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4);
         mk_out!(indent, ctx.out());
 
-        self.emit_docs(ctx, docs, indent)?;
-        let ty = ty.name(self);
+        this.emit_docs(ctx, docs, indent)?;
+        let ty = ty.name(this);
         match ty.as_str() {
-            "int32_t" | "uint32_t" | "int16_t" | "uint16_t" | "int8_t" | "uint8_t" => {
+            | "int32_t" | "uint32_t" | "int16_t" | "uint16_t" | "int8_t" | "uint8_t" => {
                 out!(("static const {ty} {name} = {value:?};"));
             },
-            "Opaque__str_t" => {
+            | "Opaque__str_t" => {
                 out!(("extern const char* {name};"));
             },
             // Based on https://luajit.org/ext_ffi_semantics.html
             // "static const declarations only work for integer types up to 32 bits."
-            _ => panic!("Lua doesn't support this const type: {}", ty),
+            | _ => panic!("Lua does not support this const type: {}", ty),
         }
 
         out!("\n");
         Ok(())
+    }
+
+    fn emit_function_ptr_ty(
+        self: &'_ Self,
+        this: &dyn HeaderLanguage,
+        out: &mut dyn io::Write,
+        newtype_name: &'_ str,
+        name: Option<&dyn ::core::fmt::Display>,
+        args: &'_ [FunctionArg<'_>],
+        ret_ty: &'_ dyn PhantomCType,
+    ) -> io::Result<()> {
+        C.emit_function_ptr_ty(this, out, newtype_name, name, args, ret_ty)
+    }
+
+    fn emit_primitive_ty(
+        self: &'_ Self,
+        out: &mut dyn io::Write,
+        primitive: Primitive,
+    ) -> io::Result<()> {
+        C.emit_primitive_ty(out, primitive)
+    }
+
+    fn emit_pointer_ty(
+        self: &'_ Self,
+        this: &dyn HeaderLanguage,
+        out: &mut dyn io::Write,
+        pointee_is_immutable: bool,
+        pointee: &'_ dyn PhantomCType,
+    ) -> io::Result<()> {
+        C.emit_pointer_ty(this, out, pointee_is_immutable, pointee)
+    }
+
+    fn emit_array_ty(
+        self: &'_ Self,
+        this: &dyn HeaderLanguage,
+        out: &mut dyn io::Write,
+        var_name: Option<&dyn ::core::fmt::Display>,
+        _newtype_name: &'_ str,
+        elem_ty: &'_ dyn PhantomCType,
+        array_len: usize,
+    ) -> io::Result<()> {
+        // In these instances, it is important to be mindful of ordering.
+        // The ordering for arrays (or other such nested types) in C-like header languages goes from
+        // outer to inner, since this is how the "unwrapping" operations would be written on a
+        // variable of that type.
+        //
+        // To illustrate, given a `arr: [[c_int; 3]; 4]`, you'd have to index `..4` first, and then
+        // to `..3`. Papering over off-by-one errors, this would be:
+        // ```C
+        // arr[4][3] // of type int.
+        // ```
+        //
+        // Thus, the type definition is to become `int {var_name}[4][3]`.
+        //
+        // If we did `"{}[array_len]", elem_ty.name_wrapping_var(this)` in this instance, where
+        // `elem_ty` refers to `[c_int; 3]`, and `array_len`, to `4`, we'd incorrectly end up with
+        // `"{}[array_len]", "int {var_name}[3]"`, i.e., `int {var_name}[3][4]`!
+        //
+        // Hence the handling *first* this current outermost layer, and only then calling into
+        // `elem_ty.…_wrapping_var()` logic on this transformated output.
+        elem_ty.render_wrapping_var(
+            out,
+            this,
+            Some(&format_args!(
+                "{var_name}[{array_len}]",
+                var_name = var_name.or_empty()
+            )),
+        )?;
+        Ok(())
+    }
+
+    fn emit_void_output_type(
+        self: &'_ Self,
+        out: &mut dyn io::Write,
+    ) -> io::Result<()> {
+        C.emit_void_output_type(out)
     }
 }

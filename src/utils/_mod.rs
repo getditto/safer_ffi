@@ -1,6 +1,8 @@
 #[macro_use]
 mod macros;
 
+pub(crate) mod extension_traits;
+
 pub(crate) mod prelude;
 
 pub(crate) mod markers;
@@ -47,3 +49,45 @@ const _: () = {
         }
     }
 };
+
+#[cfg(feature = "headers")]
+#[allow(missing_debug_implementations)]
+pub struct DisplayFromFn<F>(pub F)
+where
+    F: Fn(&mut dyn ::std::io::Write) -> ::std::io::Result<()>;
+
+#[cfg(feature = "headers")]
+impl<F> ::core::fmt::Display for DisplayFromFn<F>
+where
+    F: Fn(&mut dyn ::std::io::Write) -> ::std::io::Result<()>,
+{
+    fn fmt(
+        &self,
+        f: &mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
+        struct IoToFmtBridge<W>(W);
+
+        impl<W> ::std::io::Write for IoToFmtBridge<W>
+        where
+            W: ::core::fmt::Write,
+        {
+            fn write(
+                &mut self,
+                buf: &[u8],
+            ) -> std::io::Result<usize> {
+                self.0
+                    .write_str(
+                        ::core::str::from_utf8(buf).expect("only UTF-8 writes in `DisplayFromFn`"),
+                    )
+                    .map_err(::std::io::Error::other)?;
+                Ok(buf.len())
+            }
+
+            fn flush(&mut self) -> std::io::Result<()> {
+                Ok(())
+            }
+        }
+
+        self.0(&mut IoToFmtBridge(f)).map_err(|_| ::core::fmt::Error)
+    }
+}

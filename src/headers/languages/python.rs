@@ -1,42 +1,39 @@
 use super::*;
 
-
 pub struct Python;
-
 
 /// Create a file whose content will be set in `ffi.cdef` of the Python module `cffi`
 impl HeaderLanguage for Python {
-    fn emit_docs (
+    fn emit_docs(
         self: &'_ Self,
         _ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
         _indent: &'_ Indentation,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         // No documentation
-        return Ok(())
+        return Ok(());
     }
 
-    fn emit_simple_enum (
+    fn declare_simple_enum(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
         _backing_integer: Option<&dyn PhantomCType>,
         variants: &'_ [EnumVariant<'_>],
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
         let ref short_name = self_ty.short_name();
-        let ref full_ty_name = self_ty.name(self);
+        let ref full_ty_name = self_ty.name(this);
 
         out!(("typedef enum {short_name} {{"));
 
         if let _ = indent.scope() {
             for v in variants {
-                self.emit_docs(ctx, v.docs, indent)?;
+                this.emit_docs(ctx, v.docs, indent)?;
                 let variant_name = crate::utils::screaming_case(short_name, v.name) /* ctx.adjust_variant_name(
                     Language::C,
                     enum_name,
@@ -51,117 +48,54 @@ impl HeaderLanguage for Python {
         Ok(())
     }
 
-    fn emit_struct (
+    fn declare_struct(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
-        _docs: Docs<'_>,
+        docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-        fields: &'_ [StructField<'_>]
-    ) -> io::Result<()>
-    {
-        let ref indent = Indentation::new(4 /* ctx.indent_width() */);
-        mk_out!(indent, ctx.out());
-        let short_name = self_ty.short_name();
-        let full_ty_name = self_ty.name(self);
-
-        if self_ty.size() == 0 {
-            panic!("C does not support zero-sized structs!")
-        }
-
-        out!(("typedef struct {short_name} {{"));
-        if let _ = indent.scope() {
-            let ref mut first = true;
-            for &StructField { docs, name, ty } in fields {
-                // Skip ZSTs
-                if ty.size() == 0 {
-                    if ty.align() > 1 {
-                        panic!("Zero-sized fields must have an alignment of `1`");
-                    } else {
-                        continue;
-                    }
-                }
-                if mem::take(first).not() {
-                    out!("\n");
-                }
-                self.emit_docs(ctx, docs, indent)?;
-                out!(
-                    ("{};"),
-                    ty.name_wrapping_var(self, name)
-                );
-            }
-        }
-        out!(("}} {full_ty_name};"));
-
-        out!("\n");
-        Ok(())
+        fields: &'_ [StructField<'_>],
+    ) -> io::Result<()> {
+        C.declare_struct(this, ctx, docs, self_ty, fields)
     }
 
-    fn emit_opaque_type (
+    fn declare_opaque_type(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
-        let full_ty_name = self_ty.name(self);
+        let full_ty_name = self_ty.name(this);
         out!(("typedef ... {full_ty_name};"));
         out!("\n");
         Ok(())
     }
 
-    fn emit_function (
+    fn declare_function(
         self: &'_ Self,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
-        _docs: Docs<'_>,
+        docs: Docs<'_>,
         fname: &'_ str,
         args: &'_ [FunctionArg<'_>],
         ret_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()>
-    {
-        let ref indent = Indentation::new(4 /* ctx.indent_width() */);
-
-        let ref fn_sig_but_for_ret_type: String = {
-            let mut buf = Vec::<u8>::new();
-            mk_out!(indent, buf);
-
-            out!("\n{indent}{fname} (");
-            let mut first = true;
-            if let _ = indent.scope() {
-                for arg in args {
-                    if mem::take(&mut first).not() {
-                        out!(",");
-                    }
-                    out!("\n{indent}{}", arg.ty.name_wrapping_var(self, arg.name))
-                }
-                if first {
-                    out!("void");
-                }
-            }
-            out!(")");
-            String::from_utf8(buf).unwrap()
-        };
-
-        mk_out!(indent, ctx.out());
-        out!(
-            ("{};"), ret_ty.name_wrapping_var(self, fn_sig_but_for_ret_type)
-        );
-
-        out!("\n");
-        Ok(())
+    ) -> io::Result<()> {
+        C.declare_function(this, ctx, docs, fname, args, ret_ty)
     }
 
-    fn emit_constant (
+    fn declare_constant(
         self: &'_ Self,
+        _this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
         name: &'_ str,
         _ty: &'_ dyn PhantomCType,
         _skip_type: bool,
         _value: &'_ dyn ::core::fmt::Debug,
-    ) -> io::Result<()>
-    {
+    ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
@@ -171,5 +105,76 @@ impl HeaderLanguage for Python {
 
         out!("\n");
         Ok(())
+    }
+
+    fn emit_primitive_ty(
+        self: &'_ Self,
+        out: &mut dyn io::Write,
+        primitive: Primitive,
+    ) -> io::Result<()> {
+        C.emit_primitive_ty(out, primitive)
+    }
+
+    fn emit_pointer_ty(
+        self: &'_ Self,
+        this: &dyn HeaderLanguage,
+        out: &mut dyn io::Write,
+        pointee_is_immutable: bool,
+        pointee: &'_ dyn PhantomCType,
+    ) -> io::Result<()> {
+        C.emit_pointer_ty(this, out, pointee_is_immutable, pointee)
+    }
+
+    fn define_function_ptr_ty(
+        self: &'_ Self,
+        this: &dyn HeaderLanguage,
+        ctx: &'_ mut dyn Definer,
+        self_ty: &'_ dyn PhantomCType,
+        args: &'_ [FunctionArg<'_>],
+        ret_ty: &'_ dyn PhantomCType,
+    ) -> io::Result<()> {
+        C.define_function_ptr_ty(this, ctx, self_ty, args, ret_ty)
+    }
+
+    fn emit_function_ptr_ty(
+        self: &'_ Self,
+        this: &dyn HeaderLanguage,
+        out: &mut dyn io::Write,
+        newtype_name: &'_ str,
+        name: Option<&dyn ::core::fmt::Display>,
+        args: &'_ [FunctionArg<'_>],
+        ret_ty: &'_ dyn PhantomCType,
+    ) -> io::Result<()> {
+        C.emit_function_ptr_ty(this, out, newtype_name, name, args, ret_ty)
+    }
+
+    fn define_array_ty(
+        self: &'_ Self,
+        this: &dyn HeaderLanguage,
+        ctx: &'_ mut dyn Definer,
+        self_ty: &'_ dyn PhantomCType,
+        elem_ty: &'_ dyn PhantomCType,
+        array_len: usize,
+    ) -> io::Result<()> {
+        C.define_array_ty(this, ctx, self_ty, elem_ty, array_len)
+    }
+
+    fn emit_array_ty(
+        self: &'_ Self,
+        this: &dyn HeaderLanguage,
+        out: &mut dyn io::Write,
+        var_name: Option<&dyn ::core::fmt::Display>,
+        newtype_name: &'_ str,
+        elem_ty: &'_ dyn PhantomCType,
+        array_len: usize,
+    ) -> io::Result<()> {
+        C.emit_array_ty(this, out, var_name, newtype_name, elem_ty, array_len)
+    }
+
+    fn emit_void_output_type(
+        self: &'_ Self,
+        out: &mut dyn io::Write,
+    ) -> io::Result<()> {
+        C.emit_void_output_type(out)
     }
 }

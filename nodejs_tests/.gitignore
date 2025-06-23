@@ -1,0 +1,4 @@
+target/
+libnodejs_tests.dylib
+tests/index.node
+Cargo.lock # FIXME
