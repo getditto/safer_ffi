@@ -221,7 +221,8 @@ pub struct SpecificConstGenericContainer {
 #[safer_ffi::cfg_headers]
 #[test]
 fn generate_headers() -> ::std::io::Result<()> {
-    use ::safer_ffi::headers::{Language, Language::*};
+    use ::safer_ffi::headers::Language;
+    use ::safer_ffi::headers::Language::*;
 
     #[rustfmt::skip]
     const LANGUAGES: &[(Language, &str)] = &[

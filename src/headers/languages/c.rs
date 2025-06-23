@@ -360,15 +360,9 @@ impl HeaderLanguage for C {
                 "}} {me};\n",
                 "\n",
             ),
-            inline_array = F(
-                |out| {
-                    elem_ty.render_wrapping_var(
-                        out,
-                        this,
-                        Some(&format_args!("idx[{}]", array_len)),
-                    )
-                }
-            ),
+            inline_array = F(|out| {
+                elem_ty.render_wrapping_var(out, this, Some(&format_args!("idx[{}]", array_len)))
+            }),
             me = me,
         )?;
         Ok(())
@@ -383,7 +377,12 @@ impl HeaderLanguage for C {
         _elem_ty: &'_ dyn PhantomCType,
         _array_len: usize,
     ) -> io::Result<()> {
-        write!(out, "{newtype_name}{sep}{var_name}", sep = var_name.sep(), var_name = var_name.or_empty())
+        write!(
+            out,
+            "{newtype_name}{sep}{var_name}",
+            sep = var_name.sep(),
+            var_name = var_name.or_empty()
+        )
     }
 
     fn define_primitive_ty(

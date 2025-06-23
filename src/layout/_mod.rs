@@ -216,8 +216,8 @@ pub unsafe trait CType: Sized + Copy {
     ///
     /// This can be:
     ///
-    ///   - either through some direct syntactical construct derived off some other stuff,
-    ///     e.g., in C, `{} const*` for the `*const T` case,
+    ///   - either through some direct syntactical construct derived off some other stuff, e.g., in
+    ///     C, `{} const*` for the `*const T` case,
     ///
     ///   - or simply by given a simple/single identifier name from a helper type alias or type
     ///     definition having occurred in `define_self` (common case).

@@ -204,7 +204,10 @@ impl HeaderLanguage for Lua {
         elem_ty.render_wrapping_var(
             out,
             this,
-            Some(&format_args!("{var_name}[{array_len}]", var_name = var_name.or_empty())),
+            Some(&format_args!(
+                "{var_name}[{array_len}]",
+                var_name = var_name.or_empty()
+            )),
         )?;
         Ok(())
     }
