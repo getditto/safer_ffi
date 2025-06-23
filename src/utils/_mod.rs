@@ -50,11 +50,13 @@ const _: () = {
     }
 };
 
+#[cfg(feature = "headers")]
 #[allow(missing_debug_implementations)]
 pub struct DisplayFromFn<F>(pub F)
 where
     F: Fn(&mut dyn ::std::io::Write) -> ::std::io::Result<()>;
 
+#[cfg(feature = "headers")]
 impl<F> ::core::fmt::Display for DisplayFromFn<F>
 where
     F: Fn(&mut dyn ::std::io::Write) -> ::std::io::Result<()>,
