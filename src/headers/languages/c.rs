@@ -38,11 +38,14 @@ impl HeaderLanguage for C {
                 self_ty: &'_ dyn PhantomCType,
                 inner_ty: &'_ dyn PhantomCType,
             ) -> io::Result<()> {
+                // No `this` in this design yet; let's stick to `this` nonetheless
+                // for the syntactical search for the `self` antipattern.
+                let this = self;
                 let ref indent = Indentation::new(4 /* ctx.indent_width() */);
                 mk_out!(indent, ctx.out());
-                self.emit_docs(ctx, docs, indent)?;
-                let ref aliaser = self_ty.name(self);
-                let ref aliasee = inner_ty.name(self);
+                this.emit_docs(ctx, docs, indent)?;
+                let ref aliaser = self_ty.name(this);
+                let ref aliasee = inner_ty.name(this);
                 out!((
                     "typedef {aliasee} {aliaser};"
                 ));
@@ -65,12 +68,12 @@ impl HeaderLanguage for C {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
-        let ref intn_t = backing_integer.map(|it| it.name(self));
+        let ref intn_t = backing_integer.map(|it| it.name(this));
 
         this.emit_docs(ctx, docs, indent)?;
 
         let ref short_name = self_ty.short_name();
-        let ref full_ty_name = self_ty.name(self);
+        let ref full_ty_name = self_ty.name(this);
 
         if let Some(intn_t) = intn_t {
             out!((
@@ -172,7 +175,7 @@ impl HeaderLanguage for C {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
         let short_name = self_ty.short_name();
-        let full_ty_name = self_ty.name(self);
+        let full_ty_name = self_ty.name(this);
 
         this.emit_docs(ctx, docs, indent)?;
         out!(("typedef struct {short_name} {full_ty_name};"));
@@ -347,7 +350,7 @@ impl HeaderLanguage for C {
         elem_ty: &'_ dyn PhantomCType,
         array_len: usize,
     ) -> io::Result<()> {
-        let me = &F(|out| self_ty.render(out, self)).to_string();
+        let me = &F(|out| self_ty.render(out, this)).to_string();
         write!(
             definer.out(),
             concat!(

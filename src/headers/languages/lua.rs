@@ -36,12 +36,12 @@ impl HeaderLanguage for Lua {
         let ref indent = Indentation::new(4);
         mk_out!(indent, ctx.out());
 
-        let ref intn_t = backing_integer.map(|it| it.name(self));
+        let ref intn_t = backing_integer.map(|it| it.name(this));
 
         this.emit_docs(ctx, docs, indent)?;
 
         let ref short_name = self_ty.short_name();
-        let ref full_ty_name = self_ty.name(self);
+        let ref full_ty_name = self_ty.name(this);
 
         if let Some(intn_t) = intn_t {
             out!((
@@ -126,7 +126,7 @@ impl HeaderLanguage for Lua {
         mk_out!(indent, ctx.out());
 
         this.emit_docs(ctx, docs, indent)?;
-        let ty = ty.name(self);
+        let ty = ty.name(this);
         match ty.as_str() {
             | "int32_t" | "uint32_t" | "int16_t" | "uint16_t" | "int8_t" | "uint8_t" => {
                 out!(("static const {ty} {name} = {value:?};"));
@@ -136,7 +136,7 @@ impl HeaderLanguage for Lua {
             },
             // Based on https://luajit.org/ext_ffi_semantics.html
             // "static const declarations only work for integer types up to 32 bits."
-            | _ => panic!("Lua doesn't support this const type: {}", ty),
+            | _ => panic!("Lua does not support this const type: {}", ty),
         }
 
         out!("\n");

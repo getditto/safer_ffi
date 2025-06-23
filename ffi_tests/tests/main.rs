@@ -81,7 +81,7 @@ fn test_lua_code() {
         .current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/lua"))
         .arg("tests.lua")
         .output()
-        .expect("Failed to run Lua tests");
+        .expect("Failed to invoke `luajit`");
 
     assert!(
         output.status.success(),

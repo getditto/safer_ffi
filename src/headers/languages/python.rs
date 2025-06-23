@@ -16,7 +16,7 @@ impl HeaderLanguage for Python {
 
     fn declare_simple_enum(
         self: &'_ Self,
-        _this: &dyn HeaderLanguage,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
@@ -27,13 +27,13 @@ impl HeaderLanguage for Python {
         mk_out!(indent, ctx.out());
 
         let ref short_name = self_ty.short_name();
-        let ref full_ty_name = self_ty.name(self);
+        let ref full_ty_name = self_ty.name(this);
 
         out!(("typedef enum {short_name} {{"));
 
         if let _ = indent.scope() {
             for v in variants {
-                self.emit_docs(ctx, v.docs, indent)?;
+                this.emit_docs(ctx, v.docs, indent)?;
                 let variant_name = crate::utils::screaming_case(short_name, v.name) /* ctx.adjust_variant_name(
                     Language::C,
                     enum_name,
@@ -61,14 +61,14 @@ impl HeaderLanguage for Python {
 
     fn declare_opaque_type(
         self: &'_ Self,
-        _this: &dyn HeaderLanguage,
+        this: &dyn HeaderLanguage,
         ctx: &'_ mut dyn Definer,
         _docs: Docs<'_>,
         self_ty: &'_ dyn PhantomCType,
     ) -> io::Result<()> {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
-        let full_ty_name = self_ty.name(self);
+        let full_ty_name = self_ty.name(this);
         out!(("typedef ... {full_ty_name};"));
         out!("\n");
         Ok(())

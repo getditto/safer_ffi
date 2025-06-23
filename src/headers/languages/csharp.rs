@@ -25,6 +25,7 @@ impl HeaderLanguage for CSharp {
         out: &mut dyn io::Write,
         primitive: Primitive,
     ) -> io::Result<()> {
+        let this = self;
         match primitive {
             | Primitive::Bool => {
                 write!(out, "bool")?;
@@ -38,7 +39,7 @@ impl HeaderLanguage for CSharp {
                     write!(out, "{sign_prefix}IntPtr")?;
                 },
                 | IntBitWidth::CInt => {
-                    self.emit_primitive_ty(out, Primitive::Integer {
+                    this.emit_primitive_ty(out, Primitive::Integer {
                         signed,
                         bitwidth: IntBitWidth::Fixed(FixedIntBitWidth::_32),
                     })?;
@@ -135,9 +136,9 @@ impl HeaderLanguage for CSharp {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
-        let ref IntN = backing_integer.map(|it| it.name(self));
+        let ref IntN = backing_integer.map(|it| it.name(this));
 
-        let ref full_ty_name = self_ty.name(self);
+        let ref full_ty_name = self_ty.name(this);
 
         this.emit_docs(ctx, docs, indent)?;
 
@@ -188,7 +189,7 @@ impl HeaderLanguage for CSharp {
             panic!("C# does not support zero-sized structs!")
         }
 
-        let ref name = self_ty.name(self);
+        let ref name = self_ty.name(this);
 
         this.emit_docs(ctx, docs, indent)?;
         out!((
@@ -221,8 +222,8 @@ impl HeaderLanguage for CSharp {
                     ));
                 }
                 out!(
-                    ("public {} {name};"),
-                    field_ty.name(this), // _wrapping_var(self, name)
+                    ("public {};"),
+                    F(|out| field_ty.render_wrapping_var(out, this, name)),
                 );
             }
         }
@@ -242,7 +243,7 @@ impl HeaderLanguage for CSharp {
         let ref indent = Indentation::new(4 /* ctx.indent_width() */);
         mk_out!(indent, ctx.out());
 
-        let full_ty_name = self_ty.name(self);
+        let full_ty_name = self_ty.name(this);
 
         this.emit_docs(ctx, docs, indent)?;
         out!(("public struct {full_ty_name} {{"));
@@ -389,7 +390,7 @@ impl HeaderLanguage for CSharp {
                 .unwrap_or_default()
                 .pretty_print("[return: MarshalAs(", ")]\n"),
             Ret = F(|out| ret_ty.render(out, this)),
-            me = self_ty.name(self),
+            me = self_ty.name(this),
             args = F(|out| {
                 let first = &mut true;
                 for (arg_idx, arg_ty) in (0..).zip(args) {
@@ -440,7 +441,7 @@ impl HeaderLanguage for CSharp {
         elem_ty: &'_ dyn PhantomCType,
         array_len: usize,
     ) -> io::Result<()> {
-        let me = &F(|out| self_ty.render(out, self)).to_string();
+        let me = self_ty.name(this);
         let array_items = F(|out| {
             let elem_ty_name = elem_ty.name(this);
             #[rustfmt::skip]

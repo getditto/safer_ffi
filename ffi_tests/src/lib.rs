@@ -221,11 +221,17 @@ pub struct SpecificConstGenericContainer {
 #[safer_ffi::cfg_headers]
 #[test]
 fn generate_headers() -> ::std::io::Result<()> {
-    use ::safer_ffi::headers::Language::*;
+    use ::safer_ffi::headers::{Language, Language::*};
 
-    let languages = &[(C, "h"), (CSharp, "cs"), (Lua, "lua"), (Python, "cffi")];
+    #[rustfmt::skip]
+    const LANGUAGES: &[(Language, &str)] = &[
+        (C, "h"),
+        (CSharp, "cs"),
+        (Lua, "lua"),
+        (Python, "cffi"),
+    ];
 
-    for &(language, ext) in languages {
+    for &(language, ext) in LANGUAGES {
         let builder = ::safer_ffi::headers::builder().with_language(language);
         if ::std::env::var("HEADERS_TO_STDOUT")
             .ok()
