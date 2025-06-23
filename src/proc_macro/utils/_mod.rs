@@ -181,31 +181,18 @@ pub(crate) fn compile_warning(
 }
 
 pub(crate) fn extract_docs(attrs: &'_ [Attribute]) -> Result<Vec<Expr>> {
-    attrs
+    let doc_strings = attrs
         .iter()
         .filter_map(|attr| {
-            attr.path
-                .is_ident("doc")
-                .then(|| {
-                    Parser::parse2(
-                        |input: ParseStream<'_>| {
-                            Ok(if input.peek(Token![=]) {
-                                let _: Token![=] = input.parse::<Token![=]>().unwrap();
-                                let doc_str: Expr = input.parse()?;
-                                let _: Option<Token![,]> = input.parse()?;
-                                Some(doc_str)
-                            } else {
-                                let _ = input.parse::<TokenStream2>();
-                                None
-                            })
-                        },
-                        attr.tokens.clone(),
-                    )
-                    .transpose()
-                })
-                .flatten()
+            attr.path().is_ident("doc").then(|| ()).and_then(|()| {
+                attr.meta
+                    .require_name_value()
+                    .ok()
+                    .map(|it| it.value.clone())
+            })
         })
-        .collect()
+        .collect();
+    Ok(doc_strings)
 }
 
 pub(crate) struct LazyQuote(

@@ -54,7 +54,7 @@ pub(super) fn export(
         match stmts.pop() {
             // no trailing expression case (block ending with a `;`):
             | Some(Stmt::Local(Local { semi_token, .. }))
-            | Some(Stmt::Semi(_, semi_token))
+            | Some(Stmt::Expr(_, Some(semi_token)))
             | Some(Stmt::Item(Item::Macro(ItemMacro {
                 semi_token: Some(semi_token),
                 ..
@@ -63,15 +63,18 @@ pub(super) fn export(
             },
 
             // `ffi_await!( tokens… )` or `ffi_await! { tokens… }` cases:
-            | Some(Stmt::Expr(Expr::Macro(ExprMacro {
-                mac:
-                    Macro {
-                        path: ffi_await,
-                        tokens,
-                        ..
-                    },
-                ..
-            })))
+            | Some(Stmt::Expr(
+                Expr::Macro(ExprMacro {
+                    mac:
+                        Macro {
+                            path: ffi_await,
+                            tokens,
+                            ..
+                        },
+                    ..
+                }),
+                None,
+            ))
             | Some(Stmt::Item(Item::Macro(ItemMacro {
                 semi_token: None,
                 mac:
@@ -194,34 +197,33 @@ pub(super) fn export(
         let safer_ffi_js_promise_spawn = quote_spanned!(ffi_await=>
             ::safer_ffi::js::JsPromise::spawn
         );
-        let async_move = quote_spanned!(ffi_await=>
-            async move
-        );
-        let mut js_future: ExprAsync = parse_quote!(
-            #async_move {
-                ::core::concat!(
-                    "Use a `PhantomData` to make sure a",
-                    " `", ::core::stringify!(#RetTy), "` ",
-                    "is captured by the future, rendering it ",
-                    "non-`Send`",
-                );
-                let ret: #RetTy =
-                    match ::core::marker::PhantomData::<#RetTy> { _ => {
-                        #async_body.await
-                    }}
-                ;
-                unsafe {
-                    "Safety: \
-                    since the corresponding `ReprC` type is \
-                    already captured by the future, the `CType` \
-                    wrapper can be assumed to be `Send`.";
-                    ::safer_ffi::js::UnsafeAssertSend::new(
-                        ::safer_ffi::layout::into_raw(ret)
-                    )
-                }
+        let js_future_async_body = quote! {
+            ::core::concat!(
+                "Use a `PhantomData` to make sure a",
+                " `", ::core::stringify!(#RetTy), "` ",
+                "is captured by the future, rendering it ",
+                "non-`Send`",
+            );
+            let ret: #RetTy =
+                match ::core::marker::PhantomData::<#RetTy> { _ => {
+                    #async_body.await
+                }}
+            ;
+            unsafe {
+                "Safety: \
+                since the corresponding `ReprC` type is \
+                already captured by the future, the `CType` \
+                wrapper can be assumed to be `Send`.";
+                ::safer_ffi::js::UnsafeAssertSend::new(
+                    ::safer_ffi::layout::into_raw(ret)
+                )
+            }
+        };
+        let js_future: ExprAsync = parse_quote_spanned!(ffi_await=>
+            async move {
+                #js_future_async_body
             }
         );
-        js_future.block.brace_token.span = ffi_await;
         quote!(
             const _: () = {
                 // We want to use `type #arg_name = <$arg_ty as …>::Assoc;`

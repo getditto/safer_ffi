@@ -11,7 +11,7 @@ pub(crate) fn derive(
     if matches!(
         attrs.iter().find_map(|attr| {
             bool::then(
-                attr.path.is_ident("repr"),
+                attr.path().is_ident("repr"),
                 || attr.parse_args::<Ident>().ok()
             ).flatten()
         }),
@@ -266,7 +266,7 @@ fn parse_discriminant_type(
 ) -> Result<(Quote![Option<&impl PhantomCType>], TokenStream2)>{
     let repr_attr = attrs
         .iter()
-        .find(|attr| attr.path.is_ident("repr"))
+        .find(|attr| attr.path().is_ident("repr"))
         .ok_or(())
         .or_else(|()| bail!("missing `#[repr(…)]` annotation"))?;
     let ref reprs = repr_attr.parse_args_with(Punctuated::<Ident, Token![,]>::parse_terminated)?;

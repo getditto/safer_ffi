@@ -2,7 +2,7 @@ use super::*;
 
 pub(super) enum VTableEntry<'trait_> {
     VirtualMethod {
-        src: TraitItemMethod,
+        src: TraitItemFn,
         name: &'trait_ Ident,
         each_for_lifetime: Vec<&'trait_ Lifetime>,
         receiver: ReceiverType,
@@ -30,7 +30,7 @@ impl<'trait_> VTableEntry<'trait_> {
                 EachArgTy: _,
                 OutputTy: _,
                 src:
-                    TraitItemMethod {
+                    TraitItemFn {
                         sig: ref full_signature,
                         ref attrs,
                         ..
@@ -73,7 +73,7 @@ impl<'trait_> VTableEntry<'trait_> {
     pub(super) fn attrs<'r>(self: &'r VTableEntry<'trait_>) -> &'r Vec<Attribute> {
         match *self {
             | Self::VirtualMethod {
-                src: TraitItemMethod { ref attrs, .. },
+                src: TraitItemFn { ref attrs, .. },
                 ..
             } => attrs,
         }
@@ -143,7 +143,7 @@ impl<'trait_> VTableEntry<'trait_> {
                         // Step 7: ensure the outer generics introduce early-bound lifetimes.
                         vfn_generics.make_where_clause().predicates.extend(
                             trait_generics.lifetimes().map(
-                                |LifetimeDef { lifetime, .. }| -> WherePredicate {
+                                |LifetimeParam { lifetime, .. }| -> WherePredicate {
                                     parse_quote!(
                                             #lifetime :
                                         )
@@ -209,8 +209,8 @@ pub(super) fn vtable_entries<'trait_>(
         .iter_mut()
         .filter_map(|it| {
             Some(Result::Ok(match *it {
-                | TraitItem::Method(
-                    ref trait_item_method @ TraitItemMethod {
+                | TraitItem::Fn(
+                    ref trait_item_method @ TraitItemFn {
                         attrs: _,
                         sig:
                             ref sig @ Signature {
@@ -285,7 +285,7 @@ pub(super) fn vtable_entries<'trait_>(
                             }
                         } else {
                             return Some(Err(Error::new(
-                                paren_token.span,
+                                paren_token.span.open(),
                                 concat!(
                                     "`dyn` trait requires a `self` receiver on this method",
                                     // ". Else opt-out of `dyn` trait support by adding a \

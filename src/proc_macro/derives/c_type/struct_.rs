@@ -10,7 +10,7 @@ pub(crate) fn derive(
     fields: &'_ Fields,
 ) -> Result<TokenStream2> {
     if let Some(repr) = attrs.iter().find_map(|attr| {
-        bool::then(attr.path.is_ident("repr"), || {
+        bool::then(attr.path().is_ident("repr"), || {
             attr.parse_args::<Ident>().ok()
         })
         .flatten()
