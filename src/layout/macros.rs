@@ -15,6 +15,21 @@ macro_rules! export_cfgs {(
 ) => (
     $(
         match_cfg! {
+            all(
+                feature = $feature,
+                docs, feature = "docs",
+            ) => {
+                #[doc(hidden)] /** not part of the public API */ #[macro_export]
+                #[cfg_attr(rustfmt, rustfmt::skip)]
+                macro_rules! $macro_name {(
+                    $_($item:item)*
+                ) => (
+                    $_(
+                        #[doc(cfg(feature = $feature))]
+                        $item
+                    )*
+                )}
+            },
             feature = $feature => {
                 #[doc(hidden)] /** not part of the public API */ #[macro_export]
                 #[cfg_attr(rustfmt, rustfmt::skip)]
@@ -22,9 +37,6 @@ macro_rules! export_cfgs {(
                     $_($item:item)*
                 ) => (
                     $_(
-                        #[cfg_attr(all(docs, feature = "docs"),
-                            doc(cfg(feature = $feature)),
-                        )]
                         $item
                     )*
                 )}
