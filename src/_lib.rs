@@ -241,9 +241,11 @@ cfg_alloc! {
 }
 
 #[cfg(feature = "alloc")]
+#[cfg_attr(all(docs, feature = "docs"), doc(cfg(feature = "alloc")))]
 pub mod arc;
 
 #[cfg(feature = "alloc")]
+#[cfg_attr(all(docs, feature = "docs"), doc(cfg(feature = "alloc")))]
 pub mod boxed;
 
 pub mod bytes;
@@ -372,6 +374,12 @@ pub mod prelude {
         Out,
     };
 
+    cfg_alloc! {
+        #[doc(no_inline)]
+        pub use crate::arc::ThinArc;
+        #[doc(no_inline)]
+        pub use crate::boxed::ThinBox;
+    }
     #[doc(no_inline)]
     pub use crate::c;
     #[cfg(feature = "dyn-traits")]
