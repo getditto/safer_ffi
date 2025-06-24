@@ -314,6 +314,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustc_version"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cfcb3a22ef46e85b45de6ee7e79d063319ebb6594faafcf1c225ea92ab6e9b92"
+dependencies = [
+ "semver",
+]
+
+[[package]]
 name = "rustversion"
 version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -377,6 +386,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "semver"
+version = "1.0.26"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "56e6fa9c48d24d85fb3de5ad847117517440f6beceb7798af16b4a87d616b8d0"
+
+[[package]]
 name = "sha2-const-stable"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -393,9 +408,9 @@ dependencies = [
 
 [[package]]
 name = "stabby"
-version = "36.1.1"
+version = "72.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "311d6bcf0070c462ff626122ec2246f42bd2acd44b28908eedbfd07d500c7d99"
+checksum = "976399a0c48ea769ef7f5dc303bb88240ab8d84008647a6b2303eced3dab3945"
 dependencies = [
  "rustversion",
  "stabby-abi",
@@ -403,10 +418,11 @@ dependencies = [
 
 [[package]]
 name = "stabby-abi"
-version = "36.1.1"
+version = "72.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6daae1a0707399f56d27fce7f212e50e31d215112a447e1bbcd837ae1bf5f49"
+checksum = "f7b54832a9a1f92a0e55e74a5c0332744426edc515bb3fbad82f10b874a87f0d"
 dependencies = [
+ "rustc_version",
  "rustversion",
  "sha2-const-stable",
  "stabby-macros",
@@ -414,9 +430,9 @@ dependencies = [
 
 [[package]]
 name = "stabby-macros"
-version = "36.1.1"
+version = "72.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43cf89a0cc9131279235baf8599b0e073fbcb096419204de0cc5d1a48ae73f74"
+checksum = "a768b1e51e4dbfa4fa52ae5c01241c0a41e2938fdffbb84add0c8238092f9091"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
