@@ -13,8 +13,8 @@ ReprC! {
 impl<T> From<rust::Arc<T>> for Arc_<T> {
     #[inline]
     fn from(arced: rust::Arc<T>) -> Arc_<T> {
-        let raw = rust::Arc::into_raw(arced);
-        Self(ptr::NonNull::from(unsafe { &*raw }).into())
+        let raw = rust::Arc::into_raw(arced) as *mut T;
+        Self(unsafe { ptr::NonNull::new_unchecked(raw) }.into())
     }
 }
 
@@ -53,7 +53,7 @@ unsafe impl<T> Send for Arc_<T> where rust::Arc<T>: Send {}
 
 unsafe impl<T> Sync for Arc_<T> where rust::Arc<T>: Sync {}
 
-impl<T: Clone> Clone for Arc_<T> {
+impl<T> Clone for Arc_<T> {
     #[inline]
     fn clone(self: &'_ Self) -> Self {
         let raw = self.0.as_ptr() as *mut T;
