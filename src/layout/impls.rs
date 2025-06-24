@@ -890,7 +890,7 @@ impl<T> From<rust::Box<T>> for rust::Box<Opaque<T>> {
 }
 
 #[apply(cfg_alloc)]
-impl<T> From<rust::Box<T>> for crate::boxed::Box_<Opaque<T>> {
+impl<T> From<rust::Box<T>> for ThinBox<Opaque<T>> {
     fn from(b: rust::Box<T>) -> repr_c::Box<Opaque<T>> {
         rust::Box::<Opaque<T>>::from(b).into()
     }
