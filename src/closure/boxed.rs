@@ -1,10 +1,10 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! `Box<dyn 'static + Send + FnMut(...) -> _>` but with a `#[repr(C)]`
 //! layout (inlined virtual method table).
 
 use_prelude!();
 use ::alloc::boxed::Box;
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! with_tuple {(
     $BoxDynFnMut_N:ident => (
         $( $A_N:ident, $($A_k:ident ,)* )?
@@ -189,6 +189,7 @@ macro_rules! with_tuple {(
     }
 )}
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! with_tuples {
     (
         $BoxDynFnMut0:ident,

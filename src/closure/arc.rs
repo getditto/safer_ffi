@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! `Arc<dyn 'static + Send + Sync + Fn(...) -> _>` but with a `#[repr(C)]`
 //! layout (inlined virtual method table).
 
@@ -6,13 +5,14 @@ use ::alloc::sync::Arc;
 
 use_prelude!();
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! with_tuple {(
     $ArcDynFn_N:ident => (
         $( $A_N:ident, $($A_k:ident ,)* )?
     )
 ) => (
     impl<Ret $(, $A_N $(, $A_k)*)?>
-        crate::boxed::FitForCArc
+        crate::arc::FitForCArc
     for
         dyn 'static + Send + Sync + Fn($($A_N $(, $A_k)*)?) -> Ret
     where
@@ -127,7 +127,9 @@ macro_rules! with_tuple {(
                     where
                         F : Send + Sync + 'static,
                     {
-                        drop::<Arc<F>>(Arc::from_raw(env_ptr.cast().as_ptr()));
+                        unsafe {
+                            drop::<Arc<F>>(Arc::from_raw(env_ptr.cast().as_ptr()));
+                        }
                     }
                     release::<F>
                 },
@@ -138,9 +140,9 @@ macro_rules! with_tuple {(
                         F : Send + Sync + 'static,
                     {
                         mem::forget(Arc::<F>::clone(&
-                            mem::ManuallyDrop::new(Arc::from_raw(
-                                env_ptr.cast().as_ptr()
-                            ))
+                            mem::ManuallyDrop::new(unsafe {
+                                Arc::from_raw(env_ptr.cast().as_ptr())
+                            })
                         ));
                     }
                     retain::<F>
@@ -157,7 +159,7 @@ macro_rules! with_tuple {(
                         F : Send + Sync + 'static,
                     {
                         let env_ptr = env_ptr.cast();
-                        let f: &F = env_ptr.as_ref();
+                        let f: &F = unsafe { env_ptr.as_ref() };
                         f( $($A_N $(, $A_k)*)? )
                     }
                     call::<F, Ret $(, $A_N $(, $A_k)*)?>
@@ -246,6 +248,7 @@ macro_rules! with_tuple {(
     }
 )}
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! with_tuples {
     (
         $ArcDynFn0:ident,

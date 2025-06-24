@@ -1,5 +1,11 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 use super::*;
+
+__cfg_headers__! {
+    use crate::headers::languages::{
+        CSharpMarshaler,
+        FunctionArg,
+    };
+}
 
 #[cfg(not(any(target_arch = "wasm32", not(feature = "std"))))] // no libc on WASM nor no_std
 const_assert! {
@@ -8,7 +14,8 @@ const_assert! {
     ::core::mem::size_of::<crate::libc::size_t>()
 }
 
-const _: () = { macro_rules! impl_CTypes {
+const _: () = {
+    macro_rules! impl_CTypes {
     () => (
         impl_CTypes! { @pointers }
         impl_CTypes! { @zsts }
@@ -81,150 +88,8 @@ const _: () = { macro_rules! impl_CTypes {
         impl_CTypes! { @fns
             (A10, A9, A8, A7, A6, A5, A4, A3, A2, A1)
         }
-        #[cfg(docs)] impl_CTypes! { @arrays 1 2 } #[cfg(not(docs))]
-        impl_CTypes! { @arrays
-            // 0
-            1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
-            26 27 28 29 30 31 32 40 48 50 60 64 70 75 80 90 96 100 125 128 192
-            200 250 256 300 400 500 512 600 700 750 800 900 1000 1024
-        }
     );
 
-    (
-        @arrays
-        $($N:tt)*
-    ) => ($(
-        // LegacyCType
-        /// Simplified for lighter documentation, but the actual impls
-        /// range **from `1` up to `32`, plus a bunch of significant
-        /// lengths up to `1024`**.
-        unsafe // Safety: Rust arrays _are_ `#[repr(C)]`
-        impl<Item : CType> LegacyCType
-            for [Item; $N]
-        { __cfg_headers__! {
-            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-              -> fmt::Result
-            {
-                // item_N_array
-                write!(fmt,
-                    concat!("{}_", stringify!($N), "_array"),
-                    Item::short_name(),
-                )
-            }
-
-            fn c_define_self (definer: &'_ mut dyn Definer)
-              -> io::Result<()>
-            {
-                let ref me = Self::c_var("").to_string();
-                definer.define_once(
-                    me,
-                    &mut |definer| {
-                        Item::define_self(&crate::headers::languages::C, definer)?;
-                        writeln!(definer.out(),
-                            concat!(
-                                "typedef struct {{\n",
-                                "    {inline_array};\n",
-                                "}} {me};\n",
-                            ),
-                            inline_array = Item::name_wrapping_var(&crate::headers::languages::C, concat!(
-                                "idx[", stringify!($N), "]",
-                            )),
-                            me = me,
-                        )
-                    }
-                )
-            }
-
-            fn c_var_fmt (
-                fmt: &'_ mut fmt::Formatter<'_>,
-                var_name: &'_ str,
-            ) -> fmt::Result
-            {
-                // _e.g._, item_N_array_t
-                write!(fmt,
-                    "{}_t{sep}{}",
-                    Self::c_short_name(),
-                    var_name,
-                    sep = if var_name.is_empty() { "" } else { " " },
-                )
-            }
-
-            __cfg_csharp__! {
-                fn csharp_define_self (definer: &'_ mut dyn Definer)
-                  -> io::Result<()>
-                {
-                    let ref me = Self::csharp_ty();
-                    Item::define_self(&crate::headers::languages::CSharp, definer)?;
-                    definer.define_once(me, &mut |definer| {
-                        let array_items = {
-                            // Poor man's specialization to use `fixed` arrays.
-                            if  [
-                                    "bool",
-                                    "u8", "u16", "u32", "u64", "usize",
-                                    "i8", "i16", "i32", "i64", "isize",
-                                    "float", "double",
-                                ].contains(&::core::any::type_name::<Item>())
-                            {
-                                format!(
-                                    "    public fixed {ItemTy} arr[{N}];\n",
-                                    ItemTy = Item::name(&crate::headers::languages::CSharp),
-                                    N = $N,
-                                    // no need for a marshaler here
-                                )
-                            } else {
-                                // Sadly for the general case fixed arrays are
-                                // not supported.
-                                (0 .. $N)
-                                    .map(|i| format!(
-                                        "    \
-                                        {marshaler}\
-                                        public {ItemTy} _{i};\n",
-                                        ItemTy = Item::name(&crate::headers::languages::CSharp),
-                                        i = i,
-                                        marshaler =
-                                            Item::csharp_marshaler()
-                                                .map(|m| format!("[MarshalAs({})]\n    ", m))
-                                                .as_deref()
-                                                .unwrap_or("")
-                                        ,
-                                    ))
-                                    .collect::<rust::String>()
-                            }
-                        };
-                        writeln!(definer.out(),
-                            concat!(
-                                "[StructLayout(LayoutKind.Sequential, Size = {size})]\n",
-                                "public unsafe struct {me} {{\n",
-                                "{array_items}",
-                                "}}\n",
-                            ),
-                            me = me,
-                            array_items = array_items,
-                            size = mem::size_of::<Self>(),
-                        )
-                    })
-                }
-            }
-        } type OPAQUE_KIND = OpaqueKind::Concrete; }
-
-        // ReprC
-        /// Simplified for lighter documentation, but the actual impls
-        /// range **from `1` up to `32`, plus a bunch of significant
-        /// lengths up to `1024`**.
-        unsafe
-        impl<Item : ReprC> ReprC
-            for [Item; $N]
-        {
-            type CLayout = [Item::CLayout; $N];
-
-            #[inline]
-            fn is_valid (it: &'_ Self::CLayout)
-              -> bool
-            {
-                it.iter().all(Item::is_valid)
-            }
-        }
-    )*);
 
     (@fns
         (
@@ -272,113 +137,99 @@ const _: () = { macro_rules! impl_CTypes {
             Ret : CType, $(
             $An : CType, $(
             $Ai : CType,
-        )*)?> LegacyCType
+        )*)?> CType
             for Option<unsafe extern "C" fn ($($An, $($Ai ,)*)?) -> Ret>
-        { __cfg_headers__! {
-            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-              -> fmt::Result
-            {
-                // ret_arg1_arg2_fptr
-                fmt.write_str(&Ret::short_name())?; $(
-                write!(fmt, "_{}", $An::short_name())?; $(
-                write!(fmt, "_{}", $Ai::short_name())?; )*)?
-                fmt.write_str("_fptr")
-            }
-
-            fn c_define_self (definer: &'_ mut dyn Definer)
-              -> io::Result<()>
-            {
-                Ret::define_self(&crate::headers::languages::C, definer)?; $(
-                $An::define_self(&crate::headers::languages::C, definer)?; $(
-                $Ai::define_self(&crate::headers::languages::C, definer)?; )*)?
-                Ok(())
-            }
-
-            fn c_var_fmt (
-                fmt: &'_ mut fmt::Formatter<'_>,
-                var_name: &'_ str,
-            ) -> fmt::Result
-            {
-                write!(fmt, "{} ", Ret::name(&crate::headers::languages::C))?;
-                write!(fmt, "(*{})(", var_name)?;
-                let _empty = true; $(
-                let _empty = false;
-                write!(fmt, "{}", $An::name(&crate::headers::languages::C))?; $(
-                write!(fmt, ", {}", $Ai::name(&crate::headers::languages::C))?; )*)?
-                if _empty {
-                    fmt.write_str("void")?;
+        {
+            type OPAQUE_KIND = OpaqueKind::Concrete;
+            __cfg_headers__! {
+                fn short_name() -> String {
+                    // ret_arg1_arg2_fptr
+                    F(|out| {
+                        write!(out, "{}", Ret::short_name())?; $(
+                        write!(out, "_{}", $An::short_name())?; $(
+                        write!(out, "_{}", $Ai::short_name())?; )*)?
+                        write!(out, "_fptr")?;
+                        Ok(())
+                    })
+                    .to_string()
                 }
-                fmt.write_str(")")
-            }
 
-            __cfg_csharp__! {
-                fn csharp_define_self (definer: &'_ mut dyn Definer)
-                  -> io::Result<()>
+                fn define_self__impl (
+                    language: &'_ dyn HeaderLanguage,
+                    definer: &'_ mut dyn Definer,
+                ) -> io::Result<()>
                 {
-                    Ret::define_self(&crate::headers::languages::CSharp, definer)?; $(
-                    $An::define_self(&crate::headers::languages::CSharp, definer)?; $(
-                    $Ai::define_self(&crate::headers::languages::CSharp, definer)?; )*)?
-                    let ref me = Self::name(&crate::headers::languages::CSharp).to_string();
-                    let ref mut _arg = {
-                        let mut iter = (0 ..).map(|c| format!("_{}", c));
-                        move || iter.next().unwrap()
-                    };
-                    definer.define_once(me, &mut |definer| writeln!(definer.out(),
-                        concat!(
-                            // IIUC,
-                            //   - For 32-bits / x86,
-                            //     Rust's extern "C" is the same as C#'s (default) Winapi:
-                            //     "cdecl" for Linux, and "stdcall" for Windows.
-                            //
-                            //   - For everything else, this is param is ignored.
-                            //     I guess because both OSes agree on the calling convention?
-                            "[UnmanagedFunctionPointer(CallingConvention.Winapi)]\n",
-
-                            "{ret_marshaler}public unsafe /* static */ delegate\n",
-                            "    {Ret}\n",
-                            "    {me} (", $("\n",
-                            "        {}{", stringify!($An), "}", $(",\n",
-                            "        {}{", stringify!($Ai), "}", )*)?
-                            ");\n"
-                        ),$(
-                        $An::csharp_marshaler()
-                            .map(|m| format!("[MarshalAs({})]\n        ", m))
-                            .as_deref()
-                            .unwrap_or("")
-                        , $(
-                        $Ai::csharp_marshaler()
-                            .map(|m| format!("[MarshalAs({})]\n        ", m))
-                            .as_deref()
-                            .unwrap_or("")
-                        , )*)?
-                        me = me,
-                        ret_marshaler =
-                            Ret::csharp_marshaler()
-                                .map(|m| format!("[return: MarshalAs({})]\n", m))
-                                .as_deref()
-                                .unwrap_or("")
-                        ,
-                        Ret = Ret::name(&crate::headers::languages::CSharp), $(
-                        $An = $An::name_wrapping_var(&crate::headers::languages::CSharp, &_arg()), $(
-                        $Ai = $Ai::name_wrapping_var(&crate::headers::languages::CSharp, &_arg()), )*)?
-                    ))
+                    Ret::define_self(language, definer)?; $(
+                    $An::define_self(language, definer)?; $(
+                    $Ai::define_self(language, definer)?; )*)?
+                    language.define_function_ptr_ty(
+                        language,
+                        definer,
+                        &PhantomData::<Self>,
+                        &[$(
+                            FunctionArg {
+                                // FIXME: should this be `_{i}`?
+                                name: "",
+                                ty: &PhantomData::<$An>,
+                            }, $(
+                            FunctionArg {
+                                // FIXME: should this be `_{i}`?
+                                name: "",
+                                ty: &PhantomData::<$Ai>,
+                            }, )*)?
+                        ],
+                        &PhantomData::<Ret>,
+                    )?;
+                    Ok(())
                 }
 
-                fn csharp_ty ()
-                  -> rust::String
+                fn render(
+                    out: &mut dyn io::Write,
+                    language: &dyn HeaderLanguage,
+                ) -> io::Result<()>
                 {
-                    Self::c_short_name().to_string()
+                    Self::render_wrapping_var(out, language, None)
                 }
 
-                fn legacy_csharp_marshaler ()
-                  -> Option<rust::String>
+                fn render_wrapping_var(
+                    out: &'_ mut dyn io::Write,
+                    language: &'_ dyn HeaderLanguage,
+                    var_name: Option<&dyn ::core::fmt::Display>,
+                ) -> io::Result<()>
                 {
-                    // This assumes the calling convention from the above
-                    // `UnmanagedFunctionPointer` attribute.
-                    Some("UnmanagedType.FunctionPtr".into())
+                    language.emit_function_ptr_ty(
+                        language,
+                        out,
+                        &(Self::short_name() + "_t"),
+                        var_name,
+                        &[$(
+                            FunctionArg {
+                                // FIXME: should this be `_{i}`?
+                                name: "",
+                                ty: &PhantomData::<$An>,
+                            }, $(
+                            FunctionArg {
+                                // FIXME: should this be `_{i}`?
+                                name: "",
+                                ty: &PhantomData::<$Ai>,
+                            }, )*)?
+                        ],
+                        &PhantomData::<Ret>,
+                    )?;
+                    Ok(())
+                }
+
+                fn metadata() -> &'static dyn Provider {
+                    &provide_with(|request| {
+                        request.give_if_requested::<CSharpMarshaler>(|| {
+                            // This assumes the calling convention from the above
+                            // `UnmanagedFunctionPointer` attribute.
+                            CSharpMarshaler("UnmanagedType.FunctionPtr".into())
+                        });
+                    })
                 }
             }
-        } type OPAQUE_KIND = OpaqueKind::Concrete; }
+        }
 
         /* == ReprC for Option-less == */
 
@@ -462,7 +313,7 @@ const _: () = { macro_rules! impl_CTypes {
         {
             #[inline]
             fn is_niche (_: &'_ Self::CLayout)
-            -> bool
+              -> bool
             {
                 unreachable!()
             }
@@ -476,58 +327,69 @@ const _: () = { macro_rules! impl_CTypes {
         )*
     ) => ($(
         $unsafe // Safety: guaranteed by the caller of the macro
-        impl LegacyCType
+        impl CType
             for $RustInt
-        { __cfg_headers__! {
-            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-              -> fmt::Result
-            {
-                fmt.write_str($CInt)
-            }
+        {
+            type OPAQUE_KIND = OpaqueKind::Concrete;
+            __cfg_headers__! {
+                fn short_name () -> String {
+                    $CInt.into()
+                }
 
-            fn c_define_self (definer: &'_ mut dyn Definer)
-              -> io::Result<()>
-            {
-                definer.define_once(
-                    "__int_headers__",
-                    &mut |definer| write!(definer.out(),
-                        concat!(
-                            "\n",
-                            "#include <stddef.h>\n",
-                            "#include <stdint.h>\n",
-                            "\n",
-                        ),
-                    ),
-                )
-            }
-
-            fn c_var_fmt (
-                fmt: &'_ mut fmt::Formatter<'_>,
-                var_name: &'_ str,
-            ) -> fmt::Result
-            {
-                write!(fmt,
-                    concat!($CInt, "_t{sep}{}"),
-                    var_name,
-                    sep = if var_name.is_empty() { "" } else { " " },
-                )
-            }
-
-            __cfg_csharp__! {
-                fn csharp_define_self (
-                    _: &'_ mut dyn crate::headers::Definer,
+                fn define_self__impl (
+                    _language: &'_ dyn HeaderLanguage,
+                    _definer: &'_ mut dyn Definer,
                 ) -> io::Result<()>
                 {
-                    Ok(())
+                    unimplemented!("directly did `define_self`")
                 }
 
-                fn csharp_ty ()
-                  -> rust::String
+                fn define_self (
+                    language: &'_ dyn HeaderLanguage,
+                    definer: &'_ mut dyn Definer,
+                ) -> io::Result<()>
                 {
-                    $CSharpInt.into()
+                    language.define_primitive_ty(
+                        language,
+                        definer,
+                        primitives::Primitive::Integer {
+                            signed: { #[allow(unused_comparisons)] {
+                                Self::MIN < 0
+                            }},
+                            bitwidth: primitives::IntBitWidth::Fixed(
+                                primitives::FixedIntBitWidth::from_raw(
+                                    Self::BITS as _,
+                                ).unwrap()
+                            ),
+                        }
+                    )
+                }
+
+                fn render(
+                    out: &'_ mut dyn io::Write,
+                    language: &'_ dyn HeaderLanguage,
+                ) -> io::Result<()>
+                {
+                    language.emit_primitive_ty(
+                        out,
+                        primitives::Primitive::Integer {
+                            signed: { #[allow(unused_comparisons)] {
+                                Self::MIN < 0
+                            }},
+                            bitwidth: match stringify!($RustInt) {
+                                | "isize" | "usize" => primitives::IntBitWidth::PointerSized,
+                                _ => primitives::IntBitWidth::Fixed(
+                                    primitives::FixedIntBitWidth::from_raw(
+                                        Self::BITS as _,
+                                    ).unwrap()
+                                ),
+                            },
+                        },
+                    )?;
+                    Ok(())
                 }
             }
-        } type OPAQUE_KIND = OpaqueKind::Concrete; }
+        }
         from_CType_impl_ReprC! { $RustInt }
     )*);
 
@@ -538,49 +400,42 @@ const _: () = { macro_rules! impl_CTypes {
         )*
     ) => ($(
         $unsafe // Safety: guaranteed by the caller of the macro
-        impl LegacyCType
+        impl CType
             for $fN
-        { __cfg_headers__! {
-            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-              -> fmt::Result
-            {
-                fmt.write_str($Cty)
-            }
+        {
+            type OPAQUE_KIND = OpaqueKind::Concrete;
+            __cfg_headers__! {
+                fn short_name () -> String {
+                    $Cty.into()
+                }
 
-            fn c_var_fmt (
-                fmt: &'_ mut fmt::Formatter<'_>,
-                var_name: &'_ str,
-            ) -> fmt::Result
-            {
-                write!(fmt,
-                    concat!($Cty, "{sep}{}"),
-                    var_name,
-                    sep = if var_name.is_empty() { "" } else { " " },
-                )
-            }
-
-            fn c_define_self (
-                _: &'_ mut dyn crate::headers::Definer,
-            ) -> io::Result<()>
-            {
-                Ok(())
-            }
-
-            __cfg_csharp__! {
-                fn csharp_define_self (
-                    _: &'_ mut dyn crate::headers::Definer,
+                fn define_self__impl (
+                    _language: &'_ dyn HeaderLanguage,
+                    _definer: &'_ mut dyn Definer,
                 ) -> io::Result<()>
                 {
                     Ok(())
                 }
 
-                fn csharp_ty ()
-                  -> rust::String
+                fn render(
+                    out: &'_ mut dyn io::Write,
+                    language: &'_ dyn HeaderLanguage,
+                ) -> io::Result<()>
                 {
-                    $Cty.into()
+                    language.emit_primitive_ty(
+                        out,
+                        primitives::Primitive::Float {
+                            bitwidth: match size_of::<Self>() {
+                                4 => primitives::FloatBitWidth::_32,
+                                8 => primitives::FloatBitWidth::_64,
+                                _ => unreachable!(),
+                            },
+                        },
+                    )?;
+                    Ok(())
                 }
             }
-        } type OPAQUE_KIND = OpaqueKind::Concrete; }
+        }
         from_CType_impl_ReprC! { $fN }
     )*);
 
@@ -588,57 +443,40 @@ const _: () = { macro_rules! impl_CTypes {
         @pointers
     ) => (
         unsafe
-        impl<T : CType> LegacyCType
+        impl<T : CType> CType
             for *const T
-        { __cfg_headers__! {
-            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-              -> fmt::Result
-            {
-                write!(fmt, "{}_const_ptr", T::short_name())
-            }
+        {
+            type OPAQUE_KIND = OpaqueKind::Concrete;
 
-            fn c_define_self (definer: &'_ mut dyn Definer)
-              -> io::Result<()>
-            {
-                T::define_self(&crate::headers::languages::C, definer)
-            }
+            __cfg_headers__! {
+                fn short_name () -> String {
+                    format!("{}_const_ptr", T::short_name())
+                }
 
-            fn c_var_fmt (
-                fmt: &'_ mut fmt::Formatter<'_>,
-                var_name: &'_ str,
-            ) -> fmt::Result
-            {
-                write!(fmt,
-                    "{} const *{sep}{}",
-                    T::name(&crate::headers::languages::C),
-                    var_name,
-                    sep = if var_name.is_empty() { "" } else { " " },
-                )
-            }
-
-            __cfg_csharp__! {
-                fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
-                  -> $crate::ඞ::io::Result<()>
+                fn define_self__impl (
+                    language: &'_ dyn HeaderLanguage,
+                    definer: &'_ mut dyn Definer,
+                ) -> io::Result<()>
                 {
-                    T::define_self(&crate::headers::languages::CSharp, definer)?;
-                    // definer.define_once("Const", &mut |definer| {
-                    //     definer.out().write_all(concat!(
-                    //         "[StructLayout(LayoutKind.Sequential)]\n",
-                    //         "public readonly struct Const<T> {\n",
-                    //         "    public readonly T value;\n",
-                    //         "}\n\n",
-                    //     ).as_bytes())
-                    // })?
+                    T::define_self(language, definer)
+                }
+
+                fn render(
+                    out: &'_ mut dyn io::Write,
+                    language: &'_ dyn HeaderLanguage,
+                ) -> io::Result<()>
+                {
+                    const IMMUTABLE: bool = true;
+                    language.emit_pointer_ty(
+                        language,
+                        out,
+                        IMMUTABLE,
+                        &PhantomData::<T>,
+                    )?;
                     Ok(())
                 }
-
-                fn csharp_ty ()
-                  -> rust::String
-                {
-                    format!("{} /*const*/ *", T::name(&crate::headers::languages::CSharp))
-                }
             }
-        } type OPAQUE_KIND = OpaqueKind::Concrete; }
+        }
 
         unsafe
         impl<T : ReprC> ReprC
@@ -655,48 +493,41 @@ const _: () = { macro_rules! impl_CTypes {
         }
 
         unsafe
-        impl<T : CType> LegacyCType
+        impl<T : CType> CType
             for *mut T
-        { __cfg_headers__! {
-            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-              -> fmt::Result
-            {
-                write!(fmt, "{}_ptr", T::short_name())
-            }
+        {
+            type OPAQUE_KIND = OpaqueKind::Concrete;
 
-            fn c_define_self (definer: &'_ mut dyn Definer)
-              -> io::Result<()>
-            {
-                T::define_self(&crate::headers::languages::C, definer)
-            }
-
-            fn c_var_fmt (
-                fmt: &'_ mut fmt::Formatter<'_>,
-                var_name: &'_ str,
-            ) -> fmt::Result
-            {
-                write!(fmt,
-                    "{} *{sep}{}",
-                    T::name(&crate::headers::languages::C),
-                    var_name,
-                    sep = if var_name.is_empty() { "" } else { " " },
-                )
-            }
-
-            __cfg_csharp__! {
-                fn csharp_define_self (definer: &'_ mut dyn $crate::headers::Definer)
-                  -> $crate::ඞ::io::Result<()>
-                {
-                    T::define_self(&crate::headers::languages::CSharp, definer)
+            __cfg_headers__! {
+                fn short_name () -> String {
+                    format!("{}_ptr", T::short_name())
                 }
 
-                fn csharp_ty ()
-                  -> rust::String
+                fn define_self__impl (
+                    language: &'_ dyn HeaderLanguage,
+                    definer: &'_ mut dyn Definer,
+                ) -> io::Result<()>
                 {
-                    format!("{} *", T::name(&crate::headers::languages::CSharp))
+                    T::define_self(language, definer)
+                }
+
+                fn render(
+                    out: &'_ mut dyn io::Write,
+                    language: &'_ dyn HeaderLanguage,
+                ) -> io::Result<()>
+                {
+                    const IMMUTABLE: bool = false;
+                    language.emit_pointer_ty(
+                        language,
+                        out,
+                        IMMUTABLE,
+                        &PhantomData::<T>,
+                    )?;
+                    Ok(())
                 }
             }
-        } type OPAQUE_KIND = OpaqueKind::Concrete; }
+        }
+
         unsafe
         impl<T : ReprC> ReprC
             for *mut T
@@ -745,8 +576,11 @@ const _: () = { macro_rules! impl_CTypes {
             }
         }
     );
-} impl_CTypes! {} };
+}
+    impl_CTypes! {}
+};
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! impl_ReprC_for {(
     $unsafe:tt {
         $(
@@ -791,8 +625,7 @@ macro_rules! impl_ReprC_for {(
 #[repr(transparent)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 #[allow(missing_debug_implementations)]
-pub
-struct Bool(u8);
+pub struct Bool(u8);
 
 #[cfg(feature = "js")]
 const _: () = {
@@ -801,88 +634,73 @@ const _: () = {
     impl ReprNapi for Bool {
         type NapiValue = JsBoolean;
 
-        fn to_napi_value (
+        fn to_napi_value(
             self: Self,
             env: &'_ Env,
-        ) -> Result< JsBoolean >
-        {
+        ) -> Result<JsBoolean> {
             env.get_boolean(match self.0 {
-                0 => false,
-                1 => true,
-                bad => unreachable!("({:#x}: Bool) != 0x0, 0x1", bad),
+                | 0 => false,
+                | 1 => true,
+                | bad => unreachable!("({:#x}: Bool) != 0x0, 0x1", bad),
             })
         }
 
-        fn from_napi_value (
+        fn from_napi_value(
             _env: &'_ Env,
             napi_value: JsBoolean,
-        ) -> Result<Self>
-        {
+        ) -> Result<Self> {
             napi_value.get_value().map(|b: bool| Self(b as _))
         }
     }
 };
 
-unsafe
-    impl LegacyCType
-        for Bool
-    {
-        __cfg_headers__! {
-            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-              -> fmt::Result
-            {
-                fmt.write_str("bool")
-            }
-
-            fn c_define_self (definer: &'_ mut dyn Definer)
-              -> io::Result<()>
-            {
-                definer.define_once(
-                    "bool",
-                    &mut |definer| {
-                        definer.out().write_all(
-                            b"\n#include <stdbool.h>\n\n"
-                        )
-                    },
-                )
-            }
-
-            fn c_var_fmt (
-                fmt: &'_ mut fmt::Formatter<'_>,
-                var_name: &'_ str,
-            ) -> fmt::Result
-            {
-                write!(fmt,
-                    "bool{sep}{}",
-                    var_name,
-                    sep = if var_name.is_empty() { "" } else { " " },
-                )
-            }
-
-            __cfg_csharp__! {
-                fn csharp_define_self (
-                    _: &'_ mut dyn crate::headers::Definer,
-                ) -> io::Result<()>
-                {
-                    Ok(())
-                }
-
-                fn legacy_csharp_marshaler ()
-                  -> Option<rust::String>
-                {
-                    Some("UnmanagedType.U1".into())
-                }
-
-                fn csharp_ty ()
-                  -> rust::String
-                {
-                    "bool".into()
-                }
-            }
+unsafe impl CType for Bool {
+    type OPAQUE_KIND = OpaqueKind::Concrete;
+    __cfg_headers__! {
+        fn short_name() -> String {
+            "bool".into()
+        }
+        fn define_self__impl(
+            _language: &'_ dyn HeaderLanguage,
+            _definer: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        {
+            unimplemented!("directly did `define_self()`");
         }
 
-        type OPAQUE_KIND = OpaqueKind::Concrete;
+        fn define_self(
+            language: &'_ dyn HeaderLanguage,
+            definer: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        {
+            language.define_primitive_ty(
+                language,
+                definer,
+                primitives::Primitive::Bool,
+            )
+        }
+
+        fn render(
+            out: &'_ mut dyn io::Write,
+            language: &'_ dyn HeaderLanguage,
+        ) -> io::Result<()>
+        {
+            language.emit_primitive_ty(
+                out,
+                primitives::Primitive::Bool,
+            )?;
+            Ok(())
+        }
+
+        fn metadata() -> &'static dyn Provider {
+            &provide_with(|request| {
+                request.give_if_requested::<CSharpMarshaler>(|| {
+                    CSharpMarshaler("UnmanagedType.U1")
+                });
+            })
+        }
     }
+}
 from_CType_impl_ReprC! { Bool }
 
 /// A `ReprC` _standalone_ type with the same layout and ABI as
@@ -895,71 +713,57 @@ from_CType_impl_ReprC! { Bool }
 /// By using this type, you guarantee that the C `int` type be used in the headers.
 #[repr(transparent)]
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub
-struct c_int(pub crate::libc::c_int);
+pub struct c_int(pub crate::libc::c_int);
 
 impl ::core::fmt::Debug for c_int {
-    fn fmt (self: &'_ c_int, fmt: &'_ mut ::core::fmt::Formatter<'_>)
-      -> ::core::fmt::Result
-    {
+    fn fmt(
+        self: &'_ c_int,
+        fmt: &'_ mut ::core::fmt::Formatter<'_>,
+    ) -> ::core::fmt::Result {
         ::core::fmt::Debug::fmt(&self.0, fmt)
     }
 }
 
-unsafe
-    impl LegacyCType
-        for c_int
-    {
-        __cfg_headers__! {
-            fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-                -> fmt::Result
-            {
-                fmt.write_str("int")
-            }
-
-            fn c_var_fmt (
-                fmt: &'_ mut fmt::Formatter<'_>,
-                var_name: &'_ str,
-            ) -> fmt::Result
-            {
-                write!(fmt,
-                    "int{sep}{}",
-                    var_name,
-                    sep = if var_name.is_empty() { "" } else { " " },
-                )
-            }
-
-            fn c_define_self (
-                _: &'_ mut dyn crate::headers::Definer,
-            ) -> io::Result<()>
-            {
-                Ok(())
-            }
-
-            __cfg_csharp__! {
-                fn csharp_define_self (
-                    _: &'_ mut dyn crate::headers::Definer,
-                ) -> io::Result<()>
-                {
-                    Ok(())
-                }
-
-                fn csharp_ty ()
-                  -> rust::String
-                {
-                    "int".into()
-                }
-
-                fn legacy_csharp_marshaler ()
-                  -> Option<rust::String>
-                {
-                    Some("UnmanagedType.SysInt".into())
-                }
-            }
+unsafe impl CType for c_int {
+    type OPAQUE_KIND = OpaqueKind::Concrete;
+    __cfg_headers__! {
+        fn short_name() -> String {
+            "int".into()
         }
 
-        type OPAQUE_KIND = OpaqueKind::Concrete;
+        fn define_self__impl (
+            _language: &'_ dyn HeaderLanguage,
+            _definer: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        {
+            // TODO.
+            Ok(())
+        }
+
+        fn render(
+            out: &'_ mut dyn io::Write,
+            language: &'_ dyn HeaderLanguage,
+        ) -> io::Result<()>
+        {
+            language.emit_primitive_ty(
+                out,
+                primitives::Primitive::Integer {
+                    signed: true,
+                    bitwidth: primitives::IntBitWidth::CInt,
+                },
+            )?;
+            Ok(())
+        }
+
+        fn metadata() -> &'static dyn Provider {
+            &provide_with(|request| {
+                request.give_if_requested::<CSharpMarshaler>(|| {
+                    CSharpMarshaler("UnmanagedType.SysInt")
+                });
+            })
+        }
     }
+}
 
 impl_ReprC_for! { unsafe {
     bool
@@ -1020,20 +824,13 @@ impl_ReprC_for! { unsafe {
         },
 }}
 
-pub
-type OpaqueLayout<T> = OpaqueLayout_<
-    ::core::marker::PhantomData<T>,
->;
+pub type OpaqueLayout<T> = OpaqueLayout_<::core::marker::PhantomData<T>>;
 
 #[derive(Debug, Clone, Copy)]
-pub
-struct OpaqueLayout_<Phantom> (
-    Phantom,
-);
+pub struct OpaqueLayout_<Phantom>(Phantom);
 
 from_CType_impl_ReprC!(@for[T] OpaqueLayout<T>);
-unsafe
-impl<T> CType for OpaqueLayout<T> {
+unsafe impl<T> CType for OpaqueLayout<T> {
     type OPAQUE_KIND = OpaqueKind::Opaque;
 
     __cfg_headers__! {
@@ -1050,7 +847,8 @@ impl<T> CType for OpaqueLayout<T> {
             definer: &'_ mut dyn Definer,
         ) -> io::Result<()>
         {
-            language.emit_opaque_type(
+            language.declare_opaque_type(
+                language,
                 definer,
                 &[
                     &format!(
@@ -1066,76 +864,54 @@ impl<T> CType for OpaqueLayout<T> {
 
 #[derive(Debug)]
 #[repr(transparent)]
-pub
-struct Opaque<T> {
+pub struct Opaque<T> {
     pub concrete: T,
 }
 
 impl<T> ::core::ops::Deref for Opaque<T> {
     type Target = T;
 
-    fn deref (self: &'_ Opaque<T>)
-      -> &'_ T
-    {
+    fn deref(self: &'_ Opaque<T>) -> &'_ T {
         &self.concrete
     }
 }
 
 impl<T> ::core::ops::DerefMut for Opaque<T> {
-    fn deref_mut (self: &'_ mut Opaque<T>)
-      -> &'_ mut T
-    {
+    fn deref_mut(self: &'_ mut Opaque<T>) -> &'_ mut T {
         &mut self.concrete
     }
 }
 
 #[apply(cfg_alloc)]
 impl<T> From<rust::Box<T>> for rust::Box<Opaque<T>> {
-    fn from (b: rust::Box<T>)
-      -> rust::Box<Opaque<T>>
-    {
-        unsafe {
-            rust::Box::from_raw(rust::Box::into_raw(b).cast())
-        }
+    fn from(b: rust::Box<T>) -> rust::Box<Opaque<T>> {
+        unsafe { rust::Box::from_raw(rust::Box::into_raw(b).cast()) }
     }
 }
 
 #[apply(cfg_alloc)]
-impl<T> From<rust::Box<T>> for crate::boxed::Box_<Opaque<T>> {
-    fn from (b: rust::Box<T>)
-      -> repr_c::Box<Opaque<T>>
-    {
+impl<T> From<rust::Box<T>> for ThinBox<Opaque<T>> {
+    fn from(b: rust::Box<T>) -> repr_c::Box<Opaque<T>> {
         rust::Box::<Opaque<T>>::from(b).into()
     }
 }
 
 impl<'r, T> From<&'r T> for &'r Opaque<T> {
-    fn from (r: &'r T)
-      -> &'r Opaque<T>
-    {
-        unsafe {
-            &* <*const _>::cast::<Opaque<T>>(r)
-        }
+    fn from(r: &'r T) -> &'r Opaque<T> {
+        unsafe { &*<*const _>::cast::<Opaque<T>>(r) }
     }
 }
 
 impl<'r, T> From<&'r mut T> for &'r mut Opaque<T> {
-    fn from (r: &'r mut T)
-      -> &'r mut Opaque<T>
-    {
-        unsafe {
-            &mut* <*mut _>::cast::<Opaque<T>>(r)
-        }
+    fn from(r: &'r mut T) -> &'r mut Opaque<T> {
+        unsafe { &mut *<*mut _>::cast::<Opaque<T>>(r) }
     }
 }
 
-unsafe
-impl<T> ReprC for Opaque<T> {
+unsafe impl<T> ReprC for Opaque<T> {
     type CLayout = OpaqueLayout<T>;
 
-    fn is_valid (_: &'_ Self::CLayout)
-      -> bool
-    {
+    fn is_valid(_: &'_ Self::CLayout) -> bool {
         unreachable! {"\
             wondering about the validity of an opaque type \
             makes no sense\
@@ -1169,6 +945,7 @@ opaque_impls! {
 }
 
 // where
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! opaque_impls {(
     $(
         $(@for[$($generics:tt)*])? $T:ty
@@ -1195,4 +972,65 @@ macro_rules! opaque_impls {(
             }
         }
     )*
-)} use opaque_impls;
+)}
+use opaque_impls;
+
+/// Arrays of const size `N`
+unsafe impl<Item: CType, const N: usize> CType for [Item; N] {
+    type OPAQUE_KIND = OpaqueKind::Concrete;
+    __cfg_headers__! {
+        fn short_name() -> String {
+            // item_N_array
+            format!("{}_{}_array", Item::short_name(), N)
+        }
+
+        fn define_self__impl(
+            language: &'_ dyn HeaderLanguage,
+            definer: &'_ mut dyn Definer,
+        ) -> io::Result<()>
+        {
+            Item::define_self(language, definer)?;
+            language.define_array_ty(
+                language,
+                definer,
+                &PhantomData::<Self>,
+                &PhantomData::<Item>,
+                N,
+            )?;
+            Ok(())
+        }
+
+        fn render(
+            out: &mut dyn io::Write,
+            language: &dyn HeaderLanguage,
+        ) -> io::Result<()>
+        {
+            Self::render_wrapping_var(out, language, None)
+        }
+
+        fn render_wrapping_var(
+            out: &'_ mut dyn io::Write,
+            language: &'_ dyn HeaderLanguage,
+            var_name: Option<&dyn ::core::fmt::Display>,
+        ) -> io::Result<()>
+        {
+            language.emit_array_ty(
+                language,
+                out,
+                var_name,
+                &(Self::short_name() + "_t"),
+                &PhantomData::<Item>,
+                N,
+            )
+        }
+    }
+}
+
+unsafe impl<Item: ReprC, const N: usize> ReprC for [Item; N] {
+    type CLayout = [Item::CLayout; N];
+
+    #[inline]
+    fn is_valid(it: &'_ Self::CLayout) -> bool {
+        it.iter().all(Item::is_valid)
+    }
+}

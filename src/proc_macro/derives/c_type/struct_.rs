@@ -1,39 +1,28 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 use super::*;
 
 #[allow(unexpected_cfgs)]
-pub(in crate)
-fn derive (
+pub(crate) fn derive(
     args: Args,
     attrs: &'_ [Attribute],
     pub_: &'_ Visibility,
     StructName @ _: &'_ Ident,
     generics: &'_ Generics,
     fields: &'_ Fields,
-) -> Result<TokenStream2>
-{
+) -> Result<TokenStream2> {
     if let Some(repr) = attrs.iter().find_map(|attr| {
-        bool::then(
-            attr.path.is_ident("repr"),
-            || attr.parse_args::<Ident>().ok()
-        ).flatten()
-    })
-    {
+        bool::then(attr.path().is_ident("repr"), || {
+            attr.parse_args::<Ident>().ok()
+        })
+        .flatten()
+    }) {
         if repr.to_string() == "transparent" {
-            return derive_transparent(
-                args,
-                attrs,
-                pub_,
-                StructName,
-                generics,
-                fields,
-            );
+            return derive_transparent(args, attrs, pub_, StructName, generics, fields);
         }
     } else {
         bail!("Missing `#[repr]`!");
     }
 
+    #[rustfmt::skip]
     #[apply(let_quote!)]
     use ::safer_ffi::{
         ඞ,
@@ -75,34 +64,24 @@ fn derive (
     );
 
     if cfg!(feature = "headers") {
-        let EachGenericTy =
-            generics.type_params().map(|it| &it.ident)
-        ;
-        let ref EachFieldTy =
-            fields.iter().vmap(|Field { ty, .. }| ty)
-        ;
-        let ref StructName_str =
-            args.rename.map_or_else(
-                || StructName.to_string().into_token_stream(),
-                ToTokens::into_token_stream,
-            )
-        ;
+        let EachGenericTy = generics.type_params().map(|it| &it.ident);
+        let EachConstParam = generics.const_params().map(|param| &param.ident);
+        let ref EachFieldTy = fields.iter().vmap(|Field { ty, .. }| ty);
+        let ref StructName_str = args.rename.map_or_else(
+            || StructName.to_string().into_token_stream(),
+            ToTokens::into_token_stream,
+        );
 
         impl_body.extend(quote!(
             fn short_name ()
               -> #ඞ::String
             {
-                let mut _ret =
-                    <#ඞ::String as #ඞ::From<_>>::from(#StructName_str)
-                ;
+                let mut _ret = #ඞ::format!("{}", #StructName_str);
                 #(
-                    #ඞ::fmt::Write::write_fmt(
-                        &mut _ret,
-                        #ඞ::format_args!(
-                            "_{}",
-                            <#CLayoutOf<#EachGenericTy> as #CType>::short_name(),
-                        ),
-                    ).unwrap();
+                    _ret.push_str(&#ඞ::format!("_{}", <#CLayoutOf<#EachGenericTy> as #CType>::short_name()));
+                )*
+                #(
+                    _ret.push_str(&#ඞ::format!("_{}", #EachConstParam));
                 )*
                 _ret
             }
@@ -110,13 +89,13 @@ fn derive (
 
         let ref struct_docs = utils::extract_docs(attrs)?;
 
-        let ref each_field: Vec<Quote![ StructField ]> =
-            (0..).zip(fields).try_vmap(|(i, f)| Result::Ok({
+        let ref each_field: Vec<Quote![StructField]> = (0..).zip(fields).try_vmap(|(i, f)| {
+            Result::Ok({
                 let ref field_docs = utils::extract_docs(&f.attrs)?;
-                let ref field_name_str = f.ident.as_ref().map_or_else(
-                    || format!("_{i}"),
-                    Ident::to_string,
-                );
+                let ref field_name_str = f
+                    .ident
+                    .as_ref()
+                    .map_or_else(|| format!("_{i}"), Ident::to_string);
                 let FieldTy = &f.ty;
                 quote!(
                     #ඞ::StructField {
@@ -125,8 +104,8 @@ fn derive (
                         ty: &#ඞ::marker::PhantomData::<#FieldTy>,
                     }
                 )
-            }))?
-        ;
+            })
+        })?;
 
         impl_body.extend(quote_spanned!(Span::mixed_site()=>
             #[allow(nonstandard_style)]
@@ -138,7 +117,8 @@ fn derive (
             #(
                 < #EachFieldTy as #CType >::define_self(language, definer)?;
             )*
-                language.emit_struct(
+                language.declare_struct(
+                    language,
                     definer,
                     &[#(#struct_docs),*],
                     &#ඞ::marker::PhantomData::<Self>,
@@ -175,27 +155,23 @@ fn derive (
     Ok(ret)
 }
 
-pub(in crate)
-fn derive_transparent (
+pub(crate) fn derive_transparent(
     args: Args,
     attrs: &'_ [Attribute],
     _pub: &'_ Visibility,
     StructName_Layout @ _: &'_ Ident,
     generics: &'_ Generics,
     fields: &'_ Fields,
-) -> Result<TokenStream2>
-{
+) -> Result<TokenStream2> {
     // Example input:
     #[cfg(any())]
     #[derive_CType(js, rename = "dittoffi_string")]
     #[repr(transparent)]
-    struct FfiString_Layout(
-        CLayoutOf<char_p::Box>,
-    )
+    struct FfiString_Layout(CLayoutOf<char_p::Box>)
     where
-        char_p::Box : ReprC,
-    ;
+        char_p::Box: ReprC;
 
+    #[rustfmt::skip]
     #[apply(let_quote)]
     use ::safer_ffi::ඞ;
 
@@ -237,18 +213,7 @@ fn derive_transparent (
                     definer: &'_ mut dyn #ඞ::Definer,
                 ) -> #ඞ::io::Result<()>
                 {
-                    <#CFieldTy as #ඞ::CType>::define_self(language, definer)?;
-
-                    if let #ඞ::Some(language) = language.supports_type_aliases() {
-                        language.emit_type_alias(
-                            definer,
-                            &[#(#docs),*],
-                            &#ඞ::PhantomData::<Self>,
-                            &#ඞ::PhantomData::<#CFieldTy>,
-                        )?;
-                    }
-
-                    Ok(())
+                    ::core::unimplemented!("directly handled in `define_self()`");
                 }
 
                 fn define_self (
@@ -256,39 +221,93 @@ fn derive_transparent (
                     definer: &'_ mut dyn #ඞ::Definer,
                 ) -> #ඞ::io::Result<()>
                 {
-                    // We need to be careful with the default idempotency guard:
-                    // Since the `name` for a type alias happens to be identical to that of the
-                    // inner type, and since `.define_once()`'s implementation eagerly `.insert()`s
-                    // into the map before running the `__impl()`, we have no choice but to use
-                    // a properly unique name here, like the true C (re)name.
-                    let idempotency_definition_id = if language.supports_type_aliases().is_some() {
-                        Self::name(language)
-                    } else {
-                        Self::name(&#ඞ::languages::C)
-                    };
+                    // We have to manyally override `define_self()`, since the
+                    // idempotency logic here is a bit more subtle: we may be dealing
+                    // with a language which does not support type aliases.
+                    //
+                    // In that case, we will just be inlining the semantics of the inner
+                    // type, completely bypassing the existence of the alias
+                    // (in other words, we will be "eagerly" expanding the type alias to
+                    // its aliasee).
+                    //
+                    // Among other things, in that case, the `{short_,}name()` will be that
+                    // of the inner type.
+                    //
+                    // And this is where the subtlety lies: it's the same name
+                    // being used as the "idempotency_id" in `define_{once,self}()`.
+                    //
+                    // So we need to make sure to *first* define the inner type, and only
+                    // then self-guard the rest with our extra info.
+                    <#CFieldTy as #ඞ::CType>::define_self(language, definer)?;
+
                     definer.define_once(
-                        &idempotency_definition_id,
-                        &mut |definer| Self::define_self__impl(language, definer),
-                    )
+                        &Self::name(language),
+                        &mut |definer| {
+                            if let #ඞ::Some(language) = language.supports_type_aliases() {
+                                language.declare_type_alias(
+                                    definer,
+                                    &[#(#docs),*],
+                                    &#ඞ::PhantomData::<Self>,
+                                    &#ඞ::PhantomData::<#CFieldTy>,
+                                )?;
+                            }
+                            Ok(())
+                        },
+                    )?;
+
+                    Ok(())
                 }
 
                 fn name (
                     language: &'_ dyn #ඞ::HeaderLanguage,
-                ) -> String
+                ) -> #ඞ::String
                 {
-                    if let #ඞ::Some(language) = language.supports_type_aliases() {
+                    if language.supports_type_aliases().is_some() {
                         #ඞ::std::format!("{}_t", Self::short_name())
                     } else {
                         <#CFieldTy as #ඞ::CType>::name(language)
+                    }
+                }
+
+                fn render(
+                    out: &'_ mut dyn #ඞ::io::Write,
+                    language: &'_ dyn #ඞ::HeaderLanguage,
+                ) -> #ඞ::io::Result<()>
+                {
+                    Self::render_wrapping_var(out, language, #ඞ::None {})
+                }
+
+                fn render_wrapping_var(
+                    out: &'_ mut dyn #ඞ::io::Write,
+                    language: &'_ dyn #ඞ::HeaderLanguage,
+                    var_name: #ඞ::Option<&dyn #ඞ::fmt::Display>,
+                ) -> #ඞ::io::Result<()>
+                {
+                    if language.supports_type_aliases().is_some() {
+                        #ඞ::write!(
+                            out,
+                            "{ty}{sep}{var_name}",
+                            ty = Self::name(language),
+                            sep = if var_name.is_none() { "" } else { " " },
+                            var_name = var_name.unwrap_or(&""),
+                        )
+                    } else {
+                        <#CFieldTy as #ඞ::CType>::render_wrapping_var(out, language, var_name)
                     }
                 }
             }
         }
     ));
 
-    ret.extend(trivial_impls(intro_generics, fwd_generics, where_clauses, StructName_Layout));
+    ret.extend(trivial_impls(
+        intro_generics,
+        fwd_generics,
+        where_clauses,
+        StructName_Layout,
+    ));
 
     if cfg!(feature = "js") && args.js.is_some() {
+        #[rustfmt::skip]
         #[apply(let_quote)]
         use ::safer_ffi::js;
 
@@ -330,6 +349,7 @@ fn trivial_impls(
     where_clauses: &dyn ToTokens,
     StructName @ _: &dyn ToTokens,
 ) -> TokenStream2 {
+    #[rustfmt::skip]
     #[apply(let_quote)]
     use ::safer_ffi::ඞ;
 

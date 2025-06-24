@@ -1,5 +1,4 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! new_type_wrappers {(
     $(
         $( #[$js_unknown:ident] )?
@@ -34,10 +33,12 @@ macro_rules! new_type_wrappers {(
             }
         }
 
-        #[cfg(all(
-            // do not emit this `impl` for `$JsTy = JsUnknown`.
-            $($js_unknown = "__hack" ,)?
-        ))]
+
+        // do not emit this `impl` for `$JsTy = JsUnknown`.
+        $(
+            #[doc = stringify!($js_unknown)]
+            #[cfg(any())]
+        )?
         impl ::core::convert::TryFrom<JsUnknown> for $JsTy {
             type Error = JsValue;
 
@@ -130,7 +131,7 @@ macro_rules! new_type_wrappers {(
         }
     };
 )*)}
-pub(in crate) use new_type_wrappers;
+pub(crate) use new_type_wrappers;
 
 macro_rules! match_ {(
     $args:tt $rules:tt
@@ -138,32 +139,28 @@ macro_rules! match_ {(
     macro_rules! __recurse__ $rules
     __recurse__! $args;
 )}
-pub(in crate) use match_;
+pub(crate) use match_;
 
-pub(in crate)
-trait TurboFish {
-    fn into_<Dst> (self: Self)
-      -> Dst
+pub(crate) trait TurboFish {
+    fn into_<Dst>(self: Self) -> Dst
     where
-        Self : Into<Dst>,
+        Self: Into<Dst>,
     {
         self.into()
     }
 
-    fn try_into_<Dst> (self: Self)
-      -> Result<Dst, <Self as ::core::convert::TryInto<Dst>>::Error>
+    fn try_into_<Dst>(self: Self) -> Result<Dst, <Self as ::core::convert::TryInto<Dst>>::Error>
     where
-        Self : ::core::convert::TryInto<Dst>,
+        Self: ::core::convert::TryInto<Dst>,
     {
         ::core::convert::TryInto::try_into(self)
     }
 
-    fn as_ref_<Dst> (self: &'_ Self)
-      -> &'_ Dst
+    fn as_ref_<Dst>(self: &'_ Self) -> &'_ Dst
     where
-        Self : AsRef<Dst>,
+        Self: AsRef<Dst>,
     {
         self.as_ref()
     }
 }
-impl<T : ?Sized> TurboFish for T {}
+impl<T: ?Sized> TurboFish for T {}

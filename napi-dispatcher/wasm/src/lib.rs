@@ -2,19 +2,14 @@
 
 #![warn(warnings)] // Prevent `-Dwarnings` from causing breakage.
 #![allow(clippy::all)]
-#![cfg_attr(rustfmt, rustfmt::skip)]
 
-use ::{
-    ref_cast::RefCast,
-    wasm_bindgen::JsValue,
-};
-use crate::{
-    utils::TurboFish,
-};
-use gloo_utils::format::JsValueSerdeExt;
+use ::gloo_utils::format::JsValueSerdeExt;
+use ::ref_cast::RefCast;
+use ::wasm_bindgen::JsValue;
 
-pub
-mod derive {
+use crate::utils::TurboFish;
+
+pub mod derive {
     #[doc(inline)]
     pub use ::napi_dispatcher_wasm_proc_macros::*;
 }
@@ -43,9 +38,7 @@ mod __mock_env_field_as_ref_hack {
     impl<'env> ::core::ops::Deref for CallContext<'env> {
         type Target = CallContextDerefTarget<'env>;
 
-        fn deref (self: &'_ CallContext<'env>)
-          -> &'_ CallContextDerefTarget<'env>
-        {
+        fn deref(self: &'_ CallContext<'env>) -> &'_ CallContextDerefTarget<'env> {
             unsafe {
                 // Safety: same layout, and `&'_ &'env mut Env` necesarily
                 // acts as a `&'_ Env`, usability-wise.
@@ -58,14 +51,12 @@ mod __mock_env_field_as_ref_hack {
 trait DropGlue {}
 impl<T> DropGlue for T {}
 
-pub
-struct Env {
+pub struct Env {
     cleanup: ::core::cell::RefCell<Vec<Box<dyn DropGlue>>>,
 }
 
 #[derive(Debug, ::serde::Deserialize, ::serde::Serialize)]
-pub
-struct Error {
+pub struct Error {
     reason: String,
     status: Status,
 }
@@ -92,8 +83,7 @@ pub type Result<T, E = JsValue> = ::core::result::Result<T, E>;
 
 #[derive(Debug, PartialEq, Eq, ::serde::Deserialize, ::serde::Serialize)]
 #[non_exhaustive]
-pub
-enum Status {
+pub enum Status {
     Ok,
     InvalidArg,
     GenericFailure,
@@ -101,8 +91,7 @@ enum Status {
 
 #[derive(Debug, PartialEq, Eq)]
 #[non_exhaustive]
-pub
-enum ValueType {
+pub enum ValueType {
     Bigint,
     Boolean,
     Function,
@@ -119,10 +108,9 @@ enum ValueType {
 
 impl CallContext<'_> {
     #[inline]
-    #[doc(hidden)] /** Not part of the public API */ pub
-    fn __new ()
-      -> Self
-    {
+    #[doc(hidden)]
+    /** Not part of the public API */
+    pub fn __new() -> Self {
         Self {
             env: Box::new(Env::__new()),
             _lifetime: Default::default(),
@@ -131,50 +119,49 @@ impl CallContext<'_> {
 }
 
 impl Env {
-    #[doc(hidden)] /** Not part of the public API */ pub
-    fn __new ()
-      -> Self
-    {
-        Env { cleanup: vec![].into() }
+    #[doc(hidden)]
+    /** Not part of the public API */
+    pub fn __new() -> Self {
+        Env {
+            cleanup: vec![].into(),
+        }
     }
 
-    #[doc(hidden)] /** Not part of the public API */ pub
-    fn __push_drop_glue (
+    #[doc(hidden)]
+    /** Not part of the public API */
+    pub fn __push_drop_glue(
         self: &'_ Env,
         drop_glue: impl 'static + Sized,
-    )
-    {
+    ) {
         self.cleanup.borrow_mut().push(Box::new(drop_glue))
     }
 }
 
 impl Error {
-    pub
-    fn new (status: Status, reason: String)
-      -> Self
-    {
+    pub fn new(
+        status: Status,
+        reason: String,
+    ) -> Self {
         Error { status, reason }
     }
 
-    pub
-    fn from_status (status: Status)
-      -> Self
-    {
-        Error { status, reason: "".into() }
+    pub fn from_status(status: Status) -> Self {
+        Error {
+            status,
+            reason: "".into(),
+        }
     }
 
-    pub
-    fn from_reason (reason: String)
-      -> Self
-    {
-        Error { reason, status: Status::GenericFailure }
+    pub fn from_reason(reason: String) -> Self {
+        Error {
+            reason,
+            status: Status::GenericFailure,
+        }
     }
 }
 
 impl From<Error> for JsValue {
-    fn from (e: Error)
-      -> JsValue
-    {
+    fn from(e: Error) -> JsValue {
         // Does not use `JsValue::from_serde` because that places the error message in a field
         // `reason` instead of `message`.
         ::wasm_bindgen::JsError::new(&e.reason).into()
@@ -182,19 +169,17 @@ impl From<Error> for JsValue {
 }
 
 impl From<JsValue> for Error {
-    fn from (e: JsValue)
-      -> Error
-    {
+    fn from(e: JsValue) -> Error {
         JsValue::into_serde(&e)
             .unwrap_or_else(|err| Error::from_reason(format!("{}: {:?}", err, e)))
     }
 }
 
-#[doc(hidden)] /** Not part of the public API */ pub
-mod __ {
+#[doc(hidden)]
+/** Not part of the public API */
+pub mod __ {
     pub use ::js_sys;
-    pub use ::wasm_bindgen::{self,
-        prelude::wasm_bindgen,
-    };
+    pub use ::wasm_bindgen::prelude::wasm_bindgen;
+    pub use ::wasm_bindgen::{self};
     pub use ::wasm_bindgen_futures;
 }

@@ -23,7 +23,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly-2023-09-14
+          toolchain: nightly-2025-01-03  # branch-from-master date of 1.85.0
           override: true
           components: rust-src
 
@@ -46,6 +46,24 @@ jobs:
             --no-default-features --features alloc
             --target x86_64-unknown-linux-gnu -Zbuild-std=core,alloc
 
+  # == Check formatting == #
+  check-formatting:
+    name: Check formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly-2025-01-03  # branch-from-master date of 1.85.0
+          override: true
+          components: rustfmt
+
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - run: ./scripts/format.sh --check
+
   # == CHECK == #
   check:
     name: Check nightly stable and MSRV
@@ -57,7 +75,7 @@ jobs:
           - macos-latest
           # - windows-latest
         rust:
-          - 1.72.1
+          - 1.85.0
           - stable
           # - nightly
     steps:
@@ -89,7 +107,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.72.1
+          toolchain: 1.85.0
           override: true
 
       - name: Clone repo
@@ -119,7 +137,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.72.1
+          toolchain: 1.85.0
           override: true
 
       - name: Clone repo
@@ -150,7 +168,7 @@ jobs:
           - macos-latest
           - windows-latest
         rust:
-          - 1.72.1
+          - 1.85.0
           - stable
           # - nightly
     steps:
@@ -175,7 +193,15 @@ jobs:
           command: test
           args: --features docs
 
-      - name: FFI test (C & C#?)
+      - name: Install LuaJIT and LuaRocks (Ubuntu)
+        run: sudo apt-get install -y luajit
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: Install LuaJIT and LuaRocks (macOS)
+        run: brew install luajit
+        if: matrix.os == 'macos-latest'
+
+      - name: FFI test (C & C# & Lua?)
         run: make -C ffi_tests
         if: runner.os != 'Windows'
         env:
@@ -196,9 +222,11 @@ jobs:
     needs:
       - check-nostd
       - check
+      - check-formatting
       - check-features
       - build-and-test
-      - releasable-to-crates-io
+      # the proc-macro dep, when version-bumped, will make this fail.
+      # - releasable-to-crates-io
     runs-on: ubuntu-latest
     if: ${{ always() }}
     steps:
@@ -223,7 +251,7 @@ jobs:
         with:
           profile: default
           override: true
-          toolchain: 1.72.1
+          toolchain: 1.85.0
 
       - name: Install `mdbook`
         uses: peaceiris/actions-mdbook@v1

@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! `char *`-compatible strings (slim pointers), for easier use from within C.
 //
 //! They thus do not support inner nulls, nor string appending.
@@ -24,8 +23,7 @@ ReprC! {
 const NUL: u8 = b'\0';
 
 impl char_p_ref<'static> {
-    pub
-    const EMPTY: Self = unsafe {
+    pub const EMPTY: Self = unsafe {
         Self::from_ptr_unchecked(ptr::NonNull::new_unchecked({
             const IT: &u8 = &NUL;
             IT as *const u8 as *mut u8
@@ -34,12 +32,7 @@ impl char_p_ref<'static> {
 }
 
 impl<'lt> char_p_ref<'lt> {
-    pub
-    const
-    unsafe
-    fn from_ptr_unchecked (ptr: ptr::NonNull<u8>)
-      -> Self
-    {
+    pub const unsafe fn from_ptr_unchecked(ptr: ptr::NonNull<u8>) -> Self {
         Self(
             ptr::NonNullRef(ptr.cast()),
             PhantomCovariantLifetime::<'static>(PhantomData),
@@ -47,84 +40,54 @@ impl<'lt> char_p_ref<'lt> {
     }
 }
 
-impl fmt::Debug
-    for char_p_ref<'_>
-{
-    fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
-      -> fmt::Result
-    {
+impl fmt::Debug for char_p_ref<'_> {
+    fn fmt(
+        self: &'_ Self,
+        fmt: &'_ mut fmt::Formatter<'_>,
+    ) -> fmt::Result {
         fmt::Debug::fmt(self.to_str(), fmt)
     }
 }
 
-impl fmt::Display
-    for char_p_ref<'_>
-{
-    fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
-      -> fmt::Result
-    {
+impl fmt::Display for char_p_ref<'_> {
+    fn fmt(
+        self: &'_ Self,
+        fmt: &'_ mut fmt::Formatter<'_>,
+    ) -> fmt::Result {
         fmt::Display::fmt(self.to_str(), fmt)
     }
 }
 
-unsafe // Safety: proof delegated to `where` bound.
-impl Send for char_p_ref<'_>
-where
-    for<'lt> &'lt [u8] : Send,
-{}
+unsafe impl Send for char_p_ref<'_> where for<'lt> &'lt [u8]: Send {}
 
-unsafe // Safety: proof delegated to `where` bound.
-impl Sync for char_p_ref<'_>
-where
-    for<'lt> &'lt [u8] : Sync,
-{}
+unsafe impl Sync for char_p_ref<'_> where for<'lt> &'lt [u8]: Sync {}
 
-unsafe // Safety: no non-`unsafe` API.
-impl Send for char_p_raw
-{}
+unsafe impl Send for char_p_raw {}
 
-unsafe // Safety: no non-`unsafe` API.
-impl Sync for char_p_raw
-{}
+unsafe impl Sync for char_p_raw {}
 
 #[derive(Debug)]
-pub
-struct InvalidNulTerminator<Payload> (
-    pub Payload,
-);
+pub struct InvalidNulTerminator<Payload>(pub Payload);
 
-impl<T> fmt::Display
-    for InvalidNulTerminator<T>
-{
-    fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
-      -> fmt::Result
-    {
-        fmt::Display::fmt(
-            "Null byte not at the expected terminating position",
-            fmt,
-        )
+impl<T> fmt::Display for InvalidNulTerminator<T> {
+    fn fmt(
+        self: &'_ Self,
+        fmt: &'_ mut fmt::Formatter<'_>,
+    ) -> fmt::Result {
+        fmt::Display::fmt("Null byte not at the expected terminating position", fmt)
     }
 }
 
-impl<'lt> TryFrom<&'lt str>
-    for char_p_ref<'lt>
-{
+impl<'lt> TryFrom<&'lt str> for char_p_ref<'lt> {
     type Error = InvalidNulTerminator<()>;
 
-    fn try_from (s: &'lt str)
-      -> Result<
-            char_p_ref<'lt>,
-            InvalidNulTerminator<()>,
-        >
-    {
+    fn try_from(s: &'lt str) -> Result<char_p_ref<'lt>, InvalidNulTerminator<()>> {
         Ok(if let Some(len_minus_one) = s.len().checked_sub(1) {
             unsafe {
                 if s.bytes().position(|b| b == NUL) != Some(len_minus_one) {
                     return Err(InvalidNulTerminator(()));
                 }
-                Self::from_ptr_unchecked(
-                    ptr::NonNull::new(s.as_ptr() as _).unwrap()
-                )
+                Self::from_ptr_unchecked(ptr::NonNull::new(s.as_ptr() as _).unwrap())
             }
         } else {
             char_p_ref::EMPTY
@@ -163,10 +126,7 @@ cfg_std! {
 
 impl<'lt> char_p_ref<'lt> {
     #[inline]
-    pub
-    fn bytes (self: char_p_ref<'lt>)
-      -> impl Iterator<Item = ::core::num::NonZeroU8> + 'lt
-    {
+    pub fn bytes(self: char_p_ref<'lt>) -> impl Iterator<Item = ::core::num::NonZeroU8> + 'lt {
         ::core::iter::from_fn({
             let mut ptr = self.0.as_ptr().cast::<u8>();
             move || {
@@ -182,62 +142,28 @@ impl<'lt> char_p_ref<'lt> {
     }
 
     #[inline]
-    pub
-    fn to_nonzero_bytes (self: char_p_ref<'lt>)
-      -> &'lt [::core::num::NonZeroU8]
-    {
-        unsafe {
-            slice::from_raw_parts(
-                self.0.as_ptr().cast(),
-                self.bytes().count(),
-            )
-        }
+    pub fn to_nonzero_bytes(self: char_p_ref<'lt>) -> &'lt [::core::num::NonZeroU8] {
+        unsafe { slice::from_raw_parts(self.0.as_ptr().cast(), self.bytes().count()) }
     }
 
     #[inline]
-    pub
-    fn to_bytes (self: char_p_ref<'lt>)
-      -> &'lt [u8]
-    {
-        unsafe {
-            slice::from_raw_parts(
-                self.0.as_ptr().cast(),
-                self.bytes().count(),
-            )
-        }
+    pub fn to_bytes(self: char_p_ref<'lt>) -> &'lt [u8] {
+        unsafe { slice::from_raw_parts(self.0.as_ptr().cast(), self.bytes().count()) }
     }
 
     #[inline]
-    pub
-    fn to_bytes_with_null (self: char_p_ref<'lt>)
-      -> &'lt [u8]
-    {
-        unsafe {
-            slice::from_raw_parts(
-                self.0.as_ptr().cast(),
-                self.bytes().count() + 1,
-            )
-        }
+    pub fn to_bytes_with_null(self: char_p_ref<'lt>) -> &'lt [u8] {
+        unsafe { slice::from_raw_parts(self.0.as_ptr().cast(), self.bytes().count() + 1) }
     }
 
     #[inline]
-    pub
-    fn to_str (self: char_p_ref<'lt>)
-      -> &'lt str
-    {
-        unsafe {
-            ::core::str::from_utf8_unchecked(self.to_bytes())
-        }
+    pub fn to_str(self: char_p_ref<'lt>) -> &'lt str {
+        unsafe { ::core::str::from_utf8_unchecked(self.to_bytes()) }
     }
 
     #[inline]
-    pub
-    fn to_str_with_null (self: char_p_ref<'lt>)
-      -> &'lt str
-    {
-        unsafe {
-            ::core::str::from_utf8_unchecked(self.to_bytes_with_null())
-        }
+    pub fn to_str_with_null(self: char_p_ref<'lt>) -> &'lt str {
+        unsafe { ::core::str::from_utf8_unchecked(self.to_bytes_with_null()) }
     }
 
     cfg_alloc! {
@@ -263,9 +189,10 @@ impl<'lt> char_p_ref<'lt> {
 impl<'lt> Eq for char_p_ref<'lt> {}
 impl<'lt> PartialEq for char_p_ref<'lt> {
     #[inline]
-    fn eq (self: &'_ Self, other: &'_ Self)
-      -> bool
-    {
+    fn eq(
+        self: &'_ Self,
+        other: &'_ Self,
+    ) -> bool {
         *self.to_str() == *other.to_str()
     }
 }
@@ -288,14 +215,9 @@ ReprC! {
 impl char_p_raw {
     /// # Safety
     ///
-    ///   - For the duration of the `'borrow`, the pointer must point to the
-    ///     beginning of a valid and immutable null-terminated slice of
-    ///     `c_char`s.
-    pub
-    unsafe
-    fn as_ref<'borrow> (self: &'borrow Self)
-      -> char_p_ref<'borrow>
-    {
+    ///   - For the duration of the `'borrow`, the pointer must point to the beginning of a valid
+    ///     and immutable null-terminated slice of `c_char`s.
+    pub unsafe fn as_ref<'borrow>(self: &'borrow Self) -> char_p_ref<'borrow> {
         unsafe {
             // # Safety
             //
@@ -307,28 +229,19 @@ impl char_p_raw {
     }
 }
 
-impl<'lt> From<char_p_ref<'lt>>
-    for char_p_raw
-{
+impl<'lt> From<char_p_ref<'lt>> for char_p_raw {
     #[inline]
-    fn from (it: char_p_ref<'lt>)
-      -> char_p_raw
-    {
-        unsafe {
-            mem::transmute(it)
-        }
+    fn from(it: char_p_ref<'lt>) -> char_p_raw {
+        unsafe { mem::transmute(it) }
     }
 }
 
-impl fmt::Debug
-    for char_p_raw
-{
-    fn fmt (self: &'_ Self, fmt: &'_ mut fmt::Formatter<'_>)
-      -> fmt::Result
-    {
-        fmt .debug_tuple("char_p_raw")
-            .field(&self.0)
-            .finish()
+impl fmt::Debug for char_p_raw {
+    fn fmt(
+        self: &'_ Self,
+        fmt: &'_ mut fmt::Formatter<'_>,
+    ) -> fmt::Result {
+        fmt.debug_tuple("char_p_raw").field(&self.0).finish()
     }
 }
 
@@ -424,6 +337,7 @@ cfg_alloc! {
         pub
         trait __<Orig> { fn my_from (it: Orig) -> Self; }
     }
+    #[cfg_attr(rustfmt, rustfmt::skip)]
     macro_rules! derive_MyFrom_from {(
         $(
             $(@for[$($generics:tt)*])?

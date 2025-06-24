@@ -7,10 +7,6 @@
  *                                         *
  *******************************************/
 
-
-#include <stddef.h>
-#include <stdint.h>
-
 typedef enum Wow {
     WOW_LEROY,
     WOW_JENKINS,
@@ -20,6 +16,36 @@ typedef struct AnUnusedStruct {
     Wow_t are_you_still_there;
 } AnUnusedStruct_t;
 
+typedef struct {
+    float idx[3];
+} float_3_array_t;
+
+typedef struct {
+    uint64_t idx[5];
+} uint64_5_array_t;
+
+typedef struct {
+    uint8_t idx[1];
+} uint8_1_array_t;
+
+typedef struct {
+    uint8_1_array_t idx[2];
+} uint8_1_array_2_array_t;
+
+typedef struct {
+    uint8_1_array_2_array_t idx[3];
+} uint8_1_array_2_array_3_array_t;
+
+typedef struct ArraysStruct {
+    float_3_array_t floats;
+
+    uint64_5_array_t sizes;
+
+    uint8_1_array_2_array_t dim_2;
+
+    uint8_1_array_2_array_3_array_t dim_3;
+} ArraysStruct_t;
+
 #define FOO ...
 
 typedef enum Bar {
@@ -27,11 +53,8 @@ typedef enum Bar {
     BAR_B,
 } Bar_t;
 
-
-#include <stdbool.h>
-
 typedef struct next_generation {
-    Bar_t gen;
+    Bar_t generation;
 
     void * (*cb)(bool);
 } next_generation_t;
@@ -39,6 +62,34 @@ typedef struct next_generation {
 typedef ... Opaque__str_t;
 
 #define SOME_NAME ...
+
+typedef struct ConstGenericStruct_uint8_1 {
+    uint8_1_array_t data;
+} ConstGenericStruct_uint8_1_t;
+
+typedef struct {
+    uint8_t idx[2];
+} uint8_2_array_t;
+
+typedef struct ConstGenericStruct_uint8_2 {
+    uint8_2_array_t data;
+} ConstGenericStruct_uint8_2_t;
+
+typedef struct {
+    uint16_t idx[3];
+} uint16_3_array_t;
+
+typedef struct ConstGenericStruct_uint16_3 {
+    uint16_3_array_t data;
+} ConstGenericStruct_uint16_3_t;
+
+typedef struct SpecificConstGenericContainer {
+    ConstGenericStruct_uint8_1_t field1;
+
+    ConstGenericStruct_uint8_2_t field2;
+
+    ConstGenericStruct_uint16_3_t field3;
+} SpecificConstGenericContainer_t;
 
 typedef enum triforce {
     TRIFORCE_DIN,
@@ -50,16 +101,12 @@ int32_t
 _issue_45 (
     int32_t __arg_0);
 
-/** <No documentation available> */
-typedef struct Enum Enum_t;
+typedef ... Enum_t;
 
 Enum_t *
 _my_enum_is_opaque (void);
 
-/** \brief
- *  The layout of `alloc::string::String` is opaque/subject to changes.
- */
-typedef struct Opaque_String Opaque_String_t;
+typedef ... Opaque_String_t;
 
 Opaque_String_t *
 _some_opaque_std_lib_type (void);
@@ -102,8 +149,7 @@ void
 free_char_p (
     char * _string);
 
-/** <No documentation available> */
-typedef struct foo foo_t;
+typedef ... foo_t;
 
 void
 free_foo (
@@ -132,10 +178,7 @@ read_foo (
 uint16_t (*
 returns_a_fn_ptr (void))(uint8_t);
 
-/** \brief
- *  The layout of `core::task::wake::Context` is opaque/subject to changes.
- */
-typedef struct Opaque_Context Opaque_Context_t;
+typedef ... Opaque_Context_t;
 
 ArcDynFn0_void_t
 rust_future_task_context_get_waker (
@@ -145,71 +188,40 @@ void
 rust_future_task_context_wake (
     Opaque_Context_t const * task_context);
 
-/** <No documentation available> */
-typedef struct Erased Erased_t;
+typedef ... Erased_t;
 
-/** \brief
- *  An FFI-safe `Poll<()>`.
- */
-/** \remark Has the same ABI as `int8_t` **/
-#ifdef DOXYGEN
-typedef
-#endif
-enum PollFuture {
-    /** <No documentation available> */
-    POLL_FUTURE_COMPLETED = 0,
-    /** <No documentation available> */
-    POLL_FUTURE_PENDING = -1,
-}
-#ifndef DOXYGEN
-; typedef int8_t
-#endif
-PollFuture_t;
+typedef enum PollFuture {
+    POLL_FUTURE_COMPLETED,
+    POLL_FUTURE_PENDING,
+} PollFuture_t;
 
-/** <No documentation available> */
 typedef struct FfiFutureVTable {
-    /** <No documentation available> */
     void (*release_vptr)(Erased_t *);
 
-    /** <No documentation available> */
     PollFuture_t (*dyn_poll)(Erased_t *, Opaque_Context_t *);
 } FfiFutureVTable_t;
 
-/** <No documentation available> */
 typedef struct VirtualPtr__Erased_ptr_FfiFutureVTable {
-    /** <No documentation available> */
     Erased_t * ptr;
 
-    /** <No documentation available> */
     FfiFutureVTable_t vtable;
 } VirtualPtr__Erased_ptr_FfiFutureVTable_t;
 
-/** \brief
- *  `Box<dyn 'static + Send + FnMut() -> Ret>`
- */
 typedef struct BoxDynFnMut0_void {
-    /** <No documentation available> */
     void * env_ptr;
 
-    /** <No documentation available> */
     void (*call)(void *);
 
-    /** <No documentation available> */
     void (*free)(void *);
 } BoxDynFnMut0_void_t;
 
-/** <No documentation available> */
 typedef struct DropGlueVTable {
-    /** <No documentation available> */
     void (*release_vptr)(Erased_t *);
 } DropGlueVTable_t;
 
-/** <No documentation available> */
 typedef struct VirtualPtr__Erased_ptr_DropGlueVTable {
-    /** <No documentation available> */
     Erased_t * ptr;
 
-    /** <No documentation available> */
     DropGlueVTable_t vtable;
 } VirtualPtr__Erased_ptr_DropGlueVTable_t;
 

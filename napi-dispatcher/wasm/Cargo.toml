@@ -18,6 +18,6 @@ ref-cast = "1.0.6"
 serde.version = "1.0.0"
 serde.features = ["derive"]
 
-wasm-bindgen.version = "0.2.73"
+wasm-bindgen.version = "0.2.96"
 
 wasm-bindgen-futures = "0.4.24"

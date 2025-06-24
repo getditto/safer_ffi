@@ -1,45 +1,34 @@
-
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! See [the dedicated section of the guide](https://getditto.github.io/safer_ffi/dyn_traits/_.html).
 
 use_prelude!();
 
 #[path = "futures/_mod.rs"]
 #[cfg(feature = "futures")]
-#[cfg_attr(all(docs, feature = "nightly"),
-    doc(cfg(feature = "futures"))
-)]
+#[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "futures")))]
 pub mod futures;
 
 #[doc(no_inline)]
 pub use dyn_drop::*;
 
-pub
-mod dyn_drop;
+pub mod dyn_drop;
 
-pub use self::ty::{
-    Erased as ErasedTy,
-};
+pub use self::ty::Erased as ErasedTy;
 
 #[super::derive_ReprC]
 #[repr(transparent)]
 #[allow(missing_debug_implementations)]
-pub
-struct ErasedRef<'a> (
+pub struct ErasedRef<'a>(
     ptr::NonNullRef<ErasedTy>,
     ::core::marker::PhantomData<&'a ()>,
 );
 
-pub
-trait ReprCTrait {
-    type VTable : ConcreteReprC;
+pub trait ReprCTrait {
+    type VTable: ConcreteReprC;
 
-    unsafe
-    fn drop_ptr (
+    unsafe fn drop_ptr(
         ptr: ptr::NonNullOwned<ty::Erased>,
         vtable: &'_ Self::VTable,
-    )
-    ;
+    );
 }
 
 mod ty {
@@ -47,16 +36,11 @@ mod ty {
 
     #[super::derive_ReprC]
     #[repr(opaque)]
-    pub
-    struct Erased(());
+    pub struct Erased(());
 }
 
-pub
-trait VirtualPtrFrom<T> : ReprCTrait {
-    fn into_virtual_ptr (
-        this: T,
-    ) -> VirtualPtr<Self>
-    ;
+pub trait VirtualPtrFrom<T>: ReprCTrait {
+    fn into_virtual_ptr(this: T) -> VirtualPtr<Self>;
 }
 
 match_! {(
@@ -98,17 +82,12 @@ match_! {(
     )
 }}
 
-pub
-trait DynClone : ReprCTrait {
-    fn dyn_clone (_: &VirtualPtr<Self>)
-      -> VirtualPtr<Self>
-    ;
+pub trait DynClone: ReprCTrait {
+    fn dyn_clone(_: &VirtualPtr<Self>) -> VirtualPtr<Self>;
 }
 
-impl<DynTrait : ?Sized + DynClone> Clone for VirtualPtr<DynTrait> {
-    fn clone (self: &'_ VirtualPtr<DynTrait>)
-      -> VirtualPtr<DynTrait>
-    {
+impl<DynTrait: ?Sized + DynClone> Clone for VirtualPtr<DynTrait> {
+    fn clone(self: &'_ VirtualPtr<DynTrait>) -> VirtualPtr<DynTrait> {
         DynTrait::dyn_clone(self)
     }
 }
@@ -120,24 +99,17 @@ mod hack {
     #[super::derive_ReprC]
     #[repr(C)]
     #[allow(missing_debug_implementations)]
-    pub
-    struct VirtualPtr_<Ptr, VTable> {
-        pub(in super) ptr: Ptr,
-        pub(in super) vtable: VTable,
+    pub struct VirtualPtr_<Ptr, VTable> {
+        pub(super) ptr: Ptr,
+        pub(super) vtable: VTable,
     }
 
-    unsafe
-    impl<Ptr, VTable>
-        layout::__HasNiche__
-    for
-        VirtualPtr_<Ptr, VTable>
+    unsafe impl<Ptr, VTable> layout::__HasNiche__ for VirtualPtr_<Ptr, VTable>
     where
-        Ptr : layout::ConcreteReprC + layout::__HasNiche__,
-        VTable : layout::ConcreteReprC,
+        Ptr: layout::ConcreteReprC + layout::__HasNiche__,
+        VTable: layout::ConcreteReprC,
     {
-        fn is_niche (it: &'_ <Self as super::ReprC>::CLayout)
-          -> bool
-        {
+        fn is_niche(it: &'_ <Self as super::ReprC>::CLayout) -> bool {
             Ptr::is_niche(&it.ptr)
         }
     }
@@ -146,82 +118,43 @@ mod hack {
 #[cfg_attr(feature = "stabby", stabby::stabby)]
 #[derive_ReprC]
 #[repr(transparent)]
-pub
-struct VirtualPtr<DynTrait : ?Sized + ReprCTrait>(
-    VirtualPtr_<
-        /* ptr: */ ptr::NonNullOwned<ty::Erased>,
-        /* vtable: */ DynTrait::VTable,
-    >
+pub struct VirtualPtr<DynTrait: ?Sized + ReprCTrait>(
+    VirtualPtr_</* ptr: */ ptr::NonNullOwned<ty::Erased>, /* vtable: */ DynTrait::VTable>,
 );
 
-impl<DynTrait : ?Sized + ReprCTrait>
-    Drop
-for
-    VirtualPtr<DynTrait>
-{
-    fn drop (self: &'_ mut VirtualPtr<DynTrait>)
-    {
-        unsafe {
-            DynTrait::drop_ptr(self.0.ptr.copy(), self.__vtable())
-        }
+impl<DynTrait: ?Sized + ReprCTrait> Drop for VirtualPtr<DynTrait> {
+    fn drop(self: &'_ mut VirtualPtr<DynTrait>) {
+        unsafe { DynTrait::drop_ptr(self.0.ptr.copy(), self.__vtable()) }
     }
 }
 
-impl<DynTrait : ?Sized + ReprCTrait> VirtualPtr<DynTrait> {
-    pub
-    unsafe
-    fn from_raw_parts (
+impl<DynTrait: ?Sized + ReprCTrait> VirtualPtr<DynTrait> {
+    pub unsafe fn from_raw_parts(
         ptr: ptr::NonNullOwned<ty::Erased>,
         vtable: DynTrait::VTable,
-    ) -> VirtualPtr<DynTrait>
-    {
+    ) -> VirtualPtr<DynTrait> {
         Self(VirtualPtr_ { ptr, vtable })
     }
 
-    pub
-    fn __ptr (self: &'_ VirtualPtr<DynTrait>)
-      -> ptr::NonNull<ty::Erased>
-    {
+    pub fn __ptr(self: &'_ VirtualPtr<DynTrait>) -> ptr::NonNull<ty::Erased> {
         self.0.ptr.0
     }
 
-    pub
-    fn __vtable<'vtable> (self: &'_ VirtualPtr<DynTrait>)
-      -> &'_ DynTrait::VTable
-    {
-      &self.0.vtable
+    pub fn __vtable<'vtable>(self: &'_ VirtualPtr<DynTrait>) -> &'_ DynTrait::VTable {
+        &self.0.vtable
     }
 }
 
-unsafe
-impl<DynTrait : ?Sized + ReprCTrait>
-    Send
-for
-    VirtualPtr<DynTrait>
-where
-    DynTrait : Send,
-{}
+unsafe impl<DynTrait: ?Sized + ReprCTrait> Send for VirtualPtr<DynTrait> where DynTrait: Send {}
 
-unsafe
-impl<DynTrait : ?Sized + ReprCTrait>
-    Sync
-for
-    VirtualPtr<DynTrait>
-where
-    DynTrait : Sync,
-{}
+unsafe impl<DynTrait: ?Sized + ReprCTrait> Sync for VirtualPtr<DynTrait> where DynTrait: Sync {}
 
-impl<DynTrait : ?Sized + ReprCTrait>
-    ::core::fmt::Debug
-for
-    VirtualPtr<DynTrait>
-{
-    fn fmt (
+impl<DynTrait: ?Sized + ReprCTrait> ::core::fmt::Debug for VirtualPtr<DynTrait> {
+    fn fmt(
         self: &'_ VirtualPtr<DynTrait>,
         fmt: &'_ mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result
-    {
-        fmt .debug_struct(::core::any::type_name::<Self>())
+    ) -> ::core::fmt::Result {
+        fmt.debug_struct(::core::any::type_name::<Self>())
             .field("ptr", &format_args!("{:p}", self.__ptr()))
             .field("vtable", &format_args!("{:p}", self.__vtable()))
             .finish()

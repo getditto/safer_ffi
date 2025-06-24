@@ -1,14 +1,12 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 export_cfgs! {$
     "headers" => __cfg_headers__!,
-    "headers" => __cfg_csharp__!,
     "js" => __cfg_js__!,
     "python-headers" => __cfg_python__!,
 }
 /// Generates convenience `__cfg_xxx__! { … }` macros with the semantics of
 /// `#[cfg(feature = "xxx")] emit! { … }`, but usable by downstream code, such
 /// as the one emitted by our own derive macros and whatnot.
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! export_cfgs {(
     $_:tt
     $(
@@ -17,16 +15,35 @@ macro_rules! export_cfgs {(
 ) => (
     $(
         match_cfg! {
-            feature = $feature => {
+            all(
+                feature = $feature,
+                docs, feature = "docs",
+            ) => {
                 #[doc(hidden)] /** not part of the public API */ #[macro_export]
+                #[cfg_attr(rustfmt, rustfmt::skip)]
                 macro_rules! $macro_name {(
                     $_($item:item)*
                 ) => (
-                    $_($item)*
+                    $_(
+                        #[doc(cfg(feature = $feature))]
+                        $item
+                    )*
+                )}
+            },
+            feature = $feature => {
+                #[doc(hidden)] /** not part of the public API */ #[macro_export]
+                #[cfg_attr(rustfmt, rustfmt::skip)]
+                macro_rules! $macro_name {(
+                    $_($item:item)*
+                ) => (
+                    $_(
+                        $item
+                    )*
                 )}
             },
             _ => {
                 #[doc(hidden)] /** not part of the public API */ #[macro_export]
+                #[cfg_attr(rustfmt, rustfmt::skip)]
                 macro_rules! $macro_name {(
                     $_($item:item)*
                 ) => (
@@ -37,7 +54,8 @@ macro_rules! export_cfgs {(
         #[allow(unused)]
         pub(in crate) use $macro_name;
     )*
-)} use export_cfgs;
+)}
+use export_cfgs;
 
 // Defines a special `__with_cfg_python__!` for-downstream-code, based on the
 // usable-everywhere `$($($if_cfg_python)? … )?` conditional expansion trick:
@@ -55,9 +73,11 @@ macro_rules! export_cfgs {(
 match_cfg! {
     feature = "python-headers" => {
         #[doc(hidden)] /** Not part of the public API */ #[macro_export]
+        #[cfg_attr(rustfmt, rustfmt::skip)]
         macro_rules! __with_cfg_python__ {(
             |$_:tt $if_python:ident $(, $__:tt $dol:ident)?| $body:tt
         ) => ({
+            #[cfg_attr(rustfmt, rustfmt::skip)]
             macro_rules! __emit__ {
                 (
                     [$( $__ $dol : tt )? $_($__rest:tt)*]
@@ -70,9 +90,11 @@ match_cfg! {
     },
     _ => {
         #[doc(hidden)] /** Not part of the public API */ #[macro_export]
+        #[cfg_attr(rustfmt, rustfmt::skip)]
         macro_rules! __with_cfg_python__ {(
             |$_:tt $if_python:ident $(, $__:tt $dol:ident)?| $body:tt
         ) => ({
+            #[cfg_attr(rustfmt, rustfmt::skip)]
             macro_rules! __emit__ {
                 (
                     [$( $__ $dol : tt )? $_($__rest:tt)*]
@@ -85,7 +107,7 @@ match_cfg! {
     },
 }
 
-/// Safely implement [`CType`][`trait@crate::layout::LegacyCType`]
+/// Safely implement [`CType`][`trait@crate::layout::CType`]
 /// for a `#[repr(C)]` struct **when all its fields are `CType`**.
 ///
 /// Note: you rarely need to call this macro directly. Instead, look for the
@@ -93,6 +115,7 @@ match_cfg! {
 ///
 /// [`ReprC!`]: crate::ReprC!
 #[macro_export]
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! CType {(
     $(
         @doc_meta( $($doc_meta:tt)* )
@@ -291,6 +314,7 @@ macro_rules! CType {(
 /// Transitioning helper macro: still uses the old `ReprC!` syntax, but just to
 /// forward to the new `#[derive_ReprC2($(js)?)]` one.
 #[macro_export]
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! ReprC {(
     $(
         @[doc = $doc:expr]
@@ -327,7 +351,7 @@ macro_rules! ReprC {(
     $(
         #[doc = $doc2]
     )*
-    #[cfg_attr(feature = "stabby", stabby::stabby)]
+    #[$crate::ඞ::apply($crate::ඞ::maybe_stabby!)]
     #[repr($C_or_transparent)]
     $(
         #[$attr]
@@ -350,8 +374,7 @@ macro_rules! ReprC {(
 #[repr(u8)]
 #[derive(Debug)]
 /// Some docstring
-pub
-enum MyBool {
+pub enum MyBool {
     /// Some variant docstring
     False = 42,
     True, // = 43
@@ -366,8 +389,7 @@ mod test {
     #[repr(u8)]
     #[derive(Debug)]
     /// Some docstring after
-    pub
-    enum MyBool {
+    pub enum MyBool {
         False = 42,
         True, // = 43
     }

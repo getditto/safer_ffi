@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 use_prelude!();
 
 /// A `ReprC` _standalone_ type with the same layout and ABI as
@@ -11,84 +10,53 @@ use_prelude!();
 /// By using this type, you guarantee that the C `char` type be used in the headers.
 #[cfg_attr(feature = "stabby", stabby::stabby)]
 #[repr(transparent)]
-#[derive(
-    Debug,
-    Clone, Copy,
-    Default,
-    PartialOrd, Ord,
-    PartialEq, Eq,
-    Hash,
-)]
-pub
-struct c_char /* = */ (
-    pub
-    u8,
-);
+#[derive(Debug, Clone, Copy, Default, PartialOrd, Ord, PartialEq, Eq, Hash)]
+pub struct c_char(pub u8);
 
 /// Assert that `crate::libc::c_char` is either `uint8_t` or `int8_t`.
 const _: () = {
-    trait IsU8OrI8
-    {}
+    trait IsU8OrI8 {}
 
-    impl IsU8OrI8
-        for u8
-    {}
-    impl IsU8OrI8
-        for i8
-    {}
+    impl IsU8OrI8 for u8 {}
+    impl IsU8OrI8 for i8 {}
 
     const _: () = {
-        fn is_u8_or_i8<T>() where
-            T : IsU8OrI8,
-        {}
+        fn is_u8_or_i8<T>()
+        where
+            T: IsU8OrI8,
+        {
+        }
         let _ = is_u8_or_i8::<crate::libc::c_char>;
     };
 };
 
-unsafe
-impl LegacyCType
-    for c_char
-{ __cfg_headers__! {
-    fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-      -> fmt::Result
-    {
-        fmt.write_str("char")
-    }
+unsafe impl CType for c_char {
+    type OPAQUE_KIND = OpaqueKind::Concrete;
+    __cfg_headers__! {
+        fn short_name() -> String {
+            "char".into()
+        }
 
-    fn c_var_fmt (
-        fmt: &'_ mut fmt::Formatter<'_>,
-        var_name: &'_ str,
-    ) -> fmt::Result
-    {
-        write!(fmt,
-            "char{sep}{}",
-            var_name,
-            sep = if var_name.is_empty() { "" } else { " " },
-        )
-    }
-
-    fn c_define_self (
-        _: &'_ mut dyn crate::headers::Definer,
-    ) -> io::Result<()>
-    {
-        Ok(())
-    }
-
-    __cfg_csharp__! {
-        fn csharp_define_self (
-            _: &'_ mut dyn crate::headers::Definer,
+        fn define_self__impl(
+            _language: &dyn HeaderLanguage,
+            _definer: &mut dyn Definer,
         ) -> io::Result<()>
         {
             Ok(())
         }
 
-        fn csharp_ty ()
-          -> rust::String
+        fn render(
+            out: &mut dyn io::Write,
+            language: &dyn HeaderLanguage,
+        ) -> io::Result<()>
         {
-            "byte".into()
+            language.emit_primitive_ty(
+                out,
+                primitives::Primitive::CChar,
+            )
         }
     }
-} type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete; }
+}
 
 from_CType_impl_ReprC! {
     c_char

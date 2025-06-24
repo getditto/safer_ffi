@@ -1,49 +1,29 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 use super::*;
 
-fn docs_of (attrs: &'_ [Attribute])
-  -> impl '_ + Iterator<Item = &'_ Attribute>
-{
-    attrs
-        .iter()
-        .filter(|a| a.path.is_ident("doc"))
+fn docs_of(attrs: &'_ [Attribute]) -> impl '_ + Iterator<Item = &'_ Attribute> {
+    attrs.iter().filter(|a| a.path().is_ident("doc"))
 }
 
-pub(in crate)
-fn derive (
+pub(crate) fn derive(
     args: Args,
     attrs: &'_ mut Vec<Attribute>,
     pub_: &'_ Visibility,
     StructName @ _: &'_ Ident,
     generics: &'_ Generics,
     fields: &'_ Fields,
-) -> Result<TokenStream2>
-{
+) -> Result<TokenStream2> {
     if let Some(repr) = attrs.iter().find_map(|attr| {
-        bool::then(
-            attr.path.is_ident("repr"),
-            || attr.parse_args::<Ident>().ok()
-        ).flatten()
-    })
-    {
+        bool::then(attr.path().is_ident("repr"), || {
+            attr.parse_args::<Ident>().ok()
+        })
+        .flatten()
+    }) {
         match &repr.to_string()[..] {
-            | "transparent" => return derive_transparent(
-                args,
-                attrs,
-                pub_,
-                StructName,
-                generics,
-                fields,
-            ),
+            | "transparent" => {
+                return derive_transparent(args, attrs, pub_, StructName, generics, fields);
+            },
 
-            | "opaque" => return derive_opaque(
-                args,
-                attrs,
-                pub_,
-                StructName,
-                generics,
-            ),
+            | "opaque" => return derive_opaque(args, attrs, pub_, StructName, generics),
 
             | "C" => {},
 
@@ -63,6 +43,7 @@ fn derive (
 
     let mut ret = quote!();
 
+    #[rustfmt::skip]
     #[apply(let_quote!)]
     use ::safer_ffi::{
         ඞ,
@@ -74,30 +55,34 @@ fn derive (
     };
 
     let EachFieldTy @ _ = || fields.iter().map(|Field { ty, .. }| ty);
-    let each_field_name = || (0..).zip(fields).map(|(i, f)| match f.ident {
-        | Some(ref ident) => ident.to_token_stream(),
-        | None => Index { index: i, span: f.ty.span() }.into_token_stream(),
-    });
+    let each_field_name = || {
+        (0..).zip(fields).map(|(i, f)| match f.ident {
+            | Some(ref ident) => ident.to_token_stream(),
+            | None => Index {
+                index: i,
+                span: f.ty.span(),
+            }
+            .into_token_stream(),
+        })
+    };
 
     let ref StructName_Layout @ _ = format_ident!("{}_Layout", StructName);
 
-    let ref ctype_generics =
-        utils::ctype_generics(generics, &mut EachFieldTy())
-    ;
+    let ref ctype_generics = utils::ctype_generics(generics, &mut EachFieldTy());
     // define the CType
     ret.extend({
         let c_type_def = ItemStruct {
-            attrs: docs_of(attrs).cloned()
-                    .chain([
-                        parse_quote!(
+            attrs: docs_of(attrs)
+                .cloned()
+                .chain([
+                    parse_quote!(
                             #[allow(nonstandard_style)]
                         ),
-                        parse_quote!(
+                    parse_quote!(
                             #[repr(C)]
                         ),
-                    ])
-                    .collect()
-            ,
+                ])
+                .collect(),
             vis: {
                 let pub_ = crate::respan(
                     pub_.span().resolved_at(Span::mixed_site()),
@@ -110,15 +95,11 @@ fn derive (
             generics: ctype_generics.clone(),
             fields: Fields::Named({
                 let EachFieldTy = EachFieldTy();
-                let each_field_name = (0_u8..).zip(fields).map(|(i, f)| {
-                    match f.ident {
-                        | Some(ref ident) => ident.clone(),
-                        | None => format_ident!("_{}", i),
-                    }
+                let each_field_name = (0_u8..).zip(fields).map(|(i, f)| match f.ident {
+                    | Some(ref ident) => ident.clone(),
+                    | None => format_ident!("_{}", i),
                 });
-                let each_field_docs = fields.iter().map(|f| {
-                    docs_of(&f.attrs).vec()
-                });
+                let each_field_docs = fields.iter().map(|f| docs_of(&f.attrs).vec());
                 parse_quote!({
                     #(
                         #(#each_field_docs)*
@@ -151,9 +132,7 @@ fn derive (
     ret.extend({
         let EachFieldTy @ _ = EachFieldTy();
         let each_field_name = each_field_name();
-        let (intro_generics, fwd_generics, where_clauses) =
-            ctype_generics.split_for_impl()
-        ;
+        let (intro_generics, fwd_generics, where_clauses) = ctype_generics.split_for_impl();
         quote!(
             #[allow(trivial_bounds)]
             unsafe
@@ -210,9 +189,7 @@ fn derive (
             ///
         ),
         {
-            let line = format!(
-                "{}  - [`{StructName}_Layout`](#impl-ReprC)", " ",
-            );
+            let line = format!("{}  - [`{StructName}_Layout`](#impl-ReprC)", " ",);
             parse_quote!(#[doc = #line])
         },
     ]);
@@ -220,16 +197,15 @@ fn derive (
     Ok(ret)
 }
 
-pub(in crate)
-fn derive_transparent (
+pub(crate) fn derive_transparent(
     args: Args,
     attrs: &'_ mut Vec<Attribute>,
     pub_: &'_ Visibility,
     StructName @ _: &'_ Ident,
     generics: &'_ Generics,
     fields: &'_ Fields,
-) -> Result<TokenStream2>
-{
+) -> Result<TokenStream2> {
+    #[rustfmt::skip]
     #[apply(let_quote)]
     use ::safer_ffi::ඞ;
 
@@ -243,17 +219,12 @@ fn derive_transparent (
     };
 
     let ref impl_generics = generics.clone().also(|g| {
-        g   .make_where_clause()
-            .predicates
-            .push(parse_quote!(
+        g.make_where_clause().predicates.push(parse_quote!(
                 #FieldTy : #ඞ::ReprC
-            ))
-        ;
+            ));
     });
 
-    let (intro_generics, fwd_generics, where_clauses) =
-        impl_generics.split_for_impl()
-    ;
+    let (intro_generics, fwd_generics, where_clauses) = impl_generics.split_for_impl();
 
     let inner;
     if let Some(rename) = &args.rename {
@@ -262,19 +233,17 @@ fn derive_transparent (
             let ref StructName_Layout @ _ = format_ident!("{}_Layout", StructName);
 
             let c_type_def = ItemStruct {
-                attrs:
-                    docs_of(attrs)
-                        .cloned()
-                        .chain([
-                            parse_quote!(
+                attrs: docs_of(attrs)
+                    .cloned()
+                    .chain([
+                        parse_quote!(
                                 #[repr(transparent)]
                             ),
-                            parse_quote!(
+                        parse_quote!(
                                 #[allow(nonstandard_style)]
                             ),
-                        ])
-                        .collect()
-                ,
+                    ])
+                    .collect(),
                 vis: {
                     let pub_ = crate::respan(
                         pub_.span().resolved_at(Span::mixed_site()),
@@ -355,15 +324,13 @@ fn derive_transparent (
     // add niche where applicable.
     ret.extend({
         let niche_generics = impl_generics.clone().also(|g| {
-            g   .make_where_clause()
+            g.make_where_clause()
                 .predicates
                 .push(utils::allowing_trivial_bound(parse_quote!(
                     #FieldTy : #ඞ::__HasNiche__
                 )))
         });
-        let (intro_generics, fwd_generics, where_clauses) =
-            niche_generics.split_for_impl()
-        ;
+        let (intro_generics, fwd_generics, where_clauses) = niche_generics.split_for_impl();
         quote!(
             unsafe
             impl #intro_generics
@@ -397,7 +364,8 @@ fn derive_transparent (
         ),
         {
             let line = format!(
-                "{}  - [`{ty}`](#impl-ReprC)", " ",
+                "{}  - [`{ty}`](#impl-ReprC)",
+                " ",
                 ty = FieldTy.to_token_stream(),
             );
             parse_quote!(#[doc = #line])
@@ -407,24 +375,26 @@ fn derive_transparent (
     Ok(ret)
 }
 
-pub(in crate)
-fn derive_opaque (
+pub(crate) fn derive_opaque(
     args: Args,
     attrs: &'_ mut Vec<Attribute>,
     pub_: &'_ Visibility,
     StructName @ _: &'_ Ident,
     generics: &'_ Generics,
-) -> Result<TokenStream2>
-{
+) -> Result<TokenStream2> {
+    #[rustfmt::skip]
     #[apply(let_quote)]
     use ::safer_ffi::ඞ;
 
     // Strip the `repr(opaque)`
-    attrs.retain(|attr| bool::not({
-        mod kw { ::syn::custom_keyword!(opaque); }
-        attr.path.is_ident("repr")
-        && attr.parse_args::<kw::opaque>().is_ok()
-    }));
+    attrs.retain(|attr| {
+        bool::not({
+            mod kw {
+                ::syn::custom_keyword!(opaque);
+            }
+            attr.path().is_ident("repr") && attr.parse_args::<kw::opaque>().is_ok()
+        })
+    });
 
     let mut ret = quote!();
 
@@ -435,13 +405,9 @@ fn derive_opaque (
         ));
     }
 
-    let OpaqueStructName = format_ident!(
-        "__opaque_{}", StructName,
-    );
+    let OpaqueStructName = format_ident!("__opaque_{}", StructName,);
 
-    let (intro_generics, fwd_generics, where_clauses) =
-        generics.split_for_impl()
-    ;
+    let (intro_generics, fwd_generics, where_clauses) = generics.split_for_impl();
 
     // emit the ReprC
     ret.extend(quote!(
@@ -503,7 +469,8 @@ fn derive_opaque (
                     definer: &'_ mut dyn #ඞ::Definer,
                 ) -> #ඞ::io::Result<()>
                 {
-                    language.emit_opaque_type(
+                    language.declare_opaque_type(
+                        language,
                         definer,
                         &[#(#docs),*],
                         &#ඞ::PhantomData::<Self>,

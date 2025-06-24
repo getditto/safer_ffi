@@ -5,3 +5,9 @@ rustflags = [
 rustdocflags = [
     "--cfg", "docs",
 ]
+
+[alias]
+# fmt = []  # Please use `cargo fmt-nightly` instead.
+fmt-nightly = ["r", "-q", "-p", "run-sh", "--", "./scripts/format.sh"]
+# In order for `cargo fmt` to Just Work™, you can run:
+# scripts/formatting/setup_cargo_fmt_override.sh

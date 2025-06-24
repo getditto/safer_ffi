@@ -1,52 +1,37 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
+use ::std::os::raw::c_void;
 
 use super::*;
-
-use ::std::{
-    os::raw::c_void,
-};
-use crate::{
-    layout::ReprC,
-};
+use crate::layout::ReprC;
 
 /// Define `Closure<fn(A) -> B>` to be sugar for:
 /// `Closure_<(<A as ReprC>::CLayout,), <B as ReprC>::CLayout>`
 #[derive(Debug)]
-pub
-struct Closure<fn_sig> {
+pub struct Closure<fn_sig> {
     js_fun: JsFunction,
     _phantom: ::core::marker::PhantomData<fn_sig>,
 }
 
-unsafe
-impl<fn_sig> ::core::marker::Send for Closure<fn_sig>
-{}
+unsafe impl<fn_sig> ::core::marker::Send for Closure<fn_sig> {}
 
-unsafe
-impl<fn_sig> Sync for Closure<fn_sig>
-{}
+unsafe impl<fn_sig> Sync for Closure<fn_sig> {}
 
-impl<fn_sig> ReprNapi
-    for Closure<fn_sig>
-{
+impl<fn_sig> ReprNapi for Closure<fn_sig> {
     type NapiValue = JsFunction;
 
-    fn from_napi_value (
+    fn from_napi_value(
         _: &'_ Env,
         js_fun: JsFunction,
-    ) -> Result<Self>
-    {
+    ) -> Result<Self> {
         Ok(Self {
             js_fun,
             _phantom: Default::default(),
         })
     }
 
-    fn to_napi_value (
+    fn to_napi_value(
         self: Closure<fn_sig>,
         _: &'_ Env,
-    ) -> Result<JsFunction>
-    {
+    ) -> Result<JsFunction> {
         Ok(self.js_fun)
     }
 }
@@ -122,7 +107,9 @@ match_! {(
                     unsafe extern "C"
                     fn release_arc<Self_> (data: *mut c_void)
                     {
-                        drop(Arc::<Self_>::from_raw(data.cast()))
+                        unsafe {
+                            drop(Arc::<Self_>::from_raw(data.cast()))
+                        }
                     }
 
                     release_arc::<Self>
@@ -133,7 +120,9 @@ match_! {(
                     {
                         let arc: &Arc<Self_> = &(
                             ::core::mem::ManuallyDrop::new(
-                                Arc::<Self_>::from_raw(data.cast())
+                                unsafe {
+                                    Arc::<Self_>::from_raw(data.cast())
+                                }
                             )
                         );
                         ::core::mem::forget(arc.clone());
@@ -166,7 +155,7 @@ match_! {(
             let     &Self {
                 ref js_fun,
                 ..
-            } = {
+            } = unsafe {
                 this.cast::<Self>().as_ref().expect("Got NULL")
             };
             let ref env = Env::__new();

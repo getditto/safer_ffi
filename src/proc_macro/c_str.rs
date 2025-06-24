@@ -1,21 +1,11 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 use super::*;
 
-pub(in crate)
-fn c_str (
-    input: TokenStream2,
-) -> Result<TokenStream2>
-{
-    let input: LitStr =
-        if let Some(it) = parse2(input)? {
-            it
-        } else {
-            return Ok(::quote::quote!(
-                ::safer_ffi::char_p::char_p_ref::EMPTY
-            ));
-        }
-    ;
+pub(crate) fn c_str(input: TokenStream2) -> Result<TokenStream2> {
+    let input: LitStr = if let Some(it) = parse2(input)? {
+        it
+    } else {
+        return Ok(::quote::quote!(::safer_ffi::char_p::char_p_ref::EMPTY));
+    };
     let bytes = input.value();
     let mut bytes = bytes.as_bytes();
     let mut v;
@@ -28,9 +18,10 @@ fn c_str (
         },
         | Some(n) if n == bytes.len() - 1 => {},
         | Some(bad_idx) => {
-            return Err(Error::new_spanned(input, &format!(
-                "Error, encountered inner nul byte at position {}", bad_idx,
-            )));
+            return Err(Error::new_spanned(
+                input,
+                &format!("Error, encountered inner nul byte at position {}", bad_idx,),
+            ));
         },
     }
     let byte_str = LitByteStr::new(bytes, input.span());

@@ -1,33 +1,24 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 use_prelude!();
 use crate::prelude::c_slice;
 
-pub
-unsafe
-trait HasNiche : ReprC {
-    fn is_niche (it: &'_ <Self as ReprC>::CLayout)
-      -> bool
-    {
+pub unsafe trait HasNiche: ReprC {
+    fn is_niche(it: &'_ <Self as ReprC>::CLayout) -> bool {
         // default implementation (the `is_niche()` heuristic does not need to
         // be 100% accurate, since it's just a sanity check helper):
         Self::is_valid(it).not()
     }
 }
 
-unsafe
-impl<T : ReprC + HasNiche> ReprC
-    for Option<T>
-{
+unsafe impl<T: ReprC + HasNiche> ReprC for Option<T> {
     type CLayout = <T as ReprC>::CLayout;
 
     #[inline]
-    fn is_valid (it: &'_ Self::CLayout)
-      -> bool
-    {
+    fn is_valid(it: &'_ Self::CLayout) -> bool {
         T::is_niche(it) || <T as ReprC>::is_valid(it)
     }
 }
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! unsafe_impls {(
     $(
         $(@for[$($generics:tt)*])?

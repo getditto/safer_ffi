@@ -1,6 +1,6 @@
 RELEASE =? 0
 
-HEADERS = generated.h generated.cs generated.cffi
+HEADERS = generated.h generated.cs generated.cffi generated.lua
 RUST_STATIC_LIB = libffi_tests.a
 RUST_DYNAMIC_LIB = libffi_tests.dylib
 
@@ -25,7 +25,7 @@ all: test clean
 
 test: $(HEADERS) build tests/main.rs tests/c/main.c tests/csharp/Tests.cs
 	touch tests/csharp/Tests.cs
-	cargo test $(CARGO_RELEASE)
+	cargo test -q --test main $(CARGO_RELEASE)
 
 build: $(RUST_SOURCES)
 	cargo build $(CARGO_RELEASE)

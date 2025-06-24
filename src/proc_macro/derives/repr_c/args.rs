@@ -1,5 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 use super::*;
 
 mod kw {
@@ -7,19 +5,14 @@ mod kw {
     ::syn::custom_keyword!(rename);
 }
 
-pub(in crate)
-struct Args {
-    pub(in crate)
-    rename: Option<Expr![String]>,
+pub(crate) struct Args {
+    pub(crate) rename: Option<Expr![String]>,
 
-    pub(in crate)
-    js: Option<kw::js>,
+    pub(crate) js: Option<kw::js>,
 }
 
 impl Parse for Args {
-    fn parse (input: ParseStream<'_>)
-      -> Result<Args>
-    {
+    fn parse(input: ParseStream<'_>) -> Result<Args> {
         let mut ret = Args {
             js: None,
             rename: None,

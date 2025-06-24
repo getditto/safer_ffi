@@ -1,31 +1,28 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 use ::safer_ffi::prelude::*;
 
 #[derive_ReprC(dyn)]
 trait FfiFnMut {
-    fn call (&mut self)
-    ;
+    fn call(&mut self);
 }
 
-impl<T : FnMut()> FfiFnMut for T {
-    fn call (&mut self)
-    {
+impl<T: FnMut()> FfiFnMut for T {
+    fn call(&mut self) {
         self()
     }
 }
 
 #[ffi_export]
-fn call (mut f: VirtualPtr<dyn '_ + FfiFnMut>)
-{
+fn call(mut f: VirtualPtr<dyn '_ + FfiFnMut>) {
     f.call();
     f.call();
 }
 
 #[derive_ReprC(dyn)]
 trait WithCallback {
-    fn with(&self, scope: VirtualPtr<dyn '_ + FfiFnMut>)
-    ;
+    fn with(
+        &self,
+        scope: VirtualPtr<dyn '_ + FfiFnMut>,
+    );
 }
 
 #[derive_ReprC(dyn)]
@@ -33,8 +30,11 @@ trait Example {
     fn method(&self);
 }
 
-fn _example<'r, T : 'r + Example> (owned: T, r: &'r T, m: &'r mut T)
-{
+fn _example<'r, T: 'r + Example>(
+    owned: T,
+    r: &'r T,
+    m: &'r mut T,
+) {
     let owned: VirtualPtr<dyn 'r + Example> = Box::new(owned).into();
     owned.method();
     let r: VirtualPtr<dyn 'r + Example> = r.into();
@@ -48,8 +48,10 @@ trait Cloneable {
     fn method(&self);
 }
 
-fn _cloneable<'r, T : 'r + Cloneable + Clone> (owned: T, r: &'r T)
-{
+fn _cloneable<'r, T: 'r + Cloneable + Clone>(
+    owned: T,
+    r: &'r T,
+) {
     let owned: VirtualPtr<dyn 'r + Cloneable> = Box::new(owned).into();
     let owned2: VirtualPtr<dyn 'r + Cloneable> = owned.clone();
     owned.method();

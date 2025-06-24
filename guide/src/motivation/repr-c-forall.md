@@ -15,7 +15,7 @@ Why go through **the dangerously `unsafe` hassle** of:
 
     ```rust,noplaypen
     // Is this taking ownership of `Foo` or "just" mutating it?
-    #[no_mangle] pub unsafe extern "C"
+    #[unsafe(no_mangle)] pub unsafe extern "C"
     fn foo_stuff (foo: *mut Foo)
     {
         /* ... */

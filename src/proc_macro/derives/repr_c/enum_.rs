@@ -1,45 +1,30 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
 use super::*;
 
-pub(in crate)
-fn derive (
+pub(crate) fn derive(
     args: Args,
     attrs: &'_ mut Vec<Attribute>,
     pub_: &'_ Visibility,
     EnumName @ _: &'_ Ident,
     generics: &'_ Generics,
     variants: &'_ Punctuated<Variant, Token![,]>,
-) -> Result<TokenStream2>
-{
+) -> Result<TokenStream2> {
     if matches!(
         attrs.iter().find_map(|attr| {
             bool::then(
-                attr.path.is_ident("repr"),
+                attr.path().is_ident("repr"),
                 || attr.parse_args::<Ident>().ok()
             ).flatten()
         }),
         Some(repr) if repr.to_string() == "opaque"
-    )
-    {
-        return super::struct_::derive_opaque(
-            args,
-            attrs,
-            pub_,
-            EnumName,
-            generics,
-        );
+    ) {
+        return super::struct_::derive_opaque(args, attrs, pub_, EnumName, generics);
     }
 
     let mut ret = quote!();
 
-    if let Some(payload) =
-        variants
-            .iter()
-            .find(|Variant { fields, .. }| matches!(
-                fields,
-                Fields::Unit,
-            ).not())
+    if let Some(payload) = variants
+        .iter()
+        .find(|Variant { fields, .. }| matches!(fields, Fields::Unit,).not())
     {
         bail! {
             "Non field-less `enum`s are not supported yet." => payload.fields,
@@ -67,6 +52,7 @@ fn derive (
 
     let EnumName_Layout @ _ = format_ident!("{}_Layout", EnumName);
 
+    #[rustfmt::skip]
     #[apply(let_quote!)]
     use ::safer_ffi::{
         ඞ,
@@ -117,6 +103,7 @@ fn derive (
     let ref each_doc = utils::extract_docs(attrs)?;
 
     if cfg!(feature = "headers") {
+        #[rustfmt::skip]
         #[apply(let_quote!)]
         use ::safer_ffi::{
             ඞ::fmt,
@@ -129,14 +116,12 @@ fn derive (
             },
         };
 
-        let ref EnumName_str =
-            args.rename.map_or_else(
-                || EnumName.to_string().into_token_stream(),
-                ToTokens::into_token_stream,
-            )
-        ;
-        let ref each_enum_variant =
-            variants.try_vmap(|v| Result::Ok({
+        let ref EnumName_str = args.rename.map_or_else(
+            || EnumName.to_string().into_token_stream(),
+            ToTokens::into_token_stream,
+        );
+        let ref each_enum_variant = variants.try_vmap(|v| {
+            Result::Ok({
                 let ref VariantName_str = v.ident.to_string();
                 let discriminant = if let Some((_eq, disc)) = &v.discriminant {
                     quote!(
@@ -155,8 +140,8 @@ fn derive (
                         discriminant: #discriminant,
                     }
                 )
-            }))?
-        ;
+            })
+        })?;
 
         impl_body.extend(quote!(
             fn short_name ()
@@ -172,7 +157,8 @@ fn derive (
             ) -> #ඞ::io::Result<()>
             {
                 <#Int as #CType>::define_self(language, definer)?;
-                language.emit_simple_enum(
+                language.declare_simple_enum(
+                    language,
                     definer,
                     &[#(#each_doc),*],
                     &#ඞ::marker::PhantomData::<Self>,
@@ -211,9 +197,7 @@ fn derive (
     ));
 
     if cfg!(feature = "js") && args.js.is_some() {
-        let EachVariant @ _ =
-            variants.iter().map(|v| &v.ident)
-        ;
+        let EachVariant @ _ = variants.iter().map(|v| &v.ident);
         ret.extend(quote!(
             ::safer_ffi::layout::CType! {
                 @js_enum
@@ -276,70 +260,59 @@ fn derive (
     Ok(ret)
 }
 
-fn parse_discriminant_type (
+fn parse_discriminant_type(
     attrs: &'_ [Attribute],
     out_warnings: &mut TokenStream2,
-) -> Result<(
-        Quote![Option<&impl PhantomCType>],
-        TokenStream2,
-    )>
-{
-    let repr_attr =
-        attrs
-            .iter()
-            .find(|attr| attr.path.is_ident("repr"))
-            .ok_or(())
-            .or_else(|()| bail!("missing `#[repr(…)]` annotation"))?
-    ;
-    let ref reprs = repr_attr.parse_args_with(
-        Punctuated::<Ident, Token![,]>::parse_terminated,
-    )?;
+) -> Result<(Quote![Option<&impl PhantomCType>], TokenStream2)>{
+    let repr_attr = attrs
+        .iter()
+        .find(|attr| attr.path().is_ident("repr"))
+        .ok_or(())
+        .or_else(|()| bail!("missing `#[repr(…)]` annotation"))?;
+    let ref reprs = repr_attr.parse_args_with(Punctuated::<Ident, Token![,]>::parse_terminated)?;
     if reprs.is_empty() {
         bail!("expected an integral `repr` specifier" => repr_attr);
     }
     let parsed_reprs = reprs.iter().try_vmap(Repr::try_from)?;
-    let (c_type, repr) =
-        match
-            ::core::iter::zip(parsed_reprs, reprs)
-                .find(|(parsed, _ident)| matches!(parsed, Repr::C).not())
-        {
-            | Some((_repr, ident)) => {
-                let IntTy = quote!(
+    let (c_type, repr) = match ::core::iter::zip(parsed_reprs, reprs)
+        .find(|(parsed, _ident)| matches!(parsed, Repr::C).not())
+    {
+        | Some((_repr, ident)) => {
+            let IntTy = quote!(
                     ::safer_ffi::ඞ::#ident
                 );
-                (
-                    quote!(
+            (
+                quote!(
                         ::safer_ffi::ඞ::Some(
                             &::safer_ffi::ඞ::marker::PhantomData::<#IntTy>
                         )
                     ),
-                    IntTy,
-                )
-            },
-            | None if reprs.iter().any(|repr| repr == "C") => {
-                out_warnings.extend(utils::compile_warning(
-                    reprs,
-                    "\
+                IntTy,
+            )
+        },
+        | None if reprs.iter().any(|repr| repr == "C") => {
+            out_warnings.extend(utils::compile_warning(
+                reprs,
+                "\
                         `#[repr(C)]` enums are not well-defined in C; \
                         it is thus ill-advised to use them \
                         in a multi-compiler scenario such as FFI\
                     ",
-                ));
-                let IntTy = quote!(
+            ));
+            let IntTy = quote!(
                     ::safer_ffi::ඞ::os::raw::c_int
                 );
-                (
-                    quote!(
+            (
+                quote!(
                         ::safer_ffi::ඞ::None
                     ),
-                    IntTy,
-                )
-            },
-            | None => bail! {
-                "expected an integral `repr` annotation"
-            },
-        }
-    ;
+                IntTy,
+            )
+        },
+        | None => bail! {
+            "expected an integral `repr` annotation"
+        },
+    };
 
     Ok((c_type, repr))
 }

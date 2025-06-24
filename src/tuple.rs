@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! Tuple types with a guaranteed `#[repr(C)]` layout.
 //!
 //! Simplified for lighter documentation, but the actual `struct` definitions
@@ -9,69 +8,45 @@ use_prelude!();
 mod void {
     #[derive(Clone, Copy)]
     #[allow(missing_debug_implementations)]
-    pub
-    struct CVoid {
+    pub struct CVoid {
         _0: (),
     }
     // pub const CVoid: CVoid = CVoid { _0: () };
 }
-pub(in crate) use void::CVoid;
+pub(crate) use void::CVoid;
 
-unsafe
-impl LegacyCType
-    for CVoid
-{ __cfg_headers__! {
-    fn c_short_name_fmt (fmt: &'_ mut fmt::Formatter<'_>)
-      -> fmt::Result
-    {
-        fmt.write_str("void")
-    }
+unsafe impl CType for CVoid {
+    type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete;
 
-    fn c_var_fmt (
-        fmt: &'_ mut fmt::Formatter<'_>,
-        var_name: &'_ str,
-    ) -> fmt::Result
-    {
-        write!(fmt,
-            "void{sep}{}",
-            var_name,
-            sep = if var_name.is_empty() { "" } else { " " },
-        )
-    }
+    __cfg_headers__! {
+        fn short_name () -> String {
+            "void".into()
+        }
 
-    fn c_define_self (
-        _: &'_ mut dyn crate::headers::Definer,
-    ) -> io::Result<()>
-    {
-        Ok(())
-    }
-
-    __cfg_csharp__! {
-        fn csharp_define_self (
-            _: &'_ mut dyn crate::headers::Definer,
+        fn define_self__impl (
+            _language: &'_ dyn HeaderLanguage,
+            _definer: &'_ mut dyn Definer,
         ) -> io::Result<()>
         {
             Ok(())
         }
 
-        fn csharp_ty ()
-          -> rust::String
+        fn render(
+            out: &'_ mut dyn io::Write,
+            language: &'_ dyn HeaderLanguage,
+        ) -> io::Result<()>
         {
-            "void".into()
+            language.emit_void_output_type(out)?;
+            Ok(())
         }
     }
-} type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete; }
+}
 from_CType_impl_ReprC! { CVoid }
 
-unsafe
-impl ReprC
-    for ::core::ffi::c_void
-{
+unsafe impl ReprC for ::core::ffi::c_void {
     type CLayout = CVoid;
 
-    fn is_valid (_: &'_ CVoid)
-      -> bool
-    {
+    fn is_valid(_: &'_ CVoid) -> bool {
         panic!("Trying to construct a `c_void` is a logic error");
     }
 }

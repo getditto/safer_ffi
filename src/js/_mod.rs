@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 //! Safer-ffi internals used by `#[ffi-export]` to make such
 //! annotated functions be callable from Node.js
 //!
@@ -12,95 +11,77 @@ use ::core::future::Future;
 extern crate napi;
 
 pub use ::napi::*;
-
 // pub use ::napi_derive::js_function;
-
 pub use closures::*;
 
 #[cfg_attr(target_arch = "wasm32", path = "closures/wasm.rs")]
 #[cfg_attr(not(target_arch = "wasm32"), path = "closures/node_js.rs")]
 mod closures;
 
-pub
-mod ffi_helpers;
+pub mod ffi_helpers;
 
 mod impls;
 
-cfg_not_wasm! {
-    pub
-    mod registering;
-}
+#[cfg(not(target_arch = "wasm32"))]
+pub mod registering;
 
 /// Interconversion between `CType`s and js values
-pub
-trait ReprNapi : Sized /* : crate::layout::CType */ {
-    type NapiValue : NapiValue + IntoUnknown;
+pub trait ReprNapi: Sized /* : crate::layout::CType */ {
+    type NapiValue: NapiValue + IntoUnknown;
 
     /// Conversion from a returned Rust value to a Node.js value.
-    fn to_napi_value (
+    fn to_napi_value(
         self: Self,
         env: &'_ Env,
-    ) -> Result< Self::NapiValue >
-    ;
+    ) -> Result<Self::NapiValue>;
 
     /// Conversion from a Node.js parameter to a Rust value.
-    fn from_napi_value (
+    fn from_napi_value(
         env: &'_ Env,
         napi_value: Self::NapiValue,
-    ) -> Result<Self>
-    ;
+    ) -> Result<Self>;
 }
 
 pub use adhoc::AdhocToReprNapi;
 mod adhoc {
     use super::*;
 
-    pub
-    trait ToReprNapiFnOnce
+    pub trait ToReprNapiFnOnce
     where
-        Self : FnOnce(&'_ Env) -> Result< Self::NapiValue >,
+        Self: FnOnce(&'_ Env) -> Result<Self::NapiValue>,
     {
-        type NapiValue : NapiValue + IntoUnknown;
+        type NapiValue: NapiValue + IntoUnknown;
     }
 
-    impl<F, NapiValue>
-        ToReprNapiFnOnce
-    for
-        F
+    impl<F, NapiValue> ToReprNapiFnOnce for F
     where
-        Self : FnOnce(&'_ Env) -> Result< NapiValue >,
-        NapiValue : super::NapiValue + IntoUnknown,
+        Self: FnOnce(&'_ Env) -> Result<NapiValue>,
+        NapiValue: super::NapiValue + IntoUnknown,
     {
         type NapiValue = NapiValue;
     }
 
     #[allow(missing_debug_implementations)]
-    pub
-    struct AdhocToReprNapi<F : ToReprNapiFnOnce>(
-        pub F,
-    )
+    pub struct AdhocToReprNapi<F: ToReprNapiFnOnce>(pub F)
     where
-        F : FnOnce(&Env) -> Result< F::NapiValue >,
-    ;
+        F: FnOnce(&Env) -> Result<F::NapiValue>;
 
-    impl<F : ToReprNapiFnOnce> ReprNapi for AdhocToReprNapi<F> {
+    impl<F: ToReprNapiFnOnce> ReprNapi for AdhocToReprNapi<F> {
         type NapiValue = F::NapiValue;
 
         /// Conversion from a returned Rust value to a Node.js value.
-        fn to_napi_value (
+        fn to_napi_value(
             self: Self,
             env: &'_ Env,
-        ) -> Result< F::NapiValue >
-        {
+        ) -> Result<F::NapiValue> {
             (self.0)(env)
         }
 
         /// Conversion from a Node.js parameter to a Rust value.
-        fn from_napi_value (
+        fn from_napi_value(
             _: &'_ Env,
             _: Self::NapiValue,
-        ) -> Result<Self>
-        {
+        ) -> Result<Self> {
             unimplemented!("ToReprNapiFnOnce")
         }
     }
@@ -120,12 +101,13 @@ cfg_not_wasm! {
 }
 
 #[macro_export]
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! js_register_exported_functions {() => (
     #[cfg(not(target_arch = "wasm32"))]
     const _: () = {
         use ::safer_ffi::js as napi;
 
-        #[no_mangle] pub
+        #[unsafe(no_mangle)] pub
         unsafe extern "C"
         fn napi_register_module_v1 (
             env: napi::sys::napi_env,
@@ -138,11 +120,8 @@ macro_rules! js_register_exported_functions {() => (
 )}
 pub use js_register_exported_functions as register_exported_functions;
 
-pub
-trait IntoUnknown : ::core::convert::TryFrom<JsUnknown> {
-    fn into_unknown (self: Self)
-      -> JsUnknown
-    ;
+pub trait IntoUnknown: ::core::convert::TryFrom<JsUnknown> {
+    fn into_unknown(self: Self) -> JsUnknown;
 }
 
 match_! {
@@ -175,11 +154,7 @@ match_! {
 )}}
 
 #[allow(missing_debug_implementations)]
-pub
-struct JsPromise<ResolvesTo = JsUnknown> /* = */ (
-    JsObject,
-    ::core::marker::PhantomData<ResolvesTo>,
-);
+pub struct JsPromise<ResolvesTo = JsUnknown>(JsObject, ::core::marker::PhantomData<ResolvesTo>);
 
 cfg_wasm! {
     mod hidden {
@@ -190,64 +165,47 @@ cfg_wasm! {
 }
 
 impl<ResolvesTo> JsPromise<ResolvesTo> {
-    pub
-    fn resolve_into_unknown (self: JsPromise<ResolvesTo>)
-      -> JsPromise<JsUnknown>
-    {
+    pub fn resolve_into_unknown(self: JsPromise<ResolvesTo>) -> JsPromise<JsUnknown> {
         JsPromise(self.0, Default::default())
     }
 
-    pub
-    fn into_unknown (self: JsPromise<ResolvesTo>)
-      -> JsUnknown
-    {
-        self.0
-            .into_unknown()
+    pub fn into_unknown(self: JsPromise<ResolvesTo>) -> JsUnknown {
+        self.0.into_unknown()
     }
 
     #[cfg(target_arch = "wasm32")]
-    pub
-    fn resolve (value: &'_ ::napi::__::wasm_bindgen::JsValue)
-      -> JsPromise<ResolvesTo>
-    {
+    pub fn resolve(value: &'_ ::napi::__::wasm_bindgen::JsValue) -> JsPromise<ResolvesTo> {
         Self(
-            ::napi::__::js_sys::Promise::resolve(value)
-                .unchecked_into()
-            ,
+            ::napi::__::js_sys::Promise::resolve(value).unchecked_into(),
             Default::default(),
         )
     }
 
-    pub
-    fn spawn<Fut> (
+    pub fn spawn<Fut>(
         env: &'_ Env,
         fut: Fut,
-    ) -> Result< JsPromise<ResolvesTo> >
+    ) -> Result<JsPromise<ResolvesTo>>
     where
-        ResolvesTo : 'static + NapiValue,
-        Fut : 'static + Send + Future,
-        <Fut as Future>::Output : Send + ReprNapi<NapiValue = ResolvesTo>,
+        ResolvesTo: 'static + NapiValue,
+        Fut: 'static + Send + Future,
+        <Fut as Future>::Output: Send + ReprNapi<NapiValue = ResolvesTo>,
     {
         #[cfg(target_arch = "wasm32")]
         let ret = {
             let _ = env;
-            let promise = ::napi::__::wasm_bindgen_futures::future_to_promise(
-                async move {
-                    fut .await
-                        .to_napi_value(&Env::__new())
-                        .map(|it| it.unchecked_into())
-                }
-            );
+            let promise = ::napi::__::wasm_bindgen_futures::future_to_promise(async move {
+                fut.await
+                    .to_napi_value(&Env::__new())
+                    .map(|it| it.unchecked_into())
+            });
             Ok(JsPromise(promise.unchecked_into(), Default::default()))
         };
         #[cfg(not(target_arch = "wasm32"))]
-        let ret =
-            env .execute_tokio_future(
-                    async { Ok(fut.await) },
-                    |env, fut_output| fut_output.to_napi_value(env),
-                )
-                .map(|promise| JsPromise(promise, Default::default()))
-        ;
+        let ret = env
+            .execute_tokio_future(async { Ok(fut.await) }, |env, fut_output| {
+                fut_output.to_napi_value(env)
+            })
+            .map(|promise| JsPromise(promise, Default::default()));
         ret
     }
 }
@@ -258,7 +216,7 @@ cfg_not_wasm! {
         fn from_raw (env: sys::napi_env, value: sys::napi_value)
           -> Result<Self>
         {
-            JsObject::from_raw(env, value)
+            unsafe { JsObject::from_raw(env, value) }
                 .map(|obj| Self(obj, Default::default()))
         }
 
@@ -266,14 +224,17 @@ cfg_not_wasm! {
         fn from_raw_unchecked (env: sys::napi_env, value: sys::napi_value)
           -> Self
         {
-            Self(JsObject::from_raw_unchecked(env, value), Default::default())
+            Self(
+                unsafe { JsObject::from_raw_unchecked(env, value) },
+                Default::default(),
+            )
         }
 
         unsafe
         fn raw (self: &'_ Self)
           -> sys::napi_value
         {
-            self.0.raw()
+            unsafe { self.0.raw() }
         }
     }
 
@@ -364,56 +325,44 @@ cfg_not_wasm! {
 
 #[allow(missing_debug_implementations)]
 #[repr(transparent)]
-pub
-struct UnsafeAssertSend<T> /* = */ (
-    T,
-);
+pub struct UnsafeAssertSend<T>(T);
 
 impl<T> UnsafeAssertSend<T> {
     #[inline]
-    pub
-    unsafe
-    fn new (value: T)
-      -> UnsafeAssertSend<T>
-    {
+    pub unsafe fn new(value: T) -> UnsafeAssertSend<T> {
         UnsafeAssertSend(value)
     }
 
-    pub
-    fn into_inner (self: UnsafeAssertSend<T>)
-      -> T
-    {
+    pub fn into_inner(self: UnsafeAssertSend<T>) -> T {
         let UnsafeAssertSend(value) = self;
         value
     }
 }
 
-unsafe
-impl<T> ::core::marker::Send for UnsafeAssertSend<T>
-{}
+unsafe impl<T> ::core::marker::Send for UnsafeAssertSend<T> {}
 
-impl<T : ReprNapi> ReprNapi for UnsafeAssertSend<T> {
+impl<T: ReprNapi> ReprNapi for UnsafeAssertSend<T> {
     type NapiValue = T::NapiValue;
 
     /// Conversion from a returned Rust value to a Node.js value.
     #[inline]
-    fn to_napi_value (
+    fn to_napi_value(
         self: UnsafeAssertSend<T>,
         env: &'_ Env,
-    ) -> Result< T::NapiValue >
-    {
+    ) -> Result<T::NapiValue> {
         self.into_inner().to_napi_value(env)
     }
 
     /// Conversion from a Node.js parameter to a Rust value.
     #[inline]
-    fn from_napi_value (
+    fn from_napi_value(
         _: &'_ Env,
         _: T::NapiValue,
-    ) -> Result<UnsafeAssertSend<T>>
-    {
-        unimplemented!("\
+    ) -> Result<UnsafeAssertSend<T>> {
+        unimplemented!(
+            "\
             Cannot produce an `UnsafeAssertSend` without `unsafe` code.\
-        ");
+        "
+        );
     }
 }

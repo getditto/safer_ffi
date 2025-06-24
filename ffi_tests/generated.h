@@ -39,6 +39,41 @@ typedef struct AnUnusedStruct {
     Wow_t are_you_still_there;
 } AnUnusedStruct_t;
 
+typedef struct {
+    float idx[3];
+} float_3_array_t;
+
+typedef struct {
+    uint64_t idx[5];
+} uint64_5_array_t;
+
+typedef struct {
+    uint8_t idx[1];
+} uint8_1_array_t;
+
+typedef struct {
+    uint8_1_array_t idx[2];
+} uint8_1_array_2_array_t;
+
+typedef struct {
+    uint8_1_array_2_array_t idx[3];
+} uint8_1_array_2_array_3_array_t;
+
+/** <No documentation available> */
+typedef struct ArraysStruct {
+    /** <No documentation available> */
+    float_3_array_t floats;
+
+    /** <No documentation available> */
+    uint64_5_array_t sizes;
+
+    /** <No documentation available> */
+    uint8_1_array_2_array_t dim_2;
+
+    /** <No documentation available> */
+    uint8_1_array_2_array_3_array_t dim_3;
+} ArraysStruct_t;
+
 /** <No documentation available> */
 #define FOO ((int32_t) 42)
 
@@ -68,7 +103,7 @@ typedef struct next_generation {
     /** \brief
      *  I test some `gen`-eration.
      */
-    Bar_t gen;
+    Bar_t generation;
 
     /** \brief
      *  with function pointers and everything!
@@ -83,6 +118,44 @@ typedef struct Opaque__str Opaque__str_t;
 
 /** <No documentation available> */
 #define SOME_NAME "hello there"
+
+/** <No documentation available> */
+typedef struct ConstGenericStruct_uint8_1 {
+    /** <No documentation available> */
+    uint8_1_array_t data;
+} ConstGenericStruct_uint8_1_t;
+
+typedef struct {
+    uint8_t idx[2];
+} uint8_2_array_t;
+
+/** <No documentation available> */
+typedef struct ConstGenericStruct_uint8_2 {
+    /** <No documentation available> */
+    uint8_2_array_t data;
+} ConstGenericStruct_uint8_2_t;
+
+typedef struct {
+    uint16_t idx[3];
+} uint16_3_array_t;
+
+/** <No documentation available> */
+typedef struct ConstGenericStruct_uint16_3 {
+    /** <No documentation available> */
+    uint16_3_array_t data;
+} ConstGenericStruct_uint16_3_t;
+
+/** <No documentation available> */
+typedef struct SpecificConstGenericContainer {
+    /** <No documentation available> */
+    ConstGenericStruct_uint8_1_t field1;
+
+    /** <No documentation available> */
+    ConstGenericStruct_uint8_2_t field2;
+
+    /** <No documentation available> */
+    ConstGenericStruct_uint16_3_t field3;
+} SpecificConstGenericContainer_t;
 
 /** \brief
  *  Hello, `World`!

@@ -4,23 +4,23 @@ proc-macro = true
 
 [package]
 name = "safer_ffi-proc_macros"
-version = "0.1.13"                                                    # Keep in sync
+version = "0.2.0-alpha.0"  # Keep in sync
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
-edition = "2021"
+edition = "2024"
 
 description = "Procedural macro internals of `::safer_ffi`"
 license = "MIT"
 
 [dependencies]
-proc-macro2.version = "1.0"
-quote.version = "1.0"
+proc-macro2.version = "1.0.94"
+quote.version = "1.0.40"
 
 # prettyplease.optional = true
-prettyplease.version = "0.1.7"
+prettyplease.version = "0.2.32"
 macro_rules_attribute = "0.1.0"
 
 [dependencies.syn]
-version = "1.0"
+version = "2.0.100"
 features = [
     # "extra-traits",
     "full",

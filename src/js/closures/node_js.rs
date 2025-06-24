@@ -1,14 +1,10 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
-
-use super::*;
-
 use ::napi::threadsafe_function::*;
 use ::once_cell::sync::OnceCell;
-use ::std::{
-    os::raw::c_void,
-    sync::Arc,
-    time::Duration,
-};
+use ::std::os::raw::c_void;
+use ::std::sync::Arc;
+use ::std::time::Duration;
+
+use super::*;
 
 /// Global configuration for the number of milliseconds to wait for a callback sync.
 /// Disabled when `None`. Access through `deadlock_timeout()`.
@@ -56,26 +52,19 @@ type_level_enum! {
 
 /// Define `Closure<fn(A) -> B>` to be sugar for:
 /// `Closure_<(<A as ReprC>::CLayout,), <B as ReprC>::CLayout>`
-pub
-type Closure<
-        fn_sig,
-        Synchronicity = SyncKind::WaitForCompletion,
-    >
-= (
-    <
-        fn_sig as TypeAliasHelper<Synchronicity>
-    >::T
-);
+pub type Closure<fn_sig, Synchronicity = SyncKind::WaitForCompletion> =
+    (<fn_sig as TypeAliasHelper<Synchronicity>>::T);
 
-pub trait TypeAliasHelper<Synchronicity : SyncKind::T> { type T; }
+pub trait TypeAliasHelper<Synchronicity: SyncKind::T> {
+    type T;
+}
 
 use safety_boundary::ThreadTiedJsFunction;
 
 mod safety_boundary {
     use super::*;
 
-    pub
-    struct ThreadTiedJsFunction {
+    pub struct ThreadTiedJsFunction {
         // A simple `func` field would not be `Send` nor `Sync` since it can't
         // be `call`ed from another thread.
         // We thus forge our own `SendWrapper` tailored for our use case.
@@ -88,34 +77,39 @@ mod safety_boundary {
     }
 
     // Objective
-    unsafe
-        impl Send for ThreadTiedJsFunction {}
-    unsafe
-        impl Sync for ThreadTiedJsFunction {}
+    unsafe impl Send for ThreadTiedJsFunction {}
+    unsafe impl Sync for ThreadTiedJsFunction {}
 
     impl ThreadTiedJsFunction {
-        pub
-        fn new (func: &'_ JsFunction, env: Env)
-          -> ThreadTiedJsFunction
-        {
+        pub fn new(
+            func: &'_ JsFunction,
+            env: Env,
+        ) -> ThreadTiedJsFunction {
             // call N-API's `ref`-counting functions:
             let mut raw_ref_handle = NULL!();
             unsafe {
-                assert_eq!(0, ::napi::sys::napi_create_reference(
-                    env.raw(),
-                    func.raw(),
-                    1,
-                    &mut raw_ref_handle,
-                ));
+                assert_eq!(
+                    0,
+                    ::napi::sys::napi_create_reference(
+                        env.raw(),
+                        func.raw(),
+                        1,
+                        &mut raw_ref_handle,
+                    )
+                );
             }
 
+            #[expect(non_local_definitions)]
             impl Drop for ThreadTiedJsFunction {
-                fn drop (self: &'_ mut ThreadTiedJsFunction)
-                {
+                fn drop(self: &'_ mut ThreadTiedJsFunction) {
                     // Note: since Self is `Send`,
                     // this may be called in a non-Node.js thread.
                     // It appears the ref-counting functions are thread-safe.
-                    let Self { ref env, raw_ref_handle, .. } = *self;
+                    let Self {
+                        ref env,
+                        raw_ref_handle,
+                        ..
+                    } = *self;
                     unsafe {
                         /* Decrementing the ref-count before destroying it does
                          * not seem to be necessary. */
@@ -123,11 +117,7 @@ mod safety_boundary {
                         //     env.raw(), raw_ref_handle, &mut 0,
                         // );
                         let _ignored_status =
-                            ::napi::sys::napi_delete_reference(
-                                env.raw(),
-                                raw_ref_handle,
-                            )
-                        ;
+                            ::napi::sys::napi_delete_reference(env.raw(), raw_ref_handle);
                     }
                 }
             }
@@ -140,18 +130,18 @@ mod safety_boundary {
             }
         }
 
-        pub
-        fn get_thread_tied_func (self: &'_ Self)
-          -> Option<JsFunction>
-        {
+        pub fn get_thread_tied_func(self: &'_ Self) -> Option<JsFunction> {
             if ::std::thread::current().id() == self.main_nodejs_thread {
                 Some(unsafe {
                     let mut raw_func = NULL!();
-                    assert_eq!(0, sys::napi_get_reference_value(
-                        self.env.raw(),
-                        self.raw_ref_handle,
-                        &mut raw_func,
-                    ));
+                    assert_eq!(
+                        0,
+                        sys::napi_get_reference_value(
+                            self.env.raw(),
+                            self.raw_ref_handle,
+                            &mut raw_func,
+                        )
+                    );
                     JsFunction::from_raw_unchecked(self.env.raw(), raw_func)
                 })
             } else {
@@ -182,8 +172,7 @@ mod safety_boundary {
 ///
 /// In order to avoid that, we also bundle a `ThreadTiedJsFunction` to fallback
 /// to a classic call when we detect we are within the main Node.js thread.
-pub
-struct Closure_<Args : 'static, Ret : 'static, Synchronicity : SyncKind::T> {
+pub struct Closure_<Args: 'static, Ret: 'static, Synchronicity: SyncKind::T> {
     /// A `JsFunction` that can only be called from the thread whence it
     /// originated.
     local_func: ThreadTiedJsFunction,
@@ -199,10 +188,7 @@ struct Closure_<Args : 'static, Ret : 'static, Synchronicity : SyncKind::T> {
     /// expected to be done by us in the FFI so as to hide that implementation
     /// detail).
     ts_fun: ThreadsafeFunction<
-        (
-            Option<::std::sync::mpsc::SyncSender< Result<Ret> >>,
-            Args,
-        ),
+        (Option<::std::sync::mpsc::SyncSender<Result<Ret>>>, Args),
         ErrorStrategy::Fatal,
     >,
 
@@ -213,64 +199,51 @@ struct Closure_<Args : 'static, Ret : 'static, Synchronicity : SyncKind::T> {
     _sync_kind: ::core::marker::PhantomData<Synchronicity>,
 }
 
-impl<
-    Args : 'static,
-    Ret : 'static,
-    Synchronicity : SyncKind::T,
->
-    ::core::fmt::Debug
-for
-    Closure_<Args, Ret, Synchronicity>
+impl<Args: 'static, Ret: 'static, Synchronicity: SyncKind::T> ::core::fmt::Debug
+    for Closure_<Args, Ret, Synchronicity>
 {
-    fn fmt (
+    fn fmt(
         self: &'_ Self,
         fmt: &'_ mut ::core::fmt::Formatter<'_>,
-    ) -> ::core::fmt::Result
-    {
-        ::core::fmt::Display::fmt(
-            ::core::any::type_name::<Self>(),
-            fmt,
-        )
+    ) -> ::core::fmt::Result {
+        ::core::fmt::Display::fmt(::core::any::type_name::<Self>(), fmt)
     }
 }
 
-unsafe
-    impl<Args : 'static, Ret : 'static, Synchronicity : SyncKind::T>
-        Send
-    for
-        Closure_<Args, Ret, Synchronicity>
-   /*
-    * FIXME: these bounds seem plausible in order to make sure our API is
-    * sound, but since raw pointers aren't `Send`, in practice it will be
-    * too cumbersome. Since the current design with
-    * ReprC-to-CType-that-is-ReprNapi is not final anyways (ideally, we'd
-    * be dealing with `ReprC + ReprNapi` types), let's not worry about this
-    * yet…
-    **/
-    // where
-        // Args : Send,
-        // Ret : Send,
-    {}
+unsafe impl<Args: 'static, Ret: 'static, Synchronicity: SyncKind::T> Send
+    for Closure_<Args, Ret, Synchronicity>
+/*
+ * FIXME: these bounds seem plausible in order to make sure our API is
+ * sound, but since raw pointers aren't `Send`, in practice it will be
+ * too cumbersome. Since the current design with
+ * ReprC-to-CType-that-is-ReprNapi is not final anyways (ideally, we'd
+ * be dealing with `ReprC + ReprNapi` types), let's not worry about this
+ * yet…
+ * */
+// where
+// Args : Send,
+// Ret : Send,
+{
+}
 
-unsafe
-    impl<Args : 'static, Ret : 'static, Synchronicity : SyncKind::T>
-        Sync
-    for
-        Closure_<Args, Ret, Synchronicity>
-   /*
-    * FIXME: same as above, but for the sub-bounds still being `Send`.
-    * This is intended / not a typo: Args and Ret are never shared, so this
-    * is, AFAIK, the correct bound.
-    **/
-    // where
-        // Args : Send,
-        // Ret : Send,
-    {}
+unsafe impl<Args: 'static, Ret: 'static, Synchronicity: SyncKind::T> Sync
+    for Closure_<Args, Ret, Synchronicity>
+/*
+ * FIXME: same as above, but for the sub-bounds still being `Send`.
+ * This is intended / not a typo: Args and Ret are never shared, so this
+ * is, AFAIK, the correct bound.
+ * */
+// where
+// Args : Send,
+// Ret : Send,
+{
+}
 
 // Since variadic generics to support arbitrary function arities are not
 // available yet, we use macros to generate implementations for many hard-coded
 // arities. In this instance, functions of up to 6 parameters.
 impls! { (_6, _5, _4, _3, _2, _1) }
+#[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! impls {(
     ($( $_0:ident $(, $_k:ident)* $(,)? )?)
 ) => (
@@ -530,7 +503,9 @@ macro_rules! impls {(
                     unsafe extern "C"
                     fn release_arc<Self_> (data: *mut c_void)
                     {
-                        drop(Arc::<Self_>::from_raw(data.cast()))
+                        unsafe {
+                            drop(Arc::<Self_>::from_raw(data.cast()))
+                        }
                     }
 
                     release_arc::<Self>
@@ -541,7 +516,9 @@ macro_rules! impls {(
                     {
                         let arc: &Arc<Self_> = &(
                             ::core::mem::ManuallyDrop::new(
-                                Arc::<Self_>::from_raw(data.cast())
+                                unsafe {
+                                    Arc::<Self_>::from_raw(data.cast())
+                                }
                             )
                         );
                         ::core::mem::forget(arc.clone());
@@ -560,7 +537,7 @@ macro_rules! impls {(
             $_0: $_0, $(
             $_k: $_k, )*)?
         ) -> CRet
-        {
+        { unsafe {
             // We set up an `on_unwind` guard, except if we're already being invoked
             // from within a panicking context, which confuses the `on_unwind` heuristic
             // of `::scopeguard`. Since in that case, any extra panic already triggers an abort,
@@ -612,6 +589,15 @@ macro_rules! impls {(
                     };
 
                     // Do enqueue the call.
+                    // 👉👉 only to be done when the args are all `: 'static`! 👈👈
+                    // This is technically the case when using the `TypeAliasHelper`,
+                    // e.g., the `Closure<fn(…) -> …, SyncKind::Detached>` alias,
+                    // but better be explicit about this safety.
+                    //
+                    // Most notably, using `Closure<fn(…, char_p::Raw, …) -> …, SyncKind::Detached>`
+                    // as a lack-of-higher-ranked-genericity workaround risks passing the
+                    // `: 'static` check of the type alias, even though that `char_p::Raw` is
+                    // morally a non-`: 'static` `char_p::Ref<'_>`.
                     let status = ts_fun.call(
                         // Note: these params are handled by `fn convert_params`
                         (
@@ -774,7 +760,7 @@ macro_rules! impls {(
                 },
             }
             .expect("Cannot throw a js exception within an FFI callback")
-        }
+        }}
 
         fn convert_params(
             ThreadSafeCallContext {
@@ -829,26 +815,27 @@ macro_rules! impls {(
             Ok(args)
         }
     }
-)} use impls;
+)}
+use impls;
 
 /// Given the expected `wrap_cb_for_ffi` being applied to js cbs —whereby
 /// these cbs return their value as `return ret_sender(ret_value)`—, when there
 /// is no meaningful `ret_sender`, we provide a dummy polyfill which acts as the
 /// identity / no-op-forwarding function, so as to yield the semantics of
 /// `return ret_value`.
-fn dummy_ret_sender (env: &'_ Env)
-  -> Result<JsFunction>
-{
-    env .create_function_from_closure(
-            "dummy ret sender",
-            // ```js
-            // (arg) => arg
-            // ```
-            move |ctx: CallContext<'_>| Ok({
+fn dummy_ret_sender(env: &'_ Env) -> Result<JsFunction> {
+    env.create_function_from_closure(
+        "dummy ret sender",
+        // ```js
+        // (arg) => arg
+        // ```
+        move |ctx: CallContext<'_>| {
+            Ok({
                 let arg = ctx.get::<JsUnknown>(0)?;
                 arg
-            }),
-        )
+            })
+        },
+    )
 }
 
 /// Returns the configured deadlock timeout, or `None` if the timeout is disabled.
@@ -857,22 +844,21 @@ fn dummy_ret_sender (env: &'_ Env)
 /// the default timeout is returned.
 pub fn get_deadlock_timeout() -> Option<u32> {
     match DEADLOCK_TIMEOUT_MS.get() {
-        Some(timeout) => *timeout,
-        None => Some(DEFAULT_DEADLOCK_TIMEOUT_MS),
+        | Some(timeout) => *timeout,
+        | None => Some(DEFAULT_DEADLOCK_TIMEOUT_MS),
     }
 }
 
 /// Sets the deadlock timeout. Can only be called once and returns an `Error` afterwards.
-pub fn set_deadlock_timeout(
-    timeout: Option<core::num::NonZeroU32>
-) -> Result<()> {
+pub fn set_deadlock_timeout(timeout: Option<core::num::NonZeroU32>) -> Result<()> {
     DEADLOCK_TIMEOUT_MS
         .set(timeout.map(|t| t.into()))
-        .map_err(|_| Error::new(
-            Status::GenericFailure,
-            "Deadlock timeout can only be set once".to_owned(),
-        )
-    )
+        .map_err(|_| {
+            Error::new(
+                Status::GenericFailure,
+                "Deadlock timeout can only be set once".to_owned(),
+            )
+        })
 }
 
 include!("common.rs");

@@ -324,7 +324,71 @@ Point { x: 42.0, y: 42.0 }
 
 ## Development
 
-### Tests
+<details><summary>Click to see</summary>
+
+To test the code with a certain amount of FFI integration baked into the tests (since `safer-ffi`,
+alone, only _exports_ APIs to the FFI, so doesn't come with FFI callsites on its own), the
+`ffi_tests/` project directory is used to test against C, C#, and Lua callsites.
+
+You can run these tests directly by doing:
+
+```bash
+make -C ffi_tests
+```
+
+or by adding `--features ffi-tests` to the `cargo test` command.
+
+### Formatting
+
+Code is formatted using the "`{MSRV}-nightly` toolchain". That is, formatting uses some `unstable`
+features of `rustfmt`, so we use a Versioned Nightly™ approach. For the sake of version consistency,
+we stick to that of our MSRV.
+
+But since it needs to be a genuine `nightly` toolchain, we are forced to pick an actual `nightly`
+toolchain, only one whose date matches the birth of the corresponding `MSRV`-stable toolchain.
+
+  - See [`./scripts/formatting/rust-toolchain.toml`](./scripts/formatting/rust-toolchain.toml).
+  - See also, w.r.t. versions and dates: <https://releases.rs>
+
+To format the code, you have three options:
+
+  - `./scripts/format.sh`
+
+  - `cargo fmt-nightly` (which is defined as an alias of the previous bullet)
+
+  - `cargo fmt` but only after having run `./scripts/formatting/setup_cargo_fmt_override.sh` at
+    least once.
+
+    This does mutate a bit your `rustup` setup, but in an unobservable way (but for allowing the
+    matching stable toolchain to use `unstable` features when running `cargo fmt`, the very point
+    of this maneuver).
+
+    This is probably the preferred approach for those with IDEs or whatnot which automagically runs
+    `cargo fmt`/`rustfmt` on save.
+
+### Dependencies
+
+  - #### Lua dependencies
+
+    For running the C# FFI integration tests please install `dotnet` (v8.0) dependency:
+
+    See <https://aka.ms/dotnet-download> for guidance about this.
+
+  - #### Lua dependencies
+
+    For running Lua FFI integration tests please install `luajit` dependency:
+
+    MacOS:
+    ```bash
+    brew install luajit
+    ```
+
+    Ubuntu/Debian:
+    ```bash
+    sudo apt-get install -y luajit
+    ```
+
+### Various integration test suites
 
 safer-ffi includes three different tests suites that can be run.
 
@@ -346,3 +410,5 @@ make -C js_tests
 wasm-pack build --target web && python3 -m http.server 13337
 
 ```
+
+</details>

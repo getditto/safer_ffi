@@ -1,8 +1,10 @@
-use crate::{
-    derive_ReprC,
-    ඞ::{CLayoutOf, ConcreteReprC, ReprC},
-};
-use stabby::abi::{vtable::HasDropVt, IPtrOwned};
+use stabby::abi::IPtrOwned;
+use stabby::abi::vtable::HasDropVt;
+
+use crate::derive_ReprC;
+use crate::ඞ::CLayoutOf;
+use crate::ඞ::ConcreteReprC;
+use crate::ඞ::ReprC;
 
 unsafe impl<Ptr: ConcreteReprC + IPtrOwned + ReprC, VTable: HasDropVt + ReprC> ReprC
     for stabby::abi::Dyn<'_, Ptr, VTable>
