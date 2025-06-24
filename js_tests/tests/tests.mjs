@@ -1,3 +1,5 @@
+import { inspect } from 'util';
+
 // Tests:
 export async function run_tests({ ffi, performance, assert, is_web }) {
     ffi.setup();
@@ -309,6 +311,49 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
     }
 
     assert.equal(ffi.my_renamed_ptr_api().addr, 0xbad000);
+
+    // ──────────────────────────────────────────────────────────
+    //  Regression: pointer objects must contain both { addr, type }
+    // ──────────────────────────────────────────────────────────
+
+    const good_ptrs = [
+      { addr: 0n, type: 'Foo_t *' }
+    ]
+
+    for (const good of good_ptrs) {
+      let error = null;
+
+      try {
+        // any API that expects a *Foo will do; foo_free() is harmless
+        ffi.foo_free(good);
+      } catch (e) {
+        error = e;
+      }
+
+      // Must not throw …
+      assert.equal(error, null, `good pointer ${inspect(good)} threw unexpectedly`);
+    }
+
+    const bad_ptrs = [
+      {},                              // nothing
+      { addr: 0n },                    // missing type
+      { type: 'Foo *' },               // missing addr
+      new Date()                       // not an object literal
+    ];
+
+    for (const bad of bad_ptrs) {
+      let error = null;
+      try {
+        // any API that expects a *Foo will do; foo_free() is harmless
+        ffi.foo_free(bad);
+      } catch (e) {
+        error = e;
+      }
+
+      // Must throw …
+      assert(error, `bad pointer ${inspect(bad)} did not throw`);
+      assert.equal(error?.message, "Expected an object with fields `addr` and `type`");
+    }
 
     console.log('Js tests passed successfully ✅');
 }

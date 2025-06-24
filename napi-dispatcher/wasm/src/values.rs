@@ -159,6 +159,14 @@ impl JsPromise {
 }
 
 impl JsObject {
+    pub fn has_named_property(
+        &self,
+        name: &str,
+    ) -> Result<bool> {
+        let exists = ::js_sys::Reflect::has(self.as_ref_::<JsValue>(), &JsValue::from_str(name))?;
+        Ok(exists)
+    }
+
     pub fn get_named_property<T: NapiValue>(
         self: &'_ JsObject,
         name: &'_ str,
