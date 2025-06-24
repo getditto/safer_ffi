@@ -1149,6 +1149,20 @@ impl<T : CType> NonNullCLayout<*mut T> {
     pub fn is_null(self) -> bool {
         self.wrappedCLayout.is_null()
     }
+
+    pub fn as_ptr(&self) -> *mut T {
+        self.wrappedCLayout
+    }
+
+    pub fn align_offset(&self, align: usize) -> usize {
+        let addr = self.as_ptr() as usize;
+        let misalignment = addr % align;
+        if misalignment == 0 {
+            0
+        } else {
+            align - misalignment
+        }
+    }
 }
 
 impl<T : CType> NonNullCLayout<*const T> {
