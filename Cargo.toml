@@ -119,7 +119,7 @@ serde.version = "1.0.171"
 serde.optional = true
 serde.default-features = false
 
-stabby.version = "36.1.1"
+stabby.version = "72.1.1"
 stabby.optional = true
 stabby.default-features = false
 stabby.features = ["experimental-ctypes", "alloc-rs"]

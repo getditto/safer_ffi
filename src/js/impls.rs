@@ -310,7 +310,16 @@ match_! {( const, mut ) {
                             }
                             return Ok(buf.as_ptr() as _);
                         },
-                        | Js::Object => unsafe { js_val.cast() },
+                        | Js::Object => {
+                            let obj: JsObject = unsafe { js_val.cast() };
+                            if !obj.has_named_property("addr")? || !obj.has_named_property("type")? {
+                                return Err(Error::new(
+                                    Status::InvalidArg,
+                                    "Expected an object with fields `addr` and `type`".into()
+                                ).into());
+                            }
+                            obj
+                        },
                         | _ => return Err(Error::new(
                             Status::InvalidArg,
                             "Expected a pointer (`{ addr }` object)".into(),
