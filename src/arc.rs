@@ -174,7 +174,7 @@ unsafe impl<T> Send for ThinArc<T> where rust::Arc<T>: Send {}
 
 unsafe impl<T> Sync for ThinArc<T> where rust::Arc<T>: Sync {}
 
-impl<T: Clone> Clone for ThinArc<T> {
+impl<T> Clone for ThinArc<T> {
     #[inline]
     fn clone(self: &'_ Self) -> Self {
         self.with_rust(rust::Arc::clone).into()
