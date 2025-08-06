@@ -1,7 +1,11 @@
 use ::core::convert::TryFrom;
 use ::core::convert::TryInto;
+#[cfg(not(target_arch = "wasm32"))]
+use ::core::ops::Not;
 
 use super::*;
+use crate::layout::ReprC;
+use crate::layout::{self};
 
 match_! {(
     (u32, create_uint32 => u8, u16, u32),
@@ -362,6 +366,50 @@ match_! {( const, mut ) {
         )*
     );
 }}
+
+impl<T: ReprC<CLayout: ReprNapi>> ReprNapi for crate::vec::Vec_Layout<T> {
+    type NapiValue = JsObject;
+
+    fn to_napi_value(
+        self,
+        js_env: &'_ Env,
+    ) -> Result<JsObject> {
+        let js_arr = js_env.create_array()?;
+        let push_js_elem = {
+            let js_arr = &js_arr;
+            let push_method = js_arr.get_named_property::<JsFunction>("push")?;
+            move |elem| push_method.call(Some(js_arr), &[elem])
+        };
+        let repr_c_items: crate::vec::Vec<T> = unsafe { layout::from_raw_unchecked(self) };
+        let items: Vec<T> = repr_c_items.into();
+        items.into_iter().try_for_each(|elem: T| {
+            Ok::<_, Error>({
+                let raw_elem = unsafe { layout::into_raw(elem) };
+                push_js_elem(raw_elem.to_napi_value(js_env)?.into_unknown())?;
+            })
+        })?;
+        Ok(js_arr)
+    }
+
+    fn from_napi_value(
+        js_env: &'_ Env,
+        array: JsObject,
+    ) -> Result<Self> {
+        #[cfg(not(target_arch = "wasm32"))]
+        if array.is_array()?.not() {
+            return Err(Error::new(Status::InvalidArg, "Expected an array".into()).into());
+        }
+
+        (0..array.get_array_length()?)
+            .map(|i| {
+                ReprNapi::from_napi_value(js_env, array.get_element(i)?)
+                    .map(|js| unsafe { layout::from_raw_unchecked::<T>(js) })
+            })
+            .collect::<Result<_>>()
+            .map(|rust_vec: Vec<_>| crate::vec::Vec::from(rust_vec))
+            .map(|repr_c_vec| unsafe { layout::into_raw(repr_c_vec) })
+    }
+}
 
 match_! {(
     for[T] ::core::marker::PhantomData<T>,

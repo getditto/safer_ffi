@@ -4,7 +4,7 @@ use ::core::slice;
 use crate::slice::*;
 
 ReprC! {
-    #[repr(C, js)]
+    #[repr(C)]
     #[cfg_attr(all(docs, feature = "nightly"), doc(cfg(feature = "alloc")))]
     /// Same as [`Vec<T>`][`rust::Vec`], but with guaranteed `#[repr(C)]` layout
     pub
