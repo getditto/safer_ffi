@@ -51,6 +51,22 @@ impl<T : CType> CType for OptionCLayout<T> {
             T::short_name()
         }
 
+        fn render(
+            out: &'_ mut dyn io::Write,
+            language: &'_ dyn HeaderLanguage,
+        ) -> io::Result<()> {
+            T::render(out, language)
+        }
+
+        fn render_wrapping_var(
+            out: &'_ mut dyn io::Write,
+            language: &'_ dyn HeaderLanguage,
+            // Either a `&&str`, or a `&fmt::Arguments<'_>`, for instance.
+            var_name: Option<&dyn ::core::fmt::Display>,
+        ) -> io::Result<()> {
+            T::render_wrapping_var(out, language, var_name)
+        }
+
         fn define_self__impl(language: &'_ dyn HeaderLanguage, definer: &'_ mut dyn Definer) -> io::Result<()> {
             T::define_self__impl(language, definer)
         }
@@ -65,6 +81,10 @@ impl<T : CType> CType for OptionCLayout<T> {
 
         fn name_wrapping_var(language: &'_ dyn HeaderLanguage, var_name: Option<&dyn fmt::Display>) -> String {
             T::name_wrapping_var(language, var_name)
+        }
+
+        fn metadata() -> &'static dyn Provider {
+            T::metadata()
         }
 
         fn metadata_type_usage() -> String {

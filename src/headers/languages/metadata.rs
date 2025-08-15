@@ -206,7 +206,6 @@ impl HeaderLanguage for Metadata {
 
                             out!(("\"name\": \"{arg_name}\","));
 
-                            eprintln!("emit_type_usage: {arg_name} {}", arg.ty.short_name());
                             self.emit_type_usage(this, ctx, indent, "type", arg.ty)?;
                         }
 
