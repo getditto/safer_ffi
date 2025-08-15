@@ -551,14 +551,10 @@ pub enum Language {
     /// C#
     CSharp,
 
-<<<<<<< HEAD
     /// Lua
     Lua,
 
-    // A JSON file containing detailed information about the FFI declarations.
-=======
-    /// JSON Metadata
->>>>>>> 7a939bd46 (docs: document metadata language)
+    /// A JSON file containing detailed information about the FFI declarations.
     Metadata,
 
     /// Python (experimental).
@@ -572,6 +568,7 @@ impl Language {
             | Language::C => &languages::C,
             | Language::CSharp => &languages::CSharp,
             | Language::Lua => &languages::Lua,
+            | Language::Metadata => &languages::Metadata,
             #[cfg(feature = "python-headers")]
             | Language::Python => &languages::Python,
         }

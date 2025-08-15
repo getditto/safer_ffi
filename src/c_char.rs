@@ -46,7 +46,7 @@ unsafe impl CType for c_char {
         }
 
         fn metadata_type_usage() -> String {
-            format!("\"kind\": \"{}\"", "char")
+            r#""kind": "char""#.into()
         }
 
         fn render(

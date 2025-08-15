@@ -107,7 +107,7 @@ pub(crate) fn derive(
             })
         })?;
 
-        let ffi_metadata = attrs.iter().find(|attr| { attr.path.is_ident("ffi_metadata") });
+        let ffi_metadata = attrs.iter().find(|attr| { attr.path().is_ident("ffi_metadata") });
 
         if let Some(ffi_metadata) = ffi_metadata {
             let ptr_type = fields
@@ -310,9 +310,9 @@ pub(crate) fn derive_transparent(
                     Ok(())
                 }
 
-                // fn metadata_type_usage() -> String {
-                //     <#CFieldTy as #ඞ::CType>::metadata_type_usage()
-                // }
+                fn metadata_type_usage() -> String {
+                    <#CFieldTy as #ඞ::CType>::metadata_type_usage()
+                }
 
                 fn name (
                     language: &'_ dyn #ඞ::HeaderLanguage,

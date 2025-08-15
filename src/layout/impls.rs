@@ -191,33 +191,33 @@ const _: () = {
                     Self::render_wrapping_var(out, language, None)
                 }
 
-                // fn metadata_type_usage() -> String {
-                //     let return_type = metadata_nested_type_usage::<Ret>();
-                //
-                //     #[allow(unused_mut)]
-                //     let mut value_parameters = String::new();
-                //
-                //     $(
-                //         let n_type = metadata_n_nested_type_usage::<$An>(2);
-                //         value_parameters.push_str("\n    {\n");
-                //         value_parameters.push_str(&n_type);
-                //
-                //         $(
-                //             let i_type = metadata_n_nested_type_usage::<$Ai>(2);
-                //             value_parameters.push_str("\n    },\n    {\n");
-                //             value_parameters.push_str(&i_type);
-                //         )*
-                //
-                //         value_parameters.push_str("\n    }\n");
-                //     )?
-                //
-                //     format!(
-                //         "\"kind\": \"{}\",\n\"valueParameters\": [{}],\n\"returnType\": {{\n{}\n}}",
-                //         "Function",
-                //         value_parameters,
-                //         return_type,
-                //     )
-                // }
+                fn metadata_type_usage() -> String {
+                    let return_type = metadata_nested_type_usage::<Ret>();
+
+                    #[allow(unused_mut)]
+                    let mut value_parameters = String::new();
+
+                    $(
+                        let n_type = metadata_n_nested_type_usage::<$An>(2);
+                        value_parameters.push_str("\n    {\n");
+                        value_parameters.push_str(&n_type);
+
+                        $(
+                            let i_type = metadata_n_nested_type_usage::<$Ai>(2);
+                            value_parameters.push_str("\n    },\n    {\n");
+                            value_parameters.push_str(&i_type);
+                        )*
+
+                        value_parameters.push_str("\n    }\n");
+                    )?
+
+                    format!(
+                        "\"kind\": \"{}\",\n\"valueParameters\": [{}],\n\"returnType\": {{\n{}\n}}",
+                        "Function",
+                        value_parameters,
+                        return_type,
+                    )
+                }
 
                 fn render_wrapping_var(
                     out: &'_ mut dyn io::Write,
@@ -393,9 +393,9 @@ const _: () = {
                     )
                 }
 
-                // fn metadata_type_usage() -> String {
-                //     format!("\"kind\": \"{}\"", stringify!($RustInt))
-                // }
+                fn metadata_type_usage() -> String {
+                    format!(r#""kind": "{}""#, stringify!($RustInt))
+                }
 
                 fn render(
                     out: &'_ mut dyn io::Write,
@@ -449,9 +449,9 @@ const _: () = {
                     Ok(())
                 }
 
-                // fn metadata_type_usage() -> String {
-                //     format!("\"kind\": \"{}\"", stringify!($fN))
-                // }
+                fn metadata_type_usage() -> String {
+                    format!(r#""kind": "{}""#, stringify!($fN))
+                }
 
                 fn render(
                     out: &'_ mut dyn io::Write,
@@ -497,22 +497,23 @@ const _: () = {
                     T::define_self(language, definer)
                 }
 
-                // fn metadata_type_usage() -> String {
-                //     let nested_type = metadata_nested_type_usage::<T>();
-                //
-                //     format!(
-                //         "\"kind\": \"{}\",\n\"isMutable\": {},\n\"type\": {{\n{}\n}}",
-                //         "Pointer",
-                //         "false",
-                //         nested_type,
-                //     )
-                // }
+                fn metadata_type_usage() -> String {
+                    let nested_type = metadata_nested_type_usage::<T>();
+
+                    format!(
+                        "\"kind\": \"{}\",\n\"isMutable\": {},\n\"type\": {{\n{}\n}}",
+                        "Pointer",
+                        "false",
+                        nested_type,
+                    )
+                }
 
                 fn render(
                     out: &'_ mut dyn io::Write,
                     language: &'_ dyn HeaderLanguage,
                 ) -> io::Result<()>
                 {
+                    eprintln!("Hello from immutable render! {}", std::any::type_name::<T>());
                     const IMMUTABLE: bool = true;
                     language.emit_pointer_ty(
                         language,
@@ -558,22 +559,23 @@ const _: () = {
                     T::define_self(language, definer)
                 }
 
-                // fn metadata_type_usage() -> String {
-                //     let nested_type = metadata_nested_type_usage::<T>();
-                //
-                //     format!(
-                //         "\"kind\": \"{}\",\n\"isMutable\": {},\n\"type\": {{\n{}\n}}",
-                //         "Pointer",
-                //         "true",
-                //         nested_type,
-                //     )
-                // }
+                fn metadata_type_usage() -> String {
+                    let nested_type = metadata_nested_type_usage::<T>();
+
+                    format!(
+                        "\"kind\": \"{}\",\n\"isMutable\": {},\n\"type\": {{\n{}\n}}",
+                        "Pointer",
+                        "true",
+                        nested_type,
+                    )
+                }
 
                 fn render(
                     out: &'_ mut dyn io::Write,
                     language: &'_ dyn HeaderLanguage,
                 ) -> io::Result<()>
                 {
+                    eprintln!("Hello from mutable render! {}", std::any::type_name::<T>());
                     const IMMUTABLE: bool = false;
                     language.emit_pointer_ty(
                         language,
@@ -738,9 +740,9 @@ unsafe impl CType for Bool {
             )
         }
 
-        // fn metadata_type_usage() -> String {
-        //     format!("\"kind\": \"{}\"", "bool")
-        // }
+        fn metadata_type_usage() -> String {
+            format!("\"kind\": \"{}\"", "bool")
+        }
 
         fn render(
             out: &'_ mut dyn io::Write,
@@ -802,9 +804,9 @@ unsafe impl CType for c_int {
             Ok(())
         }
 
-        // fn metadata_type_usage() -> String {
-        //     format!("\"kind\": \"{}\"", "int")
-        // }
+        fn metadata_type_usage() -> String {
+            format!("\"kind\": \"{}\"", "int")
+        }
 
         fn render(
             out: &'_ mut dyn io::Write,
@@ -817,8 +819,7 @@ unsafe impl CType for c_int {
                     signed: true,
                     bitwidth: primitives::IntBitWidth::CInt,
                 },
-            )?;
-            Ok(())
+            )
         }
 
         fn metadata() -> &'static dyn Provider {
@@ -832,147 +833,99 @@ unsafe impl CType for c_int {
 }
 
 
-// #[derive(Debug, Clone, Copy)]
-// pub struct NonNullCLayout<T : CType> {
-//     wrappedCLayout: T,
-// }
-//
-// unsafe
-// impl<T : CType> CType for NonNullCLayout<T> {
-//
-//     type OPAQUE_KIND = T::OPAQUE_KIND;
-//
-//     __cfg_headers__! {
-//         fn short_name() -> String {
-//             T::short_name()
-//         }
-//
-//         fn define_self__impl(language: &'_ dyn HeaderLanguage, definer: &'_ mut dyn Definer) -> io::Result<()> {
-//             T::define_self__impl(language, definer)
-//         }
-//
-//         fn define_self(language: &'_ dyn HeaderLanguage, definer: &'_ mut dyn Definer) -> io::Result<()> {
-//             T::define_self(language, definer)
-//         }
-//
-//         fn name(_language: &'_ dyn HeaderLanguage) -> String {
-//             T::name(_language)
-//         }
-//
-//         fn name_wrapping_var(language: &'_ dyn HeaderLanguage, var_name: &'_ str) -> String {
-//             T::name_wrapping_var(language, var_name)
-//         }
-//
-//         fn csharp_marshaler() -> Option<String> {
-//             T::csharp_marshaler()
-//         }
-//
-//         fn metadata_type_usage() -> String {
-//             let nested_type = metadata_nested_type_usage::<T>();
-//
-//             format!("\"kind\": \"{}\",\n\"type\": {{\n{}\n}}", "NonNull", nested_type)
-//         }
-//     }
-// }
-//
-// unsafe
-// impl<T : ReprC + CType> ReprC for NonNullCLayout<T> {
-//
-//     type CLayout = T::CLayout;
-//
-//     fn is_valid(it: &'_ Self::CLayout) -> bool {
-//         T::is_valid(it)
-//     }
-// }
-//
-// impl<T : CType> NonNullCLayout<*mut T> {
-//
-//     #[inline]
-//     pub fn is_null(self) -> bool {
-//         self.wrappedCLayout.is_null()
-//     }
-// }
-//
-// impl<T : CType> NonNullCLayout<*const T> {
-//
-//     #[inline]
-//     pub fn is_null(self) -> bool {
-//         self.wrappedCLayout.is_null()
-//     }
-//
-//     pub fn as_ptr(&self) -> *mut T {
-//         self.wrappedCLayout
-//     }
-//
-//     pub fn align_offset(&self, align: usize) -> usize {
-//         let addr = self.as_ptr() as usize;
-//         let misalignment = addr % align;
-//         if misalignment == 0 {
-//             0
-//         } else {
-//             align - misalignment
-//         }
-//     }
-// }
+#[derive(Debug, Clone, Copy)]
+pub struct NonNullCLayout<T : CType> {
+    wrappedCLayout: T,
+}
 
-// impl_ReprC_for! { unsafe {
-//     bool
-//         => |ref byte: Bool| (byte.0 & !0b1) == 0
-//     ,
-//
-//     @for[T : ReprC]
-//     ptr::NonNull<T>
-//         => |ref it: NonNullCLayout<*mut T::CLayout>| {
-//             it.is_null().not() &&
-//             (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
-//         }
-//     ,
-//     @for[T : ReprC]
-//     ptr::NonNullRef<T>
-//         => |ref it: NonNullCLayout<*const T::CLayout>| {
-//             it.is_null().not() &&
-//             (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
-//         }
-//     ,
-//     @for[T : ReprC]
-//     ptr::NonNullMut<T>
-//         => |ref it: NonNullCLayout<*mut T::CLayout>| {
-//             it.is_null().not() &&
-//             (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
-//         }
-//     ,
-//     @for[T : ReprC]
-//     ptr::NonNullOwned<T>
-//         => |ref it: NonNullCLayout<*mut T::CLayout>| {
-//             it.is_null().not() &&
-//             (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
-//         }
-//     ,
-//     @for['a, T : 'a + ReprC]
-//     &'a T
-//         => |ref it: NonNullCLayout<*const T::CLayout>| {
-//             it.is_null().not() &&
-//             (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
-//         }
-//     ,
-//     @for['a, T : 'a + ReprC]
-//     &'a mut T
-//         => |ref it: NonNullCLayout<*mut T::CLayout>| {
-//             it.is_null().not() &&
-//             (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
-//         }
-//     ,
-// }}
-//
-// /* `HasNiche` from `niche.rs` impls `ReprC` for `Option<ptr>` types. */
-//
-// impl_ReprC_for! { unsafe {
-//     @for['out, T : 'out + Sized + ReprC]
-//     Out<'out, T>
-//         => |ref it: NonNullCLayout<*mut T::CLayout>| {
-//             (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
-//         },
-// }}
+unsafe
+impl<T : CType> CType for NonNullCLayout<T> {
+
+    type OPAQUE_KIND = T::OPAQUE_KIND;
+
+    __cfg_headers__! {
+        fn short_name() -> String {
+            T::short_name()
+        }
+
+        fn define_self__impl(language: &'_ dyn HeaderLanguage, definer: &'_ mut dyn Definer) -> io::Result<()> {
+            T::define_self__impl(language, definer)
+        }
+
+        fn define_self(language: &'_ dyn HeaderLanguage, definer: &'_ mut dyn Definer) -> io::Result<()> {
+            T::define_self(language, definer)
+        }
+
+        fn name(_language: &'_ dyn HeaderLanguage) -> String {
+            T::name(_language)
+        }
+
+        fn name_wrapping_var(language: &'_ dyn HeaderLanguage, var_name: Option<&dyn fmt::Display>) -> String {
+            T::name_wrapping_var(language, var_name)
+        }
+
+        fn metadata_type_usage() -> String {
+            let nested_type = metadata_nested_type_usage::<T>();
+
+            format!("\"kind\": \"{}\",\n\"type\": {{\n{}\n}}", "NonNull", nested_type)
+        }
+    }
+}
+
+unsafe
+impl<T : ReprC + CType> ReprC for NonNullCLayout<T> {
+
+    type CLayout = T::CLayout;
+
+    fn is_valid(it: &'_ Self::CLayout) -> bool {
+        T::is_valid(it)
+    }
+}
+
+impl<T : CType> NonNullCLayout<*mut T> {
+
+    #[inline]
+    pub fn is_null(self) -> bool {
+        self.wrappedCLayout.is_null()
+    }
+
+    pub fn as_ptr(&self) -> *const T {
+        self.wrappedCLayout
+    }
+
+    pub fn align_offset(&self, align: usize) -> usize {
+        let addr = self.as_ptr() as usize;
+        let misalignment = addr % align;
+        if misalignment == 0 {
+            0
+        } else {
+            align - misalignment
+        }
+    }
+}
+
+impl<T : CType> NonNullCLayout<*const T> {
+
+    #[inline]
+    pub fn is_null(self) -> bool {
+        self.wrappedCLayout.is_null()
+    }
+
+    pub fn as_ptr(&self) -> *const T {
+        self.wrappedCLayout
+    }
+
+    pub fn align_offset(&self, align: usize) -> usize {
+        let addr = self.as_ptr() as usize;
+        let misalignment = addr % align;
+        if misalignment == 0 {
+            0
+        } else {
+            align - misalignment
+        }
+    }
+}
+
 impl_ReprC_for! { unsafe {
     bool
         => |ref byte: Bool| (byte.0 & !0b1) == 0
@@ -980,44 +933,44 @@ impl_ReprC_for! { unsafe {
 
     @for[T : ReprC]
     ptr::NonNull<T>
-        => |ref it: *mut T::CLayout| {
+        => |ref it: NonNullCLayout<*mut T::CLayout>| {
             it.is_null().not() &&
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
+            (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
         }
     ,
     @for[T : ReprC]
     ptr::NonNullRef<T>
-        => |ref it: *const T::CLayout| {
+        => |ref it: NonNullCLayout<*const T::CLayout>| {
             it.is_null().not() &&
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
+            (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
         }
     ,
     @for[T : ReprC]
     ptr::NonNullMut<T>
-        => |ref it: *mut T::CLayout| {
+        => |ref it: NonNullCLayout<*mut T::CLayout>| {
             it.is_null().not() &&
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
+            (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
         }
     ,
     @for[T : ReprC]
     ptr::NonNullOwned<T>
-        => |ref it: *mut T::CLayout| {
+        => |ref it: NonNullCLayout<*mut T::CLayout>| {
             it.is_null().not() &&
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
+            (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
         }
     ,
     @for['a, T : 'a + ReprC]
     &'a T
-        => |ref it: *const T::CLayout| {
+        => |ref it: NonNullCLayout<*const T::CLayout>| {
             it.is_null().not() &&
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
+            (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
         }
     ,
     @for['a, T : 'a + ReprC]
     &'a mut T
-        => |ref it: *mut T::CLayout| {
+        => |ref it: NonNullCLayout<*mut T::CLayout>| {
             it.is_null().not() &&
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
+            (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
         }
     ,
 }}
@@ -1027,8 +980,8 @@ impl_ReprC_for! { unsafe {
 impl_ReprC_for! { unsafe {
     @for['out, T : 'out + Sized + ReprC]
     Out<'out, T>
-        => |ref it: *mut T::CLayout| {
-            (*it as usize) % ::core::mem::align_of::<T>() == 0
+        => |ref it: NonNullCLayout<*mut T::CLayout>| {
+            (it.wrappedCLayout as usize) % ::core::mem::align_of::<T>() == 0
         },
 }}
 
@@ -1068,9 +1021,9 @@ unsafe impl<T> CType for OpaqueLayout<T> {
             )
         }
 
-        // fn metadata_type_usage() -> String {
-        //     format!("\"kind\": \"{}\",\n\"name\": \"{}\"", "Opaque", Self::short_name())
-        // }
+        fn metadata_type_usage() -> String {
+            format!("\"kind\": \"{}\",\n\"name\": \"{}\"", "Opaque", Self::short_name())
+        }
     }
 }
 
@@ -1233,6 +1186,17 @@ unsafe impl<Item: CType, const N: usize> CType for [Item; N] {
                 &(Self::short_name() + "_t"),
                 &PhantomData::<Item>,
                 N,
+            )
+        }
+
+        fn metadata_type_usage() -> String {
+            let nested_type = metadata_nested_type_usage::<Item>();
+
+            format!("\"kind\": \"{}\",\n\"backingTypeName\": \"{}\",\n\"size\": {},\n\"type\": {{\n{}\n}}",
+                "StaticArray",
+                Self::short_name() + "_t",
+                N,
+                nested_type,
             )
         }
     }

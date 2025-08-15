@@ -62,7 +62,7 @@ pub unsafe fn free_vec (
     _optional_parameter: Option<repr_c::Box<i32>>,
     _required_parameter: repr_c::Box<i32>,
     _foo: FfiResult<repr_c::Box<i32>>,
-    // _optional_foo: FfiResult<Option<repr_c::Box<i32>>>,
+    _optional_foo: FfiResult<Option<repr_c::Box<i32>>>,
     _bar: repr_c::Box<SomeOpaqueStruct>,
     _be: BasicEnum,
     _ed: EnumWithExplicitDiscriminant,

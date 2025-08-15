@@ -85,7 +85,7 @@ pub(crate) fn derive(
                 .chain(
                     attrs
                         .iter()
-                        .filter(|a| a.path.is_ident("ffi_metadata"))
+                        .filter(|a| a.path().is_ident("ffi_metadata"))
                         .cloned()
                 )
                 .collect(),
@@ -483,9 +483,9 @@ pub(crate) fn derive_opaque(
                     )
                 }
 
-                // fn metadata_type_usage() -> String {
-                //     format!("\"kind\": \"{}\",\n\"name\": \"{}\"", "Opaque", Self::short_name())
-                // }
+                fn metadata_type_usage() -> String {
+                    format!("\"kind\": \"{}\",\n\"name\": \"{}\"", "Opaque", Self::short_name())
+                }
             )
         };
 
