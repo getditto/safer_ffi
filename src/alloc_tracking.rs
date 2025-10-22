@@ -38,14 +38,11 @@ impl AllocationTracker {
     #[track_caller]
     pub fn track_alloc<T>(addr: *const T) {
         let mut tracker = ALLOC_TRACKER.lock().unwrap();
-        tracker.regular_allocs.insert(
-            addr as usize,
-            AllocInfo {
-                type_name: ::core::any::type_name::<T>(),
-                alloc_backtrace: Backtrace::new_unresolved(),
-                free_backtrace: None,
-            },
-        );
+        tracker.regular_allocs.insert(addr as usize, AllocInfo {
+            type_name: ::core::any::type_name::<T>(),
+            alloc_backtrace: Backtrace::new_unresolved(),
+            free_backtrace: None,
+        });
     }
 
     #[track_caller]
@@ -92,16 +89,13 @@ impl AllocationTracker {
     #[track_caller]
     pub fn track_arc_new<T>(addr: *const T) {
         let mut tracker = ALLOC_TRACKER.lock().unwrap();
-        tracker.arc_allocs.insert(
-            addr as usize,
-            ArcInfo {
-                type_name: ::core::any::type_name::<T>(),
-                initial_alloc_backtrace: Backtrace::new_unresolved(),
-                ref_count: 1,
-                clone_backtraces: Vec::new(),
-                drop_backtraces: Vec::new(),
-            },
-        );
+        tracker.arc_allocs.insert(addr as usize, ArcInfo {
+            type_name: ::core::any::type_name::<T>(),
+            initial_alloc_backtrace: Backtrace::new_unresolved(),
+            ref_count: 1,
+            clone_backtraces: Vec::new(),
+            drop_backtraces: Vec::new(),
+        });
     }
 
     #[track_caller]
@@ -114,19 +108,16 @@ impl AllocationTracker {
             },
             | None => {
                 // First time seeing this Arc - assume it existed before
-                tracker.arc_allocs.insert(
-                    addr as usize,
-                    ArcInfo {
-                        type_name: ::core::any::type_name::<T>(),
-                        // this isn't actually the actual initial allocation backtrace, but it's the
-                        // best we can do here
-                        initial_alloc_backtrace: Backtrace::new_unresolved(),
-                        // we "guess" 2, the i.e. original allocation and this clone
-                        ref_count: 2,
-                        clone_backtraces: vec![Backtrace::new_unresolved()],
-                        drop_backtraces: Vec::new(),
-                    },
-                );
+                tracker.arc_allocs.insert(addr as usize, ArcInfo {
+                    type_name: ::core::any::type_name::<T>(),
+                    // this isn't actually the actual initial allocation backtrace, but it's the
+                    // best we can do here
+                    initial_alloc_backtrace: Backtrace::new_unresolved(),
+                    // we "guess" 2, the i.e. original allocation and this clone
+                    ref_count: 2,
+                    clone_backtraces: vec![Backtrace::new_unresolved()],
+                    drop_backtraces: Vec::new(),
+                });
             },
         }
     }
