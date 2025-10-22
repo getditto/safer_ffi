@@ -409,9 +409,12 @@ cfg_alloc! {
                     s.push(NUL as _);
                 }
                 let s: rust::Box<[u8]> = s.into_boxed_str().into();
+                let ptr = rust::Box::into_raw(s) as *mut u8;
+                #[cfg(feature = "alloc-tracking")]
+                crate::alloc_tracking::AllocationTracker::track_alloc(ptr);
                 unsafe {
                     Self::from_ptr_unchecked(
-                        ptr::NonNull::new(rust::Box::into_raw(s) as *mut u8)
+                        ptr::NonNull::new(ptr)
                             .unwrap()
                     )
                 }
@@ -426,6 +429,8 @@ cfg_alloc! {
                 if ptr::eq(self.0.as_mut_ptr().cast(), &EMPTY_SENTINEL) {
                     return;
                 }
+                #[cfg(feature = "alloc-tracking")]
+                crate::alloc_tracking::AllocationTracker::track_free(self.0.as_ptr().cast::<u8>());
                 let num_bytes = self.to_bytes_with_null().len();
                 drop::<rust::Box<[u8]>>(
                     rust::Box::from_raw(slice::from_raw_parts_mut(
@@ -495,6 +500,8 @@ cfg_alloc! {
             }
             let num_bytes = self.to_bytes_with_null().len();
             let ptr = mem::ManuallyDrop::new(self).0.as_mut_ptr();
+            #[cfg(feature = "alloc-tracking")]
+            crate::alloc_tracking::AllocationTracker::track_free(ptr.cast::<u8>());
             let boxed_bytes = unsafe {
                 rust::Box::from_raw(slice::from_raw_parts_mut(
                     ptr.cast(),
@@ -568,9 +575,12 @@ cfg_std! {
                 s   .into_bytes_with_nul()
                     .into_boxed_slice()
             ;
+            let s_ptr = rust::Box::leak(s).as_mut_ptr();
+            #[cfg(feature = "alloc-tracking")]
+            crate::alloc_tracking::AllocationTracker::track_alloc(s_ptr);
             unsafe {
                 Self::from_ptr_unchecked(
-                    ptr::NonNull::new(rust::Box::leak(s).as_mut_ptr())
+                    ptr::NonNull::new(s_ptr)
                         .unwrap()
                 )
             }

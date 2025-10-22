@@ -300,6 +300,9 @@ cfg_alloc! {
 #[cfg(feature = "alloc")]
 pub mod vec;
 
+#[cfg(feature = "alloc-tracking")]
+pub mod alloc_tracking;
+
 #[doc(inline)]
 pub use layout::impls::c_int;
 

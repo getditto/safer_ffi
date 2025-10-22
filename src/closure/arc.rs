@@ -117,16 +117,25 @@ macro_rules! with_tuple {(
         {
             // Safety: `F` can be "raw-coerced" to `dyn 'static + Send + Fn...`
             // thanks to the generic bounds on F.
+            let env_ptr = unsafe {
+                ptr::NonNull::new_unchecked(Arc::into_raw(f) as _)
+            };
+            #[cfg(feature = "alloc-tracking")]
+            crate::alloc_tracking::AllocationTracker::track_arc_new(
+                env_ptr.cast::<F>().as_ptr()
+            );
             Self {
-                env_ptr: unsafe {
-                    ptr::NonNull::new_unchecked(Arc::into_raw(f) as _)
-                },
+                env_ptr,
                 release: {
                     unsafe extern "C"
                     fn release<F> (env_ptr: ptr::NonNull<c_void>)
                     where
                         F : Send + Sync + 'static,
                     {
+                        #[cfg(feature = "alloc-tracking")]
+                        crate::alloc_tracking::AllocationTracker::track_arc_drop(
+                            env_ptr.cast::<F>().as_ptr()
+                        );
                         unsafe {
                             drop::<Arc<F>>(Arc::from_raw(env_ptr.cast().as_ptr()));
                         }
@@ -139,6 +148,10 @@ macro_rules! with_tuple {(
                     where
                         F : Send + Sync + 'static,
                     {
+                        #[cfg(feature = "alloc-tracking")]
+                        crate::alloc_tracking::AllocationTracker::track_arc_clone(
+                            env_ptr.cast::<F>().as_ptr()
+                        );
                         mem::forget(Arc::<F>::clone(&
                             mem::ManuallyDrop::new(unsafe {
                                 Arc::from_raw(env_ptr.cast().as_ptr())
@@ -295,4 +308,86 @@ with_tuples! {
 with_tuples! {
     ArcDynFn0,
     (ArcDynFn1, A1),
+}
+
+#[cfg(all(test, feature = "alloc-tracking"))]
+mod tests {
+    use serial_test::serial;
+
+    use super::*;
+    use crate::alloc_tracking::AllocationTracker;
+
+    #[test]
+    #[serial]
+    fn test_arc_closure_no_leak() {
+        let res = AllocationTracker::run(|| {
+            let closure = ArcDynFn0::new(Arc::new(|| {}));
+            drop(closure);
+        });
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    #[serial]
+    fn test_arc_closure_with_args_no_leak() {
+        let res = AllocationTracker::run(|| {
+            let closure = ArcDynFn1::new(Arc::new(|x: i32| x + 1));
+            let result = closure.call(41);
+            assert_eq!(result, 42);
+            drop(closure);
+        });
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    #[serial]
+    fn test_arc_closure_clone_no_leak() {
+        let res = AllocationTracker::run(|| {
+            let closure1 = ArcDynFn0::new(Arc::new(|| {}));
+            let closure2 = closure1.clone();
+            let closure3 = closure2.clone();
+            drop(closure1);
+            drop(closure2);
+            drop(closure3);
+        });
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    #[serial]
+    fn test_arc_closure_leak() {
+        let res = AllocationTracker::run(|| {
+            let closure = ArcDynFn0::new(Arc::new(|| {}));
+            ::core::mem::forget(closure);
+        });
+        assert!(res.is_err());
+        assert!(res.unwrap_err().contains("Arc leak"));
+    }
+
+    #[test]
+    #[serial]
+    fn test_arc_closure_clone_leak() {
+        let res = AllocationTracker::run(|| {
+            let closure1 = ArcDynFn0::new(Arc::new(|| {}));
+            let closure2 = closure1.clone();
+            drop(closure1);
+            // closure2 is forgotten, should detect leak with ref count 1
+            ::core::mem::forget(closure2);
+        });
+        assert!(res.is_err());
+        assert!(res.unwrap_err().contains("Arc leak"));
+    }
+
+    #[test]
+    #[serial]
+    fn test_arc_closure_with_capture_no_leak() {
+        let res = AllocationTracker::run(|| {
+            let captured = String::from("hello");
+            let closure = ArcDynFn0::new(Arc::new(move || captured.len()));
+            let result = closure.call();
+            assert_eq!(result, 5);
+            drop(closure);
+        });
+        assert!(res.is_ok());
+    }
 }
