@@ -441,6 +441,29 @@ impl HeaderLanguage for Metadata {
     fn must_declare_built_in_types(self: &'_ Self) -> bool {
         false
     }
+
+    fn write_prelude(
+        &'_ self,
+        definer: &'_ mut dyn Definer,
+        _header_builder: &'_ Builder<'_, WhereTo>,
+    ) -> io::Result<()> {
+        write!(
+            definer.out(),
+            include_str!("../templates/metadata/_prelude.txt"),
+        )
+    }
+
+    fn write_epilogue(
+        &'_ self,
+        definer: &'_ mut dyn Definer,
+        _header_builder: &'_ Builder<'_, WhereTo>,
+    ) -> io::Result<()> {
+        writeln!(definer.out(), "]")
+    }
+
+    fn default_banner(&self) -> Option<&'static str> {
+        None
+    }
 }
 
 impl Metadata {

@@ -523,4 +523,34 @@ impl HeaderLanguage for CSharp {
         write!(out, "void")?;
         Ok(())
     }
+
+    fn write_prelude(
+        &'_ self,
+        definer: &'_ mut dyn Definer,
+        _header_builder: &'_ Builder<'_, WhereTo>,
+    ) -> io::Result<()> {
+        writeln!(
+            definer.out(),
+            include_str!("../templates/csharp/_prelude.cs"),
+            NameSpace = Builder::<WhereTo>::pascal_cased_lib_name(),
+            RustLib = Builder::<WhereTo>::lib_name(),
+        )
+    }
+
+    fn write_epilogue(
+        &'_ self,
+        definer: &'_ mut dyn Definer,
+        _header_builder: &'_ Builder<'_, WhereTo>,
+    ) -> io::Result<()> {
+        let pkg_name = Builder::<WhereTo>::pascal_cased_lib_name();
+        write!(
+            definer.out(),
+            include_str!("../templates/csharp/epilogue.cs"),
+            PkgName = pkg_name,
+        )
+    }
+
+    fn default_banner(&self) -> Option<&'static str> {
+        super::C.default_banner()
+    }
 }

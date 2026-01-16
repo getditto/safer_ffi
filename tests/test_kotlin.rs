@@ -113,10 +113,9 @@ pub enum EnumWithExplicitDiscriminant {
 #[cfg(feature = "headers")]
 #[test]
 fn test_kotlin () -> io::Result<()> {Ok({
-    use ::safer_ffi::headers::Language::*;
 
     safer_ffi::headers::builder()
-        .with_language(Metadata)
+        .with_language(&languages::Metadata)
         .to_writer(&mut io::stderr())
         .generate()?
 })}

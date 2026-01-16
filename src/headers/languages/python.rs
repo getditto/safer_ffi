@@ -177,4 +177,8 @@ impl HeaderLanguage for Python {
     ) -> io::Result<()> {
         C.emit_void_output_type(out)
     }
+
+    fn default_banner(&self) -> Option<&'static str> {
+        super::C.default_banner()
+    }
 }

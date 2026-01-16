@@ -1,6 +1,7 @@
 #![allow(irrefutable_let_patterns)]
 
 use_prelude!();
+
 use ::std::io::Write as _;
 use ::std::io::{self};
 
@@ -10,6 +11,8 @@ use self::primitives::IntBitWidth;
 use self::primitives::Primitive;
 use super::Definer;
 use super::provider::Provider;
+use crate::headers::Builder;
+use crate::headers::WhereTo;
 use crate::utils::DisplayFromFn as F;
 pub mod primitives;
 
@@ -67,10 +70,30 @@ impl ::core::fmt::Display for Indentation {
 
 type Docs<'lt> = &'lt [&'lt str];
 
-pub trait HeaderLanguage: UpcastAny {
+pub trait HeaderLanguage: Sync + UpcastAny {
     fn language_name(self: &'_ Self) -> &'static str {
         ::core::any::type_name::<Self>()
     }
+
+    /// Prelude to insert to the generated header file, if any.
+    fn write_prelude(
+        &'_ self,
+        _definer: &'_ mut dyn Definer,
+        _header_builder: &'_ Builder<'_, WhereTo>,
+    ) -> io::Result<()> {
+        Ok(())
+    }
+
+    /// Epilogue to insert to the generated header file, if any.
+    fn write_epilogue(
+        &'_ self,
+        _definer: &'_ mut dyn Definer,
+        _header_builder: &'_ Builder<'_, WhereTo>,
+    ) -> io::Result<()> {
+        Ok(())
+    }
+
+    fn default_banner(&self) -> Option<&'static str>;
 
     fn supports_type_aliases(
         self: &'_ Self
