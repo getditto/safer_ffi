@@ -404,7 +404,7 @@ macro_rules! ReprC {(
     $(
         #[doc = $doc2]
     )*
-    #[$crate::ඞ::apply($crate::ඞ::maybe_stabby!)]
+    #[::safer_ffi::ඞ::apply(::safer_ffi::ඞ::maybe_stabby!)]
     #[repr($C_or_transparent)]
     $(
         #[$attr]

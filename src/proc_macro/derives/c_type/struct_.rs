@@ -3,7 +3,7 @@ use super::*;
 #[allow(unexpected_cfgs)]
 pub(crate) fn derive(
     args: Args,
-    attrs: &'_ [Attribute],
+    attrs: &'_ mut Vec<Attribute>,
     pub_: &'_ Visibility,
     StructName @ _: &'_ Ident,
     generics: &'_ Generics,
@@ -105,43 +105,73 @@ pub(crate) fn derive(
             })
         })?;
 
-        let ffi_metadata = attrs
-            .iter()
-            .find(|attr| attr.path().is_ident("ffi_metadata"));
+        let mut ffi_metadata_attr = None;
+        let mut errored = None;
+        attrs.retain_mut(|attr| {
+            Retain::Keep == {
+                if attr.path().is_ident("ffi_metadata") {
+                    if ffi_metadata_attr.is_some() {
+                        errored = Some(Error::new_spanned(
+                            &attr,
+                            "duplicate `#[ffi_metadata]` attribute",
+                        ));
+                    } else {
+                        ffi_metadata_attr = Some(attr.clone());
+                    }
+                    Retain::Drop
+                } else {
+                    Retain::Keep
+                }
+            }
+        });
+        if let Some(err) = errored {
+            return Err(err);
+        }
 
-        if let Some(ffi_metadata) = ffi_metadata {
+        if let Some(ffi_metadata_attr) = &ffi_metadata_attr {
             let ptr_type = fields
                 .iter()
                 .find(|field| field.ident.as_ref().map_or(false, |ident| ident == "ptr"))
                 .map(|field| &field.ty)
                 .ok_or_else(|| {
                     syn::Error::new_spanned(
-                        ffi_metadata,
-                        "Struct annotated with ffi_metadata attribute does not have field 'ptr'.",
+                        ffi_metadata_attr,
+                        "expected `.ptr` field on `#[ffi_metadata]`-annotated `struct`",
                     )
                 })?;
 
-            let result = ffi_metadata.parse_args::<Ident>();
+            let result = ffi_metadata_attr.parse_args::<Ident>();
 
             if let Some(kind) = result.ok() {
                 let kind_string = kind.to_string();
 
                 impl_body.extend(quote_spanned!(Span::mixed_site()=>
-                    fn metadata_type_usage() -> String {
-                        let nested_type = <#ptr_type as #CType>::metadata_type_usage();
+                    fn metadata() -> &'static dyn #headers::provider::Provider {
+                        &#headers::provider::provide_with(|request| {
+                            request.give_if_requested::<#headers::languages::MetadataTypeData>(|| {
+                                let nested_type =
+                                    <#ptr_type as #CType>::metadata()
+                                        .dyn_request()
+                                        .map_or_else(
+                                            || "".into(),
+                                            |#headers::languages::MetadataTypeData(it)| it,
+                                        )
+                                ;
 
-                        let indented_nested_type = nested_type
-                            .lines()
-                            .map(|line| format!("    {}", line))
-                            .collect::<alloc::vec::Vec<alloc::string::String>>()
-                            .join("\n");
+                                let indented_nested_type = nested_type
+                                    .lines()
+                                    .map(|line| format!("    {}", line))
+                                    .collect::<alloc::vec::Vec<alloc::string::String>>()
+                                    .join("\n");
 
-                        format!(
-                            "\"kind\": \"{}\",\n\"backingTypeName\": \"{}\",\n\"type\": {{\n{}\n}}",
-                            #kind_string,
-                            Self::short_name(),
-                            indented_nested_type,
-                        )
+                                #headers::languages::MetadataTypeData(#ඞ::format!(
+                                    "\"kind\": \"{}\",\n\"backingTypeName\": \"{}\",\n\"type\": {{\n{}\n}}",
+                                    #kind_string,
+                                    Self::short_name(),
+                                    indented_nested_type,
+                                ))
+                            });
+                        })
                     }
                 ));
             } else {
@@ -149,13 +179,19 @@ pub(crate) fn derive(
             }
         } else {
             impl_body.extend(quote_spanned!(Span::mixed_site()=>
-                fn metadata_type_usage() -> String {
-                    format!("\"kind\": \"{}\",\n\"name\": \"{}\"", "Struct", Self::short_name())
+                fn metadata() -> &'static dyn #headers::provider::Provider {
+                    &#headers::provider::provide_with(|request| {
+                        request.give_if_requested::<#headers::languages::MetadataTypeData>(|| {
+                            #headers::languages::MetadataTypeData(
+                                #ඞ::format!("\"kind\": \"{}\",\n\"name\": \"{}\"", "Struct", Self::short_name()),
+                            )
+                        });
+                    })
                 }
             ));
         }
 
-        let is_built_in_struct = ffi_metadata.is_some();
+        let is_built_in_struct = ffi_metadata_attr.is_some();
 
         impl_body.extend(quote_spanned!(Span::mixed_site()=>
             #[allow(nonstandard_style)]
@@ -180,6 +216,9 @@ pub(crate) fn derive(
                 )
             }
         ));
+    } else {
+        // Remove `#[ffi_metadata]` inert attributes.
+        attrs.retain(|attr| attr.path().is_ident("ffi_metadata").not());
     }
 
     ret.extend({
@@ -227,7 +266,7 @@ pub(crate) fn derive_transparent(
 
     #[rustfmt::skip]
     #[apply(let_quote)]
-    use ::safer_ffi::ඞ;
+    use ::safer_ffi::{ඞ, headers};
 
     let mut ret = quote!();
 
@@ -312,8 +351,10 @@ pub(crate) fn derive_transparent(
                     Ok(())
                 }
 
-                fn metadata_type_usage() -> String {
-                    <#CFieldTy as #ඞ::CType>::metadata_type_usage()
+                fn metadata() -> &'static dyn #headers::provider::Provider {
+                    &#headers::provider::provide_with(|request| {
+                        <#CFieldTy as #ඞ::CType>::metadata().provide_to(request);
+                    })
                 }
 
                 fn name (

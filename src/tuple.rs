@@ -15,6 +15,10 @@ mod void {
 }
 pub(crate) use void::CVoid;
 
+__cfg_headers__! {
+    use crate::headers::languages::MetadataTypeData;
+}
+
 unsafe impl CType for CVoid {
     type OPAQUE_KIND = crate::layout::OpaqueKind::Concrete;
 
@@ -31,8 +35,12 @@ unsafe impl CType for CVoid {
             Ok(())
         }
 
-        fn metadata_type_usage() -> String {
-            r#""kind": "void""#.into()
+        fn metadata() -> &'static dyn Provider {
+            &provide_with(|request| {
+                request.give_if_requested::<MetadataTypeData>(|| {
+                    MetadataTypeData(r#""kind": "void""#.into())
+                });
+            })
         }
 
         fn render(

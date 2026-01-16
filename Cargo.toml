@@ -89,6 +89,8 @@ async-compat.version = "0.2.1"
 
 extern-c.version = "0.1.0"
 
+extension-traits.version = "2.0.1"
+
 futures.optional = true
 futures.version = "0.3.24"
 

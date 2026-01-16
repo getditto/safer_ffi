@@ -15,6 +15,12 @@ mod mb_file_expanded;
 pub(crate) use trait_impl_shenanigans::*;
 mod trait_impl_shenanigans;
 
+#[derive(PartialEq)]
+pub(crate) enum Retain {
+    Drop,
+    Keep,
+}
+
 pub(crate) trait MySplit {
     type Ret;
     fn my_split(self: &'_ Self) -> Self::Ret;

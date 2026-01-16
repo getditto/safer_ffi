@@ -27,6 +27,7 @@ pub use lua::Lua;
 mod lua;
 
 pub use metadata::Metadata;
+pub use metadata::MetadataTypeData;
 mod metadata;
 
 pub struct Indentation {
@@ -302,8 +303,6 @@ pub trait PhantomCType {
 
     fn metadata(self: &'_ Self) -> &'static dyn Provider;
 
-    fn metadata_type_usage(self: &'_ Self) -> String;
-
     fn size(self: &'_ Self) -> usize;
 
     fn align(self: &'_ Self) -> usize;
@@ -351,10 +350,6 @@ where
 
     fn metadata(self: &'_ Self) -> &'static dyn Provider {
         T::metadata()
-    }
-
-    fn metadata_type_usage(self: &'_ Self) -> String {
-        T::metadata_type_usage()
     }
 
     fn size(self: &'_ Self) -> usize {

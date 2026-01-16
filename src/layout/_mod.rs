@@ -141,12 +141,9 @@ pub unsafe trait CType: Sized + Copy {
     ///         "Foo".into()
     ///     }
     ///
-    ///     #[::safer_ffi::cfg_headers]
-    ///     fn metadata_type_usage() -> String {
-    ///         String::new()
-    ///     }
-    ///
     ///     type OPAQUE_KIND = OpaqueKind::Concrete;
+    ///
+    ///     // ...
     /// }
     /// ```
     #[allow(nonstandard_style)]
@@ -350,9 +347,6 @@ pub unsafe trait CType: Sized + Copy {
     fn metadata() -> &'static dyn Provider {
         &None
     }
-
-    #[apply(__cfg_headers__!)]
-    fn metadata_type_usage() -> String;
 }
 
 /// The meat of the crate. _The_ trait.

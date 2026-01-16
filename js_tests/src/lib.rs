@@ -193,7 +193,11 @@ const _: () = {
         unsafe {
             call(
                 data,
-                ::std::mem::transmute(c!("Hello, World!").to_str().as_ptr()),
+                c!("Hello, World!")
+                    .to_str_with_null()
+                    .as_ptr()
+                    .cast::<::safer_ffi::c_char>()
+                    .into(),
             );
         }
         ctx.env.get_undefined()

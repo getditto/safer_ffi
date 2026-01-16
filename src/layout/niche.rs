@@ -3,7 +3,7 @@ use_prelude!();
 use crate::prelude::c_slice;
 
 __cfg_headers__! {
-    use crate::__::{Definer, HeaderLanguage};
+    use crate::headers::{Definer, languages::{HeaderLanguage, MetadataTypeData}};
     use crate::layout::impls::metadata_nested_type_usage;
 }
 
@@ -70,13 +70,14 @@ unsafe impl<T: CType> CType for OptionCLayout<T> {
         }
 
         fn metadata() -> &'static dyn Provider {
-            T::metadata()
-        }
+            &provide_with(|request| {
+                request.give_if_requested::<MetadataTypeData>(|| {
+                    let nested_type = metadata_nested_type_usage::<T>();
 
-        fn metadata_type_usage() -> String {
-            let nested_type = metadata_nested_type_usage::<T>();
-
-            format!("\"kind\": \"{}\",\n\"type\": {{\n{}\n}}", "Optional", nested_type)
+                    MetadataTypeData(format!("\"kind\": \"{}\",\n\"type\": {{\n{}\n}}", "Optional", nested_type))
+                });
+                T::metadata().provide_to(request);
+            })
         }
     }
 }

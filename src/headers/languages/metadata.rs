@@ -8,6 +8,8 @@ use std::io::Write;
 
 pub struct Metadata;
 
+pub struct MetadataTypeData(pub String);
+
 impl<F: Fn(&mut dyn Write) -> io::Result<()>> DisplayFromFn<F> {
     fn indented_lines(&self) -> String {
         self.to_string().lines().map(|line| format!("    {line}\n")).collect()
@@ -442,7 +444,6 @@ impl HeaderLanguage for Metadata {
 }
 
 impl Metadata {
-
     fn emit_type_usage(
         self: &'_ Self,
         _this: &dyn HeaderLanguage,
@@ -456,10 +457,10 @@ impl Metadata {
         out!((r#""{field_name}": {{"#));
 
         if let _ = indent.scope() {
-            let type_usage = ty.metadata_type_usage();
-
-            for line in type_usage.lines() {
-                out!(("{line}"));
+            if let Some(MetadataTypeData(type_usage)) = ty.metadata().dyn_request() {
+                for line in type_usage.lines() {
+                    out!(("{line}"));
+                }
             }
         }
 

@@ -59,6 +59,7 @@ pub(crate) fn derive(
         ඞ::{
             mem,
         },
+        headers,
         layout::{
             // __HasNiche__,
             CLayoutOf,
@@ -167,8 +168,14 @@ pub(crate) fn derive(
                 )
             }
 
-            fn metadata_type_usage() -> String {
-                format!("\"kind\": \"{}\",\n\"name\": \"{}\"", "Enum", Self::short_name())
+            fn metadata() -> &'static dyn #headers::provider::Provider {
+                &#headers::provider::provide_with(|request| {
+                    request.give_if_requested::<#headers::languages::MetadataTypeData>(|| {
+                        #headers::languages::MetadataTypeData(format!(
+                            "\"kind\": \"{}\",\n\"name\": \"{}\"", "Enum", Self::short_name()
+                        ))
+                    });
+                })
             }
         ));
     }

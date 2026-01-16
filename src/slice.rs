@@ -2,7 +2,6 @@
 
 use_prelude!();
 use ::core::slice;
-use safer_ffi_proc_macros::ffi_metadata;
 
 #[doc(no_inline)]
 pub use self::slice_mut as Mut;
@@ -16,42 +15,38 @@ cfg_alloc! {
 /// The phantoms from the crate are not `ReprC`.
 type PhantomCovariantLifetime<'lt> = PhantomData<&'lt ()>;
 
-ReprC! {
-    #[repr(C, js)]
-    #[ffi_metadata(DynamicArray)]
-    /// Like [`slice_ref`] and [`slice_mut`], but with any lifetime attached
-    /// whatsoever.
-    ///
-    /// It is only intended to be used as the parameter of a **callback** that
-    /// locally borrows it, due to limitations of the [`ReprC`][
-    /// `trait@crate::layout::ReprC`] design _w.r.t._ higher-rank trait bounds.
-    ///
-    /// # C layout (for some given type T)
-    ///
-    /// ```c
-    /// typedef struct {
-    ///     // Cannot be NULL
-    ///     T * ptr;
-    ///     size_t len;
-    /// } slice_T;
-    /// ```
-    ///
-    /// # Nullable pointer?
-    ///
-    /// If you want to support the above typedef, but where the `ptr` field is
-    /// allowed to be `NULL` (with the contents of `len` then being undefined)
-    /// use the `Option< slice_ptr<_> >` type.
-    #[derive(Debug)]
-    pub
-    struct slice_raw[T] {
-        /// Pointer to the first element (if any).
-        pub
-        ptr: ptr::NonNull<T>,
+#[derive_ReprC]
+#[repr(C, js)]
+#[ffi_metadata(DynamicArray)]
+/// Like [`slice_ref`] and [`slice_mut`], but with any lifetime attached
+/// whatsoever.
+///
+/// It is only intended to be used as the parameter of a **callback** that
+/// locally borrows it, due to limitations of the [`ReprC`][
+/// `trait@crate::layout::ReprC`] design _w.r.t._ higher-rank trait bounds.
+///
+/// # C layout (for some given type T)
+///
+/// ```c
+/// typedef struct {
+///     // Cannot be NULL
+///     T * ptr;
+///     size_t len;
+/// } slice_T;
+/// ```
+///
+/// # Nullable pointer?
+///
+/// If you want to support the above typedef, but where the `ptr` field is
+/// allowed to be `NULL` (with the contents of `len` then being undefined)
+/// use the `Option< slice_ptr<_> >` type.
+#[derive(Debug)]
+pub struct slice_raw<T> {
+    /// Pointer to the first element (if any).
+    pub ptr: ptr::NonNull<T>,
 
-        /// Element count
-        pub
-        len: usize,
-    }
+    /// Element count
+    pub len: usize,
 }
 
 impl<T> slice_raw<T> {

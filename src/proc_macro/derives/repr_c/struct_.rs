@@ -186,6 +186,9 @@ pub(crate) fn derive(
         )
     });
 
+    // Remove `#[ffi_metadata]` inert attributes.
+    attrs.retain(|attr| attr.path().is_ident("ffi_metadata").not());
+
     // Add docs about C layout.
     attrs.extend_::<Attribute, _>([
         parse_quote!(
@@ -390,7 +393,7 @@ pub(crate) fn derive_opaque(
 ) -> Result<TokenStream2> {
     #[rustfmt::skip]
     #[apply(let_quote)]
-    use ::safer_ffi::ඞ;
+    use ::safer_ffi::{ඞ, headers};
 
     // Strip the `repr(opaque)`
     attrs.retain(|attr| {
@@ -483,8 +486,14 @@ pub(crate) fn derive_opaque(
                     )
                 }
 
-                fn metadata_type_usage() -> String {
-                    format!("\"kind\": \"{}\",\n\"name\": \"{}\"", "Opaque", Self::short_name())
+                fn metadata() -> &'static dyn #headers::provider::Provider {
+                    &#headers::provider::provide_with(|request| {
+                        request.give_if_requested::<#headers::languages::MetadataTypeData>(|| {
+                            #headers::languages::MetadataTypeData(format!(
+                                "\"kind\": \"{}\",\n\"name\": \"{}\"", "Opaque", Self::short_name(),
+                            ))
+                        });
+                    })
                 }
             )
         };

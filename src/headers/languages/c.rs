@@ -27,7 +27,33 @@ impl HeaderLanguage for C {
     }
 
     fn supports_type_aliases(self: &'_ C) -> Option<&'_ dyn HeaderLanguageSupportingTypeAliases> {
-        Some(self)
+        return Some(self);
+        // where
+        #[expect(non_local_definitions)]
+        impl HeaderLanguageSupportingTypeAliases for C {
+            fn declare_type_alias(
+                self: &'_ Self,
+                ctx: &'_ mut dyn Definer,
+                docs: Docs<'_>,
+                self_ty: &'_ dyn PhantomCType,
+                inner_ty: &'_ dyn PhantomCType,
+            ) -> io::Result<()> {
+                // No `this` in this design yet; let's stick to `this` nonetheless
+                // for the syntactical search for the `self` antipattern.
+                let this = self;
+                let ref indent = Indentation::new(4 /* ctx.indent_width() */);
+                mk_out!(indent, ctx.out());
+                this.emit_docs(ctx, docs, indent)?;
+                let ref aliaser = self_ty.name(this);
+                let ref aliasee = inner_ty.name(this);
+                out!((
+                    "typedef {aliasee} {aliaser};"
+                ));
+
+                out!("\n");
+                Ok(())
+            }
+        }
     }
 
     fn declare_simple_enum(
@@ -401,31 +427,6 @@ impl HeaderLanguage for C {
         out: &mut dyn io::Write,
     ) -> io::Result<()> {
         write!(out, "void")?;
-        Ok(())
-    }
-}
-
-impl HeaderLanguageSupportingTypeAliases for C {
-    fn declare_type_alias(
-        self: &'_ Self,
-        ctx: &'_ mut dyn Definer,
-        docs: Docs<'_>,
-        self_ty: &'_ dyn PhantomCType,
-        inner_ty: &'_ dyn PhantomCType,
-    ) -> io::Result<()> {
-        // No `this` in this design yet; let's stick to `this` nonetheless
-        // for the syntactical search for the `self` antipattern.
-        let this = self;
-        let ref indent = Indentation::new(4 /* ctx.indent_width() */);
-        mk_out!(indent, ctx.out());
-        this.emit_docs(ctx, docs, indent)?;
-        let ref aliaser = self_ty.name(this);
-        let ref aliasee = inner_ty.name(this);
-        out!((
-            "typedef {aliasee} {aliaser};"
-        ));
-
-        out!("\n");
         Ok(())
     }
 }
