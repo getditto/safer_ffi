@@ -15,7 +15,11 @@ repository = "https://github.com/getditto/safer_ffi"
 
 readme = "README.md"
 
-exclude = ["/guide"]
+exclude = [
+    "/guide",
+    "/ffi_tests",
+    "/js_tests",
+]
 
 [features]
 default = ["std"]
