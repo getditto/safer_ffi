@@ -114,6 +114,7 @@ macro_rules! const_assert {
         [$($($pre:tt)+)?] => [$($post:tt)*]
     ) => (
         const _: () = {
+            #[allow(dead_code)]
             fn check<$($generics)*> ()
             where
                 $($($pre)+)?

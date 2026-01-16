@@ -313,6 +313,17 @@ export async function run_tests({ ffi, performance, assert, is_web }) {
     assert.equal(ffi.my_renamed_ptr_api().addr, 0xbad000);
 
     // ──────────────────────────────────────────────────────────
+    //  Test callback with opaque pointer conversion via layout::into_raw
+    // ──────────────────────────────────────────────────────────
+
+    assertCheckPointIsCalled((checkPoint) => {
+        ffi.invoke_callback_with_opaque(wrap_cb_for_ffi((data) => {
+            assert.equal(ffi.callback_data_value(data), 99);
+            checkPoint();
+        }));
+    });
+
+    // ──────────────────────────────────────────────────────────
     //  Regression: pointer objects must contain both { addr, type }
     // ──────────────────────────────────────────────────────────
 

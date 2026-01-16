@@ -31,6 +31,10 @@ unsafe impl CType for CVoid {
             Ok(())
         }
 
+        fn metadata_type_usage() -> String {
+            r#""kind": "void""#.into()
+        }
+
         fn render(
             out: &'_ mut dyn io::Write,
             language: &'_ dyn HeaderLanguage,

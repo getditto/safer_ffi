@@ -3,7 +3,7 @@
 # Script to cargo publish a new version of safer-ffi
 
 set -euo pipefail
-cd "$(git rev-parse --show-toplevel)"
+cd "$(git rev-parse --show-toplevel || jj workspace root)"
 
 (set -x
     git status >&2

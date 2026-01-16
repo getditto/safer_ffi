@@ -80,6 +80,27 @@ mod safety_boundary {
     unsafe impl Send for ThreadTiedJsFunction {}
     unsafe impl Sync for ThreadTiedJsFunction {}
 
+    impl Drop for ThreadTiedJsFunction {
+        fn drop(self: &'_ mut ThreadTiedJsFunction) {
+            // Note: since Self is `Send`,
+            // this may be called in a non-Node.js thread.
+            // It appears the ref-counting functions are thread-safe.
+            let Self {
+                ref env,
+                raw_ref_handle,
+                ..
+            } = *self;
+            unsafe {
+                /* Decrementing the ref-count before destroying it does
+                 * not seem to be necessary. */
+                // ::napi::sys::napi_reference_unref(
+                //     env.raw(), raw_ref_handle, &mut 0,
+                // );
+                let _ignored_status = ::napi::sys::napi_delete_reference(env.raw(), raw_ref_handle);
+            }
+        }
+    }
+
     impl ThreadTiedJsFunction {
         pub fn new(
             func: &'_ JsFunction,
@@ -97,29 +118,6 @@ mod safety_boundary {
                         &mut raw_ref_handle,
                     )
                 );
-            }
-
-            #[expect(non_local_definitions)]
-            impl Drop for ThreadTiedJsFunction {
-                fn drop(self: &'_ mut ThreadTiedJsFunction) {
-                    // Note: since Self is `Send`,
-                    // this may be called in a non-Node.js thread.
-                    // It appears the ref-counting functions are thread-safe.
-                    let Self {
-                        ref env,
-                        raw_ref_handle,
-                        ..
-                    } = *self;
-                    unsafe {
-                        /* Decrementing the ref-count before destroying it does
-                         * not seem to be necessary. */
-                        // ::napi::sys::napi_reference_unref(
-                        //     env.raw(), raw_ref_handle, &mut 0,
-                        // );
-                        let _ignored_status =
-                            ::napi::sys::napi_delete_reference(env.raw(), raw_ref_handle);
-                    }
-                }
             }
 
             Self {

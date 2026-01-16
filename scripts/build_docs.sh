@@ -2,7 +2,7 @@
 
 set -euxo pipefail
 
-BASE_DIR="$(git rev-parse --show-toplevel)"
+BASE_DIR="$(git rev-parse --show-toplevel || jj workspace root)"
 
 cd $BASE_DIR
 RUSTC_BOOTSTRAP=1 cargo doc --features docs

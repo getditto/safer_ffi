@@ -3,7 +3,7 @@
 # Script to bump the `safer-ffi` version of the repo (both in `.toml` and `.lock` files).
 
 set -euo pipefail
-cd "$(git rev-parse --show-toplevel)"
+cd "$(git rev-parse --show-toplevel || jj workspace root)"
 
 usage() {
     cat >&2 <<-EOF

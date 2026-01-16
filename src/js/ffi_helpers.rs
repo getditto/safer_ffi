@@ -110,7 +110,7 @@ pub fn with_js_buffer_as_slice_uint8_t_ref(
         | _case if matches!(fst.get_type(), Ok(ValueType::Null)) => {
             cb.call(None, &[ReprNapi::to_napi_value(
                 crate::slice::slice_raw_Layout::<u8> {
-                    ptr: NULL!(),
+                    ptr: <*mut u8>::into(NULL!()),
                     len: 0xbad000,
                 },
                 ctx.env,
@@ -132,7 +132,9 @@ pub fn char_p_boxed_to_js_string(
             // return Err(Error::new(Status::InvalidArg, "Got `NULL`".into()));
             ctx.env.get_null()?.into_unknown()
         } else {
-            let p: crate::prelude::char_p::Box = unsafe { crate::layout::from_raw_unchecked(p) };
+            let p: crate::prelude::char_p::Box = unsafe {
+                crate::layout::from_raw_unchecked(crate::layout::impls::NonNullCLayout::new(p))
+            };
             ctx.env.create_string(p.to_str())?.into_unknown()
         }
     })
@@ -176,8 +178,9 @@ pub fn char_p_ref_to_js_string(
             // return Err(Error::new(Status::InvalidArg, "Got `NULL`".into()));
             ctx.env.get_null()?.into_unknown()
         } else {
-            let p: crate::prelude::char_p::Ref<'_> =
-                unsafe { crate::layout::from_raw_unchecked(p) };
+            let p: crate::prelude::char_p::Ref<'_> = unsafe {
+                crate::layout::from_raw_unchecked(crate::layout::impls::NonNullCLayout::new(p))
+            };
             ctx.env.create_string(p.to_str())?.into_unknown()
         }
     })
@@ -286,7 +289,7 @@ pub fn with_out_byte_slice(cb: JsFunction) -> Result<JsUnknown> {
         let ctx = ::safer_ffi::js::derive::__js_ctx!();
         let ty = &"slice_boxed_uint8_t";
         let mut v = crate::slice::slice_ref_Layout::<()> {
-            ptr: NULL!(),
+            ptr: <*const crate::CVoid>::into(NULL!()),
             len: 0,
             _lt: unsafe { ::core::mem::transmute(()) },
         };
@@ -297,7 +300,10 @@ pub fn with_out_byte_slice(cb: JsFunction) -> Result<JsUnknown> {
             &format!("{} *", ty),
         )?])?;
         let mut v_js = ctx.env.create_object()?;
-        v_js.set_named_property("ptr", wrap_ptr(ctx.env, v.ptr as _, "uint8_t *")?)?;
+        v_js.set_named_property(
+            "ptr",
+            wrap_ptr(ctx.env, v.ptr.wrappedCLayout as _, "uint8_t *")?,
+        )?;
         v_js.set_named_property("len", ReprNapi::to_napi_value(v.len as usize, ctx.env)?)?;
         v_js.into_unknown()
     })
@@ -314,7 +320,7 @@ pub fn with_out_vec_of_ptrs(
         let ref vec_ty: String = vec_ty.into_utf8()?.into_owned()?;
         let ref ty: String = ty.into_utf8()?.into_owned()?;
         let mut v = crate::vec::Vec_Layout::<()> {
-            ptr: NULL!(),
+            ptr: <*mut crate::CVoid>::into(NULL!()),
             len: 0,
             cap: 0,
         };
@@ -327,7 +333,7 @@ pub fn with_out_vec_of_ptrs(
         let mut v_js = ctx.env.create_object()?;
         v_js.set_named_property(
             "ptr",
-            wrap_ptr(ctx.env, v.ptr.cast(), &format!("{} *", ty))?,
+            wrap_ptr(ctx.env, v.ptr.wrappedCLayout.cast(), &format!("{} *", ty))?,
         )?;
         v_js.set_named_property("len", ReprNapi::to_napi_value(v.len as usize, ctx.env)?)?;
         v_js.set_named_property("cap", ReprNapi::to_napi_value(v.cap as usize, ctx.env)?)?;

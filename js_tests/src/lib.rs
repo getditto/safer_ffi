@@ -191,7 +191,10 @@ const _: () = {
         cb.make_nodejs_wait_for_this_to_be_dropped(true)?;
         let (data, call) = cb.as_raw_parts();
         unsafe {
-            call(data, c!("Hello, World!").to_str().as_ptr().cast());
+            call(
+                data,
+                ::std::mem::transmute(c!("Hello, World!").to_str().as_ptr()),
+            );
         }
         ctx.env.get_undefined()
     }
@@ -333,3 +336,44 @@ fn my_renamed_ptr_api() -> MyRenamedPtr {
         bar: (),
     }
 }
+
+#[derive_ReprC(js)]
+#[repr(opaque)]
+pub struct CallbackData {
+    value: i32,
+}
+
+#[ffi_export(js)]
+fn callback_data_new(value: i32) -> repr_c::Box<CallbackData> {
+    Box::new(CallbackData { value }).into()
+}
+
+#[ffi_export(js)]
+fn callback_data_value(data: &CallbackData) -> i32 {
+    data.value
+}
+
+#[cfg(feature = "js")]
+const _: () = {
+    use ::safer_ffi::js as napi;
+    use ::safer_ffi::layout;
+
+    type JsCallbackDataHandler = napi::Closure<fn(repr_c::Box<CallbackData>)>;
+
+    #[napi::derive::js_export]
+    fn invoke_callback_with_opaque(
+        handler: <JsCallbackDataHandler as napi::ReprNapi>::NapiValue
+    ) -> napi::Result<napi::JsUndefined> {
+        let ctx = napi::derive::__js_ctx!();
+        let js_handler: JsCallbackDataHandler = napi::ReprNapi::from_napi_value(ctx.env, handler)?;
+
+        let data: repr_c::Box<CallbackData> = Box::new(CallbackData { value: 99 }).into();
+
+        let (cb_ctx, cb_vcall) = js_handler.as_raw_parts();
+        unsafe {
+            cb_vcall(cb_ctx, layout::into_raw(data));
+        }
+
+        ctx.env.get_undefined()
+    }
+};

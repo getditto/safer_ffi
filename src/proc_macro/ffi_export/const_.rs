@@ -82,6 +82,7 @@ pub(super) fn handle(
                                         | Language::C => &languages::C,
                                         | Language::CSharp => &languages::CSharp,
                                         | Language::Lua => &languages::Lua,
+                                        | Language::Metadata => &languages::Metadata,
                                     $($($if_cfg_python)?
                                         | Language::Python => &languages::Python,
                                     )?

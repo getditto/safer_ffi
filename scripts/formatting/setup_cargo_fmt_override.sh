@@ -18,7 +18,7 @@
 # That's why, instead, we just look up which nightly coincides with
 # our current stable the best (e.g., using https://releases.rs), so as
 # to pin a `nightly` toolchain matching our stable MSRV one
-# (e.g. for `{MSRV}-stable=1.85.0`, we have `{MSRV}-nighly=nightly-2025-01-03`).
+# (e.g. for `{MSRV}-stable=1.85.0`, we have `{MSRV}-nightly=nightly-2025-10-30`).
 #
 #   - the MSRV one being the one defined at the top-level `rust-toolchain.toml`
 #     file.

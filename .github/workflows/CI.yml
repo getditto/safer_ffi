@@ -16,14 +16,14 @@ env:
 jobs:
   # Check no_std #
   check-nostd:
-    name: 'Check `#![no_std]`'
+    name: "Check `#![no_std]`"
     runs-on: ubuntu-latest
     steps:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly-2025-01-03  # branch-from-master date of 1.85.0
+          toolchain: nightly-2025-10-30 # branch-from-master date of 1.91.0
           override: true
           components: rust-src
 
@@ -55,7 +55,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly-2025-01-03  # branch-from-master date of 1.85.0
+          toolchain: nightly-2025-10-30 # branch-from-master date of 1.91.0
           override: true
           components: rustfmt
 
@@ -75,7 +75,7 @@ jobs:
           - macos-latest
           # - windows-latest
         rust:
-          - 1.85.0
+          - 1.91.0
           - stable
           # - nightly
     steps:
@@ -107,7 +107,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.85.0
+          toolchain: 1.91.0
           override: true
 
       - name: Clone repo
@@ -239,7 +239,7 @@ jobs:
           fi
           echo "All jobs succeeded"
 
-  # Deploy to Github pages #
+  # Deploy to GitHub pages #
   deploy:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-20.04

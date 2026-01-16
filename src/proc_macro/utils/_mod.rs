@@ -171,6 +171,7 @@ pub(crate) fn compile_warning(
             #[allow(nonstandard_style)]
             struct safer_ffi_ {
                 #[deprecated(note = #message)]
+                #[allow(dead_code)]
                 #warning: ()
             }
             //                     fst    lst

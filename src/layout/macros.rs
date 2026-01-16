@@ -219,14 +219,14 @@ macro_rules! CType {(
                         let xs = buf;
                         $crate::js::Result::Ok(unsafe { $crate::ඞ::mem::transmute_copy(&{
                             $crate::slice::slice_raw_Layout::<u8> {
-                                ptr: xs.as_ptr() as _,
+                                ptr: (xs.as_ptr() as *mut u8).into(),
                                 len: xs.len(),
                             }
                         })})
                     } else { // it's NULL
                         $crate::js::Result::Ok(unsafe { $crate::ඞ::mem::transmute_copy::<_, Self>(&{
                             $crate::slice::slice_raw_Layout::<u8> {
-                                ptr: $crate::NULL!(),
+                                ptr: <*mut u8>::into($crate::NULL!()),
                                 len: 0xbad000,
                             }
                         })})
@@ -329,6 +329,59 @@ macro_rules! ReprC {(
             )?
         )?
     )]
+    #[no_stabby]
+    $(
+        #[$attr:meta]
+    )*
+    $pub:vis
+    struct $StructName:ident $([$($generics:tt)*])?
+    $(
+        where { $($wc:tt)* }
+    )?
+    $({
+        $($body:tt)*
+    })?
+    $((
+        $($body2:tt)*
+    );)?
+) => (
+    #[$crate::prelude::derive_ReprC2($($($($if_js)? js)?)?)]
+    $(
+        #[doc = $doc]
+    )?
+    $(
+        #[doc = $doc2]
+    )*
+    #[repr($C_or_transparent)]
+    $(
+        #[$attr]
+    )*
+    $pub
+    struct $StructName $(<$($generics)*>)?
+    $(
+        where $($wc)*
+    )?
+    $({
+        $($body)*
+    })?
+    $((
+        $($body2)*
+    );)?
+);
+(
+    $(
+        @[doc = $doc:expr]
+    )?
+    $(
+        #[doc = $doc2:expr]
+    )*
+    #[repr(
+        $C_or_transparent:ident $(,
+            $($(@$if_js:tt)?
+        js $(,)?
+            )?
+        )?
+    )]
     $(
         #[$attr:meta]
     )*
@@ -367,7 +420,8 @@ macro_rules! ReprC {(
     $((
         $($body2)*
     );)?
-)}
+)
+}
 
 #[cfg(test)]
 #[crate::derive_ReprC]

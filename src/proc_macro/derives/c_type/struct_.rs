@@ -45,18 +45,16 @@ pub(crate) fn derive(
         // invoke the legacy `CType!` macro which is the one currently featuring
         // the js FFI glue generating logic.
         let (params, bounds) = generics.my_split();
-        ret.extend(quote!(
-            ::safer_ffi::layout::CType! {
-                #[repr(C, js)]
-                #pub_
-                struct #StructName
-                    [#params]
-                where {
-                    #(#bounds ,)*
-                }
-                #fields
+        ret.extend(quote!(::safer_ffi::layout::CType! {
+            #[repr(C, js)]
+            #pub_
+            struct #StructName
+                [#params]
+            where {
+                #(#bounds ,)*
             }
-        ))
+            #fields
+        }))
     }
 
     let mut impl_body = quote!(
@@ -107,6 +105,58 @@ pub(crate) fn derive(
             })
         })?;
 
+        let ffi_metadata = attrs
+            .iter()
+            .find(|attr| attr.path().is_ident("ffi_metadata"));
+
+        if let Some(ffi_metadata) = ffi_metadata {
+            let ptr_type = fields
+                .iter()
+                .find(|field| field.ident.as_ref().map_or(false, |ident| ident == "ptr"))
+                .map(|field| &field.ty)
+                .ok_or_else(|| {
+                    syn::Error::new_spanned(
+                        ffi_metadata,
+                        "Struct annotated with ffi_metadata attribute does not have field 'ptr'.",
+                    )
+                })?;
+
+            let result = ffi_metadata.parse_args::<Ident>();
+
+            if let Some(kind) = result.ok() {
+                let kind_string = kind.to_string();
+
+                impl_body.extend(quote_spanned!(Span::mixed_site()=>
+                    fn metadata_type_usage() -> String {
+                        let nested_type = <#ptr_type as #CType>::metadata_type_usage();
+
+                        let indented_nested_type = nested_type
+                            .lines()
+                            .map(|line| format!("    {}", line))
+                            .collect::<alloc::vec::Vec<alloc::string::String>>()
+                            .join("\n");
+
+                        format!(
+                            "\"kind\": \"{}\",\n\"backingTypeName\": \"{}\",\n\"type\": {{\n{}\n}}",
+                            #kind_string,
+                            Self::short_name(),
+                            indented_nested_type,
+                        )
+                    }
+                ));
+            } else {
+                bail!("Failed to parse ffi_metadata attribute.");
+            }
+        } else {
+            impl_body.extend(quote_spanned!(Span::mixed_site()=>
+                fn metadata_type_usage() -> String {
+                    format!("\"kind\": \"{}\",\n\"name\": \"{}\"", "Struct", Self::short_name())
+                }
+            ));
+        }
+
+        let is_built_in_struct = ffi_metadata.is_some();
+
         impl_body.extend(quote_spanned!(Span::mixed_site()=>
             #[allow(nonstandard_style)]
             fn define_self__impl (
@@ -117,6 +167,10 @@ pub(crate) fn derive(
             #(
                 < #EachFieldTy as #CType >::define_self(language, definer)?;
             )*
+                if #is_built_in_struct && !language.must_declare_built_in_types() {
+                    return Ok(())
+                }
+
                 language.declare_struct(
                     language,
                     definer,
@@ -213,7 +267,7 @@ pub(crate) fn derive_transparent(
                     definer: &'_ mut dyn #ඞ::Definer,
                 ) -> #ඞ::io::Result<()>
                 {
-                    ::core::unimplemented!("directly handled in `define_self()`");
+                    #ඞ::unimplemented!("directly handled in `define_self()`");
                 }
 
                 fn define_self (
@@ -256,6 +310,10 @@ pub(crate) fn derive_transparent(
                     )?;
 
                     Ok(())
+                }
+
+                fn metadata_type_usage() -> String {
+                    <#CFieldTy as #ඞ::CType>::metadata_type_usage()
                 }
 
                 fn name (
@@ -334,7 +392,7 @@ pub(crate) fn derive_transparent(
                 ) -> #js::Result<Self>
                 {
                     let inner = <#CFieldTy as #js::ReprNapi>::from_napi_value(env, napi_value)?;
-                    #js::Result::Ok(unsafe { #ඞ::core::mem::transmute::<#CFieldTy, Self>(inner) })
+                    #js::Result::Ok(unsafe { #ඞ::mem::transmute::<#CFieldTy, Self>(inner) })
                 }
             }
         ));
