@@ -671,7 +671,7 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 
 [[package]]
 name = "safer-ffi"
-version = "0.2.0-alpha.0"
+version = "0.2.0-rc1"
 dependencies = [
  "cratesio-placeholder-package",
  "extension-traits 2.0.1",
@@ -700,7 +700,7 @@ dependencies = [
 
 [[package]]
 name = "safer_ffi-proc_macros"
-version = "0.2.0-alpha.0"
+version = "0.2.0-rc1"
 dependencies = [
  "macro_rules_attribute",
  "prettyplease",
