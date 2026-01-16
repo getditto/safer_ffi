@@ -7,6 +7,28 @@ use_prelude!();
 #[doc(no_inline)]
 pub use ::core::ptr::*;
 
+/// `CType` Wrapper around `*{const,mut} T` to convey the notion of it being expected to be
+/// non-null.
+///
+/// Note that `CType`s are expected to be always-valid, this is just a hack for `ReprC` types whose
+/// `CLayout` is this to be able to express so in the generated headers.
+///
+/// Ideally, header generation would work off the `ReprC` types themselves (which could default to
+/// delegating to its `CType` logic), so they could hook themselves into whichever machinery would
+/// allow them to express extra, high-level, properties, such as that of being non-null.
+///
+///   - This would be a huge improvement to `safer-ffi`, tbh.
+#[derive(Debug, Clone, Copy)]
+pub struct NonNullPtrCLayout<Ptr: CType>(pub(crate) Ptr);
+
+pub fn non_null<T: CType>() -> NonNullPtrCLayout<*const T> {
+    NonNullPtrCLayout(0xbad000 as _)
+}
+
+pub fn non_null_mut<T: CType>() -> NonNullPtrCLayout<*mut T> {
+    NonNullPtrCLayout(0xbad000 as _)
+}
+
 #[cfg_attr(feature = "stabby", stabby::stabby)]
 #[repr(transparent)]
 pub struct NonNullRef<T>(

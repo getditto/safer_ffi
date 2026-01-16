@@ -1,10 +1,12 @@
 #![allow(missing_debug_implementations)]
 
 #[cfg_attr(feature = "stabby", stabby::stabby)]
+#[repr(transparent)]
 #[derive(Default, Clone, Copy)]
 pub struct PhantomCovariantLifetime<'lt>(pub ::core::marker::PhantomData<&'lt ()>);
 
 #[cfg_attr(feature = "stabby", stabby::stabby)]
+#[repr(transparent)]
 pub struct PhantomInvariant<T: ?Sized>(pub ::core::marker::PhantomData<fn(&T) -> &T>);
 
 impl<T: ?Sized> Default for PhantomInvariant<T> {

@@ -90,7 +90,16 @@ version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d772df1c1a777963712fb68e014235e80863d6a91a85c4e06ba2d16243a310e5"
 dependencies = [
- "ext-trait-proc_macros",
+ "ext-trait-proc_macros 1.0.1",
+]
+
+[[package]]
+name = "ext-trait"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0c24fe28375ffabb5479233d60a5d99930a3983ed3aa6db66dd03b830fc41b2"
+dependencies = [
+ "ext-trait-proc_macros 2.0.1",
 ]
 
 [[package]]
@@ -105,12 +114,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "ext-trait-proc_macros"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad551ddce9af58215158c84e1e655b2011f6355b655c13b56d88986b14d3db98"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.100",
+]
+
+[[package]]
 name = "extension-traits"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a296e5a895621edf9fa8329c83aa1cb69a964643e36cf54d8d7a69b789089537"
 dependencies = [
- "ext-trait",
+ "ext-trait 1.0.1",
+]
+
+[[package]]
+name = "extension-traits"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e5fea67d50388b3db0e51e65815ed7293703607ff9dc50d86f93e1abcc67b572"
+dependencies = [
+ "ext-trait 2.0.1",
 ]
 
 [[package]]
@@ -697,10 +726,11 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 
 [[package]]
 name = "safer-ffi"
-version = "0.2.0-alpha.0"
+version = "0.2.0-rc1"
 dependencies = [
  "async-compat",
  "cratesio-placeholder-package",
+ "extension-traits 2.0.1",
  "extern-c",
  "futures",
  "inventory",
@@ -733,7 +763,7 @@ dependencies = [
 
 [[package]]
 name = "safer_ffi-proc_macros"
-version = "0.2.0-alpha.0"
+version = "0.2.0-rc1"
 dependencies = [
  "macro_rules_attribute",
  "prettyplease",
@@ -985,7 +1015,7 @@ version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3e130f2ed46ca5d8ec13c7ff95836827f92f5f5f37fd2b2bf16f33c408d98bb6"
 dependencies = [
- "extension-traits",
+ "extension-traits 1.0.1",
 ]
 
 [[package]]

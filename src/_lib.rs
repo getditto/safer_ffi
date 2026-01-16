@@ -422,6 +422,7 @@ macro_rules! __abort_with_msg__ { ($($tt:tt)*) => (
     }}
 )}
 
+extern crate core;
 extern crate self as safer_ffi;
 
 #[apply(hidden_export)]
@@ -449,7 +450,6 @@ mod __ {
     pub use ::core::primitive::u64;
     pub use ::core::primitive::u128;
     pub use ::core::primitive::usize;
-    pub use ::core::{self};
     pub use ::macro_rules_attribute::apply;
     pub use ::scopeguard::{self};
     #[cfg(feature = "stabby")]

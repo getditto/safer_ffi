@@ -222,14 +222,14 @@ pub struct SpecificConstGenericContainer {
 #[test]
 fn generate_headers() -> ::std::io::Result<()> {
     use ::safer_ffi::headers::Language;
-    use ::safer_ffi::headers::Language::*;
 
     #[rustfmt::skip]
     const LANGUAGES: &[(Language, &str)] = &[
-        (C, "h"),
-        (CSharp, "cs"),
-        (Lua, "lua"),
-        (Python, "cffi"),
+        (Language::C, "h"),
+        (Language::CSharp, "cs"),
+        (Language::Lua, "lua"),
+        (Language::Metadata, "metadata.json"),
+        (Language::Python, "cffi"),
     ];
 
     for &(language, ext) in LANGUAGES {

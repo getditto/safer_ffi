@@ -3,7 +3,7 @@ path = "src/_lib.rs"
 
 [package]
 name = "safer-ffi"
-version = "0.2.0-alpha.0"  # Keep in sync
+version = "0.2.0-rc1"  # Keep in sync
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2024"
 rust-version = "1.85.0"
@@ -15,7 +15,11 @@ repository = "https://github.com/getditto/safer_ffi"
 
 readme = "README.md"
 
-exclude = ["/guide"]
+exclude = [
+    "/guide",
+    "/ffi_tests",
+    "/js_tests",
+]
 
 [features]
 default = ["std"]
@@ -89,6 +93,8 @@ async-compat.version = "0.2.1"
 
 extern-c.version = "0.1.0"
 
+extension-traits.version = "2.0.1"
+
 futures.optional = true
 futures.version = "0.3.24"
 
@@ -144,7 +150,7 @@ version = "0.0.3"
 
 [dependencies.safer_ffi-proc_macros]
 path = "src/proc_macro"
-version = "=0.2.0-alpha.0"  # Keep in sync
+version = "=0.2.0-rc1"  # Keep in sync
 
 [workspace]
 members = [

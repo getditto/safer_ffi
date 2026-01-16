@@ -59,6 +59,7 @@ pub(crate) fn derive(
         ඞ::{
             mem,
         },
+        headers,
         layout::{
             // __HasNiche__,
             CLayoutOf,
@@ -165,6 +166,16 @@ pub(crate) fn derive(
                     #mb_phantom_int,
                     &[#(#each_enum_variant),*],
                 )
+            }
+
+            fn metadata() -> &'static dyn #headers::provider::Provider {
+                &#headers::provider::provide_with(|request| {
+                    request.give_if_requested::<#headers::languages::MetadataTypeData>(|| {
+                        #headers::languages::MetadataTypeData(format!(
+                            "\"kind\": \"{}\",\n\"name\": \"{}\"", "Enum", Self::short_name()
+                        ))
+                    });
+                })
             }
         ));
     }

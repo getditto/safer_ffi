@@ -1,3 +1,7 @@
+__cfg_headers__! {
+    use crate::headers::languages::MetadataTypeData;
+}
+
 use_prelude!();
 
 /// A `ReprC` _standalone_ type with the same layout and ABI as
@@ -43,6 +47,14 @@ unsafe impl CType for c_char {
         ) -> io::Result<()>
         {
             Ok(())
+        }
+
+        fn metadata() -> &'static dyn Provider {
+            &provide_with(|request| {
+                request.give_if_requested::<MetadataTypeData>(|| {
+                    MetadataTypeData(r#""kind": "char""#.into())
+                });
+            })
         }
 
         fn render(

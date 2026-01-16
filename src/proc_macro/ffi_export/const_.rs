@@ -75,20 +75,7 @@ pub(super) fn handle(
                             Language,
                             languages::{self, HeaderLanguage},
                         };
-                        let header_builder: &'static dyn HeaderLanguage =
-                            #krate::__with_cfg_python__!(|$if_cfg_python| {
-                                {
-                                    match lang {
-                                        | Language::C => &languages::C,
-                                        | Language::CSharp => &languages::CSharp,
-                                        | Language::Lua => &languages::Lua,
-                                    $($($if_cfg_python)?
-                                        | Language::Python => &languages::Python,
-                                    )?
-                                    }
-                                }
-                            })
-                        ;
+                        let header_builder: &'static dyn HeaderLanguage = lang.as_dyn();
 
                         <#ඞ::CLayoutOf<#Ty> as #ඞ::CType>::define_self(
                             header_builder,

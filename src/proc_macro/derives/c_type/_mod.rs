@@ -14,9 +14,9 @@ pub(crate) fn derive(
 ) -> Result<TokenStream2> {
     let args: Args = parse2(args)?;
 
-    let input: DeriveInput = parse2(input)?;
+    let mut input: DeriveInput = parse2(input)?;
     let DeriveInput {
-        ref attrs,
+        ref mut attrs,
         ref vis,
         ref ident,
         ref generics,

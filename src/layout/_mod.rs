@@ -31,7 +31,7 @@ type_level_enum! {
 /// That's why **manually implementing this trait is strongly discouraged**,
 /// although not forbidden:
 ///
-///   - If you trully want a manual implementation of `CType` (_e.g._, for an "opaque type" pattern,
+///   - If you truly want a manual implementation of `CType` (_e.g._, for an "opaque type" pattern,
 ///     _i.e._, a forward declaration), then, to implement the trait so that it works no matter the
 ///     status of the `safer_ffi/headers` feature, one must define the methods as if feature was
 ///     present, but with a `#[::safer_ffi::cfg_headers]` gate slapped on _each_ method.

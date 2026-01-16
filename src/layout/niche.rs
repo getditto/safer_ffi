@@ -1,5 +1,11 @@
 use_prelude!();
+
 use crate::prelude::c_slice;
+
+__cfg_headers__! {
+    use crate::headers::{Definer, languages::{HeaderLanguage, MetadataTypeData}};
+    use crate::layout::impls::metadata_nested_type_usage;
+}
 
 pub unsafe trait HasNiche: ReprC {
     fn is_niche(it: &'_ <Self as ReprC>::CLayout) -> bool {
@@ -10,13 +16,104 @@ pub unsafe trait HasNiche: ReprC {
 }
 
 unsafe impl<T: ReprC + HasNiche> ReprC for Option<T> {
-    type CLayout = <T as ReprC>::CLayout;
+    type CLayout = OptionCLayout<T::CLayout>;
 
     #[inline]
     fn is_valid(it: &'_ Self::CLayout) -> bool {
-        T::is_niche(it) || <T as ReprC>::is_valid(it)
+        T::is_niche(&it.wrappedCLayout) || <T as ReprC>::is_valid(&it.wrappedCLayout)
     }
 }
+
+#[derive(Debug, Clone, Copy)]
+pub struct OptionCLayout<T: CType> {
+    pub(crate) wrappedCLayout: T,
+}
+
+unsafe impl<T: CType> CType for OptionCLayout<T> {
+    type OPAQUE_KIND = T::OPAQUE_KIND;
+
+    __cfg_headers__! {
+        fn short_name() -> String {
+            T::short_name()
+        }
+
+        fn render(
+            out: &'_ mut dyn io::Write,
+            language: &'_ dyn HeaderLanguage,
+        ) -> io::Result<()> {
+            T::render(out, language)
+        }
+
+        fn render_wrapping_var(
+            out: &'_ mut dyn io::Write,
+            language: &'_ dyn HeaderLanguage,
+            // Either a `&&str`, or a `&fmt::Arguments<'_>`, for instance.
+            var_name: Option<&dyn ::core::fmt::Display>,
+        ) -> io::Result<()> {
+            T::render_wrapping_var(out, language, var_name)
+        }
+
+        fn define_self__impl(language: &'_ dyn HeaderLanguage, definer: &'_ mut dyn Definer) -> io::Result<()> {
+            T::define_self__impl(language, definer)
+        }
+
+        fn define_self(language: &'_ dyn HeaderLanguage, definer: &'_ mut dyn Definer) -> io::Result<()> {
+            T::define_self(language, definer)
+        }
+
+        fn name(_language: &'_ dyn HeaderLanguage) -> String {
+            T::name(_language)
+        }
+
+        fn name_wrapping_var(language: &'_ dyn HeaderLanguage, var_name: Option<&dyn fmt::Display>) -> String {
+            T::name_wrapping_var(language, var_name)
+        }
+
+        fn metadata() -> &'static dyn Provider {
+            &provide_with(|request| {
+                request.give_if_requested::<MetadataTypeData>(|| {
+                    let nested_type = metadata_nested_type_usage::<T>();
+
+                    MetadataTypeData(format!("\"kind\": \"{}\",\n\"type\": {{\n{}\n}}", "Optional", nested_type))
+                });
+                T::metadata().provide_to(request);
+            })
+        }
+    }
+}
+
+unsafe impl<T: ReprC + CType> ReprC for OptionCLayout<T> {
+    type CLayout = T::CLayout;
+
+    fn is_valid(it: &'_ Self::CLayout) -> bool {
+        T::is_valid(it)
+    }
+}
+
+#[cfg(feature = "js")]
+const _: () = {
+    use crate::js::*;
+
+    impl<T: CType + ReprNapi> ReprNapi for OptionCLayout<T> {
+        type NapiValue = T::NapiValue;
+
+        fn to_napi_value(
+            self: Self,
+            env: &'_ Env,
+        ) -> Result<Self::NapiValue> {
+            T::to_napi_value(self.wrappedCLayout, env)
+        }
+
+        fn from_napi_value(
+            env: &'_ Env,
+            napi_value: Self::NapiValue,
+        ) -> Result<Self> {
+            T::from_napi_value(env, napi_value).map(|wrapped| OptionCLayout {
+                wrappedCLayout: wrapped,
+            })
+        }
+    }
+};
 
 #[cfg_attr(rustfmt, rustfmt::skip)]
 macro_rules! unsafe_impls {(

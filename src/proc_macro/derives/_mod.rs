@@ -103,8 +103,12 @@ pub(crate) fn derive_ReprC(
                 // Legacy mode: let's tolerate but ignore attribute args:
                 let repr_c::Args { .. } = parse2(args)?;
 
+                // // Remove `#[ffi_metadata]` inert attributes.
+                // attrs.retain(|attr| attr.path().is_ident("ffi_metadata").not());
+
                 input = quote!(#(#attrs)* #rest);
-                return feed_to_macro_rules(input, parse_quote!(ReprC)); // .map(utils::mb_file_expanded);
+                return feed_to_macro_rules(input, parse_quote!(ReprC))
+                    .map(utils::mb_file_expanded);
             } else {
                 // Otherwise, we might as well not have been covering js to begin with.
                 drop(idents.swap_remove(i));

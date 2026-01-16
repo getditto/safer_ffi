@@ -3,7 +3,7 @@ use super::*;
 #[allow(unexpected_cfgs)]
 pub(crate) fn derive(
     args: Args,
-    attrs: &'_ [Attribute],
+    attrs: &'_ mut Vec<Attribute>,
     pub_: &'_ Visibility,
     StructName @ _: &'_ Ident,
     generics: &'_ Generics,
@@ -45,18 +45,16 @@ pub(crate) fn derive(
         // invoke the legacy `CType!` macro which is the one currently featuring
         // the js FFI glue generating logic.
         let (params, bounds) = generics.my_split();
-        ret.extend(quote!(
-            ::safer_ffi::layout::CType! {
-                #[repr(C, js)]
-                #pub_
-                struct #StructName
-                    [#params]
-                where {
-                    #(#bounds ,)*
-                }
-                #fields
+        ret.extend(quote!(::safer_ffi::layout::CType! {
+            #[repr(C, js)]
+            #pub_
+            struct #StructName
+                [#params]
+            where {
+                #(#bounds ,)*
             }
-        ))
+            #fields
+        }))
     }
 
     let mut impl_body = quote!(
@@ -107,6 +105,94 @@ pub(crate) fn derive(
             })
         })?;
 
+        let mut ffi_metadata_attr = None;
+        let mut errored = None;
+        attrs.retain_mut(|attr| {
+            Retain::Keep == {
+                if attr.path().is_ident("ffi_metadata") {
+                    if ffi_metadata_attr.is_some() {
+                        errored = Some(Error::new_spanned(
+                            &attr,
+                            "duplicate `#[ffi_metadata]` attribute",
+                        ));
+                    } else {
+                        ffi_metadata_attr = Some(attr.clone());
+                    }
+                    Retain::Drop
+                } else {
+                    Retain::Keep
+                }
+            }
+        });
+        if let Some(err) = errored {
+            return Err(err);
+        }
+
+        if let Some(ffi_metadata_attr) = &ffi_metadata_attr {
+            let ptr_type = fields
+                .iter()
+                .find(|field| field.ident.as_ref().map_or(false, |ident| ident == "ptr"))
+                .map(|field| &field.ty)
+                .ok_or_else(|| {
+                    syn::Error::new_spanned(
+                        ffi_metadata_attr,
+                        "expected `.ptr` field on `#[ffi_metadata]`-annotated `struct`",
+                    )
+                })?;
+
+            let result = ffi_metadata_attr.parse_args::<Ident>();
+
+            if let Some(kind) = result.ok() {
+                let kind_string = kind.to_string();
+
+                impl_body.extend(quote_spanned!(Span::mixed_site()=>
+                    fn metadata() -> &'static dyn #headers::provider::Provider {
+                        &#headers::provider::provide_with(|request| {
+                            request.give_if_requested::<#headers::languages::MetadataTypeData>(|| {
+                                let nested_type =
+                                    <#ptr_type as #CType>::metadata()
+                                        .dyn_request()
+                                        .map_or_else(
+                                            || "".into(),
+                                            |#headers::languages::MetadataTypeData(it)| it,
+                                        )
+                                ;
+
+                                let indented_nested_type = nested_type
+                                    .lines()
+                                    .map(|line| format!("    {}", line))
+                                    .collect::<alloc::vec::Vec<alloc::string::String>>()
+                                    .join("\n");
+
+                                #headers::languages::MetadataTypeData(#ඞ::format!(
+                                    "\"kind\": \"{}\",\n\"backingTypeName\": \"{}\",\n\"type\": {{\n{}\n}}",
+                                    #kind_string,
+                                    Self::short_name(),
+                                    indented_nested_type,
+                                ))
+                            });
+                        })
+                    }
+                ));
+            } else {
+                bail!("Failed to parse ffi_metadata attribute.");
+            }
+        } else {
+            impl_body.extend(quote_spanned!(Span::mixed_site()=>
+                fn metadata() -> &'static dyn #headers::provider::Provider {
+                    &#headers::provider::provide_with(|request| {
+                        request.give_if_requested::<#headers::languages::MetadataTypeData>(|| {
+                            #headers::languages::MetadataTypeData(
+                                #ඞ::format!("\"kind\": \"{}\",\n\"name\": \"{}\"", "Struct", Self::short_name()),
+                            )
+                        });
+                    })
+                }
+            ));
+        }
+
+        let is_built_in_struct = ffi_metadata_attr.is_some();
+
         impl_body.extend(quote_spanned!(Span::mixed_site()=>
             #[allow(nonstandard_style)]
             fn define_self__impl (
@@ -117,6 +203,10 @@ pub(crate) fn derive(
             #(
                 < #EachFieldTy as #CType >::define_self(language, definer)?;
             )*
+                if #is_built_in_struct && !language.must_declare_built_in_types() {
+                    return Ok(())
+                }
+
                 language.declare_struct(
                     language,
                     definer,
@@ -126,6 +216,9 @@ pub(crate) fn derive(
                 )
             }
         ));
+    } else {
+        // Remove `#[ffi_metadata]` inert attributes.
+        attrs.retain(|attr| attr.path().is_ident("ffi_metadata").not());
     }
 
     ret.extend({
@@ -173,7 +266,7 @@ pub(crate) fn derive_transparent(
 
     #[rustfmt::skip]
     #[apply(let_quote)]
-    use ::safer_ffi::ඞ;
+    use ::safer_ffi::{ඞ, headers};
 
     let mut ret = quote!();
 
@@ -213,7 +306,7 @@ pub(crate) fn derive_transparent(
                     definer: &'_ mut dyn #ඞ::Definer,
                 ) -> #ඞ::io::Result<()>
                 {
-                    ::core::unimplemented!("directly handled in `define_self()`");
+                    #ඞ::unimplemented!("directly handled in `define_self()`");
                 }
 
                 fn define_self (
@@ -256,6 +349,12 @@ pub(crate) fn derive_transparent(
                     )?;
 
                     Ok(())
+                }
+
+                fn metadata() -> &'static dyn #headers::provider::Provider {
+                    &#headers::provider::provide_with(|request| {
+                        <#CFieldTy as #ඞ::CType>::metadata().provide_to(request);
+                    })
                 }
 
                 fn name (
@@ -334,7 +433,7 @@ pub(crate) fn derive_transparent(
                 ) -> #js::Result<Self>
                 {
                     let inner = <#CFieldTy as #js::ReprNapi>::from_napi_value(env, napi_value)?;
-                    #js::Result::Ok(unsafe { #ඞ::core::mem::transmute::<#CFieldTy, Self>(inner) })
+                    #js::Result::Ok(unsafe { #ඞ::mem::transmute::<#CFieldTy, Self>(inner) })
                 }
             }
         ));

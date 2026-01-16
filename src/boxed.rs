@@ -71,6 +71,7 @@ use_prelude!();
 
 ReprC! {
     #[repr(transparent)]
+    #[no_stabby]
     /// An FFI-safe representation of a standard-library `Box<T>`, as a thin pointer.
     ///
     /// (It is thus the same as [`Box<T>`][`rust::Box`], (_e.g._, same `#[repr(C)]` layout), but
@@ -182,4 +183,16 @@ impl<T: Sized> FitForCBox for T {
 
 impl<T: Sized> FitForCBox for [T] {
     type CBoxWrapped = c_slice::Box<T>;
+}
+
+#[cfg(feature = "stabby")]
+unsafe impl<T> stabby::IStable for ThinBox<T> {
+    type Align = <stabby::boxed::Box<()> as stabby::IStable>::Align;
+    type Size = <stabby::boxed::Box<()> as stabby::IStable>::Size;
+    type UnusedBits = <stabby::boxed::Box<()> as stabby::IStable>::UnusedBits;
+    type ForbiddenValues = <stabby::boxed::Box<()> as stabby::IStable>::ForbiddenValues;
+    type HasExactlyOneNiche = <stabby::boxed::Box<()> as stabby::IStable>::HasExactlyOneNiche;
+    type ContainsIndirections = <stabby::boxed::Box<()> as stabby::IStable>::ContainsIndirections;
+    type CType = <stabby::boxed::Box<()> as stabby::IStable>::CType;
+    stabby::abi::primitive_report!("safer_ffi::repr_c::ThinBox");
 }
