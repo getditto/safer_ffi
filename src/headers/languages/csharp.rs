@@ -216,15 +216,23 @@ impl HeaderLanguage for CSharp {
                     out!("\n");
                 }
                 this.emit_docs(ctx, docs, indent)?;
-                if let Some(CSharpMarshaler(csharp_marshaler)) = field_ty.metadata().dyn_request() {
-                    out!((
-                        "[MarshalAs({csharp_marshaler})]"
-                    ));
+                // Struct-field bools are emitted as `byte`, not
+                // `[MarshalAs(UnmanagedType.U1)] bool`: the attribute makes the
+                // struct non-blittable, which netfx P/Invoke rejects for
+                // by-value args/returns. Callers convert at the use site.
+                if field_ty.short_name() == "bool" {
+                    out!(("public byte {name};"));
+                } else {
+                    if let Some(CSharpMarshaler(csharp_marshaler)) = field_ty.metadata().dyn_request() {
+                        out!((
+                            "[MarshalAs({csharp_marshaler})]"
+                        ));
+                    }
+                    out!(
+                        ("public {};"),
+                        F(|out| field_ty.render_wrapping_var(out, this, Some(&name))),
+                    );
                 }
-                out!(
-                    ("public {};"),
-                    F(|out| field_ty.render_wrapping_var(out, this, Some(&name))),
-                );
             }
         }
         out!(("}}"));
@@ -454,7 +462,8 @@ impl HeaderLanguage for CSharp {
             let elem_ty_name = elem_ty.name(this);
             #[rustfmt::skip]
             const FIXED_ARRAY_COMPATIBLE_TYPE_NAMES: &[&str] = &[
-                "bool",
+                // `bool` excluded: C# `fixed` rejects it, and bool arrays
+                // need `byte` substitution for netfx blittability (see `declare_struct`).
                 "byte", "UInt8", "UInt16", "UInt32", "UInt64", "UIntPtr",
                 "sbyte", "Int8", "Int16", "Int32", "Int64", "IntPtr",
                 "float", "double",
@@ -469,16 +478,22 @@ impl HeaderLanguage for CSharp {
             } else {
                 // Sadly for the general case fixed arrays are
                 // not supported.
+                let elem_is_bool = elem_ty.short_name() == "bool";
                 for i in 0..array_len {
-                    write!(
-                        out,
-                        "    {marshaler}public {elem_ty_name} _{i};\n",
-                        marshaler = elem_ty
-                            .metadata()
-                            .dyn_request::<CSharpMarshaler>()
-                            .unwrap_or_default()
-                            .pretty_print("[MarshalAs(", ")]\n    "),
-                    )?;
+                    if elem_is_bool {
+                        // Same `byte`-for-bool substitution as in `declare_struct`.
+                        write!(out, "    public byte _{i};\n")?;
+                    } else {
+                        write!(
+                            out,
+                            "    {marshaler}public {elem_ty_name} _{i};\n",
+                            marshaler = elem_ty
+                                .metadata()
+                                .dyn_request::<CSharpMarshaler>()
+                                .unwrap_or_default()
+                                .pretty_print("[MarshalAs(", ")]\n    "),
+                        )?;
+                    }
                 }
             }
             Ok(())
