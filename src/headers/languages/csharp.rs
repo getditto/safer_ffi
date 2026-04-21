@@ -223,7 +223,9 @@ impl HeaderLanguage for CSharp {
                 if field_ty.short_name() == "bool" {
                     out!(("public byte {name};"));
                 } else {
-                    if let Some(CSharpMarshaler(csharp_marshaler)) = field_ty.metadata().dyn_request() {
+                    if let Some(CSharpMarshaler(csharp_marshaler)) =
+                        field_ty.metadata().dyn_request()
+                    {
                         out!((
                             "[MarshalAs({csharp_marshaler})]"
                         ));
