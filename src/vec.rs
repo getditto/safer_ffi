@@ -47,6 +47,10 @@ impl<T> From<rust::Vec<T>> for Vec<T> {
         let len = vec.len();
         let cap = vec.capacity();
         let ptr = mem::ManuallyDrop::new(vec).as_mut_ptr();
+        #[cfg(feature = "alloc-tracking")]
+        if cap != 0 {
+            crate::alloc_tracking::AllocationTracker::track_alloc(ptr);
+        }
         Self {
             ptr: unsafe {
                 // Safety: `Vec` guarantees its pointer is nonnull.
@@ -64,6 +68,10 @@ impl<T> From<Vec<T>> for rust::Vec<T> {
     #[inline]
     fn from(value: Vec<T>) -> rust::Vec<T> {
         let mut this = mem::ManuallyDrop::new(value);
+        #[cfg(feature = "alloc-tracking")]
+        if this.cap != 0 {
+            crate::alloc_tracking::AllocationTracker::track_free(this.ptr.as_ptr());
+        }
         unsafe {
             // Safety: pointers originate from `Vec`.
             rust::Vec::from_raw_parts(this.ptr.as_mut_ptr(), this.len, this.cap)
@@ -74,11 +82,12 @@ impl<T> From<Vec<T>> for rust::Vec<T> {
 impl<T> Drop for Vec<T> {
     #[inline]
     fn drop(self: &'_ mut Vec<T>) {
+        #[cfg(feature = "alloc-tracking")]
+        if self.cap != 0 {
+            crate::alloc_tracking::AllocationTracker::track_free(self.ptr.as_ptr());
+        }
         unsafe {
-            drop::<rust::Vec<T>>(
-                ptr::read(self) // ManuallyDrop::take()
-                    .into(),
-            )
+            let _ = rust::Vec::from_raw_parts(self.ptr.as_mut_ptr(), self.len, self.cap);
         }
     }
 }

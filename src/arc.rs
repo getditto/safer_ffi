@@ -89,6 +89,8 @@ impl<T> From<rust::Arc<T>> for ThinArc<T> {
     #[inline]
     fn from(arced: rust::Arc<T>) -> Arc<T> {
         let raw = rust::Arc::into_raw(arced);
+        #[cfg(feature = "alloc-tracking")]
+        crate::alloc_tracking::AllocationTracker::track_arc_new(raw);
         Self(ptr::NonNull::new(raw.cast_mut()).unwrap().into())
     }
 }
@@ -102,6 +104,8 @@ impl<T> ThinArc<T> {
     #[inline]
     pub fn into(self: ThinArc<T>) -> rust::Arc<T> {
         let mut this = mem::ManuallyDrop::new(self);
+        #[cfg(feature = "alloc-tracking")]
+        crate::alloc_tracking::AllocationTracker::track_arc_drop(this.0.as_ptr());
         unsafe { rust::Arc::from_raw(this.0.as_mut_ptr()) }
     }
 
@@ -114,12 +118,17 @@ impl<T> ThinArc<T> {
     /// See [`rust::Arc<T>::into_raw()`].
     #[inline]
     pub fn into_raw(self) -> *const T {
-        Self::as_ptr(&*::core::mem::ManuallyDrop::new(self))
+        let this = core::mem::ManuallyDrop::new(self);
+        #[cfg(feature = "alloc-tracking")]
+        crate::alloc_tracking::AllocationTracker::track_arc_drop(this.0.as_ptr());
+        Self::as_ptr(&*this)
     }
 
     /// See [`rust::Arc<T>::from_raw()`].
     #[inline]
     pub unsafe fn from_raw(ptr: *const T) -> Self {
+        #[cfg(feature = "alloc-tracking")]
+        crate::alloc_tracking::AllocationTracker::track_arc_new(ptr);
         Self(unsafe { ptr::NonNull::new_unchecked(ptr.cast_mut()) }.into())
     }
 
@@ -155,6 +164,8 @@ impl<T> ThinArc<T> {
 impl<T> Drop for ThinArc<T> {
     #[inline]
     fn drop(self: &'_ mut ThinArc<T>) {
+        #[cfg(feature = "alloc-tracking")]
+        crate::alloc_tracking::AllocationTracker::track_arc_drop(self.0.as_ptr());
         unsafe {
             drop::<rust::Arc<T>>(rust::Arc::from_raw(self.0.as_mut_ptr()));
         }
@@ -177,7 +188,10 @@ unsafe impl<T> Sync for ThinArc<T> where rust::Arc<T>: Sync {}
 impl<T> Clone for ThinArc<T> {
     #[inline]
     fn clone(self: &'_ Self) -> Self {
-        self.with_rust(rust::Arc::clone).into()
+        let clone = self.with_rust(rust::Arc::clone).into();
+        #[cfg(feature = "alloc-tracking")]
+        crate::alloc_tracking::AllocationTracker::track_arc_clone(ThinArc::as_ptr(&clone));
+        clone
     }
 }
 

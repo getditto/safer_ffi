@@ -161,12 +161,16 @@ cfg_alloc! {
         fn from (boxed_slice: rust::Box<[T]>)
           -> Self
         {
+            let len = boxed_slice.len();
+            let ptr = rust::Box::leak(boxed_slice).as_mut_ptr();
+            #[cfg(feature = "alloc-tracking")]
+            if len != 0 && mem::size_of::<T>() != 0 {
+                crate::alloc_tracking::AllocationTracker::track_alloc(ptr);
+            }
             slice_boxed {
-                len: boxed_slice.len(),
+                len,
                 ptr: unsafe {
-                    ptr::NonNull::new_unchecked(
-                        rust::Box::leak(boxed_slice).as_mut_ptr()
-                    )
+                    ptr::NonNull::new_unchecked(ptr)
                 }.into(),
             }
         }
@@ -179,6 +183,10 @@ cfg_alloc! {
           -> rust::Box<[T]>
         {
             let mut this = mem::ManuallyDrop::new(value);
+            #[cfg(feature = "alloc-tracking")]
+            if this.len != 0 && mem::size_of::<T>() != 0 {
+                crate::alloc_tracking::AllocationTracker::track_free(this.ptr.as_ptr());
+            }
             unsafe {
                 rust::Box::from_raw(
                     slice::from_raw_parts_mut(
@@ -196,6 +204,10 @@ cfg_alloc! {
         #[inline]
         fn drop (self: &'_ mut Self)
         {
+            #[cfg(feature = "alloc-tracking")]
+            if self.len != 0 && mem::size_of::<T>() != 0 {
+                crate::alloc_tracking::AllocationTracker::track_free(self.ptr.as_ptr());
+            }
             unsafe {
                 drop::<rust::Box<[T]>>(
                     rust::Box::from_raw(

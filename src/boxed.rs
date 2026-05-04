@@ -88,7 +88,10 @@ ReprC! {
 impl<T> From<rust::Box<T>> for ThinBox<T> {
     #[inline]
     fn from(boxed: rust::Box<T>) -> ThinBox<T> {
-        Self(ptr::NonNull::from(rust::Box::leak(boxed)).into())
+        let ptr = rust::Box::leak(boxed);
+        #[cfg(feature = "alloc-tracking")]
+        crate::alloc_tracking::AllocationTracker::track_alloc(ptr as *const T);
+        Self(ptr::NonNull::from(ptr).into())
     }
 }
 
@@ -101,6 +104,8 @@ impl<T> ThinBox<T> {
     #[inline]
     pub fn into(self: ThinBox<T>) -> rust::Box<T> {
         let mut this = mem::ManuallyDrop::new(self);
+        #[cfg(feature = "alloc-tracking")]
+        crate::alloc_tracking::AllocationTracker::track_free(this.0.as_ptr());
         unsafe { rust::Box::from_raw(this.0.as_mut_ptr()) }
     }
 }
@@ -108,6 +113,8 @@ impl<T> ThinBox<T> {
 impl<T> Drop for ThinBox<T> {
     #[inline]
     fn drop(self: &'_ mut ThinBox<T>) {
+        #[cfg(feature = "alloc-tracking")]
+        crate::alloc_tracking::AllocationTracker::track_free(self.0.as_ptr());
         unsafe {
             drop::<rust::Box<T>>(rust::Box::from_raw(self.0.as_mut_ptr()));
         }

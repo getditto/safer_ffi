@@ -113,9 +113,18 @@ macro_rules! with_tuple {(
         {
             // Safety: `F` can be "raw-coerced" to `dyn 'static + Send + FnMut...`
             // thanks to the generic bounds on F.
+            let env_ptr = ptr::NonNull::from(Box::leak(f)).cast();
+            #[cfg(feature = "alloc-tracking")]
+            crate::alloc_tracking::AllocationTracker::track_alloc(
+                env_ptr.cast::<F>().as_ptr()
+            );
             Self {
-                env_ptr: ptr::NonNull::from(Box::leak(f)).cast(),
+                env_ptr,
                 free: Some(::extern_c::extern_c(|env_ptr: ptr::NonNull<c_void>| unsafe {
+                    #[cfg(feature = "alloc-tracking")]
+                    crate::alloc_tracking::AllocationTracker::track_free(
+                        env_ptr.cast::<F>().as_ptr()
+                    );
                     drop(Box::<F>::from_raw(env_ptr.cast().as_ptr()));
                 })),
                 call: Some(::extern_c::extern_c(
@@ -236,4 +245,59 @@ with_tuples! {
 with_tuples! {
     BoxDynFnMut0,
     (BoxDynFnMut1, A1),
+}
+
+#[cfg(all(test, feature = "alloc-tracking"))]
+mod tests {
+    use serial_test::serial;
+
+    use super::*;
+    use crate::alloc_tracking::AllocationTracker;
+
+    #[test]
+    #[serial]
+    fn test_boxed_closure_no_leak() {
+        let res = AllocationTracker::run(|| {
+            let mut closure = BoxDynFnMut0::new(Box::new(|| {}));
+            closure.call();
+            drop(closure);
+        });
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    #[serial]
+    fn test_boxed_closure_with_args_no_leak() {
+        let res = AllocationTracker::run(|| {
+            let mut closure = BoxDynFnMut1::new(Box::new(|x: i32| x + 1));
+            let result = closure.call(41);
+            assert_eq!(result, 42);
+            drop(closure);
+        });
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    #[serial]
+    fn test_boxed_closure_leak() {
+        let res = AllocationTracker::run(|| {
+            let closure = BoxDynFnMut0::new(Box::new(|| 42i32));
+            ::core::mem::forget(closure);
+        });
+        assert!(res.is_err());
+        assert!(res.unwrap_err().contains("Memory leak"));
+    }
+
+    #[test]
+    #[serial]
+    fn test_boxed_closure_with_capture_no_leak() {
+        let res = AllocationTracker::run(|| {
+            let char_p = char_p::new("hello");
+            let mut closure = BoxDynFnMut0::new(Box::new(move || char_p.to_str().len()));
+            let result = closure.call();
+            assert_eq!(result, 5);
+            drop(closure);
+        });
+        assert!(res.is_ok());
+    }
 }
