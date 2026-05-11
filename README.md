@@ -368,7 +368,7 @@ To format the code, you have three options:
 
 ### Dependencies
 
-  - #### Lua dependencies
+  - #### C# dependencies
 
     For running the C# FFI integration tests please install `dotnet` (v8.0) dependency:
 
