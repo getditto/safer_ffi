@@ -122,6 +122,12 @@ impl<T> TaggedOption<T> {
     }
 }
 
+impl<T> Default for TaggedOption<T> {
+    fn default() -> Self {
+        Self::None
+    }
+}
+
 #[test]
 fn option() {
     use crate::layout::ReprC;

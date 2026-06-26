@@ -130,6 +130,12 @@ impl<T> DerefMut for ThinBox<T> {
     }
 }
 
+impl<T: Default> Default for ThinBox<T> {
+    fn default() -> Self {
+        Self::new(T::default())
+    }
+}
+
 unsafe impl<T> Send for ThinBox<T> where rust::Box<T>: Send {}
 
 unsafe impl<T> Sync for ThinBox<T> where rust::Box<T>: Sync {}
