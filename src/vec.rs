@@ -97,6 +97,12 @@ impl<T> DerefMut for Vec<T> {
     }
 }
 
+impl<T> Default for Vec<T> {
+    fn default() -> Self {
+        Self::EMPTY
+    }
+}
+
 unsafe impl<T> Send for Vec<T> where rust::Vec<T>: Send {}
 
 unsafe impl<T> Sync for Vec<T> where rust::Vec<T>: Sync {}
