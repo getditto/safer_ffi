@@ -61,9 +61,23 @@ fn feed_to_macro_rules(
                 }
             }
         },
-        | Data::Union(ref union_) => {
-            Error::new_spanned(union_.union_token, "`union`s are not supported yet.")
-                .to_compile_error()
+        | Data::Union(DataUnion {
+            union_token: ref union_,
+            ref fields,
+        }) => {
+            let (params, bounds) = generics.my_split();
+            quote! {
+                ::safer_ffi::layout::#name! {
+                    #(#attrs)*
+                    #vis
+                    #union_ #ident
+                                [#params]
+                            where {
+                                #(#bounds ,)*
+                            }
+                        #fields
+                }
+            }
         },
     };
     #[cfg(feature = "verbose-expansions")]

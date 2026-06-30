@@ -32,8 +32,8 @@ pub(crate) fn derive(
                 did you mean to implement `ReprC` instead?\
             " => enum_token
         },
-        | Data::Union(DataUnion { union_token, .. }) => bail! {
-            "`union`s are not supported yet" => union_token
+        | Data::Union(DataUnion { union_token, .. }) => {
+            todo!()
         },
     }?;
     Ok(quote!(
