@@ -273,6 +273,8 @@ pub mod libc;
 
 pub mod option;
 
+pub mod result;
+
 pub mod ptr;
 
 pub mod slice;
