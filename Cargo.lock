@@ -716,6 +716,7 @@ dependencies = [
  "scopeguard",
  "seal-the-deal",
  "serde",
+ "serde_json",
  "serde_test",
  "stabby",
  "tokio",

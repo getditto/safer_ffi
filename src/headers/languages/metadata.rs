@@ -371,6 +371,13 @@ impl HeaderLanguage for Metadata {
 
                 out!((r#""name": "{name}","#));
 
+                // Keep the spelling used by the C and C# generators, including
+                // large integers and escaped strings, without JSON number rounding.
+                let value_literal = json_string(&format!("{value:?}"));
+                let has_explicit_type = !skip_type;
+                out!((r#""valueLiteral": {value_literal},"#));
+                out!((r#""hasExplicitType": {has_explicit_type},"#));
+
                 let constant_type = if skip_type {
                     let formatted_constant = format!("{:?}", value);
 
@@ -466,4 +473,20 @@ impl Metadata {
 
         Ok(())
     }
+}
+
+/// Encode text as a JSON string literal.
+fn json_string(value: &str) -> String {
+    let mut quoted = String::with_capacity(value.len() + 2);
+    quoted.push('"');
+    for character in value.chars() {
+        match character {
+            '"' => quoted.push_str("\\\""),
+            '\\' => quoted.push_str("\\\\"),
+            '\u{0}'..='\u{1f}' => quoted.push_str(&format!("\\u{:04x}", character as u32)),
+            _ => quoted.push(character),
+        }
+    }
+    quoted.push('"');
+    quoted
 }
