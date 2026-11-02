@@ -313,7 +313,7 @@ pub(crate) fn derive_transparent(
                 }
 
                 fn metadata_type_usage() -> String {
-                    <#CFieldTy as #ඞ::CType>::metadata_type_usage()
+                    #ඞ::format!("\"kind\": \"Alias\",\n\"name\": \"{}\"", Self::short_name())
                 }
 
                 fn name (

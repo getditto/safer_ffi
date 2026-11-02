@@ -15,6 +15,10 @@ impl<F: Fn(&mut dyn Write) -> io::Result<()>> DisplayFromFn<F> {
 }
 
 impl HeaderLanguage for Metadata {
+    fn supports_type_aliases(&self) -> Option<&dyn HeaderLanguageSupportingTypeAliases> {
+        Some(self)
+    }
+
     fn declare_simple_enum(
         self: &'_ Self,
         this: &dyn HeaderLanguage,
@@ -438,6 +442,29 @@ impl HeaderLanguage for Metadata {
 
     fn must_declare_built_in_types(self: &'_ Self) -> bool {
         false
+    }
+}
+
+impl HeaderLanguageSupportingTypeAliases for Metadata {
+    fn declare_type_alias(
+        &self,
+        ctx: &mut dyn Definer,
+        docs: Docs<'_>,
+        self_ty: &dyn PhantomCType,
+        inner_ty: &dyn PhantomCType,
+    ) -> io::Result<()> {
+        let ref indent = Indentation::new(4);
+        mk_out!(indent, ctx.out());
+        let name = self_ty.short_name();
+        out!((",{{"));
+        if let _ = indent.scope() {
+            out!((r#""kind": "Alias","#));
+            self.emit_docs(ctx, docs, indent)?;
+            out!((r#""name": "{name}","#));
+            self.emit_type_usage(self, ctx, indent, "type", inner_ty)?;
+        }
+        out!(("}}"));
+        Ok(())
     }
 }
 

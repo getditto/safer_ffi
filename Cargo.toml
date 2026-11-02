@@ -82,6 +82,7 @@ safer-ffi.path = "."
 safer-ffi.features = ["internal-tests"]
 rand = "0.9.0"
 serde_test = { version = "1.0.177" }
+serde_json = "1"
 
 [dependencies]
 async-compat.optional = true
