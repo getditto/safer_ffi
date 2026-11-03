@@ -655,6 +655,7 @@ dependencies = [
  "safer_ffi-proc_macros",
  "scopeguard",
  "seal-the-deal",
+ "serde_json",
  "stabby",
  "uninit",
  "unwind_safe",

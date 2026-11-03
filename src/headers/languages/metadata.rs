@@ -6,6 +6,8 @@ use crate::utils::DisplayFromFn;
 use core::fmt::Display;
 use std::io::Write;
 
+mod formatting;
+
 pub struct Metadata;
 
 impl<F: Fn(&mut dyn Write) -> io::Result<()>> DisplayFromFn<F> {
@@ -15,6 +17,22 @@ impl<F: Fn(&mut dyn Write) -> io::Result<()>> DisplayFromFn<F> {
 }
 
 impl HeaderLanguage for Metadata {
+    fn with_output<F>(
+        &self,
+        output: &mut dyn Write,
+        stable: bool,
+        generate: F,
+    ) -> io::Result<()>
+    where
+        F: FnOnce(&mut dyn Write) -> io::Result<()>,
+    {
+        let mut document = Vec::new();
+        generate(&mut document)?;
+        let mut output = io::BufWriter::new(output);
+        formatting::write(document, stable, &mut output)?;
+        output.into_inner().map(|_| ()).map_err(|error| error.into_error())
+    }
+
     fn supports_type_aliases(&self) -> Option<&dyn HeaderLanguageSupportingTypeAliases> {
         Some(self)
     }
@@ -377,7 +395,7 @@ impl HeaderLanguage for Metadata {
 
                 // Keep the spelling used by the C and C# generators, including
                 // large integers and escaped strings, without JSON number rounding.
-                let value_literal = json_string(&format!("{value:?}"));
+                let value_literal = serde_json::Value::String(format!("{value:?}")).to_string();
                 let has_explicit_type = !skip_type;
                 out!((r#""valueLiteral": {value_literal},"#));
                 out!((r#""hasExplicitType": {has_explicit_type},"#));
@@ -427,14 +445,13 @@ impl HeaderLanguage for Metadata {
             if let _ = indent.scope() {
                 let docs_lines = docs.iter().copied()
                     .map(str::trim)
-                    .map(|line| line.replace("\\", "\\\\"))
-                    .map(|line| line.replace("\"", "\\\""));
+                    .map(|line| serde_json::Value::String(line.into()).to_string());
 
                 for (index, line) in docs_lines.enumerate() {
                     if index + 1 < docs.len() {
-                        out!((r#""{line}","#));
+                        out!((r#"{line},"#));
                     } else {
-                        out!((r#""{line}""#));
+                        out!((r#"{line}"#));
                     }
                 }
             }
@@ -500,20 +517,4 @@ impl Metadata {
 
         Ok(())
     }
-}
-
-/// Encode text as a JSON string literal.
-fn json_string(value: &str) -> String {
-    let mut quoted = String::with_capacity(value.len() + 2);
-    quoted.push('"');
-    for character in value.chars() {
-        match character {
-            '"' => quoted.push_str(r#"\""#),
-            '\\' => quoted.push_str(r#"\\"#),
-            '\u{0}'..='\u{1f}' => quoted.push_str(&format!(r#"\u{:04x}"#, character as u32)),
-            _ => quoted.push(character),
-        }
-    }
-    quoted.push('"');
-    quoted
 }

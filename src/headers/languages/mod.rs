@@ -71,6 +71,21 @@ pub trait HeaderLanguage: UpcastAny {
         ::core::any::type_name::<Self>()
     }
 
+    /// Runs generation with this backend's output strategy.
+    /// The default streams directly to the supplied output.
+    fn with_output<F>(
+        &self,
+        output: &mut dyn io::Write,
+        _stable: bool,
+        generate: F,
+    ) -> io::Result<()>
+    where
+        Self: Sized,
+        F: FnOnce(&mut dyn io::Write) -> io::Result<()>,
+    {
+        generate(output)
+    }
+
     fn supports_type_aliases(
         self: &'_ Self
     ) -> Option<&'_ dyn HeaderLanguageSupportingTypeAliases> {

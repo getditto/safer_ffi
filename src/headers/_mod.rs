@@ -173,8 +173,10 @@ match_! {(
     /// Sets prefix for generated functions, structs & enums
     naming_convention: NamingConvention,
 
-    /// Whether to yield a stable header or not (order of defined items guaranteed
-    /// not to change provided the source code doesn't change either).
+    /// Whether to generate declarations in a deterministic order.
+    ///
+    /// Exports are sorted by name. Types precede their first use in language
+    /// bindings; JSON metadata sorts complete declarations by kind and name.
     ///
     /// It defaults to `true`.
     stable_header: bool,
@@ -303,13 +305,18 @@ match_! {(
           -> io::Result<()>
         {
             let Self { mut target, $($field ,)* } = self;
-            Builder {
+            let config = Builder {
                 target: WhereTo, $(
                 $field, )*
-            }.generate_with_definer(&mut HashSetDefiner {
-                out: &mut target,
-                defines_set: Default::default(),
-            })
+            };
+            config.get_unwrapped_language().with_output(
+                &mut target,
+                config.stable_header.unwrap_or(true),
+                |out| config.generate_with_definer(&mut HashSetDefiner {
+                    out,
+                    defines_set: Default::default(),
+                }),
+            )
         }
 
         // pub
@@ -332,6 +339,7 @@ impl Builder<'_, WhereTo> {
     ///
     /// With this call, one can provide a custom implementation of a [`Definer`],
     /// which can be useful for mock tests, mainly.
+    /// Writes directly through the supplied definer.
     pub fn generate_with_definer(
         self,
         definer: &mut impl Definer,
@@ -566,6 +574,26 @@ pub enum Language {
 }
 
 impl Language {
+    /// Runs generation with the writer selected by this language backend.
+    pub fn with_output<F>(
+        self,
+        output: &mut dyn io::Write,
+        stable: bool,
+        generate: F,
+    ) -> io::Result<()>
+    where
+        F: FnOnce(&mut dyn io::Write) -> io::Result<()>,
+    {
+        match self {
+            | Language::C => languages::C.with_output(output, stable, generate),
+            | Language::CSharp => languages::CSharp.with_output(output, stable, generate),
+            | Language::Lua => languages::Lua.with_output(output, stable, generate),
+            | Language::Metadata => languages::Metadata.with_output(output, stable, generate),
+            #[cfg(feature = "python-headers")]
+            | Language::Python => languages::Python.with_output(output, stable, generate),
+        }
+    }
+
     pub(crate) fn as_dyn(self) -> &'static dyn HeaderLanguage {
         match self {
             | Language::C => &languages::C,
