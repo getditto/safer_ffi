@@ -481,9 +481,9 @@ fn json_string(value: &str) -> String {
     quoted.push('"');
     for character in value.chars() {
         match character {
-            '"' => quoted.push_str("\\\""),
-            '\\' => quoted.push_str("\\\\"),
-            '\u{0}'..='\u{1f}' => quoted.push_str(&format!("\\u{:04x}", character as u32)),
+            '"' => quoted.push_str(r#"\""#),
+            '\\' => quoted.push_str(r#"\\"#),
+            '\u{0}'..='\u{1f}' => quoted.push_str(&format!(r#"\u{:04x}"#, character as u32)),
             _ => quoted.push(character),
         }
     }
