@@ -555,6 +555,9 @@ pub enum Language {
     Lua,
 
     /// A JSON file containing detailed information about the FFI declarations.
+    ///
+    /// Transparent wrappers retain their exported alias names. Alias declarations
+    /// describe their underlying type; references identify the alias by name.
     Metadata,
 
     /// Python (experimental).
