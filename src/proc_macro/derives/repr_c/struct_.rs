@@ -262,7 +262,7 @@ pub(crate) fn derive_transparent(
                 generics: impl_generics.clone(),
                 fields: Fields::Unnamed(parse_quote!((
                     #ඞ::CLayoutOf<#FieldTy>,
-                    #ඞ::CLayoutOf<#ඞ::PhantomData<fn(&()) -> &mut Self>>,
+                    #ඞ::PhantomData<fn(&()) -> &mut Self>,
                 ))),
                 semi_token: Some(parse_quote!(
                     ;
