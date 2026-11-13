@@ -256,6 +256,11 @@ concat (
     char const * fst,
     char const * snd);
 
+/** <No documentation available> */
+void
+foo (
+    int32_t __arg_0);
+
 /** \brief
  *  Frees a string created by `concat`.
  */

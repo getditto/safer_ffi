@@ -274,6 +274,13 @@ fn _my_enum_is_opaque() -> repr_c::Box<Enum> {
     Box::new(Enum::A("…".into())).into()
 }
 
+#[derive_ReprC]
+#[repr(transparent)]
+pub struct MyTransparent<T>(T);
+
+#[ffi_export]
+fn foo(_: MyTransparent<i32>) {}
+
 mod futures {
     pub mod executor {
         use ::std::future::Future;

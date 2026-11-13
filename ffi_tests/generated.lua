@@ -171,6 +171,11 @@ concat (
     char const * fst,
     char const * snd);
 
+// <No documentation available>
+void
+foo (
+    int32_t __arg_0);
+
 // Frees a string created by `concat`.
 void
 free_char_p (

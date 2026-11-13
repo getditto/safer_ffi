@@ -146,6 +146,10 @@ concat (
     char const * snd);
 
 void
+foo (
+    int32_t __arg_0);
+
+void
 free_char_p (
     char * _string);
 

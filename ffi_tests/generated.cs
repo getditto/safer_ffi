@@ -264,6 +264,12 @@ public unsafe partial class Ffi {
 }
 
 public unsafe partial class Ffi {
+    [DllImport(RustLib, ExactSpelling = true)] public static unsafe extern
+    void foo (
+        Int32 __arg_0);
+}
+
+public unsafe partial class Ffi {
     /// <summary>
     /// Frees a string created by <c>concat</c>.
     /// </summary>
